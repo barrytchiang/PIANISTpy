@@ -1,0 +1,13 @@
+{% extends "pydata_sphinx_theme/layout.html" %}
+{% block extrahead %}
+{{ super() }}
+{% if pre_release %}
+<meta name="robots" content="noindex, nofollow">
+{% endif %}
+{% if pagename not in ("genindex", "search", "py-modindex") and not pagename.startswith("_modules") %}
+<link rel="alternate" type="text/markdown" href="{{ pathto(pagename + '.md', 1) }}">
+{% endif %}
+<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ pathto('_static/fonts/LibreFranklin.woff2', 1) }}">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ pathto('_static/fonts/SourceSerif4.woff2', 1) }}">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="{{ pathto('_static/fonts/LibreBaskerville.woff2', 1) }}">
+{% endblock %}

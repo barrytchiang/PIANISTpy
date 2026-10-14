@@ -1,0 +1,50 @@
+# Contributing to PIANISTpy
+
+Bug reports, questions and proposed changes are welcome through the issue tracker of the repository.
+
+## Reporting a problem
+
+Include the version (`pianistpy.__version__`), the inputs that reproduce the problem (the profile, the anisotropy,
+the truncation and the settings), and the full text of the error. An error raised by the package ends with its most
+recent messages; keep them in the report. If a result came with an accuracy warning, include its validation report.
+
+## Setting up
+
+```
+git clone <the repository>
+cd PIANISTpy
+python -m pip install -e .
+python -m pip install pytest ruff mypy
+```
+
+## Before you propose a change
+
+1. Read `STYLE_GUIDE.md`. It covers the names, the docstrings, the units, the numerical rules and the checklist
+   that every change is held to.
+2. Run the formatter and the linter:
+
+   ```
+   python -m ruff format pianistpy
+   python -m ruff check pianistpy
+   python -m mypy
+   ```
+
+3. Run the tests, which include the examples in the docstrings:
+
+   ```
+   python -m pytest
+   ```
+
+4. Add a test for what you changed. A new function comes with a test of its result against an independent
+   reference: a closed form, a limit, or an identity that the result must satisfy.
+
+## What a change must keep
+
+- **One result, one path.** A quantity is computed by one function. A second route to the same number is not
+  added beside the first; it replaces it or stays out.
+- **No number changes silently.** A change that moves a result beyond rounding says so, with the size of the move
+  and the reason.
+- **The session switches change no number.** Verbosity, timing and the number of workers never alter what is
+  computed.
+- **Accuracy is stated, not assumed.** A numerical setting enters a tested tier only after it has passed the
+  checks of that tier.

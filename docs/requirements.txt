@@ -1,0 +1,5 @@
+# The packages the site's build needs beside the package itself.
+sphinx>=9.0
+pydata-sphinx-theme>=0.16
+sphinx-design>=0.6
+myst-nb>=1.2

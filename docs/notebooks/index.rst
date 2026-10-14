@@ -1,0 +1,34 @@
+Notebook tutorials
+==================
+
+Every notebook is stored with its outputs and run on a compute node against the release it is pinned to; the
+manual renders them and runs nothing. The notebooks live in their own repository,
+`PIANISTpy-notebooks <https://github.com/barrytchiang/PIANISTpy-notebooks>`_, from which they can be opened in
+the browser.
+
+Tutorials
+---------
+
+.. toctree::
+   :maxdepth: 1
+
+   tutorials/particles
+   tutorials/observables
+
+Planned for 1.0.0: a truncated model (profile to distribution function to model, Method I and Method II);
+superposition and inference; an aperture of arbitrary geometry.
+
+Reproducing the paper
+---------------------
+
+One notebook per figure of the paper, from the released package, with the tables and measured numbers the
+technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
+anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
+1.0.0 release.
+
+N-body tests with GAMER
+-----------------------
+
+The test problem used for the paper's isolation runs (and in Chiang et al. 2025, 2026a) is being prepared as a
+test problem of the GAMER code, with its analysis and plotting scripts inside it. A link follows once it is
+merged there.

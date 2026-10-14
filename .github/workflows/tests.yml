@@ -1,0 +1,47 @@
+name: tests
+
+# Runs on main only: the development branches are tested where they are built,
+# and main receives merges after a green suite. A burst of pushes gives one run.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "pianistpy/**"
+      - "pyproject.toml"
+      - ".github/workflows/tests.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # The dependencies come from pyproject (an install of the package), not a
+      # list of their own. JAX is held at 0.10.1 until the one test that 0.10.2
+      # fails is resolved.
+      - name: Install
+        run: python -m pip install -e . "jax==0.10.1" pytest pytest-cov ruff mypy
+      - name: Style
+        run: |
+          python -m ruff check pianistpy
+          python -m ruff format --check pianistpy
+      - name: Types
+        run: python -m mypy
+      - name: Tests
+        run: python -m pytest -q --cov=pianistpy --cov-report=xml --cov-report=term
+      - name: Coverage report
+        if: github.repository == 'barrytchiang/PIANISTpy'
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

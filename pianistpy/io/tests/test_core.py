@@ -1,0 +1,79 @@
+"""Tests of the file layer."""
+
+import h5py
+import numpy as np
+import pytest
+
+from pianistpy import ResultError
+from pianistpy.identity import identity_string
+from pianistpy.io import data_digest, load_result, read_result, write_result
+
+RECORD = {"inputs": {"beta_c": -0.25, "r_a": None}, "settings": {"tier": "default"}}
+IDENTITY = identity_string(RECORD["inputs"], RECORD["settings"], "1.0")
+
+
+def _arrays():
+    rng = np.random.default_rng(0)
+    return {
+        "k": np.linspace(0.0, 1.0, 11),
+        "df/log_df": rng.standard_normal(11),
+        "count": np.arange(5, dtype=np.int64),
+    }
+
+
+def test_round_trip_returns_the_same_result(tmp_path):
+    path = tmp_path / "result.h5"
+    digest = write_result(path, "model", IDENTITY, RECORD, _arrays(), parents=("abc",))
+    stored = read_result(path)
+    assert stored.kind == "model"
+    assert stored.identity == IDENTITY
+    assert stored.data_sha256 == digest
+    assert stored.record == RECORD
+    assert stored.parents == ("abc",)
+    assert set(stored.arrays) == set(_arrays())
+    for name, values in _arrays().items():
+        assert np.array_equal(stored.arrays[name], values)
+        assert stored.arrays[name].dtype == values.dtype
+    assert stored.provenance["numpy_version"] == np.__version__
+
+
+def test_a_live_result_and_a_path_load_to_the_same_thing(tmp_path):
+    path = tmp_path / "result.h5"
+    write_result(path, "model", IDENTITY, RECORD, _arrays())
+    stored = read_result(path)
+    assert load_result(stored) is stored
+    assert load_result(path).data_sha256 == stored.data_sha256
+
+
+def test_an_existing_file_is_not_replaced_silently(tmp_path):
+    path = tmp_path / "result.h5"
+    write_result(path, "model", IDENTITY, RECORD, _arrays())
+    with pytest.raises(ResultError):
+        write_result(path, "model", IDENTITY, RECORD, _arrays())
+    write_result(path, "model", IDENTITY, RECORD, _arrays(), overwrite=True)
+
+
+def test_the_digest_ignores_attributes_and_sees_the_arrays(tmp_path):
+    path = tmp_path / "result.h5"
+    digest = write_result(path, "model", IDENTITY, RECORD, _arrays())
+    with h5py.File(path, "a") as file:
+        file.attrs["note"] = "metadata only"
+    assert data_digest(path) == digest
+    read_result(path)
+    with h5py.File(path, "a") as file:
+        file["data/k"][3] += 1e-15
+    with pytest.raises(ResultError):
+        read_result(path)
+
+
+def test_a_file_of_another_format_is_refused(tmp_path):
+    path = tmp_path / "other.h5"
+    with h5py.File(path, "w") as file:
+        file.create_dataset("x", data=np.zeros(3))
+    with pytest.raises(ResultError):
+        read_result(path)
+    write_result(path, "model", IDENTITY, RECORD, _arrays(), overwrite=True)
+    with h5py.File(path, "a") as file:
+        file.attrs["format_version"] = "1.2.0"
+    with pytest.raises(ResultError):
+        read_result(path)

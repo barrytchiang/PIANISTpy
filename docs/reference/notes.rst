@@ -1,0 +1,10 @@
+Technical notes
+===============
+
+The technical notes are the online companion of the paper: the equations, derivations, conditions and bounds
+that the paper does not print, and the numerical design of each stage. Every formula implemented in the package
+cites them from its docstring by a number and a fixed key, as in ``Notes Eq. (I.5) [conditions]``; the key never
+changes, the number follows the notes.
+
+The notes are published as a PDF with each release; the link is added with the 1.0.0 release. Rendering them
+as pages of this manual is on the :doc:`roadmap <../project/roadmap>`.

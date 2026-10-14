@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pianistpy"
+description = "Distribution functions, particles and observables of anisotropic spherical systems."
+readme = "README.md"
+requires-python = ">=3.10"
+# Lower bounds: the oldest version of each dependency that passes the full test
+# suite, measured one package at a time with the others at their newest. jax,
+# diffrax and optimistix are bound together: diffrax 0.6.2 and optimistix 0.0.10
+# pass only with a newer jax, and the three floors below were measured as one
+# environment (equinox 0.13.8).
+# filelock: JAX 0.10 and later need it to bound the compilation cache, which the
+# package does by default (runtime.set_compilation_cache); JAX does not declare it.
+dependencies = [
+    "numpy>=2.0.0",
+    "scipy>=1.14.0",
+    "h5py>=3.11.0",
+    "astropy>=7.2.0",
+    "mpmath>=0.17",
+    "sympy>=1.2",
+    "jax>=0.6.1",
+    "diffrax>=0.7.0",
+    "optimistix>=0.0.11",
+    "filelock",
+]
+license = {file = "LICENSE"}
+authors = [{name = "Barry T. Chiang", email = "barrytchiang@gmail.com"}]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://pianistpy.com"
+Documentation = "https://pianistpy.com/docs/"
+Source = "https://github.com/barrytchiang/PIANISTpy"
+Issues = "https://github.com/barrytchiang/PIANISTpy/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "pianistpy._version.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pianistpy*"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "A", "B", "PLW", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pianistpy"]
+
+[tool.pytest.ini_options]
+testpaths = ["pianistpy"]
+addopts = "--doctest-modules"
+
+[tool.mypy]
+python_version = "3.10"
+files = ["pianistpy"]
+exclude = ["/tests/"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "h5py.*", "mpmath.*", "sympy.*", "astropy.*", "jax.*"]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["pianistpy"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+exclude_also = ["raise NotImplementedError"]

@@ -1,0 +1,5 @@
+/* The site's three families, self-hosted (latin subset, variable weight, from Google Fonts' files):
+   no request leaves the site for a font, and the files are preloaded so the text paints in them at once. */
+@font-face { font-family: "Libre Franklin"; font-style: normal; font-weight: 400 700; font-display: block; src: url(../fonts/LibreFranklin.woff2) format("woff2"); }
+@font-face { font-family: "Source Serif 4"; font-style: normal; font-weight: 400 600; font-display: block; src: url(../fonts/SourceSerif4.woff2) format("woff2"); }
+@font-face { font-family: "Libre Baskerville"; font-style: normal; font-weight: 400 700; font-display: block; src: url(../fonts/LibreBaskerville.woff2) format("woff2"); }

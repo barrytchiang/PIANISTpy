@@ -1,0 +1,91 @@
+"""Tests of the DF at the edge of a truncated density."""
+
+import math
+
+import pytest
+from numpy.testing import assert_allclose
+from scipy.integrate import quad
+
+from pianistpy import InputError, UnphysicalModelError
+from pianistpy.df.analytic import hernquist_df
+from pianistpy.df.edge import (
+    check_edge_existence,
+    density_edge_exponent,
+    df_edge_amplitude,
+    df_edge_exponent,
+    lowest_beta_c,
+)
+from pianistpy.df.inversion import forward_prefactor
+
+BETA_PARENT = [-0.5, 0.0, 0.25]
+DF_EDGE = [1.0, 2.0]
+
+
+@pytest.mark.parametrize("beta_parent", BETA_PARENT)
+@pytest.mark.parametrize("df_edge", DF_EDGE)
+def test_the_condition_is_one_on_the_difference(beta_parent, df_edge):
+    # a parent whose DF ends as K^nu admits children with
+    # beta_c - beta_parent > -1 - nu, whatever beta_parent is
+    q = density_edge_exponent(df_edge, beta_parent)
+    assert lowest_beta_c(q) - beta_parent == pytest.approx(-1.0 - df_edge)
+    for beta_child in (-2.5, -1.0, 0.0, 0.4):
+        assert df_edge_exponent(q, beta_child) == pytest.approx(
+            df_edge + beta_child - beta_parent
+        )
+
+
+def test_a_parent_is_its_own_child():
+    for beta_parent in BETA_PARENT:
+        q = density_edge_exponent(1.0, beta_parent)
+        assert df_edge_exponent(q, beta_parent) == pytest.approx(1.0)
+
+
+def test_existence_is_refused_at_and_below_the_bound():
+    q = 2.5
+    check_edge_existence(q, -1.999)
+    for beta_c in (-2.0, -2.5):
+        with pytest.raises(UnphysicalModelError, match="beta_c > 1/2 - 2.5 = -2"):
+            check_edge_existence(q, beta_c)
+        with pytest.raises(UnphysicalModelError):
+            df_edge_amplitude(1.0, q, beta_c)
+
+
+def test_a_non_integrable_df_edge_is_refused():
+    with pytest.raises(InputError):
+        density_edge_exponent(-1.0, 0.0)
+
+
+@pytest.mark.parametrize("q", [2.5, 3.5, 1.2])
+@pytest.mark.parametrize("beta_c", [0.4, 0.0, -0.5, -0.9])
+def test_amplitude_against_the_density_integral(q, beta_c):
+    # rho_aux(P) = K_f INT_0^P F(Q) (P - Q)^(1/2 - beta_c) dQ with F = A Q^p
+    # must return C P^q
+    if not beta_c > lowest_beta_c(q):
+        pytest.skip("no DF")
+    amplitude = df_edge_amplitude(1.0, q, beta_c)
+    exponent = df_edge_exponent(q, beta_c)
+    forward = 2.0 ** (0.5 - beta_c) * forward_prefactor(beta_c)
+    p = 0.37
+    integral = quad(
+        lambda t: p ** (exponent + 1.5 - beta_c),
+        0.0,
+        1.0,
+        weight="alg",
+        wvar=(exponent, 0.5 - beta_c),
+        epsabs=0.0,
+        epsrel=1e-12,
+    )[0]
+    assert_allclose(forward * amplitude * integral, p**q, rtol=1e-9)
+
+
+def test_isotropic_edge_of_the_truncated_hernquist_model():
+    # F_t(K) = F(K + K_t) - F(K_t) = F'(K_t) K at the edge, so the density
+    # ends as C P^(5/2) with C = 4 pi sqrt(2) F'(K_t) B(2, 3/2); the
+    # amplitude returns F'(K_t)
+    k_t = 0.05
+    _, slope = hernquist_df(k_t)
+    density_amplitude = 4.0 * math.pi * math.sqrt(2.0) * float(slope) * (4.0 / 15.0)
+    assert df_edge_exponent(2.5, 0.0) == 1.0
+    assert_allclose(
+        df_edge_amplitude(density_amplitude, 2.5, 0.0), float(slope), rtol=1e-13
+    )
