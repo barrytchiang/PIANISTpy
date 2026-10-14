@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 FOLDERS = ("tutorials", "paper")
-SKIP = {".ipynb_checkpoints", "__pycache__", ".git"}
+SKIP = {".ipynb_checkpoints", "__pycache__", ".git", "README.md"}
 
 
 def main(source: str, target: str) -> int:
