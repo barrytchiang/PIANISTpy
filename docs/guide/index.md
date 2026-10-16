@@ -1,0 +1,24 @@
+# User guide
+
+Source: https://pianistpy.com/docs/guide/index.html
+
+# User guide
+
+One page per keyword, each with the classes and functions it uses; every name links to its entry in the
+API reference.
+
+Models
+
+Particles (Sampler)
+
+Observables
+
+Superposition and inference
+
+Units
+
+Accuracy
+
+Input and output (write, read)
+
+Runtime options (set_platform, set_workers, ...)

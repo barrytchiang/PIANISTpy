@@ -1,0 +1,103 @@
+/* The site's type system, shared by the landing page and the manual.
+   Families: Libre Baskerville regular for the site title; Source Serif 4 bold (display), Libre Franklin (text), monospace (code).
+   One accent, Yale Blue; code always bold in the lighter blue. */
+
+html[data-theme="light"] {
+  --pst-color-primary: #00356B;
+  --pst-color-primary-highlight: #286DC0;
+  --pst-color-secondary: #286DC0;
+  --pst-color-accent: #286DC0;
+  --pst-color-link: #00356B;
+  --pst-color-link-hover: #286DC0;
+  --pst-color-background: #FFFFFF;
+  --pst-color-on-background: #FFFFFF;
+  --pst-color-surface: #F4F4F4;
+  --pst-color-on-surface: #222222;
+  --pst-color-text-base: #222222;
+  --pst-color-text-muted: #5F5F5F;
+  --pst-color-border: #DDDDDD;
+  --pst-color-inline-code: #286DC0;
+  --pst-color-inline-code-links: #286DC0;
+  --pst-color-target: #E6EDF6;
+  --pst-color-warning: #6E5316;
+  --pst-color-success: #1E5E32;
+  --site-code: #286DC0;
+  --site-gray: #5F5F5F;
+}
+html[data-theme="dark"] {
+  --pst-color-primary: #8FB3E0;
+  --pst-color-primary-highlight: #B8CFEC;
+  --pst-color-secondary: #B8CFEC;
+  --pst-color-link: #8FB3E0;
+  --pst-color-link-hover: #B8CFEC;
+  --pst-color-inline-code: #8FB3E0;
+  --site-code: #8FB3E0;
+  --site-gray: #A0A0A0;
+}
+
+html {
+  --pst-font-family-base: "Libre Franklin", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --pst-font-family-heading: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --pst-font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --pst-font-weight-heading: 600;
+  --pst-font-size-base: 17px;
+  --pst-font-size-h1: 53px;
+  --pst-font-size-h2: 36px;
+  --pst-font-size-h3: 26px;
+  --pst-font-size-h4: 23px;
+  --pst-font-size-milli: 15px;
+  --pst-sidebar-font-size: 15px;
+  --pst-header-height: 0px;
+}
+
+/* The header is the site band (band.css), not the theme's; it scrolls away with the page, so the sidebars stick
+   at the top of the window. */
+.pst-sticky-header { position: static; }
+html[data-theme="dark"] .site { background: #0B2340; }
+/* the sidebar's logo at its full width */
+.sidebar-logo { padding: 0 0 1rem; }
+.sidebar-logo img { width: 100%; max-width: 100%; height: auto; display: block; border-radius: 4px; }
+.bd-sidebar-primary { width: 22%; min-width: 14rem; max-width: 18rem; }
+
+/* Headings: the display role in blue. */
+h1, h2, h3, h4 { color: var(--pst-color-primary); }
+h2 { margin-top: 2rem; }
+
+/* The lead role: the first paragraph after a page title. */
+section > h1 + p, article > h1 + p { font-size: 19px; color: #444444; }
+
+/* The small role: captions, the footer, the sidebar. */
+figcaption, .bd-footer, .bd-sidebar-primary, .bd-sidebar-secondary { font-size: 15px; color: var(--site-gray); }
+
+/* Code: always bold, always the lighter blue, on the panel; comments in gray. */
+code, kbd, samp, pre, .highlight, .sd-card code {
+  font-family: var(--pst-font-family-monospace);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--site-code);
+}
+code.literal { background: var(--pst-color-surface); border: 1px solid var(--pst-color-border); padding: 0 .3em; }
+div.highlight { background: var(--pst-color-surface); }
+div.highlight pre { border: 1px solid var(--pst-color-border); border-radius: 6px; color: var(--site-code); }
+div.highlight pre span { color: var(--site-code); font-weight: 600; }
+div.highlight pre span.c, div.highlight pre span.c1, div.highlight pre span.cm, div.highlight pre span.ch { color: var(--site-gray); font-weight: 400; }
+/* the notebooks' outputs are not code: plain text, ink */
+.cell_output pre, .cell_output pre span { color: var(--pst-color-text-base); font-weight: 400; }
+
+/* Cards: the panel, display titles. */
+.sd-card { background: var(--pst-color-surface); border: 1px solid var(--pst-color-border); border-radius: 8px; box-shadow: none; }
+.sd-card .sd-card-title { font-family: var(--pst-font-family-heading); font-size: 26px; font-weight: 600; color: var(--pst-color-primary); }
+.sd-card:hover { border-color: var(--pst-color-primary-highlight); }
+
+/* The settings tables on a narrow screen: each row stacks (the field, then its
+   two values on one line, then what it controls), so nothing runs off the page. */
+@media (max-width: 720px) {
+  table.settings-table, table.settings-table tbody, table.settings-table tr, table.settings-table td { display: block; width: 100% !important; }
+  table.settings-table colgroup, table.settings-table thead { display: none; }
+  table.settings-table tr { border-bottom: 1px solid var(--pst-color-border); padding: .6em 0; }
+  table.settings-table td { border: 0 !important; padding: .1em 0 !important; background: none !important; }
+  table.settings-table td:nth-child(2), table.settings-table td:nth-child(3) { display: inline-block; width: auto !important; margin-right: 1.2em; color: var(--site-gray); font-size: 15px; }
+  table.settings-table td:nth-child(2) p, table.settings-table td:nth-child(3) p { display: inline; }
+  table.settings-table td:nth-child(2)::before { content: "Default: "; }
+  table.settings-table td:nth-child(3)::before { content: "Quick: "; }
+}

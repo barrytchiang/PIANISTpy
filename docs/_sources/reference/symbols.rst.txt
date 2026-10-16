@@ -1,0 +1,98 @@
+Symbols
+=======
+
+The package's names follow the paper's notation: a quantity that has a symbol in the paper or the technical notes
+is named ``<family>_<symbol>``, the family saying what kind of quantity it is and the rest being the paper's symbol
+or subscript in lower case. A truncated quantity (hatted in the paper) takes the suffix ``_trunc``, the
+untruncated one the bare name. Every docstring gives the paper's symbol beside the name the first time it
+describes it.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 12 34 30
+
+   * - Family
+     - Prefix
+     - Names
+     - Paper
+   * - density and its parameters
+     - ``rho_``
+     - ``rho``, ``rho_aux``, ``rho_alpha``, ``rho_beta``, ``rho_gamma``, ``rho_norm``
+     - :math:`\varrho`, :math:`\varrho_{\rm aux}`, :math:`(\alpha, \beta, \gamma)`, :math:`C`
+   * - anisotropy
+     - ``beta_``
+     - ``beta_c``, ``beta_sigma``, ``beta_sup``
+     - :math:`\beta_{\rm c}`, :math:`\beta_\sigma`, :math:`\beta_{\rm sup}`
+   * - radii
+     - ``r_``
+     - ``r``, ``r_a``, ``r_t``, ``r_2d``, ``r_off``, ``r_ape``
+     - :math:`R`, :math:`R_{\rm a}`, :math:`R_{\rm t}`, :math:`R_{\rm 2D}`, :math:`R_{\rm off}`, :math:`R_{\rm ape}`
+   * - relative potential
+     - ``p_``
+     - ``p``, ``p_0``
+     - :math:`P`, :math:`P_0`
+   * - energy-like variables
+     - ``k_``, ``q_``
+     - ``k``, ``k_t``, ``q``, ``q_min``, ``q_0``
+     - :math:`\mathcal{K}`, :math:`\mathcal{K}_{\rm t}`, :math:`\mathcal{Q}`, :math:`\mathcal{Q}_{\rm min}`, :math:`\mathcal{Q}_0`
+   * - distribution function
+     - ``df_``
+     - ``df``, ``df_k``
+     - :math:`F`, :math:`F_\mathcal{K}`
+   * - mass
+     - ``mass_``
+     - ``mass``, ``mass_t``, ``mass_vir``
+     - :math:`\mathcal{M}`, :math:`M_{\rm t}`, :math:`M_{\rm vir}`
+   * - order of the inversion
+     - ``order_``
+     - ``order_m``, ``order_n``
+     - :math:`(m, n)`
+   * - velocities and dispersions
+     - ``v_``, ``sigma_``
+     - ``v_r``, ``v_t``, ``v_los``, ``v_esc``, ``sigma_r``, ``sigma_t``, ``sigma_los``
+     - :math:`V_r`, :math:`V_t`, :math:`V_{\rm los}`, :math:`V_{\rm esc}`, :math:`\sigma_r`, :math:`\sigma_t`, :math:`\sigma_{\rm los}`
+   * - probability densities
+     - ``pdf_``
+     - ``pdf_x``, ``pdf_phi``
+     - :math:`p_x`, :math:`p_\varphi`
+
+Where the paper's letter cannot be used, a word is fixed: the normalization :math:`C` of the density is
+``rho_norm`` (``rho_c`` would read as a central density), and the concentration :math:`c` is ``concentration``.
+The letter ``c`` alone is never a name; as a subscript it means central (``beta_c``). The quantities of the
+truncated model carry the suffix: ``p_trunc``, ``df_trunc``, ``rho_trunc``, ``mass_trunc``.
+
+Derived names
+-------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 34 30 36
+
+   * - What
+     - Form
+     - Example
+   * - logarithm of a quantity
+     - ``ln_``, ``log10_`` prefix
+     - ``ln_r``, ``log10_df``
+   * - derivative
+     - ``d<y>_d<x>``, the order as a digit
+     - ``drho_dp``, ``d2rho_dp2``
+   * - count
+     - ``n_`` prefix
+     - ``n_nodes``, ``n_rows``
+   * - index
+     - ``i_`` prefix
+     - ``i_split``
+   * - quadrature nodes and weights
+     - ``_nodes``, ``_weights`` suffix
+     - ``k_nodes``, ``k_weights``
+   * - tabulated values on a grid
+     - ``_grid`` suffix
+     - ``r_grid``, ``df_grid``
+   * - boolean
+     - ``is_``, ``has_`` prefix
+     - ``is_truncated``, ``has_tail``
+
+The three unit systems are named ``internal`` (the dimensionless normalization of Widrow 2000, in which the
+scale radius and the central potential of the untruncated profile are 1), ``model`` (:math:`G = M_0 = r_0 = 1`)
+and ``physical`` (through Astropy); see :doc:`../guide/units`.

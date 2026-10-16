@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Settings (pianistpy.settings) &#8212; PIANISTpy 0.9.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=e690a3d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=3a0a98d4" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/settings';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../_static/logo.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Validation (pianistpy.validation)" href="validation.html" />
+    <link rel="prev" title="Results and files (pianistpy.io)" href="io.html" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+
+<meta name="robots" content="noindex, nofollow">
+
+
+<link rel="alternate" type="text/markdown" href="settings.md">
+
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreFranklin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/SourceSerif4.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreBaskerville.woff2">
+
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  
+
+  
+
+<!-- band -->
+<header id="pst-header" class="site d-print-none">
+  <div class="site-in">
+    <div class="site-top">
+      <a class="site-title" href="../../../index.html">PIANISTpy</a>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; version 0.9.0</div>
+    </div>
+    <nav class="site-nav" aria-label="Site">
+      
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../start/index.html">Get started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../start/overview.html">What it does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/install.html">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/quickstart.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/index.html">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles.html">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/observables.html">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/superposition.html">Superposition and inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/units.html">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy.html">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/files.html">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/switches.html">Runtime options (set_platform, set_workers, ...)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles.html">Generate particle initial conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables.html">Compute observables from a model</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Functions by subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings.html">Settings tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols.html">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notes.html">Technical notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/index.html">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/changelog.html">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap.html">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/contributing.html">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../citation/index.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/citing.html">How to cite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/license.html">License and authors</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="site-icons">
+        <a href="../../search.html" title="Search" aria-label="Search"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg></a>
+        <a href="https://github.com/barrytchiang/PIANISTpy" title="GitHub" aria-label="GitHub"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+        <a href="https://pypi.org/project/pianistpy/" title="PyPI" aria-label="PyPI"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6zM286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3zM167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4zm-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3z"/></svg></a>
+        <!-- manual-only -->
+        <button type="button" class="site-toggle sidebar-toggle primary-toggle" aria-label="Pages of this tab"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></button>
+        <!-- /manual-only -->
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+
+<!-- /band -->
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><div class="sidebar-logo">
+  <a href="../../index.html"><img src="../../_static/logo.png" alt="PIANISTpy"></a>
+</div></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="API reference">
+  <p class="bd-links__title" role="heading" aria-level="1">API reference</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Functions by subpackage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pianistpy.html">The package (<code class="docutils literal notranslate"><span class="pre">pianistpy</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Density profiles (<code class="docutils literal notranslate"><span class="pre">pianistpy.profiles</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anisotropy.html">Velocity anisotropy (<code class="docutils literal notranslate"><span class="pre">pianistpy.anisotropy</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="df.html">Distribution functions and models (<code class="docutils literal notranslate"><span class="pre">pianistpy.df</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="particles.html">Particles (<code class="docutils literal notranslate"><span class="pre">pianistpy.particles</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observables.html">Observables (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superposition.html">Superposition (<code class="docutils literal notranslate"><span class="pre">pianistpy.superposition</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference.html">Inference (<code class="docutils literal notranslate"><span class="pre">pianistpy.inference</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html">Units (<code class="docutils literal notranslate"><span class="pre">pianistpy.units</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">Results and files (<code class="docutils literal notranslate"><span class="pre">pianistpy.io</span></code>)</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Settings (<code class="docutils literal notranslate"><span class="pre">pianistpy.settings</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation (<code class="docutils literal notranslate"><span class="pre">pianistpy.validation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Exceptions (<code class="docutils literal notranslate"><span class="pre">pianistpy.exceptions</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime.html">Session switches (<code class="docutils literal notranslate"><span class="pre">pianistpy.runtime</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerics.html">Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings.html">Settings tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols.html">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes.html">Technical notes</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Settings (<code class="docutils literal notranslate"><span class="pre">pianistpy.settings</span></code>)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-pianistpy.settings">
+<span id="settings-pianistpy-settings"></span><h1>Settings (<code class="docutils literal notranslate"><span class="pre">pianistpy.settings</span></code>)<a class="headerlink" href="#module-pianistpy.settings" title="Link to this heading">#</a></h1>
+<p>Numerical settings: the tested tiers and expert overrides.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.settings.Field">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.settings.</span></span><span class="sig-name descname"><span class="pre">Field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Field" title="Link to this definition">#</a></dt>
+<dd><p>One numerical setting: its value in each tier and what it controls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Value in the default tier. Its type is the type of the field.</p></li>
+<li><p><strong>doc</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – What the field controls.</p></li>
+<li><p><strong>quick</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Value in the quick tier. If omitted, the quick tier keeps the default
+value: a cheaper value enters only once it has passed the tests.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.settings.Field.value">
+<span class="sig-name descname"><span class="pre">value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tier</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Field.value" title="Link to this definition">#</a></dt>
+<dd><p>Return the value of the field in a tier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tier</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.settings.</span></span><span class="sig-name descname"><span class="pre">Settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quick</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_anyway</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">overrides</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Settings" title="Link to this definition">#</a></dt>
+<dd><p>Numerical settings of a computation.</p>
+<p>A tier is a complete set of numerical settings that has been run through
+the test battery and for which the package states the accuracy it
+delivers. An expert may override single fields; the result then records
+that it was not made with a tested tier and names the fields that differ.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>quick</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em>) – Use the quick tier instead of the default tier.</p></li>
+<li><p><strong>write_anyway</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a><em>, </em><em>optional</em>) – Return a result whose own check lies beyond the hard limit instead of
+refusing it. The result carries the check’s verdict in its validation
+report (tier <code class="docutils literal notranslate"><span class="pre">&quot;refused&quot;</span></code>) and an <cite>AccuracyWarning</cite> is issued in
+place of the refusal. For debugging a case the package cannot serve
+at its stated accuracy; off by default. A physically invalid model
+is refused regardless.</p></li>
+<li><p><strong>**overrides</strong> (<em>mapping</em>) – One mapping per group (<code class="docutils literal notranslate"><span class="pre">inversion</span></code>, <code class="docutils literal notranslate"><span class="pre">truncation</span></code>, <code class="docutils literal notranslate"><span class="pre">sampling</span></code>,
+<code class="docutils literal notranslate"><span class="pre">observables</span></code>) of the fields to change within that group.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>tier</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Name of the tier the settings start from.</p></li>
+<li><p><strong>write_anyway</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Whether a result beyond the hard limit is returned instead of refused.</p></li>
+<li><p><strong>overrides</strong> (<em>mapping</em>) – The fields changed from the tier, by group. Read only.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Settings</span><span class="p">()</span><span class="o">.</span><span class="n">tier</span>
+<span class="go">'default'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Settings</span><span class="p">(</span><span class="n">quick</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">is_tested_tier</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Settings</span><span class="p">(</span><span class="n">inversion</span><span class="o">=</span><span class="p">{</span><span class="s2">"n_nodes"</span><span class="p">:</span> <span class="mi">256</span><span class="p">})</span><span class="o">.</span><span class="n">is_tested_tier</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Settings</span><span class="p">(</span><span class="n">inversion</span><span class="o">=</span><span class="p">{</span><span class="s2">"n_nodes"</span><span class="p">:</span> <span class="mi">256</span><span class="p">})</span><span class="o">.</span><span class="n">inversion</span><span class="p">[</span><span class="s2">"n_nodes"</span><span class="p">]</span>
+<span class="go">256</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Settings</span><span class="p">()</span><span class="o">.</span><span class="n">truncation</span><span class="p">[</span><span class="s2">"ode_rtol"</span><span class="p">]</span>
+<span class="go">1e-11</span>
+</pre></div>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.tier">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tier</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><a class="headerlink" href="#pianistpy.settings.Settings.tier" title="Link to this definition">#</a></dt>
+<dd><p>Name of the tier the settings start from.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.write_anyway">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">write_anyway</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><a class="headerlink" href="#pianistpy.settings.Settings.write_anyway" title="Link to this definition">#</a></dt>
+<dd><p>Whether a result beyond the hard limit is returned instead of refused.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.overrides">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">overrides</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.settings.Settings.overrides" title="Link to this definition">#</a></dt>
+<dd><p>The fields changed from the tier, by group.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.is_tested_tier">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_tested_tier</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><a class="headerlink" href="#pianistpy.settings.Settings.is_tested_tier" title="Link to this definition">#</a></dt>
+<dd><p>Whether the settings are a tested tier with no field changed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.group">
+<span class="sig-name descname"><span class="pre">group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Settings.group" title="Link to this definition">#</a></dt>
+<dd><p>Return the value of every field of one group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – One of the groups <code class="docutils literal notranslate"><span class="pre">inversion</span></code>, <code class="docutils literal notranslate"><span class="pre">truncation</span></code>, <code class="docutils literal notranslate"><span class="pre">sampling</span></code> and
+<code class="docutils literal notranslate"><span class="pre">observables</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>values</strong> – The fields of the group with the values of the tier, each
+replaced by its override where one was given. Read only.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>mapping</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.inversion">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">inversion</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.settings.Settings.inversion" title="Link to this definition">#</a></dt>
+<dd><p>Settings of the inversion.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.truncation">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">truncation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.settings.Settings.truncation" title="Link to this definition">#</a></dt>
+<dd><p>Settings of the truncation.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.sampling">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">sampling</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.settings.Settings.sampling" title="Link to this definition">#</a></dt>
+<dd><p>Settings of the particle sampling.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.observables">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">observables</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.settings.Settings.observables" title="Link to this definition">#</a></dt>
+<dd><p>Settings of the observables.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.losvd">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">losvd</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.settings.Settings.losvd" title="Link to this definition">#</a></dt>
+<dd><p>The fields of the LOSVD table and the aperture LOSVD.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.resolved">
+<span class="sig-name descname"><span class="pre">resolved</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Settings.resolved" title="Link to this definition">#</a></dt>
+<dd><p>Return every field of every group with the value in force.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Settings.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return the settings as a plain dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> – The tier and the overrides, in the form written to files, with
+<code class="docutils literal notranslate"><span class="pre">&quot;write_anyway&quot;:</span> <span class="pre">True</span></code> where that was asked. The numerical
+settings alone determine a result, so <cite>numerical</cite> is what the
+identity hashes.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.numerical">
+<span class="sig-name descname"><span class="pre">numerical</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Settings.numerical" title="Link to this definition">#</a></dt>
+<dd><p>Return the tier and the overrides, the settings that determine a result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.settings.Settings.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.settings.Settings.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Build settings from their dictionary form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<em>mapping</em>) – A dictionary as returned by <cite>to_dict</cite>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>settings</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.settings.Settings" title="pianistpy.settings.Settings">Settings</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Field"><code class="docutils literal notranslate"><span class="pre">Field</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Field.value"><code class="docutils literal notranslate"><span class="pre">Field.value()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings"><code class="docutils literal notranslate"><span class="pre">Settings</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.tier"><code class="docutils literal notranslate"><span class="pre">Settings.tier</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.write_anyway"><code class="docutils literal notranslate"><span class="pre">Settings.write_anyway</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.overrides"><code class="docutils literal notranslate"><span class="pre">Settings.overrides</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.is_tested_tier"><code class="docutils literal notranslate"><span class="pre">Settings.is_tested_tier</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.group"><code class="docutils literal notranslate"><span class="pre">Settings.group()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.inversion"><code class="docutils literal notranslate"><span class="pre">Settings.inversion</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.truncation"><code class="docutils literal notranslate"><span class="pre">Settings.truncation</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.sampling"><code class="docutils literal notranslate"><span class="pre">Settings.sampling</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.observables"><code class="docutils literal notranslate"><span class="pre">Settings.observables</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.losvd"><code class="docutils literal notranslate"><span class="pre">Settings.losvd</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.resolved"><code class="docutils literal notranslate"><span class="pre">Settings.resolved()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.to_dict"><code class="docutils literal notranslate"><span class="pre">Settings.to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.numerical"><code class="docutils literal notranslate"><span class="pre">Settings.numerical()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.settings.Settings.from_dict"><code class="docutils literal notranslate"><span class="pre">Settings.from_dict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Barry T. Chiang.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

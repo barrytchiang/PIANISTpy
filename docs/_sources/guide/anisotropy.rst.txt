@@ -1,0 +1,27 @@
+Velocity anisotropy
+===================
+
+:class:`pianistpy.Anisotropy`, :class:`pianistpy.Component`
+
+One class covers every analytical anisotropy model of the paper, ``Anisotropy(beta_c, r_a, kind)``:
+
+- the default, ``Anisotropy()``, is isotropy;
+- a finite ``beta_c`` alone, in (-infinity, 1), gives constant anisotropy;
+- a finite anisotropy radius ``r_a`` gives the Osipkov-Merritt model (with ``beta_c = 0``) or the generalized
+  Osipkov-Merritt (Cuddeford) model (with ``beta_c`` given), radially biased with ``kind="I"`` or tangentially
+  biased with ``kind="II"``.
+
+The comparison at the interface is exact: ``beta_c=0.0`` is isotropic, ``beta_c=1e-12`` is a constant-anisotropy
+model, and the object reports which model it is. The general path is continuous through every special value, so
+a model a hair away from one agrees with the model at it to the accuracy the tier states.
+
+.. code-block:: python
+
+   pp.Anisotropy()                           # isotropic
+   pp.Anisotropy(beta_c=0.25)                # constant anisotropy
+   pp.Anisotropy(r_a=10.0, kind="I")         # Osipkov-Merritt, radially biased
+   pp.Anisotropy(beta_c=-0.25, r_a=10.0)     # Cuddeford, Type I by default
+
+``Component(profile, anisotropy)`` joins a density profile and an anisotropy into the input of the inversion.
+The first release covers one component per model; several components in one potential are the planned next
+extension (:doc:`../project/roadmap`).

@@ -1,0 +1,22 @@
+# PIANISTpy
+
+> PIANISTpy builds equilibrium models of spherical systems with a chosen velocity anisotropy: distribution functions by analytic inversion, truncation in phase space, particle initial conditions, line-of-sight observables, superposition and a differentiable likelihood. Python, JAX.
+
+Every page of the manual has a markdown twin at the same address with `.md` in
+place of `.html`; the whole manual as one file is /docs/llms-full.txt.
+
+## Documentation
+
+- [Install, requirements, quick start](https://pianistpy.com/docs/start/index.md)
+- [The user guide, one page per keyword](https://pianistpy.com/docs/guide/index.md)
+- [What the package returns, flags and refuses](https://pianistpy.com/docs/guide/results.md)
+- [Example notebooks and the paper's figures](https://pianistpy.com/docs/notebooks/index.md)
+- [The API reference, by subpackage](https://pianistpy.com/docs/reference/api/index.md)
+- [The technical notes](https://pianistpy.com/docs/reference/notes.md)
+- [How to cite](https://pianistpy.com/docs/project/citing.md)
+
+## Optional
+
+- [The package on GitHub](https://github.com/barrytchiang/PIANISTpy)
+- [The notebooks on GitHub](https://github.com/barrytchiang/PIANISTpy-notebooks)
+- [The full manual as one text file](https://pianistpy.com/docs/llms-full.txt)

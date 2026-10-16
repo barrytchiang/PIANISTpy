@@ -1,0 +1,239 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "84ff685b",
+   "metadata": {},
+   "source": [
+    "# Observables of a model\n",
+    "\n",
+    "The line-of-sight velocity dispersion at projected radii, its average over an aperture, and the same quantities in physical units. This tutorial uses the isotropic Hernquist model, whose distribution function is known in closed form."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "c69cb2df",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-10-07T14:51:05.199331Z",
+     "iopub.status.busy": "2026-10-07T14:51:05.199246Z",
+     "iopub.status.idle": "2026-10-07T14:51:05.995090Z",
+     "shell.execute_reply": "2026-10-07T14:51:05.994720Z"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pianistpy as pp\n",
+    "from pianistpy.df.analytic import analytic_model\n",
+    "\n",
+    "model = analytic_model(\"hernquist\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0fc7bd76",
+   "metadata": {},
+   "source": [
+    "`sigma_los` takes projected radii, in the model's units (internal here: the scale radius is 1)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "a3a0a8ee",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-10-07T14:51:05.997094Z",
+     "iopub.status.busy": "2026-10-07T14:51:05.996835Z",
+     "iopub.status.idle": "2026-10-07T14:51:22.629207Z",
+     "shell.execute_reply": "2026-10-07T14:51:22.628702Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([0.30974035, 0.27598987, 0.1234161 ])"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "r_2d = np.array([0.1, 1.0, 10.0])\n",
+    "pp.sigma_los(model, r_2d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d2a59d8f",
+   "metadata": {},
+   "source": "`sigma_los_aperture` averages the squared dispersion over an aperture, weighted by the surface density: a centered circle, or a rectangle at an offset and an angle."
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "e947fb9d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-10-07T14:51:22.630449Z",
+     "iopub.status.busy": "2026-10-07T14:51:22.630305Z",
+     "iopub.status.idle": "2026-10-07T14:51:55.950414Z",
+     "shell.execute_reply": "2026-10-07T14:51:55.949912Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(0.3028872393345692, 0.3003436495218896)"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "circle = pp.Aperture.circle(1.0)\n",
+    "slit = pp.Aperture.rectangle(2.0, 0.5, r_off=1.0, angle=0.3)\n",
+    "pp.sigma_los_aperture(model, circle), pp.sigma_los_aperture(model, slit)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "9e7e812d",
+   "metadata": {},
+   "source": [
+    "A `LosTable` computes the line-of-sight velocity distributions once and serves every call made from it. Its aperture dispersion is the second moment of the aperture's velocity distribution, an independent route that agrees with the one from the model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "481907dd",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-10-07T14:51:55.951556Z",
+     "iopub.status.busy": "2026-10-07T14:51:55.951449Z",
+     "iopub.status.idle": "2026-10-07T14:53:04.459400Z",
+     "shell.execute_reply": "2026-10-07T14:53:04.458878Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(array([0.30974035, 0.27598987, 0.1234161 ]), 0.302887239623593)"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "table = pp.LosTable(model)\n",
+    "pp.sigma_los(table, r_2d), pp.sigma_los_aperture(table, circle)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0d62290d",
+   "metadata": {},
+   "source": [
+    "In physical units, radii and apertures are given in parsecs (or as Astropy quantities) and the dispersions are returned in km/s. Here M_0 = 1e9 solar masses and r_0 = 500 pc, with a concentration of 10."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "1cec393d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-10-07T14:53:04.461277Z",
+     "iopub.status.busy": "2026-10-07T14:53:04.461012Z",
+     "iopub.status.idle": "2026-10-07T14:53:18.737114Z",
+     "shell.execute_reply": "2026-10-07T14:53:18.736636Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/latex": [
+       "$[31.599922,~28.156675,~12.590995] \\; \\mathrm{\\frac{km}{s}}$"
+      ],
+      "text/plain": [
+       "<Quantity [31.59992167, 28.15667468, 12.59099495] km / s>"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "physical = model.to(\"physical\", concentration=10.0, mass_0=1e9, r_0=500.0)\n",
+    "pp.sigma_los(physical, [50.0, 500.0, 5000.0])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "39a03fbe",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2026-10-07T14:53:18.738489Z",
+     "iopub.status.busy": "2026-10-07T14:53:18.738307Z",
+     "iopub.status.idle": "2026-10-07T14:53:22.239929Z",
+     "shell.execute_reply": "2026-10-07T14:53:22.239452Z"
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/latex": [
+       "$30.900763 \\; \\mathrm{\\frac{km}{s}}$"
+      ],
+      "text/plain": [
+       "<Quantity 30.90076311 km / s>"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pp.sigma_los_aperture(\n",
+    "    table.to(\"physical\", concentration=10.0, mass_0=1e9, r_0=500.0), pp.Aperture.circle(500.0)\n",
+    ")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.13"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

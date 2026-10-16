@@ -1,0 +1,46 @@
+# Superposition and inference
+
+Source: https://pianistpy.com/docs/guide/superposition.html
+
+# Superposition and inference
+
+pianistpy.superpose(), pianistpy.inference
+
+## Superposition
+
+Distribution functions inverted from one truncated density (Method II children of one parent), combined with
+positive weights that sum to one, are one equilibrium model in that density. superpose returns it as a
+Model, so everything downstream (particles, observables, files) takes it unchanged.
+
+```
+members = {child_a: 0.6, child_b: 0.3, child_c: 0.1}   # Method II children of one parent
+composite = pp.superpose(members)
+pp.Sampler(composite).sample(1_000_000, seed=1)
+
+```
+
+The shared density is enforced: members on different truncated profiles are refused. The weights are normalized;
+a sum away from one is normalized with a warning.
+
+## Inference
+
+pianistpy.inference gives the log-likelihood of a model against data as a JAX function of the
+components’ weights and the scales of the units, linear in the weights up to their normalization, so its
+gradient with respect to the weights is exact and cheap.
+
+```
+from pianistpy.inference import Data, likelihood
+
+data = Data("sigma_los", values=sigma_obs, r_2d=radii, errors=sigma_err, unit_system="physical")
+loglike = likelihood(composite.to("physical", mass_0=..., r_0=...), data)
+loglike(weights)                       # a JAX scalar; jax.grad(loglike)(weights) is its gradient
+
+```
+
+The members’ observables are computed once, in likelihood; each call of the returned function costs a
+fraction of a millisecond. A refused input inside the traced function (negative weights, a radius outside the
+table) gives minus infinity, never an exception, so a sampler over the weights sees a value.
+
+What the likelihood is differentiable in, through which observables, and at what accuracy: Differentiability.
+
+     On this page

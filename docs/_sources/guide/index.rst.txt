@@ -1,0 +1,17 @@
+User guide
+==========
+
+One page per keyword, each with the classes and functions it uses; every name links to its entry in the
+:doc:`API reference <../reference/api/index>`.
+
+.. toctree::
+   :maxdepth: 1
+
+   models
+   Particles (Sampler) <particles>
+   observables
+   superposition
+   units
+   accuracy
+   Input and output (write, read) <files>
+   Runtime options (set_platform, set_workers, ...) <switches>

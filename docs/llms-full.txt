@@ -1,0 +1,6258 @@
+# Citation
+
+Source: https://pianistpy.com/docs/citation/index.html
+
+# Citation
+
+How to cite PIANISTpy when you use it, and the terms under which it is distributed.
+
+How to cite
+
+License and authors
+
+
+---
+
+# Accuracy
+
+Source: https://pianistpy.com/docs/guide/accuracy.html
+
+# Accuracy
+
+Every result carries a validation report, a short and fixed summary of the checks it passed, with its tier: a
+check within the accuracy goal (a relative error of 1e-6) is silent; above the goal, within the ceiling (1e-4) or
+within the hard limit (1e-2), the result is returned with a warning in the package’s log and as an
+AccuracyWarning (Python’s standard filter silences or escalates it), and the flag stays with the result and with
+everything computed from it; beyond the hard limit the result is refused.
+
+The numerical settings come in two tested tiers, both held to these checks by the test suite:
+
+```
+pp.Settings()            # the default tier
+pp.Settings(quick=True)  # a faster tier for exploration
+
+```
+
+The switches that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
+Runtime options.
+
+Flags and refusals
+
+
+---
+
+# Velocity anisotropy
+
+Source: https://pianistpy.com/docs/guide/anisotropy.html
+
+# Velocity anisotropy
+
+pianistpy.Anisotropy, pianistpy.Component
+
+One class covers every analytical anisotropy model of the paper, Anisotropy(beta_c, r_a, kind):
+
+the default, Anisotropy(), is isotropy;
+
+a finite beta_c alone, in (-infinity, 1), gives constant anisotropy;
+
+a finite anisotropy radius r_a gives the Osipkov-Merritt model (with beta_c = 0) or the generalized
+Osipkov-Merritt (Cuddeford) model (with beta_c given), radially biased with kind="I" or tangentially
+biased with kind="II".
+
+The comparison at the interface is exact: beta_c=0.0 is isotropic, beta_c=1e-12 is a constant-anisotropy
+model, and the object reports which model it is. The general path is continuous through every special value, so
+a model a hair away from one agrees with the model at it to the accuracy the tier states.
+
+```
+pp.Anisotropy()                           # isotropic
+pp.Anisotropy(beta_c=0.25)                # constant anisotropy
+pp.Anisotropy(r_a=10.0, kind="I")         # Osipkov-Merritt, radially biased
+pp.Anisotropy(beta_c=-0.25, r_a=10.0)     # Cuddeford, Type I by default
+
+```
+
+Component(profile, anisotropy) joins a density profile and an anisotropy into the input of the inversion.
+The first release covers one component per model; several components in one potential are the planned next
+extension (Upcoming features).
+
+
+---
+
+# Line-of-sight velocity distribution in an aperture
+
+Source: https://pianistpy.com/docs/guide/aperture_losvd.html
+
+# Line-of-sight velocity distribution in an aperture
+
+pianistpy.aperture_losvd(), pianistpy.Aperture, pianistpy.LosTable
+
+aperture_losvd(source, aperture, v) returns the line-of-sight velocity distribution of the tracers inside an
+aperture: the distribution at each projected radius (Line-of-sight velocity distribution) averaged over the aperture with the surface
+density,
+
+\[\overline{D}(V_{\rm los}) = \frac{\int_{\rm aperture} \Sigma(R_{\rm 2D})\, D(R_{\rm 2D}, V_{\rm los})\,{\rm d}A}
+{\int_{\rm aperture} \Sigma(R_{\rm 2D})\,{\rm d}A}.\]
+
+It is even in \(V_{\rm los}\), integrates to one over all \(V_{\rm los}\), and is zero beyond the escape
+velocity along the line of sight. Its second moment is the dispersion inside the aperture,
+\(\overline{\sigma}_{\rm los}^2\) (pianistpy.sigma_los_aperture() given the same table).
+
+## Arguments and units
+
+source is a Model or its prepared LosTable; given a model, its table
+is built first, so for more than one call build the table once (The prepared table: LosTable). aperture is an
+Aperture, circular or rectangular, centered or offset (Observables), its lengths in the
+model’s unit of length. v is an array of line-of-sight velocities in the model’s unit of velocity (km/s in the
+physical system); the result has its shape, per unit velocity of the model’s unit system.
+
+Of a superposition, each component’s distribution in the aperture is summed with its weight times its projected
+mass inside the aperture, \(\overline{D} = \sum_k w_k M_k \overline{D}_k / \sum_k w_k M_k\).
+
+## Tiers
+
+The distribution is computed on panels in velocity, refined until its norm and its second moment agree with the
+table’s rows, and at any velocity it is read by each panel’s polynomial through its own nodes. Its second moment is
+checked against the aperture’s dispersion from the projected tables, which reads no velocity distribution, so the
+tier is the worse of that check and the table’s own (The prepared table: LosTable); a distribution above the goal says so in a
+warning.
+
+## Example
+
+```
+import numpy as np
+import pianistpy as pp
+
+model = pp.solve(
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Truncation(k_t=0.05),
+    settings=pp.Settings(quick=True),
+)
+table = pp.LosTable(model)
+circle = pp.Aperture.circle(r_ape=1.0)
+
+v = np.linspace(-1.5, 1.5, 3001)
+d = pp.aperture_losvd(table, circle, v)       # shape (3001,)
+dv = v[1] - v[0]
+d.sum() * dv                                   # one, to the grid's rule
+np.sqrt((v**2 * d).sum() * dv), pp.sigma_los_aperture(table, circle)
+
+pp.aperture_losvd(table, pp.Aperture.circle(r_ape=1.0, r_off=10.0), v)   # an offset circle
+
+```
+
+     On this page
+
+
+---
+
+# Distribution functions
+
+Source: https://pianistpy.com/docs/guide/df.html
+
+# Distribution functions
+
+pianistpy.compute_df(), pianistpy.DistributionFunction
+
+compute_df(component) returns the untruncated distribution function of a component, from the analytic
+inversion of its density, as a DistributionFunction. This is a mathematical object: it is
+returned whether or not it is everywhere non-negative and monotonic, and it records where it is not, together
+with the smallest truncation value above which it is. It is also the base of Method I truncation, so a scan over
+truncations of one model reuses one inversion.
+
+```
+halo = pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy(beta_c=0.25))
+df = pp.compute_df(halo)
+
+```
+
+What the result holds: the tabulated distribution function on its energy grid with its logarithmic slope, the
+asymptotic form at the center and at the outer end (how the function continues beyond the table), the sign
+report, the inputs and the settings it was computed from, its validation report and its identity. A result can
+be written to a file and read back equal (Input and output).
+
+A distribution function is not yet a model: only a truncated model can be sampled or
+projected.
+
+
+---
+
+# Input and output
+
+Source: https://pianistpy.com/docs/guide/files.html
+
+# Input and output
+
+Every result (a distribution function, a model, a set of particles) is an immutable object that holds what it
+was computed from: the inputs, the numerical settings and the version of the code. Its write method stores
+it in a single HDF5 file, and pp.read(path) returns an equal object, whatever kind of result the file holds.
+Nothing is written unless you ask.
+
+A Model is always a valid equilibrium. A request for which none exists raises UnphysicalModelError, and
+the exception carries the distribution function so that you can inspect it.
+
+
+---
+
+# Differentiability
+
+Source: https://pianistpy.com/docs/guide/gradient.html
+
+# Differentiability
+
+pianistpy.inference.likelihood(), pianistpy.df.gradient.make_inversion_table,
+pianistpy.df.gradient.table_jacobian, pianistpy.df.gradient.make_inversion_rows,
+pianistpy.df.gradient.rows_jacobian
+
+## What is differentiable
+
+The weights and the unit scales. The likelihood of a model against data, pianistpy.inference.likelihood(),
+is a JAX function of the components’ weights and of the model’s mass and length scales, traceable and differentiable
+in both. With free=, the anisotropy (beta_c, R_a) of the components named there is a parameter of it as well, for
+a component on a truncated profile with a finite R_a; the inference page states how.
+The two calls serve different members: the rule below serves an untruncated analytic component, while likelihood
+refuses a member in free= that is not spatially finite, by name, since it reads the distribution function at
+the model’s edge.
+
+The anisotropy parameters. The distribution function of a component is differentiable in its central anisotropy
+beta_c and its anisotropy radius R_a, for the families served:
+
+constant anisotropy (beta_c),
+
+Cuddeford Type I (beta_c and R_a),
+
+Osipkov-Merritt Type I and Type II (R_a).
+
+Two levels are offered. The inversion’s rows (the distribution function on the inversion’s energy grid) through
+make_inversion_rows and rows_jacobian; the distribution function’s table, as the lookup reads it, through
+make_inversion_table and table_jacobian. The table’s derivative covers every part of it: the rows, the nodes
+below the written floor, the form above the anchor at the center and the tail at the outer end. On a component on
+the truncated profile of another model (Method II), the table’s parts are the rows, the edge law below the floor and
+the center’s stated form; the rows’ functions serve a component on its own analytic profile only.
+
+make_inversion_rows and make_inversion_table return a JAX function of the parameter vector with a custom
+derivative: its value is the package’s own solve, computed on the host, and its derivative is the rule. The
+*_jacobian functions return the values and their derivatives as arrays. In both, the energy grid and every
+discrete choice of the solve (the grid’s placement, the inversion’s form, the anchor, the nodes kept) are held at the
+parameters the function was made at: the derivative is that of the solve with these choices fixed, which is the
+derivative of the table the package returns there. Where a choice changes between two parameters, the solve at the
+second one differs from the held one by its own tolerance.
+
+Not served, each refused with an error that names it: Cuddeford Type II (its interior point at P(R_a) moves with
+both parameters), a center on its critical branch (where the branch itself changes with beta_c), and a component on
+a truncated profile that carries no distribution function of its model.
+
+## Per call
+
+pianistpy.inference.likelihood: differentiable in the weights, the unit scales and, with free=, the
+(beta_c, R_a) of the named components; the families and refusals as above.
+
+The distribution function (make_inversion_rows, make_inversion_table): differentiable in (beta_c, R_a)
+for the families served.
+
+Each observable is differentiable in (beta_c, R_a) through pp.Differentiable(model), whose methods mirror the
+public calls as JAX functions of theta, for the families above and with the same refusals. Pending: these seven
+lines hold once the object is in the package (1.0.0).
+
+sigma_r: differentiable in (beta_c, R_a) through pp.Differentiable.
+
+sigma_t: differentiable in (beta_c, R_a) through pp.Differentiable.
+
+sigma_los: differentiable in (beta_c, R_a) through pp.Differentiable.
+
+sigma_los_aperture: differentiable in (beta_c, R_a) through pp.Differentiable.
+
+losvd: differentiable in (beta_c, R_a) through pp.Differentiable.
+
+aperture_losvd: differentiable in (beta_c, R_a) through pp.Differentiable.
+
+pdf_v: differentiable in (beta_c, R_a) through pp.Differentiable.
+
+## What the record carries
+
+The rule is exact except for one part, the derivative of the inversion’s operator itself in beta_c at a fixed
+source, which has no closed form and is taken from the operator’s values at nearby beta_c. The record returned with
+the derivative states how:
+
+central (a Richardson quotient) inside a form’s region, or one-sided at a corner, where the inversion’s form
+changes on one side (integer and half-integer beta_c);
+
+the step, set by measurement: the kernel’s accuracy balanced against the quotient’s truncation term;
+
+the quotient’s Richardson residual and, at a corner, the spread of its two sides, both over the column’s scale;
+
+for a component on a truncated profile, where its energy grid is placed.
+
+The residual is the derivative’s accuracy, and it reads in the package’s tiers (Accuracy). Inside a form’s
+region it is at the goal. At the isotropic corner, beta_c = 0, the quotient is one-sided, and its residual is about
+1e-5 of the column: the ceiling tier, not the goal, which the record states. A gradient there is usable at that
+accuracy; one at the goal takes a beta_c off the corner.
+
+## Example
+
+The derivative of log10 F at one node of a Hernquist component’s table, by the rule and by a central difference of
+the same function:
+
+```
+import jax
+import numpy as np
+
+import pianistpy as pp
+from pianistpy.df.gradient import make_inversion_table
+
+halo = pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25))
+table, params, values = make_inversion_table(halo, pp.Settings())
+node = int(np.searchsorted(values["k"], 0.5))  # the node nearest K = 0.5
+
+def log_df(theta):
+    return table(theta)["log_df"][node]
+
+theta = np.array([0.25])  # params == ("beta_c",)
+rule = float(jax.grad(log_df)(theta)[0])
+h = 1e-3
+difference = float(log_df(theta + h) - log_df(theta - h)) / (2 * h)
+print(rule, difference)
+
+```
+
+The two agree to the difference’s own error (h squared times the third derivative). The table is made once; each
+call of table solves the inversion again at the new parameters on the held grid.
+
+     On this page
+
+
+---
+
+# User guide
+
+Source: https://pianistpy.com/docs/guide/index.html
+
+# User guide
+
+One page per keyword, each with the classes and functions it uses; every name links to its entry in the
+API reference.
+
+Models
+
+Particles (Sampler)
+
+Observables
+
+Superposition and inference
+
+Units
+
+Accuracy
+
+Input and output (write, read)
+
+Runtime options (set_platform, set_workers, ...)
+
+
+---
+
+# The prepared table: LosTable
+
+Source: https://pianistpy.com/docs/guide/lostable.html
+
+# The prepared table: LosTable
+
+pianistpy.LosTable, pianistpy.losvd(), pianistpy.sigma_los(),
+pianistpy.sigma_los_aperture(), pianistpy.sigma_r(), pianistpy.sigma_t(), pianistpy.pdf_v()
+
+LosTable(model) computes once what the observables of a model read: the intrinsic dispersion profile
+(Radial velocity dispersion), the surface density \(\Sigma(R_{\rm 2D})\) and the line-of-sight dispersion
+\(\sigma_{\rm los}(R_{\rm 2D})\) over projected radius, and the table of line-of-sight velocity distributions
+\(D(R_{\rm 2D}, V_{\rm los})\) (Line-of-sight velocity distribution) on rows of projected radius from the center to the model’s edge.
+Every observable then takes the table in place of the model and reads from it, so a table is the object to build
+when a model is asked for more than one observable, or for one observable many times (a fit, a grid of apertures).
+
+As in the paper, the dispersion inside an aperture is the surface-density weighted average of
+\(\sigma_{\rm los}^2\); a centered circle of radius \(R_{\rm ape}\) gives
+
+\[\overline{\sigma}_{\rm los}^2(R_{\rm ape}) =
+\frac{\int_0^{R_{\rm ape}} \Sigma(R_{\rm 2D})\,\sigma_{\rm los}^2(R_{\rm 2D})\,R_{\rm 2D}\,{\rm d}R_{\rm 2D}}
+{\int_0^{R_{\rm ape}} \Sigma(R_{\rm 2D})\,R_{\rm 2D}\,{\rm d}R_{\rm 2D}},\]
+
+and an offset circle or a rectangle the same average over its own area. Given the model,
+sigma_los_aperture() takes this average and reads no velocity distribution; given the table, it
+takes the second moment of the aperture’s velocity distribution, the rows of the table averaged over the aperture
+with the same weight. The two routes are independent and agree to the accuracy goal.
+
+## Arguments and units
+
+LosTable(model) takes a Model of one component or a superposition; a superposition holds
+one table per component (parts), each read with its weight. The table is computed in internal units at the
+model’s own settings and is not recomputed for another unit system: table.to("physical", ...) returns the
+same tables presented in the units of model.to("physical", ...), and the observables read from it take and
+return quantities in those units.
+
+The rows are computed by a pool of worker processes, which Python starts by spawning a fresh interpreter. In a
+script, build the table (or call losvd() on a model, which builds one) under
+if __name__ == "__main__":, as Python’s multiprocessing requires; in a notebook or an interactive session
+nothing is needed.
+
+What it holds: model; profile, projected, kept and table, the results of its four stages;
+validation, its report; parts, one table per component.
+
+## Tiers
+
+The rows of the table are added until the table reads itself between rows within the tolerance of its settings,
+and every row is checked against two quantities computed without it. The report table.validation holds four
+checks, each with its relative error and the radius where it is worst: norm, each row’s integral against the
+surface density; second_moment, each row’s second moment against the projected dispersion; unjudged, a row
+with surface density that could not be checked (beyond the hard limit if any); and certificate, the table’s
+estimate of its reading between rows. The report’s tier is the worst of these and of the model’s own; a table
+above the goal says so in a warning when it is built (Accuracy). Intervals of projected radius that the
+table could not certify are recorded in table.table.r_uncertified, and a request inside one is refused by name.
+
+## Example
+
+```
+import numpy as np
+import pianistpy as pp
+
+model = pp.solve(
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Truncation(k_t=0.05),
+    settings=pp.Settings(quick=True),
+)
+table = pp.LosTable(model)                     # built once
+table.validation.tier                          # "goal", "ceiling" or "warning"
+{key: check.error for key, check in table.validation.checks.items()}
+
+circle = pp.Aperture.circle(1.0)
+pp.sigma_los_aperture(model, circle), pp.sigma_los_aperture(table, circle)   # the two routes
+pp.sigma_los(table, [0.1, 1.0, 10.0])
+pp.losvd(table, 1.0, [0.0, 0.5, 1.0])
+
+physical = table.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)
+pp.sigma_los_aperture(physical, pp.Aperture.circle(500.0))                   # km/s, 500 pc circle
+
+```
+
+     On this page
+
+
+---
+
+# Line-of-sight velocity distribution
+
+Source: https://pianistpy.com/docs/guide/losvd.html
+
+# Line-of-sight velocity distribution
+
+pianistpy.losvd(), pianistpy.LosTable
+
+losvd(source, r_2d, v) returns the line-of-sight velocity distribution \(D(R_{\rm 2D}, V_{\rm los})\) at
+projected radii: the probability density of the velocity along the line of sight of the tracers seen at a
+projected distance \(R_{\rm 2D}\) from the center. As in the paper, it is the distribution function
+integrated over the line of sight and over the two velocity components on the plane of the sky,
+
+\[D(R_{\rm 2D}, V_{\rm los}) = \frac{2}{\Sigma(R_{\rm 2D})} \int_{R_{\rm 2D}}^{R_{\rm t}}
+\frac{R\,{\rm d}R}{(R^2 - R_{\rm 2D}^2)^{1/2}} \iint F(\mathcal{Z}, L)\,{\rm d}V_{\perp 1}\,{\rm d}V_{\perp 2},
+\qquad
+\Sigma(R_{\rm 2D}) = 2 \int_{R_{\rm 2D}}^{R_{\rm t}} \frac{\varrho(R)\,R\,{\rm d}R}{(R^2 - R_{\rm 2D}^2)^{1/2}},\]
+
+with the inner integral over the plane-of-sky velocities at which the truncated distribution function is
+positive. It is even in \(V_{\rm los}\), integrates to one over all \(V_{\rm los}\), and is zero beyond the
+escape velocity along the line of sight. Its second moment is \(\sigma_{\rm los}^2\) (pianistpy.sigma_los()).
+
+## Arguments and units
+
+source is a Model or its prepared LosTable; given a model, its table
+is built first, so for more than one call build the table once (The prepared table: LosTable, which also says how to call it
+from a script). r_2d and v are arrays
+that broadcast against each other: projected radii in the model’s unit of length (internal units by default,
+parsecs or an Astropy quantity in the physical system) and line-of-sight velocities in its unit of velocity (km/s
+in the physical system). The result has their broadcast shape, per unit velocity of the model’s unit system.
+
+Of a superposition, each component’s distribution is read from its own table and the components are summed with
+their weights times their surface densities, \(D = \sum_k w_k \Sigma_k D_k / \sum_k w_k \Sigma_k\).
+
+## Tiers
+
+The distribution is read from the rows of the table between rows by the reading the table certified its rows for,
+so the tier is that of the table (The prepared table: LosTable): each row’s norm against the surface density and its second
+moment against the projected dispersion, and the table’s estimate of its reading between rows. A projected radius
+in an interval the table left uncertified is refused by name.
+
+## Example
+
+```
+import numpy as np
+import pianistpy as pp
+
+model = pp.solve(
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Truncation(k_t=0.05),
+    settings=pp.Settings(quick=True),
+)
+table = pp.LosTable(model)
+
+v = np.linspace(-1.5, 1.5, 3001)
+d = pp.losvd(table, 1.0, v)                    # at R_2D = 1, shape (3001,)
+dv = v[1] - v[0]
+d.sum() * dv                                   # one, to the grid's rule
+np.sqrt((v**2 * d).sum() * dv), pp.sigma_los(table, 1.0)
+
+pp.losvd(table, np.array([[0.1], [1.0], [10.0]]), v).shape   # (3, 3001): radii by velocities
+
+```
+
+     On this page
+
+
+---
+
+# Models
+
+Source: https://pianistpy.com/docs/guide/models.html
+
+# Models
+
+A model is built in four steps, one page each: a density profile, a velocity anisotropy on it, the distribution
+function of that pair, and the truncation in phase space that makes the finite equilibrium.
+
+Density profiles (DoublePowerLaw)
+
+Velocity anisotropy (Anisotropy, Component)
+
+Distribution functions (compute_df)
+
+Truncation in phase space (truncate, solve)
+
+
+---
+
+# Observables
+
+Source: https://pianistpy.com/docs/guide/observables.html
+
+# Observables
+
+pianistpy.sigma_los(), pianistpy.sigma_los_aperture(), pianistpy.aperture_losvd(),
+pianistpy.Aperture, pianistpy.LosTable
+
+Observables are functions of a model. A single request computes only what it needs; for repeated requests on one
+model, the prepared object LosTable(model) tabulates the line-of-sight velocity distributions once and every
+observable reads from it.
+
+```
+sigma = pp.sigma_los(model, [0.1, 1.0, 10.0])        # at projected radii
+
+circle = pp.Aperture.circle(r_ape=1.0, r_off=0.0)
+slit = pp.Aperture.rectangle(side_x=2.0, side_y=0.2, r_off=0.0, angle=0.0)
+pp.sigma_los_aperture(model, circle)                 # averaged over an aperture
+pp.sigma_los_aperture(model, slit)
+
+table = pp.LosTable(model)                           # once, for many requests
+pp.sigma_los(table, [0.1, 1.0, 10.0])
+pp.sigma_los_aperture(table, circle)
+pp.aperture_losvd(table, circle, [0.0, 0.1, 0.2])    # the distribution in the aperture
+
+```
+
+An Aperture is circular or rectangular, centered or offset, the rectangle at an angle; every aperture call
+takes the same object. The intrinsic radial and tangential dispersions, the line-of-sight velocity distribution
+itself and its Gauss-Hermite moments are available in the same way; their public names are listed in the
+API reference.
+
+Pairs of projected radius and line-of-sight velocity are drawn by ProjectedSampler on an annulus and, if
+given, in a window of velocity, exactly conditioned: the radius carries the window’s share of the distribution
+at each radius, for every anisotropy. The ranges and the pairs are in the source’s unit system, as for the other
+observables; the tables it builds carry their errors in its report.
+
+```
+from pianistpy.observables import ProjectedSampler
+
+sampler = ProjectedSampler(table, R_range=(0.1, 3.0), v_range=(-0.2, 0.3))
+pairs = sampler.sample(1_000_000, seed=1)   # pairs.r_2d, pairs.v_los, pairs.mass
+
+```
+
+An aperture of arbitrary shape is not an exact route: the notebook of the same name shows how a mask on
+projected draws gives it, with the statistical error printed beside every number (Examples).
+
+One page per call, each with its definition, its arguments and units, the tiers it reports and an example:
+
+Radial velocity dispersion (sigma_r)
+
+Tangential velocity dispersion (sigma_t)
+
+Line-of-sight velocity distribution (losvd)
+
+Line-of-sight velocity distribution in an aperture (aperture_losvd)
+
+Local speed distribution (pdf_v)
+
+The prepared table (LosTable)
+
+Differentiability
+
+
+---
+
+# Particles
+
+Source: https://pianistpy.com/docs/guide/particles.html
+
+# Particles
+
+pianistpy.Sampler, pianistpy.particles.Particles
+
+Sampler(model) prepares the sampling tables of a model once; .sample(n, seed) then returns n
+equal-mass particles as a Particles result, with positions, velocities, masses and component labels in
+memory. The draw is by inversion, with no rejection step, and is reproducible particle by particle: each
+particle is determined by the seed, its component and its index, independently of the hardware and of the
+number of particles requested.
+
+```
+sampler = pp.Sampler(model)
+particles = sampler.sample(10_000_000, seed=1)
+particles.write("halo.h5")                     # the native HDF5 layout
+particles.write("halo_gamer.bin", layout="gamer")
+particles.write("halo_gadget.hdf5", layout="gadget")
+particles.write("halo.txt", layout="text")
+
+```
+
+The layouts: the native HDF5 file, read back by pianistpy.read(); GAMER’s particle file; a Gadget HDF5
+initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
+it with what it wrote before returning. A writer for another simulation code is one registered function.
+
+A model that is not spatially finite needs an explicit sampling radius; the result records the mass inside it
+and the fraction of the total it represents.
+
+Sampler(model, r_range=(r_lo, r_hi)) draws every particle between two radii, in internal units, inside the
+sampling. The draw is the model’s own conditioned on the range, not a selection after a full draw: each
+particle’s radius number is taken between the mass fractions of r_lo and r_hi, so every particle lands in
+the range, and the particles carry the range’s mass. A superposition is drawn in the range by its components’
+weights, which the range leaves unchanged.
+
+Sampler.speeds(r, seed, v_range=(v_lo, v_hi)) draws one speed at each given radius from the model’s speed
+distribution at that radius conditioned on the window, in internal units, and returns with the speeds the fraction
+of the distribution at each radius that the window holds. Each speed number is taken between the speed table’s own
+numbers for v_lo and v_hi, so every speed lands in the window; a window wider than the escape speed draws the
+speeds of sample at the same seed. A superposition takes each component by its share of the window. The window is
+drawn for a constant anisotropy only: with a finite anisotropy radius the speed carries a factor of the drawn angle,
+so the window couples to the angle, and such a model is refused.
+
+## Where the speed table reaches its tier
+
+A model whose distribution function is non-negative is not thereby samplable at every tier. The speed table’s
+rows are refined until the error across them is under the goal or their count reaches n_rows_max; the table’s
+report carries that error, and a table beyond the hard limit is refused (Accuracy). Close to the smallest
+anisotropy radius r_a_min at which an Osipkov-Merritt or Cuddeford Type I distribution function is
+non-negative, the rows reach n_rows_max first and the error grows steeply as r_a falls toward
+r_a_min. Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
+default tier, the error crosses the ceiling and the hard limit at:
+
+model
+
+beta_c
+
+ceiling 1e-4 at r_a/r_a_min
+
+hard limit 1e-2 at r_a/r_a_min
+
+Cuddeford I
+
+-0.75
+
+1.62
+
+1.16
+
+Cuddeford I
+
+-0.50
+
+1.84
+
+1.20
+
+Cuddeford I
+
+-0.25
+
+1.38
+
+1.10
+
+OM I
+
+0
+
+1.27
+
+1.07
+
+Cuddeford I
+
++0.05
+
+1.24
+
+1.07
+
+Cuddeford I
+
++0.25
+
+1.14
+
+1.04
+
+Cuddeford I
+
++0.40
+
+1.09
+
+1.02
+
+Cuddeford I
+
++0.45
+
+above 1.23
+
+1.02
+
+Above the first ratio the table is within the ceiling; between the two it is returned with a warning; below the
+second it is refused. At beta_c = 1/2 the distribution function is non-negative at every r_a, and the
+table is beyond the hard limit at every r_a up to 0.32 scale radii. A constant-anisotropy model is within the
+ceiling up to beta_c = 0.4 (row error 6e-5) and above it at beta_c = 0.45 (4e-4). These bounds are
+measured, not imposed: each table’s own report is the verdict.
+
+     On this page
+
+
+---
+
+# Local speed distribution
+
+Source: https://pianistpy.com/docs/guide/pdf_v.html
+
+# Local speed distribution
+
+pianistpy.pdf_v(), pianistpy.LosTable
+
+pdf_v(source, r, v) returns the local speed distribution \(p(V\,|\,R)\) at 3D radii: the probability density
+of the speed \(V = |\mathbf{V}|\) of the tracers at a distance \(R\) from the center. As in the paper, the
+density at a radius is split into the velocity angle \(\varphi\) and the speed,
+
+\[\varrho(R) = 2\pi \int_0^\pi {\rm d}\varphi\; p_\varphi(\varphi\,|\,R)
+\int_0^{V_{\rm esc}(R)} {\rm d}V\; p_V(V\,|\,R, \varphi),
+\qquad V_{\rm esc}(R) = \sqrt{2P(R)},\]
+
+and the speed distribution is the inner density integrated over the angle, normalized by \(\varrho(R)\):
+
+\[p(V\,|\,R) = \frac{2\pi}{\varrho(R)} \int_0^\pi p_\varphi(\varphi\,|\,R)\, p_V(V\,|\,R, \varphi)\,{\rm d}\varphi .\]
+
+It integrates to one over \(V \geq 0\). Its support ends at the escape speed \(V_{\rm esc}(R)\) for an
+isotropic, constant-anisotropy or Type I model; a Type II model holds orbits of negative energy as well, and its
+speeds reach \(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\). The radius \(R\) of the paper is r in the
+package.
+
+## Arguments and units
+
+source is a Model or its prepared LosTable, whose intrinsic second
+moments the distribution is checked against. r and v are arrays that broadcast against each other: radii
+in the model’s unit of length (internal units by default, parsecs or an Astropy quantity in the physical system)
+and speeds in its unit of velocity (km/s in the physical system). The result has their broadcast shape, per unit
+velocity of the model’s unit system, and is zero at negative speeds and beyond the end of the support.
+
+Of a superposition, the components are mixed by their density at the radius,
+\(p = \sum_k w_k \varrho_k p_k / \sum_k w_k \varrho_k\).
+
+## Tiers
+
+Each radius asked for is computed once, with three checks: the norm of the distribution against the density, its
+second moment against \(\sigma_r^2 (3 - 2\beta_\sigma)\) from Radial velocity dispersion, and the change of the
+distribution when the nodes of its angle rule double. The nodes double, at most three times, until that change is
+under speed_tolerance (the goal 1e-6 at the default tier, the ceiling 1e-4 at the quick tier). A distribution
+above the goal is returned with a warning; one beyond the hard limit is refused with an
+AccuracyError unless the model’s settings ask for it (write_anyway). The stage behind the
+call, pianistpy.observables.stages.speed_distribution, returns the distribution at one radius with its
+record, its escape speed, the end of its support and, for a Type II model, the share of it beyond the escape
+speed (unbound_fraction).
+
+## Example
+
+```
+import numpy as np
+import pianistpy as pp
+
+model = pp.solve(
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Truncation(k_t=0.05),
+    settings=pp.Settings(quick=True),
+)
+v = np.linspace(0.0, 1.4, 1401)                           # past the escape speed at every r here
+p = pp.pdf_v(model, np.array([[0.1], [1.0], [10.0]]), v)   # (3, 1401): radii by speeds
+p.sum(axis=1) * (v[1] - v[0])                              # each about one
+
+physical = model.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)
+pp.pdf_v(physical, 500.0, [10.0, 50.0, 100.0])             # per km/s, at 500 pc
+
+```
+
+     On this page
+
+
+---
+
+# Density profiles
+
+Source: https://pianistpy.com/docs/guide/profiles.html
+
+# Density profiles
+
+pianistpy.DoublePowerLaw
+
+Any double power law in its three slopes, DoublePowerLaw(rho_alpha, rho_beta, rho_gamma): the inner slope,
+the outer slope and the sharpness of the transition between them, with the scale radius and the central
+potential of the untruncated profile set to one (the internal units, Units). The named profiles are
+presets of the same class, not classes of their own:
+
+```
+pp.DoublePowerLaw.nfw()        # Navarro-Frenk-White
+pp.DoublePowerLaw.hernquist()
+pp.DoublePowerLaw.plummer()
+pp.DoublePowerLaw(1.0, 3.0, 1.0)   # the same NFW profile by its slopes
+
+```
+
+A profile holds its density, enclosed mass and potential as closed forms; every quantity of the package is
+computed from them by one path, and the named profiles’ textbook forms are test references only.
+
+A profile is one half of a pianistpy.Component; the other half is its anisotropy.
+
+
+---
+
+# Flags and refusals
+
+Source: https://pianistpy.com/docs/guide/results.html
+
+# Flags and refusals
+
+What the package returns, what it flags and what it refuses, in one place.
+
+## The distribution function is always returned
+
+compute_df returns the distribution function of any component the inversion defines, whatever its sign. Where
+it is negative the result says so, with the zero crossing, the minimum and the smallest truncation value above
+which the truncated function is non-negative.
+
+## A model is always a valid equilibrium
+
+truncate and solve return a Model only where one exists. A request for which there is
+no physical, stable equilibrium raises UnphysicalModelError; the exception carries the
+distribution function, so nothing is lost and nothing has to be recomputed. A Method II request whose anisotropy
+is incompatible with the parent’s edge is refused at the call by the existence condition, with the admissible
+range stated.
+
+## A model that is not spatially finite is a model
+
+A truncated model whose density does not reach zero at a finite radius, or whose mass does not converge, is
+returned with spatially_finite false and its truncation radius and total mass stated as not finite. This is a
+property, not an error, and comes with no accuracy warning. What needs finiteness asks for it by name: a
+truncation by target mass or target radius has no solution there and is refused with the reachable range;
+sampling requires an explicit sampling radius and records the mass inside it; observables state the radius to
+which they hold.
+
+## A distribution function that diverges at the truncation energy
+
+A Method II child whose anisotropy is more than one unit below its parent’s has a distribution function that
+diverges, integrably, at the truncation energy. It is returned, with a warning that names the exponent and says
+the model is a valid equilibrium of finite density whose stability is not established.
+
+## The accuracy tiers
+
+Every result carries a validation report: a short and fixed summary of the checks it passed, one record per
+check, with its tier. A check within the accuracy goal (a relative error of 1e-6) is silent. Above the goal,
+within the ceiling (1e-4) or within the hard limit (1e-2), the result is returned with a warning in the package’s
+log and as an AccuracyWarning (Python’s standard filter silences or escalates it), and the
+flag stays with the result and with everything computed from it. Beyond the hard limit the result is refused.
+A switch that writes a refused result anyway, marked as unvalidated, is part of the design and is not yet in
+version 0.9.0.
+
+## One component
+
+The first release covers one component per model. compute_df and solve refuse more than one; several
+components in one potential, and tracers in a fixed potential, are the planned next extension
+(Upcoming features).
+
+## The keys to read first in a result
+
+validation (the report and its tier), spatially_finite, r_t and mass_t (the truncation radius
+and the total mass), identity (what the result was computed from), units (the system it is presented in),
+timing (the wall time of each stage) and, on a file, the backend that made it.
+
+     On this page
+
+
+---
+
+# Radial velocity dispersion
+
+Source: https://pianistpy.com/docs/guide/sigma_r.html
+
+# Radial velocity dispersion
+
+pianistpy.sigma_r(), pianistpy.LosTable
+
+sigma_r(source, r) returns the intrinsic radial velocity dispersion \(\sigma_r\) at 3D radii: the second
+moment of the radial velocity over the model’s distribution function at a fixed radius. As in the paper, it is
+the velocity moment of the augmented density \(\varrho_{\rm aug}(P, R)\) taken at the potential of the radius,
+
+\[\sigma_r^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
+{\rm d}\mathcal{K}, \qquad P = P(R),\]
+
+which for the anisotropy models of the package, whose augmented density separates as
+\(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\), is the Jeans integral of \(\varrho_{\rm aux}\)
+over the potential. The radius \(R\) of the paper is r in the package.
+
+## Arguments and units
+
+source is a Model (one component, or a superposition) or its prepared
+LosTable, which holds the same intrinsic profile. r is an array of radii in the model’s
+unit system: internal units by default (the scale radius is 1), parsecs (a float or an Astropy quantity) after
+model.to("physical", ...). The result has the shape of r, in the model’s velocity unit (km/s in the
+physical system).
+
+Of a superposition, whose components share one density, the second moments add with the weights:
+\(\sigma_r^2 = \sum_k w_k \sigma_{r,k}^2\).
+
+## Tiers
+
+The profile is tabulated once per model in radius, with rows added until every interval between rows reads
+within profile_tolerance at its midpoint (1e-7 at the default tier, 1e-6 at the quick tier; a tenth of the
+goal, the profile’s share of the error of what is projected from it). A model beyond the hard limit is refused
+unless its settings ask for it (write_anyway), as for every observable (Accuracy).
+
+## Example
+
+```
+import numpy as np
+import pianistpy as pp
+
+# a Hernquist density with an Osipkov-Merritt anisotropy of radius 1, truncated at K_t = 0.05
+model = pp.solve(
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Truncation(k_t=0.05),
+    settings=pp.Settings(quick=True),
+)
+r = np.array([0.1, 1.0, 10.0])
+pp.sigma_r(model, r)                          # internal units
+
+physical = model.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)
+pp.sigma_r(physical, [50.0, 500.0, 5000.0])   # parsecs in, km/s out
+
+```
+
+     On this page
+
+
+---
+
+# Tangential velocity dispersion
+
+Source: https://pianistpy.com/docs/guide/sigma_t.html
+
+# Tangential velocity dispersion
+
+pianistpy.sigma_t(), pianistpy.LosTable
+
+sigma_t(source, r) returns the intrinsic tangential velocity dispersion \(\sigma_t\) at 3D radii, of both
+tangential components together, \(\sigma_t^2 = \sigma_\theta^2 + \sigma_\phi^2\). As in the paper, it is the
+tangential velocity moment of the augmented density,
+
+\[\sigma_t^2(R) = \frac{2}{\varrho_{\rm aug}(P, R)} \int_0^{P}
+\frac{\partial}{\partial R^2}\Big[R^2 \varrho_{\rm aug}(\mathcal{K}, R)\Big]\,{\rm d}\mathcal{K},
+\qquad P = P(R),\]
+
+so that the anisotropy is \(\beta_\sigma = 1 - \sigma_t^2 / (2\sigma_r^2)\): zero for an isotropic model,
+\(\beta_{\rm c}\) for a constant anisotropy, and \(R^2 / (R^2 + R_{\rm a}^2)\) for an Osipkov-Merritt
+Type I model. The package evaluates it as \(\sigma_t^2 = 2(1 - \beta_\sigma)\sigma_r^2\), with
+\(\sigma_r\) from Radial velocity dispersion and \(\beta_\sigma\) from the model’s anisotropy in closed form.
+
+## Arguments and units
+
+As for Radial velocity dispersion: source is a Model or its LosTable, r is in
+the model’s unit system, and the result has the shape of r in the model’s velocity unit. Of a superposition,
+\(\sigma_t^2 = \sum_k w_k \sigma_{t,k}^2\).
+
+## Tiers
+
+Those of Radial velocity dispersion, whose profile it reads: the anisotropy factor is exact.
+
+## Example
+
+The anisotropy read back from the two dispersions is the model’s own, here Osipkov-Merritt with
+\(R_{\rm a} = 1\).
+
+```
+import numpy as np
+import pianistpy as pp
+
+model = pp.solve(
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Truncation(k_t=0.05),
+    settings=pp.Settings(quick=True),
+)
+r = np.array([0.1, 1.0, 10.0])
+beta = 1.0 - pp.sigma_t(model, r) ** 2 / (2.0 * pp.sigma_r(model, r) ** 2)
+np.max(np.abs(beta - r**2 / (r**2 + 1.0)))   # rounding
+
+```
+
+     On this page
+
+
+---
+
+# Superposition and inference
+
+Source: https://pianistpy.com/docs/guide/superposition.html
+
+# Superposition and inference
+
+pianistpy.superpose(), pianistpy.inference
+
+## Superposition
+
+Distribution functions inverted from one truncated density (Method II children of one parent), combined with
+positive weights that sum to one, are one equilibrium model in that density. superpose returns it as a
+Model, so everything downstream (particles, observables, files) takes it unchanged.
+
+```
+members = {child_a: 0.6, child_b: 0.3, child_c: 0.1}   # Method II children of one parent
+composite = pp.superpose(members)
+pp.Sampler(composite).sample(1_000_000, seed=1)
+
+```
+
+The shared density is enforced: members on different truncated profiles are refused. The weights are normalized;
+a sum away from one is normalized with a warning.
+
+## Inference
+
+pianistpy.inference gives the log-likelihood of a model against data as a JAX function of the
+components’ weights and the scales of the units, linear in the weights up to their normalization, so its
+gradient with respect to the weights is exact and cheap.
+
+```
+from pianistpy.inference import Data, likelihood
+
+data = Data("sigma_los", values=sigma_obs, r_2d=radii, errors=sigma_err, unit_system="physical")
+loglike = likelihood(composite.to("physical", mass_0=..., r_0=...), data)
+loglike(weights)                       # a JAX scalar; jax.grad(loglike)(weights) is its gradient
+
+```
+
+The members’ observables are computed once, in likelihood; each call of the returned function costs a
+fraction of a millisecond. A refused input inside the traced function (negative weights, a radius outside the
+table) gives minus infinity, never an exception, so a sampler over the weights sees a value.
+
+What the likelihood is differentiable in, through which observables, and at what accuracy: Differentiability.
+
+     On this page
+
+
+---
+
+# Runtime options
+
+Source: https://pianistpy.com/docs/guide/switches.html
+
+# Runtime options
+
+None of these changes a number.
+
+```
+pp.set_verbosity("info")   # "quiet" (the default), "info" or "debug"
+pp.set_timing(True)        # print the wall time of each stage
+pp.set_workers("half")     # "auto" (the default), "full", "half" or a number of cores
+pp.set_compilation_cache(False)  # the compilation cache is on by default; a path moves it
+pp.set_platform("cpu")     # "auto" (the default), "cpu" (the CPU-only mode) or "gpu"; before the first computation
+
+```
+
+The CPU-only mode gives the same numbers on every machine; the environment variable PIANISTPY_PLATFORM=cpu
+sets it before the package is imported. Each file records the backend that made it.
+
+The workers’ switch sets how many cores the package’s parallel work uses; "auto" uses every allowed core
+inside a batch job and half of them anywhere else, and no value changes a number. The verbosity, the timing and
+the workers can also be set by the environment variables PIANISTPY_VERBOSITY, PIANISTPY_TIMING and
+PIANISTPY_WORKERS.
+
+The compilation cache keeps JAX’s compiled kernels between sessions in one folder of the user’s cache directory,
+named for the package and its version, with a text file inside saying what it is; the switch reports where it
+is and clears it.
+
+
+---
+
+# Truncation in phase space
+
+Source: https://pianistpy.com/docs/guide/truncation.html
+
+# Truncation in phase space
+
+pianistpy.Truncation, pianistpy.truncate(), pianistpy.solve(), pianistpy.Model
+
+## Method I
+
+truncate(df, truncation) returns a Model: the distribution function truncated at an energy,
+with the self-consistent potential-density pair that follows from it. A Model is by construction a physical
+and stable equilibrium; a request for which none exists is refused with UnphysicalModelError,
+which carries the distribution function for inspection.
+
+One limit is stated rather than solved: for a steep cusp at beta_c = -1/2 the self-consistent center of the
+truncated model is not reached (measured on (alpha, beta) = (2, 4) at K_t = 0.3, from gamma 1.735 on), and the call
+refuses it with an AccuracyError that names the iteration’s response.
+
+Truncation takes exactly one of three targets:
+
+```
+pp.Truncation(k_t=0.2)                          # the truncation energy, in internal units
+pp.Truncation(mass_t=1.0, concentration=10.0)   # a target mass, in units of M_0 (model units)
+pp.Truncation(r_t=5.0)                          # a target radius, in units of the scale radius
+
+```
+
+A target mass is given in units of M_0, so it needs the concentration that defines M_0; a target radius and a
+truncation energy do not, and a concentration given with them is refused.
+
+solve(component, truncation) runs compute_df and truncate at once.
+
+What a model holds: the truncated distribution function, the truncated density, potential and enclosed mass on
+one radial grid (model.profile.r, .rho_trunc, .p_trunc, .mass_trunc), the truncation radius and
+the total mass, the validation report and the identity. A model that is not spatially finite is still a model:
+it says so (spatially_finite is false), states its radius and mass as not finite, and what needs finiteness
+asks for it by name (Flags and refusals).
+
+A Type II model (Osipkov-Merritt or Cuddeford) must end inside its anisotropy radius R_a, where its density
+rho_aux / (1 - r^2/R_a^2) has a pole. The lower bound K_t > P(R_a) keeps the untruncated radius of the truncation
+energy inside R_a, but the truncated model’s own edge lies farther out; where that edge would reach R_a the request
+is refused by name (TYPE II EDGE, with the potential at R_a stated), and a larger k_t brings the edge
+inside.
+
+## Method II
+
+Method II gives a new anisotropy to a density that is already truncated: a component whose profile is the
+truncated profile of another model, through the same functions.
+
+```
+parent = pp.solve(pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy()), pp.Truncation(k_t=0.2))
+child = pp.solve(pp.Component(parent.profile, pp.Anisotropy(beta_c=-0.25)))
+
+```
+
+A Method II model exists only when its anisotropy is compatible with the edge of the parent’s density; the
+condition is checked at the call and a violation is refused by name, with the admissible range stated. The
+technical notes derive it (Technical notes).
+
+     On this page
+
+
+---
+
+# Units
+
+Source: https://pianistpy.com/docs/guide/units.html
+
+# Units
+
+Everything is computed and returned in internal units, the dimensionless normalization of Widrow (2000) in which
+the scale radius and the central potential of the untruncated profile are 1. A result’s to method presents it in
+model units (G = M_0 = r_0 = 1) or, through Astropy, in physical units, without recomputing it, and what is
+computed from it is returned in that system.
+
+Three inputs of a truncation are given in the units that are natural for them, as their documentation states:
+the truncation energy k_t in internal units, a target radius r_t in units of the scale radius, and a
+target mass mass_t in units of M_0, together with the concentration that defines M_0.
+
+
+---
+
+# PIANISTpy
+
+Source: https://pianistpy.com/docs/index.html
+
+# PIANISTpy
+
+Particle Initial conditions with ANISoTropy: distribution functions, particle initial
+conditions and observables of spherical systems with anisotropic velocities, truncated self-consistently in
+phase space.
+
+PIANISTpy builds equilibrium models of spherical systems (dark matter halos and subhalos, star clusters, dwarf
+galaxies) with a velocity anisotropy you choose. The outer boundary of a model is set in phase space, so the
+truncated model is itself an equilibrium and needs no relaxation run before it is used.
+
+Get started
+
+Install, the requirements, the quick start.
+
+Get started
+
+User guide
+
+One page per topic, with short examples: models, particles, observables, superposition and inference,
+units, accuracy.
+
+User guide
+
+Examples
+
+Notebooks that run a whole job, and one per figure of the paper, run against this release.
+
+Examples
+
+API reference
+
+Every function by subpackage, the settings tables, the names and paper symbols, the technical notes.
+
+API reference
+
+
+---
+
+# Examples
+
+Source: https://pianistpy.com/docs/notebooks/index.html
+
+# Examples
+
+Every notebook is stored with its outputs and run on a compute node against the release it is pinned to; the
+manual renders them and runs nothing. The notebooks live in their own repository,
+PIANISTpy-notebooks, from which they can be opened in
+the browser.
+
+## Tutorials
+
+Generate particle initial conditions
+
+Compute observables from a model
+
+Planned for 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
+fit a superposition to data; observables in an aperture of any shape.
+
+## Reproducing the paper
+
+One notebook per figure of the paper, from the released package, with the tables and measured numbers the
+technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
+anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
+1.0.0 release.
+
+## N-body tests with GAMER
+
+Under construction. The test problem used for the paper’s isolation runs (and in Chiang et al. 2025, 2026a) is being prepared as a
+test problem of the GAMER code, with its analysis and plotting scripts inside it. A link follows once it is
+merged there.
+
+     On this page
+
+
+---
+
+# Observables of a model
+
+Source: https://pianistpy.com/docs/notebooks/tutorials/observables.html
+
+# Observables of a model
+
+The line-of-sight velocity dispersion at projected radii, its average over an aperture, and the same quantities in physical units. This tutorial uses the isotropic Hernquist model, whose distribution function is known in closed form.
+
+```
+import numpy as np
+import pianistpy as pp
+from pianistpy.df.analytic import analytic_model
+
+model = analytic_model("hernquist")
+
+```
+
+sigma_los takes projected radii, in the model’s units (internal here: the scale radius is 1).
+
+```
+r_2d = np.array([0.1, 1.0, 10.0])
+pp.sigma_los(model, r_2d)
+
+```
+
+```
+array([0.30974035, 0.27598987, 0.1234161 ])
+
+```
+
+sigma_los_aperture averages the squared dispersion over an aperture, weighted by the surface density: a centered circle, or a rectangle at an offset and an angle.
+
+```
+circle = pp.Aperture.circle(1.0)
+slit = pp.Aperture.rectangle(2.0, 0.5, r_off=1.0, angle=0.3)
+pp.sigma_los_aperture(model, circle), pp.sigma_los_aperture(model, slit)
+
+```
+
+```
+(0.3028872393345692, 0.3003436495218896)
+
+```
+
+A LosTable computes the line-of-sight velocity distributions once and serves every call made from it. Its aperture dispersion is the second moment of the aperture’s velocity distribution, an independent route that agrees with the one from the model.
+
+```
+table = pp.LosTable(model)
+pp.sigma_los(table, r_2d), pp.sigma_los_aperture(table, circle)
+
+```
+
+```
+(array([0.30974035, 0.27598987, 0.1234161 ]), 0.302887239623593)
+
+```
+
+In physical units, radii and apertures are given in parsecs (or as Astropy quantities) and the dispersions are returned in km/s. Here M_0 = 1e9 solar masses and r_0 = 500 pc, with a concentration of 10.
+
+```
+physical = model.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)
+pp.sigma_los(physical, [50.0, 500.0, 5000.0])
+
+```
+
+\[[31.599922,~28.156675,~12.590995] \; \mathrm{\frac{km}{s}}\]
+
+```
+pp.sigma_los_aperture(
+    table.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0), pp.Aperture.circle(500.0)
+)
+
+```
+
+\[30.900763 \; \mathrm{\frac{km}{s}}\]
+
+
+---
+
+# Particles from a model
+
+Source: https://pianistpy.com/docs/notebooks/tutorials/particles.html
+
+# Particles from a model
+
+A Sampler holds the tables that drawing particles needs; it is built once from a Model and reused by every call of sample. This tutorial draws particles from the isotropic Hernquist model, whose distribution function is known in closed form, so that it runs without the inversion.
+
+```
+import numpy as np
+import pianistpy as pp
+from pianistpy.df.analytic import analytic_model
+
+model = analytic_model("hernquist")
+model.spatially_finite, model.validation.tier
+
+```
+
+```
+(False, 'goal')
+
+```
+
+The Hernquist model is not truncated, so the sampler needs an outer radius, r_sample, in internal units (the scale radius is 1).
+
+```
+sampler = pp.Sampler(model, r_sample=100.0)
+particles = sampler.sample(100_000, seed=1)
+particles.position.shape, particles.velocity.shape, particles.units
+
+```
+
+```
+((100000, 3),
+ (100000, 3),
+ {'position': 'internal', 'velocity': 'internal', 'mass': 'internal'})
+
+```
+
+The same seed gives the same particles. The enclosed mass of the draw follows the profile: for the Hernquist model the mass inside r is proportional to r^2 / (1 + r)^2.
+
+```
+r = np.linalg.norm(particles.position, axis=1)
+radii = np.array([0.1, 0.3, 1.0, 3.0, 10.0, 30.0])
+drawn = np.array([(r < x).mean() for x in radii])
+exact = (radii**2 / (1 + radii) ** 2) / (100.0**2 / 101.0**2)
+np.column_stack([radii, drawn, exact])
+
+```
+
+```
+array([[1.00000000e-01, 8.72000000e-03, 8.43057851e-03],
+       [3.00000000e-01, 5.43700000e-02, 5.43248521e-02],
+       [1.00000000e+00, 2.57090000e-01, 2.55025000e-01],
+       [3.00000000e+00, 5.73190000e-01, 5.73806250e-01],
+       [1.00000000e+01, 8.40350000e-01, 8.43057851e-01],
+       [3.00000000e+01, 9.53980000e-01, 9.55348595e-01]])
+
+```
+
+The particles are written to a file and read back. The default layout is the package’s own HDF5 file; the layouts of simulation codes are chosen by layout.
+
+```
+import tempfile, os
+
+path = os.path.join(tempfile.mkdtemp(), "hernquist.h5")
+particles.write(path)
+pp.read(path).identity == particles.identity
+
+```
+
+```
+True
+
+```
+
+
+---
+
+# Release notes
+
+Source: https://pianistpy.com/docs/project/changelog.html
+
+# Release notes
+
+What each version adds, changes and fixes, newest first. A change that moves a number beyond rounding is named
+with the size of the move; the standard and the minimum requirements are listed with each release.
+
+## 0.9.0
+
+A pre-release: the public interface, the particles, the observables, the superposition and the inference are in;
+the calls that compute and truncate a distribution function (compute_df, truncate and solve) land in
+1.0.0.
+
+Requirements: see Install.
+
+     On this page
+
+
+---
+
+# Citing PIANISTpy
+
+Source: https://pianistpy.com/docs/project/citing.html
+
+# Citing PIANISTpy
+
+If you use PIANISTpy, cite the paper that describes it, Chiang, van den Bosch and Schive (2026). The citation
+entry, the arXiv link and the DOI of the software release are added with the 1.0.0 release.
+
+
+---
+
+# Contributing
+
+Source: https://pianistpy.com/docs/project/contributing.html
+
+# Contributing
+
+Bug reports, questions and proposed changes are welcome through the issue tracker of the
+repository.
+
+## Reporting a problem
+
+Include the version (pianistpy.__version__), the inputs that reproduce the problem (the profile, the
+anisotropy, the truncation and the settings), and the full text of the error. An error raised by the package ends
+with its most recent messages; keep them in the report. If a result came with an accuracy warning, include its
+validation report.
+
+## Setting up
+
+```
+git clone https://github.com/barrytchiang/PIANISTpy
+cd PIANISTpy
+python -m pip install -e .
+python -m pip install pytest ruff mypy
+
+```
+
+## Before you propose a change
+
+Read STYLE_GUIDE.md in the repository. It covers the names, the docstrings, the units, the numerical rules
+and the checklist that every change is held to.
+
+Run the formatter and the linter (ruff format, ruff check, mypy).
+
+Run the tests, which include the examples in the docstrings (python -m pytest).
+
+Add a test for what you changed: a new function comes with a test of its result against an independent
+reference, a closed form, a limit, or an identity that the result must satisfy.
+
+## What a change must keep
+
+One result, one path. A quantity is computed by one function. A second route to the same number is not
+added beside the first; it replaces it or stays out.
+
+No number changes silently. A change that moves a result beyond rounding says so, with the size of the
+move and the reason.
+
+The session switches change no number. Verbosity, timing and the number of workers never alter what is
+computed.
+
+Accuracy is stated, not assumed. A numerical setting enters a tested tier only after it has passed the
+checks of that tier.
+
+     On this page
+
+
+---
+
+# Development
+
+Source: https://pianistpy.com/docs/project/index.html
+
+# Development
+
+How the package changes: what each release added, changed and fixed, what comes next, and how to report a
+problem or propose a change.
+
+Release notes
+
+Upcoming features
+
+Contributing
+
+
+---
+
+# License and authors
+
+Source: https://pianistpy.com/docs/project/license.html
+
+# License and authors
+
+PIANISTpy is released under the BSD 3-Clause License, copyright 2026 Barry T. Chiang. The full text is the
+LICENSE file of the repository.
+
+PIANISTpy is written and maintained by Barry T. Chiang (Yale University), barrytchiang@gmail.com.
+
+
+---
+
+# Upcoming features
+
+Source: https://pianistpy.com/docs/project/roadmap.html
+
+# Upcoming features
+
+What is planned or under development after the first release. The list is written at the 1.0.0 release.
+
+Several components in one potential, and tracers in a fixed potential: the package’s results, stages and files
+are shaped per component already; what is to be written is the theory.
+
+The N-body test problem of the paper’s isolation runs as a GAMER test problem, with its analysis scripts.
+
+The technical notes rendered as pages of this manual.
+
+
+---
+
+# Velocity anisotropy (pianistpy.anisotropy)
+
+Source: https://pianistpy.com/docs/reference/api/anisotropy.html
+
+# Velocity anisotropy (pianistpy.anisotropy)
+
+Velocity anisotropy models.
+
+class pianistpy.anisotropy.Anisotropy(beta_c=0.0, r_a=inf, kind='I')
+
+Velocity anisotropy of one component.
+
+The isotropic, constant-anisotropy, Osipkov-Merritt (OM) and
+Cuddeford-Osipkov-Merritt (COM) models are regions of the parameters of
+this one class, since the COM model contains the other three.
+
+Parameters:
+
+beta_c (float, optional) – Central anisotropy \(\beta_{\rm c}\), smaller than 1. The default,
+exactly 0, gives an isotropic or an OM model.
+
+r_a (float, optional) – Anisotropy radius \(R_{\rm a}\) in internal units, positive. The
+default, infinity, gives an isotropic or a constant-anisotropy model.
+
+kind ({"I", "II"}, optional) – Type of the OM or COM model. Ignored when r_a is infinite.
+
+Notes
+
+The model is identified by exact comparison of the parameters as given:
+beta_c == 0 and an infinite r_a. A value such as 1e-12 is a
+constant-anisotropy model and is not rounded to zero. The package is
+tested to give results that are continuous through these special values.
+
+Examples
+
+```
+>>> Anisotropy().model
+'isotropic'
+>>> Anisotropy(beta_c=0.3).model
+'constant'
+>>> Anisotropy(r_a=10.0).model
+'om'
+>>> Anisotropy(beta_c=-0.25, r_a=10.0, kind="II").model
+'com'
+
+```
+
+factor(r, xp=np)
+
+Return the factor \(g(R)\) of the augmented density.
+
+The one definition of \(g\) in the package: every consumer of
+\(\varrho_{\rm aug} = g(R)\,\varrho_{\rm aux}\) reads it here, in
+this order of operations.
+
+Parameters:
+
+r (array-like) – Radius, in internal units.
+
+xp (module, optional) – The array namespace, NumPy by default; JAX’s inside a kernel.
+
+Returns:
+
+g – \(g(R)\): 1 (isotropic), \(R^{-2\beta_{\rm c}}\)
+(constant), \((1 \pm R^2/R_{\rm a}^2)^{-1}\) (OM) and
+\(R^{-2\beta_{\rm c}} (1 \pm R^2/R_{\rm a}^2)^{-(1-\beta_{\rm c})}\)
+(COM), the upper sign for Type I. A Type II model is defined
+inside \(R_{\rm a}\) only; beyond it the value is not
+clamped and not meaningful.
+
+Return type:
+
+array
+
+References
+
+Paper Eq. (B43) [eqn:linearity_beta_1].
+
+property model: str
+
+isotropic, constant, om or com.
+
+Type:
+
+Label of the model in the paper
+
+property domain_edge: float
+
+R_a
+for a Type II model (its factor is real, finite and positive only
+inside it), infinite otherwise.
+
+Type:
+
+The outer edge of the radii where the anisotropy is defined
+
+to_dict()
+
+Return the anisotropy as a plain dictionary.
+
+Return type:
+
+dict[str, Any]
+
+classmethod from_dict(record)
+
+Build the anisotropy from its dictionary form.
+
+Parameters:
+
+record (Mapping[str, Any])
+
+Return type:
+
+Anisotropy
+
+     On this page
+
+
+---
+
+# Distribution functions and models (pianistpy.df)
+
+Source: https://pianistpy.com/docs/reference/api/df.html
+
+# Distribution functions and models (pianistpy.df)
+
+Distribution functions and equilibrium models.
+
+class pianistpy.df.Component(profile, anisotropy=<factory>, mass=1.0, name='component')
+
+One component of a model: a density profile with its anisotropy.
+
+A model is a sequence of components that share one total potential. A
+single component is a sequence of length one.
+
+Given the truncated profile of another model (parent.profile) in
+place of an analytic profile, the component is Method II of the paper:
+the density of the parent in the parent’s potential, with a new
+anisotropy. It is refused here where no distribution function exists
+for that anisotropy at the edge of the density.
+
+Parameters:
+
+profile (DoublePowerLaw or TruncatedProfile) – Density profile of the component: an analytic profile, or the
+truncated profile of a model of one component.
+
+anisotropy (Anisotropy, optional) – Velocity anisotropy of the component. Isotropic by default.
+
+mass (float, optional) – Mass of the component relative to the first component.
+
+name (str, optional) – Label carried by the particles and the results of the component.
+
+property unit_profile: DoublePowerLaw
+
+The analytic profile that fixes the internal units of the component.
+
+to_dict()
+
+Return the component as a plain dictionary.
+
+Return type:
+
+dict[str, Any]
+
+classmethod from_dict(record, profile=None)
+
+Build the component from its dictionary form.
+
+Parameters:
+
+record (mapping) – The dictionary form.
+
+profile (TruncatedProfile, optional) – The profile, where the record states a truncated one: the
+record identifies it and does not hold its arrays.
+
+Return type:
+
+Component
+
+class pianistpy.df.DistributionFunction(components, settings, identity, grid, table, form, k_t_min, validation, timing, inversion, units=Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None), rows=None)
+
+Untruncated distribution functions of the components of a model.
+
+Returned by compute_df. It is a mathematical object: it may be negative or
+non-monotonic, and states where. Only a Model can be sampled or
+projected.
+
+Parameters:
+
+components (tuple of Component) – The components the DFs belong to.
+
+settings (Settings) – The settings the DFs were computed with.
+
+identity (str) – Identity string of the result.
+
+grid (EnergyGrid) – The energies of the table and their radii.
+
+table (DfTable) – The DFs on the grid.
+
+form (AsymptoticForm) – The analytic form of each DF beyond the ends of its table.
+
+k_t_min (float) – Lowest admissible truncation energy; zero where every DF is
+non-negative and non-decreasing.
+
+validation (ValidationReport) – The report of the inversion.
+
+timing (dict of str to float) – Wall time of each stage, in seconds.
+
+inversion (InversionRecord or None) – How the table was made; None where it was not made by an inversion
+(a closed form). Every solved DF states it.
+
+rows (InversionRows or None) – The inversion’s rows as made on its whole grid, which the truncation
+reads; None where the table was not made by an inversion.
+
+units (Units)
+
+property is_physical: bool
+
+Whether the untruncated DFs are a valid equilibrium as they stand.
+
+property diverges_at_zero: tuple[bool, ...]
+
+Whether the DF of each component diverges as the energy goes to zero.
+
+See AsymptoticForm.diverges_at_zero.
+
+to(system, concentration=None, mass_0=None, r_0=None, r_vir=None)
+
+Return the same result presented in another unit system.
+
+The numbers of the result are not recomputed: they stay in internal
+units, and what is computed from the result inherits its units.
+
+Parameters:
+
+system ({"internal", "model", "physical"}) – The target unit system.
+
+concentration (float, optional) – Concentration that defines M_0, the mass inside that many scale
+radii. Taken from the truncation where it was given there.
+
+mass_0 (float or astropy Quantity, optional) – M_0, for the physical system; a float is in solar masses.
+
+r_0 (float or astropy Quantity, optional) – The scale radius, or the concentration radius in its place, for
+the physical system; a float is in parsecs.
+
+r_vir (float or astropy Quantity, optional) – The scale radius, or the concentration radius in its place, for
+the physical system; a float is in parsecs.
+
+Returns:
+
+df
+
+Return type:
+
+DistributionFunction
+
+write(path, overwrite=False)
+
+Write the result to a file; pianistpy.read reads it back.
+
+Parameters:
+
+path (str | PathLike)
+
+overwrite (bool)
+
+Return type:
+
+None
+
+write_text(path, overwrite=False)
+
+Write the DF table as fixed-width text, an export beside the file.
+
+One row per node of each component’s support: the energy k (in
+units of the central potential, internal units), log10_df and
+the slope dlog10_df_dlnk of the table, and with more than one
+component its index in a component column. The header names the
+result, its components and the units. The file is read back and
+compared with what was written, to the digits written
+(pianistpy.io.write_table).
+
+Parameters:
+
+path (str | PathLike)
+
+overwrite (bool)
+
+Return type:
+
+None
+
+class pianistpy.df.Model(components, truncation, settings, identity, parent, table, form, profile, validation, timing, r_trust, inversion, units=Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None))
+
+A valid equilibrium: truncated or untruncated, of one or more components.
+
+Returned by truncate and solve. A model always has non-negative,
+non-decreasing DFs. Whether its density ends at a finite radius is a
+property of the model, spatially_finite.
+
+Parameters:
+
+components (tuple of Component) – The components of the model.
+
+truncation (Truncation or None) – The truncation, or None for an untruncated model.
+
+settings (Settings) – The settings the model was computed with.
+
+identity (str) – Identity string of the result.
+
+parent (str) – Identity string of the DistributionFunction the model was built from.
+
+table (DfTable) – The DFs of the model.
+
+form (AsymptoticForm) – The analytic form of each DF beyond the ends of its table.
+
+profile (TruncatedProfile) – The self-consistent profile of the model.
+
+validation (ValidationReport) – The report of the model.
+
+timing (dict of str to float) – Wall time of each stage, in seconds.
+
+r_trust (mapping of str to float) – The radius within which the model holds each accuracy tier, keyed by
+the report’s tier names (“goal”, “ceiling”; “limit” where it is
+computed): where the result is valid, not an error of it. Every tier
+or none: the radii are measured on an untruncated model, from the
+offset of its potential at large radii, and the mapping is empty on
+a truncated model (a spatially finite one holds its table to its
+edge) and where that offset is undefined. A tier the table’s first
+outer row already misses has radius 0; infinite on a closed form.
+
+inversion (InversionRecord or None) – How the model’s table was made; None where it was not made by an
+inversion (a closed form). Every solved model states it.
+
+units (Units)
+
+property spatially_finite: bool
+
+Whether the density reaches zero at a finite radius and mass.
+
+property diverges_at_zero: tuple[bool, ...]
+
+Whether the DF of each component diverges as the energy goes to zero.
+
+See AsymptoticForm.diverges_at_zero. Such a model is a valid
+equilibrium with a finite density; its DF is not monotonic.
+
+to(system, concentration=None, mass_0=None, r_0=None, r_vir=None)
+
+Return the same model presented in another unit system.
+
+The numbers of the model are not recomputed: they stay in internal
+units, and what is computed from the model inherits its units.
+
+Parameters:
+
+system ({"internal", "model", "physical"}) – The target unit system.
+
+concentration (float, optional) – Concentration that defines M_0, the mass inside that many scale
+radii. Taken from the truncation where it was given there.
+
+mass_0 (float or astropy Quantity, optional) – M_0, for the physical system; a float is in solar masses.
+
+r_0 (float or astropy Quantity, optional) – The scale radius, or the concentration radius in its place, for
+the physical system; a float is in parsecs.
+
+r_vir (float or astropy Quantity, optional) – The scale radius, or the concentration radius in its place, for
+the physical system; a float is in parsecs.
+
+Returns:
+
+model
+
+Return type:
+
+Model
+
+radial_profiles()
+
+Return the radial profiles of the model in its unit system.
+
+Returns:
+
+profiles – "r", "potential" (the relative potential), "density"
+(one row per component) and "mass" (the total enclosed
+mass): plain arrays in the internal and the model systems,
+Astropy quantities in the physical system.
+
+Return type:
+
+dict
+
+property mass_t: Any
+
+Total mass of the model, in its unit system.
+
+property r_t: Any
+
+Outer radius of the model, in its unit system.
+
+write(path, overwrite=False)
+
+Write the result to a file; pianistpy.read reads it back.
+
+Parameters:
+
+path (str | PathLike)
+
+overwrite (bool)
+
+Return type:
+
+None
+
+write_text(path, table='profile', overwrite=False)
+
+Write a table of the model as fixed-width text, an export beside the file.
+
+Parameters:
+
+path (path) – File to write.
+
+table ({"profile", "df"}) – "profile": the radial profiles in the model’s unit system
+(radial_profiles): r, potential, the density of
+each component (density_<name> with more than one) and the
+enclosed mass; the header states the unit of each column.
+"df": the DF table, as DistributionFunction.write_text
+writes it.
+
+overwrite (bool, optional) – Replace an existing file.
+
+Raises:
+
+InputError – For a table other than the two, or an existing file without
+    overwrite.
+
+ResultError – If the file does not read back as written.
+
+Return type:
+
+None
+
+class pianistpy.df.Truncation(k_t=None, mass_t=None, r_t=None, concentration=None)
+
+How the distribution function of a model is truncated.
+
+This is Method I of the paper. Method II needs no truncation: it is a
+component whose profile is the truncated profile of another model, given
+a new anisotropy.
+
+Exactly one of k_t, mass_t and r_t is given. A target mass is given
+together with the concentration that defines its unit.
+
+Parameters:
+
+k_t (float, optional) – Truncation energy \(\mathcal{K}_{\rm t}\), in internal units (the
+central potential of the untruncated profile is 1).
+
+mass_t (float, optional) – Target total mass of the truncated model, in MODEL units: in units of
+\(M_0\), the mass of the untruncated profile inside the
+concentration radius, so that a value of 1 is the virial mass. This
+is the one input that is not in internal units. The truncation energy
+is solved for. Requires concentration.
+
+r_t (float, optional) – Target truncation radius \(R_{\rm t}\), in internal units (the
+scale radius \(r_0\) is their unit of length). The truncation
+energy is solved for.
+
+concentration (float, optional) – Concentration \(c\) of the first component: \(M_0\) is the
+mass of its untruncated profile inside \(c\,r_0\). Required
+with mass_t, and refused with k_t and r_t, which do not depend
+on it.
+
+to_dict()
+
+Return the truncation as a plain dictionary.
+
+Return type:
+
+dict[str, Any]
+
+classmethod from_dict(record)
+
+Build the truncation from its dictionary form.
+
+Parameters:
+
+record (Mapping[str, Any])
+
+Return type:
+
+Truncation
+
+pianistpy.df.compute_df(components, settings=None)
+
+Return the untruncated distribution function of each component.
+
+The DF is returned whatever its sign, with the information needed to
+truncate it: where it is negative, its minimum, and the lowest admissible
+truncation energy.
+
+Parameters:
+
+components (Component or sequence of Component) – The component of the model. This release takes one; a sequence of
+several, in one total potential, is refused.
+
+settings (Settings, optional) – Numerical settings. The default tier if omitted.
+
+Returns:
+
+df
+
+Return type:
+
+DistributionFunction
+
+Raises:
+
+NotImplementedError – If the component’s anisotropy family is not served yet (served:
+    isotropic, constant beta and Osipkov-Merritt Type I).
+
+pianistpy.df.solve(components, truncation=None, settings=None)
+
+Return the equilibrium model of the given components.
+
+This runs compute_df and then truncate.
+
+Parameters:
+
+components (Component or sequence of Component) – The component of the model. This release takes one; a sequence of
+several, in one total potential, is refused.
+
+truncation (Truncation, optional) – The truncation. If omitted, the model is untruncated.
+
+settings (Settings, optional) – Numerical settings. The default tier if omitted.
+
+Returns:
+
+model
+
+Return type:
+
+Model
+
+pianistpy.df.truncate(df, truncation=None)
+
+Return the equilibrium model built from a distribution function.
+
+Parameters:
+
+df (DistributionFunction) – Result of compute_df.
+
+truncation (Truncation, optional) – The truncation. If omitted, the untruncated model is returned where
+it is a valid equilibrium.
+
+Returns:
+
+model
+
+Return type:
+
+Model
+
+Raises:
+
+UnphysicalModelError – If no valid equilibrium exists for the request. The exception carries
+    df as its result.
+
+     On this page
+
+
+---
+
+# Exceptions (pianistpy.exceptions)
+
+Source: https://pianistpy.com/docs/reference/api/exceptions.html
+
+# Exceptions (pianistpy.exceptions)
+
+Exceptions and warnings raised by PIANISTpy.
+
+exception pianistpy.exceptions.AccuracyError(*args)
+
+Raised when a result misses the hard accuracy limit.
+
+Parameters:
+
+args (object)
+
+Return type:
+
+None
+
+exception pianistpy.exceptions.AccuracyWarning
+
+Issued when a result lies between the stated accuracy and the hard limit.
+
+exception pianistpy.exceptions.InputError(*args)
+
+Raised when an input parameter is outside its admissible range.
+
+Parameters:
+
+args (object)
+
+Return type:
+
+None
+
+exception pianistpy.exceptions.PianistpyError(*args)
+
+Base class of every error raised by PIANISTpy.
+
+Variables:
+
+recent (tuple of str) – The most recent messages of the package when the error was raised,
+oldest first. They are kept whatever the verbosity, so that a quiet
+run that fails can still say what it was doing.
+
+Parameters:
+
+args (object)
+
+Return type:
+
+None
+
+exception pianistpy.exceptions.PianistpyWarning
+
+Base class of every warning issued by PIANISTpy.
+
+exception pianistpy.exceptions.ResultError(*args)
+
+Raised when a file does not hold the result it is taken for.
+
+This covers an unknown format version, a data digest that does not match
+the stored arrays, and a parent whose identity differs from the one the
+file records.
+
+Parameters:
+
+args (object)
+
+Return type:
+
+None
+
+exception pianistpy.exceptions.UnphysicalModelError(message, result=None)
+
+Raised when no valid equilibrium exists for the requested model.
+
+Parameters:
+
+message (str) – The condition that failed and the values involved.
+
+result (object, optional) – The distribution function that was computed before the model was
+refused, so that it can be inspected without a second computation.
+
+Variables:
+
+result (object or None) – The distribution function attached to the refusal.
+
+Return type:
+
+None
+
+     On this page
+
+
+---
+
+# API reference
+
+Source: https://pianistpy.com/docs/reference/api/index.html
+
+# API reference
+
+The package (pianistpy)
+
+Density profiles (pianistpy.profiles)
+
+Velocity anisotropy (pianistpy.anisotropy)
+
+Distribution functions and models (pianistpy.df)
+
+Particles (pianistpy.particles)
+
+Observables (pianistpy.observables)
+
+Superposition (pianistpy.superposition)
+
+Inference (pianistpy.inference)
+
+Units (pianistpy.units)
+
+Results and files (pianistpy.io)
+
+Settings (pianistpy.settings)
+
+Validation (pianistpy.validation)
+
+Exceptions (pianistpy.exceptions)
+
+Session switches (pianistpy.runtime)
+
+Numerics (pianistpy.numerics)
+
+
+---
+
+# Inference (pianistpy.inference)
+
+Source: https://pianistpy.com/docs/reference/api/inference.html
+
+# Inference (pianistpy.inference)
+
+The log-likelihood of a model against data.
+
+class pianistpy.inference.Data(observable, values, r_2d=None, apertures=(), errors=None, covariance=None, unit_system='internal', v_edges=None, r=None)
+
+Measurements of one observable, with their errors.
+
+Parameters:
+
+observable ({"sigma_los", "sigma_los_aperture", "losvd", "losvd_aperture", "pdf_v"}) – What was measured: the line-of-sight dispersion at projected radii,
+or averaged over apertures (weighted by the surface density); or a
+binned distribution of velocity: the line-of-sight velocity
+distribution at one projected radius or in one aperture, or the
+local speed distribution at one 3D radius.
+
+values (array-like, shape (n,)) – The measured values. For a binned distribution, the share of the
+distribution inside the window [v_edges[0], v_edges[-1]] that
+falls in each bin.
+
+r_2d (array-like, shape (n,), optional) – The projected radii, for "sigma_los"; one radius for
+"losvd".
+
+apertures (sequence of Aperture, optional) – The apertures, for "sigma_los_aperture", their lengths in the
+units of the data; one aperture for "losvd_aperture".
+
+errors (array-like, shape (n,), optional) – The standard deviations of independent errors.
+
+covariance (array-like, shape (n, n), optional) – The covariance of the errors, in place of errors.
+
+unit_system ({"internal", "model", "physical"}) – The units of the data: in the physical system radii in parsecs and
+speeds in kilometres per second. A model is compared in the same
+system.
+
+v_edges (array-like, shape (n + 1,), optional) – The edges of the bins of a binned distribution, increasing; speeds
+of "pdf_v" not negative.
+
+r (array-like, shape (1,), optional) – The 3D radius of "pdf_v".
+
+property identity: str
+
+a digest of everything it holds.
+
+Type:
+
+The identity string of the data
+
+write(path, overwrite=False)
+
+Write the data to a file; pianistpy.read reads it back.
+
+Parameters:
+
+path (str | PathLike)
+
+overwrite (bool)
+
+Return type:
+
+None
+
+class pianistpy.inference.Likelihood(tables, blocks, weights, scale, length, velocity, r_min, r_max, free=(), theta=None, members=(), readings=(), binned=())
+
+The log-likelihood of a model against data, as a JAX function.
+
+Built by likelihood. Called with the weights of the components and the
+scales of the units, it returns the Gaussian log-likelihood, traceable
+and differentiable in both.
+
+Variables:
+
+tables (tuple) – The projected table of each component, read in JAX.
+
+blocks (tuple) – Each Data, prepared.
+
+weights (array, shape (n_components,)) – The model’s own weights (its components’ masses).
+
+scale (array, shape (2,)) – The model’s own mass and length scales in the data’s units.
+
+velocity (length,) – The factors of the data’s units at the model’s own scales.
+
+r_max (r_min,) – The innermost and outermost projected radius of the tables, in
+internal units.
+
+free (tuple of int) – The components whose anisotropy (beta_c, R_a) is a parameter.
+
+theta (array, shape (n_free, 2)) – Their own (beta_c, R_a), in internal units.
+
+members (tuple) – Their tables at any theta, on the host.
+
+readings (tuple) – Their sigma_los^2 readings as JAX functions of theta.
+
+Parameters:
+
+tables (tuple[_Table, ...])
+
+blocks (tuple[_Block, ...])
+
+weights (Any)
+
+scale (Any)
+
+length (float)
+
+velocity (float)
+
+r_min (float)
+
+r_max (float)
+
+free (tuple[int, ...])
+
+theta (Any | None)
+
+members (tuple[_Free, ...])
+
+readings (tuple[Any, ...])
+
+binned (tuple[_BinnedBlock, ...])
+
+pianistpy.inference.likelihood(model, data, settings=None, free=())
+
+Return the log-likelihood of a model against data, prepared.
+
+The projected table of each component is computed here, once; the
+returned function reads them in JAX. A model or data that cannot be
+compared are refused here, with an exception.
+
+Parameters:
+
+model (Model) – A model of one component, or a superposition (superpose), in the
+unit system of the data.
+
+data (Data or sequence of Data) – The measurements; their log-likelihoods are summed.
+
+settings (Settings, optional) – Numerical settings of the observables; the model’s by default.
+
+free (sequence of int, optional) – The components whose anisotropy (beta_c, R_a) is a parameter of the
+likelihood (its theta): each a spatially finite model on a
+truncated profile (a DF inverted on its parent’s profile). An
+isotropic or constant member’s beta_c is free and its R_a column is
+held at its own value (infinite), with a zero gradient: the family
+has no R_a.
+
+Returns:
+
+likelihood
+
+Return type:
+
+Likelihood
+
+Notes
+
+Each measurement is the surface-density weighted mean of
+\(\sigma_{\rm los}^2\) over its nodes, sum_j q_ij Sigma(x_j)
+sigma^2(x_j) / sum_j q_ij Sigma(x_j): for a projected radius one node,
+for an aperture the nodes and weights of aperture_dispersion. On a
+superposition each component’s table is its member’s own, on the shared
+density, and the two sums are mixed by the weights (mixture): the
+measurement is a ratio of two sums linear in the weights. A scale
+of length other than the model’s own moves the nodes (x = R / (L l))
+and keeps their weights, a change of variable to the data’s radius in
+which the aperture is fixed.
+
+A free component’s tables at a theta are built on the host when the
+function first meets it: its DF on its truncated profile (refused there,
+the function is minus infinity), then the two tables, their rows placed
+at that theta. The gradient in theta is that of the reading on those rows
+(their placement frozen); between placements the value moves within the
+tables’ tolerance. An untruncated component is not free: its edge terms
+read its DF.
+
+pianistpy.inference.log_likelihood(model, data, settings=None)
+
+Return the Gaussian log-likelihood of a model against data.
+
+Parameters:
+
+model (Model) – The model, in the unit system of the data.
+
+data (Data or sequence of Data) – The measurements; their log-likelihoods are summed.
+
+settings (Settings, optional) – Numerical settings of the observables; the model’s by default.
+
+Returns:
+
+log_likelihood
+
+Return type:
+
+float
+
+Notes
+
+With residuals r of the measured values against the model’s, and
+errors e or a covariance C, -r^T C^-1 r / 2 - ln det(2 pi C) / 2.
+The value of likelihood at the model’s own weights and scales.
+
+     On this page
+
+
+---
+
+# Results and files (pianistpy.io)
+
+Source: https://pianistpy.com/docs/reference/api/io.html
+
+# Results and files (pianistpy.io)
+
+Reading and writing results.
+
+class pianistpy.io.StoredResult(kind, identity, data_sha256, record, arrays, parents, provenance)
+
+A result as it is stored in a file.
+
+Parameters:
+
+kind (str) – Kind of result, for example "model".
+
+identity (str) – Identity string of the result.
+
+data_sha256 (str) – Digest of the arrays.
+
+record (dict) – The inputs and settings that determine the result, in dictionary form.
+
+arrays (dict of str to array) – The arrays of the result, by name.
+
+parents (tuple of str) – Identity strings of the results this one was computed from.
+
+provenance (dict) – Date, versions and backend of the run that wrote the file.
+
+pianistpy.io.backend_provenance()
+
+Return the versions and the numerical backend of the running session.
+
+Returns:
+
+provenance – The Python, NumPy and SciPy versions, the platform JAX was pinned to
+by the environment, and the backend and devices JAX reports. A
+session without JAX says so by name.
+
+Return type:
+
+dict of str to str
+
+pianistpy.io.data_digest(source)
+
+Return the SHA-256 digest of every dataset of a file.
+
+The digest covers, for each dataset in the sorted order of its path, the
+path, the type, the shape and the raw bytes. Attributes are excluded, so
+the digest can be stored in the file it describes.
+
+Parameters:
+
+source (h5py.Group or path) – An open file or group, or the path of a file.
+
+Returns:
+
+digest – Hexadecimal digest, 64 characters.
+
+Return type:
+
+str
+
+pianistpy.io.load_result(source)
+
+Return a stored result from a live object or from a path.
+
+Every function that takes a result accepts either form and calls this
+once, so that the two forms follow the same code afterwards.
+
+Parameters:
+
+source (StoredResult or path) – A stored result, or the path of a file that holds one.
+
+Returns:
+
+stored
+
+Return type:
+
+StoredResult
+
+pianistpy.io.read(path)
+
+Read a result from a file, whatever kind of result it holds.
+
+Parameters:
+
+path (path) – A file written by the write method of a result.
+
+Returns:
+
+result – The distribution function, model, particles or other result the file
+holds, equal to the one that was written.
+
+Return type:
+
+object
+
+Raises:
+
+ResultError – If the file is not a result of this package, if its arrays no longer
+    match the digest it records, or if its kind is unknown.
+
+pianistpy.io.read_result(path)
+
+Read one result from an HDF5 file and check it.
+
+Parameters:
+
+path (path) – File to read.
+
+Returns:
+
+stored
+
+Return type:
+
+StoredResult
+
+Raises:
+
+ResultError – If the file is not a result of this format, or if its arrays no
+    longer match the digest it records.
+
+pianistpy.io.register_reader(kind, reader)
+
+Make reader the function that rebuilds the results of one kind from a file.
+
+Parameters:
+
+kind (str) – Kind of result, as stored in the file.
+
+reader (callable) – Takes the stored result and returns the result object.
+
+Return type:
+
+None
+
+pianistpy.io.write_result(path, kind, identity, record, arrays, parents=(), overwrite=False)
+
+Write one result to an HDF5 file.
+
+Parameters:
+
+path (path) – File to write.
+
+kind (str) – Kind of result.
+
+identity (str) – Identity string of the result.
+
+record (mapping) – The inputs and settings that determine the result, in dictionary form.
+
+arrays (mapping of str to array-like) – The arrays of the result, by name. A name may contain / to place
+the array in a group.
+
+parents (sequence of str, optional) – Identity strings of the results this one was computed from.
+
+overwrite (bool, optional) – Replace an existing file. By default an existing file is refused.
+
+Returns:
+
+data_sha256 – Digest of the arrays as written.
+
+Return type:
+
+str
+
+Raises:
+
+ResultError – If the file exists and overwrite is false.
+
+pianistpy.io.write_table(path, columns, header=(), overwrite=False)
+
+Write named columns as fixed-width text with a header.
+
+The header lines, each starting with #, are written as given,
+followed by # columns: and the column names in order. Each row holds
+one value of every column, 25 characters a field: a float with 14 digits
+after the point in exponent form, an integer as it is. The file is read
+back with numpy.loadtxt and compared with the values written, to the
+digits written; a file that does not read back is refused.
+
+Parameters:
+
+path (path) – File to write.
+
+columns (mapping of str to array-like) – The columns, in order; one-dimensional, numeric, of one length. A
+name holds no space.
+
+header (sequence of str, optional) – Lines for the head of the file, without the leading #.
+
+overwrite (bool, optional) – Replace an existing file.
+
+Raises:
+
+InputError – For a column that is not one-dimensional and numeric, columns of
+    different lengths, a name with a space, or an existing file without
+    overwrite.
+
+ResultError – If the file does not read back as written.
+
+Return type:
+
+None
+
+     On this page
+
+
+---
+
+# Numerics (pianistpy.numerics)
+
+Source: https://pianistpy.com/docs/reference/api/numerics.html
+
+# Numerics (pianistpy.numerics)
+
+Shared numerical leaves: quadrature, interpolation and special functions.
+
+pianistpy.numerics.bell_partitions(order)
+
+Return the terms of the complete exponential Bell polynomial.
+
+Parameters:
+
+order (int) – Order of the polynomial, at least 1.
+
+Returns:
+
+terms – One entry per partition of order into positive integers: its
+coefficient and the parts, in decreasing order. The polynomial is
+the sum over the entries of the coefficient times the product of the
+variables indexed by the parts.
+
+Return type:
+
+tuple of (int, tuple of int)
+
+Examples
+
+```
+>>> bell_partitions(3)
+((1, (3,)), (3, (2, 1)), (1, (1, 1, 1)))
+>>> sum(coefficient for coefficient, _ in bell_partitions(4))
+15
+
+```
+
+pianistpy.numerics.derivative_from_log(log_derivatives, values)
+
+Return a derivative of a positive function from those of its logarithm.
+
+Parameters:
+
+log_derivatives (sequence of array, length N) – The derivatives of orders 1 to N of the logarithm of the function,
+each at the same points.
+
+values (array) – The function itself at those points.
+
+Returns:
+
+derivative – The derivative of order N of the function.
+
+Return type:
+
+array
+
+Notes
+
+With \(S = \ln f\), the chain rule of Faà di Bruno gives
+
+\[\frac{\mathrm{d}^N f}{\mathrm{d}x^N}
+    = f\,Y_N\!\left(S', S'', \dots, S^{(N)}\right),\]
+
+where \(Y_N\) is the complete exponential Bell polynomial.
+
+Examples
+
+```
+>>> import numpy as np
+>>> x = np.array([0.5, 1.0])
+>>> f = np.exp(3.0 * x)
+>>> ones, zeros = np.ones_like(x), np.zeros_like(x)
+>>> bool(np.allclose(derivative_from_log([3 * ones, zeros], f), 9.0 * f))
+True
+
+```
+
+pianistpy.numerics.gauss_legendre(n_nodes)
+
+Return the Gauss-Legendre nodes and weights on [-1, 1].
+
+The nodes of a given count are computed once per session and returned as
+read-only arrays, so that no caller can change them for another.
+
+Parameters:
+
+n_nodes (int) – Number of nodes, at least 1.
+
+Returns:
+
+nodes (array, shape (n_nodes,)) – Nodes in increasing order.
+
+weights (array, shape (n_nodes,)) – Weights; they sum to 2.
+
+Return type:
+
+tuple[Any, Any]
+
+Examples
+
+```
+>>> nodes, weights = gauss_legendre(2)
+>>> float(weights.sum())
+2.0
+
+```
+
+pianistpy.numerics.gauss_legendre_unit(n_nodes)
+
+Return the Gauss-Legendre nodes and weights on [0, 1].
+
+Parameters:
+
+n_nodes (int) – Number of nodes, at least 1.
+
+Returns:
+
+nodes (array, shape (n_nodes,)) – Nodes in increasing order.
+
+weights (array, shape (n_nodes,)) – Weights; they sum to 1.
+
+Return type:
+
+tuple[Any, Any]
+
+pianistpy.numerics.hermite(x, x_nodes, f_nodes, df_dx_nodes)
+
+Return the cubic Hermite interpolant and its derivative.
+
+Between two nodes the interpolant is the cubic that takes the values and
+the slopes given at both. Outside the nodes it continues as the straight
+line through the end node with the end slope.
+
+Parameters:
+
+x (array-like) – Points of evaluation.
+
+x_nodes (array, shape (n,)) – Nodes, strictly increasing.
+
+f_nodes (array, shape (n,)) – Values at the nodes.
+
+df_dx_nodes (array, shape (n,)) – Slopes at the nodes.
+
+Returns:
+
+f (array) – The interpolant at x.
+
+df_dx (array) – Its derivative at x.
+
+Return type:
+
+tuple[Any, Any]
+
+Examples
+
+A cubic is reproduced exactly from its values and slopes at two nodes:
+
+```
+>>> import numpy as np
+>>> x_nodes = np.array([0.0, 2.0])
+>>> f, df_dx = hermite(1.0, x_nodes, x_nodes**3, 3.0 * x_nodes**2)
+>>> float(f), float(df_dx)
+(1.0, 3.0)
+
+```
+
+pianistpy.numerics.hermite_inverse(f, x_nodes, f_nodes, df_dx_nodes)
+
+Return where an increasing cubic Hermite interpolant takes given values.
+
+The root is bracketed by the two nodes whose values enclose the target,
+or by the straight continuation beyond the end nodes, and found by
+bisection. Newton steps then refine it; a step that would leave the
+bracket is not taken, so a locally steep interpolant cannot throw a root
+out of its interval.
+
+Parameters:
+
+f (array-like) – Values to invert for.
+
+x_nodes (array, shape (n,)) – Nodes, strictly increasing.
+
+f_nodes (array, shape (n,)) – Values at the nodes, increasing.
+
+df_dx_nodes (array, shape (n,)) – Slopes at the nodes, positive at the two end nodes.
+
+Returns:
+
+x (array) – Points at which the interpolant equals f.
+
+residual (float) – Largest absolute difference between the interpolant at x and f.
+
+Return type:
+
+tuple[Any, float]
+
+Examples
+
+```
+>>> import numpy as np
+>>> x_nodes = np.array([0.0, 1.0, 2.0])
+>>> x, residual = hermite_inverse(1.5, x_nodes, 2.0 * x_nodes, np.full(3, 2.0))
+>>> float(x), residual
+(0.75, 0.0)
+
+```
+
+     On this page
+
+
+---
+
+# Observables (pianistpy.observables)
+
+Source: https://pianistpy.com/docs/reference/api/observables.html
+
+# Observables (pianistpy.observables)
+
+Observables: dispersions, line-of-sight velocity distributions and apertures.
+
+class pianistpy.observables.Aperture(shape, r_off=0.0, r_ape=None, side_x=None, side_y=None, angle=0.0)
+
+An aperture on the plane of the sky, circular or rectangular.
+
+Build one with Aperture.circle or Aperture.rectangle. Lengths are
+in internal units.
+
+Parameters:
+
+shape ({"circle", "rectangle"}) – Shape of the aperture.
+
+r_off (float) – Projected distance \(R_{\rm off}\) of the center of the aperture
+from the center of the model.
+
+r_ape (float, optional) – Radius \(R_{\rm ape}\) of a circle.
+
+side_x (float, optional) – Full sides of a rectangle.
+
+side_y (float, optional) – Full sides of a rectangle.
+
+angle (float, optional) – For a rectangle, the angle between its x side and the direction from
+its center to the center of the model, in radians.
+
+Examples
+
+```
+>>> Aperture.circle(1.0, r_off=10.0).shape
+'circle'
+>>> Aperture.rectangle(2.0, 0.5, r_off=10.0, angle=0.3).side_y
+0.5
+
+```
+
+classmethod circle(r_ape, r_off=0.0)
+
+Return a circular aperture of radius r_ape at offset r_off.
+
+Parameters:
+
+r_ape (float)
+
+r_off (float)
+
+Return type:
+
+Aperture
+
+classmethod rectangle(side_x, side_y, r_off=0.0, angle=0.0)
+
+Return a rectangular aperture of full sides side_x by side_y.
+
+Its center is at offset r_off, and angle is the angle between its
+x side and the direction from its center to the center of the model.
+
+Parameters:
+
+side_x (float)
+
+side_y (float)
+
+r_off (float)
+
+angle (float)
+
+Return type:
+
+Aperture
+
+arc(r)
+
+Return the angular measure of the circle of radius r inside the
+aperture, in radians.
+
+For a circle it is the closed form of the overlap of two circles:
+\(2\pi\) where the whole circle is inside, zero where it is
+outside, and the band
+\(4 \arcsin\sqrt{x/2}\) with
+\(x = [R_{\rm ape}^2 - (r - R_{\rm off})^2] / (2 r R_{\rm off})\)
+between. For a rectangle, each of the four edges is a half-plane
+constraint on the angle that becomes active at angles in closed form;
+those angles cut the circle into intervals on which membership is
+constant, and the measure is the length of the intervals whose
+midpoint lies inside. One code path serves a rectangle that contains
+the center of the model, touches it, or is clear of it.
+
+Parameters:
+
+r (array-like) – Projected radii, not negative.
+
+Returns:
+
+arc
+
+Return type:
+
+array, the shape of r
+
+breaks()
+
+Return the radii at which arc is not smooth, increasing.
+
+For a circle: the edges of the band and, where the aperture contains
+the center of the model, the radius at which the full circle ends.
+For a rectangle: the perpendicular distances from the center of the
+model to the four edge lines, kept where the foot of the perpendicular
+lies on the edge, and the distances to the four corners; at most
+eight radii, between two of which arc is smooth.
+
+Return type:
+
+list[float]
+
+to_dict()
+
+Return the aperture as a plain dictionary.
+
+Return type:
+
+dict[str, Any]
+
+classmethod from_dict(record)
+
+Build the aperture from its dictionary form.
+
+Parameters:
+
+record (Mapping[str, Any])
+
+Return type:
+
+Aperture
+
+class pianistpy.observables.LosTable(model)
+
+The line-of-sight velocity distributions of a model, built once.
+
+The object holds the table of line-of-sight velocity distributions over
+projected radius that the aperture quantities read. It is built when the
+object is created and reused by every observable computed from it.
+
+Parameters:
+
+model (Model) – The model to project: of one component, or a superposition
+(superpose).
+
+Variables:
+
+model (Model) – The model, whose unit system the observables read from this object
+are given in.
+
+table (profile, projected, kept,) – The results of the stages dispersion_profile,
+projected_dispersion, kept_ranges and losvd_table, at the
+model’s settings; of the first component for a superposition.
+
+validation (ValidationReport) – The checks of the table (those of validate_table) and the worst
+tier of the model; for a superposition, each check at its worst over
+the components. A table above the goal says so in a warning.
+
+parts (tuple of LosTable) – One table per component of a superposition, each of the component
+as a model of one component; (self,) for a model of one
+component.
+
+to(system, **kwargs)
+
+Return the same tables presented in another unit system.
+
+Nothing is recomputed: the tables stay in internal units, and the
+observables read from the returned object are given in the units of
+self.model.to(system, **kwargs) (Model.to).
+
+Parameters:
+
+system (str)
+
+kwargs (Any)
+
+Return type:
+
+LosTable
+
+class pianistpy.observables.ProjectedPairs(r_2d, v_los, mass, component, units, record=<factory>, validation=None)
+
+Pairs drawn by ProjectedSampler.sample.
+
+Variables:
+
+mass (r_2d, v_los,) – Projected radius, line-of-sight velocity and mass of each pair, in
+the source’s unit system (named in units).
+
+component (array of int, shape (n,)) – The component each pair was drawn from.
+
+units (dict) – The unit of each quantity.
+
+record (dict) – The source, the ranges in internal units, the seed, the annulus’s
+mass in the window and the components’ shares, the tables’ sizes.
+
+validation (ValidationReport) – The sampler’s report.
+
+Parameters:
+
+r_2d (Any)
+
+v_los (Any)
+
+mass (Any)
+
+component (Any)
+
+units (dict[str, str])
+
+record (dict[str, Any])
+
+validation (ValidationReport | None)
+
+class pianistpy.observables.ProjectedSampler(source, R_range, v_range=None)
+
+Draw pairs of projected radius and line-of-sight velocity.
+
+Pairs follow \(p(R, v) \propto 2\pi R\,\Sigma(R)\,D(v\,|\,R)\) on
+the annulus R_range and in the window v_range, exactly conditioned:
+the radius’s distribution carries the window’s share at each radius.
+Exact for every anisotropy (the distribution is the line of sight’s
+marginal, the angles integrated in the table).
+
+Parameters:
+
+source (Model or LosTable) – The model (its LosTable is built first) or its prepared table; of
+one component or a superposition.
+
+R_range ((float, float)) – The annulus, in the source’s unit system (Model.to): internal units
+by default, parsecs (floats or Astropy quantities) in the physical
+system. An end beyond the table’s rows is taken at the row where the
+surface density beyond it is within INNER_DISC_TOLERANCE of the
+annulus’s, and refused otherwise.
+
+v_range ((float, float), optional) – The window of line-of-sight velocity, signed, in the source’s unit
+system (km/s in the physical system); the whole distribution where
+None.
+
+Variables:
+
+validation (ValidationReport) – v_table: the reading’s error in the cumulative, between grid
+radii and between nodes; window: the window ends’ reading;
+radius_quadrature: the mass integral against a finer rule,
+relative; row_norm: the rows’ distance from unit integral;
+annulus_cut: the share cut at the table’s ends.
+
+mass (float) – The annulus’s mass in the window, internal units.
+
+Raises:
+
+InputError – Where the annulus lies outside the table, overlaps an interval the
+    table left uncertified, or the window holds none of the
+    distribution.
+
+sample(n, seed=0)
+
+Draw n pairs.
+
+Pair i draws from its own key as Sampler does: the radius from the
+channel radius, the velocity from speed and, of a
+superposition, the component (by its share of the annulus’s mass in
+the window) from component; so a draw is the same pair by pair
+for any n.
+
+Returns:
+
+pairs
+
+Return type:
+
+ProjectedPairs
+
+Parameters:
+
+n (int)
+
+seed (int)
+
+pianistpy.observables.aperture_losvd(source, aperture, v)
+
+Return the line-of-sight velocity distribution inside an aperture.
+
+Parameters:
+
+source (Model or LosTable) – The model, or its prepared LosTable. Given a model, its table is
+built first (LosTable).
+
+aperture (Aperture) – The aperture, built with Aperture.circle or Aperture.rectangle,
+its lengths in the model’s unit system (parsecs in the physical
+system).
+
+v (array-like) – Line-of-sight velocity in the model’s unit system (km/s, a float or
+an Astropy quantity, in the physical system).
+
+Returns:
+
+losvd – The probability density of the line-of-sight velocity of the
+tracers inside the aperture, weighted by the surface density over
+it, at each v, per unit velocity of the model’s unit system (an
+Astropy quantity in the physical system), with the shape of v. It
+is even in \(v\), integrates to one over all \(v\), and is
+zero beyond the escape velocity along the line of sight.
+
+Return type:
+
+array
+
+Notes
+
+The distribution is the stage aperture_losvd, on Gauss-Legendre
+panels in velocity refined until its norm and second moment agree with
+the table’s rows; at any v it is read by each panel’s polynomial
+through its own nodes, the polynomial its quadrature integrates. Its
+second moment is sigma_los_aperture’s from the same LosTable, and
+it is checked against the aperture’s dispersion (validate_aperture):
+a distribution above the goal, or read from a table above it, says so
+in a warning.
+
+Of a superposition, each component’s distribution inside the aperture
+is summed with its weight times its projected mass inside the
+aperture: \(D = \sum_k w_k M_k D_k / \sum_k w_k M_k\).
+
+pianistpy.observables.losvd(source, r_2d, v)
+
+Return the line-of-sight velocity distribution at projected radii.
+
+Parameters:
+
+source (Model or LosTable) – The model, or its prepared LosTable. Given a model, its table is
+built first (LosTable).
+
+r_2d (array-like) – Projected radius \(R_{\rm 2D}\) in the model’s unit system
+(Model.to): internal units by default, parsecs (a float or an
+Astropy quantity) in the physical system.
+
+v (array-like) – Line-of-sight velocity in the model’s unit system (km/s, a float or
+an Astropy quantity, in the physical system). r_2d and v
+broadcast against each other.
+
+Returns:
+
+losvd – The probability density of the line-of-sight velocity at each pair
+\((R_{\rm 2D}, v)\), per unit velocity of the model’s unit
+system (an Astropy quantity in the physical system), with the
+broadcast shape of r_2d and v. It is even in \(v\), integrates
+to one over all \(v\), and is zero beyond the escape velocity
+along the line of sight.
+
+Return type:
+
+array
+
+Notes
+
+Between the rows of the table the distribution is read through the
+table’s own stencil, the reading the table certified its rows for; a
+projected radius inside an uncertified interval is refused by name.
+
+Of a superposition, each component’s distribution is read from its own
+table and the components are summed with their weights times their
+surface densities: \(D = \sum_k w_k \Sigma_k D_k / \sum_k w_k
+\Sigma_k\).
+
+pianistpy.observables.pdf_v(source, r, v)
+
+Return the local speed distribution at 3D radii.
+
+Parameters:
+
+source (Model or LosTable) – The model, or its prepared LosTable (whose intrinsic second
+moments the distribution is checked against).
+
+r (array-like) – Radius \(r\) in the model’s unit system (Model.to): internal
+units by default, parsecs (a float or an Astropy quantity) in the
+physical system.
+
+v (array-like) – Speed in the model’s unit system (km/s, a float or an Astropy
+quantity, in the physical system). r and v broadcast against
+each other.
+
+Returns:
+
+pdf_v – The probability density of the speed \(V = |\mathbf{v}|\) at
+each pair \((r, V)\), per unit velocity of the model’s unit
+system (an Astropy quantity in the physical system), with the
+broadcast shape of r and v. It integrates to one over
+\(V \geq 0\) and is zero beyond the end of the DF’s support,
+the escape speed but for a Type II model, whose speeds reach
+\(V_{\rm esc}/\sqrt{1 - r^2/r_a^2}\) (its unbound share is
+SpeedDistribution.unbound_fraction).
+
+Return type:
+
+array
+
+Raises:
+
+AccuracyError – Where the distribution at a radius is beyond the hard limit, unless
+    the model’s settings ask for it anyway (write_anyway).
+
+Notes
+
+Each radius is the stage speed_distribution, certified by its norm
+against the density, its second moment against the Jeans dispersion
+and the change of its angle rule; the distribution at the speeds asked
+is read by the rule it certified. Of a superposition, the components are
+mixed by their density at the radius: \(p = \sum_k w_k \varrho_k
+p_k / \sum_k w_k \varrho_k\).
+
+References
+
+Paper, Sect. 5.1 and [eqn:rho_f_anisotropic_scale].
+
+pianistpy.observables.sigma_los_aperture(source, aperture)
+
+Return the velocity dispersion inside an aperture.
+
+Given a model, only the projected radii the aperture covers are computed.
+
+Parameters:
+
+source (Model or LosTable) – The model, or its prepared LosTable.
+
+aperture (Aperture) – The aperture, built with Aperture.circle or Aperture.rectangle,
+its lengths in the model’s unit system (parsecs in the physical
+system).
+
+Returns:
+
+sigma_ape – Velocity dispersion inside the aperture, in the model’s unit system.
+
+Return type:
+
+float
+
+Notes
+
+Given a model, the second moment of the line-of-sight dispersion averaged
+over the aperture with the surface density (aperture_dispersion), which
+reads no velocity distribution. Given a LosTable, the second moment of
+the aperture’s velocity distribution (aperture_losvd) by its own
+weights. The two agree to the accuracy goal (validate_aperture); a
+distribution above the goal, or read from a table above it, says so in a
+warning.
+
+Of a superposition, the components are summed with their weights under
+the aperture: given a model, the surface-density weighted sums of
+\(\sigma_{\rm los}^2\) and of the surface density, each component’s
+own, on the aperture’s nodes of the first component (the components
+share one density), mixed as for sigma_los; given a LosTable, the
+second moment of the aperture distributions summed with the weights
+times each component’s projected mass inside the aperture, each
+distribution checked against its own component’s aperture dispersion.
+
+pianistpy.observables.sigma_los(source, r_2d)
+
+Return the line-of-sight velocity dispersion at projected radii.
+
+Parameters:
+
+source (Model or LosTable) – The model, or its prepared LosTable.
+
+r_2d (array-like) – Projected radius \(R_{\rm 2D}\) in the model’s unit system
+(Model.to): internal units by default, parsecs (a float or an
+Astropy quantity) in the physical system.
+
+Returns:
+
+sigma_los – Line-of-sight velocity dispersion in the model’s unit system, with
+the shape of r_2d.
+
+Return type:
+
+array
+
+Notes
+
+Of a superposition, \(\sigma_{\rm los}^2 = \sum_k w_k \Sigma_k
+\sigma_{{\rm los},k}^2 / \sum_k w_k \Sigma_k\), each component read from
+its own table; zero beyond the last row.
+
+pianistpy.observables.sigma_r(source, r)
+
+Return the radial velocity dispersion at radii.
+
+Parameters:
+
+source (Model or LosTable) – The model, or its prepared LosTable, whose intrinsic second
+moments are read.
+
+r (array-like) – Radius \(r\) in the model’s unit system (Model.to): internal
+units by default, parsecs (a float or an Astropy quantity) in the
+physical system.
+
+Returns:
+
+sigma_r – Radial velocity dispersion \(\sigma_r\) in the model’s unit
+system, with the shape of r.
+
+Return type:
+
+array
+
+Notes
+
+The reading between the grid points of the intrinsic profile is that of
+DispersionProfile.read. Of a superposition, whose components share one
+density, \(\sigma_r^2 = \sum_k w_k \sigma_{r,k}^2\).
+
+pianistpy.observables.sigma_t(source, r)
+
+Return the tangential velocity dispersion at radii.
+
+Parameters:
+
+source (Model or LosTable) – The model, or its prepared LosTable.
+
+r (array-like) – Radius \(r\) in the model’s unit system, as for sigma_r.
+
+Returns:
+
+sigma_t – Tangential velocity dispersion of both tangential components
+together, \(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2
+= 2 (1 - \beta_\sigma) \sigma_r^2\), in the model’s unit system, with
+the shape of r.
+
+Return type:
+
+array
+
+Notes
+
+Read as sigma_r is; of a superposition, \(\sigma_{\rm t}^2 =
+\sum_k w_k \sigma_{{\rm t},k}^2\).
+
+     On this page
+
+
+---
+
+# Particles (pianistpy.particles)
+
+Source: https://pianistpy.com/docs/reference/api/particles.html
+
+# Particles (pianistpy.particles)
+
+Particle sampling: the prepared sampler and the particle result.
+
+class pianistpy.particles.Particles(position, velocity, mass, component, component_names, unit_system, units, identity, parent)
+
+A particle realization of a model.
+
+Parameters:
+
+position (array, shape (n, 3)) – Cartesian positions.
+
+velocity (array, shape (n, 3)) – Cartesian velocities.
+
+mass (array, shape (n,)) – Particle masses.
+
+component (array of int, shape (n,)) – Index, into component_names, of the component each particle
+belongs to.
+
+component_names (tuple of str) – Names of the components of the model.
+
+unit_system ({"internal", "model", "physical"}) – The unit system of the arrays. Internal by default everywhere.
+
+units (dict of str to str) – Unit of the position, the velocity and the mass, as text.
+
+identity (str) – Identity string of the realization.
+
+parent (str) – Identity string of the sampler or model the particles were drawn from.
+
+Notes
+
+The arrays are read-only. Two realizations are compared by their
+identity strings.
+
+write(path, layout='native', **options)
+
+Write the particles to a file; see write_particles.
+
+Parameters:
+
+path (str | PathLike)
+
+layout (str)
+
+options (Any)
+
+Return type:
+
+None
+
+class pianistpy.particles.Sampler(model, r_sample=None, r_range=None)
+
+Everything needed to draw particles from a model, built once.
+
+The sampler holds the tables that sampling needs. They are built when the
+sampler is created and reused by every call of sample, so a user keeps
+one object however many tables there are.
+
+Parameters:
+
+model (Model) – The model to draw from.
+
+r_sample (float, optional) – Outer radius of the sampling, in internal units: the radius table
+depends on it. Required for a model that is not spatially finite;
+the truncation radius of one that is.
+
+r_range (tuple of float, optional) – Radii (r_lo, r_hi), in internal units, between which every particle
+is drawn: 0 <= r_lo < r_hi <= the outer radius of the sampling. The
+draw is the model’s own conditioned on the range, not a selection:
+each particle’s radius number is taken in the mass fractions of the
+range (stages.radius_bounds), and the particles carry the range’s
+mass. Its other numbers are those of the draw without the range.
+
+Variables:
+
+validation (ValidationReport) – The checks of the tables (those of SpeedTable.validation) and the
+worst tier of the model. A sampler above the goal says so in a
+warning; one beyond the hard limit is refused.
+
+Raises:
+
+InputError – If model is not a Model, or has more components than this release
+    samples, or r_range is not a range of radii inside the sampling.
+
+AccuracyError – If the model’s report reads "refused" and its settings do not ask
+    for results from it anyway (Settings, write_anyway).
+
+ResultError – If a speed table lies beyond the hard limit and the settings do not ask
+    for it anyway.
+
+Notes
+
+A physical model is not thereby samplable at every tier. The speed
+table’s rows are refined until the error across them is under the goal
+or their count reaches n_rows_max; close to the smallest anisotropy
+radius at which an Osipkov-Merritt or Cuddeford Type I DF is non-negative,
+the rows reach n_rows_max first and the error grows steeply as r_a
+falls toward that radius. Measured on a truncated NFW density of
+concentration 10 at the default tier, the error crosses the hard limit at
+1.02 to 1.2 times that radius and the ceiling at 1.09 to 1.84 times it
+(up to beta_c = 0.4), the widest for the most negative beta_c; at
+beta_c = 1/2, whose DF is non-negative at every r_a, the table is beyond
+the hard limit at every r_a up to 0.32. A constant-anisotropy model is
+within the ceiling up to beta_c = 0.4. The bound is measured, not
+imposed: the report of each table is the verdict (the user guide,
+Particles, gives the table per family).
+
+sample(n, seed=0)
+
+Draw particles from the model.
+
+Parameters:
+
+n (int) – Number of particles.
+
+seed (int, optional) – Seed of the random streams.
+
+Returns:
+
+particles – The particles, in the model’s units (Model.units). Every draw is
+made in internal units and converted at the output only.
+
+Return type:
+
+Particles
+
+Raises:
+
+ResultError – If a particle lies beyond the phase-space bound of its component.
+
+speeds(r, seed=0, v_range=None)
+
+Draw one speed at each given radius, within a window of speeds.
+
+Parameters:
+
+r (array-like, shape (n,)) – Radii, in internal units, inside the sampling: 0 < r <= its outer
+radius.
+
+seed (int, optional) – Seed of the random streams. The speed at the i-th radius takes the
+speed number of particle i of sample at the same seed, mapped into
+the window’s numbers (and, for a superposition, its component by
+the window’s share of each component).
+
+v_range (tuple of float, optional) – The speeds (v_lo, v_hi), in internal units, 0 <= v_lo < v_hi. Without
+it, the whole speed distribution.
+
+Returns:
+
+v (array, shape (n,)) – The speed at each radius, drawn from the model’s speed distribution
+at that radius conditioned on the window, in internal units; NaN at
+a radius where the window holds none of the distribution.
+
+fraction (array, shape (n,)) – The fraction of the speed distribution at each radius in the window
+(the weighted sum of the components’ fractions for a
+superposition).
+
+Raises:
+
+InputError – For a model with a finite anisotropy radius (Osipkov-Merritt or
+    Cuddeford): there the speed is the scaled speed times a factor of
+    the drawn angle, so the window couples to the angle, and no table
+    holds the speed’s distribution at a radius with the angle
+    integrated out. Also for radii outside the sampling or an invalid
+    window.
+
+Return type:
+
+tuple[Any, Any]
+
+pianistpy.particles.component_view(model, k)
+
+Return component k of a superposed model as a model of one component.
+
+Parameters:
+
+model (Model) – A superposed model (is_superposition).
+
+k (int) – Index of the component.
+
+Returns:
+
+view – The component on its own: its table on its own grid, its forms, the
+shared truncated profile, and mass 1. The sampler and the observables
+read each component of a superposition through it.
+
+Return type:
+
+Model
+
+pianistpy.particles.is_superposition(model)
+
+Return whether a model is a superposition (superpose).
+
+Parameters:
+
+model (Model) – The model.
+
+Returns:
+
+superposed – Whether every component is built on one truncated profile, as
+superpose builds them.
+
+Return type:
+
+bool
+
+pianistpy.particles.register_particle_writer(layout)
+
+Make a function the writer of particles in a given file layout.
+
+A writer takes the particles, the path and its own keyword options. The
+layouts of simulation codes are added this way, without a change to the
+sampling or to Particles.
+
+Parameters:
+
+layout (str) – Name of the layout, as passed to write_particles.
+
+Returns:
+
+decorator – Registers the decorated function and returns it unchanged.
+
+Return type:
+
+callable
+
+pianistpy.particles.write_particles(particles, path, layout='native', **options)
+
+Write particles to a file in the requested layout.
+
+Parameters:
+
+particles (Particles) – The particles to write.
+
+path (path) – File to write.
+
+layout (str, optional) – Name of a registered layout. "native" is the package’s own HDF5
+result file, which _read_particles reads back.
+
+**options – Options of the layout’s writer.
+
+Return type:
+
+None
+
+     On this page
+
+
+---
+
+# The package (pianistpy)
+
+Source: https://pianistpy.com/docs/reference/api/pianistpy.html
+
+# The package (pianistpy)
+
+PIANISTpy: equilibrium models of anisotropic spherical systems.
+
+The public names of the package are imported from its subpackages and documented on their
+pages.
+
+
+---
+
+# Density profiles (pianistpy.profiles)
+
+Source: https://pianistpy.com/docs/reference/api/profiles.html
+
+# Density profiles (pianistpy.profiles)
+
+Density profiles.
+
+class pianistpy.profiles.DoublePowerLaw(rho_alpha, rho_beta, rho_gamma)
+
+Double-power-law density profile in internal units.
+
+Parameters:
+
+rho_alpha (float) – Sharpness \(\alpha\) of the transition between the inner and the
+outer slope. At least 1/2.
+
+rho_beta (float) – Outer logarithmic slope \(\beta\). Greater than 2.
+
+rho_gamma (float) – Inner logarithmic slope \(\gamma\), with
+\(0 \leq \gamma < 2\).
+
+Notes
+
+In internal units the scale radius is 1, the central potential is 1 and the
+potential vanishes at infinity:
+
+\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha} .\]
+
+The lower bound on \(\gamma\) excludes a density that decreases
+towards the center; the upper bound keeps the central potential finite.
+The bound on \(\beta\) keeps the potential finite at large radii.
+
+The named profiles are parameter sets of this one profile, built by the
+class methods nfw, hernquist and plummer. They are not separate
+implementations. Where a profile has a closed form for its mass or its
+potential, that form is used inside mass and p; the tests hold it to
+the general incomplete-Beta form.
+
+References
+
+Paper I, Appendix A (labels eqn:double_power_law_MT,
+eqn:double_power_law_mass, app:P_beta).
+
+Examples
+
+```
+>>> DoublePowerLaw.nfw()
+DoublePowerLaw(rho_alpha=1.0, rho_beta=3.0, rho_gamma=1.0)
+>>> DoublePowerLaw.hernquist().mass_total
+1.0
+>>> float(DoublePowerLaw.plummer().p(0.0))
+1.0
+
+```
+
+classmethod nfw()
+
+Return the Navarro-Frenk-White profile, (1, 3, 1).
+
+Return type:
+
+DoublePowerLaw
+
+classmethod hernquist()
+
+Return the Hernquist profile, (1, 4, 1).
+
+Return type:
+
+DoublePowerLaw
+
+classmethod plummer()
+
+Return the Plummer profile, (2, 5, 0).
+
+Return type:
+
+DoublePowerLaw
+
+property name: str
+
+Name of the profile, or its parameters if it has none.
+
+property rho_norm: float
+
+Normalisation \(C\) of the density, for a central potential of 1.
+
+Notes
+
+\[C = \frac{\alpha\,\Gamma[(\beta-\gamma)/\alpha]}
+         {\Gamma[(\beta-2)/\alpha]\,\Gamma[(2-\gamma)/\alpha]} .\]
+
+property mass_total: float
+
+Total mass in internal units; infinite for an outer slope of 3 or less.
+
+rho(r)
+
+Return the density \(\varrho(R)\).
+
+Parameters:
+
+r (array-like) – Radius in internal units.
+
+Returns:
+
+rho – Density in internal units, with the shape of r.
+
+Return type:
+
+array
+
+mass(r)
+
+Return the enclosed mass \(\mathcal{M}(R)\).
+
+Parameters:
+
+r (array-like) – Radius in internal units.
+
+Returns:
+
+mass – Enclosed mass in internal units, with the shape of r.
+
+Return type:
+
+array
+
+Notes
+
+With \(z = R^\alpha/(1+R^\alpha)\),
+
+\[\mathcal{M}(R) = \frac{C}{\alpha}\,
+    B\!\left(z;\,\frac{3-\gamma}{\alpha},\,\frac{\beta-3}{\alpha}\right) .\]
+
+p(r)
+
+Return the relative potential \(P(R)\).
+
+Parameters:
+
+r (array-like) – Radius in internal units.
+
+Returns:
+
+p – Relative potential in internal units, with the shape of r. It is 1
+at the center and vanishes at infinity.
+
+Return type:
+
+array
+
+Notes
+
+With \(z = R^\alpha/(1+R^\alpha)\), \(a_2 = (2-\gamma)/\alpha\)
+and \(b_2 = (\beta-2)/\alpha\),
+
+\[P(R) = \frac{\mathcal{M}(R)}{R}
+     + \frac{C}{\alpha}\left[B(a_2, b_2) - B(z;\,a_2, b_2)\right] .\]
+
+depth_inner(r, terms=4)
+
+Return the depth \(u = P(0) - P(R)\) near the center, with no
+subtraction, and the series’ own truncation estimate.
+
+Parameters:
+
+r (array-like) – Radius in internal units.
+
+terms (int, optional) – Number of terms of the series.
+
+Returns:
+
+u (array) – The depth from the first terms terms.
+
+bound (array) – The magnitude of the next term relative to u, per point;
+infinite where u is not positive.
+
+Return type:
+
+tuple[Any, Any]
+
+Notes
+
+A density term \(C\binom{e}{k}R^{-\gamma+k\alpha}\),
+\(e = (\gamma-\beta)/\alpha\), contributes
+\(C\binom{e}{k}R^{2-\gamma+k\alpha}/[(2-\gamma+k\alpha)(3-\gamma+k\alpha)]\)
+to the depth, term by term.
+
+to_dict()
+
+Return the profile as a plain dictionary.
+
+Return type:
+
+dict[str, Any]
+
+classmethod from_dict(record)
+
+Build the profile from its dictionary form.
+
+Parameters:
+
+record (Mapping[str, Any])
+
+Return type:
+
+DoublePowerLaw
+
+class pianistpy.profiles.ProfileTables(log_r, log_p, log_p_slope, log_r_all, log_mass, log_mass_slope, log_rho_coefficients, has_edge_row, r_last, p_last, rho_last, r_t, mass_t, edge_exponent)
+
+The arrays a kernel reads a TruncatedProfile from.
+
+They are the numbers TruncatedProfile.potential, density, mass and
+radius evaluate, laid out for a kernel that takes them as traced
+arguments: the cubic Hermite in the logarithms on the interior rows and
+the edge’s closed forms beyond them.
+
+Parameters:
+
+log_r (array, shape (n_interior,)) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
+an edge row).
+
+log_p (array, shape (n_interior,)) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
+an edge row).
+
+log_p_slope (array, shape (n_interior,)) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
+an edge row).
+
+log_r_all (array, shape (n,)) – ln r, ln M and d ln M / d ln r at every row.
+
+log_mass (array, shape (n,)) – ln r, ln M and d ln M / d ln r at every row.
+
+log_mass_slope (array, shape (n,)) – ln r, ln M and d ln M / d ln r at every row.
+
+log_rho_coefficients (array, shape (n_components, 4, n_interior - 1)) – The coefficients of the cubic spline of ln rho in ln r on each
+interval, highest power first, in the interval’s own ln r offset.
+
+has_edge_row (bool) – Whether the profile carries its edge as its last row; the fields
+below are read only then.
+
+r_last (float) – Radius and potential of the last interior row.
+
+p_last (float) – Radius and potential of the last interior row.
+
+rho_last (array, shape (n_components,)) – Density of each component there.
+
+r_t (float) – Truncation radius and total mass.
+
+mass_t (float) – Truncation radius and total mass.
+
+edge_exponent (array, shape (n_components,)) – Exponent q of each component’s density at the edge.
+
+class pianistpy.profiles.TruncatedProfile(r, p_trunc, rho_trunc, mass_trunc, k_t, r_t, mass_t, spatially_finite, source, source_anisotropy, model, edge_exponent, u_trunc=<factory>, central_deficit=(), override_r=nan, override_r_end=nan, override_rows=0, override_rule='none', origin=<factory>, df_k=<factory>, df_log_f=<factory>, df_slope=<factory>, df_taylor=())
+
+The self-consistent profile of a truncated model.
+
+It is the profile of a model, and it can be the profile of a component
+of another model: a component given the truncated profile of a parent
+model and a new anisotropy is Method II of the paper.
+
+Two profiles are equal where they belong to the same model: the identity
+of a model determines its profile.
+
+The profile evaluates itself: potential, density, mass and
+radius are the one reading of the rows that every stage of the
+package takes, in place of an interpolant of its own. Between the rows
+the potential and the mass are cubic Hermite interpolants in the
+logarithms with the exact slopes the rows state (the Poisson equation
+gives \(\mathrm{d}\ln\mathcal{P}/\mathrm{d}\ln r = -M/(r\mathcal{P})\)
+and \(\mathrm{d}\ln M/\mathrm{d}\ln r = r^3\rho/M\)); the density
+of each component is a cubic spline in the logarithms, since the rows
+state no density slope. On the last interval of a spatially finite
+profile whose last row is its edge (\(\mathcal{P} = 0\) at r_t),
+the potential is the Kepler form \(M_t(1/r - 1/r_t)\) and the
+density follows the edge law \(\rho \propto \mathcal{P}^q\) with
+the stated edge_exponent; beyond r_t the potential is \(M_t/r\)
+and the density zero. Inside the first row and, for a profile without
+an edge, beyond the last, the interpolants continue as the power laws
+of the end rows.
+
+Parameters:
+
+r (array, shape (n,)) – Radius, strictly increasing.
+
+p_trunc (array, shape (n,)) – Total relative potential of the truncated model.
+
+rho_trunc (array, shape (n_components, n)) – Density of each component.
+
+mass_trunc (array, shape (n,)) – Total enclosed mass, in the unit of DoublePowerLaw.mass (the
+Hernquist profile’s total is 1); 4 pi times it is the integral of
+the density over the volume.
+
+k_t (float) – Truncation energy.
+
+r_t (float) – Truncation radius and total mass; infinite where the model is not
+spatially finite.
+
+mass_t (float) – Truncation radius and total mass; infinite where the model is not
+spatially finite.
+
+spatially_finite (bool) – Whether the density reaches zero at a finite radius with a finite
+total mass. A spatially finite profile whose last row has
+p_trunc == 0 carries its edge as that row, and then the row’s
+density is zero and its radius is r_t.
+
+source (DoublePowerLaw) – The analytic profile of the first component of the model: its scale
+radius and its central potential are the internal units the arrays
+are in.
+
+source_anisotropy (Anisotropy) – The anisotropy of that component in the model the profile belongs
+to. A component built on this profile (Method II) reads here what
+its parent was.
+
+model (str) – Identity string of the model the profile belongs to.
+
+edge_exponent (tuple of float) – Exponent \(q\) of each component’s density at the edge of the
+model, \(\rho \propto \mathcal{P}^q\); empty where the model
+is not spatially finite and has no edge.
+
+u_trunc (array, shape (n,)) – The central potential less the potential, p_trunc[0] + u_trunc[0]
+less p_trunc, kept exact where p_trunc is close to it: near the
+center p_trunc alone has lost the digits of the difference that the
+DF’s singular center is read in. Empty where not computed.
+
+central_deficit (tuple of tuple of float) – For each component, (D_0, D_1): the central auxiliary density of
+the orbits the truncation removed and its slope, D_0 - D_1 u. Empty
+where not recorded.
+
+override_r (float) – Radii between which the closed-form profile replaced the rows of
+the solve; NaN where no row was replaced.
+
+override_r_end (float) – Radii between which the closed-form profile replaced the rows of
+the solve; NaN where no row was replaced.
+
+df_k (array, shape (n_components, m)) – The DF table of the model the profile belongs to: the energies,
+log10 F and its slope d log10 F / d ln K (NaN where not exact), as
+truncate made them. A component built on this profile (Method II)
+reads its sources from the integral of this DF. Empty where not
+recorded.
+
+df_log_f (array, shape (n_components, m)) – The DF table of the model the profile belongs to: the energies,
+log10 F and its slope d log10 F / d ln K (NaN where not exact), as
+truncate made them. A component built on this profile (Method II)
+reads its sources from the integral of this DF. Empty where not
+recorded.
+
+df_slope (array, shape (n_components, m)) – The DF table of the model the profile belongs to: the energies,
+log10 F and its slope d log10 F / d ln K (NaN where not exact), as
+truncate made them. A component built on this profile (Method II)
+reads its sources from the integral of this DF. Empty where not
+recorded.
+
+df_taylor (tuple of tuple of float) – For each component, the model’s Taylor edge (F_1, F_2, K_switch):
+F = F_1 K + F_2 K^2 / 2 below K_switch. Empty where not recorded.
+
+override_rows (int) – Number of rows replaced there.
+
+override_rule (str) – What replaced them, "none" where nothing did.
+
+origin (array of int8, shape (n,)) – Where each row comes from, a code of
+pianistpy.df.truncation.ORIGINS (the main solve, the edge
+continuation, the floor event, the fills, the closed-form outer rows,
+the edge row): the profile’s checks read each row’s tolerance from it.
+Empty where not recorded.
+
+property has_edge_row: bool
+
+Whether the last row is the edge of a spatially finite profile.
+
+property r_table_max: float
+
+the outer end of the table, which is
+the edge of a spatially finite model.
+
+Type:
+
+The radius of the last row
+
+property mass_at_r_table_max: float
+
+mass_trunc at the last row.
+
+interpolation_tables()
+
+Return the arrays a kernel reads this profile from.
+
+A kernel that evaluates them as potential, density, mass and
+radius do gives the same numbers; the arrays are traced arguments
+of the kernel, never closed over.
+
+Return type:
+
+ProfileTables
+
+potential(r)
+
+Return the relative potential at radii r.
+
+Parameters:
+
+r (Any)
+
+Return type:
+
+Any
+
+density(r)
+
+Return the density of each component at radii r.
+
+The result has one row per component and one column per radius.
+
+Parameters:
+
+r (Any)
+
+Return type:
+
+Any
+
+mass(r)
+
+Return the total enclosed mass at radii r.
+
+Parameters:
+
+r (Any)
+
+Return type:
+
+Any
+
+potential_log_slope(r)
+
+Return \(d\ln P / d\ln r\) at radii r, from the profile’s own
+representation.
+
+The slope is exact in the rows’ quantities: \(dP/dr = -M/r^2\)
+(the Poisson equation in the profile’s unit), so
+\(d\ln P/d\ln r = -M/(r P)\) with mass and potential read as
+every consumer reads them. The knots of the representation are the
+rows r; between two rows the slope is smooth.
+
+Parameters:
+
+r (Any)
+
+Return type:
+
+Any
+
+potential_log_slope_derivative(r)
+
+Return \(d(d\ln P/d\ln r)/dr\) at radii r, exact in the rows’
+quantities.
+
+With \(q = -M/(rP)\), \(dM/dr = r^2 \varrho\) (the total
+density of the components) and \(dP/dr = -M/r^2\):
+\(dq/dr = -(r^3 \varrho P - M P + M^2/r) / (r^2 P^2)\). Beyond the
+edge the density is zero and the same form holds on the Kepler
+potential.
+
+Parameters:
+
+r (Any)
+
+Return type:
+
+Any
+
+radius(p)
+
+Return the radii at which the potential takes the values p.
+
+Values above the central potential are refused; a value of zero or
+below is the truncation radius of a spatially finite profile.
+
+Parameters:
+
+p (Any)
+
+Return type:
+
+Any
+
+to_dict()
+
+Return what identifies the profile, as a plain dictionary.
+
+The arrays are not part of it: the identity of the model determines
+them, and a file holds them beside this record.
+
+Return type:
+
+dict[str, Any]
+
+     On this page
+
+
+---
+
+# Session switches (pianistpy.runtime)
+
+Source: https://pianistpy.com/docs/reference/api/runtime.html
+
+# Session switches (pianistpy.runtime)
+
+Switches of the session: verbosity, timing and workers.
+
+None of these changes a number, and none is part of the identity of a
+result. Each is set once for the session, by a call or by an environment
+variable, and no function of the package takes it as an argument.
+
+class pianistpy.runtime.Timing(stages=<factory>, memory=<factory>)
+
+Wall times of the stages of one computation, and the memory they reached.
+
+Parameters:
+
+stages (dict of str to float) – Seconds spent in each stage, in the order the stages first ran. A
+stage that runs more than once accumulates.
+
+memory (dict of str to int) – Peak resident memory of the process, in bytes, as it stood when each
+stage last ended. The value never decreases from one stage to the
+next: a stage raised the peak if its value exceeds the one before.
+
+property total: float
+
+Sum of the stage times, in seconds.
+
+to_dict()
+
+Return the stage times as a plain dictionary.
+
+Return type:
+
+dict[str, float]
+
+pianistpy.runtime.allowed_cores()
+
+Return the number of cores this process is allowed to use.
+
+Inside a batch job the scheduler’s own statement of the job’s cores is
+taken where it gives one; otherwise the cores the operating system lets
+the process run on; otherwise the cores of the machine.
+
+Return type:
+
+int
+
+pianistpy.runtime.card_memory()
+
+Return the free and the total memory of the GPU JAX runs on, in
+bytes, as the CUDA driver states them; None off a CUDA GPU.
+
+The driver is asked in the device’s primary context, the one JAX uses,
+so asking makes no context of its own. Its free memory counts what
+every process holds on the card, a CUDA context included, which the
+allocator’s own statistics do not.
+
+Return type:
+
+tuple[int, int] | None
+
+pianistpy.runtime.configure_jax()
+
+Set JAX as the package needs it: 64 bits, the platform and the
+compilation cache.
+
+Called once when the package is imported. The environment variable
+PIANISTPY_PLATFORM names the platform (set_platform), and
+PIANISTPY_COMPILATION_CACHE set to off leaves the cache off.
+
+Return type:
+
+None
+
+pianistpy.runtime.default_compilation_cache()
+
+Return the default folder of the compilation cache.
+
+The environment variable PIANISTPY_COMPILATION_CACHE if it is set,
+None if it is set to off (the cache is off), otherwise
+~/.cache/pianistpy/jax.
+
+Return type:
+
+str | None
+
+pianistpy.runtime.get_workers()
+
+Return the number of workers the current setting resolves to.
+
+Return type:
+
+int
+
+pianistpy.runtime.log_to_file(path, level='debug')
+
+Write the messages of the enclosed block to a file as well.
+
+Parameters:
+
+path (path) – File to append to.
+
+level ({"quiet", "info", "debug"}, optional) – Lowest level written to the file.
+
+Return type:
+
+Iterator[None]
+
+pianistpy.runtime.peak_memory()
+
+Return the largest resident memory this process has held, in bytes.
+
+This is the memory of the host process. Memory held on a graphics card
+is not part of it.
+
+Returns:
+
+peak – The peak resident memory since the process started, or None where
+the operating system does not report it.
+
+Return type:
+
+int or None
+
+pianistpy.runtime.recent_messages()
+
+Return the most recent messages of the package, oldest first.
+
+The messages are kept whatever the verbosity, so that a quiet run that
+fails can still say what it was doing.
+
+Return type:
+
+tuple[str, …]
+
+pianistpy.runtime.platform()
+
+Return the backend JAX runs on: "cpu", "gpu" or another.
+
+Asking initializes the backend if it is not yet.
+
+Return type:
+
+str
+
+pianistpy.runtime.set_compilation_cache(cache=True, max_size=None)
+
+Turn the persistent compilation cache of JAX on or off.
+
+With the cache on, the code compiled in one run is reused by the next,
+which shortens every run after the first. It changes no number. The
+cache is on by default, its folder unbounded in size, as JAX’s own is.
+
+A bound costs time: JAX then takes a lock on the folder at every read
+and write, and scans every entry at every write. Measured on a folder of
+22,000 entries on a network file system, a test that takes 5.6 minutes
+with no bound (4.3 to 5.2 minutes with eight runs at once on the folder,
+as with the cache off) took 2 hours 8 minutes alone with a bound of
+512 MiB.
+
+Parameters:
+
+cache (bool or path, optional) – True for the default folder (default_compilation_cache, or the
+package’s own folder where the environment variable turns the cache
+off), a path for another folder, False to turn the cache off.
+
+max_size (int or None, optional) – Bound on the folder in bytes, above which JAX evicts the oldest
+entries; None, the default, leaves the folder unbounded.
+
+Returns:
+
+folder – The folder in use, or None if the cache is off.
+
+Return type:
+
+str or None
+
+pianistpy.runtime.set_platform(name)
+
+Choose the hardware JAX runs on, before the first computation.
+
+The CPU-only mode ("cpu") is first class: every function of the
+package runs on it and gives the same numbers on every machine. It
+changes no number on a machine without a GPU; on one with a GPU the
+CPU and GPU results differ at rounding, as the provenance of each
+file records (pianistpy.io.backend_provenance).
+
+Parameters:
+
+name ({"auto", "cpu", "gpu"}) – "auto" leaves JAX its own order (a GPU where one is usable);
+"cpu" is the CPU-only mode; "gpu" asks for the CUDA backend
+with the CPU behind it. Any other string is handed to JAX as its
+own platform list (for example "rocm,cpu").
+
+Return type:
+
+None
+
+Notes
+
+JAX picks its backend at the first computation of the process and
+keeps it: call this before any result is computed, or set the
+environment variable PIANISTPY_PLATFORM before the package is
+imported. A later call has no effect and is reported at info.
+
+pianistpy.runtime.set_timing(enabled)
+
+Switch the printing of stage times on or off.
+
+The times are always measured and kept with the result. This switch
+controls printing only and is independent of the verbosity. The
+environment variable PIANISTPY_TIMING sets it at import.
+
+Parameters:
+
+enabled (bool)
+
+Return type:
+
+None
+
+pianistpy.runtime.set_verbosity(level)
+
+Set what the package prints for the rest of the session.
+
+Parameters:
+
+level ({"quiet", "info", "debug"}) – "quiet" shows warnings and errors only and is the default;
+"info" adds one line per stage; "debug" adds the detail of
+each stage.
+
+Return type:
+
+None
+
+Notes
+
+The verbosity never changes what is computed. The environment variable
+PIANISTPY_VERBOSITY sets the level at import.
+
+pianistpy.runtime.set_workers(value)
+
+Set how many cores the package uses for parallel work.
+
+Parameters:
+
+value ({"auto", "full", "half"} or int) – "auto", the default, uses every allowed core inside a batch job
+and half of them anywhere else; "full" every allowed core;
+"half" half of them; an integer exactly that many.
+
+Return type:
+
+None
+
+Notes
+
+The number of workers never changes a number: a result is the same, to
+the bit, for any value. The environment variable PIANISTPY_WORKERS
+sets the value at import.
+
+pianistpy.runtime.timed(stage)
+
+Time one stage and announce it.
+
+Parameters:
+
+stage (str) – Name of the stage, from the fixed list of its computation.
+
+Return type:
+
+Iterator[None]
+
+pianistpy.runtime.timing_enabled()
+
+Return whether stage times are printed.
+
+Return type:
+
+bool
+
+pianistpy.runtime.timing_record()
+
+Collect the stage times of the enclosed computation.
+
+Yields:
+
+timing (Timing) – The record that every timed stage of the block adds to.
+
+Return type:
+
+Iterator[Timing]
+
+pianistpy.runtime.workers_explicit()
+
+Whether the workers were set to an exact number (set_workers).
+
+Return type:
+
+bool
+
+     On this page
+
+
+---
+
+# Settings (pianistpy.settings)
+
+Source: https://pianistpy.com/docs/reference/api/settings.html
+
+# Settings (pianistpy.settings)
+
+Numerical settings: the tested tiers and expert overrides.
+
+class pianistpy.settings.Field(default, doc, quick=None)
+
+One numerical setting: its value in each tier and what it controls.
+
+Parameters:
+
+default (bool, int, float or str) – Value in the default tier. Its type is the type of the field.
+
+doc (str) – What the field controls.
+
+quick (bool, int, float or str, optional) – Value in the quick tier. If omitted, the quick tier keeps the default
+value: a cheaper value enters only once it has passed the tests.
+
+value(tier)
+
+Return the value of the field in a tier.
+
+Parameters:
+
+tier (str)
+
+Return type:
+
+Any
+
+class pianistpy.settings.Settings(quick=False, write_anyway=False, **overrides)
+
+Numerical settings of a computation.
+
+A tier is a complete set of numerical settings that has been run through
+the test battery and for which the package states the accuracy it
+delivers. An expert may override single fields; the result then records
+that it was not made with a tested tier and names the fields that differ.
+
+Parameters:
+
+quick (bool, optional) – Use the quick tier instead of the default tier.
+
+write_anyway (bool, optional) – Return a result whose own check lies beyond the hard limit instead of
+refusing it. The result carries the check’s verdict in its validation
+report (tier "refused") and an AccuracyWarning is issued in
+place of the refusal. For debugging a case the package cannot serve
+at its stated accuracy; off by default. A physically invalid model
+is refused regardless.
+
+**overrides (mapping) – One mapping per group (inversion, truncation, sampling,
+observables) of the fields to change within that group.
+
+Variables:
+
+tier (str) – Name of the tier the settings start from.
+
+write_anyway (bool) – Whether a result beyond the hard limit is returned instead of refused.
+
+overrides (mapping) – The fields changed from the tier, by group. Read only.
+
+Examples
+
+```
+>>> Settings().tier
+'default'
+>>> Settings(quick=True).is_tested_tier
+True
+>>> Settings(inversion={"n_nodes": 256}).is_tested_tier
+False
+>>> Settings(inversion={"n_nodes": 256}).inversion["n_nodes"]
+256
+>>> Settings().truncation["ode_rtol"]
+1e-11
+
+```
+
+property tier: str
+
+Name of the tier the settings start from.
+
+property write_anyway: bool
+
+Whether a result beyond the hard limit is returned instead of refused.
+
+property overrides: Mapping[str, Mapping[str, Any]]
+
+The fields changed from the tier, by group.
+
+property is_tested_tier: bool
+
+Whether the settings are a tested tier with no field changed.
+
+group(name)
+
+Return the value of every field of one group.
+
+Parameters:
+
+name (str) – One of the groups inversion, truncation, sampling and
+observables.
+
+Returns:
+
+values – The fields of the group with the values of the tier, each
+replaced by its override where one was given. Read only.
+
+Return type:
+
+mapping
+
+property inversion: Mapping[str, Any]
+
+Settings of the inversion.
+
+property truncation: Mapping[str, Any]
+
+Settings of the truncation.
+
+property sampling: Mapping[str, Any]
+
+Settings of the particle sampling.
+
+property observables: Mapping[str, Any]
+
+Settings of the observables.
+
+property losvd: Mapping[str, Any]
+
+The fields of the LOSVD table and the aperture LOSVD.
+
+resolved()
+
+Return every field of every group with the value in force.
+
+Return type:
+
+dict[str, dict[str, Any]]
+
+to_dict()
+
+Return the settings as a plain dictionary.
+
+Returns:
+
+record – The tier and the overrides, in the form written to files, with
+"write_anyway": True where that was asked. The numerical
+settings alone determine a result, so numerical is what the
+identity hashes.
+
+Return type:
+
+dict
+
+numerical()
+
+Return the tier and the overrides, the settings that determine a result.
+
+Return type:
+
+dict[str, Any]
+
+classmethod from_dict(record)
+
+Build settings from their dictionary form.
+
+Parameters:
+
+record (mapping) – A dictionary as returned by to_dict.
+
+Returns:
+
+settings
+
+Return type:
+
+Settings
+
+     On this page
+
+
+---
+
+# Superposition (pianistpy.superposition)
+
+Source: https://pianistpy.com/docs/reference/api/superposition.html
+
+# Superposition (pianistpy.superposition)
+
+Linear superposition of models that share one density.
+
+pianistpy.superposition.mixture(weights, values, xp=np)
+
+Return the weighted sum of per-component values, the weights normalized.
+
+The one way a superposed model combines its components: a density, a
+moment or a table read per component. Linear in the values, and in the
+weights up to their normalization; with xp=jax.numpy the weights may
+be traced, so a quantity of the mixture is differentiable in them.
+
+Parameters:
+
+weights (array-like, shape (n_components,)) – Positive weights; normalized here.
+
+values (array-like, shape (n_components, ...)) – The value of each component.
+
+xp (module, optional) – numpy, or jax.numpy for traced weights.
+
+Returns:
+
+value
+
+Return type:
+
+array, shape (…)
+
+pianistpy.superposition.moments(model, r, n_nodes=None)
+
+Return the second moments of a superposed model at radii r.
+
+Parameters:
+
+model (Model) – A superposed model (superpose), its components sharing one density.
+
+r (array-like, shape (n,)) – Radii, in internal units.
+
+n_nodes (int, optional) – Gauss-Legendre nodes of each component’s Jeans integral; the model’s
+observables.n_jeans_nodes if omitted.
+
+Returns:
+
+moments – sigma_r2 and sigma_t2 of the mixture, beta_sigma its
+anisotropy, and sigma_r2_components and beta_components (one
+row per component), with the shape of r.
+
+Return type:
+
+dict
+
+Notes
+
+Each component’s radial dispersion is the Jeans integral of its
+auxiliary density on the shared profile (radial_dispersion, the
+Gauss-Legendre rule in ln(1 - K / P_0)); its components share the density,
+so the moments of the mixture are the weighted sums
+\(\sigma_r^2 = \sum_k w_k\sigma_{r,k}^2\),
+\(\sigma_t^2 = 2\sum_k w_k(1-\beta_k)\sigma_{r,k}^2\) and
+\(\beta_\sigma = 1 - \sigma_t^2 / (2\sigma_r^2)\).
+
+References
+
+Paper Eqs. (B42), (B43) [eqn:linearity_2, eqn:linearity_beta_1] and
+eqn:beta_sigma_sup.
+
+pianistpy.superposition.superpose(members)
+
+Return the superposition of models that share one truncated pair.
+
+Parameters:
+
+members (mapping of Model to float) – Two or more models of one component each, every one built on the same
+truncated profile (Method II children of one truncated parent), with
+their weights. The weights must be positive; they are normalized to
+sum to one, with a warning where they did not.
+
+Returns:
+
+model – One component per member, in the order given: the member’s component
+with its mass the weight relative to the first member’s; its DF table
+on its own energy grid (DfTable carries one grid per component); the
+shared profile with the density split by weight; the members’ checks,
+each at its worst over the members.
+
+Return type:
+
+Model
+
+Raises:
+
+InputError – If fewer than two members are given, a weight is not positive and
+    finite, a member is not a single Method II component on a truncated
+    profile, the members are built on different profiles, or their
+    settings or units differ.
+
+     On this page
+
+
+---
+
+# Units (pianistpy.units)
+
+Source: https://pianistpy.com/docs/reference/api/units.html
+
+# Units (pianistpy.units)
+
+Conversion from internal units to model and physical units.
+
+class pianistpy.units.UnitFactors(rho_norm, mass_q, model_v, model_mass, model_rho, model_p, physical_r_pc=None, physical_v_kms=None, physical_mass_msun=None, physical_rho_msun_pc3=None, physical_p_kms2=None, physical_rho_0_msun_pc3=None)
+
+Factors that convert internal units to model and to physical units.
+
+A quantity in internal units is multiplied by the factor to obtain it in
+the target units. The model units have \(G = M_0 = r_0 = 1\), with
+\(M_0\) the mass inside the radius concentration times
+\(r_0\).
+
+Parameters:
+
+rho_norm (float) – Normalisation \(C\) of the density profile.
+
+mass_q (float) – \(q = \mathcal{M}(c)/C\), the mass inside the concentration
+radius in units of \(4\pi\rho_0 r_0^3\).
+
+model_v (float) – Factors to the model units, for a speed, a mass, a density and a
+potential.
+
+model_mass (float) – Factors to the model units, for a speed, a mass, a density and a
+potential.
+
+model_rho (float) – Factors to the model units, for a speed, a mass, a density and a
+potential.
+
+model_p (float) – Factors to the model units, for a speed, a mass, a density and a
+potential.
+
+physical_r_pc (float or None) – Factors to parsecs, kilometres per second and solar masses.
+
+physical_v_kms (float or None) – Factors to parsecs, kilometres per second and solar masses.
+
+physical_mass_msun (float or None) – Factors to parsecs, kilometres per second and solar masses.
+
+physical_rho_msun_pc3 (float or None) – Factors to solar masses per cubic parsec, and to the square of
+kilometres per second.
+
+physical_p_kms2 (float or None) – Factors to solar masses per cubic parsec, and to the square of
+kilometres per second.
+
+physical_rho_0_msun_pc3 (float or None) – The scale density \(\rho_0\) in solar masses per cubic parsec.
+
+Notes
+
+The physical factors are None unless both physical scales were given to
+unit_factors.
+
+class pianistpy.units.Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None)
+
+The unit system of a result and the scales that define it.
+
+Parameters:
+
+system ({"internal", "model", "physical"}) – "internal": \(G = \rho_0/C = r_0 = 1\). "model":
+\(G = M_0 = r_0 = 1\). "physical": Astropy quantities.
+
+concentration (float, optional) – Concentration \(c\) that defines \(M_0\) as the mass inside
+\(c\,r_0\). Needed by the model and the physical systems.
+
+mass_0_msun (float, optional) – \(M_0\) in solar masses. Needed by the physical system.
+
+r_0_pc (float, optional) – Scale radius \(r_0\) in parsecs. Needed by the physical system.
+
+Examples
+
+```
+>>> Units().system
+'internal'
+>>> Units.build("model", concentration=10.0).concentration
+10.0
+
+```
+
+classmethod build(system, concentration=None, mass_0=None, r_0=None, r_vir=None)
+
+Return the units of a system from the scales a user gives.
+
+Parameters:
+
+system ({"internal", "model", "physical"}) – The target system.
+
+concentration (float, optional) – Concentration that defines \(M_0\).
+
+mass_0 (float or astropy Quantity, optional) – \(M_0\); a float is in solar masses.
+
+r_0 (float or astropy Quantity, optional) – The scale radius, or the radius \(c\,r_0\) in its place; a
+float is in parsecs. One of the two for the physical system.
+
+r_vir (float or astropy Quantity, optional) – The scale radius, or the radius \(c\,r_0\) in its place; a
+float is in parsecs. One of the two for the physical system.
+
+Returns:
+
+units
+
+Return type:
+
+Units
+
+factors(profile)
+
+Return the conversion factors of these units for a density profile.
+
+Parameters:
+
+profile (DoublePowerLaw)
+
+Return type:
+
+UnitFactors
+
+convert(kind, value, profile)
+
+Return a quantity in internal units in the units of this object.
+
+Parameters:
+
+kind ({"length", "velocity", "mass", "density", "potential"}) – What the quantity is.
+
+value (array-like) – The quantity, in internal units.
+
+profile (DoublePowerLaw) – The density profile that fixes the normalization.
+
+Returns:
+
+converted – A plain array for the internal and the model systems, an Astropy
+quantity for the physical system.
+
+Return type:
+
+array or astropy Quantity
+
+to_dict()
+
+Return the units as a plain dictionary.
+
+Return type:
+
+dict[str, Any]
+
+classmethod from_dict(record)
+
+Build the units from their dictionary form; internal if absent.
+
+Parameters:
+
+record (Mapping[str, Any] | None)
+
+Return type:
+
+Units
+
+pianistpy.units.unit_factors(profile, concentration, mass_0_msun=None, r_0_pc=None)
+
+Return the conversion factors of a profile.
+
+Parameters:
+
+profile (DoublePowerLaw) – The density profile, which fixes the normalization \(C\).
+
+concentration (float) – Radius, in units of the scale radius \(r_0\), inside which the
+mass \(M_0\) is defined. Positive.
+
+mass_0_msun (float, optional) – \(M_0\) in solar masses.
+
+r_0_pc (float, optional) – Scale radius \(r_0\) in parsecs.
+
+Returns:
+
+factors – The model-unit factors, and the physical factors if both mass_0_msun
+and r_0_pc are given.
+
+Return type:
+
+UnitFactors
+
+Notes
+
+With \(\rho_{\rm w} = \rho_0/C\) the internal units are
+\(M_{\rm W} = 4\pi\rho_{\rm w} r_0^3\) for mass and
+\(v_{\rm W} = \sqrt{4\pi G\rho_{\rm w} r_0^2}\) for speed, and
+\(M_0 = 4\pi\rho_0 r_0^3\,q\). Hence a speed is multiplied by
+\((C q)^{-1/2}\), a mass and a potential by \((C q)^{-1}\), and a
+density by \((4\pi C q)^{-1}\) to reach the model units.
+
+References
+
+Paper I, Section on units (labels ssec:Units, eqn:M_nor_1).
+
+Examples
+
+```
+>>> factors = unit_factors(DoublePowerLaw.nfw(), concentration=10.0)
+>>> factors.rho_norm
+1.0
+>>> round(factors.mass_q, 12) == round(math.log(11.0) - 10.0 / 11.0, 12)
+True
+
+```
+
+     On this page
+
+
+---
+
+# Validation (pianistpy.validation)
+
+Source: https://pianistpy.com/docs/reference/api/validation.html
+
+# Validation (pianistpy.validation)
+
+Accuracy tiers and the validation report of a result.
+
+class pianistpy.validation.Check(error, where=None)
+
+One check of a result: what was measured and where.
+
+Parameters:
+
+error (float) – The relative error the check measured.
+
+where (float, optional) – The place of the largest error, in the variable the check runs over
+(a radius or an energy). Absent where that has no meaning.
+
+property level: int
+
+Tier of the error, as returned by tier_level.
+
+property tier: str
+
+Name of the tier of the error.
+
+class pianistpy.validation.ValidationReport(keys, checks, parents_level=0)
+
+The validation report of one result.
+
+The report has a fixed set of keys for each kind of result and one
+Check per key. It is not a log: nothing is appended to it, and a
+derived result holds its own checks and the worst tier of its parents,
+never a copy of their reports.
+
+Parameters:
+
+keys (tuple of str) – The keys this kind of result reports, in order.
+
+checks (mapping of str to Check) – One check per key.
+
+parents_level (int, optional) – Worst tier among the parents of the result.
+
+property level: int
+
+Worst tier of the result’s own checks and of its parents.
+
+property tier: str
+
+Name of the worst tier.
+
+classmethod from_dict(record)
+
+Build the report from its dictionary form.
+
+Parameters:
+
+record (Mapping[str, Any])
+
+Return type:
+
+ValidationReport
+
+to_dict()
+
+Return the report as a plain dictionary, in the order of its keys.
+
+Return type:
+
+dict[str, Any]
+
+pianistpy.validation.announce(what, report, detail)
+
+Say that a result lies above the goal; silent within it.
+
+The one channel for every block: the package’s log (the pianistpy
+logger, printed by default) and Python’s own warnings, as an
+AccuracyWarning, so that a user can silence or escalate it with the
+standard filter. Nothing is said within the goal; beyond the hard limit
+the result is refused by its stage, not announced here.
+
+Parameters:
+
+what (str) – The result, named: "The sampler of 'nfw'".
+
+report (ValidationReport) – Its report.
+
+detail (str) – The checks above the goal with their errors and where they occur.
+
+Return type:
+
+None
+
+pianistpy.validation.refuse_unless_asked(what, report, settings)
+
+Refuse a result beyond the hard limit as the input of another.
+
+A result whose report reads "refused" exists only because it was asked
+for anyway (Settings(write_anyway=True)) or was read from a file that
+holds one. It is consumed only under the same request: a sampler, a table
+or a projection built on it carries its tier and says so.
+
+Parameters:
+
+what (str) – The input, named: "The model 'nfw'".
+
+report (ValidationReport) – Its report.
+
+settings (Settings) – The settings of the result being built from it.
+
+Raises:
+
+AccuracyError – If the report’s tier is "refused" and the settings do not ask for
+    the result anyway.
+
+Return type:
+
+None
+
+pianistpy.validation.tier_level(error)
+
+Return the tier of a relative error.
+
+Parameters:
+
+error (float) – Relative error, non-negative. A value that is not a number counts as
+beyond the hard limit.
+
+Returns:
+
+level – 0 within the goal, 1 within the ceiling, 2 within the hard limit,
+3 beyond it.
+
+Return type:
+
+int
+
+Examples
+
+```
+>>> [tier_level(e) for e in (1e-7, 1e-5, 1e-3, 1e-1, float("nan"))]
+[0, 1, 2, 3, 3]
+
+```
+
+     On this page
+
+
+---
+
+# API reference
+
+Source: https://pianistpy.com/docs/reference/index.html
+
+# API reference
+
+Functions by subpackage
+
+Settings tables
+
+Names and paper symbols
+
+Technical notes
+
+
+---
+
+# Technical notes
+
+Source: https://pianistpy.com/docs/reference/notes.html
+
+# Technical notes
+
+The technical notes are the online companion of the paper: the equations, derivations, conditions and bounds
+that the paper does not print, and the numerical design of each stage. Every formula implemented in the package
+cites them from its docstring by a number and a fixed key, as in Notes Eq. (I.5) [conditions]; the key never
+changes, the number follows the notes.
+
+The notes are published as a PDF with each release; the link is added with the 1.0.0 release. Rendering them
+as pages of this manual is on the roadmap.
+
+
+---
+
+# Settings tables
+
+Source: https://pianistpy.com/docs/reference/settings.html
+
+# Settings tables
+
+Every numerical setting of the package is a declared field of one group, with its value in each tested tier and
+one line on what it controls. The tables below are generated from the package’s own declaration at every build
+of this manual, so they cannot lag the code. The settings container is pianistpy.Settings; a stage reads
+its group and nothing else; an override of an undeclared field, of the wrong type or not positive is refused.
+
+## inversion
+
+Field
+
+Default
+
+Quick
+
+What it controls
+
+n_nodes
+
+500
+
+same
+
+Gauss-Legendre nodes of the inversion integral.
+
+n_grid_rows
+
+1000
+
+same
+
+Rows of the linear middle zone of the inversion’s energy grid.
+
+n_grid_tail_rows
+
+3000
+
+same
+
+Rows of each logarithmic end zone of the inversion’s energy grid, toward the floor and toward the top.
+
+grid_tail_extent
+
+0.03
+
+same
+
+Extent of the energy grid’s end zones, as a fraction of the central potential.
+
+table_nodes_per_decade
+
+50
+
+same
+
+Nodes per decade of the energy grid below its floor, down to the table’s floor.
+
+n_floor_nodes
+
+240
+
+same
+
+Gauss-Legendre nodes in ln P of the completion below the table’s floor (a third of them, at least 40, near the floor).
+
+## truncation
+
+Field
+
+Default
+
+Quick
+
+What it controls
+
+n_source_nodes
+
+500
+
+same
+
+Gauss-Legendre nodes of each of the two intervals of the quadrature of the auxiliary density on the source grid.
+
+n_source_rows
+
+12000
+
+same
+
+Rows of the source grid in the potential.
+
+n_source_tail_rows
+
+3000
+
+same
+
+Rows of each logarithmic tail of the source grid, toward the floor and toward the top (at most a third of the rows).
+
+source_tail_extent
+
+0.03
+
+same
+
+Largest extent of the source grid’s tails, as a fraction of the grid’s top (the tails take at most a hundredth of the top).
+
+source_tail_floor
+
+1.20401e-08
+
+same
+
+Smallest start of the source grid’s lower tail and smallest extent of its upper tail, as fractions of the grid’s top.
+
+quadrature_split
+
+0.9
+
+same
+
+Fraction of the potential where the first interval of the source quadrature ends.
+
+quadrature_stretch
+
+2
+
+same
+
+Power k of the second interval’s map Q = P - u^k, where the kernel’s exponent is not negative.
+
+ode_rtol
+
+1e-11
+
+same
+
+Relative tolerance of the Poisson integration.
+
+ode_atol
+
+1e-11
+
+same
+
+Absolute tolerance of the Poisson integration.
+
+n_rows_inner
+
+500
+
+same
+
+Rows of the Poisson solve’s grid inside the inner zone.
+
+n_rows_outer
+
+59500
+
+same
+
+Rows of the Poisson solve’s grid outside the inner zone.
+
+log10_r_min
+
+-9
+
+same
+
+Logarithm of the Poisson solve’s innermost radius.
+
+log10_r_max
+
+12
+
+same
+
+Logarithm of the Poisson solve’s outermost radius; a run raises it until the potential there is below half the floor, and the result states the value it used.
+
+continuation_start
+
+0.01
+
+same
+
+Fraction of the central potential below which a truncated model’s last rows are re-solved on a grid geometric in R_t - r.
+
+continuation_rows_per_decade
+
+1200
+
+same
+
+Rows per decade of R_t - r of the edge continuation.
+
+continuation_floor_fraction
+
+0.02
+
+same
+
+The edge continuation’s last row, as a fraction of the floor.
+
+profile_bin_decades
+
+0.1
+
+same
+
+Width in decades of the potential of the profile’s row-count bins.
+
+profile_rows_per_decade
+
+1000
+
+same
+
+Fewest rows per decade of the potential (and of the depth) that the profile keeps at its two ends; the fills supply the rest.
+
+## sampling
+
+Field
+
+Default
+
+Quick
+
+What it controls
+
+n_rows
+
+512
+
+same
+
+Rows in potential of the speed table to start from: the rows are refined until the table’s own error across rows is under the goal.
+
+n_rows_max
+
+4075
+
+same
+
+Most rows of the speed table: no refinement passes this count.
+
+n_nodes
+
+2048
+
+512
+
+Nodes of each row of the speed table.
+
+n_speed_intervals
+
+200
+
+same
+
+Intervals in the scaled speed of the distribution integrated on each row of the speed table.
+
+n_gauss_legendre
+
+16
+
+8
+
+Gauss-Legendre nodes of each panel of the speed integrals.
+
+panels_per_decade
+
+8
+
+same
+
+Panels per decade of the local variable where the speed integrals refine toward the two ends of a row and inside each interval.
+
+speed_low_refined
+
+1e-09
+
+same
+
+Smallest scaled speed refined in panels; below it the density is its power law in the speed, integrated in closed form.
+
+edge_refined
+
+1e-12
+
+same
+
+Distance from the edge of the speed support, relative to the edge, down to which panels refine; below it the DF’s rule below its table is integrated in closed form.
+
+radius_edge_refined
+
+1e-10
+
+same
+
+Smallest enclosed-mass fraction beyond a radius that the radius table of a model with a sharp edge resolves in nodes; beyond it the mass follows its power law in the distance from the edge.
+
+n_radius_nodes
+
+2048
+
+same
+
+Nodes of the radius table.
+
+n_angle_nodes
+
+1024
+
+same
+
+Nodes of each half of the angle table, uniform in the logarithm of the cumulative probability from its end.
+
+draw_block
+
+262144
+
+same
+
+Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block’s (about 0.75 kB a particle, 2**18 particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
+
+row_error_goal
+
+1e-06
+
+0.0001
+
+Error across rows at which the speed table’s refinement stops (its rows double until the table’s own error is under it, or n_rows_max is reached).
+
+tail_mass_min
+
+1e-18
+
+same
+
+Smallest tabulated cumulative probability at either end of a table: a uniform double reaches 2**-53, so a draw never reads beyond it.
+
+## observables
+
+Field
+
+Default
+
+Quick
+
+What it controls
+
+n_radii
+
+10000
+
+500
+
+Projected radii of the projection table before its certificate adds rows, logarithmic from the innermost row to the edge.
+
+profile_tolerance
+
+1e-07
+
+1e-06
+
+Relative error of sigma_r at which the radial dispersion’s rows stop being added: every interval’s midpoint reads within it. A tenth of the goal, the profile’s share of the error of what is projected from it.
+
+n_profile_start
+
+100
+
+same
+
+Logarithmic radii the radial dispersion starts from, from the innermost row to the edge, before rows are added to its tolerance.
+
+n_jeans_nodes
+
+500
+
+same
+
+Gauss-Legendre nodes of a row’s own Jeans integral of the radial dispersion (the superposition’s); the observables’ profile sums panels between its rows instead, their nodes doubled until sigma_r moves by less than profile_tolerance.
+
+n_projection_nodes
+
+500
+
+same
+
+Gauss-Legendre nodes of each line-of-sight integral of the surface density and the projected dispersion.
+
+n_aperture_nodes
+
+100
+
+same
+
+Gauss-Legendre nodes of each panel of an aperture’s radial integral, at least.
+
+aperture_nodes_per_decade
+
+8
+
+same
+
+Nodes per decade of a panel’s span in the logarithm of the projected radius where that exceeds the minimum, rounded up to a multiple of 20.
+
+rows_route
+
+kernel
+
+same
+
+The angle rule of the line-of-sight velocity distributions’ rows: “kernel”, the JAX kernel, or “numpy”, the reference route.
+
+n_speed_angle_nodes
+
+16
+
+same
+
+Gauss-Legendre nodes of each panel of the angle integral of the local speed distribution (pdf_v), in t = cos(eta).
+
+n_speed_angle_panels
+
+16
+
+8
+
+Panels of that angle integral graded toward each end of each of its intervals, and of the speed integral of its norm and second moment toward each of their breaks.
+
+speed_tolerance
+
+1e-06
+
+0.0001
+
+Bound on the local speed distribution’s change when its angle rule’s nodes double: they double, at most three times, until the change is under it.
+
+## losvd
+
+Field
+
+Default
+
+Quick
+
+What it controls
+
+rows_per_decade
+
+55
+
+20
+
+Base rows of the table of line-of-sight velocity distributions per decade of projected radius, from the innermost row of the profile.
+
+n_energy_nodes
+
+8
+
+same
+
+Gauss-Legendre nodes of each panel of the energy integral of a node.
+
+n_floor_layers
+
+4
+
+2
+
+Panels of the energy integral graded toward the energy of the DF’s floor.
+
+energy_layer_ratio
+
+0.2
+
+same
+
+Ratio of successive graded panels of the energy integral.
+
+n_angle_nodes
+
+64
+
+same
+
+Gauss-Legendre nodes of the angle integral of an L factor, the most a node takes.
+
+n_sightline_nodes
+
+16
+
+8
+
+Gauss-Legendre nodes of each panel of the line-of-sight integral.
+
+n_sightline_panels
+
+8
+
+same
+
+Panels of each interval of the support along the line of sight.
+
+sightline_panels_refined
+
+6
+
+same
+
+Doublings of the line-of-sight panels allowed before a row is recorded as not converged.
+
+sightline_layer_ratio
+
+0.3
+
+same
+
+Ratio of the line-of-sight panels graded toward the axis.
+
+n_sightline_layers
+
+4
+
+same
+
+Line-of-sight panels graded toward the axis added at each doubling.
+
+n_crossing_scan
+
+2001
+
+same
+
+Points of the scan for where the angular momentum vanishes.
+
+n_cumulative_nodes
+
+200001
+
+same
+
+Nodes of each of the three branches of the table of the DF’s cumulative integral.
+
+n_velocity_nodes
+
+16
+
+8
+
+Gauss-Legendre nodes of each velocity sub-panel of a row.
+
+velocity_layer_ratio
+
+0.3
+
+same
+
+Ratio of the velocity sub-panels graded toward a break.
+
+n_velocity_layers_zero
+
+12
+
+same
+
+Velocity sub-panels graded toward zero velocity.
+
+n_velocity_layers_break
+
+8
+
+same
+
+Velocity sub-panels graded toward each break of a row.
+
+n_break_scan
+
+4001
+
+1001
+
+Points of the coarse scan for a velocity break.
+
+n_break_zooms
+
+4
+
+same
+
+Zooms of the scan for a velocity break.
+
+n_bisections
+
+60
+
+same
+
+Bisections of an edge of the support or of a root along a line of sight.
+
+n_radius_break_layers
+
+16
+
+same
+
+Rows added toward each radius where the layout of the rows changes.
+
+n_radius_break_bisections
+
+40
+
+same
+
+Bisections in projected radius of a change of the layout.
+
+n_radius_break_samples
+
+3
+
+same
+
+Samples inside each interval of base rows for a change of the layout.
+
+n_edge_samples
+
+10
+
+same
+
+Samples beyond the last base row toward the end of the profile.
+
+n_edge_layers
+
+16
+
+same
+
+Rows added toward the end of the table.
+
+n_stencil_rows
+
+8
+
+same
+
+Rows of the stencil that reads the table between its rows.
+
+n_stencil_test_rows
+
+8
+
+same
+
+Rows of the stencil whose estimate certifies the table.
+
+n_block_elements
+
+250000
+
+same
+
+Elements of one block of node pairs, energy nodes and angle nodes, which bounds the memory of a row.
+
+Tiers: default, quick. A field is overridden one at a time, pp.Settings(inversion={'n_nodes': 800}); the result then records that it was made with custom settings and names the fields that differ.
+
+     On this page
+
+
+---
+
+# Symbols
+
+Source: https://pianistpy.com/docs/reference/symbols.html
+
+# Symbols
+
+The package’s names follow the paper’s notation: a quantity that has a symbol in the paper or the technical notes
+is named <family>_<symbol>, the family saying what kind of quantity it is and the rest being the paper’s symbol
+or subscript in lower case. A truncated quantity (hatted in the paper) takes the suffix _trunc, the
+untruncated one the bare name. Every docstring gives the paper’s symbol beside the name the first time it
+describes it.
+
+Family
+
+Prefix
+
+Names
+
+Paper
+
+density and its parameters
+
+rho_
+
+rho, rho_aux, rho_alpha, rho_beta, rho_gamma, rho_norm
+
+\(\varrho\), \(\varrho_{\rm aux}\), \((\alpha, \beta, \gamma)\), \(C\)
+
+anisotropy
+
+beta_
+
+beta_c, beta_sigma, beta_sup
+
+\(\beta_{\rm c}\), \(\beta_\sigma\), \(\beta_{\rm sup}\)
+
+radii
+
+r_
+
+r, r_a, r_t, r_2d, r_off, r_ape
+
+\(R\), \(R_{\rm a}\), \(R_{\rm t}\), \(R_{\rm 2D}\), \(R_{\rm off}\), \(R_{\rm ape}\)
+
+relative potential
+
+p_
+
+p, p_0
+
+\(P\), \(P_0\)
+
+energy-like variables
+
+k_, q_
+
+k, k_t, q, q_min, q_0
+
+\(\mathcal{K}\), \(\mathcal{K}_{\rm t}\), \(\mathcal{Q}\), \(\mathcal{Q}_{\rm min}\), \(\mathcal{Q}_0\)
+
+distribution function
+
+df_
+
+df, df_k
+
+\(F\), \(F_\mathcal{K}\)
+
+mass
+
+mass_
+
+mass, mass_t, mass_vir
+
+\(\mathcal{M}\), \(M_{\rm t}\), \(M_{\rm vir}\)
+
+order of the inversion
+
+order_
+
+order_m, order_n
+
+\((m, n)\)
+
+velocities and dispersions
+
+v_, sigma_
+
+v_r, v_t, v_los, v_esc, sigma_r, sigma_t, sigma_los
+
+\(V_r\), \(V_t\), \(V_{\rm los}\), \(V_{\rm esc}\), \(\sigma_r\), \(\sigma_t\), \(\sigma_{\rm los}\)
+
+probability densities
+
+pdf_
+
+pdf_x, pdf_phi
+
+\(p_x\), \(p_\varphi\)
+
+Where the paper’s letter cannot be used, a word is fixed: the normalization \(C\) of the density is
+rho_norm (rho_c would read as a central density), and the concentration \(c\) is concentration.
+The letter c alone is never a name; as a subscript it means central (beta_c). The quantities of the
+truncated model carry the suffix: p_trunc, df_trunc, rho_trunc, mass_trunc.
+
+## Derived names
+
+What
+
+Form
+
+Example
+
+logarithm of a quantity
+
+ln_, log10_ prefix
+
+ln_r, log10_df
+
+derivative
+
+d<y>_d<x>, the order as a digit
+
+drho_dp, d2rho_dp2
+
+count
+
+n_ prefix
+
+n_nodes, n_rows
+
+index
+
+i_ prefix
+
+i_split
+
+quadrature nodes and weights
+
+_nodes, _weights suffix
+
+k_nodes, k_weights
+
+tabulated values on a grid
+
+_grid suffix
+
+r_grid, df_grid
+
+boolean
+
+is_, has_ prefix
+
+is_truncated, has_tail
+
+The three unit systems are named internal (the dimensionless normalization of Widrow 2000, in which the
+scale radius and the central potential of the untruncated profile are 1), model (\(G = M_0 = r_0 = 1\))
+and physical (through Astropy); see Units.
+
+     On this page
+
+
+---
+
+# Get started
+
+Source: https://pianistpy.com/docs/start/index.html
+
+# Get started
+
+What it does
+
+Install
+
+Quick start
+
+Three pages: what PIANISTpy does, how to install it and what it needs, and a complete example from a density
+profile to particles and an observable. What the package returns, flags and refuses is one page of the guide,
+Flags and refusals; read it before relying on a result.
+
+
+---
+
+# Install
+
+Source: https://pianistpy.com/docs/start/install.html
+
+# Install
+
+```
+pip install pianistpy
+
+```
+
+PIANISTpy needs Python 3.11 or later and runs on Linux, macOS and Windows.
+
+## Requirements
+
+The dependencies are installed by pip with the package. Two lists are kept with every release: the versions the
+release was developed and tested with, and the oldest versions that pass the full test suite.
+
+Package
+
+Standard (tested with)
+
+Minimum (oldest that passes the suite)
+
+Python
+
+3.11
+
+3.11 (3.12 and 3.13 pass)
+
+NumPy
+
+2.4
+
+2.0.0
+
+SciPy
+
+1.17
+
+1.14.0
+
+h5py
+
+3.15
+
+3.11.0
+
+Astropy
+
+7.2
+
+7.2.0
+
+mpmath
+
+1.4
+
+0.19
+
+SymPy
+
+1.14
+
+1.2
+
+JAX
+
+0.9.2
+
+0.6.1
+
+Diffrax
+
+0.7.2
+
+0.7.1
+
+Optimistix
+
+0.1.0
+
+0.0.11
+
+filelock
+
+4.0
+
+any
+
+JAX, Diffrax and Optimistix are bound together: the three minimum versions pass as one environment, and older
+pairs do not. The minimum list is measured one package at a time with the others at their newest; the standard
+list is the environment of the release.
+
+## JAX and the GPU
+
+The package runs on the CPU everywhere and takes a GPU where the installed JAX supports one; nothing is set by
+the user. JAX’s CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
+(or a Linux virtual machine) with the Linux wheels, and a native Windows Python runs the CPU-only mode. A GPU and
+a CPU give results that differ at rounding on the kernels; the accuracy goal holds on both, and each file
+records the backend that made it. To force one or the other, see Runtime options.
+
+     On this page
+
+
+---
+
+# What it does
+
+Source: https://pianistpy.com/docs/start/overview.html
+
+# What it does
+
+Density profiles. Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
+Plummer profiles as named presets.
+
+Velocity anisotropy. Isotropic, constant, Osipkov-Merritt, and the generalized Osipkov-Merritt (Cuddeford)
+models, radially biased (Type I) or tangentially biased (Type II).
+
+Distribution functions. The distribution function (DF) of each model, from the analytic inversion of its
+density, returned whether or not it is physical, with a statement of where it is not.
+
+Truncation in phase space. Method I truncates a model’s own DF at an energy you give, or at the energy that
+yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
+truncated.
+
+Particles. Positions and velocities drawn by inversion, with no rejection step, and reproducible particle
+by particle.
+
+Observables. Intrinsic and line-of-sight velocity dispersions, line-of-sight velocity distributions, and
+their averages over apertures.
+
+Superposition. Distribution functions inverted from one truncated density (Method II children of one
+parent), combined with positive weights that sum to one into one equilibrium model.
+
+Inference. The log-likelihood of a model against data, as a JAX function of the components’ weights and
+the scales of the units.
+
+
+---
+
+# Quick start
+
+Source: https://pianistpy.com/docs/start/quickstart.html
+
+# Quick start
+
+The example of the paper’s first figure: an NFW halo with a constant velocity anisotropy of 0.25, truncated in
+phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
+
+```
+import pianistpy as pp
+import astropy.units as u
+
+# an untruncated NFW density profile with a constant velocity anisotropy of 0.25
+halo = pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy(beta_c=0.25))
+
+# the untruncated distribution function
+df = pp.compute_df(halo)
+
+# Method I: truncate it so that the truncated mass equals the virial mass of the
+# untruncated NFW halo of concentration 10 (the mass inside 10 scale radii)
+model = pp.truncate(df, pp.Truncation(mass_t=1.0, concentration=10))
+
+# physical units: a halo of 1e12 solar masses with R_vir = c * r_0 = 200 kpc
+model = model.to("physical", mass_0=1e12 * u.Msun, r_0=20 * u.kpc)
+
+# draw ten million equal-mass particles centered at the origin and write them to a file
+particles = pp.Sampler(model).sample(10_000_000, seed=1)
+particles.write("NFW_Const0p25_Mt1e12_PARIC.h5")
+
+# the line-of-sight velocity dispersion at three projected radii
+sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
+
+```
+
+pp.solve(halo, truncation) runs the two steps at once.
+
+Every result carries a validation report with its accuracy tier, and a model is always a valid equilibrium; what
+the package returns, flags and refuses is on one page, Flags and refusals.

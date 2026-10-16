@@ -1,0 +1,10 @@
+Citation
+========
+
+How to cite PIANISTpy when you use it, and the terms under which it is distributed.
+
+.. toctree::
+   :maxdepth: 1
+
+   How to cite <../project/citing>
+   ../project/license

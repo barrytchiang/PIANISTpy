@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Observables (pianistpy.observables) &#8212; PIANISTpy 0.9.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=e690a3d6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=3a0a98d4" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../_static/documentation_options.js?v=39bb1c6d"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/observables';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../_static/logo.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Superposition (pianistpy.superposition)" href="superposition.html" />
+    <link rel="prev" title="Particles (pianistpy.particles)" href="particles.html" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+
+<meta name="robots" content="noindex, nofollow">
+
+
+<link rel="alternate" type="text/markdown" href="observables.md">
+
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreFranklin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/SourceSerif4.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreBaskerville.woff2">
+
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  
+
+  
+
+<!-- band -->
+<header id="pst-header" class="site d-print-none">
+  <div class="site-in">
+    <div class="site-top">
+      <a class="site-title" href="../../../index.html">PIANISTpy</a>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; version 0.9.0</div>
+    </div>
+    <nav class="site-nav" aria-label="Site">
+      
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../start/index.html">Get started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../start/overview.html">What it does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/install.html">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/quickstart.html">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/index.html">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles.html">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/observables.html">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/superposition.html">Superposition and inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/units.html">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy.html">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/files.html">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/switches.html">Runtime options (set_platform, set_workers, ...)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles.html">Generate particle initial conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables.html">Compute observables from a model</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Functions by subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings.html">Settings tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols.html">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notes.html">Technical notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/index.html">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/changelog.html">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap.html">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/contributing.html">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../citation/index.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/citing.html">How to cite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/license.html">License and authors</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="site-icons">
+        <a href="../../search.html" title="Search" aria-label="Search"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg></a>
+        <a href="https://github.com/barrytchiang/PIANISTpy" title="GitHub" aria-label="GitHub"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+        <a href="https://pypi.org/project/pianistpy/" title="PyPI" aria-label="PyPI"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6zM286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3zM167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4zm-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3z"/></svg></a>
+        <!-- manual-only -->
+        <button type="button" class="site-toggle sidebar-toggle primary-toggle" aria-label="Pages of this tab"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></button>
+        <!-- /manual-only -->
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+
+<!-- /band -->
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><div class="sidebar-logo">
+  <a href="../../index.html"><img src="../../_static/logo.png" alt="PIANISTpy"></a>
+</div></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="API reference">
+  <p class="bd-links__title" role="heading" aria-level="1">API reference</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Functions by subpackage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pianistpy.html">The package (<code class="docutils literal notranslate"><span class="pre">pianistpy</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles.html">Density profiles (<code class="docutils literal notranslate"><span class="pre">pianistpy.profiles</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anisotropy.html">Velocity anisotropy (<code class="docutils literal notranslate"><span class="pre">pianistpy.anisotropy</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="df.html">Distribution functions and models (<code class="docutils literal notranslate"><span class="pre">pianistpy.df</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="particles.html">Particles (<code class="docutils literal notranslate"><span class="pre">pianistpy.particles</span></code>)</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Observables (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superposition.html">Superposition (<code class="docutils literal notranslate"><span class="pre">pianistpy.superposition</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference.html">Inference (<code class="docutils literal notranslate"><span class="pre">pianistpy.inference</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html">Units (<code class="docutils literal notranslate"><span class="pre">pianistpy.units</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io.html">Results and files (<code class="docutils literal notranslate"><span class="pre">pianistpy.io</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings (<code class="docutils literal notranslate"><span class="pre">pianistpy.settings</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation.html">Validation (<code class="docutils literal notranslate"><span class="pre">pianistpy.validation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Exceptions (<code class="docutils literal notranslate"><span class="pre">pianistpy.exceptions</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime.html">Session switches (<code class="docutils literal notranslate"><span class="pre">pianistpy.runtime</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerics.html">Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings.html">Settings tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols.html">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notes.html">Technical notes</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">API reference</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Observables (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables</span></code>)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-pianistpy.observables">
+<span id="observables-pianistpy-observables"></span><h1>Observables (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables</span></code>)<a class="headerlink" href="#module-pianistpy.observables" title="Link to this heading">#</a></h1>
+<p>Observables: dispersions, line-of-sight velocity distributions and apertures.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.observables.Aperture">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">Aperture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_ape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture" title="Link to this definition">#</a></dt>
+<dd><p>An aperture on the plane of the sky, circular or rectangular.</p>
+<p>Build one with <cite>Aperture.circle</cite> or <cite>Aperture.rectangle</cite>. Lengths are
+in internal units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>{&quot;circle&quot;</em><em>, </em><em>&quot;rectangle&quot;}</em>) – Shape of the aperture.</p></li>
+<li><p><strong>r_off</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – Projected distance <span class="math notranslate nohighlight">\(R_{\rm off}\)</span> of the center of the aperture
+from the center of the model.</p></li>
+<li><p><strong>r_ape</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – Radius <span class="math notranslate nohighlight">\(R_{\rm ape}\)</span> of a circle.</p></li>
+<li><p><strong>side_x</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – Full sides of a rectangle.</p></li>
+<li><p><strong>side_y</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – Full sides of a rectangle.</p></li>
+<li><p><strong>angle</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – For a rectangle, the angle between its x side and the direction from
+its center to the center of the model, in radians.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r_off</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">'circle'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Aperture</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">r_off</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">side_y</span>
+<span class="go">0.5</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Aperture.circle">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_ape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture.circle" title="Link to this definition">#</a></dt>
+<dd><p>Return a circular aperture of radius <cite>r_ape</cite> at offset <cite>r_off</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r_ape</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+<li><p><strong>r_off</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.aperture.Aperture"><em>Aperture</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Aperture.rectangle">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">side_x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture.rectangle" title="Link to this definition">#</a></dt>
+<dd><p>Return a rectangular aperture of full sides <cite>side_x</cite> by <cite>side_y</cite>.</p>
+<p>Its center is at offset <cite>r_off</cite>, and <cite>angle</cite> is the angle between its
+x side and the direction from its center to the center of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>side_x</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+<li><p><strong>side_y</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+<li><p><strong>r_off</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+<li><p><strong>angle</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.aperture.Aperture"><em>Aperture</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Aperture.arc">
+<span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture.arc" title="Link to this definition">#</a></dt>
+<dd><p>Return the angular measure of the circle of radius <cite>r</cite> inside the
+aperture, in radians.</p>
+<p>For a circle it is the closed form of the overlap of two circles:
+<span class="math notranslate nohighlight">\(2\pi\)</span> where the whole circle is inside, zero where it is
+outside, and the band
+<span class="math notranslate nohighlight">\(4 \arcsin\sqrt{x/2}\)</span> with
+<span class="math notranslate nohighlight">\(x = [R_{\rm ape}^2 - (r - R_{\rm off})^2] / (2 r R_{\rm off})\)</span>
+between. For a rectangle, each of the four edges is a half-plane
+constraint on the angle that becomes active at angles in closed form;
+those angles cut the circle into intervals on which membership is
+constant, and the measure is the length of the intervals whose
+midpoint lies inside. One code path serves a rectangle that contains
+the center of the model, touches it, or is clear of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – Projected radii, not negative.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>arc</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array, the shape of <cite>r</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Aperture.breaks">
+<span class="sig-name descname"><span class="pre">breaks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture.breaks" title="Link to this definition">#</a></dt>
+<dd><p>Return the radii at which <cite>arc</cite> is not smooth, increasing.</p>
+<p>For a circle: the edges of the band and, where the aperture contains
+the center of the model, the radius at which the full circle ends.
+For a rectangle: the perpendicular distances from the center of the
+model to the four edge lines, kept where the foot of the perpendicular
+lies on the edge, and the distances to the four corners; at most
+eight radii, between two of which <cite>arc</cite> is smooth.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Aperture.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture.to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Return the aperture as a plain dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Aperture.from_dict">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture.from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Build the aperture from its dictionary form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.aperture.Aperture"><em>Aperture</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.observables.LosTable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">LosTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.LosTable" title="Link to this definition">#</a></dt>
+<dd><p>The line-of-sight velocity distributions of a model, built once.</p>
+<p>The object holds the table of line-of-sight velocity distributions over
+projected radius that the aperture quantities read. It is built when the
+object is created and reused by every observable computed from it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – The model to project: of one component, or a superposition
+(<cite>superpose</cite>).</p>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – The model, whose unit system the observables read from this object
+are given in.</p></li>
+<li><p><strong>table</strong> (<em>profile</em><em>, </em><em>projected</em><em>, </em><em>kept</em><em>,</em>) – The results of the stages <cite>dispersion_profile</cite>,
+<cite>projected_dispersion</cite>, <cite>kept_ranges</cite> and <cite>losvd_table</cite>, at the
+model’s settings; of the first component for a superposition.</p></li>
+<li><p><strong>validation</strong> (<a class="reference internal" href="validation.html#pianistpy.validation.ValidationReport" title="pianistpy.validation.ValidationReport"><em>ValidationReport</em></a>) – The checks of the table (those of <cite>validate_table</cite>) and the worst
+tier of the model; for a superposition, each check at its worst over
+the components. A table above the goal says so in a warning.</p></li>
+<li><p><strong>parts</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><em>tuple</em></a><em> of </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – One table per component of a superposition, each of the component
+as a model of one component; <code class="docutils literal notranslate"><span class="pre">(self,)</span></code> for a model of one
+component.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.LosTable.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.LosTable.to" title="Link to this definition">#</a></dt>
+<dd><p>Return the same tables presented in another unit system.</p>
+<p>Nothing is recomputed: the tables stay in internal units, and the
+observables read from the returned object are given in the units of
+<code class="docutils literal notranslate"><span class="pre">self.model.to(system,</span> <span class="pre">**kwargs)</span></code> (<cite>Model.to</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.core.LosTable"><em>LosTable</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.observables.ProjectedPairs">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">ProjectedPairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_los</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.ProjectedPairs" title="Link to this definition">#</a></dt>
+<dd><p>Pairs drawn by <cite>ProjectedSampler.sample</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mass</strong> (<em>r_2d</em><em>, </em><em>v_los</em><em>,</em>) – Projected radius, line-of-sight velocity and mass of each pair, in
+the source’s unit system (named in <cite>units</cite>).</p></li>
+<li><p><strong>component</strong> (<em>array</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – The component each pair was drawn from.</p></li>
+<li><p><strong>units</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a>) – The unit of each quantity.</p></li>
+<li><p><strong>record</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a>) – The source, the ranges in internal units, the seed, the annulus’s
+mass in the window and the components’ shares, the tables’ sizes.</p></li>
+<li><p><strong>validation</strong> (<a class="reference internal" href="validation.html#pianistpy.validation.ValidationReport" title="pianistpy.validation.ValidationReport"><em>ValidationReport</em></a>) – The sampler’s report.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>r_2d</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>)</p></li>
+<li><p><strong>v_los</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>)</p></li>
+<li><p><strong>mass</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>)</p></li>
+<li><p><strong>component</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>)</p></li>
+<li><p><strong>units</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>]</em>)</p></li>
+<li><p><strong>record</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>validation</strong> (<a class="reference internal" href="validation.html#pianistpy.validation.ValidationReport" title="pianistpy.validation.ValidationReport"><em>ValidationReport</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.observables.ProjectedSampler">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">ProjectedSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.ProjectedSampler" title="Link to this definition">#</a></dt>
+<dd><p>Draw pairs of projected radius and line-of-sight velocity.</p>
+<p>Pairs follow <span class="math notranslate nohighlight">\(p(R, v) \propto 2\pi R\,\Sigma(R)\,D(v\,|\,R)\)</span> on
+the annulus <cite>R_range</cite> and in the window <cite>v_range</cite>, exactly conditioned:
+the radius’s distribution carries the window’s share at each radius.
+Exact for every anisotropy (the distribution is the line of sight’s
+marginal, the angles integrated in the table).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model (its <cite>LosTable</cite> is built first) or its prepared table; of
+one component or a superposition.</p></li>
+<li><p><strong>R_range</strong> (<em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>)</em>) – The annulus, in the source’s unit system (<cite>Model.to</cite>): internal units
+by default, parsecs (floats or Astropy quantities) in the physical
+system. An end beyond the table’s rows is taken at the row where the
+surface density beyond it is within <cite>INNER_DISC_TOLERANCE</cite> of the
+annulus’s, and refused otherwise.</p></li>
+<li><p><strong>v_range</strong> (<em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>)</em><em>, </em><em>optional</em>) – The window of line-of-sight velocity, signed, in the source’s unit
+system (km/s in the physical system); the whole distribution where
+None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>validation</strong> (<a class="reference internal" href="validation.html#pianistpy.validation.ValidationReport" title="pianistpy.validation.ValidationReport"><em>ValidationReport</em></a>) – <code class="docutils literal notranslate"><span class="pre">v_table</span></code>: the reading’s error in the cumulative, between grid
+radii and between nodes; <code class="docutils literal notranslate"><span class="pre">window</span></code>: the window ends’ reading;
+<code class="docutils literal notranslate"><span class="pre">radius_quadrature</span></code>: the mass integral against a finer rule,
+relative; <code class="docutils literal notranslate"><span class="pre">row_norm</span></code>: the rows’ distance from unit integral;
+<code class="docutils literal notranslate"><span class="pre">annulus_cut</span></code>: the share cut at the table’s ends.</p></li>
+<li><p><strong>mass</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – The annulus’s mass in the window, internal units.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – Where the annulus lies outside the table, overlaps an interval the
+    table left uncertified, or the window holds none of the
+    distribution.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.ProjectedSampler.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.ProjectedSampler.sample" title="Link to this definition">#</a></dt>
+<dd><p>Draw <cite>n</cite> pairs.</p>
+<p>Pair i draws from its own key as <cite>Sampler</cite> does: the radius from the
+channel <code class="docutils literal notranslate"><span class="pre">radius</span></code>, the velocity from <code class="docutils literal notranslate"><span class="pre">speed</span></code> and, of a
+superposition, the component (by its share of the annulus’s mass in
+the window) from <code class="docutils literal notranslate"><span class="pre">component</span></code>; so a draw is the same pair by pair
+for any n.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pairs</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.observables.ProjectedPairs" title="pianistpy.observables.ProjectedPairs">ProjectedPairs</a></p>
+</dd>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.aperture_losvd">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">aperture_losvd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.aperture_losvd" title="Link to this definition">#</a></dt>
+<dd><p>Return the line-of-sight velocity distribution inside an aperture.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>. Given a model, its table is
+built first (<cite>LosTable</cite>).</p></li>
+<li><p><strong>aperture</strong> (<a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a>) – The aperture, built with <cite>Aperture.circle</cite> or <cite>Aperture.rectangle</cite>,
+its lengths in the model’s unit system (parsecs in the physical
+system).</p></li>
+<li><p><strong>v</strong> (<em>array-like</em>) – Line-of-sight velocity in the model’s unit system (km/s, a float or
+an Astropy quantity, in the physical system).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>losvd</strong> – The probability density of the line-of-sight velocity of the
+tracers inside the aperture, weighted by the surface density over
+it, at each <cite>v</cite>, per unit velocity of the model’s unit system (an
+Astropy quantity in the physical system), with the shape of <cite>v</cite>. It
+is even in <span class="math notranslate nohighlight">\(v\)</span>, integrates to one over all <span class="math notranslate nohighlight">\(v\)</span>, and is
+zero beyond the escape velocity along the line of sight.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The distribution is the stage <cite>aperture_losvd</cite>, on Gauss-Legendre
+panels in velocity refined until its norm and second moment agree with
+the table’s rows; at any <cite>v</cite> it is read by each panel’s polynomial
+through its own nodes, the polynomial its quadrature integrates. Its
+second moment is <cite>sigma_los_aperture</cite>’s from the same <cite>LosTable</cite>, and
+it is checked against the aperture’s dispersion (<cite>validate_aperture</cite>):
+a distribution above the goal, or read from a table above it, says so
+in a warning.</p>
+<p>Of a superposition, each component’s distribution inside the aperture
+is summed with its weight times its projected mass inside the
+aperture: <span class="math notranslate nohighlight">\(D = \sum_k w_k M_k D_k / \sum_k w_k M_k\)</span>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.losvd">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">losvd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.losvd" title="Link to this definition">#</a></dt>
+<dd><p>Return the line-of-sight velocity distribution at projected radii.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>. Given a model, its table is
+built first (<cite>LosTable</cite>).</p></li>
+<li><p><strong>r_2d</strong> (<em>array-like</em>) – Projected radius <span class="math notranslate nohighlight">\(R_{\rm 2D}\)</span> in the model’s unit system
+(<cite>Model.to</cite>): internal units by default, parsecs (a float or an
+Astropy quantity) in the physical system.</p></li>
+<li><p><strong>v</strong> (<em>array-like</em>) – Line-of-sight velocity in the model’s unit system (km/s, a float or
+an Astropy quantity, in the physical system). <cite>r_2d</cite> and <cite>v</cite>
+broadcast against each other.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>losvd</strong> – The probability density of the line-of-sight velocity at each pair
+<span class="math notranslate nohighlight">\((R_{\rm 2D}, v)\)</span>, per unit velocity of the model’s unit
+system (an Astropy quantity in the physical system), with the
+broadcast shape of <cite>r_2d</cite> and <cite>v</cite>. It is even in <span class="math notranslate nohighlight">\(v\)</span>, integrates
+to one over all <span class="math notranslate nohighlight">\(v\)</span>, and is zero beyond the escape velocity
+along the line of sight.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Between the rows of the table the distribution is read through the
+table’s own stencil, the reading the table certified its rows for; a
+projected radius inside an uncertified interval is refused by name.</p>
+<p>Of a superposition, each component’s distribution is read from its own
+table and the components are summed with their weights times their
+surface densities: <span class="math notranslate nohighlight">\(D = \sum_k w_k \Sigma_k D_k / \sum_k w_k
+\Sigma_k\)</span>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.pdf_v">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">pdf_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.pdf_v" title="Link to this definition">#</a></dt>
+<dd><p>Return the local speed distribution at 3D radii.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite> (whose intrinsic second
+moments the distribution is checked against).</p></li>
+<li><p><strong>r</strong> (<em>array-like</em>) – Radius <span class="math notranslate nohighlight">\(r\)</span> in the model’s unit system (<cite>Model.to</cite>): internal
+units by default, parsecs (a float or an Astropy quantity) in the
+physical system.</p></li>
+<li><p><strong>v</strong> (<em>array-like</em>) – Speed in the model’s unit system (km/s, a float or an Astropy
+quantity, in the physical system). <cite>r</cite> and <cite>v</cite> broadcast against
+each other.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pdf_v</strong> – The probability density of the speed <span class="math notranslate nohighlight">\(V = |\mathbf{v}|\)</span> at
+each pair <span class="math notranslate nohighlight">\((r, V)\)</span>, per unit velocity of the model’s unit
+system (an Astropy quantity in the physical system), with the
+broadcast shape of <cite>r</cite> and <cite>v</cite>. It integrates to one over
+<span class="math notranslate nohighlight">\(V \geq 0\)</span> and is zero beyond the end of the DF’s support,
+the escape speed but for a Type II model, whose speeds reach
+<span class="math notranslate nohighlight">\(V_{\rm esc}/\sqrt{1 - r^2/r_a^2}\)</span> (its unbound share is
+<code class="docutils literal notranslate"><span class="pre">SpeedDistribution.unbound_fraction</span></code>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><strong>AccuracyError</strong></a> – Where the distribution at a radius is beyond the hard limit, unless
+    the model’s settings ask for it anyway (<code class="docutils literal notranslate"><span class="pre">write_anyway</span></code>).</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Each radius is the stage <cite>speed_distribution</cite>, certified by its norm
+against the density, its second moment against the Jeans dispersion
+and the change of its angle rule; the distribution at the speeds asked
+is read by the rule it certified. Of a superposition, the components are
+mixed by their density at the radius: <span class="math notranslate nohighlight">\(p = \sum_k w_k \varrho_k
+p_k / \sum_k w_k \varrho_k\)</span>.</p>
+<p class="rubric">References</p>
+<p>Paper, Sect. 5.1 and [eqn:rho_f_anisotropic_scale].</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.sigma_los_aperture">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">sigma_los_aperture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.sigma_los_aperture" title="Link to this definition">#</a></dt>
+<dd><p>Return the velocity dispersion inside an aperture.</p>
+<p>Given a model, only the projected radii the aperture covers are computed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>.</p></li>
+<li><p><strong>aperture</strong> (<a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a>) – The aperture, built with <cite>Aperture.circle</cite> or <cite>Aperture.rectangle</cite>,
+its lengths in the model’s unit system (parsecs in the physical
+system).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_ape</strong> – Velocity dispersion inside the aperture, in the model’s unit system.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Given a model, the second moment of the line-of-sight dispersion averaged
+over the aperture with the surface density (<cite>aperture_dispersion</cite>), which
+reads no velocity distribution. Given a <cite>LosTable</cite>, the second moment of
+the aperture’s velocity distribution (<cite>aperture_losvd</cite>) by its own
+weights. The two agree to the accuracy goal (<cite>validate_aperture</cite>); a
+distribution above the goal, or read from a table above it, says so in a
+warning.</p>
+<p>Of a superposition, the components are summed with their weights under
+the aperture: given a model, the surface-density weighted sums of
+<span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span> and of the surface density, each component’s
+own, on the aperture’s nodes of the first component (the components
+share one density), mixed as for <cite>sigma_los</cite>; given a <cite>LosTable</cite>, the
+second moment of the aperture distributions summed with the weights
+times each component’s projected mass inside the aperture, each
+distribution checked against its own component’s aperture dispersion.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.sigma_los">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">sigma_los</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_2d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.sigma_los" title="Link to this definition">#</a></dt>
+<dd><p>Return the line-of-sight velocity dispersion at projected radii.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>.</p></li>
+<li><p><strong>r_2d</strong> (<em>array-like</em>) – Projected radius <span class="math notranslate nohighlight">\(R_{\rm 2D}\)</span> in the model’s unit system
+(<cite>Model.to</cite>): internal units by default, parsecs (a float or an
+Astropy quantity) in the physical system.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_los</strong> – Line-of-sight velocity dispersion in the model’s unit system, with
+the shape of <cite>r_2d</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Of a superposition, <span class="math notranslate nohighlight">\(\sigma_{\rm los}^2 = \sum_k w_k \Sigma_k
+\sigma_{{\rm los},k}^2 / \sum_k w_k \Sigma_k\)</span>, each component read from
+its own table; zero beyond the last row.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.sigma_r">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">sigma_r</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.sigma_r" title="Link to this definition">#</a></dt>
+<dd><p>Return the radial velocity dispersion at radii.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>, whose intrinsic second
+moments are read.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em>) – Radius <span class="math notranslate nohighlight">\(r\)</span> in the model’s unit system (<cite>Model.to</cite>): internal
+units by default, parsecs (a float or an Astropy quantity) in the
+physical system.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_r</strong> – Radial velocity dispersion <span class="math notranslate nohighlight">\(\sigma_r\)</span> in the model’s unit
+system, with the shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The reading between the grid points of the intrinsic profile is that of
+<cite>DispersionProfile.read</cite>. Of a superposition, whose components share one
+density, <span class="math notranslate nohighlight">\(\sigma_r^2 = \sum_k w_k \sigma_{r,k}^2\)</span>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.sigma_t">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">sigma_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.sigma_t" title="Link to this definition">#</a></dt>
+<dd><p>Return the tangential velocity dispersion at radii.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em>) – Radius <span class="math notranslate nohighlight">\(r\)</span> in the model’s unit system, as for <cite>sigma_r</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_t</strong> – Tangential velocity dispersion of both tangential components
+together, <span class="math notranslate nohighlight">\(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2
+= 2 (1 - \beta_\sigma) \sigma_r^2\)</span>, in the model’s unit system, with
+the shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Read as <cite>sigma_r</cite> is; of a superposition, <span class="math notranslate nohighlight">\(\sigma_{\rm t}^2 =
+\sum_k w_k \sigma_{{\rm t},k}^2\)</span>.</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture"><code class="docutils literal notranslate"><span class="pre">Aperture</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.circle"><code class="docutils literal notranslate"><span class="pre">Aperture.circle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.rectangle"><code class="docutils literal notranslate"><span class="pre">Aperture.rectangle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.arc"><code class="docutils literal notranslate"><span class="pre">Aperture.arc()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.breaks"><code class="docutils literal notranslate"><span class="pre">Aperture.breaks()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.to_dict"><code class="docutils literal notranslate"><span class="pre">Aperture.to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.from_dict"><code class="docutils literal notranslate"><span class="pre">Aperture.from_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.LosTable"><code class="docutils literal notranslate"><span class="pre">LosTable</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.LosTable.to"><code class="docutils literal notranslate"><span class="pre">LosTable.to()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.ProjectedPairs"><code class="docutils literal notranslate"><span class="pre">ProjectedPairs</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.ProjectedSampler"><code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.ProjectedSampler.sample"><code class="docutils literal notranslate"><span class="pre">ProjectedSampler.sample()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.aperture_losvd"><code class="docutils literal notranslate"><span class="pre">aperture_losvd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.losvd"><code class="docutils literal notranslate"><span class="pre">losvd()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.pdf_v"><code class="docutils literal notranslate"><span class="pre">pdf_v()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.sigma_los_aperture"><code class="docutils literal notranslate"><span class="pre">sigma_los_aperture()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.sigma_los"><code class="docutils literal notranslate"><span class="pre">sigma_los()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.sigma_r"><code class="docutils literal notranslate"><span class="pre">sigma_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.sigma_t"><code class="docutils literal notranslate"><span class="pre">sigma_t()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Barry T. Chiang.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
