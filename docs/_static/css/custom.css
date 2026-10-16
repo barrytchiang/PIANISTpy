@@ -58,6 +58,15 @@ html[data-theme="dark"] .site { background: #0B2340; }
 .sidebar-logo { padding: 0 0 1rem; }
 .sidebar-logo img { width: 100%; max-width: 100%; height: auto; display: block; border-radius: 4px; }
 .bd-sidebar-primary { width: 22%; min-width: 14rem; max-width: 18rem; }
+/* The page's columns share the band's width and gutter (1400px, 20px), so the sidebar's logo starts under the band's
+   title; the sidebar is a little narrower so its dividing line stays where it was. */
+@media (min-width: 960px) {
+  .bd-container__inner.bd-page-width { max-width: 1400px; padding-left: 20px; padding-right: 20px; box-sizing: border-box; }
+  .bd-sidebar-primary { padding-left: 0; width: 15.5rem; min-width: 15.5rem; max-width: 15.5rem; }
+}
+/* The arrows that open a page's sub-pages, set in from the dividing line, with the text clear of them. */
+.bd-sidebar-primary li.has-children > details > summary .toctree-toggle { right: 14px; }
+.bd-sidebar-primary li.has-children > .reference { margin-right: calc(44px + .1875rem); }
 
 /* Headings: the display role in blue. */
 h1, h2, h3, h4 { color: var(--pst-color-primary); }
