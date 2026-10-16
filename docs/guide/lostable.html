@@ -202,7 +202,7 @@
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
         <div class="sidebar-primary-item"><div class="sidebar-logo">
-  <a href="../index.html"><img src="../_static/logo.png" alt="PIANISTpy"></a>
+  <a href="../../index.html"><img src="../_static/logo.png" alt="PIANISTpy"></a>
 </div></div>
         <div class="sidebar-primary-item">
 
@@ -271,9 +271,8 @@
 
 <nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
-    
     <li class="breadcrumb-item breadcrumb-home">
-      <a href="../index.html" class="nav-link" aria-label="Home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
@@ -320,6 +319,10 @@ when a model is asked for more than one observable, or for one observable many t
 <code class="xref py py-func docutils literal notranslate"><span class="pre">sigma_los_aperture()</span></code> takes this average and reads no velocity distribution; given the table, it
 takes the second moment of the aperture’s velocity distribution, the rows of the table averaged over the aperture
 with the same weight. The two routes are independent and agree to the accuracy goal.</p>
+<p>The table’s route costs more than the model’s. On the example below (quick settings, the circle of radius 1, on
+one 32-core node, CPU), its first call takes about 2 minutes with the node’s 32 workers (8 minutes with one),
+against about 5 s for the model’s route. The extrema of the lines of sight it forms are kept on the table, so a
+second aperture over the same radii takes a few seconds.</p>
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> takes a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> of one component or a superposition; a superposition holds
@@ -337,11 +340,14 @@ nothing is needed.</p>
 <section id="tiers">
 <h2>Tiers<a class="headerlink" href="#tiers" title="Link to this heading">#</a></h2>
 <p>The rows of the table are added until the table reads itself between rows within the tolerance of its settings,
-and every row is checked against two quantities computed without it. The report <code class="docutils literal notranslate"><span class="pre">table.validation</span></code> holds four
+and every row is checked against two quantities computed without it. The report <code class="docutils literal notranslate"><span class="pre">table.validation</span></code> holds six
 checks, each with its relative error and the radius where it is worst: <code class="docutils literal notranslate"><span class="pre">norm</span></code>, each row’s integral against the
 surface density; <code class="docutils literal notranslate"><span class="pre">second_moment</span></code>, each row’s second moment against the projected dispersion; <code class="docutils literal notranslate"><span class="pre">unjudged</span></code>, a row
-with surface density that could not be checked (beyond the hard limit if any); and <code class="docutils literal notranslate"><span class="pre">certificate</span></code>, the table’s
-estimate of its reading between rows. The report’s tier is the worst of these and of the model’s own; a table
+with surface density that could not be checked (beyond the hard limit if any); <code class="docutils literal notranslate"><span class="pre">t_converged</span></code>, a row whose rule
+along the line of sight ran out of doublings before its tests passed (beyond the hard limit if any); <code class="docutils literal notranslate"><span class="pre">certificate</span></code>,
+the table’s estimate of its reading between rows; and <code class="docutils literal notranslate"><span class="pre">layer_floor</span></code>, the error at which the quadrature’s layers
+toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
+center (below the goal: a floor above it is refused). The report’s tier is the worst of these and of the model’s own; a table
 above the goal says so in a warning when it is built (<a class="reference internal" href="accuracy.html"><span class="doc">Accuracy</span></a>). Intervals of projected radius that the
 table could not certify are recorded in <code class="docutils literal notranslate"><span class="pre">table.table.r_uncertified</span></code>, and a request inside one is refused by name.</p>
 </section>

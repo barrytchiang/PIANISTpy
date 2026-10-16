@@ -23,3 +23,5 @@ A profile holds its density, enclosed mass and potential as closed forms; every 
 computed from them by one path, and the named profiles’ textbook forms are test references only.
 
 A profile is one half of a pianistpy.Component; the other half is its anisotropy.
+A component takes an outer slope of 3 or more: between 2 and 3 the outer end of the inversion is not available
+in this version, and the component is refused by name (OUTER SLOPE).

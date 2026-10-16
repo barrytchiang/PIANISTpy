@@ -116,6 +116,12 @@ checked against the aperture’s dispersion from the projected tables, which rea
 tier is the worse of that check and the table’s own (The prepared table: LosTable); a distribution above the goal says so in a
 warning.
 
+A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford Type I
+anisotropy (\(\beta_c = -0.25\), \(R_a = 10\)) in a centered circle of radius 0.05 in the scale radius, the
+quick tier’s second moment differs from the default tier’s by 6.7e-6 of it, and its own check reports 6.2e-6 (above
+the goal, with a warning); in a circle of radius 1 the two differ by 1.5e-6. At the default tier the check reports
+1.0e-7 and 6.4e-8. The quick tier’s table took a quarter of the default’s time.
+
 ## Example
 
 ```
@@ -378,6 +384,11 @@ sigma_los_aperture() takes this average and reads no velocity distribution; give
 takes the second moment of the aperture’s velocity distribution, the rows of the table averaged over the aperture
 with the same weight. The two routes are independent and agree to the accuracy goal.
 
+The table’s route costs more than the model’s. On the example below (quick settings, the circle of radius 1, on
+one 32-core node, CPU), its first call takes about 2 minutes with the node’s 32 workers (8 minutes with one),
+against about 5 s for the model’s route. The extrema of the lines of sight it forms are kept on the table, so a
+second aperture over the same radii takes a few seconds.
+
 ## Arguments and units
 
 LosTable(model) takes a Model of one component or a superposition; a superposition holds
@@ -397,11 +408,14 @@ validation, its report; parts, one table per component.
 ## Tiers
 
 The rows of the table are added until the table reads itself between rows within the tolerance of its settings,
-and every row is checked against two quantities computed without it. The report table.validation holds four
+and every row is checked against two quantities computed without it. The report table.validation holds six
 checks, each with its relative error and the radius where it is worst: norm, each row’s integral against the
 surface density; second_moment, each row’s second moment against the projected dispersion; unjudged, a row
-with surface density that could not be checked (beyond the hard limit if any); and certificate, the table’s
-estimate of its reading between rows. The report’s tier is the worst of these and of the model’s own; a table
+with surface density that could not be checked (beyond the hard limit if any); t_converged, a row whose rule
+along the line of sight ran out of doublings before its tests passed (beyond the hard limit if any); certificate,
+the table’s estimate of its reading between rows; and layer_floor, the error at which the quadrature’s layers
+toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
+center (below the goal: a floor above it is refused). The report’s tier is the worst of these and of the model’s own; a table
 above the goal says so in a warning when it is built (Accuracy). Intervals of projected radius that the
 table could not certify are recorded in table.table.r_uncertified, and a request inside one is refused by name.
 
@@ -828,6 +842,8 @@ A profile holds its density, enclosed mass and potential as closed forms; every 
 computed from them by one path, and the named profiles’ textbook forms are test references only.
 
 A profile is one half of a pianistpy.Component; the other half is its anisotropy.
+A component takes an outer slope of 3 or more: between 2 and 3 the outer end of the inversion is not available
+in this version, and the component is refused by name (OUTER SLOPE).
 
 
 ---
@@ -1175,48 +1191,6 @@ computed from it is returned in that system.
 Three inputs of a truncation are given in the units that are natural for them, as their documentation states:
 the truncation energy k_t in internal units, a target radius r_t in units of the scale radius, and a
 target mass mass_t in units of M_0, together with the concentration that defines M_0.
-
-
----
-
-# PIANISTpy
-
-Source: https://pianistpy.com/docs/index.html
-
-# PIANISTpy
-
-Particle Initial conditions with ANISoTropy: distribution functions, particle initial
-conditions and observables of spherical systems with anisotropic velocities, truncated self-consistently in
-phase space.
-
-PIANISTpy builds equilibrium models of spherical systems (dark matter halos and subhalos, star clusters, dwarf
-galaxies) with a velocity anisotropy you choose. The outer boundary of a model is set in phase space, so the
-truncated model is itself an equilibrium and needs no relaxation run before it is used.
-
-Get started
-
-Install, the requirements, the quick start.
-
-Get started
-
-User guide
-
-One page per topic, with short examples: models, particles, observables, superposition and inference,
-units, accuracy.
-
-User guide
-
-Examples
-
-Notebooks that run a whole job, and one per figure of the paper, run against this release.
-
-Examples
-
-API reference
-
-Every function by subpackage, the settings tables, the names and paper symbols, the technical notes.
-
-API reference
 
 
 ---
@@ -1699,6 +1673,10 @@ place of an analytic profile, the component is Method II of the paper:
 the density of the parent in the parent’s potential, with a new
 anisotropy. It is refused here where no distribution function exists
 for that anisotropy at the edge of the density.
+
+A profile with an outer slope between 2 and 3 is refused here (OUTER
+SLOPE): the outer end of the inversion and its tail exponent assume
+Psi ~ 1/R, which that regime does not have.
 
 Parameters:
 

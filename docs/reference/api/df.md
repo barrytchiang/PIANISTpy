@@ -19,6 +19,10 @@ the density of the parent in the parent’s potential, with a new
 anisotropy. It is refused here where no distribution function exists
 for that anisotropy at the edge of the density.
 
+A profile with an outer slope between 2 and 3 is refused here (OUTER
+SLOPE): the outer end of the inversion and its tail exponent assume
+Psi ~ 1/R, which that regime does not have.
+
 Parameters:
 
 profile (DoublePowerLaw or TruncatedProfile) – Density profile of the component: an analytic profile, or the

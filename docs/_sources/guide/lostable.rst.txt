@@ -25,6 +25,11 @@ and an offset circle or a rectangle the same average over its own area. Given th
 takes the second moment of the aperture's velocity distribution, the rows of the table averaged over the aperture
 with the same weight. The two routes are independent and agree to the accuracy goal.
 
+The table's route costs more than the model's. On the example below (quick settings, the circle of radius 1, on
+one 32-core node, CPU), its first call takes about 2 minutes with the node's 32 workers (8 minutes with one),
+against about 5 s for the model's route. The extrema of the lines of sight it forms are kept on the table, so a
+second aperture over the same radii takes a few seconds.
+
 Arguments and units
 -------------------
 
@@ -46,11 +51,14 @@ Tiers
 -----
 
 The rows of the table are added until the table reads itself between rows within the tolerance of its settings,
-and every row is checked against two quantities computed without it. The report ``table.validation`` holds four
+and every row is checked against two quantities computed without it. The report ``table.validation`` holds six
 checks, each with its relative error and the radius where it is worst: ``norm``, each row's integral against the
 surface density; ``second_moment``, each row's second moment against the projected dispersion; ``unjudged``, a row
-with surface density that could not be checked (beyond the hard limit if any); and ``certificate``, the table's
-estimate of its reading between rows. The report's tier is the worst of these and of the model's own; a table
+with surface density that could not be checked (beyond the hard limit if any); ``t_converged``, a row whose rule
+along the line of sight ran out of doublings before its tests passed (beyond the hard limit if any); ``certificate``,
+the table's estimate of its reading between rows; and ``layer_floor``, the error at which the quadrature's layers
+toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
+center (below the goal: a floor above it is refused). The report's tier is the worst of these and of the model's own; a table
 above the goal says so in a warning when it is built (:doc:`accuracy`). Intervals of projected radius that the
 table could not certify are recorded in ``table.table.r_uncertified``, and a request inside one is refused by name.
 
