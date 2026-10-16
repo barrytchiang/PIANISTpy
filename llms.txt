@@ -2,8 +2,9 @@
 
 > PIANISTpy builds equilibrium models of spherical systems with a chosen velocity anisotropy: distribution functions by analytic inversion, truncation in phase space, particle initial conditions, line-of-sight observables, superposition and a differentiable likelihood. Python, JAX.
 
-Every page of the manual has a markdown twin at the same address with `.md` in
-place of `.html`; the whole manual as one file is /docs/llms-full.txt.
+Every page of the manual has a markdown twin at the same address with
+`.md` in place of `.html`; the whole manual as one file is
+/docs/llms-full.txt.
 
 ## Documentation
 
