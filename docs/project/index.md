@@ -9,6 +9,8 @@ problem or propose a change.
 
 Release notes
 
+Accuracy by release
+
 Upcoming features
 
 Contributing

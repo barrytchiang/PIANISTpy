@@ -1,0 +1,23 @@
+:html_theme.sidebar_secondary.remove: true
+
+Accuracy tables
+===============
+
+The accuracy grid is a fixed set of models, four tables of rows by columns, run unchanged at every release. Each
+model's distribution function is inverted, its density computed back from it, and the roundtrip error
+\|rho_DF / rho - 1\| read at 513 radii; a cell gives that error over 1e-4 < r < 1e5 (scale radii):
+
+- its **maximum**, then its **median**, then the **tier** the result itself reports (goal: 1e-6 or less;
+  ceiling: 1e-4 or less; warning: 1e-2 or less; refused: beyond, see :doc:`../guide/accuracy`);
+- **refused** and the refusal's name, where the package refuses the model (the full message is in the cell's
+  tooltip and in the CSV);
+- **excluded** where the anisotropy breaks the cusp bound gamma >= 2 beta_c (computed, and recorded in the
+  CSV). A Type II model without a truncation has its distribution function only above the energy P(R_a): its
+  cell gives the tier the package reports over that support and the note "support above P(R_a)", not the
+  density's roundtrip, which is no measure there.
+
+A † marks a cell whose outcome is not the one the grid expects. The tables are at the default tier; the CSV holds
+every range the grid reads, the radius of each maximum and the compute times. The tables of earlier releases are
+on :doc:`../project/accuracy`.
+
+.. include:: _accuracy_tables.rst

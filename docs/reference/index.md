@@ -10,4 +10,6 @@ Settings tables
 
 Names and paper symbols
 
+Accuracy tables
+
 Technical notes

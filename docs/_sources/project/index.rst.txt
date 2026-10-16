@@ -8,5 +8,6 @@ problem or propose a change.
    :maxdepth: 1
 
    changelog
+   Accuracy by release <accuracy>
    Upcoming features <roadmap>
    contributing
