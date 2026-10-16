@@ -1,5 +1,5 @@
-The prepared table: LosTable
-============================
+The prepared table
+==================
 
 :class:`pianistpy.LosTable`, :func:`pianistpy.losvd`, :func:`pianistpy.sigma_los`,
 :func:`pianistpy.sigma_los_aperture`, :func:`pianistpy.sigma_r`, :func:`pianistpy.sigma_t`, :func:`pianistpy.pdf_v`

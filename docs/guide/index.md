@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/guide/index.html
 
 # User guide
 
-One page per keyword, each with the classes and functions it uses; every name links to its entry in the
+One page per topic, each with the classes and functions it uses; every name links to its entry in the
 API reference.
 
 Models

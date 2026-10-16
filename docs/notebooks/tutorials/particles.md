@@ -1,8 +1,8 @@
-# Particles from a model
+# Generate particle initial conditions
 
 Source: https://pianistpy.com/docs/notebooks/tutorials/particles.html
 
-# Particles from a model
+# Generate particle initial conditions
 
 A Sampler holds the tables that drawing particles needs; it is built once from a Model and reused by every call of sample. This tutorial draws particles from the isotropic Hernquist model, whose distribution function is known in closed form, so that it runs without the inversion.
 

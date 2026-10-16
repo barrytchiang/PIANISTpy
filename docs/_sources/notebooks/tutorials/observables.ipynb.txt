@@ -5,7 +5,7 @@
    "id": "84ff685b",
    "metadata": {},
    "source": [
-    "# Observables of a model\n",
+    "# Compute observables from a model\n",
     "\n",
     "The line-of-sight velocity dispersion at projected radii, its average over an aperture, and the same quantities in physical units. This tutorial uses the isotropic Hernquist model, whose distribution function is known in closed form."
    ]

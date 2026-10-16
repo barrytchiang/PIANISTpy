@@ -20,7 +20,7 @@ velocity along the line of sight. Its second moment is the dispersion inside the
 ## Arguments and units
 
 source is a Model or its prepared LosTable; given a model, its table
-is built first, so for more than one call build the table once (The prepared table: LosTable). aperture is an
+is built first, so for more than one call build the table once (The prepared table). aperture is an
 Aperture, circular or rectangular, centered or offset (Observables), its lengths in the
 model’s unit of length. v is an array of line-of-sight velocities in the model’s unit of velocity (km/s in the
 physical system); the result has its shape, per unit velocity of the model’s unit system.
@@ -33,7 +33,7 @@ mass inside the aperture, \(\overline{D} = \sum_k w_k M_k \overline{D}_k / \sum_
 The distribution is computed on panels in velocity, refined until its norm and its second moment agree with the
 table’s rows, and at any velocity it is read by each panel’s polynomial through its own nodes. Its second moment is
 checked against the aperture’s dispersion from the projected tables, which reads no velocity distribution, so the
-tier is the worse of that check and the table’s own (The prepared table: LosTable); a distribution above the goal says so in a
+tier is the worse of that check and the table’s own (The prepared table); a distribution above the goal says so in a
 warning.
 
 A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford Type I

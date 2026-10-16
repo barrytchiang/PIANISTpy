@@ -39,7 +39,7 @@ What a change must keep
   added beside the first; it replaces it or stays out.
 - **No number changes silently.** A change that moves a result beyond rounding says so, with the size of the
   move and the reason.
-- **The session switches change no number.** Verbosity, timing and the number of workers never alter what is
+- **The runtime options change no number.** Verbosity, timing and the number of workers never alter what is
   computed.
 - **Accuracy is stated, not assumed.** A numerical setting enters a tested tier only after it has passed the
   checks of that tier.

@@ -1,8 +1,8 @@
-# The prepared table: LosTable
+# The prepared table
 
 Source: https://pianistpy.com/docs/guide/lostable.html
 
-# The prepared table: LosTable
+# The prepared table
 
 pianistpy.LosTable, pianistpy.losvd(), pianistpy.sigma_los(),
 pianistpy.sigma_los_aperture(), pianistpy.sigma_r(), pianistpy.sigma_t(), pianistpy.pdf_v()

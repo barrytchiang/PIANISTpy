@@ -1,8 +1,8 @@
-# Observables of a model
+# Compute observables from a model
 
 Source: https://pianistpy.com/docs/notebooks/tutorials/observables.html
 
-# Observables of a model
+# Compute observables from a model
 
 The line-of-sight velocity dispersion at projected radii, its average over an aperture, and the same quantities in physical units. This tutorial uses the isotropic Hernquist model, whose distribution function is known in closed form.
 

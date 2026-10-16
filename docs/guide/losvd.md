@@ -23,7 +23,7 @@ escape velocity along the line of sight. Its second moment is \(\sigma_{\rm los}
 ## Arguments and units
 
 source is a Model or its prepared LosTable; given a model, its table
-is built first, so for more than one call build the table once (The prepared table: LosTable, which also says how to call it
+is built first, so for more than one call build the table once (The prepared table, which also says how to call it
 from a script). r_2d and v are arrays
 that broadcast against each other: projected radii in the model’s unit of length (internal units by default,
 parsecs or an Astropy quantity in the physical system) and line-of-sight velocities in its unit of velocity (km/s
@@ -35,7 +35,7 @@ their weights times their surface densities, \(D = \sum_k w_k \Sigma_k D_k / \su
 ## Tiers
 
 The distribution is read from the rows of the table between rows by the reading the table certified its rows for,
-so the tier is that of the table (The prepared table: LosTable): each row’s norm against the surface density and its second
+so the tier is that of the table (The prepared table): each row’s norm against the surface density and its second
 moment against the projected dispersion, and the table’s estimate of its reading between rows. A projected radius
 in an interval the table left uncertified is refused by name.
 

@@ -1,5 +1,5 @@
-Session switches (``pianistpy.runtime``)
-========================================
+Runtime options (``pianistpy.runtime``)
+=======================================
 
 .. automodule:: pianistpy.runtime
    :members:

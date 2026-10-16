@@ -14,7 +14,7 @@ The numerical settings come in two tested tiers, both held to these checks by th
    pp.Settings()            # the default tier
    pp.Settings(quick=True)  # a faster tier for exploration
 
-The switches that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
+The runtime options that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
 :doc:`switches`.
 
 .. toctree::

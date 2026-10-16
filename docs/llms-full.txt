@@ -33,7 +33,7 @@ pp.Settings(quick=True)  # a faster tier for exploration
 
 ```
 
-The switches that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
+The runtime options that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
 Runtime options.
 
 Flags and refusals
@@ -100,7 +100,7 @@ velocity along the line of sight. Its second moment is the dispersion inside the
 ## Arguments and units
 
 source is a Model or its prepared LosTable; given a model, its table
-is built first, so for more than one call build the table once (The prepared table: LosTable). aperture is an
+is built first, so for more than one call build the table once (The prepared table). aperture is an
 Aperture, circular or rectangular, centered or offset (Observables), its lengths in the
 model’s unit of length. v is an array of line-of-sight velocities in the model’s unit of velocity (km/s in the
 physical system); the result has its shape, per unit velocity of the model’s unit system.
@@ -113,7 +113,7 @@ mass inside the aperture, \(\overline{D} = \sum_k w_k M_k \overline{D}_k / \sum_
 The distribution is computed on panels in velocity, refined until its norm and its second moment agree with the
 table’s rows, and at any velocity it is read by each panel’s polynomial through its own nodes. Its second moment is
 checked against the aperture’s dispersion from the projected tables, which reads no velocity distribution, so the
-tier is the worse of that check and the table’s own (The prepared table: LosTable); a distribution above the goal says so in a
+tier is the worse of that check and the table’s own (The prepared table); a distribution above the goal says so in a
 warning.
 
 A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford Type I
@@ -334,7 +334,7 @@ Source: https://pianistpy.com/docs/guide/index.html
 
 # User guide
 
-One page per keyword, each with the classes and functions it uses; every name links to its entry in the
+One page per topic, each with the classes and functions it uses; every name links to its entry in the
 API reference.
 
 Models
@@ -356,11 +356,11 @@ Runtime options (set_platform, set_workers, ...)
 
 ---
 
-# The prepared table: LosTable
+# The prepared table
 
 Source: https://pianistpy.com/docs/guide/lostable.html
 
-# The prepared table: LosTable
+# The prepared table
 
 pianistpy.LosTable, pianistpy.losvd(), pianistpy.sigma_los(),
 pianistpy.sigma_los_aperture(), pianistpy.sigma_r(), pianistpy.sigma_t(), pianistpy.pdf_v()
@@ -474,7 +474,7 @@ escape velocity along the line of sight. Its second moment is \(\sigma_{\rm los}
 ## Arguments and units
 
 source is a Model or its prepared LosTable; given a model, its table
-is built first, so for more than one call build the table once (The prepared table: LosTable, which also says how to call it
+is built first, so for more than one call build the table once (The prepared table, which also says how to call it
 from a script). r_2d and v are arrays
 that broadcast against each other: projected radii in the model’s unit of length (internal units by default,
 parsecs or an Astropy quantity in the physical system) and line-of-sight velocities in its unit of velocity (km/s
@@ -486,7 +486,7 @@ their weights times their surface densities, \(D = \sum_k w_k \Sigma_k D_k / \su
 ## Tiers
 
 The distribution is read from the rows of the table between rows by the reading the table certified its rows for,
-so the tier is that of the table (The prepared table: LosTable): each row’s norm against the surface density and its second
+so the tier is that of the table (The prepared table): each row’s norm against the surface density and its second
 moment against the projected dispersion, and the table’s estimate of its reading between rows. A projected radius
 in an interval the table left uncertified is refused by name.
 
@@ -1233,11 +1233,11 @@ merged there.
 
 ---
 
-# Observables of a model
+# Compute observables from a model
 
 Source: https://pianistpy.com/docs/notebooks/tutorials/observables.html
 
-# Observables of a model
+# Compute observables from a model
 
 The line-of-sight velocity dispersion at projected radii, its average over an aperture, and the same quantities in physical units. This tutorial uses the isotropic Hernquist model, whose distribution function is known in closed form.
 
@@ -1312,11 +1312,11 @@ pp.sigma_los_aperture(
 
 ---
 
-# Particles from a model
+# Generate particle initial conditions
 
 Source: https://pianistpy.com/docs/notebooks/tutorials/particles.html
 
-# Particles from a model
+# Generate particle initial conditions
 
 A Sampler holds the tables that drawing particles needs; it is built once from a Model and reused by every call of sample. This tutorial draws particles from the isotropic Hernquist model, whose distribution function is known in closed form, so that it runs without the inversion.
 
@@ -1517,11 +1517,11 @@ the declared bound is the joint one above. Python 3.12 and 3.13 pass.
 
 ---
 
-# Citing PIANISTpy
+# How to cite
 
 Source: https://pianistpy.com/docs/project/citing.html
 
-# Citing PIANISTpy
+# How to cite
 
 If you use PIANISTpy, cite the paper that describes it, Chiang, van den Bosch and Schive (2026). The citation
 entry, the arXiv link and the DOI of the software release are added with the 1.0.0 release.
@@ -1575,7 +1575,7 @@ added beside the first; it replaces it or stays out.
 No number changes silently. A change that moves a result beyond rounding says so, with the size of the
 move and the reason.
 
-The session switches change no number. Verbosity, timing and the number of workers never alter what is
+The runtime options change no number. Verbosity, timing and the number of workers never alter what is
 computed.
 
 Accuracy is stated, not assumed. A numerical setting enters a tested tier only after it has passed the
@@ -3146,11 +3146,11 @@ None
 
 ---
 
-# API reference
+# Functions by subpackage
 
 Source: https://pianistpy.com/docs/reference/api/index.html
 
-# API reference
+# Functions by subpackage
 
 The package (pianistpy)
 
@@ -3178,7 +3178,7 @@ Validation (pianistpy.validation)
 
 Exceptions (pianistpy.exceptions)
 
-Session switches (pianistpy.runtime)
+Runtime options (pianistpy.runtime)
 
 Numerics (pianistpy.numerics)
 
@@ -5136,11 +5136,11 @@ dict[str, Any]
 
 ---
 
-# Session switches (pianistpy.runtime)
+# Runtime options (pianistpy.runtime)
 
 Source: https://pianistpy.com/docs/reference/api/runtime.html
 
-# Session switches (pianistpy.runtime)
+# Runtime options (pianistpy.runtime)
 
 Switches of the session: verbosity, timing and workers.
 
@@ -6130,7 +6130,7 @@ cites them from its docstring by a number and a fixed key, as in Notes Eq. (I.5)
 changes, the number follows the notes.
 
 The notes are published as a PDF with each release; the link is added with the 1.0.0 release. Rendering them
-as pages of this manual is on the roadmap.
+as pages of this manual is among the Upcoming features.
 
 
 ---
@@ -6811,11 +6811,11 @@ Tiers: default, quick. A field is overridden one at a time, pp.Settings(inversio
 
 ---
 
-# Symbols
+# Names and paper symbols
 
 Source: https://pianistpy.com/docs/reference/symbols.html
 
-# Symbols
+# Names and paper symbols
 
 The package’s names follow the paper’s notation: a quantity that has a symbol in the paper or the technical notes
 is named <family>_<symbol>, the family saying what kind of quantity it is and the rest being the paper’s symbol

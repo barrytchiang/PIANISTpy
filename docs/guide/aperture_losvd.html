@@ -316,7 +316,7 @@ velocity along the line of sight. Its second moment is the dispersion inside the
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> or its prepared <code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>; given a model, its table
-is built first, so for more than one call build the table once (<a class="reference internal" href="lostable.html"><span class="doc">The prepared table: LosTable</span></a>). <code class="docutils literal notranslate"><span class="pre">aperture</span></code> is an
+is built first, so for more than one call build the table once (<a class="reference internal" href="lostable.html"><span class="doc">The prepared table</span></a>). <code class="docutils literal notranslate"><span class="pre">aperture</span></code> is an
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Aperture</span></code>, circular or rectangular, centered or offset (<a class="reference internal" href="observables.html"><span class="doc">Observables</span></a>), its lengths in the
 model’s unit of length. <code class="docutils literal notranslate"><span class="pre">v</span></code> is an array of line-of-sight velocities in the model’s unit of velocity (km/s in the
 physical system); the result has its shape, per unit velocity of the model’s unit system.</p>
@@ -328,7 +328,7 @@ mass inside the aperture, <span class="math notranslate nohighlight">\(\overline
 <p>The distribution is computed on panels in velocity, refined until its norm and its second moment agree with the
 table’s rows, and at any velocity it is read by each panel’s polynomial through its own nodes. Its second moment is
 checked against the aperture’s dispersion from the projected tables, which reads no velocity distribution, so the
-tier is the worse of that check and the table’s own (<a class="reference internal" href="lostable.html"><span class="doc">The prepared table: LosTable</span></a>); a distribution above the goal says so in a
+tier is the worse of that check and the table’s own (<a class="reference internal" href="lostable.html"><span class="doc">The prepared table</span></a>); a distribution above the goal says so in a
 warning.</p>
 <p>A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford Type I
 anisotropy (<span class="math notranslate nohighlight">\(\beta_c = -0.25\)</span>, <span class="math notranslate nohighlight">\(R_a = 10\)</span>) in a centered circle of radius 0.05 in the scale radius, the

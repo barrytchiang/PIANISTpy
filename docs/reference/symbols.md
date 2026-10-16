@@ -1,8 +1,8 @@
-# Symbols
+# Names and paper symbols
 
 Source: https://pianistpy.com/docs/reference/symbols.html
 
-# Symbols
+# Names and paper symbols
 
 The package’s names follow the paper’s notation: a quantity that has a symbol in the paper or the technical notes
 is named <family>_<symbol>, the family saying what kind of quantity it is and the rest being the paper’s symbol

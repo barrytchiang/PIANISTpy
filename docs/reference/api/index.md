@@ -1,8 +1,8 @@
-# API reference
+# Functions by subpackage
 
 Source: https://pianistpy.com/docs/reference/api/index.html
 
-# API reference
+# Functions by subpackage
 
 The package (pianistpy)
 
@@ -30,6 +30,6 @@ Validation (pianistpy.validation)
 
 Exceptions (pianistpy.exceptions)
 
-Session switches (pianistpy.runtime)
+Runtime options (pianistpy.runtime)
 
 Numerics (pianistpy.numerics)

@@ -1,8 +1,8 @@
-# Session switches (pianistpy.runtime)
+# Runtime options (pianistpy.runtime)
 
 Source: https://pianistpy.com/docs/reference/api/runtime.html
 
-# Session switches (pianistpy.runtime)
+# Runtime options (pianistpy.runtime)
 
 Switches of the session: verbosity, timing and workers.
 

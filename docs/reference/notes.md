@@ -10,4 +10,4 @@ cites them from its docstring by a number and a fixed key, as in Notes Eq. (I.5)
 changes, the number follows the notes.
 
 The notes are published as a PDF with each release; the link is added with the 1.0.0 release. Rendering them
-as pages of this manual is on the roadmap.
+as pages of this manual is among the Upcoming features.

@@ -18,7 +18,7 @@ pp.Settings(quick=True)  # a faster tier for exploration
 
 ```
 
-The switches that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
+The runtime options that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
 Runtime options.
 
 Flags and refusals
