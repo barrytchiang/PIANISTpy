@@ -1,8 +1,8 @@
-# What it does
+# What PIANISTpy does
 
 Source: https://pianistpy.com/docs/start/overview.html
 
-# What it does
+# What PIANISTpy does
 
 Density profiles. Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
 Plummer profiles as named presets.

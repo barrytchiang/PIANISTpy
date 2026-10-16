@@ -6041,7 +6041,7 @@ Source: https://pianistpy.com/docs/start/index.html
 
 # Get started
 
-What it does
+What PIANISTpy does
 
 Install
 
@@ -6161,11 +6161,11 @@ records the backend that made it. To force one or the other, see Runtime options
 
 ---
 
-# What it does
+# What PIANISTpy does
 
 Source: https://pianistpy.com/docs/start/overview.html
 
-# What it does
+# What PIANISTpy does
 
 Density profiles. Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
 Plummer profiles as named presets.

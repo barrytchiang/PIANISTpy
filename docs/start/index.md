@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/start/index.html
 
 # Get started
 
-What it does
+What PIANISTpy does
 
 Install
 
