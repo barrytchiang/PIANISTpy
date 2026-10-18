@@ -44,9 +44,9 @@ Example
    import numpy as np
    import pianistpy as pp
 
-   # a Hernquist density with an Osipkov-Merritt anisotropy of radius 1, truncated at K_t = 0.05
+   # a Hernquist density with a constant anisotropy of 0.25, truncated at K_t = 0.05
    model = pp.solve(
-       pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+       pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
        pp.Truncation(k_t=0.05),
        settings=pp.Settings(quick=True),
    )

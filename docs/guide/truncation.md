@@ -40,8 +40,14 @@ asks for it by name (Flags and refusals).
 A Type II model (Osipkov-Merritt or Cuddeford) must end inside its anisotropy radius R_a, where its density
 rho_aux / (1 - r^2/R_a^2) has a pole. The lower bound K_t > P(R_a) keeps the untruncated radius of the truncation
 energy inside R_a, but the truncated model’s own edge lies farther out; where that edge would reach R_a the request
-is refused by name (TYPE II EDGE, with the potential at R_a stated), and a larger k_t brings the edge
-inside.
+is refused by name (TYPE II EDGE, with the potential at R_a stated), and a larger K_t brings the edge
+inside. The bound is strict, so where it sets a Type II DF’s k_t_min that is the next float above P(R_a), the
+smallest K_t the gates admit: necessary, not sufficient, since only the truncated solve places the edge.
+
+An Osipkov-Merritt Type I model with a small R_a and a low K_t can leave no edge within the solve’s radius;
+the request is refused by name (NO EDGE). On the Hernquist density at the quick settings, R_a = 1 is refused at
+every K_t from 0.005 to 0.3, R_a = 2 below K_t = 0.2, R_a = 5 below 0.03 and R_a = 10 at 0.005; the parents that
+build are at the ceiling tier, set by their distribution function’s high_k_slope_mismatch (3.4e-6, at K = 1).
 
 ## Method II
 

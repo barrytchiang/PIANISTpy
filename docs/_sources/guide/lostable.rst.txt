@@ -23,12 +23,8 @@ As in the paper, the dispersion inside an aperture is the surface-density weight
 and an offset circle or a rectangle the same average over its own area. Given the model,
 :func:`~pianistpy.sigma_los_aperture` takes this average and reads no velocity distribution; given the table, it
 takes the second moment of the aperture's velocity distribution, the rows of the table averaged over the aperture
-with the same weight. The two routes are independent and agree to the accuracy goal.
-
-The table's route costs more than the model's. On the example below (quick settings, the circle of radius 1, on
-one 32-core node, CPU), its first call takes about 2 minutes with the node's 32 workers (8 minutes with one),
-against about 5 s for the model's route. The extrema of the lines of sight it forms are kept on the table, so a
-second aperture over the same radii takes a few seconds.
+with the same weight. The two routes are independent and agree to the accuracy goal. The table's route costs
+more than the model's (the example below gives the times).
 
 Arguments and units
 -------------------
@@ -71,7 +67,7 @@ Example
    import pianistpy as pp
 
    model = pp.solve(
-       pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+       pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
        pp.Truncation(k_t=0.05),
        settings=pp.Settings(quick=True),
    )
@@ -86,3 +82,8 @@ Example
 
    physical = table.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)
    pp.sigma_los_aperture(physical, pp.Aperture.circle(500.0))                   # km/s, 500 pc circle
+
+On this example (one 32-core node, CPU), building the table takes about 4 minutes with the node's 32 workers (43
+minutes with one). With the table built, the circle of radius 1 takes about 30 s by the table's route with 32
+workers (6 s with one), against about 3.5 s for the model's route, and a second aperture over the same table (the
+circle of radius 0.5) about as long again.

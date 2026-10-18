@@ -6,7 +6,7 @@ Source: https://pianistpy.com/docs/reference/api/validation.html
 
 Accuracy tiers and the validation report of a result.
 
-class pianistpy.validation.Check(error, where=None)
+class pianistpy.validation.Check(error, where=None, reason=None, source=None, excluded=None)
 
 One check of a result: what was measured and where.
 
@@ -17,13 +17,24 @@ error (float) – The relative error the check measured.
 where (float, optional) – The place of the largest error, in the variable the check runs over
 (a radius or an energy). Absent where that has no meaning.
 
+reason (str, optional) – Why the check was not judged, where it was not: such a check has no
+error (NaN), its tier reads "not judged", and the result’s tier
+is the worst of the checks that were.
+
+source (str, optional) – Where a judged check read its input from another source than its
+own, what it read and why; the error and the tier are as measured.
+
+excluded (str, optional) – Where a judged check leaves part of its input unjudged, which part
+and why; the error and the tier are those of the rest.
+
 property level: int
 
-Tier of the error, as returned by tier_level.
+Tier of the error, as returned by tier_level; 0 for a check not
+judged, which leaves the result’s tier to the others.
 
 property tier: str
 
-Name of the tier of the error.
+Name of the tier of the error, or "not judged".
 
 class pianistpy.validation.ValidationReport(keys, checks, parents_level=0)
 

@@ -61,7 +61,7 @@ Return type:
 
 Component
 
-class pianistpy.df.DistributionFunction(components, settings, identity, grid, table, form, k_t_min, validation, timing, inversion, units=Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None), rows=None)
+class pianistpy.df.DistributionFunction(components, settings, identity, grid, table, form, k_t_min, validation, timing, inversion, units=Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None), rows=None, source='inversion', function_name=None)
 
 Untruncated distribution functions of the components of a model.
 
@@ -84,7 +84,10 @@ table (DfTable) – The DFs on the grid.
 form (AsymptoticForm) – The analytic form of each DF beyond the ends of its table.
 
 k_t_min (float) – Lowest admissible truncation energy; zero where every DF is
-non-negative and non-decreasing.
+non-negative and non-decreasing. For a Type II model whose bound is
+its domain edge, the next float above P(R_a), the smallest K_t the
+gates admit; the truncated model’s edge must also lie inside R_a,
+which the truncation’s solve judges (TYPE II EDGE).
 
 validation (ValidationReport) – The report of the inversion.
 
@@ -96,7 +99,55 @@ inversion (InversionRecord or None) – How the table was made; None where it wa
 rows (InversionRows or None) – The inversion’s rows as made on its whole grid, which the truncation
 reads; None where the table was not made by an inversion.
 
+source (str) – Where the table’s values come from: "inversion" (compute_df)
+or "function" (from_function).
+
+function_name (str or None) – The __name__ of the function the table was taken from; None for
+an inversion.
+
 units (Units)
+
+classmethod from_function(component, f, settings=None)
+
+Return the distribution function a function of the energy gives.
+
+A user brings a DF (a fitting function, another code’s output) and
+the package certifies it against the density by its own integration.
+The function is tabulated on the energy grid compute_df places for
+the same component and settings, in place of the inversion’s values,
+and everything after runs as for the inversion: the forms beyond the
+table, the slope column, the sign report, the validation, the
+identity, and the file. The table is stored, the function is not.
+
+Parameters:
+
+component (Component) – The component the DF belongs to, on an analytic profile.
+
+f (callable) – f(k, depth): takes the array of the energies K (the table’s,
+in internal units) and the array of their depths P_0 - K, and
+returns the DF at each, F and not its logarithm. The depth is
+the grid’s own P_0 - K of each node, exact, so a fit written in
+the depth near the center reads it directly; a function of K
+alone may ignore it.
+
+settings (Settings, optional) – Numerical settings. The default tier if omitted.
+
+Returns:
+
+df – Its source is "function" and its function_name the
+function’s __name__. The table has no derivative column, and
+the report’s slope_column states that it is not judged. It
+has no inversion record and no rows, so truncate refuses it.
+
+Return type:
+
+DistributionFunction
+
+Raises:
+
+InputError – If the function is not finite somewhere on the grid (the first
+    such K is stated), returns another shape, or the component is
+    built on a tabulated profile.
 
 property is_physical: bool
 
@@ -449,5 +500,8 @@ Raises:
 
 UnphysicalModelError – If no valid equilibrium exists for the request. The exception carries
     df as its result.
+
+InputError – If the DF comes from a function (DistributionFunction.from_function):
+    it carries no inversion rows, which truncation needs.
 
      On this page

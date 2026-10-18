@@ -84,7 +84,7 @@ Name of the profile, or its parameters if it has none.
 
 property rho_norm: float
 
-Normalisation \(C\) of the density, for a central potential of 1.
+Normalization \(C\) of the density, for a central potential of 1.
 
 Notes
 
@@ -324,9 +324,11 @@ less p_trunc, kept exact where p_trunc is close to it: near the
 center p_trunc alone has lost the digits of the difference that the
 DF’s singular center is read in. Empty where not computed.
 
-central_deficit (tuple of tuple of float) – For each component, (D_0, D_1): the central auxiliary density of
-the orbits the truncation removed and its slope, D_0 - D_1 u. Empty
-where not recorded.
+central_deficit (tuple of tuple of float) – For each component, (D_0, D_1, …): the central auxiliary density
+of the orbits the truncation removed as its Taylor series in the
+depth u, D_0 - D_1 u + D_2 u^2 - … (D_0 to D_4 as made; a record
+of D_0 and D_1 alone reads as the linear deficit). Empty where not
+recorded.
 
 override_r (float) – Radii between which the closed-form profile replaced the rows of
 the solve; NaN where no row was replaced.

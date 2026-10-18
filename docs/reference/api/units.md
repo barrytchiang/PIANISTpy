@@ -17,7 +17,7 @@ the target units. The model units have \(G = M_0 = r_0 = 1\), with
 
 Parameters:
 
-rho_norm (float) – Normalisation \(C\) of the density profile.
+rho_norm (float) – Normalization \(C\) of the density profile.
 
 mass_q (float) – \(q = \mathcal{M}(c)/C\), the mass inside the concentration
 radius in units of \(4\pi\rho_0 r_0^3\).
@@ -34,17 +34,17 @@ potential.
 model_p (float) – Factors to the model units, for a speed, a mass, a density and a
 potential.
 
-physical_r_pc (float or None) – Factors to parsecs, kilometres per second and solar masses.
+physical_r_pc (float or None) – Factors to parsecs, kilometers per second and solar masses.
 
-physical_v_kms (float or None) – Factors to parsecs, kilometres per second and solar masses.
+physical_v_kms (float or None) – Factors to parsecs, kilometers per second and solar masses.
 
-physical_mass_msun (float or None) – Factors to parsecs, kilometres per second and solar masses.
+physical_mass_msun (float or None) – Factors to parsecs, kilometers per second and solar masses.
 
 physical_rho_msun_pc3 (float or None) – Factors to solar masses per cubic parsec, and to the square of
-kilometres per second.
+kilometers per second.
 
 physical_p_kms2 (float or None) – Factors to solar masses per cubic parsec, and to the square of
-kilometres per second.
+kilometers per second.
 
 physical_rho_0_msun_pc3 (float or None) – The scale density \(\rho_0\) in solar masses per cubic parsec.
 

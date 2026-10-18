@@ -51,7 +51,7 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Superposition and inference" href="superposition.html" />
+    <link rel="next" title="Differentiable observables" href="differentiable.html" />
     <link rel="prev" title="The prepared table" href="lostable.html" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -227,6 +227,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pdf_v.html">Local speed distribution (pdf_v)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lostable.html">The prepared table (LosTable)</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiable.html">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition.html">Superposition and inference</a></li>
@@ -313,6 +314,8 @@ a component on a truncated profile with a finite R_a; the <a class="reference in
 The two calls serve different members: the rule below serves an untruncated analytic component, while <code class="docutils literal notranslate"><span class="pre">likelihood</span></code>
 refuses a member in <code class="docutils literal notranslate"><span class="pre">free=</span></code> that is not spatially finite, by name, since it reads the distribution function at
 the model’s edge.</p>
+<p><strong>The observables.</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Differentiable</span></code> serves a model’s observables as JAX functions of its
+anisotropy (beta_c, R_a), each with the public call’s own value and the tangent rows’ derivative: <a class="reference internal" href="differentiable.html"><span class="doc">Differentiable observables</span></a>.</p>
 <p><strong>The anisotropy parameters.</strong> The distribution function of a component is differentiable in its central anisotropy
 beta_c and its anisotropy radius R_a, for the families served:</p>
 <ul class="simple">
@@ -333,9 +336,27 @@ discrete choice of the solve (the grid’s placement, the inversion’s form, th
 parameters the function was made at: the derivative is that of the solve with these choices fixed, which is the
 derivative of the table the package returns there. Where a choice changes between two parameters, the solve at the
 second one differs from the held one by its own tolerance.</p>
-<p><strong>Not served,</strong> each refused with an error that names it: Cuddeford Type II (its interior point at P(R_a) moves with
-both parameters), a center on its critical branch (where the branch itself changes with beta_c), and a component on
-a truncated profile that carries no distribution function of its model.</p>
+<p><strong>Not served,</strong> each refused with an error that names it: Cuddeford Type II, a center on its critical branch (where
+the branch itself changes with beta_c), and a component on a truncated profile that carries no distribution function
+of its model.</p>
+<p><strong>Cuddeford Type II.</strong> The inversion’s kernel carries the factor (P - P(R_a))^s, with s = 1 - beta_c - j and j the
+inversion’s order: its interior point P(R_a) moves with R_a and its exponent with beta_c. The derivative of that
+factor in R_a is not integrable at the interior point for s at or below 0, so the rows of the mixed derivative do not
+carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A Cuddeford
+Type II model’s second moments take their derivative by the Jeans path (<code class="docutils literal notranslate"><span class="pre">dispersion_profile</span></code>’s tangents); its
+distribution function, and the observables read from it (<code class="docutils literal notranslate"><span class="pre">losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>), take none.</p>
+<p><strong>Where a model’s anisotropy is a parameter.</strong> The derivative of a model’s observables in (beta_c, R_a), through
+<code class="docutils literal notranslate"><span class="pre">likelihood</span></code> with <code class="docutils literal notranslate"><span class="pre">free=</span></code> and through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>, is the full derivative for a Method II model: a
+component whose distribution function is inverted on another model’s truncated profile, held fixed, so its profile
+and its potential do not move with the anisotropy. A Method I truncated model is refused by name: its truncated
+profile is that of its own distribution function, which moves with beta_c and R_a, so neither the Jeans path (a fixed
+profile) nor the distribution function’s path at a fixed potential carries the full derivative, and the profile’s
+own motion through the truncation is not served in this version. An untruncated model is refused on both paths,
+since its edge terms read its distribution function.</p>
+<p><strong>On a GPU,</strong> the derivative of <code class="docutils literal notranslate"><span class="pre">losvd</span></code> and <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code> may refuse a row of
+the line-of-sight table by name (a <code class="docutils literal notranslate"><span class="pre">ResultError</span></code>: the row recomputed level by level is not the row): its transpose
+recomputes each row and holds it to the forward’s row bit for bit, which a GPU’s order of summation does not
+promise. It never returns a wrong number. On the CPU every row is served.</p>
 </section>
 <section id="per-call">
 <h2>Per call<a class="headerlink" href="#per-call" title="Link to this heading">#</a></h2>

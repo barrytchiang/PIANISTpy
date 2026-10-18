@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/units';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -227,6 +229,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pdf_v.html">Local speed distribution (pdf_v)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lostable.html">The prepared table (LosTable)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gradient.html">Differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiable.html">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition.html">Superposition and inference</a></li>
@@ -300,11 +303,11 @@
 <h1>Units<a class="headerlink" href="#units" title="Link to this heading">#</a></h1>
 <p>Everything is computed and returned in internal units, the dimensionless normalization of Widrow (2000) in which
 the scale radius and the central potential of the untruncated profile are 1. A result’s <code class="docutils literal notranslate"><span class="pre">to</span></code> method presents it in
-model units (G = M_0 = r_0 = 1) or, through Astropy, in physical units, without recomputing it, and what is
-computed from it is returned in that system.</p>
+model units (<span class="math notranslate nohighlight">\(G = M_0 = r_0 = 1\)</span>) or, through <a class="reference external" href="https://www.astropy.org/">Astropy</a>, in physical units,
+without recomputing it, and what is computed from it is returned in that system.</p>
 <p>Three inputs of a truncation are given in the units that are natural for them, as their documentation states:
 the truncation energy <code class="docutils literal notranslate"><span class="pre">k_t</span></code> in internal units, a target radius <code class="docutils literal notranslate"><span class="pre">r_t</span></code> in units of the scale radius, and a
-target mass <code class="docutils literal notranslate"><span class="pre">mass_t</span></code> in units of M_0, together with the concentration that defines M_0.</p>
+target mass <code class="docutils literal notranslate"><span class="pre">mass_t</span></code> in units of <span class="math notranslate nohighlight">\(M_0\)</span>, together with the concentration that defines M_0.</p>
 </section>
 
 

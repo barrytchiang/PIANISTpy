@@ -49,9 +49,9 @@ factor(r, xp=np)
 
 Return the factor \(g(R)\) of the augmented density.
 
-The one definition of \(g\) in the package: every consumer of
-\(\varrho_{\rm aug} = g(R)\,\varrho_{\rm aux}\) reads it here, in
-this order of operations.
+\(g = 1/h\), with \(h\) from inverse_factor, the package’s
+one form of the factor, which the inversion, the edge law and the
+Poisson solve read too.
 
 Parameters:
 
@@ -64,13 +64,16 @@ Returns:
 g – \(g(R)\): 1 (isotropic), \(R^{-2\beta_{\rm c}}\)
 (constant), \((1 \pm R^2/R_{\rm a}^2)^{-1}\) (OM) and
 \(R^{-2\beta_{\rm c}} (1 \pm R^2/R_{\rm a}^2)^{-(1-\beta_{\rm c})}\)
-(COM), the upper sign for Type I. A Type II model is defined
-inside \(R_{\rm a}\) only; beyond it the value is not
-clamped and not meaningful.
+(COM), the upper sign for Type I.
 
 Return type:
 
 array
+
+Raises:
+
+InputError – For a Type II model at a radius at or beyond \(R_{\rm a}\),
+    where it is not defined (a traced radius is not checked).
 
 References
 

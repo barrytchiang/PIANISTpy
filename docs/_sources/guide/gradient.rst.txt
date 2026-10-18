@@ -16,6 +16,9 @@ The two calls serve different members: the rule below serves an untruncated anal
 refuses a member in ``free=`` that is not spatially finite, by name, since it reads the distribution function at
 the model's edge.
 
+**The observables.** :class:`pianistpy.Differentiable` serves a model's observables as JAX functions of its
+anisotropy (beta_c, R_a), each with the public call's own value and the tangent rows' derivative: :doc:`differentiable`.
+
 **The anisotropy parameters.** The distribution function of a component is differentiable in its central anisotropy
 beta_c and its anisotropy radius R_a, for the families served:
 
@@ -38,9 +41,30 @@ parameters the function was made at: the derivative is that of the solve with th
 derivative of the table the package returns there. Where a choice changes between two parameters, the solve at the
 second one differs from the held one by its own tolerance.
 
-**Not served,** each refused with an error that names it: Cuddeford Type II (its interior point at P(R_a) moves with
-both parameters), a center on its critical branch (where the branch itself changes with beta_c), and a component on
-a truncated profile that carries no distribution function of its model.
+**Not served,** each refused with an error that names it: Cuddeford Type II, a center on its critical branch (where
+the branch itself changes with beta_c), and a component on a truncated profile that carries no distribution function
+of its model.
+
+**Cuddeford Type II.** The inversion's kernel carries the factor (P - P(R_a))^s, with s = 1 - beta_c - j and j the
+inversion's order: its interior point P(R_a) moves with R_a and its exponent with beta_c. The derivative of that
+factor in R_a is not integrable at the interior point for s at or below 0, so the rows of the mixed derivative do not
+carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A Cuddeford
+Type II model's second moments take their derivative by the Jeans path (``dispersion_profile``'s tangents); its
+distribution function, and the observables read from it (``losvd``, ``aperture_losvd``, ``pdf_v``), take none.
+
+**Where a model's anisotropy is a parameter.** The derivative of a model's observables in (beta_c, R_a), through
+``likelihood`` with ``free=`` and through ``pp.Differentiable``, is the full derivative for a Method II model: a
+component whose distribution function is inverted on another model's truncated profile, held fixed, so its profile
+and its potential do not move with the anisotropy. A Method I truncated model is refused by name: its truncated
+profile is that of its own distribution function, which moves with beta_c and R_a, so neither the Jeans path (a fixed
+profile) nor the distribution function's path at a fixed potential carries the full derivative, and the profile's
+own motion through the truncation is not served in this version. An untruncated model is refused on both paths,
+since its edge terms read its distribution function.
+
+**On a GPU,** the derivative of ``losvd`` and ``aperture_losvd`` through ``pp.Differentiable`` may refuse a row of
+the line-of-sight table by name (a ``ResultError``: the row recomputed level by level is not the row): its transpose
+recomputes each row and holds it to the forward's row bit for bit, which a GPU's order of summation does not
+promise. It never returns a wrong number. On the CPU every row is served.
 
 Per call
 --------

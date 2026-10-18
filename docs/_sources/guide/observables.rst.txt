@@ -54,3 +54,4 @@ One page per call, each with its definition, its arguments and units, the tiers 
    Local speed distribution (pdf_v) <pdf_v>
    The prepared table (LosTable) <lostable>
    Differentiability <gradient>
+   Differentiable observables (Differentiable) <differentiable>

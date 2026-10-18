@@ -364,7 +364,7 @@ record identifies it and does not hold its arrays.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.df.DistributionFunction">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.df.</span></span><span class="sig-name descname"><span class="pre">DistributionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_t_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inversion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Units(system='internal',</span> <span class="pre">concentration=None,</span> <span class="pre">mass_0_msun=None,</span> <span class="pre">r_0_pc=None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.DistributionFunction" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.df.</span></span><span class="sig-name descname"><span class="pre">DistributionFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_t_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inversion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Units(system='internal',</span> <span class="pre">concentration=None,</span> <span class="pre">mass_0_msun=None,</span> <span class="pre">r_0_pc=None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'inversion'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.DistributionFunction" title="Link to this definition">#</a></dt>
 <dd><p>Untruncated distribution functions of the components of a model.</p>
 <p>Returned by <cite>compute_df</cite>. It is a mathematical object: it may be negative or
 non-monotonic, and states where. Only a <cite>Model</cite> can be sampled or
@@ -379,17 +379,65 @@ projected.</p>
 <li><p><strong>table</strong> (<em>DfTable</em>) – The DFs on the grid.</p></li>
 <li><p><strong>form</strong> (<em>AsymptoticForm</em>) – The analytic form of each DF beyond the ends of its table.</p></li>
 <li><p><strong>k_t_min</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a>) – Lowest admissible truncation energy; zero where every DF is
-non-negative and non-decreasing.</p></li>
+non-negative and non-decreasing. For a Type II model whose bound is
+its domain edge, the next float above P(R_a), the smallest K_t the
+gates admit; the truncated model’s edge must also lie inside R_a,
+which the truncation’s solve judges (TYPE II EDGE).</p></li>
 <li><p><strong>validation</strong> (<a class="reference internal" href="validation.html#pianistpy.validation.ValidationReport" title="pianistpy.validation.ValidationReport"><em>ValidationReport</em></a>) – The report of the inversion.</p></li>
 <li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><em>dict</em></a><em> of </em><em>str to float</em>) – Wall time of each stage, in seconds.</p></li>
 <li><p><strong>inversion</strong> (<em>InversionRecord</em><em> or </em><em>None</em>) – How the table was made; None where it was not made by an inversion
 (a closed form). Every solved DF states it.</p></li>
 <li><p><strong>rows</strong> (<em>InversionRows</em><em> or </em><em>None</em>) – The inversion’s rows as made on its whole grid, which the truncation
 reads; None where the table was not made by an inversion.</p></li>
+<li><p><strong>source</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – Where the table’s values come from: <code class="docutils literal notranslate"><span class="pre">&quot;inversion&quot;</span></code> (<cite>compute_df</cite>)
+or <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> (<cite>from_function</cite>).</p></li>
+<li><p><strong>function_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>None</em>) – The <code class="docutils literal notranslate"><span class="pre">__name__</span></code> of the function the table was taken from; None for
+an inversion.</p></li>
 <li><p><strong>units</strong> (<a class="reference internal" href="units.html#pianistpy.units.Units" title="pianistpy.units.system.Units"><em>Units</em></a>)</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.df.DistributionFunction.from_function">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.DistributionFunction.from_function" title="Link to this definition">#</a></dt>
+<dd><p>Return the distribution function a function of the energy gives.</p>
+<p>A user brings a DF (a fitting function, another code’s output) and
+the package certifies it against the density by its own integration.
+The function is tabulated on the energy grid <cite>compute_df</cite> places for
+the same component and settings, in place of the inversion’s values,
+and everything after runs as for the inversion: the forms beyond the
+table, the slope column, the sign report, the validation, the
+identity, and the file. The table is stored, the function is not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.Component"><em>Component</em></a>) – The component the DF belongs to, on an analytic profile.</p></li>
+<li><p><strong>f</strong> (<em>callable</em>) – <code class="docutils literal notranslate"><span class="pre">f(k,</span> <span class="pre">depth)</span></code>: takes the array of the energies K (the table’s,
+in internal units) and the array of their depths P_0 - K, and
+returns the DF at each, F and not its logarithm. The depth is
+the grid’s own P_0 - K of each node, exact, so a fit written in
+the depth near the center reads it directly; a function of K
+alone may ignore it.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings.html#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings. The default tier if omitted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df</strong> – Its <cite>source</cite> is <code class="docutils literal notranslate"><span class="pre">&quot;function&quot;</span></code> and its <cite>function_name</cite> the
+function’s <code class="docutils literal notranslate"><span class="pre">__name__</span></code>. The table has no derivative column, and
+the report’s <code class="docutils literal notranslate"><span class="pre">slope_column</span></code> states that it is not judged. It
+has no inversion record and no rows, so <cite>truncate</cite> refuses it.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.df.DistributionFunction" title="pianistpy.df.DistributionFunction">DistributionFunction</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the function is not finite somewhere on the grid (the first
+    such K is stated), returns another shape, or the component is
+    built on a tabulated profile.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.df.DistributionFunction.is_physical">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_physical</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span><a class="headerlink" href="#pianistpy.df.DistributionFunction.is_physical" title="Link to this definition">#</a></dt>
@@ -754,8 +802,12 @@ it is a valid equilibrium.</p></li>
 <dd class="field-odd"><p><a class="reference internal" href="#pianistpy.df.Model" title="pianistpy.df.Model">Model</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If no valid equilibrium exists for the request. The exception carries
-    <cite>df</cite> as its <code class="docutils literal notranslate"><span class="pre">result</span></code>.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If no valid equilibrium exists for the request. The exception carries
+    <cite>df</cite> as its <code class="docutils literal notranslate"><span class="pre">result</span></code>.</p></li>
+<li><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the DF comes from a function (<cite>DistributionFunction.from_function</cite>):
+    it carries no inversion rows, which truncation needs.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -792,6 +844,7 @@ it is a valid equilibrium.</p></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction"><code class="docutils literal notranslate"><span class="pre">DistributionFunction</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.from_function"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.from_function()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.is_physical"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.is_physical</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.diverges_at_zero"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.diverges_at_zero</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.to"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.to()</span></code></a></li>

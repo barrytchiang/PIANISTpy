@@ -37,7 +37,9 @@ weights, which the range leaves unchanged.
 
 Sampler.speeds(r, seed, v_range=(v_lo, v_hi)) draws one speed at each given radius from the model’s speed
 distribution at that radius conditioned on the window, in internal units, and returns with the speeds the fraction
-of the distribution at each radius that the window holds. Each speed number is taken between the speed table’s own
+of the distribution at each radius that the window holds. v_lo and v_hi are floats, one window for every
+radius, or arrays that broadcast against r, a window at each radius (a grid in units of each radius’s escape
+speed is one call per grid speed). Each speed number is taken between the speed table’s own
 numbers for v_lo and v_hi, so every speed lands in the window; a window wider than the escape speed draws the
 speeds of sample at the same seed. A superposition takes each component by its share of the window. The window is
 drawn for a constant anisotropy only: with a finite anisotropy radius the speed carries a factor of the drawn angle,

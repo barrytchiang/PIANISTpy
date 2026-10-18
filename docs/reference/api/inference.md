@@ -12,28 +12,33 @@ Measurements of one observable, with their errors.
 
 Parameters:
 
-observable ({"sigma_los", "sigma_los_aperture", "losvd", "losvd_aperture", "pdf_v"}) – What was measured: the line-of-sight dispersion at projected radii,
-or averaged over apertures (weighted by the surface density); or a
+observable (str) – One of "sigma_los", "sigma_los_aperture", "losvd",
+"losvd_aperture", "pdf_v", "h3" and "h4". What was
+measured: the line-of-sight dispersion at projected radii, or
+averaged over apertures (weighted by the surface density); or a
 binned distribution of velocity: the line-of-sight velocity
 distribution at one projected radius or in one aperture, or the
-local speed distribution at one 3D radius.
+local speed distribution at one 3D radius; or a Gauss-Hermite
+moment of the line-of-sight velocity distribution at projected radii
+or inside apertures (gauss_hermite_moments; dimensionless).
 
 values (array-like, shape (n,)) – The measured values. For a binned distribution, the share of the
 distribution inside the window [v_edges[0], v_edges[-1]] that
 falls in each bin.
 
-r_2d (array-like, shape (n,), optional) – The projected radii, for "sigma_los"; one radius for
-"losvd".
+r_2d (array-like, shape (n,), optional) – The projected radii, for "sigma_los" and for moments at radii;
+one radius for "losvd".
 
-apertures (sequence of Aperture, optional) – The apertures, for "sigma_los_aperture", their lengths in the
-units of the data; one aperture for "losvd_aperture".
+apertures (sequence of Aperture, optional) – The apertures, for "sigma_los_aperture" and for moments over
+apertures, their lengths in the units of the data; one aperture for
+"losvd_aperture".
 
 errors (array-like, shape (n,), optional) – The standard deviations of independent errors.
 
 covariance (array-like, shape (n, n), optional) – The covariance of the errors, in place of errors.
 
 unit_system ({"internal", "model", "physical"}) – The units of the data: in the physical system radii in parsecs and
-speeds in kilometres per second. A model is compared in the same
+speeds in kilometers per second. A model is compared in the same
 system.
 
 v_edges (array-like, shape (n + 1,), optional) – The edges of the bins of a binned distribution, increasing; speeds
@@ -98,7 +103,7 @@ Parameters:
 
 tables (tuple[_Table, ...])
 
-blocks (tuple[_Block, ...])
+blocks (tuple[_Block | _Moments | _PointMoments, ...])
 
 weights (Any)
 
@@ -174,6 +179,19 @@ at that theta. The gradient in theta is that of the reading on those rows
 (their placement frozen); between placements the value moves within the
 tables’ tolerance. An untruncated component is not free: its edge terms
 read its DF.
+
+A Gauss-Hermite moment ("h3", "h4") over an aperture is that of
+the mixture’s distribution in the aperture, the components’ own
+(aperture_losvd, each on its velocity nodes, mirrored to both signs)
+weighted by weight and projected mass, with its own mean and dispersion
+as gauss_hermite_moments takes them: traced in the weights; the mass
+scale leaves it. Its distributions are read at the model’s own radii, so
+the length scale is held there (until a traced reader of each member’s
+distribution in radius lands). Moments at projected radii
+are read on a model of one component from its moments’ table
+(gauss_hermite_table, read_traced) at the radii the length scale
+moves, so they are traced in it too. Neither is served with a free
+component: its distributions are read at its own theta.
 
 pianistpy.inference.log_likelihood(model, data, settings=None)
 

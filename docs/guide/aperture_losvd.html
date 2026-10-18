@@ -229,6 +229,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pdf_v.html">Local speed distribution (pdf_v)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lostable.html">The prepared table (LosTable)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gradient.html">Differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiable.html">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition.html">Superposition and inference</a></li>
@@ -342,7 +343,7 @@ the goal, with a warning); in a circle of radius 1 the two differ by 1.5e-6. At 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
-    <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">r_a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)),</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)),</span>
     <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.05</span><span class="p">),</span>
     <span class="n">settings</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">quick</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 <span class="p">)</span>

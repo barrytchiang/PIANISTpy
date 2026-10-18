@@ -661,7 +661,7 @@ Rows of the stencil whose estimate certifies the table.
 
 n_block_elements
 
-250000
+25000
 
 same
 

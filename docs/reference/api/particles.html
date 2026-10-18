@@ -431,8 +431,11 @@ radius.</p></li>
 speed number of particle i of <cite>sample</cite> at the same seed, mapped into
 the window’s numbers (and, for a superposition, its component by
 the window’s share of each component).</p></li>
-<li><p><strong>v_range</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – The speeds (v_lo, v_hi), in internal units, 0 &lt;= v_lo &lt; v_hi. Without
-it, the whole speed distribution.</p></li>
+<li><p><strong>v_range</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em> or </em><em>of array-like</em><em>, </em><em>optional</em>) – The speeds (v_lo, v_hi), in internal units, 0 &lt;= v_lo &lt; v_hi. Each
+bound is a float, the same window at every radius, or an array that
+broadcasts against <cite>r</cite>, a window at each radius (as a grid in units
+of each radius’s escape speed needs). Without it, the whole speed
+distribution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -451,8 +454,8 @@ superposition).</p></li>
     Cuddeford): there the speed is the scaled speed times a factor of
     the drawn angle, so the window couples to the angle, and no table
     holds the speed’s distribution at a radius with the angle
-    integrated out. Also for radii outside the sampling or an invalid
-    window.</p>
+    integrated out. Also for radii outside the sampling, an invalid
+    window, or bounds that do not broadcast against <cite>r</cite>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a>]</p>

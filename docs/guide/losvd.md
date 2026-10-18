@@ -46,7 +46,7 @@ import numpy as np
 import pianistpy as pp
 
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )

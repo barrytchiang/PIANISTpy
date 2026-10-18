@@ -227,6 +227,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pdf_v.html">Local speed distribution (pdf_v)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lostable.html">The prepared table (LosTable)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gradient.html">Differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiable.html">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition.html">Superposition and inference</a></li>
@@ -324,7 +325,9 @@ the range, and the particles carry the range’s mass. A superposition is drawn 
 weights, which the range leaves unchanged.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Sampler.speeds(r,</span> <span class="pre">seed,</span> <span class="pre">v_range=(v_lo,</span> <span class="pre">v_hi))</span></code> draws one speed at each given radius from the model’s speed
 distribution at that radius conditioned on the window, in internal units, and returns with the speeds the fraction
-of the distribution at each radius that the window holds. Each speed number is taken between the speed table’s own
+of the distribution at each radius that the window holds. <code class="docutils literal notranslate"><span class="pre">v_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">v_hi</span></code> are floats, one window for every
+radius, or arrays that broadcast against <code class="docutils literal notranslate"><span class="pre">r</span></code>, a window at each radius (a grid in units of each radius’s escape
+speed is one call per grid speed). Each speed number is taken between the speed table’s own
 numbers for <code class="docutils literal notranslate"><span class="pre">v_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">v_hi</span></code>, so every speed lands in the window; a window wider than the escape speed draws the
 speeds of <code class="docutils literal notranslate"><span class="pre">sample</span></code> at the same seed. A superposition takes each component by its share of the window. The window is
 drawn for a constant anisotropy only: with a finite anisotropy radius the speed carries a factor of the drawn angle,

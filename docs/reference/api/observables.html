@@ -439,6 +439,240 @@ eight radii, between two of which <cite>arc</cite> is smooth.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">Differentiable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable" title="Link to this definition">#</a></dt>
+<dd><p>A model’s observables as JAX functions of its anisotropy.</p>
+<p>Built once from a model of one component on a truncated profile (a DF
+inverted on its parent’s profile, as <cite>truncate</cite> makes it): its tables are
+computed here, at the model’s own anisotropy. Each method takes
+<code class="docutils literal notranslate"><span class="pre">theta</span> <span class="pre">=</span> <span class="pre">(beta_c,</span> <span class="pre">R_a)</span></code>, the component’s anisotropy in internal units,
+first, and is a JAX function of it, traceable and differentiable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – A model of one component on a truncated profile, spatially finite,
+whose family has beta_c or R_a: constant anisotropy (beta_c; an
+isotropic or constant component’s R_a is held at its own, infinite,
+value with a zero gradient), Cuddeford Type I (both), Osipkov-Merritt
+Type I and Type II (R_a).</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings.html#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings of the observables; the model’s by default.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – The model.</p></li>
+<li><p><strong>theta</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – Its own (beta_c, R_a), in internal units.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – For a superposition or a model of several components, a component not
+    spatially finite or not on a truncated profile that carries its
+    parent’s DF, and a family whose observables are not differentiable
+    (Cuddeford Type II), each named.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Radii and velocities are in internal units, whatever the model’s unit
+system: theta, as the likelihood’s, is internal, and so is everything a
+method reads and returns.</p>
+<p>A method’s value at a theta is computed on the host the first time the
+method meets it: the DF inverted at theta on the component’s truncated
+profile, then the observable’s tables, at the cost of the likelihood’s
+own rebuild of a free component (about that of the plain call on the
+model rebuilt at theta); the last eight theta are kept. At a theta where
+the model is refused the value is NaN and its gradient zero. The
+derivative is the observable’s tangent rows in theta on the tables’ own
+rows, their placement frozen: between two placements the value moves by
+the tables’ tolerance, which the derivative does not carry. A method is
+not differentiable in its radii (their gradient is NaN).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable.sigma_r">
+<span class="sig-name descname"><span class="pre">sigma_r</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.sigma_r" title="Link to this definition">#</a></dt>
+<dd><p>Return the radial velocity dispersion at radii, as
+<cite>pianistpy.sigma_r</cite> of the model at theta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em>) – Radii, in internal units.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_r</strong> – The dispersion in internal units, with the shape of <cite>r</cite>; NaN where
+the model at theta is refused.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable.sigma_t">
+<span class="sig-name descname"><span class="pre">sigma_t</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.sigma_t" title="Link to this definition">#</a></dt>
+<dd><p>Return the tangential velocity dispersion at radii (both tangential
+components together), as <cite>pianistpy.sigma_t</cite> of the model at theta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em>) – Radii, in internal units.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_t</strong> – The dispersion in internal units, with the shape of <cite>r</cite>; NaN where
+the model at theta is refused.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable.sigma_los">
+<span class="sig-name descname"><span class="pre">sigma_los</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_2d</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.sigma_los" title="Link to this definition">#</a></dt>
+<dd><p>Return the line-of-sight velocity dispersion at projected radii, as
+<cite>pianistpy.sigma_los</cite> of the model at theta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>r_2d</strong> (<em>array-like</em>) – Projected radii, in internal units.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_los</strong> – The dispersion in internal units, with the shape of <cite>r_2d</cite>; zero
+beyond the last row, NaN where the model at theta is refused.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable.sigma_los_aperture">
+<span class="sig-name descname"><span class="pre">sigma_los_aperture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.sigma_los_aperture" title="Link to this definition">#</a></dt>
+<dd><p>Return the line-of-sight velocity dispersion averaged over an
+aperture, weighted by the surface density, as
+<cite>pianistpy.sigma_los_aperture</cite> of the model at theta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>aperture</strong> (<a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a>) – The aperture, its lengths in internal units.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>sigma_los</strong> – The dispersion in internal units; NaN where the model at theta is
+refused.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>scalar array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The derivative is the aperture’s integral of the tangent rows of
+sigma_los^2, on the nodes and weights of the plain call’s own
+quadrature (the integral is linear in the rows), over twice the value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable.losvd">
+<span class="sig-name descname"><span class="pre">losvd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.losvd" title="Link to this definition">#</a></dt>
+<dd><p>Return the line-of-sight velocity distribution at the pairs
+(r_2d, v), as <cite>pianistpy.losvd</cite> of the model at theta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>r_2d</strong> (<em>array-like</em>) – Projected radii and line-of-sight velocities, in internal units;
+they broadcast against each other.</p></li>
+<li><p><strong>v</strong> (<em>array-like</em>) – Projected radii and line-of-sight velocities, in internal units;
+they broadcast against each other.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>losvd</strong> – The distribution per unit internal velocity, with the broadcast
+shape; NaN where the model at theta is refused.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The derivative is the DF path’s, its placement frozen: the reading’s
+transpose onto the table’s rows (<cite>losvd_read_vjp</cite>), the rows’ onto the
+DF’s table and forms (<cite>losvd_rows_vjp</cite>) with the rows’ explicit part
+in the anisotropy, and the DF table’s derivative in theta
+(<cite>df.gradient.table_jacobian</cite>). Not differentiable in r_2d or v.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable.pdf_v">
+<span class="sig-name descname"><span class="pre">pdf_v</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.pdf_v" title="Link to this definition">#</a></dt>
+<dd><p>Return the local speed distribution at the pairs (r, v), as
+<cite>pianistpy.pdf_v</cite> of the model at theta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em>) – Radii and speeds, in internal units; they broadcast against each
+other.</p></li>
+<li><p><strong>v</strong> (<em>array-like</em>) – Radii and speeds, in internal units; they broadcast against each
+other.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pdf_v</strong> – The distribution per unit internal velocity, with the broadcast
+shape; NaN where the model at theta is refused.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The derivative is the DF path’s: at each radius the speed
+distribution’s transpose (<cite>speed_distribution_vjp</cite>) at the speeds
+asked, the distribution there computed by the rule its record
+certified, as <cite>SpeedDistribution.read</cite> computes it, with its explicit
+part in the anisotropy, and the DF table’s derivative in theta. Not
+differentiable in r or v.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.Differentiable.aperture_losvd">
+<span class="sig-name descname"><span class="pre">aperture_losvd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aperture</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.aperture_losvd" title="Link to this definition">#</a></dt>
+<dd><p>Return the line-of-sight velocity distribution inside an aperture
+at the velocities v, as <cite>pianistpy.aperture_losvd</cite> of the model at
+theta.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>aperture</strong> (<a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a>) – The aperture, its lengths in internal units.</p></li>
+<li><p><strong>v</strong> (<em>array-like</em>) – Line-of-sight velocities, in internal units.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>losvd</strong> – The distribution per unit internal velocity, with the shape of
+<cite>v</cite>; NaN where the model at theta is refused.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The derivative is the DF path’s: the transpose of the reading of the
+aperture’s panels (each panel’s polynomial through its nodes) onto
+its values at the nodes, theirs onto the table’s rows
+(<cite>aperture_losvd_vjp</cite>), then as <cite>losvd</cite>. Not differentiable in v.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.observables.LosTable">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">LosTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.LosTable" title="Link to this definition">#</a></dt>
 <dd><p>The line-of-sight velocity distributions of a model, built once.</p>
@@ -535,7 +769,7 @@ one component or a superposition.</p></li>
 <li><p><strong>R_range</strong> (<em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>)</em>) – The annulus, in the source’s unit system (<cite>Model.to</cite>): internal units
 by default, parsecs (floats or Astropy quantities) in the physical
 system. An end beyond the table’s rows is taken at the row where the
-surface density beyond it is within <cite>INNER_DISC_TOLERANCE</cite> of the
+surface density beyond it is within <cite>INNER_DISK_TOLERANCE</cite> of the
 annulus’s, and refused otherwise.</p></li>
 <li><p><strong>v_range</strong> (<em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>)</em><em>, </em><em>optional</em>) – The window of line-of-sight velocity, signed, in the source’s unit
 system (km/s in the physical system); the whole distribution where
@@ -593,7 +827,9 @@ for any n.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>. Given a model, its table is
-built first (<cite>LosTable</cite>).</p></li>
+built first (<cite>LosTable</cite>), at every call: where a model is read more
+than once, build its table once with <code class="docutils literal notranslate"><span class="pre">pp.LosTable(model)</span></code> and pass
+the table.</p></li>
 <li><p><strong>aperture</strong> (<a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a>) – The aperture, built with <cite>Aperture.circle</cite> or <cite>Aperture.rectangle</cite>,
 its lengths in the model’s unit system (parsecs in the physical
 system).</p></li>
@@ -635,7 +871,9 @@ aperture: <span class="math notranslate nohighlight">\(D = \sum_k w_k M_k D_k / 
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>source</strong> (<a class="reference internal" href="df.html#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a><em> or </em><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.LosTable"><em>LosTable</em></a>) – The model, or its prepared <cite>LosTable</cite>. Given a model, its table is
-built first (<cite>LosTable</cite>).</p></li>
+built first (<cite>LosTable</cite>), at every call: where a model is read more
+than once, build its table once with <code class="docutils literal notranslate"><span class="pre">pp.LosTable(model)</span></code> and pass
+the table.</p></li>
 <li><p><strong>r_2d</strong> (<em>array-like</em>) – Projected radius <span class="math notranslate nohighlight">\(R_{\rm 2D}\)</span> in the model’s unit system
 (<cite>Model.to</cite>): internal units by default, parsecs (a float or an
 Astropy quantity) in the physical system.</p></li>
@@ -864,6 +1102,16 @@ the shape of <cite>r</cite>.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.breaks"><code class="docutils literal notranslate"><span class="pre">Aperture.breaks()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.to_dict"><code class="docutils literal notranslate"><span class="pre">Aperture.to_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Aperture.from_dict"><code class="docutils literal notranslate"><span class="pre">Aperture.from_dict()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable"><code class="docutils literal notranslate"><span class="pre">Differentiable</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable.sigma_r"><code class="docutils literal notranslate"><span class="pre">Differentiable.sigma_r()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable.sigma_t"><code class="docutils literal notranslate"><span class="pre">Differentiable.sigma_t()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable.sigma_los"><code class="docutils literal notranslate"><span class="pre">Differentiable.sigma_los()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable.sigma_los_aperture"><code class="docutils literal notranslate"><span class="pre">Differentiable.sigma_los_aperture()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable.losvd"><code class="docutils literal notranslate"><span class="pre">Differentiable.losvd()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable.pdf_v"><code class="docutils literal notranslate"><span class="pre">Differentiable.pdf_v()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.Differentiable.aperture_losvd"><code class="docutils literal notranslate"><span class="pre">Differentiable.aperture_losvd()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.LosTable"><code class="docutils literal notranslate"><span class="pre">LosTable</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">

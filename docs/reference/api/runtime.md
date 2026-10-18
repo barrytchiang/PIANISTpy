@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/reference/api/runtime.html
 
 # Runtime options (pianistpy.runtime)
 
-Switches of the session: verbosity, timing and workers.
+Runtime options of the session: verbosity, timing and workers.
 
 None of these changes a number, and none is part of the identity of a
 result. Each is set once for the session, by a call or by an environment

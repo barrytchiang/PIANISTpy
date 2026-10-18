@@ -62,3 +62,5 @@ Local speed distribution (pdf_v)
 The prepared table (LosTable)
 
 Differentiability
+
+Differentiable observables (Differentiable)

@@ -31,21 +31,21 @@ Those of Radial velocity dispersion, whose profile it reads: the anisotropy fact
 
 ## Example
 
-The anisotropy read back from the two dispersions is the model’s own, here Osipkov-Merritt with
-\(R_{\rm a} = 1\).
+The anisotropy read back from the two dispersions is the model’s own, here constant with
+\(\beta_{\rm c} = 0.25\).
 
 ```
 import numpy as np
 import pianistpy as pp
 
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )
 r = np.array([0.1, 1.0, 10.0])
 beta = 1.0 - pp.sigma_t(model, r) ** 2 / (2.0 * pp.sigma_r(model, r) ** 2)
-np.max(np.abs(beta - r**2 / (r**2 + 1.0)))   # rounding
+np.max(np.abs(beta - 0.25))   # rounding
 
 ```
 

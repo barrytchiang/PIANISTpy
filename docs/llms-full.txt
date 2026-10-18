@@ -129,7 +129,7 @@ import numpy as np
 import pianistpy as pp
 
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )
@@ -171,6 +171,29 @@ df = pp.compute_df(halo)
 
 ```
 
+A distribution function from elsewhere, a fitting function or another code’s output, is certified the same way:
+DistributionFunction.from_function(component, f) takes f(k, depth), which returns the DF (not its
+logarithm) at an array of energies in internal units and their depths below the center, depth \(= P_0 -
+\mathcal{K}\) as the grid carries it (a fit in the depth near the center reads it there; a function of the
+energy alone may ignore it), tabulates it on the energy grid compute_df places for that component
+and settings, and continues it beyond the table, signs it and validates it against the density exactly as the
+inversion’s own table. The function gives F only, so the table has no derivative column: its slopes are the
+spline’s through F, and the report states that its slope column is not judged. The file stores the table, not
+the function, and records the function’s name; a value that is not finite is refused, with the first such
+energy. Truncation needs the inversion’s rows, which a distribution function from a function does not carry:
+truncate refuses it, by name.
+
+```
+import numpy as np
+from scipy.special import beta
+
+# the isotropic Plummer model's DF in closed form, F = A K^(7/2)
+plummer = pp.Component(pp.DoublePowerLaw.plummer(), pp.Anisotropy())
+amplitude = 3.0 / (4.0 * np.pi * np.sqrt(2.0) * beta(4.5, 1.5))
+df = pp.DistributionFunction.from_function(plummer, lambda k, depth: amplitude * k**3.5)
+
+```
+
 What the result holds: the tabulated distribution function on its energy grid with its logarithmic slope, the
 asymptotic form at the center and at the outer end (how the function continues beyond the table), the sign
 report, the inputs and the settings it was computed from, its validation report and its identity. A result can
@@ -178,6 +201,94 @@ be written to a file and read back equal (Input and output).
 
 A distribution function is not yet a model: only a truncated model can be sampled or
 projected.
+
+
+---
+
+# Differentiable observables
+
+Source: https://pianistpy.com/docs/guide/differentiable.html
+
+# Differentiable observables
+
+pianistpy.Differentiable
+
+## The object
+
+pp.Differentiable(model) holds a model of one component on a truncated profile (a distribution function inverted
+on its parent’s profile, as pianistpy.truncate() makes it) and serves its observables as JAX functions of the
+component’s anisotropy, theta = (beta_c, R_a). Each method takes theta first and mirrors the public call of the
+same name, traceable and differentiable in theta:
+
+```
+d = pp.Differentiable(model)
+d.sigma_r(theta, r)                    # as pp.sigma_r(model at theta, r)
+d.sigma_t(theta, r)                    # as pp.sigma_t
+d.sigma_los(theta, r_2d)               # as pp.sigma_los
+d.sigma_los_aperture(theta, aperture)  # as pp.sigma_los_aperture
+d.losvd(theta, r_2d, v)                # as pp.losvd
+d.pdf_v(theta, r, v)                   # as pp.pdf_v
+d.aperture_losvd(theta, aperture, v)   # as pp.aperture_losvd
+
+```
+
+Everything is in internal units, whatever the model’s unit system: theta, as the likelihood’s, the radii and apertures
+a method reads, and the velocities it returns. d.theta is the model’s own anisotropy.
+
+The families are those of the distribution function’s own rule (Differentiability): constant anisotropy (beta_c; an
+isotropic or constant component’s R_a is held at its own, infinite, value with a zero gradient), Cuddeford Type I
+(beta_c and R_a), Osipkov-Merritt Type I and Type II (R_a). Refused at construction, each with an error that names it:
+Cuddeford Type II (its interior point at P(R_a) moves with both parameters), a superposition or a model of several
+components (its components are differentiated through the likelihood), a component that is not spatially finite, and
+one not on a truncated profile that carries its parent’s distribution function.
+
+## What a method computes
+
+A method’s value at theta is the public call on the model rebuilt at theta: at the model’s own theta, the plain call’s
+own value, to the byte. Its derivative is the observable’s tangent rows in theta on the tables’ own rows, their
+placement frozen, as the likelihood’s free components carry it: between two placements the value moves by the tables’
+tolerance, which the derivative does not carry. Over an aperture the derivative is the aperture’s integral of the
+tangent rows of the squared dispersion, on the plain call’s own nodes and weights (the integral is linear in the
+rows). The line-of-sight velocity distribution, the speed distribution and the aperture’s line-of-sight velocity
+distribution take theirs through the distribution function’s own derivative (Differentiability), their placement frozen;
+a member whose distribution function that rule refuses is named at construction, and these three methods raise with
+it. At a theta where the model is refused the value is not a number and its gradient zero. A method is not
+differentiable in its radii.
+
+## The cost
+
+The first time a method meets a theta, the host rebuilds the model there: the distribution function inverted at theta
+on the component’s truncated profile, then the dispersion profile and the projected table with their tangent rows.
+That is the cost of the likelihood’s own rebuild of a free component, about that of the plain call on the model at
+theta. The last eight theta are kept, so the value and the gradient at one theta share one rebuild.
+
+## Example
+
+The derivative of the line-of-sight dispersion at one projected radius in beta_c, by the rule and by a central
+difference of the same function:
+
+```
+import jax
+import numpy as np
+
+import pianistpy as pp
+
+parent = pp.solve(
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy()), pp.Truncation(k_t=0.05)
+)
+model = pp.solve(pp.Component(parent.profile, pp.Anisotropy(beta_c=0.25)))
+d = pp.Differentiable(model)
+
+rule = float(jax.grad(lambda t: d.sigma_los(t, 0.3))(d.theta)[0])
+h = np.array([1e-3, 0.0])
+difference = float(d.sigma_los(d.theta + h, 0.3) - d.sigma_los(d.theta - h, 0.3)) / 2e-3
+print(rule, difference)
+
+```
+
+The two agree to the difference’s own error; each of the two shifted theta is one rebuild.
+
+     On this page
 
 
 ---
@@ -219,6 +330,9 @@ The two calls serve different members: the rule below serves an untruncated anal
 refuses a member in free= that is not spatially finite, by name, since it reads the distribution function at
 the model’s edge.
 
+The observables. pianistpy.Differentiable serves a model’s observables as JAX functions of its
+anisotropy (beta_c, R_a), each with the public call’s own value and the tangent rows’ derivative: Differentiable observables.
+
 The anisotropy parameters. The distribution function of a component is differentiable in its central anisotropy
 beta_c and its anisotropy radius R_a, for the families served:
 
@@ -243,9 +357,30 @@ parameters the function was made at: the derivative is that of the solve with th
 derivative of the table the package returns there. Where a choice changes between two parameters, the solve at the
 second one differs from the held one by its own tolerance.
 
-Not served, each refused with an error that names it: Cuddeford Type II (its interior point at P(R_a) moves with
-both parameters), a center on its critical branch (where the branch itself changes with beta_c), and a component on
-a truncated profile that carries no distribution function of its model.
+Not served, each refused with an error that names it: Cuddeford Type II, a center on its critical branch (where
+the branch itself changes with beta_c), and a component on a truncated profile that carries no distribution function
+of its model.
+
+Cuddeford Type II. The inversion’s kernel carries the factor (P - P(R_a))^s, with s = 1 - beta_c - j and j the
+inversion’s order: its interior point P(R_a) moves with R_a and its exponent with beta_c. The derivative of that
+factor in R_a is not integrable at the interior point for s at or below 0, so the rows of the mixed derivative do not
+carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A Cuddeford
+Type II model’s second moments take their derivative by the Jeans path (dispersion_profile’s tangents); its
+distribution function, and the observables read from it (losvd, aperture_losvd, pdf_v), take none.
+
+Where a model’s anisotropy is a parameter. The derivative of a model’s observables in (beta_c, R_a), through
+likelihood with free= and through pp.Differentiable, is the full derivative for a Method II model: a
+component whose distribution function is inverted on another model’s truncated profile, held fixed, so its profile
+and its potential do not move with the anisotropy. A Method I truncated model is refused by name: its truncated
+profile is that of its own distribution function, which moves with beta_c and R_a, so neither the Jeans path (a fixed
+profile) nor the distribution function’s path at a fixed potential carries the full derivative, and the profile’s
+own motion through the truncation is not served in this version. An untruncated model is refused on both paths,
+since its edge terms read its distribution function.
+
+On a GPU, the derivative of losvd and aperture_losvd through pp.Differentiable may refuse a row of
+the line-of-sight table by name (a ResultError: the row recomputed level by level is not the row): its transpose
+recomputes each row and holds it to the forward’s row bit for bit, which a GPU’s order of summation does not
+promise. It never returns a wrong number. On the CPU every row is served.
 
 ## Per call
 
@@ -382,12 +517,8 @@ As in the paper, the dispersion inside an aperture is the surface-density weight
 and an offset circle or a rectangle the same average over its own area. Given the model,
 sigma_los_aperture() takes this average and reads no velocity distribution; given the table, it
 takes the second moment of the aperture’s velocity distribution, the rows of the table averaged over the aperture
-with the same weight. The two routes are independent and agree to the accuracy goal.
-
-The table’s route costs more than the model’s. On the example below (quick settings, the circle of radius 1, on
-one 32-core node, CPU), its first call takes about 2 minutes with the node’s 32 workers (8 minutes with one),
-against about 5 s for the model’s route. The extrema of the lines of sight it forms are kept on the table, so a
-second aperture over the same radii takes a few seconds.
+with the same weight. The two routes are independent and agree to the accuracy goal. The table’s route costs
+more than the model’s (the example below gives the times).
 
 ## Arguments and units
 
@@ -426,7 +557,7 @@ import numpy as np
 import pianistpy as pp
 
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )
@@ -443,6 +574,11 @@ physical = table.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)
 pp.sigma_los_aperture(physical, pp.Aperture.circle(500.0))                   # km/s, 500 pc circle
 
 ```
+
+On this example (one 32-core node, CPU), building the table takes about 4 minutes with the node’s 32 workers (43
+minutes with one). With the table built, the circle of radius 1 takes about 30 s by the table’s route with 32
+workers (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
+circle of radius 0.5) about as long again.
 
      On this page
 
@@ -497,7 +633,7 @@ import numpy as np
 import pianistpy as pp
 
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )
@@ -603,6 +739,8 @@ The prepared table (LosTable)
 
 Differentiability
 
+Differentiable observables (Differentiable)
+
 
 ---
 
@@ -645,7 +783,9 @@ weights, which the range leaves unchanged.
 
 Sampler.speeds(r, seed, v_range=(v_lo, v_hi)) draws one speed at each given radius from the model’s speed
 distribution at that radius conditioned on the window, in internal units, and returns with the speeds the fraction
-of the distribution at each radius that the window holds. Each speed number is taken between the speed table’s own
+of the distribution at each radius that the window holds. v_lo and v_hi are floats, one window for every
+radius, or arrays that broadcast against r, a window at each radius (a grid in units of each radius’s escape
+speed is one call per grid speed). Each speed number is taken between the speed table’s own
 numbers for v_lo and v_hi, so every speed lands in the window; a window wider than the escape speed draws the
 speeds of sample at the same seed. A superposition takes each component by its share of the window. The window is
 drawn for a constant anisotropy only: with a finite anisotropy radius the speed carries a factor of the drawn angle,
@@ -799,7 +939,7 @@ import numpy as np
 import pianistpy as pp
 
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )
@@ -955,9 +1095,9 @@ unless its settings ask for it (write_anyway), as for every observable (Accuracy
 import numpy as np
 import pianistpy as pp
 
-# a Hernquist density with an Osipkov-Merritt anisotropy of radius 1, truncated at K_t = 0.05
+# a Hernquist density with a constant anisotropy of 0.25, truncated at K_t = 0.05
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )
@@ -1007,21 +1147,21 @@ Those of Radial velocity dispersion, whose profile it reads: the anisotropy fact
 
 ## Example
 
-The anisotropy read back from the two dispersions is the model’s own, here Osipkov-Merritt with
-\(R_{\rm a} = 1\).
+The anisotropy read back from the two dispersions is the model’s own, here constant with
+\(\beta_{\rm c} = 0.25\).
 
 ```
 import numpy as np
 import pianistpy as pp
 
 model = pp.solve(
-    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=1.0)),
+    pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
     pp.Truncation(k_t=0.05),
     settings=pp.Settings(quick=True),
 )
 r = np.array([0.1, 1.0, 10.0])
 beta = 1.0 - pp.sigma_t(model, r) ** 2 / (2.0 * pp.sigma_r(model, r) ** 2)
-np.max(np.abs(beta - r**2 / (r**2 + 1.0)))   # rounding
+np.max(np.abs(beta - 0.25))   # rounding
 
 ```
 
@@ -1154,8 +1294,14 @@ asks for it by name (Flags and refusals).
 A Type II model (Osipkov-Merritt or Cuddeford) must end inside its anisotropy radius R_a, where its density
 rho_aux / (1 - r^2/R_a^2) has a pole. The lower bound K_t > P(R_a) keeps the untruncated radius of the truncation
 energy inside R_a, but the truncated model’s own edge lies farther out; where that edge would reach R_a the request
-is refused by name (TYPE II EDGE, with the potential at R_a stated), and a larger k_t brings the edge
-inside.
+is refused by name (TYPE II EDGE, with the potential at R_a stated), and a larger K_t brings the edge
+inside. The bound is strict, so where it sets a Type II DF’s k_t_min that is the next float above P(R_a), the
+smallest K_t the gates admit: necessary, not sufficient, since only the truncated solve places the edge.
+
+An Osipkov-Merritt Type I model with a small R_a and a low K_t can leave no edge within the solve’s radius;
+the request is refused by name (NO EDGE). On the Hernquist density at the quick settings, R_a = 1 is refused at
+every K_t from 0.005 to 0.3, R_a = 2 below K_t = 0.2, R_a = 5 below 0.03 and R_a = 10 at 0.005; the parents that
+build are at the ceiling tier, set by their distribution function’s high_k_slope_mismatch (3.4e-6, at K = 1).
 
 ## Method II
 
@@ -1185,12 +1331,12 @@ Source: https://pianistpy.com/docs/guide/units.html
 
 Everything is computed and returned in internal units, the dimensionless normalization of Widrow (2000) in which
 the scale radius and the central potential of the untruncated profile are 1. A result’s to method presents it in
-model units (G = M_0 = r_0 = 1) or, through Astropy, in physical units, without recomputing it, and what is
-computed from it is returned in that system.
+model units (\(G = M_0 = r_0 = 1\)) or, through Astropy, in physical units,
+without recomputing it, and what is computed from it is returned in that system.
 
 Three inputs of a truncation are given in the units that are natural for them, as their documentation states:
 the truncation energy k_t in internal units, a target radius r_t in units of the scale radius, and a
-target mass mass_t in units of M_0, together with the concentration that defines M_0.
+target mass mass_t in units of \(M_0\), together with the concentration that defines M_0.
 
 
 ---
@@ -1472,7 +1618,10 @@ Ranged draws: a range of radii for Sampler (r_range), a range of speeds at given
 The likelihood of the inference is differentiable in the superposition weights, the unit scales and the
 anisotropy parameters (beta_c, R_a) of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
 through pp.Differentiable, the seven observables as JAX functions of those parameters
-(Differentiability). Pending: pp.Differentiable is not yet in the package.
+(Differentiability).
+
+The inference fits a superposition to Gauss-Hermite moments (h3, h4), at points or averaged over
+apertures, beside the binned data; a free component with moment data is refused, as with binned data.
 
 ### Changed
 
@@ -1484,12 +1633,86 @@ by at most 3.7e-10).
 
 Every inner cut of the distribution function’s solve is taken from the inputs (no fixed constant).
 
+The anisotropy factor and its radial derivatives have one form, read by every part of the solve; a Type II
+radius at or beyond R_a is refused by name where small clamps stood before, and a Type II truncation whose edge
+lies at or beyond R_a is refused after the solve (TYPE II EDGE).
+
+The smallest truncation energy of a Type II distribution function bounded by its domain edge (k_t_min) is
+the next float above P(R_a), the smallest the strict gate admits.
+
+The slope check of an untruncated Type II distribution function leaves out the first node of its support, where
+the function diverges as (K - P(R_a))^(-1/2) and a one-sided difference misreads it by 2.2e-3; the record
+states the node left out. Seven models of the accuracy ledger move from warning to goal; no tolerance changes.
+
+The density round trip of a truncated model is read on every row of the edge approach, where a sampling of
+radii could miss a peak a few rows wide.
+
+The observables’ worker processes run on the CPU whatever the platform of the calling process.
+
+The minimum versions of the dependencies are found by test, one package at a time and then as one environment,
+and listed on Install (NumPy 2.3, SciPy 1.15, h5py 3.11, Astropy 6.1, JAX 0.6, Python 3.10);
+Astropy below 7.2 needs NumPy below 2.4. filelock is no longer a dependency.
+
+The examples of the observables’ guide pages use a Hernquist model with a constant anisotropy of 0.25, and
+The prepared table states the cost of its example.
+
+The rows of the line-of-sight table are computed in blocks sized to the per-core cache (n_block_elements
+25000, was 250000): the rows are the same to the bit, and the table builds in about half the wall time.
+
+### Fixed
+
+A truncation whose solve reaches its outer radius with no edge is refused by name (NO EDGE, with the radius,
+the potential and its slope there); before, it was returned as a truncated model. A component on a parent
+profile that is not spatially finite is refused by name.
+
+At an inner slope near 2 with a positive beta_c, the inversion’s table reaches the depth the host’s smallest
+radius allows, and these models build where they were refused; the validity certificate is judged at that
+depth. A central series that degenerates (gamma = 2 beta_c at the center) is refused by name
+(CENTRAL SERIES).
+
+At an inner slope near 2 the inner extension’s radius no longer underflows to zero; where it lies below the
+double’s range the solve is refused by name.
+
+Cuddeford Type II models at an inner slope near 2 no longer fail in the inversion with non-finite slopes.
+
+A cusp at the marginal anisotropy 2 beta_c = gamma solves its central deficit: on NFW with beta_c = 0.5 the
+density from the distribution function moves from 7.7e-4 to 3.2e-9 of the profile (warning to goal).
+
+The line-of-sight velocity distribution near the center reads the distribution function by the solve’s depth:
+one unit in the last place of the potential moved it by 1.1e-4 at R_2D = 1e-9, now by 1.6e-15 or less.
+
+The lowest row of the truncated density continues the edge law (it read 2.5e-4 above it).
+
+DistributionFunction.from_function reads the function below the written floor as compute_df does: the
+Plummer and Hernquist closed forms certify at the goal (round trip 2.0e-14 and 4.6e-11, where 1.0 before).
+
+The particle sampler’s speed table reads its rows at their exact depths and its first slope from the rule below
+it; on the speed tables of the Fig. 7 models with beta_c = 1/2 the worst row falls from 4.1e-4 to 1.7e-6. Where
+the table stops at its row cap above the goal, its log line and the sampler say why.
+
+The pilot grids keep one node at their seam (two nodes 7e-18 apart at q = 0.05 before).
+
+A product of the earlier pipeline whose potential does not strictly decrease is refused when it is loaded, with
+the first two rows where it rises and the number of such steps.
+
+The critical band carries the parent’s central deficit to its cubic term, each term from the deficit’s own
+integral, and its range reads the deficit’s truncation: where the band meets the rows on the
+Fig. 7 children with beta_c = 1/2 the step in log10 F falls from 2.5e-6 to 7.9e-9 or less; one member of the
+accuracy ledger moves (its roundtrip median by 2.3 percent), and no tier changes.
+
 ### Known limitations
 
 One component per model at the public calls; several components in one potential are planned
 (Upcoming features).
 
 The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with R_a.
+
+The gradient in the anisotropy parameters refuses a Method I truncated model, whose profile moves with them; a
+Method II model on a fixed parent takes it (Differentiability).
+
+On a GPU, the derivative of losvd and aperture_losvd may refuse a row of the line-of-sight table by name
+(its transpose holds the row recomputed to the forward’s bit for bit); it never returns a wrong number
+(Differentiability).
 
 Spherical, non-rotating systems with an analytical double-power-law parent profile.
 
@@ -2521,9 +2744,9 @@ factor(r, xp=np)
 
 Return the factor \(g(R)\) of the augmented density.
 
-The one definition of \(g\) in the package: every consumer of
-\(\varrho_{\rm aug} = g(R)\,\varrho_{\rm aux}\) reads it here, in
-this order of operations.
+\(g = 1/h\), with \(h\) from inverse_factor, the package’s
+one form of the factor, which the inversion, the edge law and the
+Poisson solve read too.
 
 Parameters:
 
@@ -2536,13 +2759,16 @@ Returns:
 g – \(g(R)\): 1 (isotropic), \(R^{-2\beta_{\rm c}}\)
 (constant), \((1 \pm R^2/R_{\rm a}^2)^{-1}\) (OM) and
 \(R^{-2\beta_{\rm c}} (1 \pm R^2/R_{\rm a}^2)^{-(1-\beta_{\rm c})}\)
-(COM), the upper sign for Type I. A Type II model is defined
-inside \(R_{\rm a}\) only; beyond it the value is not
-clamped and not meaningful.
+(COM), the upper sign for Type I.
 
 Return type:
 
 array
+
+Raises:
+
+InputError – For a Type II model at a radius at or beyond \(R_{\rm a}\),
+    where it is not defined (a traced radius is not checked).
 
 References
 
@@ -2654,7 +2880,7 @@ Return type:
 
 Component
 
-class pianistpy.df.DistributionFunction(components, settings, identity, grid, table, form, k_t_min, validation, timing, inversion, units=Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None), rows=None)
+class pianistpy.df.DistributionFunction(components, settings, identity, grid, table, form, k_t_min, validation, timing, inversion, units=Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None), rows=None, source='inversion', function_name=None)
 
 Untruncated distribution functions of the components of a model.
 
@@ -2677,7 +2903,10 @@ table (DfTable) – The DFs on the grid.
 form (AsymptoticForm) – The analytic form of each DF beyond the ends of its table.
 
 k_t_min (float) – Lowest admissible truncation energy; zero where every DF is
-non-negative and non-decreasing.
+non-negative and non-decreasing. For a Type II model whose bound is
+its domain edge, the next float above P(R_a), the smallest K_t the
+gates admit; the truncated model’s edge must also lie inside R_a,
+which the truncation’s solve judges (TYPE II EDGE).
 
 validation (ValidationReport) – The report of the inversion.
 
@@ -2689,7 +2918,55 @@ inversion (InversionRecord or None) – How the table was made; None where it wa
 rows (InversionRows or None) – The inversion’s rows as made on its whole grid, which the truncation
 reads; None where the table was not made by an inversion.
 
+source (str) – Where the table’s values come from: "inversion" (compute_df)
+or "function" (from_function).
+
+function_name (str or None) – The __name__ of the function the table was taken from; None for
+an inversion.
+
 units (Units)
+
+classmethod from_function(component, f, settings=None)
+
+Return the distribution function a function of the energy gives.
+
+A user brings a DF (a fitting function, another code’s output) and
+the package certifies it against the density by its own integration.
+The function is tabulated on the energy grid compute_df places for
+the same component and settings, in place of the inversion’s values,
+and everything after runs as for the inversion: the forms beyond the
+table, the slope column, the sign report, the validation, the
+identity, and the file. The table is stored, the function is not.
+
+Parameters:
+
+component (Component) – The component the DF belongs to, on an analytic profile.
+
+f (callable) – f(k, depth): takes the array of the energies K (the table’s,
+in internal units) and the array of their depths P_0 - K, and
+returns the DF at each, F and not its logarithm. The depth is
+the grid’s own P_0 - K of each node, exact, so a fit written in
+the depth near the center reads it directly; a function of K
+alone may ignore it.
+
+settings (Settings, optional) – Numerical settings. The default tier if omitted.
+
+Returns:
+
+df – Its source is "function" and its function_name the
+function’s __name__. The table has no derivative column, and
+the report’s slope_column states that it is not judged. It
+has no inversion record and no rows, so truncate refuses it.
+
+Return type:
+
+DistributionFunction
+
+Raises:
+
+InputError – If the function is not finite somewhere on the grid (the first
+    such K is stated), returns another shape, or the component is
+    built on a tabulated profile.
 
 property is_physical: bool
 
@@ -3043,6 +3320,9 @@ Raises:
 UnphysicalModelError – If no valid equilibrium exists for the request. The exception carries
     df as its result.
 
+InputError – If the DF comes from a function (DistributionFunction.from_function):
+    it carries no inversion rows, which truncation needs.
+
      On this page
 
 
@@ -3199,28 +3479,33 @@ Measurements of one observable, with their errors.
 
 Parameters:
 
-observable ({"sigma_los", "sigma_los_aperture", "losvd", "losvd_aperture", "pdf_v"}) – What was measured: the line-of-sight dispersion at projected radii,
-or averaged over apertures (weighted by the surface density); or a
+observable (str) – One of "sigma_los", "sigma_los_aperture", "losvd",
+"losvd_aperture", "pdf_v", "h3" and "h4". What was
+measured: the line-of-sight dispersion at projected radii, or
+averaged over apertures (weighted by the surface density); or a
 binned distribution of velocity: the line-of-sight velocity
 distribution at one projected radius or in one aperture, or the
-local speed distribution at one 3D radius.
+local speed distribution at one 3D radius; or a Gauss-Hermite
+moment of the line-of-sight velocity distribution at projected radii
+or inside apertures (gauss_hermite_moments; dimensionless).
 
 values (array-like, shape (n,)) – The measured values. For a binned distribution, the share of the
 distribution inside the window [v_edges[0], v_edges[-1]] that
 falls in each bin.
 
-r_2d (array-like, shape (n,), optional) – The projected radii, for "sigma_los"; one radius for
-"losvd".
+r_2d (array-like, shape (n,), optional) – The projected radii, for "sigma_los" and for moments at radii;
+one radius for "losvd".
 
-apertures (sequence of Aperture, optional) – The apertures, for "sigma_los_aperture", their lengths in the
-units of the data; one aperture for "losvd_aperture".
+apertures (sequence of Aperture, optional) – The apertures, for "sigma_los_aperture" and for moments over
+apertures, their lengths in the units of the data; one aperture for
+"losvd_aperture".
 
 errors (array-like, shape (n,), optional) – The standard deviations of independent errors.
 
 covariance (array-like, shape (n, n), optional) – The covariance of the errors, in place of errors.
 
 unit_system ({"internal", "model", "physical"}) – The units of the data: in the physical system radii in parsecs and
-speeds in kilometres per second. A model is compared in the same
+speeds in kilometers per second. A model is compared in the same
 system.
 
 v_edges (array-like, shape (n + 1,), optional) – The edges of the bins of a binned distribution, increasing; speeds
@@ -3285,7 +3570,7 @@ Parameters:
 
 tables (tuple[_Table, ...])
 
-blocks (tuple[_Block, ...])
+blocks (tuple[_Block | _Moments | _PointMoments, ...])
 
 weights (Any)
 
@@ -3361,6 +3646,19 @@ at that theta. The gradient in theta is that of the reading on those rows
 (their placement frozen); between placements the value moves within the
 tables’ tolerance. An untruncated component is not free: its edge terms
 read its DF.
+
+A Gauss-Hermite moment ("h3", "h4") over an aperture is that of
+the mixture’s distribution in the aperture, the components’ own
+(aperture_losvd, each on its velocity nodes, mirrored to both signs)
+weighted by weight and projected mass, with its own mean and dispersion
+as gauss_hermite_moments takes them: traced in the weights; the mass
+scale leaves it. Its distributions are read at the model’s own radii, so
+the length scale is held there (until a traced reader of each member’s
+distribution in radius lands). Moments at projected radii
+are read on a model of one component from its moments’ table
+(gauss_hermite_table, read_traced) at the radii the length scale
+moves, so they are traced in it too. Neither is served with a free
+component: its distributions are read at its own theta.
 
 pianistpy.inference.log_likelihood(model, data, settings=None)
 
@@ -3955,6 +4253,238 @@ Return type:
 
 Aperture
 
+class pianistpy.observables.Differentiable(model, settings=None)
+
+A model’s observables as JAX functions of its anisotropy.
+
+Built once from a model of one component on a truncated profile (a DF
+inverted on its parent’s profile, as truncate makes it): its tables are
+computed here, at the model’s own anisotropy. Each method takes
+theta = (beta_c, R_a), the component’s anisotropy in internal units,
+first, and is a JAX function of it, traceable and differentiable.
+
+Parameters:
+
+model (Model) – A model of one component on a truncated profile, spatially finite,
+whose family has beta_c or R_a: constant anisotropy (beta_c; an
+isotropic or constant component’s R_a is held at its own, infinite,
+value with a zero gradient), Cuddeford Type I (both), Osipkov-Merritt
+Type I and Type II (R_a).
+
+settings (Settings, optional) – Numerical settings of the observables; the model’s by default.
+
+Variables:
+
+model (Model) – The model.
+
+theta (array, shape (2,)) – Its own (beta_c, R_a), in internal units.
+
+Raises:
+
+InputError – For a superposition or a model of several components, a component not
+    spatially finite or not on a truncated profile that carries its
+    parent’s DF, and a family whose observables are not differentiable
+    (Cuddeford Type II), each named.
+
+Notes
+
+Radii and velocities are in internal units, whatever the model’s unit
+system: theta, as the likelihood’s, is internal, and so is everything a
+method reads and returns.
+
+A method’s value at a theta is computed on the host the first time the
+method meets it: the DF inverted at theta on the component’s truncated
+profile, then the observable’s tables, at the cost of the likelihood’s
+own rebuild of a free component (about that of the plain call on the
+model rebuilt at theta); the last eight theta are kept. At a theta where
+the model is refused the value is NaN and its gradient zero. The
+derivative is the observable’s tangent rows in theta on the tables’ own
+rows, their placement frozen: between two placements the value moves by
+the tables’ tolerance, which the derivative does not carry. A method is
+not differentiable in its radii (their gradient is NaN).
+
+sigma_r(theta, r)
+
+Return the radial velocity dispersion at radii, as
+pianistpy.sigma_r of the model at theta.
+
+Parameters:
+
+theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+
+r (array-like) – Radii, in internal units.
+
+Returns:
+
+sigma_r – The dispersion in internal units, with the shape of r; NaN where
+the model at theta is refused.
+
+Return type:
+
+array
+
+sigma_t(theta, r)
+
+Return the tangential velocity dispersion at radii (both tangential
+components together), as pianistpy.sigma_t of the model at theta.
+
+Parameters:
+
+theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+
+r (array-like) – Radii, in internal units.
+
+Returns:
+
+sigma_t – The dispersion in internal units, with the shape of r; NaN where
+the model at theta is refused.
+
+Return type:
+
+array
+
+sigma_los(theta, r_2d)
+
+Return the line-of-sight velocity dispersion at projected radii, as
+pianistpy.sigma_los of the model at theta.
+
+Parameters:
+
+theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+
+r_2d (array-like) – Projected radii, in internal units.
+
+Returns:
+
+sigma_los – The dispersion in internal units, with the shape of r_2d; zero
+beyond the last row, NaN where the model at theta is refused.
+
+Return type:
+
+array
+
+sigma_los_aperture(theta, aperture)
+
+Return the line-of-sight velocity dispersion averaged over an
+aperture, weighted by the surface density, as
+pianistpy.sigma_los_aperture of the model at theta.
+
+Parameters:
+
+theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+
+aperture (Aperture) – The aperture, its lengths in internal units.
+
+Returns:
+
+sigma_los – The dispersion in internal units; NaN where the model at theta is
+refused.
+
+Return type:
+
+scalar array
+
+Notes
+
+The derivative is the aperture’s integral of the tangent rows of
+sigma_los^2, on the nodes and weights of the plain call’s own
+quadrature (the integral is linear in the rows), over twice the value.
+
+losvd(theta, r_2d, v)
+
+Return the line-of-sight velocity distribution at the pairs
+(r_2d, v), as pianistpy.losvd of the model at theta.
+
+Parameters:
+
+theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+
+r_2d (array-like) – Projected radii and line-of-sight velocities, in internal units;
+they broadcast against each other.
+
+v (array-like) – Projected radii and line-of-sight velocities, in internal units;
+they broadcast against each other.
+
+Returns:
+
+losvd – The distribution per unit internal velocity, with the broadcast
+shape; NaN where the model at theta is refused.
+
+Return type:
+
+array
+
+Notes
+
+The derivative is the DF path’s, its placement frozen: the reading’s
+transpose onto the table’s rows (losvd_read_vjp), the rows’ onto the
+DF’s table and forms (losvd_rows_vjp) with the rows’ explicit part
+in the anisotropy, and the DF table’s derivative in theta
+(df.gradient.table_jacobian). Not differentiable in r_2d or v.
+
+pdf_v(theta, r, v)
+
+Return the local speed distribution at the pairs (r, v), as
+pianistpy.pdf_v of the model at theta.
+
+Parameters:
+
+theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+
+r (array-like) – Radii and speeds, in internal units; they broadcast against each
+other.
+
+v (array-like) – Radii and speeds, in internal units; they broadcast against each
+other.
+
+Returns:
+
+pdf_v – The distribution per unit internal velocity, with the broadcast
+shape; NaN where the model at theta is refused.
+
+Return type:
+
+array
+
+Notes
+
+The derivative is the DF path’s: at each radius the speed
+distribution’s transpose (speed_distribution_vjp) at the speeds
+asked, the distribution there computed by the rule its record
+certified, as SpeedDistribution.read computes it, with its explicit
+part in the anisotropy, and the DF table’s derivative in theta. Not
+differentiable in r or v.
+
+aperture_losvd(theta, aperture, v)
+
+Return the line-of-sight velocity distribution inside an aperture
+at the velocities v, as pianistpy.aperture_losvd of the model at
+theta.
+
+Parameters:
+
+theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+
+aperture (Aperture) – The aperture, its lengths in internal units.
+
+v (array-like) – Line-of-sight velocities, in internal units.
+
+Returns:
+
+losvd – The distribution per unit internal velocity, with the shape of
+v; NaN where the model at theta is refused.
+
+Return type:
+
+array
+
+Notes
+
+The derivative is the DF path’s: the transpose of the reading of the
+aperture’s panels (each panel’s polynomial through its nodes) onto
+its values at the nodes, theirs onto the table’s rows
+(aperture_losvd_vjp), then as losvd. Not differentiable in v.
+
 class pianistpy.observables.LosTable(model)
 
 The line-of-sight velocity distributions of a model, built once.
@@ -4055,7 +4585,7 @@ one component or a superposition.
 R_range ((float, float)) – The annulus, in the source’s unit system (Model.to): internal units
 by default, parsecs (floats or Astropy quantities) in the physical
 system. An end beyond the table’s rows is taken at the row where the
-surface density beyond it is within INNER_DISC_TOLERANCE of the
+surface density beyond it is within INNER_DISK_TOLERANCE of the
 annulus’s, and refused otherwise.
 
 v_range ((float, float), optional) – The window of line-of-sight velocity, signed, in the source’s unit
@@ -4109,7 +4639,9 @@ Return the line-of-sight velocity distribution inside an aperture.
 Parameters:
 
 source (Model or LosTable) – The model, or its prepared LosTable. Given a model, its table is
-built first (LosTable).
+built first (LosTable), at every call: where a model is read more
+than once, build its table once with pp.LosTable(model) and pass
+the table.
 
 aperture (Aperture) – The aperture, built with Aperture.circle or Aperture.rectangle,
 its lengths in the model’s unit system (parsecs in the physical
@@ -4153,7 +4685,9 @@ Return the line-of-sight velocity distribution at projected radii.
 Parameters:
 
 source (Model or LosTable) – The model, or its prepared LosTable. Given a model, its table is
-built first (LosTable).
+built first (LosTable), at every call: where a model is read more
+than once, build its table once with pp.LosTable(model) and pass
+the table.
 
 r_2d (array-like) – Projected radius \(R_{\rm 2D}\) in the model’s unit system
 (Model.to): internal units by default, parsecs (a float or an
@@ -4512,8 +5046,11 @@ speed number of particle i of sample at the same seed, mapped into
 the window’s numbers (and, for a superposition, its component by
 the window’s share of each component).
 
-v_range (tuple of float, optional) – The speeds (v_lo, v_hi), in internal units, 0 <= v_lo < v_hi. Without
-it, the whole speed distribution.
+v_range (tuple of float or of array-like, optional) – The speeds (v_lo, v_hi), in internal units, 0 <= v_lo < v_hi. Each
+bound is a float, the same window at every radius, or an array that
+broadcasts against r, a window at each radius (as a grid in units
+of each radius’s escape speed needs). Without it, the whole speed
+distribution.
 
 Returns:
 
@@ -4531,8 +5068,8 @@ InputError – For a model with a finite anisotropy radius (Osipkov-Merritt or
     Cuddeford): there the speed is the scaled speed times a factor of
     the drawn angle, so the window couples to the angle, and no table
     holds the speed’s distribution at a radius with the angle
-    integrated out. Also for radii outside the sampling or an invalid
-    window.
+    integrated out. Also for radii outside the sampling, an invalid
+    window, or bounds that do not broadcast against r.
 
 Return type:
 
@@ -4719,7 +5256,7 @@ Name of the profile, or its parameters if it has none.
 
 property rho_norm: float
 
-Normalisation \(C\) of the density, for a central potential of 1.
+Normalization \(C\) of the density, for a central potential of 1.
 
 Notes
 
@@ -4959,9 +5496,11 @@ less p_trunc, kept exact where p_trunc is close to it: near the
 center p_trunc alone has lost the digits of the difference that the
 DF’s singular center is read in. Empty where not computed.
 
-central_deficit (tuple of tuple of float) – For each component, (D_0, D_1): the central auxiliary density of
-the orbits the truncation removed and its slope, D_0 - D_1 u. Empty
-where not recorded.
+central_deficit (tuple of tuple of float) – For each component, (D_0, D_1, …): the central auxiliary density
+of the orbits the truncation removed as its Taylor series in the
+depth u, D_0 - D_1 u + D_2 u^2 - … (D_0 to D_4 as made; a record
+of D_0 and D_1 alone reads as the linear deficit). Empty where not
+recorded.
 
 override_r (float) – Radii between which the closed-form profile replaced the rows of
 the solve; NaN where no row was replaced.
@@ -5142,7 +5681,7 @@ Source: https://pianistpy.com/docs/reference/api/runtime.html
 
 # Runtime options (pianistpy.runtime)
 
-Switches of the session: verbosity, timing and workers.
+Runtime options of the session: verbosity, timing and workers.
 
 None of these changes a number, and none is part of the identity of a
 result. Each is set once for the session, by a call or by an environment
@@ -5754,7 +6293,7 @@ the target units. The model units have \(G = M_0 = r_0 = 1\), with
 
 Parameters:
 
-rho_norm (float) – Normalisation \(C\) of the density profile.
+rho_norm (float) – Normalization \(C\) of the density profile.
 
 mass_q (float) – \(q = \mathcal{M}(c)/C\), the mass inside the concentration
 radius in units of \(4\pi\rho_0 r_0^3\).
@@ -5771,17 +6310,17 @@ potential.
 model_p (float) – Factors to the model units, for a speed, a mass, a density and a
 potential.
 
-physical_r_pc (float or None) – Factors to parsecs, kilometres per second and solar masses.
+physical_r_pc (float or None) – Factors to parsecs, kilometers per second and solar masses.
 
-physical_v_kms (float or None) – Factors to parsecs, kilometres per second and solar masses.
+physical_v_kms (float or None) – Factors to parsecs, kilometers per second and solar masses.
 
-physical_mass_msun (float or None) – Factors to parsecs, kilometres per second and solar masses.
+physical_mass_msun (float or None) – Factors to parsecs, kilometers per second and solar masses.
 
 physical_rho_msun_pc3 (float or None) – Factors to solar masses per cubic parsec, and to the square of
-kilometres per second.
+kilometers per second.
 
 physical_p_kms2 (float or None) – Factors to solar masses per cubic parsec, and to the square of
-kilometres per second.
+kilometers per second.
 
 physical_rho_0_msun_pc3 (float or None) – The scale density \(\rho_0\) in solar masses per cubic parsec.
 
@@ -5956,7 +6495,7 @@ Source: https://pianistpy.com/docs/reference/api/validation.html
 
 Accuracy tiers and the validation report of a result.
 
-class pianistpy.validation.Check(error, where=None)
+class pianistpy.validation.Check(error, where=None, reason=None, source=None, excluded=None)
 
 One check of a result: what was measured and where.
 
@@ -5967,13 +6506,24 @@ error (float) – The relative error the check measured.
 where (float, optional) – The place of the largest error, in the variable the check runs over
 (a radius or an energy). Absent where that has no meaning.
 
+reason (str, optional) – Why the check was not judged, where it was not: such a check has no
+error (NaN), its tier reads "not judged", and the result’s tier
+is the worst of the checks that were.
+
+source (str, optional) – Where a judged check read its input from another source than its
+own, what it read and why; the error and the tier are as measured.
+
+excluded (str, optional) – Where a judged check leaves part of its input unjudged, which part
+and why; the error and the tier are those of the rest.
+
 property level: int
 
-Tier of the error, as returned by tier_level.
+Tier of the error, as returned by tier_level; 0 for a check not
+judged, which leaves the result’s tier to the others.
 
 property tier: str
 
-Name of the tier of the error.
+Name of the tier of the error, or "not judged".
 
 class pianistpy.validation.ValidationReport(keys, checks, parents_level=0)
 
@@ -6798,7 +7348,7 @@ Rows of the stencil whose estimate certifies the table.
 
 n_block_elements
 
-250000
+25000
 
 same
 
@@ -7005,7 +7555,7 @@ pip install pianistpy
 
 ```
 
-PIANISTpy needs Python 3.11 or later and runs on Linux, macOS and Windows.
+PIANISTpy needs Python 3.10 or later and runs on Linux, macOS and Windows.
 
 ## Requirements
 
@@ -7022,19 +7572,19 @@ Python
 
 3.11
 
-3.11 (3.12 and 3.13 pass)
+3.10 (the oldest with a JAX 0.6 wheel; the suite is run on 3.11)
 
 NumPy
 
 2.4
 
-2.0.0
+2.3.0
 
 SciPy
 
 1.17
 
-1.14.0
+1.15.0
 
 h5py
 
@@ -7046,13 +7596,13 @@ Astropy
 
 7.2
 
-7.2.0
+6.1.0
 
 mpmath
 
 1.4
 
-0.19
+1.1.0
 
 SymPy
 
@@ -7064,7 +7614,7 @@ JAX
 
 0.9.2
 
-0.6.1
+0.6.0
 
 Diffrax
 
@@ -7076,17 +7626,11 @@ Optimistix
 
 0.1.0
 
-0.0.11
+0.1.0
 
-filelock
-
-4.0
-
-any
-
-JAX, Diffrax and Optimistix are bound together: the three minimum versions pass as one environment, and older
-pairs do not. The minimum list is measured one package at a time with the others at their newest; the standard
-list is the environment of the release.
+The minimum list is measured one package at a time with the others at their newest, and then all the minimum
+versions together as one environment, which passes the suite; the standard list is the environment of the
+release. Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function NumPy 2.4 removed).
 
 ## JAX and the GPU
 
@@ -7095,6 +7639,117 @@ the user. JAX’s CUDA builds are for Linux: on Windows the GPU is reached throu
 (or a Linux virtual machine) with the Linux wheels, and a native Windows Python runs the CPU-only mode. A GPU and
 a CPU give results that differ at rounding on the kernels; the accuracy goal holds on both, and each file
 records the backend that made it. To force one or the other, see Runtime options.
+
+Only the main process uses the card: the worker processes of the observables’ pools run on the CPU. A card in the
+Exclusive_Process compute mode (nvidia-smi --query-gpu=compute_mode --format=csv shows it), common on shared
+clusters, serves one process, so where another process already holds it the package cannot reach it, and JAX’s
+error begins Unable to initialize backend 'cuda'. Free the card, share it through an MPS daemon
+(nvidia-cuda-mps-control -d), or run in the CPU-only mode.
+
+A card speeds up the sampler and nothing else. The sampler’s speed table builds in 0.6 to 6.6 s on the card against
+4.6 to 40 s on 8 cores, and drawing is faster on the card from about ten thousand particles, three to five times
+from a hundred thousand. The DF’s Poisson solve is a serial ODE: where the package runs on a card, so does the
+solve, and each step costs about a millisecond of launch latency, 50 to 200 times the CPU’s wall, so a model is
+solved fastest in the CPU-only mode. The rows of the line-of-sight velocity table run in the worker pool on the CPU
+whatever the platform, so a card does not shorten the table’s build (the two columns below differ by the main
+process’s share and the node’s load), and reading a built table (the LOSVD, pdf_v) takes the CPU’s wall. At the
+quick tier the table’s build ran out of the card’s 12 GB, so the quick tier’s observables were measured on the CPU
+only. The walls below are from one 32-core node (AMD Threadripper PRO 5975WX) and one RTX 3080 Ti. The solve’s are
+the medians of five reruns of 37 solves of 21 truncated models, in two groups by their step count. The speed
+table’s are the steady builds of six members (512 to 1,021 rows) at the default tier, on 8 of the node’s cores. The
+sampling’s and the observables’ are on an NFW model (beta_c 0.25, concentration 10) and a truncated Hernquist model
+(Osipkov-Merritt Type I, beta_c -0.25, R_a 10, K_t 0.05); each is the median of three calls after a warm one, except
+the table’s build, which is the first and the second build in one process.
+
+Stage
+
+CPU (32 cores)
+
+RTX 3080 Ti
+
+DF solve, one solve (478 to 1574 steps)
+
+0.0036 to 0.025 s
+
+0.66 to 1.55 s
+
+The sampler’s speed table, default tier (8 cores)
+
+4.6 to 40 s
+
+0.63 to 6.6 s
+
+Sampling, 1e3 particles
+
+0.014 to 0.019 s
+
+0.019 to 0.025 s
+
+Sampling, 1e4 particles
+
+0.024 to 0.031 s
+
+0.019 to 0.026 s
+
+Sampling, 1e5 particles
+
+0.103 to 0.110 s
+
+0.029 to 0.034 s
+
+Sampling, 1e6 particles
+
+0.736 to 0.768 s
+
+0.162 to 0.211 s
+
+Line-of-sight velocity table, default tier
+
+1246 to 2298 s
+
+1014 to 3163 s
+
+Line-of-sight velocity table, quick tier
+
+238 to 1251 s
+
+out of the card’s memory
+
+LOSVD, 64 velocities at 16 radii, default tier
+
+0.46 to 0.48 s
+
+0.42 to 0.43 s
+
+LOSVD, 64 velocities at 1024 radii, default tier
+
+30.4 to 31.1 s
+
+28.4 to 28.9 s
+
+pdf_v, 64 velocities at 16 radii, default tier
+
+9.2 to 24.4 s
+
+9.2 to 24.3 s
+
+pdf_v, 64 velocities at 1024 radii, default tier
+
+595 to 1565 s
+
+591 to 1568 s
+
+LOSVD, 64 velocities at 16 to 1024 radii, quick tier
+
+0.13 to 9.4 s
+
+not measured
+
+pdf_v, 64 velocities at 16 to 1024 radii, quick tier
+
+4.2 to 709 s
+
+not measured
 
      On this page
 

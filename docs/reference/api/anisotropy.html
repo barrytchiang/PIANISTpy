@@ -338,9 +338,9 @@ tested to give results that are continuous through these special values.</p>
 <dt class="sig sig-object py" id="pianistpy.anisotropy.Anisotropy.factor">
 <span class="sig-name descname"><span class="pre">factor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">np</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.anisotropy.Anisotropy.factor" title="Link to this definition">#</a></dt>
 <dd><p>Return the factor <span class="math notranslate nohighlight">\(g(R)\)</span> of the augmented density.</p>
-<p>The one definition of <span class="math notranslate nohighlight">\(g\)</span> in the package: every consumer of
-<span class="math notranslate nohighlight">\(\varrho_{\rm aug} = g(R)\,\varrho_{\rm aux}\)</span> reads it here, in
-this order of operations.</p>
+<p><span class="math notranslate nohighlight">\(g = 1/h\)</span>, with <span class="math notranslate nohighlight">\(h\)</span> from <cite>inverse_factor</cite>, the package’s
+one form of the factor, which the inversion, the edge law and the
+Poisson solve read too.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -352,12 +352,14 @@ this order of operations.</p>
 <dd class="field-even"><p><strong>g</strong> – <span class="math notranslate nohighlight">\(g(R)\)</span>: 1 (isotropic), <span class="math notranslate nohighlight">\(R^{-2\beta_{\rm c}}\)</span>
 (constant), <span class="math notranslate nohighlight">\((1 \pm R^2/R_{\rm a}^2)^{-1}\)</span> (OM) and
 <span class="math notranslate nohighlight">\(R^{-2\beta_{\rm c}} (1 \pm R^2/R_{\rm a}^2)^{-(1-\beta_{\rm c})}\)</span>
-(COM), the upper sign for Type I. A Type II model is defined
-inside <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> only; beyond it the value is not
-clamped and not meaningful.</p>
+(COM), the upper sign for Type I.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – For a Type II model at a radius at or beyond <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>,
+    where it is not defined (a traced radius is not checked).</p>
 </dd>
 </dl>
 <p class="rubric">References</p>

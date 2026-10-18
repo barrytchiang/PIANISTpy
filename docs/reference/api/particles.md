@@ -146,8 +146,11 @@ speed number of particle i of sample at the same seed, mapped into
 the window’s numbers (and, for a superposition, its component by
 the window’s share of each component).
 
-v_range (tuple of float, optional) – The speeds (v_lo, v_hi), in internal units, 0 <= v_lo < v_hi. Without
-it, the whole speed distribution.
+v_range (tuple of float or of array-like, optional) – The speeds (v_lo, v_hi), in internal units, 0 <= v_lo < v_hi. Each
+bound is a float, the same window at every radius, or an array that
+broadcasts against r, a window at each radius (as a grid in units
+of each radius’s escape speed needs). Without it, the whole speed
+distribution.
 
 Returns:
 
@@ -165,8 +168,8 @@ InputError – For a model with a finite anisotropy radius (Osipkov-Merritt or
     Cuddeford): there the speed is the scaled speed times a factor of
     the drawn angle, so the window couples to the angle, and no table
     holds the speed’s distribution at a radius with the angle
-    integrated out. Also for radii outside the sampling or an invalid
-    window.
+    integrated out. Also for radii outside the sampling, an invalid
+    window, or bounds that do not broadcast against r.
 
 Return type:
 
