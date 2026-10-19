@@ -1,6 +1,6 @@
 # Citation
 
-Source: https://pianistpy.com/docs/citation/index.html
+Source: https://pianistpy.com/docs/citation/
 
 # Citation
 

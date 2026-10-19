@@ -1,6 +1,6 @@
 # The package (pianistpy)
 
-Source: https://pianistpy.com/docs/reference/api/pianistpy.html
+Source: https://pianistpy.com/docs/reference/api/pianistpy
 
 # The package (pianistpy)
 

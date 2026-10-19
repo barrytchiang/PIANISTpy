@@ -1,6 +1,6 @@
 # Units (pianistpy.units)
 
-Source: https://pianistpy.com/docs/reference/api/units.html
+Source: https://pianistpy.com/docs/reference/api/units
 
 # Units (pianistpy.units)
 

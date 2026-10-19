@@ -1,6 +1,6 @@
 # Radial velocity dispersion
 
-Source: https://pianistpy.com/docs/guide/sigma_r.html
+Source: https://pianistpy.com/docs/guide/sigma_r
 
 # Radial velocity dispersion
 

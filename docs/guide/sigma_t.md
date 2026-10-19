@@ -1,6 +1,6 @@
 # Tangential velocity dispersion
 
-Source: https://pianistpy.com/docs/guide/sigma_t.html
+Source: https://pianistpy.com/docs/guide/sigma_t
 
 # Tangential velocity dispersion
 

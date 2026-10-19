@@ -1,6 +1,6 @@
 # Names and paper symbols
 
-Source: https://pianistpy.com/docs/reference/symbols.html
+Source: https://pianistpy.com/docs/reference/symbols
 
 # Names and paper symbols
 

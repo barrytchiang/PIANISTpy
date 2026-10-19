@@ -1,6 +1,6 @@
 # Velocity anisotropy (pianistpy.anisotropy)
 
-Source: https://pianistpy.com/docs/reference/api/anisotropy.html
+Source: https://pianistpy.com/docs/reference/api/anisotropy
 
 # Velocity anisotropy (pianistpy.anisotropy)
 

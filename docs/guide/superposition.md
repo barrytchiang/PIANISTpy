@@ -1,6 +1,6 @@
 # Superposition and inference
 
-Source: https://pianistpy.com/docs/guide/superposition.html
+Source: https://pianistpy.com/docs/guide/superposition
 
 # Superposition and inference
 

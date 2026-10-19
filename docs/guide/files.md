@@ -1,6 +1,6 @@
 # Input and output
 
-Source: https://pianistpy.com/docs/guide/files.html
+Source: https://pianistpy.com/docs/guide/files
 
 # Input and output
 

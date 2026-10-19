@@ -1,6 +1,6 @@
 # Distribution functions and models (pianistpy.df)
 
-Source: https://pianistpy.com/docs/reference/api/df.html
+Source: https://pianistpy.com/docs/reference/api/df
 
 # Distribution functions and models (pianistpy.df)
 

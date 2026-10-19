@@ -1,6 +1,6 @@
 # Flags and refusals
 
-Source: https://pianistpy.com/docs/guide/results.html
+Source: https://pianistpy.com/docs/guide/results
 
 # Flags and refusals
 

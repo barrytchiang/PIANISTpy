@@ -1,6 +1,6 @@
 # Line-of-sight velocity distribution in an aperture
 
-Source: https://pianistpy.com/docs/guide/aperture_losvd.html
+Source: https://pianistpy.com/docs/guide/aperture_losvd
 
 # Line-of-sight velocity distribution in an aperture
 

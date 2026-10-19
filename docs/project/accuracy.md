@@ -1,6 +1,6 @@
 # Accuracy by release
 
-Source: https://pianistpy.com/docs/project/accuracy.html
+Source: https://pianistpy.com/docs/project/accuracy
 
 # Accuracy by release
 

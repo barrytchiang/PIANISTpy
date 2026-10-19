@@ -1,6 +1,6 @@
 # Release notes
 
-Source: https://pianistpy.com/docs/project/changelog.html
+Source: https://pianistpy.com/docs/project/changelog
 
 # Release notes
 

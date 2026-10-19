@@ -1,6 +1,6 @@
 # Validation (pianistpy.validation)
 
-Source: https://pianistpy.com/docs/reference/api/validation.html
+Source: https://pianistpy.com/docs/reference/api/validation
 
 # Validation (pianistpy.validation)
 

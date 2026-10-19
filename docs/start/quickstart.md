@@ -1,6 +1,6 @@
 # Quick start
 
-Source: https://pianistpy.com/docs/start/quickstart.html
+Source: https://pianistpy.com/docs/start/quickstart
 
 # Quick start
 

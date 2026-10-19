@@ -1,6 +1,6 @@
 # Examples
 
-Source: https://pianistpy.com/docs/notebooks/index.html
+Source: https://pianistpy.com/docs/notebooks/
 
 # Examples
 

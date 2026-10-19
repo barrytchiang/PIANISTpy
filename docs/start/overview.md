@@ -1,6 +1,6 @@
 # What PIANISTpy does
 
-Source: https://pianistpy.com/docs/start/overview.html
+Source: https://pianistpy.com/docs/start/overview
 
 # What PIANISTpy does
 

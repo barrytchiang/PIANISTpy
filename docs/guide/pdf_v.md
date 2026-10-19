@@ -1,6 +1,6 @@
 # Local speed distribution
 
-Source: https://pianistpy.com/docs/guide/pdf_v.html
+Source: https://pianistpy.com/docs/guide/pdf_v
 
 # Local speed distribution
 

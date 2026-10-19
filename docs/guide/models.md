@@ -1,6 +1,6 @@
 # Models
 
-Source: https://pianistpy.com/docs/guide/models.html
+Source: https://pianistpy.com/docs/guide/models
 
 # Models
 

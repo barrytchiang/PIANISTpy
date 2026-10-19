@@ -1,6 +1,6 @@
 # Observables
 
-Source: https://pianistpy.com/docs/guide/observables.html
+Source: https://pianistpy.com/docs/guide/observables
 
 # Observables
 

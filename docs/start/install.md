@@ -1,6 +1,6 @@
 # Install
 
-Source: https://pianistpy.com/docs/start/install.html
+Source: https://pianistpy.com/docs/start/install
 
 # Install
 

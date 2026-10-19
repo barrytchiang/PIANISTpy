@@ -1,6 +1,6 @@
 # Exceptions (pianistpy.exceptions)
 
-Source: https://pianistpy.com/docs/reference/api/exceptions.html
+Source: https://pianistpy.com/docs/reference/api/exceptions
 
 # Exceptions (pianistpy.exceptions)
 

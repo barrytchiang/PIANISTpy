@@ -1,6 +1,6 @@
 # API reference
 
-Source: https://pianistpy.com/docs/reference/index.html
+Source: https://pianistpy.com/docs/reference/
 
 # API reference
 

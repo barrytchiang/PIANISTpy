@@ -1,6 +1,6 @@
 # How to cite
 
-Source: https://pianistpy.com/docs/project/citing.html
+Source: https://pianistpy.com/docs/project/citing
 
 # How to cite
 

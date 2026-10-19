@@ -1,6 +1,6 @@
 # Line-of-sight velocity distribution
 
-Source: https://pianistpy.com/docs/guide/losvd.html
+Source: https://pianistpy.com/docs/guide/losvd
 
 # Line-of-sight velocity distribution
 

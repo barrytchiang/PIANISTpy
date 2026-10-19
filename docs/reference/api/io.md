@@ -1,6 +1,6 @@
 # Results and files (pianistpy.io)
 
-Source: https://pianistpy.com/docs/reference/api/io.html
+Source: https://pianistpy.com/docs/reference/api/io
 
 # Results and files (pianistpy.io)
 

@@ -1,6 +1,6 @@
 # Truncation in phase space
 
-Source: https://pianistpy.com/docs/guide/truncation.html
+Source: https://pianistpy.com/docs/guide/truncation
 
 # Truncation in phase space
 

@@ -1,6 +1,6 @@
 # Development
 
-Source: https://pianistpy.com/docs/project/index.html
+Source: https://pianistpy.com/docs/project/
 
 # Development
 

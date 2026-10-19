@@ -1,6 +1,6 @@
 # Superposition (pianistpy.superposition)
 
-Source: https://pianistpy.com/docs/reference/api/superposition.html
+Source: https://pianistpy.com/docs/reference/api/superposition
 
 # Superposition (pianistpy.superposition)
 

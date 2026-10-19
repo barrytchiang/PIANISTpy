@@ -1,6 +1,6 @@
 # Settings (pianistpy.settings)
 
-Source: https://pianistpy.com/docs/reference/api/settings.html
+Source: https://pianistpy.com/docs/reference/api/settings
 
 # Settings (pianistpy.settings)
 

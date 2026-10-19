@@ -1,6 +1,6 @@
 # Get started
 
-Source: https://pianistpy.com/docs/start/index.html
+Source: https://pianistpy.com/docs/start/
 
 # Get started
 

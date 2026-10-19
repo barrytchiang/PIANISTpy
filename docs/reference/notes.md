@@ -1,6 +1,6 @@
 # Technical notes
 
-Source: https://pianistpy.com/docs/reference/notes.html
+Source: https://pianistpy.com/docs/reference/notes
 
 # Technical notes
 

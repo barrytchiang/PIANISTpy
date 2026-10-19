@@ -1,6 +1,6 @@
 # Particles (pianistpy.particles)
 
-Source: https://pianistpy.com/docs/reference/api/particles.html
+Source: https://pianistpy.com/docs/reference/api/particles
 
 # Particles (pianistpy.particles)
 

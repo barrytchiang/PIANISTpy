@@ -1,6 +1,6 @@
 # Contributing
 
-Source: https://pianistpy.com/docs/project/contributing.html
+Source: https://pianistpy.com/docs/project/contributing
 
 # Contributing
 

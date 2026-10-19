@@ -1,6 +1,6 @@
 # Runtime options
 
-Source: https://pianistpy.com/docs/guide/switches.html
+Source: https://pianistpy.com/docs/guide/switches
 
 # Runtime options
 

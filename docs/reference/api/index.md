@@ -1,6 +1,6 @@
 # Functions by subpackage
 
-Source: https://pianistpy.com/docs/reference/api/index.html
+Source: https://pianistpy.com/docs/reference/api/
 
 # Functions by subpackage
 

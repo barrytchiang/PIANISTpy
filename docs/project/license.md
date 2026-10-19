@@ -1,6 +1,6 @@
 # License and authors
 
-Source: https://pianistpy.com/docs/project/license.html
+Source: https://pianistpy.com/docs/project/license
 
 # License and authors
 

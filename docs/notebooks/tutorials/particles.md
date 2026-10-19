@@ -1,6 +1,6 @@
 # Generate particle initial conditions
 
-Source: https://pianistpy.com/docs/notebooks/tutorials/particles.html
+Source: https://pianistpy.com/docs/notebooks/tutorials/particles
 
 # Generate particle initial conditions
 

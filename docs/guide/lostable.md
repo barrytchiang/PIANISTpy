@@ -1,6 +1,6 @@
 # The prepared table
 
-Source: https://pianistpy.com/docs/guide/lostable.html
+Source: https://pianistpy.com/docs/guide/lostable
 
 # The prepared table
 

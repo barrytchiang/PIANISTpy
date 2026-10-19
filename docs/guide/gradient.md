@@ -1,6 +1,6 @@
 # End-to-end differentiability
 
-Source: https://pianistpy.com/docs/guide/gradient.html
+Source: https://pianistpy.com/docs/guide/gradient
 
 # End-to-end differentiability
 

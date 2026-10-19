@@ -1,6 +1,6 @@
 # Upcoming features
 
-Source: https://pianistpy.com/docs/project/roadmap.html
+Source: https://pianistpy.com/docs/project/roadmap
 
 # Upcoming features
 

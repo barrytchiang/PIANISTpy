@@ -1,6 +1,6 @@
 # User guide
 
-Source: https://pianistpy.com/docs/guide/index.html
+Source: https://pianistpy.com/docs/guide/
 
 # User guide
 

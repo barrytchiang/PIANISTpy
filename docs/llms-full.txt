@@ -1,6 +1,6 @@
 # Citation
 
-Source: https://pianistpy.com/docs/citation/index.html
+Source: https://pianistpy.com/docs/citation/
 
 # Citation
 
@@ -15,7 +15,7 @@ License and authors
 
 # Accuracy
 
-Source: https://pianistpy.com/docs/guide/accuracy.html
+Source: https://pianistpy.com/docs/guide/accuracy
 
 # Accuracy
 
@@ -43,7 +43,7 @@ Flags and refusals
 
 # Velocity anisotropy
 
-Source: https://pianistpy.com/docs/guide/anisotropy.html
+Source: https://pianistpy.com/docs/guide/anisotropy
 
 # Velocity anisotropy
 
@@ -80,7 +80,7 @@ extension (Upcoming features).
 
 # Line-of-sight velocity distribution in an aperture
 
-Source: https://pianistpy.com/docs/guide/aperture_losvd.html
+Source: https://pianistpy.com/docs/guide/aperture_losvd
 
 # Line-of-sight velocity distribution in an aperture
 
@@ -153,7 +153,7 @@ pp.aperture_losvd(table, pp.Aperture.circle(r_ape=1.0, r_off=10.0), v)   # an of
 
 # Distribution functions
 
-Source: https://pianistpy.com/docs/guide/df.html
+Source: https://pianistpy.com/docs/guide/df
 
 # Distribution functions
 
@@ -207,7 +207,7 @@ projected.
 
 # Differentiable observables
 
-Source: https://pianistpy.com/docs/guide/differentiable.html
+Source: https://pianistpy.com/docs/guide/differentiable
 
 # Differentiable observables
 
@@ -295,7 +295,7 @@ The two agree to the difference’s own error; each of the two shifted theta is 
 
 # Input and output
 
-Source: https://pianistpy.com/docs/guide/files.html
+Source: https://pianistpy.com/docs/guide/files
 
 # Input and output
 
@@ -312,7 +312,7 @@ the exception carries the distribution function for inspection.
 
 # End-to-end differentiability
 
-Source: https://pianistpy.com/docs/guide/gradient.html
+Source: https://pianistpy.com/docs/guide/gradient
 
 # End-to-end differentiability
 
@@ -465,7 +465,7 @@ call of table solves the inversion again at the new parameters on the held grid.
 
 # User guide
 
-Source: https://pianistpy.com/docs/guide/index.html
+Source: https://pianistpy.com/docs/guide/
 
 # User guide
 
@@ -493,7 +493,7 @@ Runtime options (set_platform, set_workers, ...)
 
 # The prepared table
 
-Source: https://pianistpy.com/docs/guide/lostable.html
+Source: https://pianistpy.com/docs/guide/lostable
 
 # The prepared table
 
@@ -588,7 +588,7 @@ circle of radius 0.5) about as long again.
 
 # Line-of-sight velocity distribution
 
-Source: https://pianistpy.com/docs/guide/losvd.html
+Source: https://pianistpy.com/docs/guide/losvd
 
 # Line-of-sight velocity distribution
 
@@ -657,7 +657,7 @@ pp.losvd(table, np.array([[0.1], [1.0], [10.0]]), v).shape   # (3, 3001): radii 
 
 # Models
 
-Source: https://pianistpy.com/docs/guide/models.html
+Source: https://pianistpy.com/docs/guide/models
 
 # Models
 
@@ -677,7 +677,7 @@ Truncation in phase space (truncate, solve)
 
 # Observables
 
-Source: https://pianistpy.com/docs/guide/observables.html
+Source: https://pianistpy.com/docs/guide/observables
 
 # Observables
 
@@ -747,7 +747,7 @@ Differentiable observables (Differentiable)
 
 # Particles
 
-Source: https://pianistpy.com/docs/guide/particles.html
+Source: https://pianistpy.com/docs/guide/particles
 
 # Particles
 
@@ -888,7 +888,7 @@ measured, not imposed: each table’s own report is the verdict.
 
 # Local speed distribution
 
-Source: https://pianistpy.com/docs/guide/pdf_v.html
+Source: https://pianistpy.com/docs/guide/pdf_v
 
 # Local speed distribution
 
@@ -961,7 +961,7 @@ pp.pdf_v(physical, 500.0, [10.0, 50.0, 100.0])             # per km/s, at 500 pc
 
 # Density profiles
 
-Source: https://pianistpy.com/docs/guide/profiles.html
+Source: https://pianistpy.com/docs/guide/profiles
 
 # Density profiles
 
@@ -992,7 +992,7 @@ in this version, and the component is refused by name (OUTER SLOPE).
 
 # Flags and refusals
 
-Source: https://pianistpy.com/docs/guide/results.html
+Source: https://pianistpy.com/docs/guide/results
 
 # Flags and refusals
 
@@ -1056,7 +1056,7 @@ timing (the wall time of each stage) and, on a file, the backend that made it.
 
 # Radial velocity dispersion
 
-Source: https://pianistpy.com/docs/guide/sigma_r.html
+Source: https://pianistpy.com/docs/guide/sigma_r
 
 # Radial velocity dispersion
 
@@ -1118,7 +1118,7 @@ pp.sigma_r(physical, [50.0, 500.0, 5000.0])   # parsecs in, km/s out
 
 # Tangential velocity dispersion
 
-Source: https://pianistpy.com/docs/guide/sigma_t.html
+Source: https://pianistpy.com/docs/guide/sigma_t
 
 # Tangential velocity dispersion
 
@@ -1174,7 +1174,7 @@ np.max(np.abs(beta - 0.25))   # rounding
 
 # Superposition and inference
 
-Source: https://pianistpy.com/docs/guide/superposition.html
+Source: https://pianistpy.com/docs/guide/superposition
 
 # Superposition and inference
 
@@ -1224,7 +1224,7 @@ What the likelihood is differentiable in, through which observables, and at what
 
 # Runtime options
 
-Source: https://pianistpy.com/docs/guide/switches.html
+Source: https://pianistpy.com/docs/guide/switches
 
 # Runtime options
 
@@ -1256,7 +1256,7 @@ is and clears it.
 
 # Truncation in phase space
 
-Source: https://pianistpy.com/docs/guide/truncation.html
+Source: https://pianistpy.com/docs/guide/truncation
 
 # Truncation in phase space
 
@@ -1327,7 +1327,7 @@ technical notes derive it (Technical notes).
 
 # Units
 
-Source: https://pianistpy.com/docs/guide/units.html
+Source: https://pianistpy.com/docs/guide/units
 
 # Units
 
@@ -1338,14 +1338,14 @@ without recomputing it, and what is computed from it is returned in that system.
 
 Three inputs of a truncation are given in the units that are natural for them, as their documentation states:
 the truncation energy k_t in internal units, a target radius r_t in units of the scale radius, and a
-target mass mass_t in units of \(M_0\), together with the concentration that defines M_0.
+target mass mass_t in units of \(M_0\), together with the concentration that defines \(M_0\).
 
 
 ---
 
 # Examples
 
-Source: https://pianistpy.com/docs/notebooks/index.html
+Source: https://pianistpy.com/docs/notebooks/
 
 # Examples
 
@@ -1383,7 +1383,7 @@ with its analysis and plotting scripts inside it. A link follows once it is merg
 
 # Compute observables from a model
 
-Source: https://pianistpy.com/docs/notebooks/tutorials/observables.html
+Source: https://pianistpy.com/docs/notebooks/tutorials/observables
 
 # Compute observables from a model
 
@@ -1462,7 +1462,7 @@ pp.sigma_los_aperture(
 
 # Generate particle initial conditions
 
-Source: https://pianistpy.com/docs/notebooks/tutorials/particles.html
+Source: https://pianistpy.com/docs/notebooks/tutorials/particles
 
 # Generate particle initial conditions
 
@@ -1541,7 +1541,7 @@ True
 
 # Accuracy by release
 
-Source: https://pianistpy.com/docs/project/accuracy.html
+Source: https://pianistpy.com/docs/project/accuracy
 
 # Accuracy by release
 
@@ -1590,7 +1590,7 @@ CSV, members
 
 # Release notes
 
-Source: https://pianistpy.com/docs/project/changelog.html
+Source: https://pianistpy.com/docs/project/changelog
 
 # Release notes
 
@@ -1744,7 +1744,7 @@ the declared bound is the joint one above. Python 3.12 and 3.13 pass.
 
 # How to cite
 
-Source: https://pianistpy.com/docs/project/citing.html
+Source: https://pianistpy.com/docs/project/citing
 
 # How to cite
 
@@ -1756,7 +1756,7 @@ citation entry, the arXiv link and the DOI of the software release are added wit
 
 # Contributing
 
-Source: https://pianistpy.com/docs/project/contributing.html
+Source: https://pianistpy.com/docs/project/contributing
 
 # Contributing
 
@@ -1813,7 +1813,7 @@ checks of that tier.
 
 # Development
 
-Source: https://pianistpy.com/docs/project/index.html
+Source: https://pianistpy.com/docs/project/
 
 # Development
 
@@ -1833,7 +1833,7 @@ Contributing
 
 # License and authors
 
-Source: https://pianistpy.com/docs/project/license.html
+Source: https://pianistpy.com/docs/project/license
 
 # License and authors
 
@@ -1847,7 +1847,7 @@ PIANISTpy is written and maintained by Barry T. Chiang (Yale University), barryt
 
 # Upcoming features
 
-Source: https://pianistpy.com/docs/project/roadmap.html
+Source: https://pianistpy.com/docs/project/roadmap
 
 # Upcoming features
 
@@ -1866,7 +1866,7 @@ The technical notes rendered as pages of this manual.
 
 # Accuracy tables
 
-Source: https://pianistpy.com/docs/reference/accuracy.html
+Source: https://pianistpy.com/docs/reference/accuracy
 
 # Accuracy tables
 
@@ -2698,7 +2698,7 @@ refusedResultError†
 
 # Velocity anisotropy (pianistpy.anisotropy)
 
-Source: https://pianistpy.com/docs/reference/api/anisotropy.html
+Source: https://pianistpy.com/docs/reference/api/anisotropy
 
 # Velocity anisotropy (pianistpy.anisotropy)
 
@@ -2822,7 +2822,7 @@ Anisotropy
 
 # Distribution functions and models (pianistpy.df)
 
-Source: https://pianistpy.com/docs/reference/api/df.html
+Source: https://pianistpy.com/docs/reference/api/df
 
 # Distribution functions and models (pianistpy.df)
 
@@ -3333,7 +3333,7 @@ InputError – If the DF comes from a function (DistributionFunction.from_functi
 
 # Exceptions (pianistpy.exceptions)
 
-Source: https://pianistpy.com/docs/reference/api/exceptions.html
+Source: https://pianistpy.com/docs/reference/api/exceptions
 
 # Exceptions (pianistpy.exceptions)
 
@@ -3431,7 +3431,7 @@ None
 
 # Functions by subpackage
 
-Source: https://pianistpy.com/docs/reference/api/index.html
+Source: https://pianistpy.com/docs/reference/api/
 
 # Functions by subpackage
 
@@ -3470,7 +3470,7 @@ Numerics (pianistpy.numerics)
 
 # Inference (pianistpy.inference)
 
-Source: https://pianistpy.com/docs/reference/api/inference.html
+Source: https://pianistpy.com/docs/reference/api/inference
 
 # Inference (pianistpy.inference)
 
@@ -3696,7 +3696,7 @@ The value of likelihood at the model’s own weights and scales.
 
 # Results and files (pianistpy.io)
 
-Source: https://pianistpy.com/docs/reference/api/io.html
+Source: https://pianistpy.com/docs/reference/api/io
 
 # Results and files (pianistpy.io)
 
@@ -3906,7 +3906,7 @@ None
 
 # Numerics (pianistpy.numerics)
 
-Source: https://pianistpy.com/docs/reference/api/numerics.html
+Source: https://pianistpy.com/docs/reference/api/numerics
 
 # Numerics (pianistpy.numerics)
 
@@ -4118,7 +4118,7 @@ Examples
 
 # Observables (pianistpy.observables)
 
-Source: https://pianistpy.com/docs/reference/api/observables.html
+Source: https://pianistpy.com/docs/reference/api/observables
 
 # Observables (pianistpy.observables)
 
@@ -4903,7 +4903,7 @@ Read as sigma_r is; of a superposition, \(\sigma_{\rm t}^2 =
 
 # Particles (pianistpy.particles)
 
-Source: https://pianistpy.com/docs/reference/api/particles.html
+Source: https://pianistpy.com/docs/reference/api/particles
 
 # Particles (pianistpy.particles)
 
@@ -5163,7 +5163,7 @@ None
 
 # The package (pianistpy)
 
-Source: https://pianistpy.com/docs/reference/api/pianistpy.html
+Source: https://pianistpy.com/docs/reference/api/pianistpy
 
 # The package (pianistpy)
 
@@ -5177,7 +5177,7 @@ pages.
 
 # Density profiles (pianistpy.profiles)
 
-Source: https://pianistpy.com/docs/reference/api/profiles.html
+Source: https://pianistpy.com/docs/reference/api/profiles
 
 # Density profiles (pianistpy.profiles)
 
@@ -5682,7 +5682,7 @@ dict[str, Any]
 
 # Runtime options (pianistpy.runtime)
 
-Source: https://pianistpy.com/docs/reference/api/runtime.html
+Source: https://pianistpy.com/docs/reference/api/runtime
 
 # Runtime options (pianistpy.runtime)
 
@@ -5989,7 +5989,7 @@ bool
 
 # Settings (pianistpy.settings)
 
-Source: https://pianistpy.com/docs/reference/api/settings.html
+Source: https://pianistpy.com/docs/reference/api/settings
 
 # Settings (pianistpy.settings)
 
@@ -6175,7 +6175,7 @@ Settings
 
 # Superposition (pianistpy.superposition)
 
-Source: https://pianistpy.com/docs/reference/api/superposition.html
+Source: https://pianistpy.com/docs/reference/api/superposition
 
 # Superposition (pianistpy.superposition)
 
@@ -6281,7 +6281,7 @@ InputError – If fewer than two members are given, a weight is not positive and
 
 # Units (pianistpy.units)
 
-Source: https://pianistpy.com/docs/reference/api/units.html
+Source: https://pianistpy.com/docs/reference/api/units
 
 # Units (pianistpy.units)
 
@@ -6494,7 +6494,7 @@ True
 
 # Validation (pianistpy.validation)
 
-Source: https://pianistpy.com/docs/reference/api/validation.html
+Source: https://pianistpy.com/docs/reference/api/validation
 
 # Validation (pianistpy.validation)
 
@@ -6656,7 +6656,7 @@ Examples
 
 # API reference
 
-Source: https://pianistpy.com/docs/reference/index.html
+Source: https://pianistpy.com/docs/reference/
 
 # API reference
 
@@ -6675,7 +6675,7 @@ Technical notes
 
 # Technical notes
 
-Source: https://pianistpy.com/docs/reference/notes.html
+Source: https://pianistpy.com/docs/reference/notes
 
 # Technical notes
 
@@ -6692,7 +6692,7 @@ as pages of this manual is among the Upcoming features.
 
 # Settings tables
 
-Source: https://pianistpy.com/docs/reference/settings.html
+Source: https://pianistpy.com/docs/reference/settings
 
 # Settings tables
 
@@ -7368,7 +7368,7 @@ Tiers: default, quick. A field is overridden one at a time, pp.Settings(inversio
 
 # Names and paper symbols
 
-Source: https://pianistpy.com/docs/reference/symbols.html
+Source: https://pianistpy.com/docs/reference/symbols
 
 # Names and paper symbols
 
@@ -7532,7 +7532,7 @@ and physical (through Astropy); see Units.
 
 # Get started
 
-Source: https://pianistpy.com/docs/start/index.html
+Source: https://pianistpy.com/docs/start/
 
 # Get started
 
@@ -7551,7 +7551,7 @@ Flags and refusals; read it before relying on a result.
 
 # Install
 
-Source: https://pianistpy.com/docs/start/install.html
+Source: https://pianistpy.com/docs/start/install
 
 # Install
 
@@ -7762,7 +7762,7 @@ not measured
 
 # What PIANISTpy does
 
-Source: https://pianistpy.com/docs/start/overview.html
+Source: https://pianistpy.com/docs/start/overview
 
 # What PIANISTpy does
 
@@ -7796,7 +7796,7 @@ the scales of the units.
 
 # Quick start
 
-Source: https://pianistpy.com/docs/start/quickstart.html
+Source: https://pianistpy.com/docs/start/quickstart
 
 # Quick start
 

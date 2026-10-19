@@ -1,6 +1,6 @@
 # Accuracy
 
-Source: https://pianistpy.com/docs/guide/accuracy.html
+Source: https://pianistpy.com/docs/guide/accuracy
 
 # Accuracy
 

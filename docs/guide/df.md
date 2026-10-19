@@ -1,6 +1,6 @@
 # Distribution functions
 
-Source: https://pianistpy.com/docs/guide/df.html
+Source: https://pianistpy.com/docs/guide/df
 
 # Distribution functions
 

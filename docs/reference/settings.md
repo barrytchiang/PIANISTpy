@@ -1,6 +1,6 @@
 # Settings tables
 
-Source: https://pianistpy.com/docs/reference/settings.html
+Source: https://pianistpy.com/docs/reference/settings
 
 # Settings tables
 

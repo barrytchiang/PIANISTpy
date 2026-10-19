@@ -1,6 +1,6 @@
 # Runtime options (pianistpy.runtime)
 
-Source: https://pianistpy.com/docs/reference/api/runtime.html
+Source: https://pianistpy.com/docs/reference/api/runtime
 
 # Runtime options (pianistpy.runtime)
 

@@ -1,6 +1,6 @@
 # Compute observables from a model
 
-Source: https://pianistpy.com/docs/notebooks/tutorials/observables.html
+Source: https://pianistpy.com/docs/notebooks/tutorials/observables
 
 # Compute observables from a model
 

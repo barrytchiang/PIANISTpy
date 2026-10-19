@@ -1,6 +1,6 @@
 # Differentiable observables
 
-Source: https://pianistpy.com/docs/guide/differentiable.html
+Source: https://pianistpy.com/docs/guide/differentiable
 
 # Differentiable observables
 

@@ -1,6 +1,6 @@
 # Density profiles
 
-Source: https://pianistpy.com/docs/guide/profiles.html
+Source: https://pianistpy.com/docs/guide/profiles
 
 # Density profiles
 

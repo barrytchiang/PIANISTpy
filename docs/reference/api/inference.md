@@ -1,6 +1,6 @@
 # Inference (pianistpy.inference)
 
-Source: https://pianistpy.com/docs/reference/api/inference.html
+Source: https://pianistpy.com/docs/reference/api/inference
 
 # Inference (pianistpy.inference)
 

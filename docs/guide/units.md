@@ -1,6 +1,6 @@
 # Units
 
-Source: https://pianistpy.com/docs/guide/units.html
+Source: https://pianistpy.com/docs/guide/units
 
 # Units
 
@@ -11,4 +11,4 @@ without recomputing it, and what is computed from it is returned in that system.
 
 Three inputs of a truncation are given in the units that are natural for them, as their documentation states:
 the truncation energy k_t in internal units, a target radius r_t in units of the scale radius, and a
-target mass mass_t in units of \(M_0\), together with the concentration that defines M_0.
+target mass mass_t in units of \(M_0\), together with the concentration that defines \(M_0\).

@@ -1,6 +1,6 @@
 # Numerics (pianistpy.numerics)
 
-Source: https://pianistpy.com/docs/reference/api/numerics.html
+Source: https://pianistpy.com/docs/reference/api/numerics
 
 # Numerics (pianistpy.numerics)
 
