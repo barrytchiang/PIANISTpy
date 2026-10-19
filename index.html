@@ -46,11 +46,6 @@ small,.small,figcaption{font-size:15px;color:var(--ink-3)}
 .hero-text h1{margin-top:0}
 .hero img{width:100%;max-width:416px;justify-self:start}
 .lead{font-size:19px;color:var(--ink-2)}
-.buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:14px}
-.btn{display:inline-block;padding:9px 16px;border-radius:6px;border:1px solid var(--accent);text-decoration:none;font-weight:500;font-size:18px}
-.btn.primary{background:var(--accent);color:var(--accent-ink)}
-.btn.primary:hover{background:var(--accent-2);border-color:var(--accent-2);color:#fff}
-.btn.soft{background:var(--accent-soft);color:var(--accent)}
 /* cards */
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:14px}
 .card{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:18px 18px 16px}
@@ -148,11 +143,6 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
     <div class="hero-text">
       <h1>Anisotropic spherical models, truncated in phase space</h1>
       <p class="lead">PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.</p>
-      <div class="buttons">
-        <a class="btn primary" href="docs/start/">Get started</a>
-        <a class="btn soft" href="docs/guide/">User guide</a>
-        <a class="btn soft" href="docs/reference/api/">API reference</a>
-      </div>
     </div>
   </section>
 
