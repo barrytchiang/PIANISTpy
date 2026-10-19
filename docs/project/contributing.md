@@ -24,7 +24,7 @@ python -m pip install pytest ruff mypy
 
 ```
 
-## Before you propose a change
+## Before proposing a change
 
 Read STYLE_GUIDE.md in the repository. It covers the names, the docstrings, the units, the numerical rules
 and the checklist that every change is held to.
@@ -33,7 +33,7 @@ Run the formatter and the linter (ruff format, ruff check, mypy).
 
 Run the tests, which include the examples in the docstrings (python -m pytest).
 
-Add a test for what you changed: a new function comes with a test of its result against an independent
+Add a test for the change: a new function comes with a test of its result against an independent
 reference, a closed form, a limit, or an identity that the result must satisfy.
 
 ## What a change must keep

@@ -302,9 +302,9 @@
 <p>Every result (a distribution function, a model, a set of particles) is an immutable object that holds what it
 was computed from: the inputs, the numerical settings and the version of the code. Its <code class="docutils literal notranslate"><span class="pre">write</span></code> method stores
 it in a single HDF5 file, and <code class="docutils literal notranslate"><span class="pre">pp.read(path)</span></code> returns an equal object, whatever kind of result the file holds.
-Nothing is written unless you ask.</p>
+Nothing is written unless requested.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">Model</span></code> is always a valid equilibrium. A request for which none exists raises <code class="docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code>, and
-the exception carries the distribution function so that you can inspect it.</p>
+the exception carries the distribution function for inspection.</p>
 </section>
 
 

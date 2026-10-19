@@ -7,7 +7,7 @@ What PIANISTpy does
   models, radially biased (Type I) or tangentially biased (Type II).
 - **Distribution functions.** The distribution function (DF) of each model, from the analytic inversion of its
   density, returned whether or not it is physical, with a statement of where it is not.
-- **Truncation in phase space.** Method I truncates a model's own DF at an energy you give, or at the energy that
+- **Truncation in phase space.** Method I truncates a model's own DF at a user-specified energy, or at the energy that
   yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
   truncated.
 - **Particles.** Positions and velocities drawn by inversion, with no rejection step, and reproducible particle

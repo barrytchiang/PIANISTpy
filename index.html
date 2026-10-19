@@ -150,23 +150,23 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
     <div class="cards">
       <div class="card">
         <h3>Install</h3>
-        <p><code>pip install pianistpy</code>. Python 3.11 or later; JAX on the CPU everywhere, and a GPU, where one is available, speeds up the particle sampler.</p>
+        <p><code>pip install pianistpy</code>. Python 3.11 or later. Runs on the CPU everywhere, with optional GPU acceleration.</p>
         <a href="docs/start/install.html">Requirements and platforms &rarr;</a>
       </div>
       <div class="card">
         <h3>Quick start</h3>
-        <p>A density profile and an anisotropy to a distribution function, a truncated model, particles and observables in a few lines.</p>
+        <p>From an input density profile and anisotropy model to the distribution function, a phase-space-truncated model, particle initial conditions and velocity observables, in a few lines.</p>
         <a href="docs/start/quickstart.html">Run the example &rarr;</a>
       </div>
       <div class="card">
         <h3>Examples</h3>
-        <p>Notebooks that run a whole job, and one per figure of the paper, run against this release.</p>
+        <p>Jupyter notebooks with worked examples for each feature, and reproductions of the figures in the initial release paper.</p>
         <a href="docs/notebooks/">Open the examples &rarr;</a>
       </div>
       <div class="card">
-        <h3>Citation</h3>
-        <p>The method, its accuracy and its benchmarks. Cite it when you use PIANISTpy.</p>
-        <a href="#paper">How to cite &rarr;</a>
+        <h3>Accuracy</h3>
+        <p>The accuracy tier of each model in the release's accuracy grid, with every refusal named.</p>
+        <a href="docs/reference/accuracy.html">See the accuracy tables &rarr;</a>
       </div>
     </div>
   </section>
@@ -177,7 +177,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
       <li><a href="docs/guide/profiles.html"><b>Density profiles.</b></a> Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and Plummer profiles as named presets.</li>
       <li><a href="docs/guide/anisotropy.html"><b>Velocity anisotropy.</b></a> Isotropic, constant, Osipkov-Merritt, and the generalized Osipkov-Merritt (Cuddeford) models, radially biased (Type I) or tangentially biased (Type II).</li>
       <li><a href="docs/guide/df.html"><b>Distribution functions.</b></a> The distribution function of each model, from the analytic inversion of its density, returned whether or not it is physical, with a statement of where it is not.</li>
-      <li><a href="docs/guide/truncation.html"><b>Truncation in phase space.</b></a> Method I truncates a model's own distribution function at an energy you give, or at the energy that yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already truncated.</li>
+      <li><a href="docs/guide/truncation.html"><b>Truncation in phase space.</b></a> Method I truncates a model's own distribution function at a user-specified energy, or at the energy that yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already truncated.</li>
       <li><a href="docs/guide/particles.html"><b>Particles.</b></a> Positions and velocities drawn by inversion, with no rejection step, and reproducible particle by particle.</li>
       <li><a href="docs/guide/observables.html"><b>Observables.</b></a> Intrinsic and line-of-sight velocity dispersions, line-of-sight velocity distributions, and their averages over apertures.</li>
       <li><a href="docs/guide/superposition.html#superposition"><b>Superposition.</b></a> Distribution functions inverted from one truncated density, combined with positive weights that sum to one into one equilibrium model.</li>
@@ -194,7 +194,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
   <section id="paper">
     <h2>Citation</h2>
     <p>PIANISTpy is described in Chiang, van den Bosch and Schive (2026), Monthly Notices of the Royal Astronomical Society, submitted. The citation entry, the arXiv link and the software DOI are added with version 1.0.0.</p>
-    <p><a href="docs/project/citing.html">Citing PIANISTpy &rarr;</a></p>
+    <p><a href="docs/project/citing.html">How to cite &rarr;</a></p>
   </section>
 
   <footer>

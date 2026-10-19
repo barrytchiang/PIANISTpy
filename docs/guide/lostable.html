@@ -348,7 +348,8 @@ along the line of sight ran out of doublings before its tests passed (beyond the
 the table’s estimate of its reading between rows; and <code class="docutils literal notranslate"><span class="pre">layer_floor</span></code>, the error at which the quadrature’s layers
 toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
 center (below the goal: a floor above it is refused). The report’s tier is the worst of these and of the model’s own; a table
-above the goal says so in a warning when it is built (<a class="reference internal" href="accuracy.html"><span class="doc">Accuracy</span></a>). Intervals of projected radius that the
+above the goal says so in a warning when it is built (<a class="reference internal" href="accuracy.html"><span class="doc">Accuracy</span></a>), and a table beyond the hard limit (tier “refused”)
+is refused unless its settings ask for it (<code class="docutils literal notranslate"><span class="pre">Settings(write_anyway=True)</span></code>), as an aperture’s distribution is. Intervals of projected radius that the
 table could not certify are recorded in <code class="docutils literal notranslate"><span class="pre">table.table.r_uncertified</span></code>, and a request inside one is refused by name.</p>
 </section>
 <section id="example">
@@ -362,7 +363,7 @@ table could not certify are recorded in <code class="docutils literal notranslat
     <span class="n">settings</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">quick</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 <span class="p">)</span>
 <span class="n">table</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">LosTable</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>                     <span class="c1"># built once</span>
-<span class="n">table</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">tier</span>                          <span class="c1"># "goal", "ceiling" or "warning"</span>
+<span class="n">table</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">tier</span>                          <span class="c1"># "goal", "ceiling", "warning" or "refused"</span>
 <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">check</span><span class="o">.</span><span class="n">error</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">checks</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 <span class="n">circle</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
