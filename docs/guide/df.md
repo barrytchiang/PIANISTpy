@@ -20,8 +20,8 @@ df = pp.compute_df(halo)
 
 A distribution function from elsewhere, a fitting function or another code’s output, is certified the same way:
 DistributionFunction.from_function(component, f) takes f(k, depth), which returns the DF (not its
-logarithm) at an array of energies in internal units and their depths below the center, depth \(= P_0 -
-\mathcal{K}\) as the grid carries it (a fit in the depth near the center reads it there; a function of the
+logarithm) at an array of energies in internal units and their depths below the center,
+\(P_0 - \mathcal{K}\) (depth), as the grid carries it (a fit in the depth near the center reads it there; a function of the
 energy alone may ignore it), tabulates it on the energy grid compute_df places for that component
 and settings, and continues it beyond the table, signs it and validates it against the density exactly as the
 inversion’s own table. The function gives F only, so the table has no derivative column: its slopes are the

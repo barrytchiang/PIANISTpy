@@ -4,7 +4,7 @@ Local speed distribution
 :func:`pianistpy.pdf_v`, :class:`pianistpy.LosTable`
 
 ``pdf_v(source, r, v)`` returns the local speed distribution :math:`p(V\,|\,R)` at 3D radii: the probability density
-of the speed :math:`V = |\mathbf{V}|` of the tracers at a distance :math:`R` from the center. As in `Chiang et al. (2026d)`_, the
+of the speed :math:`V = |\mathbf{V}|` of the tracers at a distance :math:`R` from the center. As in |paper|, the
 density at a radius is split into the velocity angle :math:`\varphi` and the speed,
 
 .. math::
@@ -21,7 +21,7 @@ and the speed distribution is the inner density integrated over the angle, norma
 
 It integrates to one over :math:`V \geq 0`. Its support ends at the escape speed :math:`V_{\rm esc}(R)` for an
 isotropic, constant-anisotropy or Type I model; a Type II model holds orbits of negative energy as well, and its
-speeds reach :math:`V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}`. The radius :math:`R` of `Chiang et al. (2026d)`_ is ``r`` in the
+speeds reach :math:`V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}`. The radius :math:`R` of |paper| is ``r`` in the
 package.
 
 Arguments and units

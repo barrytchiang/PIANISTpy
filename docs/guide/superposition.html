@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -178,7 +178,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -301,7 +301,7 @@
 <h1>Superposition and inference<a class="headerlink" href="#superposition-and-inference" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.superpose()</span></code>, <a class="reference internal" href="../reference/api/inference#module-pianistpy.inference" title="pianistpy.inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pianistpy.inference</span></code></a></p>
 <section id="superposition">
-<h2>Superposition<a class="headerlink" href="#superposition" title="Link to this heading">#</a></h2>
+<span id="guide-superposition"></span><h2>Superposition<a class="headerlink" href="#superposition" title="Link to this heading">#</a></h2>
 <p>Distribution functions inverted from one truncated density (Method II children of one parent), combined with
 positive weights that sum to one, are one equilibrium model in that density. <code class="docutils literal notranslate"><span class="pre">superpose</span></code> returns it as a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>, so everything downstream (particles, observables, files) takes it unchanged.</p>
@@ -314,7 +314,7 @@ positive weights that sum to one, are one equilibrium model in that density. <co
 a sum away from one is normalized with a warning.</p>
 </section>
 <section id="inference">
-<h2>Inference<a class="headerlink" href="#inference" title="Link to this heading">#</a></h2>
+<span id="guide-inference"></span><h2>Inference<a class="headerlink" href="#inference" title="Link to this heading">#</a></h2>
 <p><a class="reference internal" href="../reference/api/inference#module-pianistpy.inference" title="pianistpy.inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pianistpy.inference</span></code></a> gives the log-likelihood of a model against data as a JAX function of the
 components’ weights and the scales of the units, linear in the weights up to their normalization, so its
 gradient with respect to the weights is exact and cheap.</p>

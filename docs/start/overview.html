@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -178,7 +178,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -275,24 +275,24 @@
                   
   <section id="what-pianistpy-does">
 <h1>What PIANISTpy does<a class="headerlink" href="#what-pianistpy-does" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p><strong>Density profiles.</strong> Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
-Plummer profiles as named presets.</p></li>
-<li><p><strong>Velocity anisotropy.</strong> Isotropic, constant, Osipkov-Merritt, and the generalized Osipkov-Merritt (Cuddeford)
-models, radially biased (Type I) or tangentially biased (Type II).</p></li>
-<li><p><strong>Distribution functions.</strong> The distribution function (DF) of each model, from the analytic inversion of its
-density, returned whether or not it is physical, with a statement of where it is not.</p></li>
-<li><p><strong>Truncation in phase space.</strong> Method I truncates a model’s own DF at a user-specified energy, or at the energy that
-yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
-truncated.</p></li>
-<li><p><strong>Particles.</strong> Positions and velocities drawn by inversion, with no rejection step, and reproducible particle
-by particle.</p></li>
-<li><p><strong>Observables.</strong> Intrinsic and line-of-sight velocity dispersions, line-of-sight velocity distributions, and
-their averages over apertures.</p></li>
-<li><p><strong>Superposition.</strong> Distribution functions inverted from one truncated density (Method II children of one
-parent), combined with positive weights that sum to one into one equilibrium model.</p></li>
-<li><p><strong>Inference.</strong> The log-likelihood of a model against data, as a JAX function of the components’ weights and
-the scales of the units.</p></li>
+<ul class="features simple">
+<li><p><a class="reference internal" href="../guide/profiles"><span class="doc">Density profiles.</span></a> Any double power law in its three slopes, with the
+Navarro-Frenk-White, Hernquist and Plummer profiles as named presets.</p></li>
+<li><p><a class="reference internal" href="../guide/anisotropy"><span class="doc">Velocity anisotropy.</span></a> Isotropic, constant, Osipkov-Merritt, and the generalized
+Osipkov-Merritt (Cuddeford) models, radially biased (Type I) or tangentially biased (Type II).</p></li>
+<li><p><a class="reference internal" href="../guide/df"><span class="doc">Distribution functions.</span></a> The distribution function of each model, from the analytic
+inversion of its density, returned whether or not it is physical, with a statement of where it is not.</p></li>
+<li><p><a class="reference internal" href="../guide/truncation"><span class="doc">Truncation in phase space.</span></a> Method I truncates a model’s own distribution function
+at a user-specified energy, or at the energy that yields a target mass or a target radius. Method II gives a new
+anisotropy to a density that is already truncated.</p></li>
+<li><p><a class="reference internal" href="../guide/particles"><span class="doc">Particles.</span></a> Positions and velocities drawn by inversion, with no rejection step, and
+reproducible particle by particle.</p></li>
+<li><p><a class="reference internal" href="../guide/observables"><span class="doc">Observables.</span></a> Intrinsic and line-of-sight velocity dispersions, line-of-sight
+velocity distributions, and their averages over apertures.</p></li>
+<li><p><a class="reference internal" href="../guide/superposition#guide-superposition"><span class="std std-ref">Superposition.</span></a> Distribution functions inverted from one truncated density,
+combined with positive weights that sum to one into one equilibrium model.</p></li>
+<li><p><a class="reference internal" href="../guide/superposition#guide-inference"><span class="std std-ref">Inference.</span></a> The log-likelihood of a model against data, as a JAX function of the
+components’ weights and the scales of the units.</p></li>
 </ul>
 </section>
 

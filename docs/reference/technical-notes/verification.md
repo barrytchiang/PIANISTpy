@@ -14,7 +14,7 @@ The exact forms are certified against references that owe nothing to the numeric
 
 ## T:8.3 The roundtrip test
 
-The test of Chiang et al. (2026d), Section 4, shown in Chiang et al. (2026d), Fig. 8, starts from the untruncated isotropic NFW profile, computes the DF, integrates it to a density, and solves the Poisson equation with \(P(0) = 1\). Every curve is numerical, and the only analytical quantity is the target density.
+The test of Chiang+(2026d), Section 4, shown in Chiang+(2026d), Fig. 8, starts from the untruncated isotropic NFW profile, computes the DF, integrates it to a density, and solves the Poisson equation with \(P(0) = 1\). Every curve is numerical, and the only analytical quantity is the target density.
 
 PIANISTpy. The standard untruncated isotropic product: the inverted DF, the velocity quadrature, and a numerical Poisson solve.
 

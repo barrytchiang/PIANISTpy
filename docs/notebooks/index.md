@@ -18,16 +18,16 @@ Compute observables from a model
 Planned for 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
 fit a superposition to data; observables in an aperture of any shape.
 
-## Reproducing Chiang et al. (2026d)
+## Reproducing Chiang+(2026d)
 
-One notebook per figure of Chiang et al. (2026d), from the released package, with the tables and measured numbers the
+One notebook per figure of Chiang+(2026d), from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
 anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
 1.0.0 release.
 
 ## \(N\)-body tests with GAMER
 
-Under construction. The test problem used for the isolation runs of Chiang et al. (2026d) (and in Chiang et al. 2025, 2026a) is
+Under construction. The test problem used for the isolation runs of Chiang+(2026d) (and in Chiang et al. 2025, 2026a) is
 being prepared as a test problem of the GAMER code,
 with its analysis and plotting scripts inside it. A link follows once it is merged there.
 

@@ -493,7 +493,7 @@ Gauss-Legendre nodes of the angle integral of an L factor, the most a node takes
 
 n_sightline_nodes
 
-16
+12
 
 8
 
@@ -666,6 +666,22 @@ n_block_elements
 same
 
 Elements of one block of node pairs, energy nodes and angle nodes, which bounds the memory of a row.
+
+innermost_read_radius
+
+0
+
+same
+
+The smallest projected radius the table will be read at, in the model’s internal length unit: the rows start at the last base row inside the radius whose disk holds the accuracy goal times the projected mass inside this one, and a read inside the first row is refused. 0 keeps the rows from the profile’s innermost row, the full-depth table.
+
+outer_mass_share
+
+1e-06
+
+same
+
+Share of the total projected mass that may lie beyond the table’s last row: the rows end at the first base row beyond the radius outside which this share lies, and a read beyond the last row is refused. 0 keeps the rows to the model’s edge.
 
 Tiers: default, quick. A field is overridden one at a time, pp.Settings(inversion={'n_nodes': 800}); the result then records that it was made with custom settings and names the fields that differ.
 

@@ -3,6 +3,8 @@ Superposition and inference
 
 :func:`pianistpy.superpose`, :mod:`pianistpy.inference`
 
+.. _guide-superposition:
+
 Superposition
 -------------
 
@@ -18,6 +20,8 @@ positive weights that sum to one, are one equilibrium model in that density. ``s
 
 The shared density is enforced: members on different truncated profiles are refused. The weights are normalized;
 a sum away from one is normalized with a warning.
+
+.. _guide-inference:
 
 Inference
 ---------

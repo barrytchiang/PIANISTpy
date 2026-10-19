@@ -17,7 +17,7 @@ JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo infe
       :link: start/index
       :link-type: doc
 
-      Install, the requirements, the quick start.
+      Install, the dependencies, the quick start.
 
    .. grid-item-card:: User guide
       :link: guide/index
@@ -30,7 +30,7 @@ JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo infe
       :link: notebooks/index
       :link-type: doc
 
-      Notebooks that run a whole job, and one per figure of `Chiang et al. (2026d)`_, run against this release.
+      Notebooks that run a whole job, and one per figure of |paper|, run against this release.
 
    .. grid-item-card:: API reference
       :link: reference/index

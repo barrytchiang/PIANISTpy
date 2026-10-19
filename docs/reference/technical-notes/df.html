@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -313,7 +313,7 @@
 <span id="tn-sec-df"></span><h1>T:2 The distribution function<a class="headerlink" href="#t-2-the-distribution-function" title="Link to this heading">#</a></h1>
 <section id="t-2-1-the-inversion">
 <span id="tn-sec-forms"></span><h2>T:2.1 The inversion<a class="headerlink" href="#t-2-1-the-inversion" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a> gives the inversion in two forms: with the derivative outside the integral, Eq. (B22), and with the derivative inside the integral together with a surface term at <span class="math notranslate nohighlight">\(P = 0\)</span>, Eq. (B9). The second form follows from the first by one integration by parts and is simpler to evaluate. The integration by parts requires that</p>
+<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a> gives the inversion in two forms: with the derivative outside the integral, Eq. (B22), and with the derivative inside the integral together with a surface term at <span class="math notranslate nohighlight">\(P = 0\)</span>, Eq. (B9). The second form follows from the first by one integration by parts and is simpler to evaluate. The integration by parts requires that</p>
 <div class="math notranslate nohighlight" id="tn-eq-conditions">
 \begin{equation}
   \frac{\mathrm{d}^m\varrho_\mathrm{aux}}{\mathrm{d} P^m}\ \text{continuous on}\ [0, \mathcal{K}] \qquad\text{and}\qquad \int_0^{\mathcal{K}}\left|\frac{\mathrm{d}^{m+1}\varrho_\mathrm{aux}}{\mathrm{d} P^{m+1}}\right|(\mathcal{K}-P)^{-n}\,\mathrm{d} P &lt; \infty .
@@ -334,7 +334,7 @@
 <span id="tn-sec-asymptotics"></span><h2>T:2.2 Asymptotic behavior of the DF<a class="headerlink" href="#t-2-2-asymptotic-behavior-of-the-df" title="Link to this heading">#</a></h2>
 <section id="t-2-2-1-the-center-the-singular-part-of-one-power-law-term">
 <span id="tn-sec-center"></span><h3>T:2.2.1 The center: the singular part of one power-law term<a class="headerlink" href="#t-2-2-1-the-center-the-singular-part-of-one-power-law-term" title="Link to this heading">#</a></h3>
-<p>Consider a single term <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux} \supset A_s\,(P_0 - P)^{s}\)</span> of the expansion of <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> about the center. Its <span class="math notranslate nohighlight">\((m+1)\)</span>-th derivative is <span class="math notranslate nohighlight">\((-1)^{m+1} A_s\,[\Gamma(s+1)/\Gamma(s-m)]\,(P_0-P)^{s-m-1}\)</span>. With <span class="math notranslate nohighlight">\(t = \mathcal{K} - P\)</span>, the integral of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B9) becomes <span class="math notranslate nohighlight">\(\int_0^{\mathcal{K}} t^{-n} (u+t)^{s-m-1}\,\mathrm{d} t\)</span>, whose behavior as <span class="math notranslate nohighlight">\(u \to 0\)</span> follows from the Mellin-type integral</p>
+<p>Consider a single term <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux} \supset A_s\,(P_0 - P)^{s}\)</span> of the expansion of <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> about the center. Its <span class="math notranslate nohighlight">\((m+1)\)</span>-th derivative is <span class="math notranslate nohighlight">\((-1)^{m+1} A_s\,[\Gamma(s+1)/\Gamma(s-m)]\,(P_0-P)^{s-m-1}\)</span>. With <span class="math notranslate nohighlight">\(t = \mathcal{K} - P\)</span>, the integral of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B9) becomes <span class="math notranslate nohighlight">\(\int_0^{\mathcal{K}} t^{-n} (u+t)^{s-m-1}\,\mathrm{d} t\)</span>, whose behavior as <span class="math notranslate nohighlight">\(u \to 0\)</span> follows from the Mellin-type integral</p>
 <div class="math notranslate nohighlight" id="tn-eq-mellin">
 \begin{equation}
   \int_0^{\infty} t^{a-1}(u+t)^{-b}\,\mathrm{d} t = u^{a-b}\,\frac{\Gamma(a)\,\Gamma(b-a)}{\Gamma(b)},
@@ -360,7 +360,7 @@
 </section>
 <section id="t-2-2-2-the-regular-branch-gamma-2-beta-mathrm-c">
 <span id="tn-sec-regular"></span><h3>T:2.2.2 The regular branch, <span class="math notranslate nohighlight">\(\gamma &gt; 2\beta_\mathrm{c}\)</span><a class="headerlink" href="#t-2-2-2-the-regular-branch-gamma-2-beta-mathrm-c" title="Link to this heading">#</a></h3>
-<p>The leading term of <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> is <span class="math notranslate nohighlight">\(A\,(P_0-P)^{s_0}\)</span> with <span class="math notranslate nohighlight">\(s_0 = (2\beta_\mathrm{c} - \gamma)/(2-\gamma) &lt; 0\)</span>. <a class="reference internal" href="#tn-eq-singular"><span class="std std-ref">Eq. (T:2.5)</span></a> reproduces the exponent <span class="math notranslate nohighlight">\(\kappa\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B36) and supplies its amplitude,</p>
+<p>The leading term of <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> is <span class="math notranslate nohighlight">\(A\,(P_0-P)^{s_0}\)</span> with <span class="math notranslate nohighlight">\(s_0 = (2\beta_\mathrm{c} - \gamma)/(2-\gamma) &lt; 0\)</span>. <a class="reference internal" href="#tn-eq-singular"><span class="std std-ref">Eq. (T:2.5)</span></a> reproduces the exponent <span class="math notranslate nohighlight">\(\kappa\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B36) and supplies its amplitude,</p>
 <div class="math notranslate nohighlight" id="tn-eq-kappa-amplitude">
 \begin{equation}
   F_\mathcal{K} \simeq \frac{2^{\beta_\mathrm{c}}}{(2\pi)^{3/2}\,\Gamma(1-\beta_\mathrm{c})}\,A\,\frac{\Gamma(\nu - s_0)}{\Gamma(-s_0)}\,u^{\kappa},
@@ -370,7 +370,7 @@
 </section>
 <section id="t-2-2-3-the-critical-branch-gamma-2-beta-mathrm-c">
 <span id="tn-sec-critical"></span><h3>T:2.2.3 The critical branch, <span class="math notranslate nohighlight">\(\gamma = 2\beta_\mathrm{c}\)</span><a class="headerlink" href="#t-2-2-3-the-critical-branch-gamma-2-beta-mathrm-c" title="Link to this heading">#</a></h3>
-<p>By <a class="reference internal" href="model#tn-eq-inner-map"><span class="std std-ref">Eq. (T:1.1)</span></a>, <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux} = C_1 + C_2\,(P_0-P)^{\delta} + \dots\)</span> is a series in <span class="math notranslate nohighlight">\((P_0-P)^{\delta}\)</span>. The constant term has <span class="math notranslate nohighlight">\(s = 0\)</span> and no singular part. The next term has <span class="math notranslate nohighlight">\(s = \delta\)</span> and the exponent <span class="math notranslate nohighlight">\(\kappa' = \delta - \nu\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B37). <a class="reference internal" href="#tn-tab-critical"><span class="std std-ref">Table T:2.1</span></a> lists the cases; its last four rows assume that <span class="math notranslate nohighlight">\(\delta\)</span> is not an integer.</p>
+<p>By <a class="reference internal" href="model#tn-eq-inner-map"><span class="std std-ref">Eq. (T:1.1)</span></a>, <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux} = C_1 + C_2\,(P_0-P)^{\delta} + \dots\)</span> is a series in <span class="math notranslate nohighlight">\((P_0-P)^{\delta}\)</span>. The constant term has <span class="math notranslate nohighlight">\(s = 0\)</span> and no singular part. The next term has <span class="math notranslate nohighlight">\(s = \delta\)</span> and the exponent <span class="math notranslate nohighlight">\(\kappa' = \delta - \nu\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B37). <a class="reference internal" href="#tn-tab-critical"><span class="std std-ref">Table T:2.1</span></a> lists the cases; its last four rows assume that <span class="math notranslate nohighlight">\(\delta\)</span> is not an integer.</p>
 <div class="pst-scrollable-table-container"><span id="tn-tab-critical"></span><table class="table" id="id1">
 <caption><span class="caption-text">Table T:2.1. The central DF in the critical case <span class="math notranslate nohighlight">\(\gamma = 2\beta_\mathrm{c}\)</span>, for constant anisotropy and OM models.</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
 <thead>
@@ -404,7 +404,7 @@
 </table>
 </div>
 <ul class="simple">
-<li><p><em>Sign.</em> With <span class="math notranslate nohighlight">\(C_2 &lt; 0\)</span>, the divergence is toward negative values for <span class="math notranslate nohighlight">\(1 &lt; \delta &lt; \nu\)</span>, and also for <span class="math notranslate nohighlight">\(\kappa' = 0\)</span> with <span class="math notranslate nohighlight">\(\beta_\mathrm{c} &lt; 1/2\)</span>. Such models are unphysical even though they satisfy <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (12).</p></li>
+<li><p><em>Sign.</em> With <span class="math notranslate nohighlight">\(C_2 &lt; 0\)</span>, the divergence is toward negative values for <span class="math notranslate nohighlight">\(1 &lt; \delta &lt; \nu\)</span>, and also for <span class="math notranslate nohighlight">\(\kappa' = 0\)</span> with <span class="math notranslate nohighlight">\(\beta_\mathrm{c} &lt; 1/2\)</span>. Such models are unphysical even though they satisfy <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (12).</p></li>
 <li><p><em>The finite case at</em> <span class="math notranslate nohighlight">\(\kappa' = 0\)</span><em>.</em> This case requires <span class="math notranslate nohighlight">\(\delta = \nu\)</span> to be an integer. Within <span class="math notranslate nohighlight">\(0 \leq \gamma &lt; 2\)</span> it occurs only for <span class="math notranslate nohighlight">\(\alpha = 1\)</span>, <span class="math notranslate nohighlight">\(\gamma = 1\)</span>, <span class="math notranslate nohighlight">\(\beta_\mathrm{c} = 1/2\)</span>, which includes the NFW and Hernquist profiles.</p></li>
 <li><p><em>The local case.</em> For <span class="math notranslate nohighlight">\(n = 0\)</span> the inversion is the derivative of <a class="reference internal" href="#tn-eq-local"><span class="std std-ref">Eq. (T:2.2)</span></a>, and the non-local constant <span class="math notranslate nohighlight">\(F_\mathcal{K}(P_0)\)</span> is absent.</p></li>
 </ul>
@@ -435,7 +435,7 @@
 </section>
 <section id="t-2-2-6-the-outer-end-p-0">
 <span id="tn-sec-outer"></span><h3>T:2.2.6 The outer end, <span class="math notranslate nohighlight">\(P = 0\)</span><a class="headerlink" href="#t-2-2-6-the-outer-end-p-0" title="Link to this heading">#</a></h3>
-<p>Let <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux} \propto P^{\,y}\)</span> as <span class="math notranslate nohighlight">\(P \to 0\)</span>. Then <span class="math notranslate nohighlight">\(\mathrm{d}^m\varrho_\mathrm{aux}/\mathrm{d} P^m \propto P^{\,y-m}\)</span>, and the surface term of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B9)</p>
+<p>Let <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux} \propto P^{\,y}\)</span> as <span class="math notranslate nohighlight">\(P \to 0\)</span>. Then <span class="math notranslate nohighlight">\(\mathrm{d}^m\varrho_\mathrm{aux}/\mathrm{d} P^m \propto P^{\,y-m}\)</span>, and the surface term of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B9)</p>
 <div class="math notranslate nohighlight" id="tn-eq-surface">
 \begin{equation}
   \text{vanishes for}\ y &gt; m, \qquad \text{is finite for}\ y = m, \qquad \text{diverges for}\ y &lt; m .
@@ -478,7 +478,7 @@
 </section>
 <section id="t-2-2-7-the-tail-of-the-df-and-its-density">
 <span id="tn-sec-tail"></span><h3>T:2.2.7 The tail of the DF and its density<a class="headerlink" href="#t-2-2-7-the-tail-of-the-df-and-its-density" title="Link to this heading">#</a></h3>
-<p>For an untruncated (C)OM Type I model with <span class="math notranslate nohighlight">\(\beta &gt; 3\)</span>, <a class="reference internal" href="#tn-eq-y"><span class="std std-ref">Eq. (T:2.12)</span></a> and <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B25) give a power-law tail,</p>
+<p>For an untruncated (C)OM Type I model with <span class="math notranslate nohighlight">\(\beta &gt; 3\)</span>, <a class="reference internal" href="#tn-eq-y"><span class="std std-ref">Eq. (T:2.12)</span></a> and <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B25) give a power-law tail,</p>
 <div class="math notranslate nohighlight" id="tn-eq-tail-exponent">
 \begin{equation}
   F_\mathcal{K}(\mathcal{K}) \simeq A\,\mathcal{K}^{-a} \quad (\mathcal{K} \to 0), \qquad a = \nu - (\beta - 2) = \tfrac{7}{2} - \beta_\mathrm{c} - \beta ,
@@ -488,7 +488,7 @@
 \begin{equation}
   \varrho_\mathrm{aux}^{\rm tail}(P) = \frac{2\pi^{3/2}\,\Gamma(1-\beta_\mathrm{c})}{\Gamma(3/2-\beta_\mathrm{c})}\; 2^{\,\nu-1} A\, P^{\,\nu-a}\; B\!\left(\frac{q}{P};\, 1-a,\, \nu\right),
   \tag{T:2.14}
-\end{equation}</div><p>where <span class="math notranslate nohighlight">\(B(x; p, r) = \int_0^x t^{p-1}(1-t)^{r-1}\,\mathrm{d} t\)</span> is the incomplete Beta function. The integral converges for <span class="math notranslate nohighlight">\(a &lt; 1\)</span>. For <span class="math notranslate nohighlight">\(a \geq 1\)</span> the density integral diverges at <span class="math notranslate nohighlight">\(\mathcal{K} = 0\)</span>, and the untruncated model does not exist; a truncated model does exist, since the truncated DF of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B27) vanishes at its lower end.</p>
+\end{equation}</div><p>where <span class="math notranslate nohighlight">\(B(x; p, r) = \int_0^x t^{p-1}(1-t)^{r-1}\,\mathrm{d} t\)</span> is the incomplete Beta function. The integral converges for <span class="math notranslate nohighlight">\(a &lt; 1\)</span>. For <span class="math notranslate nohighlight">\(a \geq 1\)</span> the density integral diverges at <span class="math notranslate nohighlight">\(\mathcal{K} = 0\)</span>, and the untruncated model does not exist; a truncated model does exist, since the truncated DF of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B27) vanishes at its lower end.</p>
 </section>
 <section id="t-2-2-8-the-anisotropy-radius-of-a-type-ii-model">
 <span id="tn-sec-ra"></span><h3>T:2.2.8 The anisotropy radius of a Type II model<a class="headerlink" href="#t-2-2-8-the-anisotropy-radius-of-a-type-ii-model" title="Link to this heading">#</a></h3>
@@ -511,10 +511,10 @@
 \begin{equation}
   (j, n') = (m+1,\; n-1),
   \tag{T:2.16}
-\end{equation}</div><p>so that the kernel exponent always satisfies <span class="math notranslate nohighlight">\(|n'| \leq 1/2\)</span>; otherwise <span class="math notranslate nohighlight">\((j, n') = (m, n)\)</span>. With the higher order, the surface term can diverge as <span class="math notranslate nohighlight">\(P \to 0\)</span> (<a class="reference internal" href="#tn-sec-outer"><span class="std std-ref">Section T:2.2.6</span></a>) and cancel against the integral, so a replaced pair is evaluated in the general form, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B22), on every row.</p>
+\end{equation}</div><p>so that the kernel exponent always satisfies <span class="math notranslate nohighlight">\(|n'| \leq 1/2\)</span>; otherwise <span class="math notranslate nohighlight">\((j, n') = (m, n)\)</span>. With the higher order, the surface term can diverge as <span class="math notranslate nohighlight">\(P \to 0\)</span> (<a class="reference internal" href="#tn-sec-outer"><span class="std std-ref">Section T:2.2.6</span></a>) and cancel against the integral, so a replaced pair is evaluated in the general form, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B22), on every row.</p>
 </li>
 <li><p><em>Half-integer</em> <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span><em>.</em> For <span class="math notranslate nohighlight">\(n = 0\)</span> the closed form of <a class="reference internal" href="#tn-eq-local"><span class="std std-ref">Eq. (T:2.2)</span></a> is used, and no quadrature is performed.</p></li>
-<li><p><em>Interior point.</em> For an untruncated COM Type II model, the point <span class="math notranslate nohighlight">\(P(R_\mathrm{a})\)</span> and the exponent of <a class="reference internal" href="#tn-eq-ra-exponent"><span class="std std-ref">Eq. (T:2.15)</span></a> are known in closed form. Rows with <span class="math notranslate nohighlight">\(\mathcal{K} &lt; P(R_\mathrm{a})\)</span> use the form with the surface term, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B9); rows above it use the general form, with the integral split at <span class="math notranslate nohighlight">\(P(R_\mathrm{a})\)</span> and a Gauss-Jacobi rule on either side that carries the exponent as its weight. For odd integer <span class="math notranslate nohighlight">\(1-\beta_\mathrm{c}\)</span> the factor is a polynomial, and there is no such point.</p></li>
+<li><p><em>Interior point.</em> For an untruncated COM Type II model, the point <span class="math notranslate nohighlight">\(P(R_\mathrm{a})\)</span> and the exponent of <a class="reference internal" href="#tn-eq-ra-exponent"><span class="std std-ref">Eq. (T:2.15)</span></a> are known in closed form. Rows with <span class="math notranslate nohighlight">\(\mathcal{K} &lt; P(R_\mathrm{a})\)</span> use the form with the surface term, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B9); rows above it use the general form, with the integral split at <span class="math notranslate nohighlight">\(P(R_\mathrm{a})\)</span> and a Gauss-Jacobi rule on either side that carries the exponent as its weight. For odd integer <span class="math notranslate nohighlight">\(1-\beta_\mathrm{c}\)</span> the factor is a polynomial, and there is no such point.</p></li>
 <li><p><em>An unbounded outer end.</em> Where <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}^{(j)}\)</span> is unbounded at <span class="math notranslate nohighlight">\(P = 0\)</span>, the rows above a stated energy use the general form.</p></li>
 <li><p><em>All other rows</em> use the form with the surface term.</p></li>
 </ol>

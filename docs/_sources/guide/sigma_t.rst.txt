@@ -4,7 +4,7 @@ Tangential velocity dispersion
 :func:`pianistpy.sigma_t`, :class:`pianistpy.LosTable`
 
 ``sigma_t(source, r)`` returns the intrinsic tangential velocity dispersion :math:`\sigma_{\rm t}` at 3D radii, of both
-tangential components together, :math:`\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2`. As in `Chiang et al. (2026d)`_, it is the
+tangential components together, :math:`\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2`. As in |paper|, it is the
 tangential velocity moment of the augmented density,
 
 .. math::

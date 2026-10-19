@@ -4,7 +4,7 @@ Radial velocity dispersion
 :func:`pianistpy.sigma_r`, :class:`pianistpy.LosTable`
 
 ``sigma_r(source, r)`` returns the intrinsic radial velocity dispersion :math:`\sigma_{\rm r}` at 3D radii: the second
-moment of the radial velocity over the model's distribution function at a fixed radius. As in `Chiang et al. (2026d)`_, it is
+moment of the radial velocity over the model's distribution function at a fixed radius. As in |paper|, it is
 the velocity moment of the augmented density :math:`\varrho_{\rm aug}(P, R)` taken at the potential of the radius,
 
 .. math::
@@ -14,7 +14,7 @@ the velocity moment of the augmented density :math:`\varrho_{\rm aug}(P, R)` tak
 
 which for the anisotropy models of the package, whose augmented density separates as
 :math:`\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)`, is the Jeans integral of :math:`\varrho_{\rm aux}`
-over the potential. The radius :math:`R` of `Chiang et al. (2026d)`_ is ``r`` in the package.
+over the potential. The radius :math:`R` of |paper| is ``r`` in the package.
 
 Arguments and units
 -------------------

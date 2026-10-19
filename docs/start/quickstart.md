@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/start/quickstart
 
 # Quick start
 
-The example of the first figure of Chiang et al. (2026d): an NFW halo with a constant velocity anisotropy of 0.25, truncated in
+The example of the first figure of Chiang+(2026d): an NFW halo with a constant velocity anisotropy of 0.25, truncated in
 phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
 
 ```

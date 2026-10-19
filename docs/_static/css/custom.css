@@ -142,3 +142,6 @@ html[data-theme="dark"] table.acc .acc-flag { color: #F08A96; }
 /* The install page's chain table: a cell whose stage the code pins to the CPU shows its number grayed. */
 table.chain-table td:has(.pinned) { background: #EFEFEF; color: var(--site-gray); }
 html[data-theme="dark"] table.chain-table td:has(.pinned) { background: #2E2E2E; }
+
+/* "What PIANISTpy does": each feature's name, a link to its guide page, in bold as on the landing page. */
+ul.features > li > p > a:first-child { font-weight: 700; }

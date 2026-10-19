@@ -7,7 +7,7 @@ Source: https://pianistpy.com/docs/guide/sigma_t
 pianistpy.sigma_t(), pianistpy.LosTable
 
 sigma_t(source, r) returns the intrinsic tangential velocity dispersion \(\sigma_{\rm t}\) at 3D radii, of both
-tangential components together, \(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2\). As in Chiang et al. (2026d), it is the
+tangential components together, \(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2\). As in Chiang+(2026d), it is the
 tangential velocity moment of the augmented density,
 
 \[\sigma_{\rm t}^2(R) = \frac{2}{\varrho_{\rm aug}(P, R)} \int_0^{P}

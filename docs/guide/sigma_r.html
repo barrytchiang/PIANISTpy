@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -306,14 +306,14 @@
 <h1>Radial velocity dispersion<a class="headerlink" href="#radial-velocity-dispersion" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_r()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code></p>
 <p><code class="docutils literal notranslate"><span class="pre">sigma_r(source,</span> <span class="pre">r)</span></code> returns the intrinsic radial velocity dispersion <span class="math notranslate nohighlight">\(\sigma_{\rm r}\)</span> at 3D radii: the second
-moment of the radial velocity over the model’s distribution function at a fixed radius. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, it is
+moment of the radial velocity over the model’s distribution function at a fixed radius. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, it is
 the velocity moment of the augmented density <span class="math notranslate nohighlight">\(\varrho_{\rm aug}(P, R)\)</span> taken at the potential of the radius,</p>
 <div class="math notranslate nohighlight">
 \[\sigma_{\rm r}^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
 {\rm d}\mathcal{K}, \qquad P = P(R),\]</div>
 <p>which for the anisotropy models of the package, whose augmented density separates as
 <span class="math notranslate nohighlight">\(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\)</span>, is the Jeans integral of <span class="math notranslate nohighlight">\(\varrho_{\rm aux}\)</span>
-over the potential. The radius <span class="math notranslate nohighlight">\(R\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a> is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the package.</p>
+over the potential. The radius <span class="math notranslate nohighlight">\(R\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a> is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the package.</p>
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> (one component, or a superposition) or its prepared

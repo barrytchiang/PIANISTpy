@@ -4,13 +4,13 @@ Source: https://pianistpy.com/docs/reference/technical-notes/truncation
 
 # T:3 Truncation
 
-The two truncation methods are defined in Chiang et al. (2026d), Section 3.1.
+The two truncation methods are defined in Chiang+(2026d), Section 3.1.
 
 ## T:3.1 Type II models beyond the anisotropy radius
 
 The model is not defined for \(R > R_\mathrm{a}\). In the Type II variable \(Q_+\), the tangential velocity enters with the factor \(1 - R^2/R_\mathrm{a}^2\). For \(R > R_\mathrm{a}\) this factor is negative, the velocity integral diverges, and no DF of this form yields a density. An untruncated profile that extends beyond \(R_\mathrm{a}\) therefore has no Type II DF, whereas a truncated model with \(R_\mathrm{t} \leq R_\mathrm{a}\) is well defined.
 
-Method I nevertheless needs \(\varrho_\mathrm{aux}\) there. The inversion solves the Volterra equation Eq. (T:2.3), whose lower limit lies at \(R = \infty\). The values of \(\varrho_\mathrm{aux}\) on \(P > P(R_\mathrm{a})\) determine \(F_\mathcal{K}\) there only in combination with \(F_\mathcal{K}\) on \(P < P(R_\mathrm{a})\). Method I constructs the truncated DF from the untruncated one by the shift of Chiang et al. (2026d), Eq. (B27), and the contribution of the stretch \(0 < P < P(R_\mathrm{a})\) to \(F_\mathcal{K}\) depends on \(\mathcal{K}\), so it does not cancel in that difference. A value of \(\varrho_\mathrm{aux}\) must therefore be supplied on that stretch.
+Method I nevertheless needs \(\varrho_\mathrm{aux}\) there. The inversion solves the Volterra equation Eq. (T:2.3), whose lower limit lies at \(R = \infty\). The values of \(\varrho_\mathrm{aux}\) on \(P > P(R_\mathrm{a})\) determine \(F_\mathcal{K}\) there only in combination with \(F_\mathcal{K}\) on \(P < P(R_\mathrm{a})\). Method I constructs the truncated DF from the untruncated one by the shift of Chiang+(2026d), Eq. (B27), and the contribution of the stretch \(0 < P < P(R_\mathrm{a})\) to \(F_\mathcal{K}\) depends on \(\mathcal{K}\), so it does not cancel in that difference. A value of \(\varrho_\mathrm{aux}\) must therefore be supplied on that stretch.
 
 The continuation. For OM Type II, the factor \(1 - R^2/R_\mathrm{a}^2\) is a polynomial and is used as it stands. For COM Type II with non-integer \(1 - \beta_\mathrm{c}\), the factor \(w^{1-\beta_\mathrm{c}}\) is not real for \(w < 0\). PIANISTpy adopts the continuation
 
@@ -48,7 +48,7 @@ with the power law integrated in closed form by Eq. (T:2.14) and the remainder i
 
 ## T:3.3 The Poisson solve
 
-The truncated Poisson equation, Chiang et al. (2026d), Eq. (B28), is integrated outward in \(s = \ln r\) as a first-order system in \([\Phi,\; W = r\,\mathrm{d}\Phi/\mathrm{d} r,\; u = P_0 - \Phi]\), under relative and absolute tolerances of \(10^{-11}\), starting from the series of the cusp (Section T:1.2.2). The right-hand side is the density of Chiang et al. (2026d), Eq. (B29), read from the source table of Section T:3.2. The solve ends at the event where \(\Phi\) reaches the floor, which is the edge of a spatially finite model, or else at the outer radius; the last rows of a truncated model are re-solved on a grid geometric in \(R_\mathrm{t} - r\), and the row at the floor is the crossing of the event. A request whose solve reaches no edge within its radius is refused with a named reason. The solve is a serial integration, and it runs on the CPU on every device (Section T:0.5).
+The truncated Poisson equation, Chiang+(2026d), Eq. (B28), is integrated outward in \(s = \ln r\) as a first-order system in \([\Phi,\; W = r\,\mathrm{d}\Phi/\mathrm{d} r,\; u = P_0 - \Phi]\), under relative and absolute tolerances of \(10^{-11}\), starting from the series of the cusp (Section T:1.2.2). The right-hand side is the density of Chiang+(2026d), Eq. (B29), read from the source table of Section T:3.2. The solve ends at the event where \(\Phi\) reaches the floor, which is the edge of a spatially finite model, or else at the outer radius; the last rows of a truncated model are re-solved on a grid geometric in \(R_\mathrm{t} - r\), and the row at the floor is the crossing of the event. A request whose solve reaches no edge within its radius is refused with a named reason. The solve is a serial integration, and it runs on the CPU on every device (Section T:0.5).
 
 ## T:3.4 The fills and the rows of the profile
 
@@ -56,7 +56,7 @@ The rows of the solve are sparse where the potential approaches the floor and wh
 
 ## T:3.5 The gates on the truncation energy
 
-The truncation of Chiang et al. (2026d), Eq. (B27) requires a DF that is non-negative and non-decreasing above the truncation energy. From the computed untruncated DF, the code takes the highest zero crossing and the position of the last minimum, and it accepts a truncation energy only above the larger of the two and, for a Type II model, strictly above \(P(R_\mathrm{a})\) (Section T:3.1). The bound at \(P(R_\mathrm{a})\) is necessary but not sufficient: only the truncated solve places the edge, and a solve whose edge lies at or beyond \(R_\mathrm{a}\) is refused by the same name afterward. A truncation that no model can carry is refused before any stage runs: a cusp shallower than \(2\beta_\mathrm{c}(0)\) at the center, where the DF is negative there for every truncation (An & Evans 2006); a degenerate central series (Section T:2.5.1); and a central DF that tends to a negative value.
+The truncation of Chiang+(2026d), Eq. (B27) requires a DF that is non-negative and non-decreasing above the truncation energy. From the computed untruncated DF, the code takes the highest zero crossing and the position of the last minimum, and it accepts a truncation energy only above the larger of the two and, for a Type II model, strictly above \(P(R_\mathrm{a})\) (Section T:3.1). The bound at \(P(R_\mathrm{a})\) is necessary but not sufficient: only the truncated solve places the edge, and a solve whose edge lies at or beyond \(R_\mathrm{a}\) is refused by the same name afterward. A truncation that no model can carry is refused before any stage runs: a cusp shallower than \(2\beta_\mathrm{c}(0)\) at the center, where the DF is negative there for every truncation (An & Evans 2006); a degenerate central series (Section T:2.5.1); and a central DF that tends to a negative value.
 
 ## T:3.6 A target mass or a target radius
 

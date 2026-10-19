@@ -11,7 +11,7 @@ pip install pianistpy
 
 PIANISTpy needs Python 3.11 or later and runs on Linux, macOS and Windows.
 
-The test suite ships with the package. To run it on an installation:
+The test suite is installed with the package. To run it on an installation:
 
 ```
 pip install "pianistpy[test]"
@@ -19,10 +19,11 @@ pytest --pyargs pianistpy
 
 ```
 
-## Requirements
+## Dependencies
 
 The dependencies are installed by pip with the package. Two lists are kept with every release: the versions the
-release was developed and tested with, and the oldest versions that pass the full test suite.
+release was developed and tested with, and the oldest versions of the listed dependencies that pass the full test
+suite together.
 
 Package
 
@@ -90,14 +91,12 @@ Optimistix
 
 0.1.0
 
-The minimum list is measured one package at a time with the others at their newest, and then all the minimum
-versions together as one environment, which passes the suite; the standard list is the environment of the
-release. Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function NumPy 2.4 removed).
+Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function NumPy 2.4 removed).
 
 JAX is capped below 0.10.2, on which one test of the suite fails; pip installs the newest JAX below it. The
 standard list is the environment the continuous integration runs.
 
-## JAX and the GPU
+## CPU and GPU
 
 The package runs on the CPU everywhere and uses a GPU where the installed JAX supports one, with no setting to
 make. JAX’s CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
@@ -113,11 +112,12 @@ error begins Unable to initialize backend 'cuda'. Free the GPU, share it through
 
 A GPU speeds up the particle sampler and nothing else: the sampler’s speed table and the draw. The DF’s Poisson
 solve runs on the CPU on every platform: it is a serial ODE, and on a GPU each step would pay about a millisecond of
-launch latency, 50 to 200 times the CPU’s wall. The rows of the line-of-sight velocity table run in the worker pool on
-the CPU whatever the platform, and reading a built table takes the CPU’s wall.
+launch latency, 50 to 200 times the CPU’s wall-clock time. The rows of the line-of-sight velocity table run in the
+worker pool on the CPU whatever the platform, and reading a built table takes the CPU’s wall-clock time.
 
-The table below times one chain of calls, from a density profile to the observables, built as in Chiang et al.
-(2026d): an isotropic NFW parent truncated by Method I, and a child at constant \(\beta_{\rm c} = 0.2\) built
+## Fiducial benchmarks
+
+The table below times one chain of calls, from a density profile to the observables, built as in Chiang+(2026d): an isotropic NFW parent truncated by Method I, and a child at constant \(\beta_{\rm c} = 0.2\) built
 from it by Method II. Each row is the median of three calls after one warm call, except row 6, the table’s
 first build. The inputs are in internal units and every setting is at its default. The first two columns are one AMD Ryzen
 Threadripper PRO 5975WX (64 threads, 256 GB, Linux), on its CPU alone and then with its NVIDIA GeForce RTX 3080 Ti;
@@ -281,15 +281,15 @@ Peak memory (main process, largest worker)
 2.59 / 0.49 GiB
 
 Gray cells: the stage’s core runs on the CPU on every platform (the Poisson solve in rows 2 and 3, the table’s rows
-in the worker pool in row 6), and the number is the stage’s wall with the GPU present. On the model, sigma_r and sigma_t each run the model’s
+in the worker pool in row 6), and the number is the stage’s wall-clock time with the GPU present. On the model, sigma_r and sigma_t each run the model’s
 moments solve, and sigma_los and sigma_los_aperture each run that solve and the projection; nothing is kept
 on the model between calls, so each row is the cost of one call. The aperture rows from the
 table time a later call on the same aperture. The first call on a new aperture also finds the distribution
 function’s extrema at the radii the table has not met, once per aperture, and the first aperture call on a table
 starts its worker pool: on the Threadripper’s CPU the first call took 31.0 s.
 
-On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall. The rows on the
-model run the moments solve serially on one core, and there the wall of identical calls differs by up to half
+On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall-clock time. The rows
+on the model run the moments solve serially on one core, and there the wall-clock time of identical calls differs by up to half
 from one call to the next, so no ratio between the machines is given for them.
 
      On this page

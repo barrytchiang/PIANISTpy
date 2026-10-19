@@ -18,10 +18,10 @@ Tutorials
 Planned for 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
 fit a superposition to data; observables in an aperture of any shape.
 
-Reproducing Chiang et al. (2026d)
----------------------------------
+Reproducing |paper-name|
+------------------------
 
-One notebook per figure of `Chiang et al. (2026d)`_, from the released package, with the tables and measured numbers the
+One notebook per figure of |paper|, from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
 anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
 1.0.0 release.
@@ -29,7 +29,7 @@ anisotropy profile over the superposition weights; the observable mocks; the app
 :math:`N`-body tests with GAMER
 -------------------------------
 
-*Under construction.* The test problem used for the isolation runs of `Chiang et al. (2026d)`_ (and in `Chiang et al. 2025
+*Under construction.* The test problem used for the isolation runs of |paper| (and in `Chiang et al. 2025
 <https://academic.oup.com/mnras/article/544/1/36/8266513>`_, `2026a
 <https://astro.theoj.org/article/155367-universal-numerical-convergence-criteria-for-subhalo-tidal-evolution>`_) is
 being prepared as a test problem of the `GAMER <https://academic.oup.com/mnras/article/481/4/4815/5106358>`_ code,

@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -313,7 +313,7 @@
 <span id="tn-sec-principles"></span><h1>T:0 Principles and conventions<a class="headerlink" href="#t-0-principles-and-conventions" title="Link to this heading">#</a></h1>
 <section id="t-0-1-notation">
 <span id="tn-sec-notation"></span><h2>T:0.1 Notation<a class="headerlink" href="#t-0-1-notation" title="Link to this heading">#</a></h2>
-<p>We adopt the notation of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>. The relative potential is <span class="math notranslate nohighlight">\(P\)</span>, with the central value <span class="math notranslate nohighlight">\(P_0\)</span>; the energy-like variable is <span class="math notranslate nohighlight">\(\mathcal{K}\)</span>; the distribution function (DF) is <span class="math notranslate nohighlight">\(F(\mathcal{K}, L) = F_\mathcal{K}(\mathcal{K})\,L^{-2\beta_\mathrm{c}}\)</span>; the density is the double power law of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (5) with exponents <span class="math notranslate nohighlight">\((\alpha, \beta, \gamma)\)</span>; and <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> is the auxiliary density, which for the (C)OM models is given by <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B24). Three derived quantities are used throughout these notes. The first is the order of the inversion,</p>
+<p>We adopt the notation of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>. The relative potential is <span class="math notranslate nohighlight">\(P\)</span>, with the central value <span class="math notranslate nohighlight">\(P_0\)</span>; the energy-like variable is <span class="math notranslate nohighlight">\(\mathcal{K}\)</span>; the distribution function (DF) is <span class="math notranslate nohighlight">\(F(\mathcal{K}, L) = F_\mathcal{K}(\mathcal{K})\,L^{-2\beta_\mathrm{c}}\)</span>; the density is the double power law of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (5) with exponents <span class="math notranslate nohighlight">\((\alpha, \beta, \gamma)\)</span>; and <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> is the auxiliary density, which for the (C)OM models is given by <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B24). Three derived quantities are used throughout these notes. The first is the order of the inversion,</p>
 <div class="math notranslate nohighlight" id="tn-eq-order">
 \begin{equation}
   \nu \equiv \tfrac{3}{2} - \beta_\mathrm{c} = m + n, \qquad m \equiv \lfloor \nu \rfloor, \qquad 0 \leq n &lt; 1 ,
@@ -323,7 +323,7 @@
 \begin{equation}
   \delta \equiv \frac{\alpha}{2-\gamma}, \qquad u \equiv P_0 - \mathcal{K} .
   \tag{T:0.2}
-\end{equation}</div><p>Internally, every model is expressed in the units of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, in which the scale radius and the central potential of the untruncated profile are both unity; a truncated model therefore has <span class="math notranslate nohighlight">\(P_0 = 1 - \mathcal{K}_\mathrm{t}\)</span>. The depth <span class="math notranslate nohighlight">\(u\)</span> is carried as a variable of its own wherever the difference <span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> would lose significant digits.</p>
+\end{equation}</div><p>Internally, every model is expressed in the units of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, in which the scale radius and the central potential of the untruncated profile are both unity; a truncated model therefore has <span class="math notranslate nohighlight">\(P_0 = 1 - \mathcal{K}_\mathrm{t}\)</span>. The depth <span class="math notranslate nohighlight">\(u\)</span> is carried as a variable of its own wherever the difference <span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> would lose significant digits.</p>
 </section>
 <section id="t-0-2-rules-derived-from-the-inputs-not-fitted-constants">
 <span id="tn-sec-rules"></span><h2>T:0.2 Rules derived from the inputs, not fitted constants<a class="headerlink" href="#t-0-2-rules-derived-from-the-inputs-not-fitted-constants" title="Link to this heading">#</a></h2>

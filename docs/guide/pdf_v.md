@@ -7,7 +7,7 @@ Source: https://pianistpy.com/docs/guide/pdf_v
 pianistpy.pdf_v(), pianistpy.LosTable
 
 pdf_v(source, r, v) returns the local speed distribution \(p(V\,|\,R)\) at 3D radii: the probability density
-of the speed \(V = |\mathbf{V}|\) of the tracers at a distance \(R\) from the center. As in Chiang et al. (2026d), the
+of the speed \(V = |\mathbf{V}|\) of the tracers at a distance \(R\) from the center. As in Chiang+(2026d), the
 density at a radius is split into the velocity angle \(\varphi\) and the speed,
 
 \[\varrho(R) = 2\pi \int_0^\pi {\rm d}\varphi\; p_\varphi(\varphi\,|\,R)
@@ -20,7 +20,7 @@ and the speed distribution is the inner density integrated over the angle, norma
 
 It integrates to one over \(V \geq 0\). Its support ends at the escape speed \(V_{\rm esc}(R)\) for an
 isotropic, constant-anisotropy or Type I model; a Type II model holds orbits of negative energy as well, and its
-speeds reach \(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\). The radius \(R\) of Chiang et al. (2026d) is r in the
+speeds reach \(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\). The radius \(R\) of Chiang+(2026d) is r in the
 package.
 
 ## Arguments and units

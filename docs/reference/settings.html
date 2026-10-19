@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -178,7 +178,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -682,7 +682,7 @@ its group and nothing else; an override of an undeclared field, of the wrong typ
 <td><p>Gauss-Legendre nodes of the angle integral of an L factor, the most a node takes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_sightline_nodes</span></code></p></td>
-<td><p>16</p></td>
+<td><p>12</p></td>
 <td><p>8</p></td>
 <td><p>Gauss-Legendre nodes of each panel of the line-of-sight integral.</p></td>
 </tr>
@@ -790,6 +790,16 @@ its group and nothing else; an override of an undeclared field, of the wrong typ
 <td><p>25000</p></td>
 <td><p>same</p></td>
 <td><p>Elements of one block of node pairs, energy nodes and angle nodes, which bounds the memory of a row.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">innermost_read_radius</span></code></p></td>
+<td><p>0</p></td>
+<td><p>same</p></td>
+<td><p>The smallest projected radius the table will be read at, in the model’s internal length unit: the rows start at the last base row inside the radius whose disk holds the accuracy goal times the projected mass inside this one, and a read inside the first row is refused. 0 keeps the rows from the profile’s innermost row, the full-depth table.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">outer_mass_share</span></code></p></td>
+<td><p>1e-06</p></td>
+<td><p>same</p></td>
+<td><p>Share of the total projected mass that may lie beyond the table’s last row: the rows end at the first base row beyond the radius outside which this share lies, and a read beyond the last row is refused. 0 keeps the rows to the model’s edge.</p></td>
 </tr>
 </tbody>
 </table>

@@ -4,27 +4,27 @@ Source: https://pianistpy.com/docs/start/overview
 
 # What PIANISTpy does
 
-Density profiles. Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
-Plummer profiles as named presets.
+Density profiles. Any double power law in its three slopes, with the
+Navarro-Frenk-White, Hernquist and Plummer profiles as named presets.
 
-Velocity anisotropy. Isotropic, constant, Osipkov-Merritt, and the generalized Osipkov-Merritt (Cuddeford)
-models, radially biased (Type I) or tangentially biased (Type II).
+Velocity anisotropy. Isotropic, constant, Osipkov-Merritt, and the generalized
+Osipkov-Merritt (Cuddeford) models, radially biased (Type I) or tangentially biased (Type II).
 
-Distribution functions. The distribution function (DF) of each model, from the analytic inversion of its
-density, returned whether or not it is physical, with a statement of where it is not.
+Distribution functions. The distribution function of each model, from the analytic
+inversion of its density, returned whether or not it is physical, with a statement of where it is not.
 
-Truncation in phase space. Method I truncates a model’s own DF at a user-specified energy, or at the energy that
-yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
-truncated.
+Truncation in phase space. Method I truncates a model’s own distribution function
+at a user-specified energy, or at the energy that yields a target mass or a target radius. Method II gives a new
+anisotropy to a density that is already truncated.
 
-Particles. Positions and velocities drawn by inversion, with no rejection step, and reproducible particle
-by particle.
+Particles. Positions and velocities drawn by inversion, with no rejection step, and
+reproducible particle by particle.
 
-Observables. Intrinsic and line-of-sight velocity dispersions, line-of-sight velocity distributions, and
-their averages over apertures.
+Observables. Intrinsic and line-of-sight velocity dispersions, line-of-sight
+velocity distributions, and their averages over apertures.
 
-Superposition. Distribution functions inverted from one truncated density (Method II children of one
-parent), combined with positive weights that sum to one into one equilibrium model.
+Superposition. Distribution functions inverted from one truncated density,
+combined with positive weights that sum to one into one equilibrium model.
 
-Inference. The log-likelihood of a model against data, as a JAX function of the components’ weights and
-the scales of the units.
+Inference. The log-likelihood of a model against data, as a JAX function of the
+components’ weights and the scales of the units.

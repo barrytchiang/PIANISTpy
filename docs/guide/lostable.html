@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -309,10 +309,11 @@
 <p><code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> computes once what the observables of a model read: the intrinsic dispersion profile
 (<a class="reference internal" href="sigma_r"><span class="doc">Radial velocity dispersion</span></a>), the surface density <span class="math notranslate nohighlight">\(\Sigma(R_{\rm 2D})\)</span> and the line-of-sight dispersion
 <span class="math notranslate nohighlight">\(\sigma_{\rm los}(R_{\rm 2D})\)</span> over projected radius, and the table of line-of-sight velocity distributions
-<span class="math notranslate nohighlight">\(D(R_{\rm 2D}, V_{\rm los})\)</span> (<a class="reference internal" href="losvd"><span class="doc">Line-of-sight velocity distribution</span></a>) on rows of projected radius from the center to the model’s edge.
+<span class="math notranslate nohighlight">\(D(R_{\rm 2D}, V_{\rm los})\)</span> (<a class="reference internal" href="losvd"><span class="doc">Line-of-sight velocity distribution</span></a>) on rows of projected radius from the center outward (where the
+rows run, below).
 Every observable then takes the table in place of the model and reads from it, so a table is the object to build
 when a model is asked for more than one observable, or for one observable many times (a fit, a grid of apertures).</p>
-<p>As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, the dispersion inside an aperture is the surface-density weighted average of
+<p>As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, the dispersion inside an aperture is the surface-density weighted average of
 <span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span>; a centered circle of radius <span class="math notranslate nohighlight">\(R_{\rm ape}\)</span> gives</p>
 <div class="math notranslate nohighlight">
 \[\overline{\sigma}_{\rm los}^2(R_{\rm ape}) =
@@ -336,6 +337,18 @@ script, build the table (or call <code class="xref py py-func docutils literal n
 nothing is needed.</p>
 <p>What it holds: <code class="docutils literal notranslate"><span class="pre">model</span></code>; <code class="docutils literal notranslate"><span class="pre">profile</span></code>, <code class="docutils literal notranslate"><span class="pre">projected</span></code>, <code class="docutils literal notranslate"><span class="pre">kept</span></code> and <code class="docutils literal notranslate"><span class="pre">table</span></code>, the results of its four stages;
 <code class="docutils literal notranslate"><span class="pre">validation</span></code>, its report; <code class="docutils literal notranslate"><span class="pre">parts</span></code>, one table per component.</p>
+</section>
+<section id="where-the-rows-run">
+<h2>Where the rows run<a class="headerlink" href="#where-the-rows-run" title="Link to this heading">#</a></h2>
+<p>The rows end at the first row beyond which less than <code class="docutils literal notranslate"><span class="pre">losvd.outer_mass_share</span></code> of the model’s total projected
+mass lies (the accuracy goal, <span class="math notranslate nohighlight">\(10^{-6}\)</span>, by default). Inside, they start at the profile’s innermost row, unless
+<code class="docutils literal notranslate"><span class="pre">losvd.innermost_read_radius</span></code> names the smallest projected radius the table will be read at: the rows then start at
+the last row inside the radius whose disk holds the goal times the projected mass inside <code class="docutils literal notranslate"><span class="pre">innermost_read_radius</span></code>,
+and an aperture’s integral starts at that first row. Each row kept is the row the full table holds at its radius. A
+read beyond the last row or inside the first, at a point or over an aperture, is refused by name with that row’s
+radius and the setting that moves it; an aperture whose disk inside the first row carries more than the goal of its
+weight is refused with the smallest centered circle the table serves at the goal. <code class="docutils literal notranslate"><span class="pre">Settings(losvd={&quot;outer_mass_share&quot;:</span>
+<span class="pre">0})</span></code> keeps the rows to the model’s edge.</p>
 </section>
 <section id="tiers">
 <h2>Tiers<a class="headerlink" href="#tiers" title="Link to this heading">#</a></h2>
@@ -406,6 +419,7 @@ circle of radius 0.5) about as long again.</p>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments-and-units">Arguments and units</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-rows-run">Where the rows run</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tiers">Tiers</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>

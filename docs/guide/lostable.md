@@ -10,11 +10,12 @@ pianistpy.sigma_los_aperture(), pianistpy.sigma_r(), pianistpy.sigma_t(), pianis
 LosTable(model) computes once what the observables of a model read: the intrinsic dispersion profile
 (Radial velocity dispersion), the surface density \(\Sigma(R_{\rm 2D})\) and the line-of-sight dispersion
 \(\sigma_{\rm los}(R_{\rm 2D})\) over projected radius, and the table of line-of-sight velocity distributions
-\(D(R_{\rm 2D}, V_{\rm los})\) (Line-of-sight velocity distribution) on rows of projected radius from the center to the model’s edge.
+\(D(R_{\rm 2D}, V_{\rm los})\) (Line-of-sight velocity distribution) on rows of projected radius from the center outward (where the
+rows run, below).
 Every observable then takes the table in place of the model and reads from it, so a table is the object to build
 when a model is asked for more than one observable, or for one observable many times (a fit, a grid of apertures).
 
-As in Chiang et al. (2026d), the dispersion inside an aperture is the surface-density weighted average of
+As in Chiang+(2026d), the dispersion inside an aperture is the surface-density weighted average of
 \(\sigma_{\rm los}^2\); a centered circle of radius \(R_{\rm ape}\) gives
 
 \[\overline{\sigma}_{\rm los}^2(R_{\rm ape}) =
@@ -42,6 +43,18 @@ nothing is needed.
 
 What it holds: model; profile, projected, kept and table, the results of its four stages;
 validation, its report; parts, one table per component.
+
+## Where the rows run
+
+The rows end at the first row beyond which less than losvd.outer_mass_share of the model’s total projected
+mass lies (the accuracy goal, \(10^{-6}\), by default). Inside, they start at the profile’s innermost row, unless
+losvd.innermost_read_radius names the smallest projected radius the table will be read at: the rows then start at
+the last row inside the radius whose disk holds the goal times the projected mass inside innermost_read_radius,
+and an aperture’s integral starts at that first row. Each row kept is the row the full table holds at its radius. A
+read beyond the last row or inside the first, at a point or over an aperture, is refused by name with that row’s
+radius and the setting that moves it; an aperture whose disk inside the first row carries more than the goal of its
+weight is refused with the smallest centered circle the table serves at the goal. Settings(losvd={"outer_mass_share":
+0}) keeps the rows to the model’s edge.
 
 ## Tiers
 
