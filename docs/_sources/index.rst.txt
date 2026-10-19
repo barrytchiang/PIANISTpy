@@ -5,9 +5,10 @@ PIANISTpy
 conditions and observables of spherical systems with anisotropic velocities, truncated self-consistently in
 phase space.
 
-PIANISTpy builds equilibrium models of spherical systems (dark matter halos and subhalos, star clusters, dwarf
-galaxies) with a velocity anisotropy you choose. The outer boundary of a model is set in phase space, so the
-truncated model is itself an equilibrium and needs no relaxation run before it is used.
+PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in
+phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides
+distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with
+JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.
 
 .. grid:: 1 2 2 4
    :gutter: 3
