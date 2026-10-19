@@ -26,9 +26,11 @@ technical notes leave out: the distribution-function panels; the superposition f
 anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
 1.0.0 release.
 
-N-body tests with GAMER
------------------------
+:math:`N`-body tests with GAMER
+-------------------------------
 
-*Under construction.* The test problem used for the paper's isolation runs (and in Chiang et al. 2025, 2026a) is being prepared as a
-test problem of the GAMER code, with its analysis and plotting scripts inside it. A link follows once it is
-merged there.
+*Under construction.* The test problem used for the paper's isolation runs (and in `Chiang et al. 2025
+<https://academic.oup.com/mnras/article/544/1/36/8266513>`_, `2026a
+<https://astro.theoj.org/article/155367-universal-numerical-convergence-criteria-for-subhalo-tidal-evolution>`_) is
+being prepared as a test problem of the `GAMER <https://academic.oup.com/mnras/article/481/4/4815/5106358>`_ code,
+with its analysis and plotting scripts inside it. A link follows once it is merged there.

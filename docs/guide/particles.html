@@ -313,7 +313,8 @@ number of particles requested.</p>
 <span class="n">particles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"halo.txt"</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"text"</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The layouts: the native HDF5 file, read back by <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.read()</span></code>; GAMER’s particle file; a Gadget HDF5
+<p>The layouts: the native HDF5 file, read back by <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.read()</span></code>; the particle file of
+<a class="reference external" href="https://academic.oup.com/mnras/article/481/4/4815/5106358">GAMER</a>; a Gadget HDF5
 initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
 it with what it wrote before returning. A writer for another simulation code is one registered function.</p>
 <p>A model that is not spatially finite needs an explicit sampling radius; the result records the mass inside it

@@ -769,7 +769,8 @@ particles.write("halo.txt", layout="text")
 
 ```
 
-The layouts: the native HDF5 file, read back by pianistpy.read(); GAMER’s particle file; a Gadget HDF5
+The layouts: the native HDF5 file, read back by pianistpy.read(); the particle file of
+GAMER; a Gadget HDF5
 initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
 it with what it wrote before returning. A writer for another simulation code is one registered function.
 
@@ -1369,11 +1370,11 @@ technical notes leave out: the distribution-function panels; the superposition f
 anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
 1.0.0 release.
 
-## N-body tests with GAMER
+## \(N\)-body tests with GAMER
 
-Under construction. The test problem used for the paper’s isolation runs (and in Chiang et al. 2025, 2026a) is being prepared as a
-test problem of the GAMER code, with its analysis and plotting scripts inside it. A link follows once it is
-merged there.
+Under construction. The test problem used for the paper’s isolation runs (and in Chiang et al. 2025, 2026a) is
+being prepared as a test problem of the GAMER code,
+with its analysis and plotting scripts inside it. A link follows once it is merged there.
 
      On this page
 
@@ -1855,7 +1856,8 @@ What is planned or under development after the first release. The list is writte
 Several components in one potential, and tracers in a fixed potential: the package’s results, stages and files
 are shaped per component already; what is to be written is the theory.
 
-The N-body test problem of the paper’s isolation runs as a GAMER test problem, with its analysis scripts.
+The \(N\)-body test problem of the paper’s isolation runs as a
+GAMER test problem, with its analysis scripts.
 
 The technical notes rendered as pages of this manual.
 

@@ -25,10 +25,10 @@ technical notes leave out: the distribution-function panels; the superposition f
 anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
 1.0.0 release.
 
-## N-body tests with GAMER
+## \(N\)-body tests with GAMER
 
-Under construction. The test problem used for the paper’s isolation runs (and in Chiang et al. 2025, 2026a) is being prepared as a
-test problem of the GAMER code, with its analysis and plotting scripts inside it. A link follows once it is
-merged there.
+Under construction. The test problem used for the paper’s isolation runs (and in Chiang et al. 2025, 2026a) is
+being prepared as a test problem of the GAMER code,
+with its analysis and plotting scripts inside it. A link follows once it is merged there.
 
      On this page

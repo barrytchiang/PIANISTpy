@@ -18,7 +18,8 @@ number of particles requested.
    particles.write("halo_gadget.hdf5", layout="gadget")
    particles.write("halo.txt", layout="text")
 
-The layouts: the native HDF5 file, read back by :func:`pianistpy.read`; GAMER's particle file; a Gadget HDF5
+The layouts: the native HDF5 file, read back by :func:`pianistpy.read`; the particle file of
+`GAMER <https://academic.oup.com/mnras/article/481/4/4815/5106358>`_; a Gadget HDF5
 initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
 it with what it wrote before returning. A writer for another simulation code is one registered function.
 
