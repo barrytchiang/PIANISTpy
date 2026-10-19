@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=3a0a98d4" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
@@ -413,7 +413,10 @@ made in internal units and converted at the output only.</p>
 <dd class="field-odd"><p><a class="reference internal" href="#pianistpy.particles.Particles" title="pianistpy.particles.Particles">Particles</a></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a particle lies beyond the phase-space bound of its component.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If n is not a positive integer below 2^31.</p></li>
+<li><p><a class="reference internal" href="exceptions.html#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a particle lies beyond the phase-space bound of its component.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

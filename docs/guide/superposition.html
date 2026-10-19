@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=3a0a98d4" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
@@ -226,7 +226,7 @@
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd.html">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pdf_v.html">Local speed distribution (pdf_v)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="lostable.html">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient.html">Differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradient.html">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable.html">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
@@ -328,7 +328,7 @@ gradient with respect to the weights is exact and cheap.</p>
 <p>The members’ observables are computed once, in <code class="docutils literal notranslate"><span class="pre">likelihood</span></code>; each call of the returned function costs a
 fraction of a millisecond. A refused input inside the traced function (negative weights, a radius outside the
 table) gives minus infinity, never an exception, so a sampler over the weights sees a value.</p>
-<p>What the likelihood is differentiable in, through which observables, and at what accuracy: <a class="reference internal" href="gradient.html"><span class="doc">Differentiability</span></a>.</p>
+<p>What the likelihood is differentiable in, through which observables, and at what accuracy: <a class="reference internal" href="gradient.html"><span class="doc">End-to-end differentiability</span></a>.</p>
 </section>
 </section>
 

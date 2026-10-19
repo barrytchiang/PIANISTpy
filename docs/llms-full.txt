@@ -235,7 +235,7 @@ d.aperture_losvd(theta, aperture, v)   # as pp.aperture_losvd
 Everything is in internal units, whatever the model’s unit system: theta, as the likelihood’s, the radii and apertures
 a method reads, and the velocities it returns. d.theta is the model’s own anisotropy.
 
-The families are those of the distribution function’s own rule (Differentiability): constant anisotropy (beta_c; an
+The families are those of the distribution function’s own rule (End-to-end differentiability): constant anisotropy (beta_c; an
 isotropic or constant component’s R_a is held at its own, infinite, value with a zero gradient), Cuddeford Type I
 (beta_c and R_a), Osipkov-Merritt Type I and Type II (R_a). Refused at construction, each with an error that names it:
 Cuddeford Type II (its interior point at P(R_a) moves with both parameters), a superposition or a model of several
@@ -250,7 +250,7 @@ placement frozen, as the likelihood’s free components carry it: between two pl
 tolerance, which the derivative does not carry. Over an aperture the derivative is the aperture’s integral of the
 tangent rows of the squared dispersion, on the plain call’s own nodes and weights (the integral is linear in the
 rows). The line-of-sight velocity distribution, the speed distribution and the aperture’s line-of-sight velocity
-distribution take theirs through the distribution function’s own derivative (Differentiability), their placement frozen;
+distribution take theirs through the distribution function’s own derivative (End-to-end differentiability), their placement frozen;
 a member whose distribution function that rule refuses is named at construction, and these three methods raise with
 it. At a theta where the model is refused the value is not a number and its gradient zero. A method is not
 differentiable in its radii.
@@ -310,11 +310,11 @@ the exception carries the distribution function so that you can inspect it.
 
 ---
 
-# Differentiability
+# End-to-end differentiability
 
 Source: https://pianistpy.com/docs/guide/gradient.html
 
-# Differentiability
+# End-to-end differentiability
 
 pianistpy.inference.likelihood(), pianistpy.df.gradient.make_inversion_table,
 pianistpy.df.gradient.table_jacobian, pianistpy.df.gradient.make_inversion_rows,
@@ -737,7 +737,7 @@ Local speed distribution (pdf_v)
 
 The prepared table (LosTable)
 
-Differentiability
+End-to-end differentiability
 
 Differentiable observables (Differentiable)
 
@@ -1213,7 +1213,7 @@ The members’ observables are computed once, in likelihood; each call of the re
 fraction of a millisecond. A refused input inside the traced function (negative weights, a radius outside the
 table) gives minus infinity, never an exception, so a sampler over the weights sees a value.
 
-What the likelihood is differentiable in, through which observables, and at what accuracy: Differentiability.
+What the likelihood is differentiable in, through which observables, and at what accuracy: End-to-end differentiability.
 
      On this page
 
@@ -1618,7 +1618,7 @@ Ranged draws: a range of radii for Sampler (r_range), a range of speeds at given
 The likelihood of the inference is differentiable in the superposition weights, the unit scales and the
 anisotropy parameters (beta_c, R_a) of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
 through pp.Differentiable, the seven observables as JAX functions of those parameters
-(Differentiability).
+(End-to-end differentiability).
 
 The inference fits a superposition to Gauss-Hermite moments (h3, h4), at points or averaged over
 apertures, beside the binned data; a free component with moment data is refused, as with binned data.
@@ -1708,11 +1708,11 @@ One component per model at the public calls; several components in one potential
 The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with R_a.
 
 The gradient in the anisotropy parameters refuses a Method I truncated model, whose profile moves with them; a
-Method II model on a fixed parent takes it (Differentiability).
+Method II model on a fixed parent takes it (End-to-end differentiability).
 
 On a GPU, the derivative of losvd and aperture_losvd may refuse a row of the line-of-sight table by name
 (its transpose holds the row recomputed to the forward’s bit for bit); it never returns a wrong number
-(Differentiability).
+(End-to-end differentiability).
 
 Spherical, non-rotating systems with an analytical double-power-law parent profile.
 
@@ -5030,6 +5030,8 @@ Particles
 
 Raises:
 
+InputError – If n is not a positive integer below 2^31.
+
 ResultError – If a particle lies beyond the phase-space bound of its component.
 
 speeds(r, seed=0, v_range=None)
@@ -7634,27 +7636,26 @@ release. Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function
 
 ## JAX and the GPU
 
-The package runs on the CPU everywhere and takes a GPU where the installed JAX supports one; nothing is set by
-the user. JAX’s CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
+The package runs on the CPU everywhere and uses a GPU where the installed JAX supports one, with no setting to
+make. JAX’s CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
 (or a Linux virtual machine) with the Linux wheels, and a native Windows Python runs the CPU-only mode. A GPU and
 a CPU give results that differ at rounding on the kernels; the accuracy goal holds on both, and each file
 records the backend that made it. To force one or the other, see Runtime options.
 
-Only the main process uses the card: the worker processes of the observables’ pools run on the CPU. A card in the
+Only the main process uses the GPU: the worker processes of the observables’ pools run on the CPU. A GPU in the
 Exclusive_Process compute mode (nvidia-smi --query-gpu=compute_mode --format=csv shows it), common on shared
 clusters, serves one process, so where another process already holds it the package cannot reach it, and JAX’s
-error begins Unable to initialize backend 'cuda'. Free the card, share it through an MPS daemon
+error begins Unable to initialize backend 'cuda'. Free the GPU, share it through an MPS daemon
 (nvidia-cuda-mps-control -d), or run in the CPU-only mode.
 
-A card speeds up the sampler and nothing else. The sampler’s speed table builds in 0.6 to 6.6 s on the card against
-4.6 to 40 s on 8 cores, and drawing is faster on the card from about ten thousand particles, three to five times
-from a hundred thousand. The DF’s Poisson solve is a serial ODE: where the package runs on a card, so does the
-solve, and each step costs about a millisecond of launch latency, 50 to 200 times the CPU’s wall, so a model is
-solved fastest in the CPU-only mode. The rows of the line-of-sight velocity table run in the worker pool on the CPU
-whatever the platform, so a card does not shorten the table’s build (the two columns below differ by the main
-process’s share and the node’s load), and reading a built table (the LOSVD, pdf_v) takes the CPU’s wall. At the
-quick tier the table’s build ran out of the card’s 12 GB, so the quick tier’s observables were measured on the CPU
-only. The walls below are from one 32-core node (AMD Threadripper PRO 5975WX) and one RTX 3080 Ti. The solve’s are
+A GPU speeds up the sampler and nothing else. The sampler’s speed table builds in 0.6 to 6.6 s on the GPU against
+4.6 to 40 s on 8 cores, and drawing is faster on the GPU from about ten thousand particles, three to five times
+from a hundred thousand. The DF’s Poisson solve runs on the CPU on every platform: it is a serial ODE, and on a
+GPU each step would pay about a millisecond of launch latency, 50 to 200 times the CPU’s wall. The rows of the
+line-of-sight velocity table run in the worker pool on the CPU whatever the platform, so a GPU does not shorten the
+table’s build (the two columns below differ by the main process’s share and the node’s load), and reading a built
+table (the LOSVD, pdf_v) takes the CPU’s wall. At the quick tier the table’s build ran out of the GPU’s 12 GB, so
+the quick tier’s observables were measured on the CPU only. The walls below are from one 32-core node (AMD Threadripper PRO 5975WX) and one RTX 3080 Ti. The solve’s are
 the medians of five reruns of 37 solves of 21 truncated models, in two groups by their step count. The speed
 table’s are the steady builds of six members (512 to 1,021 rows) at the default tier, on 8 of the node’s cores. The
 sampling’s and the observables’ are on an NFW model (beta_c 0.25, concentration 10) and a truncated Hernquist model
@@ -7671,7 +7672,7 @@ DF solve, one solve (478 to 1574 steps)
 
 0.0036 to 0.025 s
 
-0.66 to 1.55 s
+runs on the CPU (0.66 to 1.55 s when it ran on the GPU, before it was pinned)
 
 The sampler’s speed table, default tier (8 cores)
 
@@ -7707,13 +7708,13 @@ Line-of-sight velocity table, default tier
 
 1246 to 2298 s
 
-1014 to 3163 s
+rows in the CPU pool (1014 to 3163 s with the main process on the GPU)
 
 Line-of-sight velocity table, quick tier
 
 238 to 1251 s
 
-out of the card’s memory
+out of the GPU’s memory
 
 LOSVD, 64 velocities at 16 radii, default tier
 

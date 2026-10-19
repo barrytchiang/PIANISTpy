@@ -1,8 +1,8 @@
-# Differentiability
+# End-to-end differentiability
 
 Source: https://pianistpy.com/docs/guide/gradient.html
 
-# Differentiability
+# End-to-end differentiability
 
 pianistpy.inference.likelihood(), pianistpy.df.gradient.make_inversion_table,
 pianistpy.df.gradient.table_jacobian, pianistpy.df.gradient.make_inversion_rows,

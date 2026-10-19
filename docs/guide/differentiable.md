@@ -28,7 +28,7 @@ d.aperture_losvd(theta, aperture, v)   # as pp.aperture_losvd
 Everything is in internal units, whatever the model’s unit system: theta, as the likelihood’s, the radii and apertures
 a method reads, and the velocities it returns. d.theta is the model’s own anisotropy.
 
-The families are those of the distribution function’s own rule (Differentiability): constant anisotropy (beta_c; an
+The families are those of the distribution function’s own rule (End-to-end differentiability): constant anisotropy (beta_c; an
 isotropic or constant component’s R_a is held at its own, infinite, value with a zero gradient), Cuddeford Type I
 (beta_c and R_a), Osipkov-Merritt Type I and Type II (R_a). Refused at construction, each with an error that names it:
 Cuddeford Type II (its interior point at P(R_a) moves with both parameters), a superposition or a model of several
@@ -43,7 +43,7 @@ placement frozen, as the likelihood’s free components carry it: between two pl
 tolerance, which the derivative does not carry. Over an aperture the derivative is the aperture’s integral of the
 tangent rows of the squared dispersion, on the plain call’s own nodes and weights (the integral is linear in the
 rows). The line-of-sight velocity distribution, the speed distribution and the aperture’s line-of-sight velocity
-distribution take theirs through the distribution function’s own derivative (Differentiability), their placement frozen;
+distribution take theirs through the distribution function’s own derivative (End-to-end differentiability), their placement frozen;
 a member whose distribution function that rule refuses is named at construction, and these three methods raise with
 it. At a theta where the model is refused the value is not a number and its gradient zero. A method is not
 differentiable in its radii.

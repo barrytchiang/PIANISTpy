@@ -30,7 +30,7 @@ Ranged draws: a range of radii for Sampler (r_range), a range of speeds at given
 The likelihood of the inference is differentiable in the superposition weights, the unit scales and the
 anisotropy parameters (beta_c, R_a) of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
 through pp.Differentiable, the seven observables as JAX functions of those parameters
-(Differentiability).
+(End-to-end differentiability).
 
 The inference fits a superposition to Gauss-Hermite moments (h3, h4), at points or averaged over
 apertures, beside the binned data; a free component with moment data is refused, as with binned data.
@@ -120,11 +120,11 @@ One component per model at the public calls; several components in one potential
 The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with R_a.
 
 The gradient in the anisotropy parameters refuses a Method I truncated model, whose profile moves with them; a
-Method II model on a fixed parent takes it (Differentiability).
+Method II model on a fixed parent takes it (End-to-end differentiability).
 
 On a GPU, the derivative of losvd and aperture_losvd may refuse a row of the line-of-sight table by name
 (its transpose holds the row recomputed to the forward’s bit for bit); it never returns a wrong number
-(Differentiability).
+(End-to-end differentiability).
 
 Spherical, non-rotating systems with an analytical double-power-law parent profile.
 

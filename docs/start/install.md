@@ -88,27 +88,26 @@ release. Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function
 
 ## JAX and the GPU
 
-The package runs on the CPU everywhere and takes a GPU where the installed JAX supports one; nothing is set by
-the user. JAX’s CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
+The package runs on the CPU everywhere and uses a GPU where the installed JAX supports one, with no setting to
+make. JAX’s CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
 (or a Linux virtual machine) with the Linux wheels, and a native Windows Python runs the CPU-only mode. A GPU and
 a CPU give results that differ at rounding on the kernels; the accuracy goal holds on both, and each file
 records the backend that made it. To force one or the other, see Runtime options.
 
-Only the main process uses the card: the worker processes of the observables’ pools run on the CPU. A card in the
+Only the main process uses the GPU: the worker processes of the observables’ pools run on the CPU. A GPU in the
 Exclusive_Process compute mode (nvidia-smi --query-gpu=compute_mode --format=csv shows it), common on shared
 clusters, serves one process, so where another process already holds it the package cannot reach it, and JAX’s
-error begins Unable to initialize backend 'cuda'. Free the card, share it through an MPS daemon
+error begins Unable to initialize backend 'cuda'. Free the GPU, share it through an MPS daemon
 (nvidia-cuda-mps-control -d), or run in the CPU-only mode.
 
-A card speeds up the sampler and nothing else. The sampler’s speed table builds in 0.6 to 6.6 s on the card against
-4.6 to 40 s on 8 cores, and drawing is faster on the card from about ten thousand particles, three to five times
-from a hundred thousand. The DF’s Poisson solve is a serial ODE: where the package runs on a card, so does the
-solve, and each step costs about a millisecond of launch latency, 50 to 200 times the CPU’s wall, so a model is
-solved fastest in the CPU-only mode. The rows of the line-of-sight velocity table run in the worker pool on the CPU
-whatever the platform, so a card does not shorten the table’s build (the two columns below differ by the main
-process’s share and the node’s load), and reading a built table (the LOSVD, pdf_v) takes the CPU’s wall. At the
-quick tier the table’s build ran out of the card’s 12 GB, so the quick tier’s observables were measured on the CPU
-only. The walls below are from one 32-core node (AMD Threadripper PRO 5975WX) and one RTX 3080 Ti. The solve’s are
+A GPU speeds up the sampler and nothing else. The sampler’s speed table builds in 0.6 to 6.6 s on the GPU against
+4.6 to 40 s on 8 cores, and drawing is faster on the GPU from about ten thousand particles, three to five times
+from a hundred thousand. The DF’s Poisson solve runs on the CPU on every platform: it is a serial ODE, and on a
+GPU each step would pay about a millisecond of launch latency, 50 to 200 times the CPU’s wall. The rows of the
+line-of-sight velocity table run in the worker pool on the CPU whatever the platform, so a GPU does not shorten the
+table’s build (the two columns below differ by the main process’s share and the node’s load), and reading a built
+table (the LOSVD, pdf_v) takes the CPU’s wall. At the quick tier the table’s build ran out of the GPU’s 12 GB, so
+the quick tier’s observables were measured on the CPU only. The walls below are from one 32-core node (AMD Threadripper PRO 5975WX) and one RTX 3080 Ti. The solve’s are
 the medians of five reruns of 37 solves of 21 truncated models, in two groups by their step count. The speed
 table’s are the steady builds of six members (512 to 1,021 rows) at the default tier, on 8 of the node’s cores. The
 sampling’s and the observables’ are on an NFW model (beta_c 0.25, concentration 10) and a truncated Hernquist model
@@ -125,7 +124,7 @@ DF solve, one solve (478 to 1574 steps)
 
 0.0036 to 0.025 s
 
-0.66 to 1.55 s
+runs on the CPU (0.66 to 1.55 s when it ran on the GPU, before it was pinned)
 
 The sampler’s speed table, default tier (8 cores)
 
@@ -161,13 +160,13 @@ Line-of-sight velocity table, default tier
 
 1246 to 2298 s
 
-1014 to 3163 s
+rows in the CPU pool (1014 to 3163 s with the main process on the GPU)
 
 Line-of-sight velocity table, quick tier
 
 238 to 1251 s
 
-out of the card’s memory
+out of the GPU’s memory
 
 LOSVD, 64 velocities at 16 radii, default tier
 

@@ -130,6 +130,8 @@ Particles
 
 Raises:
 
+InputError – If n is not a positive integer below 2^31.
+
 ResultError – If a particle lies beyond the phase-space bound of its component.
 
 speeds(r, seed=0, v_range=None)

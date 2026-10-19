@@ -53,5 +53,5 @@ One page per call, each with its definition, its arguments and units, the tiers 
    Line-of-sight velocity distribution in an aperture (aperture_losvd) <aperture_losvd>
    Local speed distribution (pdf_v) <pdf_v>
    The prepared table (LosTable) <lostable>
-   Differentiability <gradient>
+   End-to-end differentiability <gradient>
    Differentiable observables (Differentiable) <differentiable>

@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=3a0a98d4" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
@@ -297,7 +297,7 @@ observable carries its tier.</p></li>
 <li><p>The likelihood of the inference is differentiable in the superposition weights, the unit scales and the
 anisotropy parameters (beta_c, R_a) of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
 through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>, the seven observables as JAX functions of those parameters
-(<a class="reference internal" href="../guide/gradient.html"><span class="doc">Differentiability</span></a>).</p></li>
+(<a class="reference internal" href="../guide/gradient.html"><span class="doc">End-to-end differentiability</span></a>).</p></li>
 <li><p>The inference fits a superposition to Gauss-Hermite moments (<code class="docutils literal notranslate"><span class="pre">h3</span></code>, <code class="docutils literal notranslate"><span class="pre">h4</span></code>), at points or averaged over
 apertures, beside the binned data; a free component with moment data is refused, as with binned data.</p></li>
 </ul>
@@ -369,10 +369,10 @@ accuracy ledger moves (its roundtrip median by 2.3 percent), and no tier changes
 (<a class="reference internal" href="roadmap.html"><span class="doc">Upcoming features</span></a>).</p></li>
 <li><p>The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with R_a.</p></li>
 <li><p>The gradient in the anisotropy parameters refuses a Method I truncated model, whose profile moves with them; a
-Method II model on a fixed parent takes it (<a class="reference internal" href="../guide/gradient.html"><span class="doc">Differentiability</span></a>).</p></li>
+Method II model on a fixed parent takes it (<a class="reference internal" href="../guide/gradient.html"><span class="doc">End-to-end differentiability</span></a>).</p></li>
 <li><p>On a GPU, the derivative of <code class="docutils literal notranslate"><span class="pre">losvd</span></code> and <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> may refuse a row of the line-of-sight table by name
 (its transpose holds the row recomputed to the forward’s bit for bit); it never returns a wrong number
-(<a class="reference internal" href="../guide/gradient.html"><span class="doc">Differentiability</span></a>).</p></li>
+(<a class="reference internal" href="../guide/gradient.html"><span class="doc">End-to-end differentiability</span></a>).</p></li>
 <li><p>Spherical, non-rotating systems with an analytical double-power-law parent profile.</p></li>
 </ul>
 <p>Requirements: the standard and the minimum lists on <a class="reference internal" href="../start/install.html"><span class="doc">Install</span></a>.</p>

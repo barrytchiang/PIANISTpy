@@ -41,6 +41,6 @@ The members’ observables are computed once, in likelihood; each call of the re
 fraction of a millisecond. A refused input inside the traced function (negative weights, a radius outside the
 table) gives minus infinity, never an exception, so a sampler over the weights sees a value.
 
-What the likelihood is differentiable in, through which observables, and at what accuracy: Differentiability.
+What the likelihood is differentiable in, through which observables, and at what accuracy: End-to-end differentiability.
 
      On this page
