@@ -9,17 +9,17 @@
 [![Documentation](https://img.shields.io/badge/docs-pianistpy.com-00356B)](https://pianistpy.com)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
 
-**P**article **I**nitial conditions with **ANIS**o**T**ropy: distribution functions, particle initial conditions
-and observables of spherical systems with anisotropic velocities, truncated self-consistently in phase space.
+**P**article **I**nitial conditions with **ANIS**o**T**ropy.
 
-PIANISTpy builds equilibrium models of spherical systems (dark matter halos and subhalos, star clusters, dwarf
-galaxies) with a velocity anisotropy you choose. The outer boundary of a model is set in phase space, so the
-truncated model is itself an equilibrium and needs no relaxation run before it is used.
+PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in
+phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides
+distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with
+JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.
 
 > Status: version 0.9.0, a pre-release. Version 1.0.0, released with the paper that describes the method,
 > adds the certified accuracy tiers on both backends, the remaining capabilities and the citation.
 
-## What it does
+## What PIANISTpy does
 
 - **Density profiles.** Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
   Plummer profiles as named presets.
@@ -27,8 +27,8 @@ truncated model is itself an equilibrium and needs no relaxation run before it i
   models, radially biased (Type I) or tangentially biased (Type II).
 - **Distribution functions.** The distribution function (DF) of each model, from the analytic inversion of its
   density, returned whether or not it is physical, with a statement of where it is not.
-- **Truncation in phase space.** Method I truncates a model's own DF at an energy you give, or at the energy that
-  yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
+- **Truncation in phase space.** Method I truncates a model's own DF at a user-specified energy, or at the energy
+  that yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
   truncated.
 - **Particles.** Positions and velocities drawn by inversion, with no rejection step, and reproducible particle
   by particle.
@@ -45,7 +45,10 @@ truncated model is itself an equilibrium and needs no relaxation run before it i
 pip install pianistpy
 ```
 
-PIANISTpy needs Python 3.10 or later, NumPy, SciPy, h5py, Astropy, mpmath, SymPy, JAX, Diffrax, Optimistix and filelock.
+PIANISTpy needs Python 3.10 or later, [NumPy](https://numpy.org), [SciPy](https://scipy.org),
+[h5py](https://www.h5py.org), [Astropy](https://www.astropy.org), [mpmath](https://mpmath.org),
+[SymPy](https://www.sympy.org), [JAX](https://docs.jax.dev), [Diffrax](https://docs.kidger.site/diffrax/),
+[Optimistix](https://docs.kidger.site/optimistix/) and [filelock](https://py-filelock.readthedocs.io).
 The oldest versions the test suite passes with are NumPy 2.0.0, SciPy 1.14.0, h5py 3.11.0, Astropy 7.2.0,
 mpmath 0.17, SymPy 1.2, and together JAX 0.6.1, Diffrax 0.7.0 and Optimistix 0.0.11 (these three are bound as
 one set; older Diffrax or Optimistix releases pass only with a newer JAX); `pip` enforces them. It runs on Linux,
@@ -91,29 +94,29 @@ The user guide, the notebook tutorials, the technical notes and the API referenc
 ## Example notebooks
 
 Tutorials for each workflow, and notebooks that reproduce the paper's figures, are in
-[PIANISTpy-notebooks](https://github.com/barrytchiang/PIANISTpy-notebooks), tagged with the package version
-they were run with.
+[PIANISTpy-notebooks](https://github.com/barrytchiang/PIANISTpy-notebooks); each notebook is stored with its
+outputs.
 
 ## Results and files
 
 Every result (a distribution function, a model, a set of particles) is an immutable object that holds what it
 was computed from: the inputs, the numerical settings and the version of the code. Its `write` method stores
 it in a single HDF5 file, and `pp.read(path)` returns an equal object, whatever kind of result the file holds.
-Nothing is written unless you ask.
+Nothing is written unless requested.
 
 A `Model` is always a valid equilibrium. A request for which none exists raises `UnphysicalModelError`, and the
-exception carries the distribution function so that you can inspect it.
+exception carries the distribution function for inspection.
 
 ## Units
 
 Everything is computed and returned in internal units, the dimensionless normalization of Widrow (2000) in which
 the scale radius and the central potential of the untruncated profile are 1. A result's `to` method presents it
-in model units (G = M_0 = r_0 = 1) or, through Astropy, in physical units, without recomputing it, and what is
+in model units ($G = M_0 = r_0 = 1$) or, through Astropy, in physical units, without recomputing it, and what is
 computed from it is returned in that system.
 
 Three inputs of a truncation are given in the units that are natural for them, as their documentation states: the
 truncation energy `k_t` in internal units, a target radius `r_t` in units of the scale radius, and a target mass
-`mass_t` in units of M_0, together with the concentration that defines M_0.
+`mass_t` in units of $M_0$, together with the concentration that defines $M_0$.
 
 ## Accuracy
 
@@ -130,9 +133,10 @@ pp.Settings()            # the default tier
 pp.Settings(quick=True)  # a faster tier for exploration
 ```
 
-## Session switches
+## Runtime options
 
-None of these changes a number.
+None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
+each file records which made it.
 
 ```python
 pp.set_verbosity("info")   # "quiet" (the default), "info" or "debug"
@@ -148,8 +152,9 @@ sets it before the package is imported. Each file records the backend that made 
 Hardware notes. The workers' switch sets how many cores the package's parallel work uses; `"auto"` uses every
 allowed core inside a batch job and half of them anywhere else, and no value changes a number. A GPU accelerates the
 two batched table builds, the speed table (2.7 to 7 times an 8-core CPU on an RTX 3080 Ti) and the line-of-sight
-velocity table (1.0 to 1.4 times a 32-core node); the distribution function and the potential solve gain nothing from
-a GPU and run at their own speed on the CPU. The CPU-only install is complete and is the right one for a laptop. JAX's
+velocity table (1.0 to 1.4 times a 32-core node). The distribution function and the potential solve gain nothing
+from a GPU: in this version the solve runs where the package runs, and a model is solved fastest in the CPU-only
+mode. The CPU-only install is complete and is the right one for a laptop. JAX's
 CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux with the Linux
 wheels, which pays only for large table builds; a native Windows Python runs the CPU-only mode. A GPU and a CPU give
 results that differ at rounding on the kernels; the accuracy goal holds on both, and the file's provenance says which
@@ -158,7 +163,8 @@ one; `set_compilation_cache` with a path moves it.
 
 ## Citing
 
-If you use PIANISTpy, cite the paper that describes it. The citation entry is added with the 1.0.0 release.
+Please cite the initial release paper, Chiang, van den Bosch and Schive (2026), in work that uses PIANISTpy. The
+citation entry is added with the 1.0.0 release.
 
 ## License
 
