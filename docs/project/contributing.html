@@ -276,18 +276,18 @@
                   
   <section id="contributing">
 <h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
-<p>Bug reports, questions and proposed changes are welcome through the issue tracker of the
-<a class="reference external" href="https://github.com/barrytchiang/PIANISTpy" rel="noopener" target="_blank">repository</a>.</p>
+<p>Bug reports, questions and proposed changes are welcome on the
+<a class="reference external" href="https://github.com/barrytchiang/PIANISTpy/issues" rel="noopener" target="_blank">issue tracker</a>.</p>
 <section id="reporting-a-problem">
 <h2>Reporting a problem<a class="headerlink" href="#reporting-a-problem" title="Link to this heading">#</a></h2>
-<p>Include the version (<code class="docutils literal notranslate"><span class="pre">pianistpy.__version__</span></code>), the inputs that reproduce the problem (the profile, the
-anisotropy, the truncation and the settings), and the full text of the error. An error raised by the package ends
-with its most recent messages; keep them in the report. If a result came with an accuracy warning, include its
-validation report.</p>
+<p>Please include the version (<code class="docutils literal notranslate"><span class="pre">pianistpy.__version__</span></code>), the inputs that reproduce the problem (the profile, the
+anisotropy, the truncation and the settings) and the full error message. An error raised by the package ends with
+its most recent log messages; please keep them in the report. For a result that came with an accuracy warning,
+please include its validation report.</p>
 </section>
 <section id="setting-up">
 <h2>Setting up<a class="headerlink" href="#setting-up" title="Link to this heading">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/barrytchiang/PIANISTpy
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/barrytchiang/PIANISTpy.git
 <span class="nb">cd</span><span class="w"> </span>PIANISTpy
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pytest<span class="w"> </span>ruff<span class="w"> </span>mypy
@@ -305,17 +305,20 @@ and the checklist that every change is held to.</p></li>
 reference, a closed form, a limit, or an identity that the result must satisfy.</p></li>
 </ol>
 </section>
-<section id="what-a-change-must-keep">
-<h2>What a change must keep<a class="headerlink" href="#what-a-change-must-keep" title="Link to this heading">#</a></h2>
+<section id="rules-for-pull-requests">
+<h2>Rules for pull requests<a class="headerlink" href="#rules-for-pull-requests" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><strong>One result, one path.</strong> A quantity is computed by one function. A second route to the same number is not
-added beside the first; it replaces it or stays out.</p></li>
-<li><p><strong>No number changes silently.</strong> A change that moves a result beyond rounding says so, with the size of the
-move and the reason.</p></li>
-<li><p><strong>The runtime options change no number.</strong> Verbosity, timing and the number of workers never alter what is
+<li><p><strong>One quantity, one function.</strong> Each quantity is computed by exactly one function; a second route to the same
+number replaces the first rather than sitting beside it.</p></li>
+<li><p><strong>No silent changes to results.</strong> A change that moves a result beyond rounding states the size of the move and
+its reason.</p></li>
+<li><p><strong>Runtime options leave results unchanged.</strong> Verbosity, timing and the number of workers never alter what is
 computed.</p></li>
-<li><p><strong>Accuracy is stated, not assumed.</strong> A numerical setting enters a tested tier only after it has passed the
-checks of that tier.</p></li>
+<li><p><strong>Accuracy is verified, not assumed.</strong> A numerical setting joins a tested tier only after passing that tier’s
+checks.</p></li>
+<li><p><strong>LLM-assisted development.</strong> Code written with the help of large language models is permitted and
+encouraged. The contributor must review every change, and the pull request description itself, thoroughly
+before submitting; a pull request that shows it was not reviewed this way is rejected outright.</p></li>
 </ul>
 </section>
 </section>
@@ -346,7 +349,7 @@ checks of that tier.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reporting-a-problem">Reporting a problem</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up">Setting up</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#before-proposing-a-change">Before proposing a change</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-a-change-must-keep">What a change must keep</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rules-for-pull-requests">Rules for pull requests</a></li>
 </ul>
   </nav></div>
 

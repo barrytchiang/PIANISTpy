@@ -4,20 +4,20 @@ Source: https://pianistpy.com/docs/project/contributing
 
 # Contributing
 
-Bug reports, questions and proposed changes are welcome through the issue tracker of the
-repository.
+Bug reports, questions and proposed changes are welcome on the
+issue tracker.
 
 ## Reporting a problem
 
-Include the version (pianistpy.__version__), the inputs that reproduce the problem (the profile, the
-anisotropy, the truncation and the settings), and the full text of the error. An error raised by the package ends
-with its most recent messages; keep them in the report. If a result came with an accuracy warning, include its
-validation report.
+Please include the version (pianistpy.__version__), the inputs that reproduce the problem (the profile, the
+anisotropy, the truncation and the settings) and the full error message. An error raised by the package ends with
+its most recent log messages; please keep them in the report. For a result that came with an accuracy warning,
+please include its validation report.
 
 ## Setting up
 
 ```
-git clone https://github.com/barrytchiang/PIANISTpy
+git clone https://github.com/barrytchiang/PIANISTpy.git
 cd PIANISTpy
 python -m pip install -e .
 python -m pip install pytest ruff mypy
@@ -36,18 +36,22 @@ Run the tests, which include the examples in the docstrings (python -m pytest).
 Add a test for the change: a new function comes with a test of its result against an independent
 reference, a closed form, a limit, or an identity that the result must satisfy.
 
-## What a change must keep
+## Rules for pull requests
 
-One result, one path. A quantity is computed by one function. A second route to the same number is not
-added beside the first; it replaces it or stays out.
+One quantity, one function. Each quantity is computed by exactly one function; a second route to the same
+number replaces the first rather than sitting beside it.
 
-No number changes silently. A change that moves a result beyond rounding says so, with the size of the
-move and the reason.
+No silent changes to results. A change that moves a result beyond rounding states the size of the move and
+its reason.
 
-The runtime options change no number. Verbosity, timing and the number of workers never alter what is
+Runtime options leave results unchanged. Verbosity, timing and the number of workers never alter what is
 computed.
 
-Accuracy is stated, not assumed. A numerical setting enters a tested tier only after it has passed the
-checks of that tier.
+Accuracy is verified, not assumed. A numerical setting joins a tested tier only after passing that tier’s
+checks.
+
+LLM-assisted development. Code written with the help of large language models is permitted and
+encouraged. The contributor must review every change, and the pull request description itself, thoroughly
+before submitting; a pull request that shows it was not reviewed this way is rejected outright.
 
      On this page

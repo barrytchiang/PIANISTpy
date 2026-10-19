@@ -299,7 +299,8 @@
                   
   <section id="runtime-options">
 <h1>Runtime options<a class="headerlink" href="#runtime-options" title="Link to this heading">#</a></h1>
-<p>None of these changes a number.</p>
+<p>None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
+each file records which made it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)</span>   <span class="c1"># "quiet" (the default), "info" or "debug"</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">set_timing</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>        <span class="c1"># print the wall time of each stage</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">set_workers</span><span class="p">(</span><span class="s2">"half"</span><span class="p">)</span>     <span class="c1"># "auto" (the default), "full", "half" or a number of cores</span>

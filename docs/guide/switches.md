@@ -4,7 +4,8 @@ Source: https://pianistpy.com/docs/guide/switches
 
 # Runtime options
 
-None of these changes a number.
+None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
+each file records which made it.
 
 ```
 pp.set_verbosity("info")   # "quiet" (the default), "info" or "debug"

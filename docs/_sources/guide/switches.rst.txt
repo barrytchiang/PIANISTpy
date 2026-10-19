@@ -1,7 +1,8 @@
 Runtime options
 ===============
 
-None of these changes a number.
+None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
+each file records which made it.
 
 .. code-block:: python
 
