@@ -85,9 +85,10 @@ form (AsymptoticForm) – The analytic form of each DF beyond the ends of its ta
 
 k_t_min (float) – Lowest admissible truncation energy; zero where every DF is
 non-negative and non-decreasing. For a Type II model whose bound is
-its domain edge, the next float above P(R_a), the smallest K_t the
-gates admit; the truncated model’s edge must also lie inside R_a,
-which the truncation’s solve judges (TYPE II EDGE).
+its domain edge, the next float above \(P(R_{\rm a})\), the
+smallest \(\mathcal{K}_{\rm t}\) the gates admit; the truncated
+model’s edge must also lie inside \(R_{\rm a}\), which the
+truncation’s solve judges (TYPE II EDGE).
 
 validation (ValidationReport) – The report of the inversion.
 
@@ -503,5 +504,203 @@ UnphysicalModelError – If no valid equilibrium exists for the request. The exc
 
 InputError – If the DF comes from a function (DistributionFunction.from_function):
     it carries no inversion rows, which truncation needs.
+
+## Gradients (pianistpy.df.gradient)
+
+The distribution function’s rows and table as JAX functions of the anisotropy parameters, and their Jacobians
+(End-to-end differentiability).
+
+The inversion’s gradient in the anisotropy parameters at a fixed profile.
+
+The inversion’s rows F = T_b[g](q) (invert._rows: the kernel and the
+completion below the floor) on a fixed grid q. At a fixed central anisotropy
+b the operator T_b is linear in its source g, the rows of d^N rho_aux / dP^N,
+so, by that linearity:
+
+dF/dR_a    = T_b[ d_Ra g ]
+dF/dbeta_c = T_b[ d_b g ] + E_b[g]
+
+with d_theta g the mixed derivatives at fixed P (ParameterDerivs) and E_b
+the derivative of the operator itself in b with g held: the prefactor C(n, b)
+and the kernel’s exponent, computed by the operator at b +- d (central,
+Richardson over d and d/2) or, at the corners where the inversion’s form
+changes on one side (half-integer \(\beta_{\rm c}\), the pair’s switch),
+by the one-sided Richardson combinations (third order) of both sides and
+their mean; the step d
+balances the kernel’s measured accuracy over d against the quotient’s
+truncation term (_exponent_part).
+
+The table (invert._table_pieces) is a function of the rows and of closed
+forms in theta, so its derivative is the chain rule through each piece, with
+every discrete choice of the forward held (the grid, the anchor, the fit’s
+window, the nodes below the written floor), table_jacobian:
+
+the rows’ log10 F and their log slope, from dF and d(dF/dK), the rows’
+part as the operator’s own derivative along the mixed rows (_along);
+
+the form above the anchor (top_patch): its least-squares fit linearized
+in the rows, and the center’s exponent kappa(b) and amplitude A(b) in
+closed form (the regular branch);
+
+the nodes below the written floor (below_floor): the integral linear in
+its source, the source’s cubic in (ln P, ln |g|) linearized, and in b the
+floor pair’s exponent and prefactor by the same difference as E_b;
+
+the tail (A, a(b), k), from the first node below the floor or the first
+written row.
+
+On a component on a truncated profile (Method II, tabulated.tabulated_df)
+the parent is held and the child’s sources are a Leibniz sum of the parent’s
+density derivatives and the factor g(R(P); beta_c, R_a), so their derivative
+is the same sum with d g / d theta in closed form; the rows follow as above
+on the grid held at theta, and the leaves are log10 |F| on the table’s nodes,
+the edge law (p, C_0, C_1) and the center the form states, each closed form
+with its derivative written out.
+
+Served: constant beta and Cuddeford Type I (\(\beta_{\rm c}\),
+\(R_{\rm a}\)), Osipkov-Merritt Type I and II (\(R_{\rm a}\)).
+Refused: Cuddeford Type II, whose interior point at \(P(R_{\rm a})\) moves
+with \(R_{\rm a}\) (and its exponent with \(\beta_{\rm c}\)), so the
+rows of the mixed derivative are not integrable there; and a table whose
+center is not on its regular branch (the critical band, where the branch
+changes with \(\beta_{\rm c}\)).
+
+pianistpy.df.gradient.inversion_nodes(component, settings)
+
+Return the grid q the inversion places its rows on (inversion_df’s:
+the pilot’s feature where the family has one, then top_limit, the
+least depth at which the exact derivatives are finite in float64).
+
+Parameters:
+
+component (Component)
+
+settings (Settings)
+
+Return type:
+
+ndarray
+
+pianistpy.df.gradient.make_inversion_rows(component, settings, q=None)
+
+Return (rows, params, q): rows(theta) is the inversion’s rows on
+the fixed grid q as a JAX function of the component’s anisotropy
+parameters (params, in that order) with a custom VJP. The forward is
+invert._rows through a host callback (the forward’s numbers), the
+backward the rule (rows_jacobian) at the same parameters.
+
+Parameters:
+
+component (Component)
+
+settings (Settings)
+
+q (ndarray | None)
+
+Return type:
+
+tuple[Any, tuple[str, …], ndarray]
+
+pianistpy.df.gradient.make_inversion_table(component, settings, q=None)
+
+Return (table, params, values): table(theta) is the DF table’s
+values (table_jacobian’s, but the energies) as a JAX function of the
+component’s anisotropy parameters with a custom VJP; values the
+table at the component’s own parameters, energies included. The forward
+is inversion_df’s table through a host callback, the backward the rule.
+The grid and the forward’s discrete choices are those at the component’s
+parameters.
+
+Parameters:
+
+component (Component)
+
+settings (Settings)
+
+q (ndarray | None)
+
+Return type:
+
+tuple[Any, tuple[str, …], dict[str, ndarray]]
+
+pianistpy.df.gradient.rows_jacobian(component, settings, q=None, steps=None)
+
+Return the inversion’s rows and their derivatives in the component’s
+anisotropy parameters on a fixed grid.
+
+Parameters:
+
+component (Component) – An analytic Method I component.
+
+settings (Settings)
+
+q (array, optional) – The grid; inversion_nodes where None.
+
+steps (dict[tuple, dict[str, Any]] | None)
+
+Returns:
+
+q, f (array) – The grid and the rows (the forward’s, unchanged).
+
+jac (dict) – {"beta_c": dF/dbeta_c, "r_a": dF/dR_a}, the parameters the family
+has.
+
+record (dict) – How the exponent’s part was taken ("central" or "one-sided"),
+its steps, the kernel’s accuracy and its Richardson residual max
+|E(d) - E(d/2)| over the column’s scale max |dF/dbeta_c| and,
+one-sided, the two sides’ spread over the same scale. The accuracy
+is one maximum over the whole column, whose entries can span some
+thirty decades (the largest near the center), so the steps suit the
+largest entries; an entry far below them is differenced at the same
+steps.
+
+Raises:
+
+InputError – Where the component is not analytic, or a Cuddeford Type II, or its
+    family has no parameter.
+
+Return type:
+
+tuple[ndarray, ndarray, dict[str, ndarray], dict[str, Any]]
+
+pianistpy.df.gradient.table_jacobian(component, settings, q=None, steps=None)
+
+Return the DF table’s values and their derivatives in the component’s
+anisotropy parameters, the forward’s grid and discrete choices held.
+
+Parameters:
+
+component (Component) – An analytic Method I component.
+
+settings (Settings)
+
+q (array, optional) – The grid; inversion_nodes where None.
+
+steps (dict, optional) – The caller’s store of the exponent’s measured steps
+(_table_difference): read where it has them, filled where it has
+not; without one they are measured at this call.
+
+Returns:
+
+values (dict) – The table as inversion_df makes it, as arrays: k, log_df,
+log_df_slope (the rows; zero derivative where a Type II DF is
+outside its support), and where the table has them k_below,
+log_df_below, log_df_slope_below; the form above the anchor
+central (kappa, a_anchor, b, d) and the tail tail (A, a, k).
+
+jac (dict) – {theta: {key: d value / d theta}} for the keys of values but the
+energies.
+
+record (dict) – The exponent’s part of the rows ("rows") and of the nodes below
+the floor ("below"), as rows_jacobian states it.
+
+Raises:
+
+InputError – As rows_jacobian; and where the form above the anchor is used and
+    the center is not on its regular branch (the critical band).
+
+Return type:
+
+tuple[dict[str, ndarray], dict[str, dict[str, ndarray]], dict[str, Any]]
 
      On this page

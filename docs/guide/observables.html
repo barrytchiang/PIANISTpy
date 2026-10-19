@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -178,7 +178,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -318,9 +318,10 @@ observable reads from it.</p>
 </pre></div>
 </div>
 <p>An <code class="docutils literal notranslate"><span class="pre">Aperture</span></code> is circular or rectangular, centered or offset, the rectangle at an angle; every aperture call
-takes the same object. The intrinsic radial and tangential dispersions, the line-of-sight velocity distribution
-itself and its Gauss-Hermite moments are available in the same way; their public names are listed in the
-<a class="reference internal" href="../reference/api/observables"><span class="doc">API reference</span></a>.</p>
+takes the same object. The intrinsic radial and tangential dispersions and the line-of-sight velocity
+distribution itself are available in the same way; their public names are listed in the
+<a class="reference internal" href="../reference/api/observables"><span class="doc">API reference</span></a>. The distribution’s Gauss-Hermite moments (<code class="docutils literal notranslate"><span class="pre">h3</span></code>, <code class="docutils literal notranslate"><span class="pre">h4</span></code>)
+enter the inference as data (<a class="reference internal" href="../reference/api/inference#pianistpy.inference.Data" title="pianistpy.inference.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.inference.Data</span></code></a>); they are not an observable call of their own.</p>
 <p>Pairs of projected radius and line-of-sight velocity are drawn by <code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code> on an annulus and, if
 given, in a window of velocity, exactly conditioned: the radius carries the window’s share of the distribution
 at each radius, for every anisotropy. The ranges and the pairs are in the source’s unit system, as for the other

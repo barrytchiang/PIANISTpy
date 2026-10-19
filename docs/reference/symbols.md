@@ -4,10 +4,10 @@ Source: https://pianistpy.com/docs/reference/symbols
 
 # Names and paper symbols
 
-The package’s names follow the paper’s notation: a quantity that has a symbol in the paper or the technical notes
-is named <family>_<symbol>, the family saying what kind of quantity it is and the rest being the paper’s symbol
-or subscript in lower case. A truncated quantity (hatted in the paper) takes the suffix _trunc, the
-untruncated one the bare name. Every docstring gives the paper’s symbol beside the name the first time it
+The package’s names follow the notation of Chiang et al. (2026d): a quantity that has a symbol there or in the technical notes
+is named <family>_<symbol>, the family saying what kind of quantity it is and the rest being that symbol
+or subscript in lower case. A truncated quantity (hatted in Chiang et al. (2026d)) takes the suffix _trunc, the
+untruncated one the bare name. Every docstring gives that symbol beside the name the first time it
 describes it.
 
 Family
@@ -88,7 +88,7 @@ v_, sigma_
 
 v_r, v_t, v_los, v_esc, sigma_r, sigma_t, sigma_los
 
-\(V_r\), \(V_t\), \(V_{\rm los}\), \(V_{\rm esc}\), \(\sigma_r\), \(\sigma_t\), \(\sigma_{\rm los}\)
+\(V_{\rm r}\), \(V_{\rm t}\), \(V_{\rm los}\), \(V_{\rm esc}\), \(\sigma_{\rm r}\), \(\sigma_{\rm t}\), \(\sigma_{\rm los}\)
 
 probability densities
 
@@ -98,7 +98,7 @@ pdf_x, pdf_phi
 
 \(p_x\), \(p_\varphi\)
 
-Where the paper’s letter cannot be used, a word is fixed: the normalization \(C\) of the density is
+Where the letter of Chiang et al. (2026d) cannot be used, a word is fixed: the normalization \(C\) of the density is
 rho_norm (rho_c would read as a central density), and the concentration \(c\) is concentration.
 The letter c alone is never a name; as a subscript it means central (beta_c). The quantities of the
 truncated model carry the suffix: p_trunc, df_trunc, rho_trunc, mass_trunc.

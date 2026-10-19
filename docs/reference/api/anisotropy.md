@@ -22,7 +22,9 @@ exactly 0, gives an isotropic or an OM model.
 r_a (float, optional) – Anisotropy radius \(R_{\rm a}\) in internal units, positive. The
 default, infinity, gives an isotropic or a constant-anisotropy model.
 
-kind ({"I", "II"}, optional) – Type of the OM or COM model. Ignored when r_a is infinite.
+kind ({"I", "II"}, optional) – Type of the OM or COM model. Stored as "I" when r_a is
+infinite, where the type does not enter the model, so that one model
+has one identity.
 
 Notes
 
@@ -89,13 +91,9 @@ Label of the model in the paper
 
 property domain_edge: float
 
-R_a
-for a Type II model (its factor is real, finite and positive only
-inside it), infinite otherwise.
-
-Type:
-
-The outer edge of the radii where the anisotropy is defined
+The outer edge of the radii where the anisotropy is defined:
+\(R_{\rm a}\) for a Type II model (its factor is real, finite and
+positive only inside it), infinite otherwise.
 
 to_dict()
 

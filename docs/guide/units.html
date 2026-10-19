@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/units';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -301,10 +301,13 @@
                   
   <section id="units">
 <h1>Units<a class="headerlink" href="#units" title="Link to this heading">#</a></h1>
-<p>Everything is computed and returned in internal units, the dimensionless normalization of Widrow (2000) in which
-the scale radius and the central potential of the untruncated profile are 1. A result’s <code class="docutils literal notranslate"><span class="pre">to</span></code> method presents it in
-model units (<span class="math notranslate nohighlight">\(G = M_0 = r_0 = 1\)</span>) or, through <a class="reference external" href="https://www.astropy.org/" rel="noopener" target="_blank">Astropy</a>, in physical units,
-without recomputing it, and what is computed from it is returned in that system.</p>
+<p>Everything is computed in internal units, the dimensionless normalization of Widrow (2000) in which the scale
+radius and the central potential of the untruncated profile are 1. The <code class="docutils literal notranslate"><span class="pre">to</span></code> method of a model (and of a
+line-of-sight table) presents it in model units (<span class="math notranslate nohighlight">\(G = M_0 = r_0 = 1\)</span>) or, through
+<a class="reference external" href="https://www.astropy.org/" rel="noopener" target="_blank">Astropy</a>, in physical units, without recomputing it, and what is computed from it
+(the observables, the particles) is returned in that system.
+The ranges of a draw are the exception: <code class="docutils literal notranslate"><span class="pre">Sampler</span></code>’s <code class="docutils literal notranslate"><span class="pre">r_range</span></code> and the <code class="docutils literal notranslate"><span class="pre">v_range</span></code> of <code class="docutils literal notranslate"><span class="pre">Sampler.speeds</span></code> are
+given in internal units.</p>
 <p>Three inputs of a truncation are given in the units that are natural for them, as their documentation states:
 the truncation energy <code class="docutils literal notranslate"><span class="pre">k_t</span></code> in internal units, a target radius <code class="docutils literal notranslate"><span class="pre">r_t</span></code> in units of the scale radius, and a
 target mass <code class="docutils literal notranslate"><span class="pre">mass_t</span></code> in units of <span class="math notranslate nohighlight">\(M_0\)</span>, together with the concentration that defines <span class="math notranslate nohighlight">\(M_0\)</span>.</p>

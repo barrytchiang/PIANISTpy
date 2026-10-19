@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/profiles';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -234,7 +234,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -321,7 +333,7 @@ potential vanishes at infinity:</p>
 <div class="math notranslate nohighlight">
 \[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha} .\]</div>
 <p>The lower bound on <span class="math notranslate nohighlight">\(\gamma\)</span> excludes a density that decreases
-towards the center; the upper bound keeps the central potential finite.
+toward the center; the upper bound keeps the central potential finite.
 The bound on <span class="math notranslate nohighlight">\(\beta\)</span> keeps the potential finite at large radii.</p>
 <p>The named profiles are parameter sets of this one profile, built by the
 class methods <cite>nfw</cite>, <cite>hernquist</cite> and <cite>plummer</cite>. They are not separate
@@ -329,7 +341,7 @@ implementations. Where a profile has a closed form for its mass or its
 potential, that form is used inside <cite>mass</cite> and <cite>p</cite>; the tests hold it to
 the general incomplete-Beta form.</p>
 <p class="rubric">References</p>
-<p>Paper I, Appendix A (labels <code class="docutils literal notranslate"><span class="pre">eqn:double_power_law_MT</span></code>,
+<p>Chiang et al. (2026d), Appendix A (labels <code class="docutils literal notranslate"><span class="pre">eqn:double_power_law_MT</span></code>,
 <code class="docutils literal notranslate"><span class="pre">eqn:double_power_law_mass</span></code>, <code class="docutils literal notranslate"><span class="pre">app:P_beta</span></code>).</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">()</span>
@@ -553,7 +565,7 @@ below are read only then.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.profiles.</span></span><span class="sig-name descname"><span class="pre">TruncatedProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatially_finite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_anisotropy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_exponent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_trunc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_deficit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_r_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_rows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_rule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_log_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.profiles.</span></span><span class="sig-name descname"><span class="pre">TruncatedProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatially_finite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_anisotropy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_exponent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_trunc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_deficit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_r_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_rows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_rule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_log_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile" title="Link to this definition">#</a></dt>
 <dd><p>The self-consistent profile of a truncated model.</p>
 <p>It is the profile of a model, and it can be the profile of a component
 of another model: a component given the truncated profile of a parent
@@ -601,6 +613,11 @@ are in.</p></li>
 to. A component built on this profile (Method II) reads here what
 its parent was.</p></li>
 <li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – Identity string of the model the profile belongs to.</p></li>
+<li><p><strong>model_level</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em> or </em><em>None</em>) – The tier level of that model’s report (<cite>ValidationReport.level</cite>),
+written by <cite>truncate</cite>, so that a component built on this profile
+(Method II) takes it as its parents’ tier. None where it was not
+recorded (a profile made otherwise, or read from a file written
+before it was): read as level 0.</p></li>
 <li><p><strong>edge_exponent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Exponent <span class="math notranslate nohighlight">\(q\)</span> of each component’s density at the edge of the
 model, <span class="math notranslate nohighlight">\(\rho \propto \mathcal{P}^q\)</span>; empty where the model
 is not spatially finite and has no edge.</p></li>

@@ -32,7 +32,7 @@ gradient with respect to the weights is exact and cheap.
 from pianistpy.inference import Data, likelihood
 
 data = Data("sigma_los", values=sigma_obs, r_2d=radii, errors=sigma_err, unit_system="physical")
-loglike = likelihood(composite.to("physical", mass_0=..., r_0=...), data)
+loglike = likelihood(composite.to("physical", concentration=..., mass_0=..., r_0=...), data)
 loglike(weights)                       # a JAX scalar; jax.grad(loglike)(weights) is its gradient
 
 ```

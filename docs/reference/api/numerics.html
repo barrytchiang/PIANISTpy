@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,8 +46,6 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/numerics';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/logo.png"/>
@@ -180,7 +178,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -234,7 +232,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -300,69 +310,6 @@
   <section id="module-pianistpy.numerics">
 <span id="numerics-pianistpy-numerics"></span><h1>Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)<a class="headerlink" href="#module-pianistpy.numerics" title="Link to this heading">#</a></h1>
 <p>Shared numerical leaves: quadrature, interpolation and special functions.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="pianistpy.numerics.bell_partitions">
-<span class="sig-prename descclassname"><span class="pre">pianistpy.numerics.</span></span><span class="sig-name descname"><span class="pre">bell_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.numerics.bell_partitions" title="Link to this definition">#</a></dt>
-<dd><p>Return the terms of the complete exponential Bell polynomial.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>order</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – Order of the polynomial, at least 1.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>terms</strong> – One entry per partition of <cite>order</cite> into positive integers: its
-coefficient and the parts, in decreasing order. The polynomial is
-the sum over the entries of the coefficient times the product of the
-variables indexed by the parts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a> of (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a> of <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a>)</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bell_partitions</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="go">((1, (3,)), (3, (2, 1)), (1, (1, 1, 1)))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span><span class="p">(</span><span class="n">coefficient</span> <span class="k">for</span> <span class="n">coefficient</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">bell_partitions</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
-<span class="go">15</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pianistpy.numerics.derivative_from_log">
-<span class="sig-prename descclassname"><span class="pre">pianistpy.numerics.</span></span><span class="sig-name descname"><span class="pre">derivative_from_log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_derivatives</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.numerics.derivative_from_log" title="Link to this definition">#</a></dt>
-<dd><p>Return a derivative of a positive function from those of its logarithm.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>log_derivatives</strong> (<em>sequence</em><em> of </em><em>array</em><em>, </em><em>length N</em>) – The derivatives of orders 1 to N of the logarithm of the function,
-each at the same points.</p></li>
-<li><p><strong>values</strong> (<em>array</em>) – The function itself at those points.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>derivative</strong> – The derivative of order N of the function.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>With <span class="math notranslate nohighlight">\(S = \ln f\)</span>, the chain rule of Faà di Bruno gives</p>
-<div class="math notranslate nohighlight">
-\[\frac{\mathrm{d}^N f}{\mathrm{d}x^N}
-    = f\,Y_N\!\left(S', S'', \dots, S^{(N)}\right),\]</div>
-<p>where <span class="math notranslate nohighlight">\(Y_N\)</span> is the complete exponential Bell polynomial.</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ones</span><span class="p">,</span> <span class="n">zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">derivative_from_log</span><span class="p">([</span><span class="mi">3</span> <span class="o">*</span> <span class="n">ones</span><span class="p">,</span> <span class="n">zeros</span><span class="p">],</span> <span class="n">f</span><span class="p">),</span> <span class="mf">9.0</span> <span class="o">*</span> <span class="n">f</span><span class="p">))</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.numerics.gauss_legendre">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.numerics.</span></span><span class="sig-name descname"><span class="pre">gauss_legendre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.numerics.gauss_legendre" title="Link to this definition">#</a></dt>
@@ -515,8 +462,6 @@ out of its interval.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.numerics.bell_partitions"><code class="docutils literal notranslate"><span class="pre">bell_partitions()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.numerics.derivative_from_log"><code class="docutils literal notranslate"><span class="pre">derivative_from_log()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.numerics.gauss_legendre"><code class="docutils literal notranslate"><span class="pre">gauss_legendre()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.numerics.gauss_legendre_unit"><code class="docutils literal notranslate"><span class="pre">gauss_legendre_unit()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.numerics.hermite"><code class="docutils literal notranslate"><span class="pre">hermite()</span></code></a></li>

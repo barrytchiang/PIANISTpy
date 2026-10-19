@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/inference';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -234,7 +234,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -382,10 +394,11 @@ and differentiable in both.</p>
 <li><p><strong>velocity</strong> (<em>length</em><em>,</em>) – The factors of the data’s units at the model’s own scales.</p></li>
 <li><p><strong>r_max</strong> (<em>r_min</em><em>,</em>) – The innermost and outermost projected radius of the tables, in
 internal units.</p></li>
-<li><p><strong>free</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – The components whose anisotropy (beta_c, R_a) is a parameter.</p></li>
-<li><p><strong>theta</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_free</em><em>, </em><em>2</em><em>)</em>) – Their own (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>free</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – The components whose anisotropy
+(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>) is a parameter.</p></li>
+<li><p><strong>theta</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_free</em><em>, </em><em>2</em><em>)</em>) – Their own (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>), in internal units.</p></li>
 <li><p><strong>members</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Their tables at any theta, on the host.</p></li>
-<li><p><strong>readings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Their sigma_los^2 readings as JAX functions of theta.</p></li>
+<li><p><strong>readings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Their <span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span> readings as JAX functions of theta.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
@@ -422,12 +435,13 @@ compared are refused here, with an exception.</p>
 unit system of the data.</p></li>
 <li><p><strong>data</strong> (<a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a><em> or </em><em>sequence</em><em> of </em><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a>) – The measurements; their log-likelihoods are summed.</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings of the observables; the model’s by default.</p></li>
-<li><p><strong>free</strong> (<em>sequence</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – The components whose anisotropy (beta_c, R_a) is a parameter of the
+<li><p><strong>free</strong> (<em>sequence</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – The components whose anisotropy
+(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>) is a parameter of the
 likelihood (its <code class="docutils literal notranslate"><span class="pre">theta</span></code>): each a spatially finite model on a
 truncated profile (a DF inverted on its parent’s profile). An
-isotropic or constant member’s beta_c is free and its R_a column is
-held at its own value (infinite), with a zero gradient: the family
-has no R_a.</p></li>
+isotropic or constant member’s <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> is free and its
+<span class="math notranslate nohighlight">\(R_{\rm a}\)</span> column is held at its own value (infinite), with a
+zero gradient: the family has no <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

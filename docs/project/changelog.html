@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'project/changelog';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -281,7 +283,7 @@ with the size of the move; the standard and the minimum requirements are listed 
 <section id="id1">
 <h2>1.0.0<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <p><em>Draft: this entry is final at the release.</em></p>
-<p>The first release, with the paper that describes the method (Chiang, van den Bosch and Schive 2026, MNRAS,
+<p>The first release, with the paper that describes the method, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a> (MNRAS,
 submitted). Everything 0.9.0 announced for this version is in.</p>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
@@ -293,41 +295,62 @@ the GPU; the accuracy grid of the release is on <a class="reference internal" hr
 (the local speed distribution at a 3D radius), beside <code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code>; every
 observable carries its tier.</p></li>
 <li><p>Ranged draws: a range of radii for <code class="docutils literal notranslate"><span class="pre">Sampler</span></code> (<code class="docutils literal notranslate"><span class="pre">r_range</span></code>), a range of speeds at given radii
-(<code class="docutils literal notranslate"><span class="pre">Sampler.speeds</span></code>, <code class="docutils literal notranslate"><span class="pre">v_range</span></code>), and the projected sampler of (R, v_los) pairs (<code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code>).</p></li>
+(<code class="docutils literal notranslate"><span class="pre">Sampler.speeds</span></code>, <code class="docutils literal notranslate"><span class="pre">v_range</span></code>), and the projected sampler of <span class="math notranslate nohighlight">\((R, V_{\rm los})\)</span> pairs (<code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code>).</p></li>
 <li><p>The likelihood of the inference is differentiable in the superposition weights, the unit scales and the
-anisotropy parameters (beta_c, R_a) of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
+anisotropy parameters <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
 through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>, the seven observables as JAX functions of those parameters
 (<a class="reference internal" href="../guide/gradient"><span class="doc">End-to-end differentiability</span></a>).</p></li>
 <li><p>The inference fits a superposition to Gauss-Hermite moments (<code class="docutils literal notranslate"><span class="pre">h3</span></code>, <code class="docutils literal notranslate"><span class="pre">h4</span></code>), at points or averaged over
 apertures, beside the binned data; a free component with moment data is refused, as with binned data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">likelihood</span></code>, <code class="docutils literal notranslate"><span class="pre">Data</span></code>, <code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code> and <code class="docutils literal notranslate"><span class="pre">Particles</span></code> are exported by the package; the gradient
+functions (<code class="docutils literal notranslate"><span class="pre">pianistpy.df.gradient</span></code>) and <code class="docutils literal notranslate"><span class="pre">pianistpy.observables.stages.speed_distribution</span></code> have entries in
+the API reference.</p></li>
+<li><p>The package ships its type information (<code class="docutils literal notranslate"><span class="pre">py.typed</span></code>) and its test suite, run on an installation with
+<code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--pyargs</span> <span class="pre">pianistpy</span></code> (the <code class="docutils literal notranslate"><span class="pre">test</span></code> extra installs pytest); the repository has a citation file.</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The lowered center’s map evaluates its two large, nearly equal terms with <code class="docutils literal notranslate"><span class="pre">expm1</span></code> and <code class="docutils literal notranslate"><span class="pre">log1p</span></code>: the center
-now converges in 20 iterations with no floor; no value of the accuracy ledger moves beyond 1.8e-15.</p></li>
+now converges in 20 iterations with no floor; no value of the accuracy ledger moves beyond <span class="math notranslate nohighlight">\(1.8 \times 10^{-15}\)</span>.</p></li>
 <li><p>The Gauss-Hermite moments’ edge rule is set by the moment’s own scale (the superposed moments’ edge points move
-by at most 3.7e-10).</p></li>
+by at most <span class="math notranslate nohighlight">\(3.7 \times 10^{-10}\)</span>).</p></li>
 <li><p>Every inner cut of the distribution function’s solve is taken from the inputs (no fixed constant).</p></li>
 <li><p>The anisotropy factor and its radial derivatives have one form, read by every part of the solve; a Type II
-radius at or beyond R_a is refused by name where small clamps stood before, and a Type II truncation whose edge
-lies at or beyond R_a is refused after the solve (<code class="docutils literal notranslate"><span class="pre">TYPE</span> <span class="pre">II</span> <span class="pre">EDGE</span></code>).</p></li>
+radius at or beyond <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is refused by name where small clamps stood before, and a Type II truncation whose edge
+lies at or beyond <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is refused after the solve (<code class="docutils literal notranslate"><span class="pre">TYPE</span> <span class="pre">II</span> <span class="pre">EDGE</span></code>).</p></li>
 <li><p>The smallest truncation energy of a Type II distribution function bounded by its domain edge (<code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>) is
-the next float above P(R_a), the smallest the strict gate admits.</p></li>
+the next float above <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>, the smallest the strict gate admits.</p></li>
 <li><p>The slope check of an untruncated Type II distribution function leaves out the first node of its support, where
-the function diverges as (K - P(R_a))^(-1/2) and a one-sided difference misreads it by 2.2e-3; the record
+the function diverges as <span class="math notranslate nohighlight">\((\mathcal{K} - P(R_{\rm a}))^{-1/2}\)</span> and a one-sided difference misreads it by <span class="math notranslate nohighlight">\(2.2 \times 10^{-3}\)</span>; the record
 states the node left out. Seven models of the accuracy ledger move from warning to goal; no tolerance changes.</p></li>
 <li><p>The density round trip of a truncated model is read on every row of the edge approach, where a sampling of
 radii could miss a peak a few rows wide.</p></li>
 <li><p>The observables’ worker processes run on the CPU whatever the platform of the calling process.</p></li>
 <li><p>The minimum versions of the dependencies are found by test, one package at a time and then as one environment,
-and listed on <a class="reference internal" href="../start/install"><span class="doc">Install</span></a> (NumPy 2.3, SciPy 1.15, h5py 3.11, Astropy 6.1, JAX 0.6, Python 3.10);
+and listed on <a class="reference internal" href="../start/install"><span class="doc">Install</span></a> (NumPy 2.3, SciPy 1.15, h5py 3.11, Astropy 6.1, JAX 0.6, Python 3.11);
 Astropy below 7.2 needs NumPy below 2.4. <code class="docutils literal notranslate"><span class="pre">filelock</span></code> is no longer a dependency.</p></li>
 <li><p>The examples of the observables’ guide pages use a Hernquist model with a constant anisotropy of 0.25, and
 <a class="reference internal" href="../guide/lostable"><span class="doc">The prepared table</span></a> states the cost of its example.</p></li>
 <li><p>The rows of the line-of-sight table are computed in blocks sized to the per-core cache (<code class="docutils literal notranslate"><span class="pre">n_block_elements</span></code>
 25000, was 250000): the rows are the same to the bit, and the table builds in about half the wall time.</p></li>
+<li><p>Python 3.11 is the oldest supported (NumPy 2.3, the oldest NumPy that passes the suite, needs it); JAX is
+capped below 0.10.2, on which one test of the suite fails.</p></li>
+<li><p>One exception class per kind of refusal: <code class="docutils literal notranslate"><span class="pre">AccuracyError</span></code> carries the refused model (<code class="docutils literal notranslate"><span class="pre">result</span></code>), as
+<code class="docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code> carries its DF; the sampler’s refusals beyond its limits are <code class="docutils literal notranslate"><span class="pre">AccuracyError</span></code> (were
+<code class="docutils literal notranslate"><span class="pre">ResultError</span></code>), a model of infinite mass at its sampling <code class="docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code>, and an existing file at
+<code class="docutils literal notranslate"><span class="pre">write</span></code> <code class="docutils literal notranslate"><span class="pre">InputError</span></code> for every writer.</p></li>
+<li><p>A result file is read back after it is written and refused unless it holds what was written, to the bit, as
+the particle files are.</p></li>
+<li><p>A report read from a file is checked against the reports of its kind: a check no such report has is refused
+by name, and a check the file lacks (an earlier version made fewer) reads as not judged, so a 0.9.0 file loads
+and says what it lacks. An untruncated model’s outer join and <code class="docutils literal notranslate"><span class="pre">eps</span></code>, which its closed-form profile does not
+measure, are not judged (they read 0 before).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Anisotropy</span></code> stores <code class="docutils literal notranslate"><span class="pre">kind=&quot;I&quot;</span></code> where <code class="docutils literal notranslate"><span class="pre">r_a</span></code> is infinite, since the type does not enter the model there,
+so the same model has one identity.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code> no longer exports <code class="docutils literal notranslate"><span class="pre">bell_partitions</span></code> and <code class="docutils literal notranslate"><span class="pre">derivative_from_log</span></code>, which nothing in the
+package used.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -336,30 +359,33 @@ Astropy below 7.2 needs NumPy below 2.4. <code class="docutils literal notransla
 <li><p>A truncation whose solve reaches its outer radius with no edge is refused by name (<code class="docutils literal notranslate"><span class="pre">NO</span> <span class="pre">EDGE</span></code>, with the radius,
 the potential and its slope there); before, it was returned as a truncated model. A component on a parent
 profile that is not spatially finite is refused by name.</p></li>
-<li><p>At an inner slope near 2 with a positive beta_c, the inversion’s table reaches the depth the host’s smallest
+<li><p>At an inner slope near 2 with a positive <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, the inversion’s table reaches the depth the host’s smallest
 radius allows, and these models build where they were refused; the validity certificate is judged at that
-depth. A central series that degenerates (gamma = 2 beta_c at the center) is refused by name
+depth. A central series that degenerates (<span class="math notranslate nohighlight">\(\gamma = 2\beta_{\rm c}\)</span> at the center) is refused by name
 (<code class="docutils literal notranslate"><span class="pre">CENTRAL</span> <span class="pre">SERIES</span></code>).</p></li>
 <li><p>At an inner slope near 2 the inner extension’s radius no longer underflows to zero; where it lies below the
 double’s range the solve is refused by name.</p></li>
 <li><p>Cuddeford Type II models at an inner slope near 2 no longer fail in the inversion with non-finite slopes.</p></li>
-<li><p>A cusp at the marginal anisotropy 2 beta_c = gamma solves its central deficit: on NFW with beta_c = 0.5 the
-density from the distribution function moves from 7.7e-4 to 3.2e-9 of the profile (warning to goal).</p></li>
+<li><p>A cusp at the marginal anisotropy <span class="math notranslate nohighlight">\(2\beta_{\rm c} = \gamma\)</span> solves its central deficit: on NFW with <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.5\)</span> the
+density from the distribution function moves from <span class="math notranslate nohighlight">\(7.7 \times 10^{-4}\)</span> to <span class="math notranslate nohighlight">\(3.2 \times 10^{-9}\)</span> of the profile (warning to goal).</p></li>
 <li><p>The line-of-sight velocity distribution near the center reads the distribution function by the solve’s depth:
-one unit in the last place of the potential moved it by 1.1e-4 at R_2D = 1e-9, now by 1.6e-15 or less.</p></li>
-<li><p>The lowest row of the truncated density continues the edge law (it read 2.5e-4 above it).</p></li>
+one unit in the last place of the potential moved it by <span class="math notranslate nohighlight">\(1.1 \times 10^{-4}\)</span> at <span class="math notranslate nohighlight">\(R_{\rm 2D} = 10^{-9}\)</span>, now by <span class="math notranslate nohighlight">\(1.6 \times 10^{-15}\)</span> or less.</p></li>
+<li><p>The lowest row of the truncated density continues the edge law (it read <span class="math notranslate nohighlight">\(2.5 \times 10^{-4}\)</span> above it).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DistributionFunction.from_function</span></code> reads the function below the written floor as <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> does: the
-Plummer and Hernquist closed forms certify at the goal (round trip 2.0e-14 and 4.6e-11, where 1.0 before).</p></li>
+Plummer and Hernquist closed forms certify at the goal (round trip <span class="math notranslate nohighlight">\(2.0 \times 10^{-14}\)</span> and <span class="math notranslate nohighlight">\(4.6 \times 10^{-11}\)</span>, where 1.0 before).</p></li>
 <li><p>The particle sampler’s speed table reads its rows at their exact depths and its first slope from the rule below
-it; on the speed tables of the Fig. 7 models with beta_c = 1/2 the worst row falls from 4.1e-4 to 1.7e-6. Where
+it; on the speed tables of the Fig. 7 models of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a> with <span class="math notranslate nohighlight">\(\beta_{\rm c} = 1/2\)</span> the worst row falls from <span class="math notranslate nohighlight">\(4.1 \times 10^{-4}\)</span> to <span class="math notranslate nohighlight">\(1.7 \times 10^{-6}\)</span>. Where
 the table stops at its row cap above the goal, its log line and the sampler say why.</p></li>
-<li><p>The pilot grids keep one node at their seam (two nodes 7e-18 apart at q = 0.05 before).</p></li>
+<li><p>The pilot grids keep one node at their seam (two nodes <span class="math notranslate nohighlight">\(7 \times 10^{-18}\)</span> apart at <span class="math notranslate nohighlight">\(q = 0.05\)</span> before).</p></li>
 <li><p>A product of the earlier pipeline whose potential does not strictly decrease is refused when it is loaded, with
 the first two rows where it rises and the number of such steps.</p></li>
 <li><p>The critical band carries the parent’s central deficit to its cubic term, each term from the deficit’s own
 integral, and its range reads the deficit’s truncation: where the band meets the rows on the
-Fig. 7 children with beta_c = 1/2 the step in log10 F falls from 2.5e-6 to 7.9e-9 or less; one member of the
+Fig. 7 children with <span class="math notranslate nohighlight">\(\beta_{\rm c} = 1/2\)</span> the step in <span class="math notranslate nohighlight">\(\log_{10} F\)</span> falls from <span class="math notranslate nohighlight">\(2.5 \times 10^{-6}\)</span> to <span class="math notranslate nohighlight">\(7.9 \times 10^{-9}\)</span> or less; one member of the
 accuracy ledger moves (its roundtrip median by 2.3 percent), and no tier changes.</p></li>
+<li><p>The environment’s switches read one set of words in any case: <code class="docutils literal notranslate"><span class="pre">PIANISTPY_TIMING=false</span></code> is off (it turned the
+timing on), <code class="docutils literal notranslate"><span class="pre">PIANISTPY_VERBOSITY=INFO</span></code> is <code class="docutils literal notranslate"><span class="pre">info</span></code> (it raised at import), and an unknown value is refused by
+name.</p></li>
 </ul>
 </section>
 <section id="known-limitations">
@@ -367,7 +393,7 @@ accuracy ledger moves (its roundtrip median by 2.3 percent), and no tier changes
 <ul class="simple">
 <li><p>One component per model at the public calls; several components in one potential are planned
 (<a class="reference internal" href="roadmap"><span class="doc">Upcoming features</span></a>).</p></li>
-<li><p>The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with R_a.</p></li>
+<li><p>The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</p></li>
 <li><p>The gradient in the anisotropy parameters refuses a Method I truncated model, whose profile moves with them; a
 Method II model on a fixed parent takes it (<a class="reference internal" href="../guide/gradient"><span class="doc">End-to-end differentiability</span></a>).</p></li>
 <li><p>On a GPU, the derivative of <code class="docutils literal notranslate"><span class="pre">losvd</span></code> and <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> may refuse a row of the line-of-sight table by name
@@ -382,7 +408,7 @@ Method II model on a fixed parent takes it (<a class="reference internal" href="
 <h2>0.9.0<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <p>A pre-release with the whole public interface: the distribution functions and their truncation
 (<code class="docutils literal notranslate"><span class="pre">compute_df</span></code>, <code class="docutils literal notranslate"><span class="pre">truncate</span></code>, <code class="docutils literal notranslate"><span class="pre">solve</span></code>), the particles, the observables, the superposition and the inference.
-Version 1.0.0, released with the paper that describes the method, adds the certified accuracy tiers on both
+Version 1.0.0, released with <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, adds the certified accuracy tiers on both
 backends, the remaining capabilities and the citation.</p>
 <p><strong>Standard requirements</strong> (the versions this release was developed and tested with): Python 3.11.13, NumPy
 2.4.3, SciPy 1.17.1, h5py 3.15.1, Astropy 7.2.0, mpmath 1.3.0, SymPy 1.14.0, JAX 0.9.2, Diffrax 0.7.2,

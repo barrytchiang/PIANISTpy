@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/pdf_v';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -306,7 +306,7 @@
 <h1>Local speed distribution<a class="headerlink" href="#local-speed-distribution" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.pdf_v()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code></p>
 <p><code class="docutils literal notranslate"><span class="pre">pdf_v(source,</span> <span class="pre">r,</span> <span class="pre">v)</span></code> returns the local speed distribution <span class="math notranslate nohighlight">\(p(V\,|\,R)\)</span> at 3D radii: the probability density
-of the speed <span class="math notranslate nohighlight">\(V = |\mathbf{V}|\)</span> of the tracers at a distance <span class="math notranslate nohighlight">\(R\)</span> from the center. As in the paper, the
+of the speed <span class="math notranslate nohighlight">\(V = |\mathbf{V}|\)</span> of the tracers at a distance <span class="math notranslate nohighlight">\(R\)</span> from the center. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, the
 density at a radius is split into the velocity angle <span class="math notranslate nohighlight">\(\varphi\)</span> and the speed,</p>
 <div class="math notranslate nohighlight">
 \[\varrho(R) = 2\pi \int_0^\pi {\rm d}\varphi\; p_\varphi(\varphi\,|\,R)
@@ -317,7 +317,7 @@ density at a radius is split into the velocity angle <span class="math notransla
 \[p(V\,|\,R) = \frac{2\pi}{\varrho(R)} \int_0^\pi p_\varphi(\varphi\,|\,R)\, p_V(V\,|\,R, \varphi)\,{\rm d}\varphi .\]</div>
 <p>It integrates to one over <span class="math notranslate nohighlight">\(V \geq 0\)</span>. Its support ends at the escape speed <span class="math notranslate nohighlight">\(V_{\rm esc}(R)\)</span> for an
 isotropic, constant-anisotropy or Type I model; a Type II model holds orbits of negative energy as well, and its
-speeds reach <span class="math notranslate nohighlight">\(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\)</span>. The radius <span class="math notranslate nohighlight">\(R\)</span> of the paper is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the
+speeds reach <span class="math notranslate nohighlight">\(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\)</span>. The radius <span class="math notranslate nohighlight">\(R\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a> is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the
 package.</p>
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
@@ -332,12 +332,12 @@ velocity of the model’s unit system, and is zero at negative speeds and beyond
 <section id="tiers">
 <h2>Tiers<a class="headerlink" href="#tiers" title="Link to this heading">#</a></h2>
 <p>Each radius asked for is computed once, with three checks: the norm of the distribution against the density, its
-second moment against <span class="math notranslate nohighlight">\(\sigma_r^2 (3 - 2\beta_\sigma)\)</span> from <a class="reference internal" href="sigma_r"><span class="doc">Radial velocity dispersion</span></a>, and the change of the
+second moment against <span class="math notranslate nohighlight">\(\sigma_{\rm r}^2 (3 - 2\beta_\sigma)\)</span> from <a class="reference internal" href="sigma_r"><span class="doc">Radial velocity dispersion</span></a>, and the change of the
 distribution when the nodes of its angle rule double. The nodes double, at most three times, until that change is
-under <code class="docutils literal notranslate"><span class="pre">speed_tolerance</span></code> (the goal 1e-6 at the default tier, the ceiling 1e-4 at the quick tier). A distribution
+under <code class="docutils literal notranslate"><span class="pre">speed_tolerance</span></code> (the goal <span class="math notranslate nohighlight">\(10^{-6}\)</span> at the default tier, the ceiling <span class="math notranslate nohighlight">\(10^{-4}\)</span> at the quick tier). A distribution
 above the goal is returned with a warning; one beyond the hard limit is refused with an
 <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> unless the model’s settings ask for it (<code class="docutils literal notranslate"><span class="pre">write_anyway</span></code>). The stage behind the
-call, <code class="docutils literal notranslate"><span class="pre">pianistpy.observables.stages.speed_distribution</span></code>, returns the distribution at one radius with its
+call, <a class="reference internal" href="../reference/api/observables#pianistpy.observables.stages.speed_distribution" title="pianistpy.observables.stages.speed_distribution"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.observables.stages.speed_distribution()</span></code></a>, returns the distribution at one radius with its
 record, its escape speed, the end of its support and, for a Type II model, the share of it beyond the escape
 speed (<code class="docutils literal notranslate"><span class="pre">unbound_fraction</span></code>).</p>
 </section>

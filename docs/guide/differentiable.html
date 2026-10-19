@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/differentiable';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -307,8 +309,8 @@
 <h2>The object<a class="headerlink" href="#the-object" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pp.Differentiable(model)</span></code> holds a model of one component on a truncated profile (a distribution function inverted
 on its parent’s profile, as <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.truncate()</span></code> makes it) and serves its observables as JAX functions of the
-component’s anisotropy, <code class="docutils literal notranslate"><span class="pre">theta</span> <span class="pre">=</span> <span class="pre">(beta_c,</span> <span class="pre">R_a)</span></code>. Each method takes theta first and mirrors the public call of the
-same name, traceable and differentiable in theta:</p>
+component’s anisotropy, <span class="math notranslate nohighlight">\(\theta = (\beta_{\rm c}, R_{\rm a})\)</span>, passed as <code class="docutils literal notranslate"><span class="pre">theta</span></code>. Each method takes <span class="math notranslate nohighlight">\(\theta\)</span> first and mirrors the public call of the
+same name, traceable and differentiable in <span class="math notranslate nohighlight">\(\theta\)</span>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Differentiable</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 <span class="n">d</span><span class="o">.</span><span class="n">sigma_r</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>                    <span class="c1"># as pp.sigma_r(model at theta, r)</span>
 <span class="n">d</span><span class="o">.</span><span class="n">sigma_t</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>                    <span class="c1"># as pp.sigma_t</span>
@@ -319,38 +321,38 @@ same name, traceable and differentiable in theta:</p>
 <span class="n">d</span><span class="o">.</span><span class="n">aperture_losvd</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">aperture</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>   <span class="c1"># as pp.aperture_losvd</span>
 </pre></div>
 </div>
-<p>Everything is in internal units, whatever the model’s unit system: theta, as the likelihood’s, the radii and apertures
+<p>Everything is in internal units, whatever the model’s unit system: <span class="math notranslate nohighlight">\(\theta\)</span>, as the likelihood’s, the radii and apertures
 a method reads, and the velocities it returns. <code class="docutils literal notranslate"><span class="pre">d.theta</span></code> is the model’s own anisotropy.</p>
-<p>The families are those of the distribution function’s own rule (<a class="reference internal" href="gradient"><span class="doc">End-to-end differentiability</span></a>): constant anisotropy (beta_c; an
-isotropic or constant component’s R_a is held at its own, infinite, value with a zero gradient), Cuddeford Type I
-(beta_c and R_a), Osipkov-Merritt Type I and Type II (R_a). Refused at construction, each with an error that names it:
-Cuddeford Type II (its interior point at P(R_a) moves with both parameters), a superposition or a model of several
+<p>The families are those of the distribution function’s own rule (<a class="reference internal" href="gradient"><span class="doc">End-to-end differentiability</span></a>): constant anisotropy (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>; an
+isotropic or constant component’s <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is held at its own, infinite, value with a zero gradient), Cuddeford Type I
+(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>), Osipkov-Merritt Type I and Type II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>). Refused at construction, each with an error that names it:
+Cuddeford Type II (its interior point at <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span> moves with both parameters), a superposition or a model of several
 components (its components are differentiated through the likelihood), a component that is not spatially finite, and
 one not on a truncated profile that carries its parent’s distribution function.</p>
 </section>
 <section id="what-a-method-computes">
 <h2>What a method computes<a class="headerlink" href="#what-a-method-computes" title="Link to this heading">#</a></h2>
-<p>A method’s value at theta is the public call on the model rebuilt at theta: at the model’s own theta, the plain call’s
-own value, to the byte. Its derivative is the observable’s tangent rows in theta on the tables’ own rows, their
+<p>A method’s value at <span class="math notranslate nohighlight">\(\theta\)</span> is the public call on the model rebuilt at <span class="math notranslate nohighlight">\(\theta\)</span>: at the model’s own <span class="math notranslate nohighlight">\(\theta\)</span>, the plain call’s
+own value, to the byte. Its derivative is the observable’s tangent rows in <span class="math notranslate nohighlight">\(\theta\)</span> on the tables’ own rows, their
 placement frozen, as the likelihood’s free components carry it: between two placements the value moves by the tables’
 tolerance, which the derivative does not carry. Over an aperture the derivative is the aperture’s integral of the
 tangent rows of the squared dispersion, on the plain call’s own nodes and weights (the integral is linear in the
 rows). The line-of-sight velocity distribution, the speed distribution and the aperture’s line-of-sight velocity
 distribution take theirs through the distribution function’s own derivative (<a class="reference internal" href="gradient"><span class="doc">End-to-end differentiability</span></a>), their placement frozen;
 a member whose distribution function that rule refuses is named at construction, and these three methods raise with
-it. At a theta where the model is refused the value is not a number and its gradient zero. A method is not
+it. At a <span class="math notranslate nohighlight">\(\theta\)</span> where the model is refused the value is not a number and its gradient zero. A method is not
 differentiable in its radii.</p>
 </section>
 <section id="the-cost">
 <h2>The cost<a class="headerlink" href="#the-cost" title="Link to this heading">#</a></h2>
-<p>The first time a method meets a theta, the host rebuilds the model there: the distribution function inverted at theta
+<p>The first time a method meets a <span class="math notranslate nohighlight">\(\theta\)</span>, the host rebuilds the model there: the distribution function inverted at <span class="math notranslate nohighlight">\(\theta\)</span>
 on the component’s truncated profile, then the dispersion profile and the projected table with their tangent rows.
 That is the cost of the likelihood’s own rebuild of a free component, about that of the plain call on the model at
-theta. The last eight theta are kept, so the value and the gradient at one theta share one rebuild.</p>
+<span class="math notranslate nohighlight">\(\theta\)</span>. The last eight <span class="math notranslate nohighlight">\(\theta\)</span> are kept, so the value and the gradient at one <span class="math notranslate nohighlight">\(\theta\)</span> share one rebuild.</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
-<p>The derivative of the line-of-sight dispersion at one projected radius in beta_c, by the rule and by a central
+<p>The derivative of the line-of-sight dispersion at one projected radius in <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, by the rule and by a central
 difference of the same function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -369,7 +371,7 @@ difference of the same function:</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">difference</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The two agree to the difference’s own error; each of the two shifted theta is one rebuild.</p>
+<p>The two agree to the difference’s own error; each of the two shifted <span class="math notranslate nohighlight">\(\theta\)</span> is one rebuild.</p>
 </section>
 </section>
 

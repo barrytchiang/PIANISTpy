@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/observables';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -234,7 +234,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -305,7 +317,8 @@
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.observables.</span></span><span class="sig-name descname"><span class="pre">Aperture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_off</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_ape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Aperture" title="Link to this definition">#</a></dt>
 <dd><p>An aperture on the plane of the sky, circular or rectangular.</p>
 <p>Build one with <cite>Aperture.circle</cite> or <cite>Aperture.rectangle</cite>. Lengths are
-in internal units.</p>
+in the unit system of the model (or table) it is used with, as the
+observables’ radii are.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -451,17 +464,18 @@ first, and is a JAX function of it, traceable and differentiable.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference internal" href="df#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – A model of one component on a truncated profile, spatially finite,
-whose family has beta_c or R_a: constant anisotropy (beta_c; an
-isotropic or constant component’s R_a is held at its own, infinite,
-value with a zero gradient), Cuddeford Type I (both), Osipkov-Merritt
-Type I and Type II (R_a).</p></li>
+whose family has <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> or <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>: constant
+anisotropy (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>; an isotropic or constant
+component’s <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is held at its own, infinite, value with
+a zero gradient), Cuddeford Type I (both), Osipkov-Merritt Type I and
+Type II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>).</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings of the observables; the model’s by default.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference internal" href="df#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – The model.</p></li>
-<li><p><strong>theta</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – Its own (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – Its own <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
@@ -493,7 +507,7 @@ not differentiable in its radii (their gradient is NaN).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 <li><p><strong>r</strong> (<em>array-like</em>) – Radii, in internal units.</p></li>
 </ul>
 </dd>
@@ -515,7 +529,7 @@ components together), as <cite>pianistpy.sigma_t</cite> of the model at theta.</
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 <li><p><strong>r</strong> (<em>array-like</em>) – Radii, in internal units.</p></li>
 </ul>
 </dd>
@@ -537,7 +551,7 @@ the model at theta is refused.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 <li><p><strong>r_2d</strong> (<em>array-like</em>) – Projected radii, in internal units.</p></li>
 </ul>
 </dd>
@@ -560,7 +574,7 @@ aperture, weighted by the surface density, as
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 <li><p><strong>aperture</strong> (<a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a>) – The aperture, its lengths in internal units.</p></li>
 </ul>
 </dd>
@@ -574,7 +588,7 @@ refused.</p>
 </dl>
 <p class="rubric">Notes</p>
 <p>The derivative is the aperture’s integral of the tangent rows of
-sigma_los^2, on the nodes and weights of the plain call’s own
+<span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span>, on the nodes and weights of the plain call’s own
 quadrature (the integral is linear in the rows), over twice the value.</p>
 </dd></dl>
 
@@ -582,11 +596,11 @@ quadrature (the integral is linear in the rows), over twice the value.</p>
 <dt class="sig sig-object py" id="pianistpy.observables.Differentiable.losvd">
 <span class="sig-name descname"><span class="pre">losvd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.Differentiable.losvd" title="Link to this definition">#</a></dt>
 <dd><p>Return the line-of-sight velocity distribution at the pairs
-(r_2d, v), as <cite>pianistpy.losvd</cite> of the model at theta.</p>
+<code class="docutils literal notranslate"><span class="pre">(r_2d,</span> <span class="pre">v)</span></code>, as <cite>pianistpy.losvd</cite> of the model at theta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 <li><p><strong>r_2d</strong> (<em>array-like</em>) – Projected radii and line-of-sight velocities, in internal units;
 they broadcast against each other.</p></li>
 <li><p><strong>v</strong> (<em>array-like</em>) – Projected radii and line-of-sight velocities, in internal units;
@@ -606,7 +620,7 @@ shape; NaN where the model at theta is refused.</p>
 transpose onto the table’s rows (<cite>losvd_read_vjp</cite>), the rows’ onto the
 DF’s table and forms (<cite>losvd_rows_vjp</cite>) with the rows’ explicit part
 in the anisotropy, and the DF table’s derivative in theta
-(<cite>df.gradient.table_jacobian</cite>). Not differentiable in r_2d or v.</p>
+(<cite>df.gradient.table_jacobian</cite>). Not differentiable in <code class="docutils literal notranslate"><span class="pre">r_2d</span></code> or v.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -617,7 +631,7 @@ in the anisotropy, and the DF table’s derivative in theta
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 <li><p><strong>r</strong> (<em>array-like</em>) – Radii and speeds, in internal units; they broadcast against each
 other.</p></li>
 <li><p><strong>v</strong> (<em>array-like</em>) – Radii and speeds, in internal units; they broadcast against each
@@ -650,7 +664,7 @@ theta.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s (beta_c, R_a), in internal units.</p></li>
+<li><p><strong>theta</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The component’s <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, in internal units.</p></li>
 <li><p><strong>aperture</strong> (<a class="reference internal" href="#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a>) – The aperture, its lengths in internal units.</p></li>
 <li><p><strong>v</strong> (<em>array-like</em>) – Line-of-sight velocities, in internal units.</p></li>
 </ul>
@@ -716,6 +730,22 @@ observables read from the returned object are given in the units of
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#pianistpy.observables.LosTable" title="pianistpy.observables.core.LosTable"><em>LosTable</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.observables.LosTable.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.LosTable.close" title="Link to this definition">#</a></dt>
+<dd><p>Close the worker processes the table’s aperture calls keep.</p>
+<p>The first aperture read from a table that needs workers starts a pool
+of them, and the table’s later apertures reuse it; the pool closes
+here, or when the table is gone. A table presented in another unit
+system (<cite>to</cite>) shares the pool. An aperture read after <cite>close</cite> starts
+a new one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1057,9 +1087,9 @@ density, <span class="math notranslate nohighlight">\(\sigma_r^2 = \sum_k w_k \s
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>sigma_t</strong> – Tangential velocity dispersion of both tangential components
-together, <span class="math notranslate nohighlight">\(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2
-= 2 (1 - \beta_\sigma) \sigma_r^2\)</span>, in the model’s unit system, with
-the shape of <cite>r</cite>.</p>
+together, <span class="math notranslate nohighlight">\(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2\)</span>
+<span class="math notranslate nohighlight">\(= 2 (1 - \beta_\sigma) \sigma_r^2\)</span>, in the model’s unit system,
+with the shape of <cite>r</cite>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array</p>
@@ -1070,6 +1100,69 @@ the shape of <cite>r</cite>.</p>
 \sum_k w_k \sigma_{{\rm t},k}^2\)</span>.</p>
 </dd></dl>
 
+<section id="the-speed-distribution-s-stage-pianistpy-observables-stages">
+<h2>The speed distribution’s stage (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables.stages</span></code>)<a class="headerlink" href="#the-speed-distribution-s-stage-pianistpy-observables-stages" title="Link to this heading">#</a></h2>
+<p>The stage behind <a class="reference internal" href="#pianistpy.observables.pdf_v" title="pianistpy.observables.pdf_v"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.observables.pdf_v()</span></code></a>, at one radius, with its record (<a class="reference internal" href="../../guide/pdf_v"><span class="doc">Local speed distribution</span></a>).</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.observables.stages.speed_distribution">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.observables.stages.</span></span><span class="sig-name descname"><span class="pre">speed_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.stages.speed_distribution" title="Link to this definition">#</a></dt>
+<dd><p>Return the local speed distribution of a model at a 3D radius.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="df#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – A model of one component.</p></li>
+<li><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Radius, in internal units, inside the profile and, for Type II,
+inside the anisotropy radius.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>) – Numerical settings (the <code class="docutils literal notranslate"><span class="pre">observables</span></code> group’s
+<code class="docutils literal notranslate"><span class="pre">n_speed_angle_nodes</span></code>, <code class="docutils literal notranslate"><span class="pre">n_speed_angle_panels</span></code> and
+<code class="docutils literal notranslate"><span class="pre">speed_tolerance</span></code>).</p></li>
+<li><p><strong>profile</strong> (<em>DispersionProfile</em><em>, </em><em>optional</em>) – The model’s intrinsic second moments, which the second moment is
+checked against; computed when not given.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>distribution</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SpeedDistribution</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – For a model of more than one component, or a radius outside the
+    profile or, for Type II, at or beyond the anisotropy radius.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><span class="math notranslate nohighlight">\(p(V\,|\,r) = (4\pi/\varrho)\, r^{-2b} V^{2-2b} \int_0^1
+(1-t^2)^{-b} f(Q)\,{\rm d}t\)</span> over the DF’s own support (<cite>_speed</cite>), with
+<span class="math notranslate nohighlight">\(t = \cos\eta\)</span>, the angle between the velocity and the radius,
+the variable of the sampler’s angle law. The DF module states the
+support (<cite>AsymptoticForm.below_floor</cite>): F is read through its lookup,
+zero below its first energy where its rule is <code class="docutils literal notranslate"><span class="pre">&quot;zero&quot;</span></code>. A Type II DF
+is a function of <span class="math notranslate nohighlight">\(Q_+ = Z + L^2/(2r_a^2)\)</span>, so its speeds reach
+<span class="math notranslate nohighlight">\(V_{\rm max} = \sqrt{2(\mathcal{P} - K_c)/(1 - r^2/r_a^2)}\)</span>,
+beyond the escape speed where its floor <span class="math notranslate nohighlight">\(K_c\)</span> is below
+<span class="math notranslate nohighlight">\(\xi\mathcal{P}(r)\)</span>, <span class="math notranslate nohighlight">\(\xi = r^2/r_a^2\)</span>, and
+<cite>unbound_fraction</cite> is the share there. A Type II model is truncated at
+<span class="math notranslate nohighlight">\(K_t \geq \mathcal{P}(r_a)\)</span> (<cite>truncate</cite>’s domain gate), so its
+floor in the truncated potential is zero and its unbound share is not.
+A floor at <span class="math notranslate nohighlight">\(\mathcal{P}(r_a)\)</span> itself, in the potential that
+vanishes at infinity, would leave no orbit unbound:
+<span class="math notranslate nohighlight">\(Z \geq (\mathcal{P}(r_a) - \xi\mathcal{P}(r))/(1 - \xi) &gt; 0\)</span>, since
+<span class="math notranslate nohighlight">\(r^2\mathcal{P}(r)\)</span> increases with <span class="math notranslate nohighlight">\(r\)</span> (its derivative
+<span class="math notranslate nohighlight">\(2r\mathcal{P} - M(r) \geq M(r) &gt; 0\)</span>, as
+<span class="math notranslate nohighlight">\(\mathcal{P} \geq M(r)/r\)</span> there).</p>
+<p>The angle rule’s nodes double, at most <cite>SPEED_DOUBLINGS</cite> times, until
+the distribution on the speed rule changes by less than
+<code class="docutils literal notranslate"><span class="pre">speed_tolerance</span></code> of its largest value. On an untruncated Type I DF
+that diverges at its floor (a tail <span class="math notranslate nohighlight">\(F \propto K^{-1/2}\)</span> with a
+logarithmic factor) the distribution is infinite at exactly
+<span class="math notranslate nohighlight">\(V_*\)</span>, an integrable singularity; speeds within
+<cite>SPEED_KINK_GAP</cite> of it are left out of that check.</p>
+<p class="rubric">References</p>
+<p>Paper [eqn:rho_f_anisotropic_scale], [eqn:varphi_prob], [eqn:V_prob].</p>
+</dd></dl>
+
+</section>
 </section>
 
 
@@ -1116,6 +1209,7 @@ the shape of <cite>r</cite>.</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.LosTable"><code class="docutils literal notranslate"><span class="pre">LosTable</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.LosTable.to"><code class="docutils literal notranslate"><span class="pre">LosTable.to()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.LosTable.close"><code class="docutils literal notranslate"><span class="pre">LosTable.close()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.ProjectedPairs"><code class="docutils literal notranslate"><span class="pre">ProjectedPairs</span></code></a></li>
@@ -1130,6 +1224,10 @@ the shape of <cite>r</cite>.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.sigma_los"><code class="docutils literal notranslate"><span class="pre">sigma_los()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.sigma_r"><code class="docutils literal notranslate"><span class="pre">sigma_r()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.sigma_t"><code class="docutils literal notranslate"><span class="pre">sigma_t()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-speed-distribution-s-stage-pianistpy-observables-stages">The speed distribution’s stage (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables.stages</span></code>)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.observables.stages.speed_distribution"><code class="docutils literal notranslate"><span class="pre">speed_distribution()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

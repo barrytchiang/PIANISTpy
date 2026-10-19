@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -178,7 +178,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -232,7 +232,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -300,14 +312,24 @@
 <p>Exceptions and warnings raised by PIANISTpy.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.AccuracyError">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">AccuracyError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.AccuracyError" title="Link to this definition">#</a></dt>
-<dd><p>Raised when a result misses the hard accuracy limit.</p>
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">AccuracyError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.AccuracyError" title="Link to this definition">#</a></dt>
+<dd><p>Raised when a result misses the hard accuracy limit, or cannot be
+resolved at the settings’ resolution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The check that failed, its error and where.</p></li>
+<li><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em>, </em><em>optional</em>) – The result that was refused, complete with its validation report,
+where the refusal came after it was built, so that it can be inspected
+without a second computation (<code class="docutils literal notranslate"><span class="pre">Settings(write_anyway=True)</span></code> returns
+it instead).</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em> or </em><em>None</em>) – The refused result, or None where the refusal came inside a stage.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -360,10 +382,12 @@ run that fails can still say what it was doing.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.ResultError">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">ResultError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.ResultError" title="Link to this definition">#</a></dt>
-<dd><p>Raised when a file does not hold the result it is taken for.</p>
-<p>This covers an unknown format version, a data digest that does not match
-the stored arrays, and a parent whose identity differs from the one the
-file records.</p>
+<dd><p>Raised when a result is not what it is taken for.</p>
+<p>A file that does not hold the result it is taken for: an unknown format
+version, a data digest that does not match the stored arrays, a parent
+whose identity differs from the one the file records, a file that does
+not read back as written. Or a stage’s output that fails a structural
+check the next stage needs: rows that are not finite or not increasing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a>)</p>

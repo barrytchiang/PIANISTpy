@@ -28,7 +28,7 @@ potential vanishes at infinity:
 \[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha} .\]
 
 The lower bound on \(\gamma\) excludes a density that decreases
-towards the center; the upper bound keeps the central potential finite.
+toward the center; the upper bound keeps the central potential finite.
 The bound on \(\beta\) keeps the potential finite at large radii.
 
 The named profiles are parameter sets of this one profile, built by the
@@ -39,7 +39,7 @@ the general incomplete-Beta form.
 
 References
 
-Paper I, Appendix A (labels eqn:double_power_law_MT,
+Chiang et al. (2026d), Appendix A (labels eqn:double_power_law_MT,
 eqn:double_power_law_mass, app:P_beta).
 
 Examples
@@ -252,7 +252,7 @@ mass_t (float) – Truncation radius and total mass.
 
 edge_exponent (array, shape (n_components,)) – Exponent q of each component’s density at the edge.
 
-class pianistpy.profiles.TruncatedProfile(r, p_trunc, rho_trunc, mass_trunc, k_t, r_t, mass_t, spatially_finite, source, source_anisotropy, model, edge_exponent, u_trunc=<factory>, central_deficit=(), override_r=nan, override_r_end=nan, override_rows=0, override_rule='none', origin=<factory>, df_k=<factory>, df_log_f=<factory>, df_slope=<factory>, df_taylor=())
+class pianistpy.profiles.TruncatedProfile(r, p_trunc, rho_trunc, mass_trunc, k_t, r_t, mass_t, spatially_finite, source, source_anisotropy, model, edge_exponent, u_trunc=<factory>, central_deficit=(), override_r=nan, override_r_end=nan, override_rows=0, override_rule='none', origin=<factory>, df_k=<factory>, df_log_f=<factory>, df_slope=<factory>, df_taylor=(), model_level=None)
 
 The self-consistent profile of a truncated model.
 
@@ -314,6 +314,12 @@ to. A component built on this profile (Method II) reads here what
 its parent was.
 
 model (str) – Identity string of the model the profile belongs to.
+
+model_level (int or None) – The tier level of that model’s report (ValidationReport.level),
+written by truncate, so that a component built on this profile
+(Method II) takes it as its parents’ tier. None where it was not
+recorded (a profile made otherwise, or read from a file written
+before it was): read as level 0.
 
 edge_exponent (tuple of float) – Exponent \(q\) of each component’s density at the edge of the
 model, \(\rho \propto \mathcal{P}^q\); empty where the model

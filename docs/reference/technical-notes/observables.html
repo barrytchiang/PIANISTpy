@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>T:6 Velocity profiles and projections &#8212; PIANISTpy 0.9.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../_static/documentation_options.js?v=5cc9d92e"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'reference/technical-notes/observables';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../_static/logo.png"/>
+    <link rel="index" title="Index" href="../../genindex" />
+    <link rel="search" title="Search" href="../../search" />
+    <link rel="next" title="T:7 Gradients" href="gradients" />
+    <link rel="prev" title="T:5 Particle sampling" href="sampling" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.9.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+
+<meta name="robots" content="noindex, nofollow">
+
+
+<link rel="alternate" type="text/markdown" href="observables.md">
+
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreFranklin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/SourceSerif4.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreBaskerville.woff2">
+
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  
+
+  
+
+<!-- band -->
+<header id="pst-header" class="site d-print-none">
+  <div class="site-in">
+    <div class="site-top">
+      <a class="site-title" href="../../../">PIANISTpy</a>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; version 0.9.0</div>
+    </div>
+    <nav class="site-nav" aria-label="Site">
+      
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options (set_platform, set_workers, ...)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api/index">Functions by subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../notes">Technical notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="site-icons">
+        <a href="../../search" title="Search" aria-label="Search"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg></a>
+        <a href="https://github.com/barrytchiang/PIANISTpy" title="GitHub" aria-label="GitHub" rel="noopener" target="_blank"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+        <a href="https://pypi.org/project/pianistpy/" title="PyPI" aria-label="PyPI" rel="noopener" target="_blank"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6zM286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3zM167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4zm-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3z"/></svg></a>
+        <!-- manual-only -->
+        <button type="button" class="site-toggle sidebar-toggle primary-toggle" aria-label="Pages of this tab"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></button>
+        <!-- /manual-only -->
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
+
+<!-- /band -->
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><div class="sidebar-logo">
+  <a href="../../../"><img src="../../_static/logo.png" alt="PIANISTpy"></a>
+</div></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="API reference">
+  <p class="bd-links__title" role="heading" aria-level="1">API reference</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index">Functions by subpackage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/pianistpy">The package (<code class="docutils literal notranslate"><span class="pre">pianistpy</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/profiles">Density profiles (<code class="docutils literal notranslate"><span class="pre">pianistpy.profiles</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/anisotropy">Velocity anisotropy (<code class="docutils literal notranslate"><span class="pre">pianistpy.anisotropy</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/df">Distribution functions and models (<code class="docutils literal notranslate"><span class="pre">pianistpy.df</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/particles">Particles (<code class="docutils literal notranslate"><span class="pre">pianistpy.particles</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/observables">Observables (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/superposition">Superposition (<code class="docutils literal notranslate"><span class="pre">pianistpy.superposition</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/inference">Inference (<code class="docutils literal notranslate"><span class="pre">pianistpy.inference</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/units">Units (<code class="docutils literal notranslate"><span class="pre">pianistpy.units</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/io">Results and files (<code class="docutils literal notranslate"><span class="pre">pianistpy.io</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/settings">Settings (<code class="docutils literal notranslate"><span class="pre">pianistpy.settings</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/validation">Validation (<code class="docutils literal notranslate"><span class="pre">pianistpy.validation</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/exceptions">Exceptions (<code class="docutils literal notranslate"><span class="pre">pianistpy.exceptions</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/runtime">Runtime options (<code class="docutils literal notranslate"><span class="pre">pianistpy.runtime</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/numerics">Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../notes">Technical notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="references">References</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../notes" class="nav-link">Technical notes</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">T:6 Velocity profiles and projections</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="t-6-velocity-profiles-and-projections">
+<span id="tn-sec-observables"></span><h1>T:6 Velocity profiles and projections<a class="headerlink" href="#t-6-velocity-profiles-and-projections" title="Link to this heading">#</a></h1>
+<p>An observable is a function of a model, and a request computes only what it needs. Two routes exist, and they share nothing but the model: the second moments follow from the density and the potential, whereas the velocity distributions follow from the DF, so each route checks the other. The prepared table of a model holds both routes and reads from them.</p>
+<section id="t-6-1-intrinsic-moments">
+<span id="tn-sec-num-sup"></span><h2>T:6.1 Intrinsic moments<a class="headerlink" href="#t-6-1-intrinsic-moments" title="Link to this heading">#</a></h2>
+<section id="t-6-1-1-the-jeans-integral">
+<span id="tn-sec-jeans-section"></span><h3>T:6.1.1 The Jeans integral<a class="headerlink" href="#t-6-1-1-the-jeans-integral" title="Link to this heading">#</a></h3>
+<p>For each component, the radial dispersion follows from the Jeans equation in the form</p>
+<div class="math notranslate nohighlight" id="tn-eq-jeans">
+\begin{equation}
+  \varrho_\mathrm{aux}\,\sigma_r^2\,(R) = \int_0^{P(R)} \varrho_\mathrm{aux}\,\mathrm{d} P ,
+  \tag{T:6.1}
+\end{equation}</div><p>with the member’s own <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span>; the part of the integral below the lowest potential of the table is taken over the DF, and it is zero for a spatially finite model. The profile is tabulated in radius on rows from the first row of the profile to its last. Rows are added until every interval reads within the profile tolerance at its midpoint, and the nodes of the panels are doubled until <span class="math notranslate nohighlight">\(\sigma_r\)</span> moves by less than that tolerance. The superposition’s own route evaluates the integral on Gauss-Legendre nodes in <span class="math notranslate nohighlight">\(\ln(1 - \mathcal{K}/P_0)\)</span>, which resolves the center, so that the two routes agree to rounding. The tangential dispersion of both tangential components together is <span class="math notranslate nohighlight">\(\sigma_t^2 = 2(1 - \beta_\sigma)\,\sigma_r^2\)</span>, with <span class="math notranslate nohighlight">\(\beta_\sigma\)</span> the anisotropy of the model in closed form.</p>
+</section>
+</section>
+<section id="t-6-2-projection">
+<span id="tn-sec-projection"></span><h2>T:6.2 Projection<a class="headerlink" href="#t-6-2-projection" title="Link to this heading">#</a></h2>
+<p>The surface density and the line-of-sight dispersion, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B46), come from a single line-of-sight rule with a single density, on two panels in the depth along the line of sight, at projected radii spaced logarithmically from the innermost row to a fixed fraction of the last row. Rows are added until the table reads itself between rows to within the tolerance of the certificate: the value read at a radius between two rows is compared with a row computed at that radius. Near a spatially finite edge, the table is read in <span class="math notranslate nohighlight">\(x = \ln[R/(1 - R/R_\mathrm{t})]\)</span>, which is <span class="math notranslate nohighlight">\(\ln R\)</span> far inside and <span class="math notranslate nohighlight">\(-\ln(1 - R/R_\mathrm{t})\)</span> at the edge, so that the edge factor is resolved. A projected radius inside the innermost row is refused.</p>
+</section>
+<section id="t-6-3-apertures">
+<span id="tn-sec-aperture"></span><h2>T:6.3 Apertures<a class="headerlink" href="#t-6-3-apertures" title="Link to this heading">#</a></h2>
+<p>The dispersion inside an aperture is the surface-density weighted average of <span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span>, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B50). For an axisymmetric integrand every aperture reduces to a one-dimensional integral, <span class="math notranslate nohighlight">\(\int f(R)\,\mathrm{arc}(R)\,R\,\mathrm{d} R\)</span>, where <span class="math notranslate nohighlight">\(\mathrm{arc}(R)\)</span> is the angular measure of the circle of radius <span class="math notranslate nohighlight">\(R\)</span> that lies inside the aperture. A centered circle takes nodes uniform in <span class="math notranslate nohighlight">\(\ln R\)</span> from the first row of the table. An offset circle has a full-circle core and a band of its own, the band under an end-point map in <span class="math notranslate nohighlight">\(R - R_{\rm off}\)</span> where it is narrow. A rectangle takes one panel between consecutive breaks of its arc, each with at least a stated number of Gauss-Legendre nodes and more per decade of its span. Above <span class="math notranslate nohighlight">\(R_\mathrm{t}/\sqrt{2}\)</span>, where the factors <span class="math notranslate nohighlight">\(R\)</span> and <span class="math notranslate nohighlight">\(v\)</span> of the measure <span class="math notranslate nohighlight">\(R\,\mathrm{d} R = -v\,\mathrm{d} v\)</span> are equal, a panel is taken in <span class="math notranslate nohighlight">\(v = (R_\mathrm{t}^2 - R^2)^{1/2}\)</span>, in which the integrand is smooth up to the edge. An aperture that encloses no tabulated surface density, or whose disk inside the first row carries more than a stated share of its weight, is refused with a named reason.</p>
+</section>
+<section id="t-6-4-the-line-of-sight-velocity-distribution">
+<span id="tn-sec-losvd-rows"></span><h2>T:6.4 The line-of-sight velocity distribution<a class="headerlink" href="#t-6-4-the-line-of-sight-velocity-distribution" title="Link to this heading">#</a></h2>
+<p>The distribution <span class="math notranslate nohighlight">\(D(R_{\rm 2D}, V)\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B53) is computed row by row at projected radii. On the plane <span class="math notranslate nohighlight">\(V_{\rm los} = V\)</span> at depth <span class="math notranslate nohighlight">\(u\)</span> along the line of sight, the level sets of <span class="math notranslate nohighlight">\(Q\)</span> are ellipses centered on the maximum of <span class="math notranslate nohighlight">\(Q\)</span>, so the integral over the velocity plane is</p>
+<div class="math notranslate nohighlight" id="tn-eq-ellipse">
+\begin{equation}
+  \iint F\,\mathrm{d} V_{\perp 1}\,\mathrm{d} V_{\perp 2} = \frac{R/R_{\rm 2D}}{\sqrt{Aq}}\int_0^{Q_c} F(Q_c - s)\,\Lambda(s)\,\mathrm{d} s ,
+  \tag{T:6.2}
+\end{equation}</div><p>with <span class="math notranslate nohighlight">\(Q_c\)</span> the maximum, <span class="math notranslate nohighlight">\(Aq\)</span> the product of the coefficients of the ellipse’s axes, and <span class="math notranslate nohighlight">\(\Lambda(s)\)</span> the integral of <span class="math notranslate nohighlight">\((L^2)^{-\beta_\mathrm{c}}\)</span> around the level set. Where the DF carries no <span class="math notranslate nohighlight">\(L\)</span> factor, <span class="math notranslate nohighlight">\(\Lambda = 2\pi\)</span>, and the <span class="math notranslate nohighlight">\(s\)</span> integral is the cumulative DF <span class="math notranslate nohighlight">\(G(Q_c)\)</span>, read from a table of three branches. With the <span class="math notranslate nohighlight">\(L\)</span> factor, <span class="math notranslate nohighlight">\(\Lambda = \int_0^{\pi}[(c_1 - c_2\cos\phi)^2 + c_3\sin^2\phi]^{-\beta_\mathrm{c}}\,\mathrm{d}\phi\)</span> is taken by a split rule that is dense toward the minimum of its base on each half, <span class="math notranslate nohighlight">\(\phi = \lambda\sinh(\mu x)\)</span> on <span class="math notranslate nohighlight">\([0, \pi/2]\)</span> with <span class="math notranslate nohighlight">\(\mu = \mathrm{arsinh}(\pi/2\lambda)\)</span>, at a stated number of Gauss-Legendre nodes per half, as a JAX kernel; at <span class="math notranslate nohighlight">\(\beta_\mathrm{c} = \pm 1/2\)</span> it is a complete elliptic integral in closed form. The <span class="math notranslate nohighlight">\(s\)</span> integral is taken on Gauss-Legendre panels graded toward the energy of the DF’s floor, where the rule of the DF below its table meets the table. The point of zero angular momentum, where the non-analytic part of <span class="math notranslate nohighlight">\(\Lambda\)</span> behaves as <span class="math notranslate nohighlight">\(|s - s_0|^{1-2\beta_\mathrm{c}}\)</span>, and the point <span class="math notranslate nohighlight">\(V = 0\)</span>, where <span class="math notranslate nohighlight">\(\Lambda \propto s^{-\beta_\mathrm{c}}\)</span>, take graded layers whose count follows from <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> alone, namely the least count that integrates the end-point power to the tolerance, with a stated floor where a negative power is self-similar under the layers. The depth integral is taken on panels of each interval of the support along the line of sight, doubled until the tests of the row pass.</p>
+<p>A row is taken on panels in <span class="math notranslate nohighlight">\(V\)</span>, with breaks at the velocities where its layout changes: the velocity of the radial orbit, <span class="math notranslate nohighlight">\(V_{\rm rad}\)</span>, and the velocity <span class="math notranslate nohighlight">\(V_k\)</span> at which the level set first meets the floor of the DF. Each is kept as a break only where the two panels adjacent to it carry more than a stated share of the row (decided once on the base rows, with each change bisected in <span class="math notranslate nohighlight">\(\ln R_{\rm 2D}\)</span>), with sub-panels graded toward zero velocity and toward each break at a stated ratio, and with the innermost sub-panel kept above the spacing of doubles at the break. Every row is normalized to one and checked against two quantities computed without it: its integral against the surface density, and its second moment against the projected dispersion (<a class="reference internal" href="#tn-sec-projection"><span class="std std-ref">Section T:6.2</span></a>).</p>
+<p>A general-purpose integrator applied to the same integral, as in AGAMA (<a class="reference external" href="https://doi.org/10.1093/mnras/sty2672" rel="noopener" target="_blank">Vasiliev 2019</a>), stops by default at a relative tolerance of <span class="math notranslate nohighlight">\(10^{-3}\)</span> for the moments and of <span class="math notranslate nohighlight">\(10^{-2}\)</span> for the distribution. The rows here are fixed rules whose every end-point behavior is removed by construction, and they are certified at the goal.</p>
+</section>
+<section id="t-6-5-the-table-of-rows-and-its-certificate">
+<span id="tn-sec-losvd-table"></span><h2>T:6.5 The table of rows and its certificate<a class="headerlink" href="#t-6-5-the-table-of-rows-and-its-certificate" title="Link to this heading">#</a></h2>
+<p>The base rows are placed at a stated number per decade of projected radius. By default they run from the first row of the profile out to the last base row beyond which the projected mass falls below the goal times the total projected mass; the rows that the profile would carry beyond that radius, where the DF is zero below the floor or the surface density is about zero, are not computed, and a read beyond the last row, including a read at a single point, is refused with the radius of the last row and the setting that moves it named. The inner end is kept at full depth by default. A user who will read the table only outside a stated projected radius may give that radius, and the rows then start where the projected mass inside the first row falls below the goal times the projected mass inside the stated radius; a read inside the first row is refused in the same words. Rows are added toward each radius where the layout changes, toward the end, and wherever a stretch is short. Rows are then added until the distribution read between two neighboring rows, by a stencil of a stated number of rows, agrees with a row computed there to the tolerance of the settings. An interval that cannot be closed is recorded with its reason, and a request inside it is refused with that reason named. The certificate of the table is its last estimate of its reading between rows, in units of its tolerances. The rows are computed in a pool of processes, one row per process. The report of the table (<a class="reference internal" href="verification#tn-sec-reports"><span class="std std-ref">Section T:8.1</span></a>) carries the worst norm and second moment over the rows, the rows that could not be judged, the rows whose depth rule did not converge, the certificate, and the floor of the layers at the point of zero angular momentum where <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> lies between <span class="math notranslate nohighlight">\(1/2\)</span> and <span class="math notranslate nohighlight">\(1\)</span>.</p>
+</section>
+<section id="t-6-6-the-distribution-in-an-aperture">
+<span id="tn-sec-aperture-losvd"></span><h2>T:6.6 The distribution in an aperture<a class="headerlink" href="#t-6-6-the-distribution-in-an-aperture" title="Link to this heading">#</a></h2>
+<p>The distribution inside an aperture is the surface-density weighted average of the rows over the aperture, that is, the form of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B77) for one component. No row is computed for it. The rows are read at the radii of the aperture’s rule (<a class="reference internal" href="#tn-sec-aperture"><span class="std std-ref">Section T:6.3</span></a>), with every break of a row followed as a function of radius, and each radius is scanned once. The result is formed on its own panels in <span class="math notranslate nohighlight">\(V\)</span>, with breaks at zero, at the smallest and the largest value of each row break over the aperture, and at the top; a velocity that meets a break curve inside the aperture takes the radii where the curve equals it as breaks of its radial rule. The output rule refines itself by bisecting its widest sub-panels until its norm and its second moment are within one hundredth of the goal of the rows’ own rule. At any velocity, the distribution is the polynomial of its panel through the panel’s own nodes, namely the Legendre series of the antiderivative of the quadrature, so that it integrates exactly as the quadrature does. Its second moment is checked against the dispersion of the aperture from the projected tables, which reads no distribution.</p>
+</section>
+<section id="t-6-7-gauss-hermite-moments">
+<span id="tn-sec-gauss-hermite"></span><h2>T:6.7 Gauss-Hermite moments<a class="headerlink" href="#t-6-7-gauss-hermite-moments" title="Link to this heading">#</a></h2>
+<p>With <span class="math notranslate nohighlight">\(y = (V - V_*)/\sigma_*\)</span>, where <span class="math notranslate nohighlight">\(V_*\)</span> and <span class="math notranslate nohighlight">\(\sigma_*\)</span> are the mean and the dispersion of the distribution itself, the moments of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B63) are</p>
+<div class="math notranslate nohighlight" id="tn-eq-gauss-hermite">
+\begin{equation}
+  h_n = 2\sqrt{\pi}\int D(V)\,H_n(y)\,\frac{e^{-y^2/2}}{\sqrt{2\pi}}\,\mathrm{d} V , \qquad H_3 = \frac{2y^3 - 3y}{\sqrt{3}}, \quad H_4 = \frac{4y^4 - 12y^2 + 3}{2\sqrt{6}} ,
+  \tag{T:6.3}
+\end{equation}</div><p>with the Hermite functions of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, Eq. (B61). They are taken on the velocity nodes and weights of a row or of an aperture distribution, mirrored to both signs and normalized to unit integral. The standardized moments by direct sums are reported beside them; to first order, <span class="math notranslate nohighlight">\(s_3 = 4\sqrt{3}\,h_3\)</span> and <span class="math notranslate nohighlight">\(s_4 = 3 + 8\sqrt{6}\,h_4\)</span>. Moments at projected radii are tabulated once over radius and read between rows; moments over apertures are taken on the distribution of each aperture.</p>
+</section>
+<section id="t-6-8-the-local-speed-distribution">
+<span id="tn-sec-pdf-v"></span><h2>T:6.8 The local speed distribution<a class="headerlink" href="#t-6-8-the-local-speed-distribution" title="Link to this heading">#</a></h2>
+<p>With <span class="math notranslate nohighlight">\(t = \cos\eta\)</span>, where <span class="math notranslate nohighlight">\(\eta\)</span> is the angle between the velocity and the radius, <span class="math notranslate nohighlight">\(\xi = (r/R_\mathrm{a})^2\)</span>, and <span class="math notranslate nohighlight">\(s\)</span> the sign of the anisotropy (<span class="math notranslate nohighlight">\(+1\)</span> for Type I, <span class="math notranslate nohighlight">\(-1\)</span> for Type II, and <span class="math notranslate nohighlight">\(0\)</span> without <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span>),</p>
+<div class="math notranslate nohighlight" id="tn-eq-pdf-v">
+\begin{equation}
+  p(V\,|\,r) = \frac{4\pi}{\varrho(r)}\,r^{-2b}\,V^{2-2b}\int_0^{1}(1 - t^2)^{-b}\,F(Q)\,\mathrm{d} t , \qquad Q = P(r) - \frac{V^2}{2}(1 + s\xi) + \frac{s\xi V^2}{2}\,t^2 ,
+  \tag{T:6.4}
+\end{equation}</div><p>where <span class="math notranslate nohighlight">\(b\)</span> is <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> for the constant and COM classes and 0 otherwise. Since <span class="math notranslate nohighlight">\(Q\)</span> is quadratic in <span class="math notranslate nohighlight">\(t\)</span>, the edge of the support of the DF is an end of the interval in <span class="math notranslate nohighlight">\(t\)</span> and never an interior point. The interval is split where <span class="math notranslate nohighlight">\(Q\)</span> crosses the first energy of the table, and for <span class="math notranslate nohighlight">\(b &gt; 0\)</span> the piece that ends at <span class="math notranslate nohighlight">\(t = 1\)</span> is integrated in <span class="math notranslate nohighlight">\(w\)</span>, with <span class="math notranslate nohighlight">\(1 - t = w^{p}\)</span> and <span class="math notranslate nohighlight">\(p = 1/(1 - b)\)</span>, so that <span class="math notranslate nohighlight">\((1 - t)^{-b}\,\mathrm{d} t = p\,\mathrm{d} w\)</span>. A Type II model holds orbits of negative energy, and its speeds reach <span class="math notranslate nohighlight">\(V_{\rm esc}/\sqrt{1 - r^2/R_\mathrm{a}^2}\)</span>; the share beyond the escape speed is reported. Each radius is computed with three checks: the norm against the density, the second moment against <span class="math notranslate nohighlight">\(\sigma_r^2(3 - 2\beta_\sigma)\)</span>, and the change of the distribution when the nodes of its angle rule are doubled, at most three times, until that change falls below the tolerance.</p>
+</section>
+<section id="t-6-9-superposed-models">
+<span id="tn-sec-mixing"></span><h2>T:6.9 Superposed models<a class="headerlink" href="#t-6-9-superposed-models" title="Link to this heading">#</a></h2>
+<p>A superposed model (<a class="reference internal" href="sup#tn-sec-sup"><span class="std std-ref">Section T:4</span></a>) is projected one component at a time, each on its own tables, and the components are then combined with their weights. The members share one surface density, so the projected second moment is linear in the weights,</p>
+<div class="math notranslate nohighlight" id="tn-eq-sup-los">
+\begin{equation}
+  \sigma_{\rm los}^2(R) = \sum_i c_i\,\sigma_{{\rm los},i}^2(R) ,
+  \tag{T:6.5}
+\end{equation}</div><p>and the same holds for the intrinsic second moments. With the projected moments of each member tabulated once, the composite profile for a new set of weights costs one matrix-vector product, which is what the likelihood of <a class="reference internal" href="gradients#tn-sec-likelihood"><span class="std std-ref">Section T:7.4</span></a> evaluates. A distribution at a projected radius mixes by the surface densities, <span class="math notranslate nohighlight">\(D = \sum_k w_k\Sigma_k D_k/\sum_k w_k\Sigma_k\)</span>; a distribution in an aperture mixes by the projected masses inside it; and the local speed distribution mixes by the densities at that radius.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-1-intrinsic-moments">T:6.1 Intrinsic moments</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-1-1-the-jeans-integral">T:6.1.1 The Jeans integral</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-2-projection">T:6.2 Projection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-3-apertures">T:6.3 Apertures</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-4-the-line-of-sight-velocity-distribution">T:6.4 The line-of-sight velocity distribution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-5-the-table-of-rows-and-its-certificate">T:6.5 The table of rows and its certificate</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-6-the-distribution-in-an-aperture">T:6.6 The distribution in an aperture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-7-gauss-hermite-moments">T:6.7 Gauss-Hermite moments</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-8-the-local-speed-distribution">T:6.8 The local speed distribution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-6-9-superposed-models">T:6.9 Superposed models</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Barry T. Chiang.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/" rel="noopener" target="_blank">Sphinx</a> 9.0.4.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

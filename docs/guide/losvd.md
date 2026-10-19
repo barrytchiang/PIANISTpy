@@ -8,7 +8,7 @@ pianistpy.losvd(), pianistpy.LosTable
 
 losvd(source, r_2d, v) returns the line-of-sight velocity distribution \(D(R_{\rm 2D}, V_{\rm los})\) at
 projected radii: the probability density of the velocity along the line of sight of the tracers seen at a
-projected distance \(R_{\rm 2D}\) from the center. As in the paper, it is the distribution function
+projected distance \(R_{\rm 2D}\) from the center. As in Chiang et al. (2026d), it is the distribution function
 integrated over the line of sight and over the two velocity components on the plane of the sky,
 
 \[D(R_{\rm 2D}, V_{\rm los}) = \frac{2}{\Sigma(R_{\rm 2D})} \int_{R_{\rm 2D}}^{R_{\rm t}}

@@ -6,16 +6,16 @@ Source: https://pianistpy.com/docs/guide/sigma_r
 
 pianistpy.sigma_r(), pianistpy.LosTable
 
-sigma_r(source, r) returns the intrinsic radial velocity dispersion \(\sigma_r\) at 3D radii: the second
-moment of the radial velocity over the model’s distribution function at a fixed radius. As in the paper, it is
+sigma_r(source, r) returns the intrinsic radial velocity dispersion \(\sigma_{\rm r}\) at 3D radii: the second
+moment of the radial velocity over the model’s distribution function at a fixed radius. As in Chiang et al. (2026d), it is
 the velocity moment of the augmented density \(\varrho_{\rm aug}(P, R)\) taken at the potential of the radius,
 
-\[\sigma_r^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
+\[\sigma_{\rm r}^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
 {\rm d}\mathcal{K}, \qquad P = P(R),\]
 
 which for the anisotropy models of the package, whose augmented density separates as
 \(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\), is the Jeans integral of \(\varrho_{\rm aux}\)
-over the potential. The radius \(R\) of the paper is r in the package.
+over the potential. The radius \(R\) of Chiang et al. (2026d) is r in the package.
 
 ## Arguments and units
 
@@ -26,12 +26,12 @@ model.to("physical", ...). The result has the shape of r, in the model’s veloc
 physical system).
 
 Of a superposition, whose components share one density, the second moments add with the weights:
-\(\sigma_r^2 = \sum_k w_k \sigma_{r,k}^2\).
+\(\sigma_{\rm r}^2 = \sum_k w_k \sigma_{{\rm r},k}^2\).
 
 ## Tiers
 
 The profile is tabulated once per model in radius, with rows added until every interval between rows reads
-within profile_tolerance at its midpoint (1e-7 at the default tier, 1e-6 at the quick tier; a tenth of the
+within profile_tolerance at its midpoint (\(10^{-7}\) at the default tier, \(10^{-6}\) at the quick tier; a tenth of the
 goal, the profile’s share of the error of what is projected from it). A model beyond the hard limit is refused
 unless its settings ask for it (write_anyway), as for every observable (Accuracy).
 

@@ -27,9 +27,10 @@ pp.aperture_losvd(table, circle, [0.0, 0.1, 0.2])    # the distribution in the a
 ```
 
 An Aperture is circular or rectangular, centered or offset, the rectangle at an angle; every aperture call
-takes the same object. The intrinsic radial and tangential dispersions, the line-of-sight velocity distribution
-itself and its Gauss-Hermite moments are available in the same way; their public names are listed in the
-API reference.
+takes the same object. The intrinsic radial and tangential dispersions and the line-of-sight velocity
+distribution itself are available in the same way; their public names are listed in the
+API reference. The distribution’s Gauss-Hermite moments (h3, h4)
+enter the inference as data (pianistpy.inference.Data); they are not an observable call of their own.
 
 Pairs of projected radius and line-of-sight velocity are drawn by ProjectedSampler on an annulus and, if
 given, in a window of velocity, exactly conditioned: the radius carries the window’s share of the distribution

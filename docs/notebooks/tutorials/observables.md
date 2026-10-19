@@ -55,7 +55,7 @@ pp.sigma_los(table, r_2d), pp.sigma_los_aperture(table, circle)
 
 ```
 
-In physical units, radii and apertures are given in parsecs (or as Astropy quantities) and the dispersions are returned in km/s. Here M_0 = 1e9 solar masses and r_0 = 500 pc, with a concentration of 10.
+In physical units, radii and apertures are given in parsecs (or as Astropy quantities) and the dispersions are returned in km/s. Here \(M_0 = 10^9\) solar masses and \(r_0 = 500\) pc, with a concentration of 10.
 
 ```
 physical = model.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)

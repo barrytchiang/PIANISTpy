@@ -54,7 +54,7 @@ bytes, as the CUDA driver states them; None off a CUDA GPU.
 
 The driver is asked in the device’s primary context, the one JAX uses,
 so asking makes no context of its own. Its free memory counts what
-every process holds on the card, a CUDA context included, which the
+every process holds on the GPU, a CUDA context included, which the
 allocator’s own statistics do not.
 
 Return type:
@@ -112,8 +112,8 @@ pianistpy.runtime.peak_memory()
 
 Return the largest resident memory this process has held, in bytes.
 
-This is the memory of the host process. Memory held on a graphics card
-is not part of it.
+This is the memory of the host process. Memory held on a GPU is not
+part of it.
 
 Returns:
 

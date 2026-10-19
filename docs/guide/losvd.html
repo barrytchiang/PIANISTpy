@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/losvd';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -307,7 +307,7 @@
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.losvd()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code></p>
 <p><code class="docutils literal notranslate"><span class="pre">losvd(source,</span> <span class="pre">r_2d,</span> <span class="pre">v)</span></code> returns the line-of-sight velocity distribution <span class="math notranslate nohighlight">\(D(R_{\rm 2D}, V_{\rm los})\)</span> at
 projected radii: the probability density of the velocity along the line of sight of the tracers seen at a
-projected distance <span class="math notranslate nohighlight">\(R_{\rm 2D}\)</span> from the center. As in the paper, it is the distribution function
+projected distance <span class="math notranslate nohighlight">\(R_{\rm 2D}\)</span> from the center. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>, it is the distribution function
 integrated over the line of sight and over the two velocity components on the plane of the sky,</p>
 <div class="math notranslate nohighlight">
 \[D(R_{\rm 2D}, V_{\rm los}) = \frac{2}{\Sigma(R_{\rm 2D})} \int_{R_{\rm 2D}}^{R_{\rm t}}

@@ -9,7 +9,15 @@ pip install pianistpy
 
 ```
 
-PIANISTpy needs Python 3.10 or later and runs on Linux, macOS and Windows.
+PIANISTpy needs Python 3.11 or later and runs on Linux, macOS and Windows.
+
+The test suite ships with the package. To run it on an installation:
+
+```
+pip install "pianistpy[test]"
+pytest --pyargs pianistpy
+
+```
 
 ## Requirements
 
@@ -26,7 +34,7 @@ Python
 
 3.11
 
-3.10 (the oldest with a JAX 0.6 wheel; the suite is run on 3.11)
+3.11 (the oldest NumPy 2.3 supports)
 
 NumPy
 
@@ -54,7 +62,7 @@ Astropy
 
 mpmath
 
-1.4
+1.3
 
 1.1.0
 
@@ -86,6 +94,9 @@ The minimum list is measured one package at a time with the others at their newe
 versions together as one environment, which passes the suite; the standard list is the environment of the
 release. Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function NumPy 2.4 removed).
 
+JAX is capped below 0.10.2, on which one test of the suite fails; pip installs the newest JAX below it. The
+standard list is the environment the continuous integration runs.
+
 ## JAX and the GPU
 
 The package runs on the CPU everywhere and uses a GPU where the installed JAX supports one, with no setting to
@@ -100,108 +111,185 @@ clusters, serves one process, so where another process already holds it the pack
 error begins Unable to initialize backend 'cuda'. Free the GPU, share it through an MPS daemon
 (nvidia-cuda-mps-control -d), or run in the CPU-only mode.
 
-A GPU speeds up the sampler and nothing else. The sampler’s speed table builds in 0.6 to 6.6 s on the GPU against
-4.6 to 40 s on 8 cores, and drawing is faster on the GPU from about ten thousand particles, three to five times
-from a hundred thousand. The DF’s Poisson solve runs on the CPU on every platform: it is a serial ODE, and on a
-GPU each step would pay about a millisecond of launch latency, 50 to 200 times the CPU’s wall. The rows of the
-line-of-sight velocity table run in the worker pool on the CPU whatever the platform, so a GPU does not shorten the
-table’s build (the two columns below differ by the main process’s share and the node’s load), and reading a built
-table (the LOSVD, pdf_v) takes the CPU’s wall. At the quick tier the table’s build ran out of the GPU’s 12 GB, so
-the quick tier’s observables were measured on the CPU only. The walls below are from one 32-core node (AMD Threadripper PRO 5975WX) and one RTX 3080 Ti. The solve’s are
-the medians of five reruns of 37 solves of 21 truncated models, in two groups by their step count. The speed
-table’s are the steady builds of six members (512 to 1,021 rows) at the default tier, on 8 of the node’s cores. The
-sampling’s and the observables’ are on an NFW model (beta_c 0.25, concentration 10) and a truncated Hernquist model
-(Osipkov-Merritt Type I, beta_c -0.25, R_a 10, K_t 0.05); each is the median of three calls after a warm one, except
-the table’s build, which is the first and the second build in one process.
+A GPU speeds up the particle sampler and nothing else: the sampler’s speed table and the draw. The DF’s Poisson
+solve runs on the CPU on every platform: it is a serial ODE, and on a GPU each step would pay about a millisecond of
+launch latency, 50 to 200 times the CPU’s wall. The rows of the line-of-sight velocity table run in the worker pool on
+the CPU whatever the platform, and reading a built table takes the CPU’s wall.
+
+The table below times one chain of calls, from a density profile to the observables, built as in Chiang et al.
+(2026d): an isotropic NFW parent truncated by Method I, and a child at constant \(\beta_{\rm c} = 0.2\) built
+from it by Method II. Each row is the median of three calls after one warm call, except row 6, the table’s
+first build. The inputs are in internal units and every setting is at its default. The first two columns are one AMD Ryzen
+Threadripper PRO 5975WX (64 threads, 256 GB, Linux), on its CPU alone and then with its NVIDIA GeForce RTX 3080 Ti;
+the third is an Intel Core Ultra 9 185H (22 threads, 32 GB, Windows 11), CPU only. These are trial runs on the
+development tree before the release; the release replaces them with runs on its own code.
 
 Stage
 
-CPU (32 cores)
+Threadripper PRO 5975WX, CPU (28 workers)
 
-RTX 3080 Ti
+Threadripper PRO 5975WX + RTX 3080 Ti (28 workers)
 
-DF solve, one solve (478 to 1574 steps)
+Core Ultra 9 185H, CPU (16 workers)
 
-0.0036 to 0.025 s
+1. Parent DF: compute_df (NFW, isotropic)
 
-runs on the CPU (0.66 to 1.55 s when it ran on the GPU, before it was pinned)
+6.21 s
 
-The sampler’s speed table, default tier (8 cores)
+5.48 s
 
-4.6 to 40 s
+12.2 s
 
-0.63 to 6.6 s
+2. Method I truncation (\(\mathcal{K}_{\rm t} = 0.05\))
 
-Sampling, 1e3 particles
+4.58 s
 
-0.014 to 0.019 s
+4.30 s
 
-0.019 to 0.025 s
+9.9 s
 
-Sampling, 1e4 particles
+3. Child at constant \(\beta_{\rm c} = 0.2\), Method II (compute_df, truncate)
 
-0.024 to 0.031 s
+3.48 s
 
-0.019 to 0.026 s
+3.36 s
 
-Sampling, 1e5 particles
+9.1 s
 
-0.103 to 0.110 s
+4. Sampler: the speed table
 
-0.029 to 0.034 s
+6.59 s
 
-Sampling, 1e6 particles
+0.914 s
 
-0.736 to 0.768 s
+14.5 s
 
-0.162 to 0.211 s
+5. Drawing \(10^7\) particles
 
-Line-of-sight velocity table, default tier
+7.08 s
 
-1246 to 2298 s
+1.79 s
 
-rows in the CPU pool (1014 to 3163 s with the main process on the GPU)
+13.0 s
 
-Line-of-sight velocity table, quick tier
+6. LosTable: the first build
 
-238 to 1251 s
+1050 s
 
-out of the GPU’s memory
+1050 s
 
-LOSVD, 64 velocities at 16 radii, default tier
+5335 s
 
-0.46 to 0.48 s
+On the model
 
-0.42 to 0.43 s
+sigma_r at 50 radii
 
-LOSVD, 64 velocities at 1024 radii, default tier
+3.71 s
 
-30.4 to 31.1 s
+3.52 s
 
-28.4 to 28.9 s
+24.9 s
 
-pdf_v, 64 velocities at 16 radii, default tier
+sigma_t at 50 radii
 
-9.2 to 24.4 s
+3.68 s
 
-9.2 to 24.3 s
+3.52 s
 
-pdf_v, 64 velocities at 1024 radii, default tier
+33.7 s
 
-595 to 1565 s
+sigma_los at 50 projected radii
 
-591 to 1568 s
+8.75 s
 
-LOSVD, 64 velocities at 16 to 1024 radii, quick tier
+8.20 s
 
-0.13 to 9.4 s
+53.4 s
 
-not measured
+sigma_los_aperture over a circle of radius 1
 
-pdf_v, 64 velocities at 16 to 1024 radii, quick tier
+8.74 s
 
-4.2 to 709 s
+8.18 s
 
-not measured
+31.9 s
+
+From row 6’s table
+
+losvd at \(R = 1\), 201 velocities
+
+0.0209 s
+
+0.0190 s
+
+0.043 s
+
+aperture_losvd over a circle of radius 1, 201 velocities
+
+12.2 s
+
+12.5 s
+
+36.9 s
+
+sigma_los_aperture over a circle of radius 1
+
+12.6 s
+
+12.5 s
+
+38.1 s
+
+Gauss-Hermite moments at 10 radii
+
+0.0615 s
+
+0.0619 s
+
+0.095 s
+
+pdf_v at 10 radii, \(V = 0.3\)
+
+5.18 s
+
+5.09 s
+
+27.5 s
+
+Speed distribution at \(r = 1\)
+
+3.87 s
+
+3.77 s
+
+25.3 s
+
+jax.grad of sigma_los at \(R = 1\)
+
+0.00433 s
+
+0.00520 s
+
+0.018 s
+
+Peak memory (main process, largest worker)
+
+3.84 / 0.94 GiB
+
+3.42 / 0.94 GiB
+
+2.59 / 0.49 GiB
+
+Gray cells: the stage’s core runs on the CPU on every platform (the Poisson solve in rows 2 and 3, the table’s rows
+in the worker pool in row 6), and the number is the stage’s wall with the GPU present. On the model, sigma_r and sigma_t each run the model’s
+moments solve, and sigma_los and sigma_los_aperture each run that solve and the projection; nothing is kept
+on the model between calls, so each row is the cost of one call. The aperture rows from the
+table time a later call on the same aperture. The first call on a new aperture also finds the distribution
+function’s extrema at the radii the table has not met, once per aperture, and the first aperture call on a table
+starts its worker pool: on the Threadripper’s CPU the first call took 31.0 s.
+
+On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall. The rows on the
+model run the moments solve serially on one core, and there the wall of identical calls differs by up to half
+from one call to the next, so no ratio between the machines is given for them.
 
      On this page

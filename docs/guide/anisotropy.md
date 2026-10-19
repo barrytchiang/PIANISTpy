@@ -6,7 +6,7 @@ Source: https://pianistpy.com/docs/guide/anisotropy
 
 pianistpy.Anisotropy, pianistpy.Component
 
-One class covers every analytical anisotropy model of the paper, Anisotropy(beta_c, r_a, kind):
+One class covers every analytical anisotropy model of Chiang et al. (2026d), Anisotropy(beta_c, r_a, kind):
 
 the default, Anisotropy(), is isotropy;
 

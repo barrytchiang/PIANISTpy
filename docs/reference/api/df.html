@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/df';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -234,7 +234,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -380,9 +392,10 @@ projected.</p>
 <li><p><strong>form</strong> (<em>AsymptoticForm</em>) – The analytic form of each DF beyond the ends of its table.</p></li>
 <li><p><strong>k_t_min</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Lowest admissible truncation energy; zero where every DF is
 non-negative and non-decreasing. For a Type II model whose bound is
-its domain edge, the next float above P(R_a), the smallest K_t the
-gates admit; the truncated model’s edge must also lie inside R_a,
-which the truncation’s solve judges (TYPE II EDGE).</p></li>
+its domain edge, the next float above <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>, the
+smallest <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> the gates admit; the truncated
+model’s edge must also lie inside <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, which the
+truncation’s solve judges (TYPE II EDGE).</p></li>
 <li><p><strong>validation</strong> (<a class="reference internal" href="validation#pianistpy.validation.ValidationReport" title="pianistpy.validation.ValidationReport"><em>ValidationReport</em></a>) – The report of the inversion.</p></li>
 <li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em> of </em><em>str to float</em>) – Wall time of each stage, in seconds.</p></li>
 <li><p><strong>inversion</strong> (<em>InversionRecord</em><em> or </em><em>None</em>) – How the table was made; None where it was not made by an inversion
@@ -413,9 +426,9 @@ identity, and the file. The table is stored, the function is not.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.Component"><em>Component</em></a>) – The component the DF belongs to, on an analytic profile.</p></li>
 <li><p><strong>f</strong> (<em>callable</em>) – <code class="docutils literal notranslate"><span class="pre">f(k,</span> <span class="pre">depth)</span></code>: takes the array of the energies K (the table’s,
-in internal units) and the array of their depths P_0 - K, and
+in internal units) and the array of their depths <code class="docutils literal notranslate"><span class="pre">P_0</span> <span class="pre">-</span> <span class="pre">K</span></code>, and
 returns the DF at each, F and not its logarithm. The depth is
-the grid’s own P_0 - K of each node, exact, so a fit written in
+the grid’s own <code class="docutils literal notranslate"><span class="pre">P_0</span> <span class="pre">-</span> <span class="pre">K</span></code> of each node, exact, so a fit written in
 the depth near the center reads it directly; a function of K
 alone may ignore it.</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings. The default tier if omitted.</p></li>
@@ -812,6 +825,204 @@ it is a valid equilibrium.</p></li>
 </dl>
 </dd></dl>
 
+<section id="gradients-pianistpy-df-gradient">
+<h2>Gradients (<code class="docutils literal notranslate"><span class="pre">pianistpy.df.gradient</span></code>)<a class="headerlink" href="#gradients-pianistpy-df-gradient" title="Link to this heading">#</a></h2>
+<p>The distribution function’s rows and table as JAX functions of the anisotropy parameters, and their Jacobians
+(<a class="reference internal" href="../../guide/gradient"><span class="doc">End-to-end differentiability</span></a>).</p>
+<p id="module-pianistpy.df.gradient">The inversion’s gradient in the anisotropy parameters at a fixed profile.</p>
+<p>The inversion’s rows F = T_b[g](q) (<cite>invert._rows</cite>: the kernel and the
+completion below the floor) on a fixed grid q. At a fixed central anisotropy
+b the operator T_b is linear in its source g, the rows of d^N rho_aux / dP^N,
+so, by that linearity:</p>
+<blockquote>
+<div><p>dF/dR_a    = T_b[ d_Ra g ]
+dF/dbeta_c = T_b[ d_b g ] + E_b[g]</p>
+</div></blockquote>
+<p>with d_theta g the mixed derivatives at fixed P (<cite>ParameterDerivs</cite>) and E_b
+the derivative of the operator itself in b with g held: the prefactor C(n, b)
+and the kernel’s exponent, computed by the operator at b +- d (central,
+Richardson over d and d/2) or, at the corners where the inversion’s form
+changes on one side (half-integer <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, the pair’s switch),
+by the one-sided Richardson combinations (third order) of both sides and
+their mean; the step d
+balances the kernel’s measured accuracy over d against the quotient’s
+truncation term (<cite>_exponent_part</cite>).</p>
+<p>The table (<cite>invert._table_pieces</cite>) is a function of the rows and of closed
+forms in theta, so its derivative is the chain rule through each piece, with
+every discrete choice of the forward held (the grid, the anchor, the fit’s
+window, the nodes below the written floor), <cite>table_jacobian</cite>:</p>
+<ul class="simple">
+<li><p>the rows’ log10 F and their log slope, from dF and d(dF/dK), the rows’
+part as the operator’s own derivative along the mixed rows (<cite>_along</cite>);</p></li>
+<li><p>the form above the anchor (<cite>top_patch</cite>): its least-squares fit linearized
+in the rows, and the center’s exponent kappa(b) and amplitude A(b) in
+closed form (the regular branch);</p></li>
+<li><p>the nodes below the written floor (<cite>below_floor</cite>): the integral linear in
+its source, the source’s cubic in (ln P, ln <code class="docutils literal notranslate"><span class="pre">|g|</span></code>) linearized, and in b the
+floor pair’s exponent and prefactor by the same difference as E_b;</p></li>
+<li><p>the tail (A, a(b), k), from the first node below the floor or the first
+written row.</p></li>
+</ul>
+<p>On a component on a truncated profile (Method II, <cite>tabulated.tabulated_df</cite>)
+the parent is held and the child’s sources are a Leibniz sum of the parent’s
+density derivatives and the factor <code class="docutils literal notranslate"><span class="pre">g(R(P);</span> <span class="pre">beta_c,</span> <span class="pre">R_a)</span></code>, so their derivative
+is the same sum with d g / d theta in closed form; the rows follow as above
+on the grid held at theta, and the leaves are log10 <code class="docutils literal notranslate"><span class="pre">|F|</span></code> on the table’s nodes,
+the edge law (p, C_0, C_1) and the center the form states, each closed form
+with its derivative written out.</p>
+<p>Served: constant beta and Cuddeford Type I (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,
+<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>), Osipkov-Merritt Type I and II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>).
+Refused: Cuddeford Type II, whose interior point at <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span> moves
+with <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> (and its exponent with <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>), so the
+rows of the mixed derivative are not integrable there; and a table whose
+center is not on its regular branch (the critical band, where the branch
+changes with <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>).</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.df.gradient.inversion_nodes">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">inversion_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.inversion_nodes" title="Link to this definition">#</a></dt>
+<dd><p>Return the grid q the inversion places its rows on (<cite>inversion_df</cite>’s:
+the pilot’s feature where the family has one, then <cite>top_limit</cite>, the
+least depth at which the exact derivatives are finite in float64).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.inputs.Component"><em>Component</em></a>)</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.df.gradient.make_inversion_rows">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">make_inversion_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.make_inversion_rows" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(rows,</span> <span class="pre">params,</span> <span class="pre">q)</span></code>: <code class="docutils literal notranslate"><span class="pre">rows(theta)</span></code> is the inversion’s rows on
+the fixed grid q as a JAX function of the component’s anisotropy
+parameters (<code class="docutils literal notranslate"><span class="pre">params</span></code>, in that order) with a custom VJP. The forward is
+<cite>invert._rows</cite> through a host callback (the forward’s numbers), the
+backward the rule (<cite>rows_jacobian</cite>) at the same parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.inputs.Component"><em>Component</em></a>)</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>)</p></li>
+<li><p><strong>q</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, …], <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.df.gradient.make_inversion_table">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">make_inversion_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.make_inversion_table" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">(table,</span> <span class="pre">params,</span> <span class="pre">values)</span></code>: <code class="docutils literal notranslate"><span class="pre">table(theta)</span></code> is the DF table’s
+values (<cite>table_jacobian</cite>’s, but the energies) as a JAX function of the
+component’s anisotropy parameters with a custom VJP; <code class="docutils literal notranslate"><span class="pre">values</span></code> the
+table at the component’s own parameters, energies included. The forward
+is <cite>inversion_df</cite>’s table through a host callback, the backward the rule.
+The grid and the forward’s discrete choices are those at the component’s
+parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.inputs.Component"><em>Component</em></a>)</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>)</p></li>
+<li><p><strong>q</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a><em> | </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, …], <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.df.gradient.rows_jacobian">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">rows_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.rows_jacobian" title="Link to this definition">#</a></dt>
+<dd><p>Return the inversion’s rows and their derivatives in the component’s
+anisotropy parameters on a fixed grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.Component"><em>Component</em></a>) – An analytic Method I component.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>)</p></li>
+<li><p><strong>q</strong> (<em>array</em><em>, </em><em>optional</em>) – The grid; <cite>inversion_nodes</cite> where None.</p></li>
+<li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a><em>]</em><em>] </em><em>| </em><em>None</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>q, f</strong> (<em>array</em>) – The grid and the rows (the forward’s, unchanged).</p></li>
+<li><p><strong>jac</strong> (<em>dict</em>) – <code class="docutils literal notranslate"><span class="pre">{&quot;beta_c&quot;:</span> <span class="pre">dF/dbeta_c,</span> <span class="pre">&quot;r_a&quot;:</span> <span class="pre">dF/dR_a}</span></code>, the parameters the family
+has.</p></li>
+<li><p><strong>record</strong> (<em>dict</em>) – How the exponent’s part was taken (<code class="docutils literal notranslate"><span class="pre">&quot;central&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;one-sided&quot;</span></code>),
+its steps, the kernel’s accuracy and its Richardson residual max
+<code class="docutils literal notranslate"><span class="pre">|E(d)</span> <span class="pre">-</span> <span class="pre">E(d/2)|</span></code> over the column’s scale max <code class="docutils literal notranslate"><span class="pre">|dF/dbeta_c|</span></code> and,
+one-sided, the two sides’ spread over the same scale. The accuracy
+is one maximum over the whole column, whose entries can span some
+thirty decades (the largest near the center), so the steps suit the
+largest entries; an entry far below them is differenced at the same
+steps.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – Where the component is not analytic, or a Cuddeford Type II, or its
+    family has no parameter.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a>], <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.df.gradient.table_jacobian">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">table_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.table_jacobian" title="Link to this definition">#</a></dt>
+<dd><p>Return the DF table’s values and their derivatives in the component’s
+anisotropy parameters, the forward’s grid and discrete choices held.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.Component"><em>Component</em></a>) – An analytic Method I component.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>)</p></li>
+<li><p><strong>q</strong> (<em>array</em><em>, </em><em>optional</em>) – The grid; <cite>inversion_nodes</cite> where None.</p></li>
+<li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em>, </em><em>optional</em>) – The caller’s store of the exponent’s measured steps
+(<cite>_table_difference</cite>): read where it has them, filled where it has
+not; without one they are measured at this call.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>values</strong> (<em>dict</em>) – The table as <cite>inversion_df</cite> makes it, as arrays: <code class="docutils literal notranslate"><span class="pre">k</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df</span></code>,
+<code class="docutils literal notranslate"><span class="pre">log_df_slope</span></code> (the rows; zero derivative where a Type II DF is
+outside its support), and where the table has them <code class="docutils literal notranslate"><span class="pre">k_below</span></code>,
+<code class="docutils literal notranslate"><span class="pre">log_df_below</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df_slope_below</span></code>; the form above the anchor
+<code class="docutils literal notranslate"><span class="pre">central</span></code> (kappa, a_anchor, b, d) and the tail <code class="docutils literal notranslate"><span class="pre">tail</span></code> (A, a, k).</p></li>
+<li><p><strong>jac</strong> (<em>dict</em>) – <code class="docutils literal notranslate"><span class="pre">{theta:</span> <span class="pre">{key:</span> <span class="pre">d</span> <span class="pre">value</span> <span class="pre">/</span> <span class="pre">d</span> <span class="pre">theta}}</span></code> for the keys of values but the
+energies.</p></li>
+<li><p><strong>record</strong> (<em>dict</em>) – The exponent’s part of the rows (<code class="docutils literal notranslate"><span class="pre">&quot;rows&quot;</span></code>) and of the nodes below
+the floor (<code class="docutils literal notranslate"><span class="pre">&quot;below&quot;</span></code>), as <cite>rows_jacobian</cite> states it.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – As <cite>rows_jacobian</cite>; and where the form above the anchor is used and
+    the center is not on its regular branch (the critical band).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a>], <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)" rel="noopener" target="_blank"><em>ndarray</em></a>]], <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 
@@ -871,6 +1082,14 @@ it is a valid equilibrium.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.compute_df"><code class="docutils literal notranslate"><span class="pre">compute_df()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.solve"><code class="docutils literal notranslate"><span class="pre">solve()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.truncate"><code class="docutils literal notranslate"><span class="pre">truncate()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gradients-pianistpy-df-gradient">Gradients (<code class="docutils literal notranslate"><span class="pre">pianistpy.df.gradient</span></code>)</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.gradient.inversion_nodes"><code class="docutils literal notranslate"><span class="pre">inversion_nodes()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.gradient.make_inversion_rows"><code class="docutils literal notranslate"><span class="pre">make_inversion_rows()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.gradient.make_inversion_table"><code class="docutils literal notranslate"><span class="pre">make_inversion_table()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.gradient.rows_jacobian"><code class="docutils literal notranslate"><span class="pre">rows_jacobian()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.gradient.table_jacobian"><code class="docutils literal notranslate"><span class="pre">table_jacobian()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

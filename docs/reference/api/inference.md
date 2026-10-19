@@ -91,13 +91,14 @@ velocity (length,) – The factors of the data’s units at the model’s own sc
 r_max (r_min,) – The innermost and outermost projected radius of the tables, in
 internal units.
 
-free (tuple of int) – The components whose anisotropy (beta_c, R_a) is a parameter.
+free (tuple of int) – The components whose anisotropy
+(\(\beta_{\rm c}\), \(R_{\rm a}\)) is a parameter.
 
-theta (array, shape (n_free, 2)) – Their own (beta_c, R_a), in internal units.
+theta (array, shape (n_free, 2)) – Their own (\(\beta_{\rm c}\), \(R_{\rm a}\)), in internal units.
 
 members (tuple) – Their tables at any theta, on the host.
 
-readings (tuple) – Their sigma_los^2 readings as JAX functions of theta.
+readings (tuple) – Their \(\sigma_{\rm los}^2\) readings as JAX functions of theta.
 
 Parameters:
 
@@ -144,12 +145,13 @@ data (Data or sequence of Data) – The measurements; their log-likelihoods are 
 
 settings (Settings, optional) – Numerical settings of the observables; the model’s by default.
 
-free (sequence of int, optional) – The components whose anisotropy (beta_c, R_a) is a parameter of the
+free (sequence of int, optional) – The components whose anisotropy
+(\(\beta_{\rm c}\), \(R_{\rm a}\)) is a parameter of the
 likelihood (its theta): each a spatially finite model on a
 truncated profile (a DF inverted on its parent’s profile). An
-isotropic or constant member’s beta_c is free and its R_a column is
-held at its own value (infinite), with a zero gradient: the family
-has no R_a.
+isotropic or constant member’s \(\beta_{\rm c}\) is free and its
+\(R_{\rm a}\) column is held at its own value (infinite), with a
+zero gradient: the family has no \(R_{\rm a}\).
 
 Returns:
 

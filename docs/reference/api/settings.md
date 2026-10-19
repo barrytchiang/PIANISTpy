@@ -52,7 +52,7 @@ at its stated accuracy; off by default. A physically invalid model
 is refused regardless.
 
 **overrides (mapping) – One mapping per group (inversion, truncation, sampling,
-observables) of the fields to change within that group.
+observables, losvd) of the fields to change within that group.
 
 Variables:
 
@@ -100,8 +100,8 @@ Return the value of every field of one group.
 
 Parameters:
 
-name (str) – One of the groups inversion, truncation, sampling and
-observables.
+name (str) – One of the groups inversion, truncation, sampling,
+observables and losvd.
 
 Returns:
 

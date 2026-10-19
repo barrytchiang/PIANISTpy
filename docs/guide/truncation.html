@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/truncation';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -309,8 +311,8 @@
 with the self-consistent potential-density pair that follows from it. A <code class="docutils literal notranslate"><span class="pre">Model</span></code> is by construction a physical
 and stable equilibrium; a request for which none exists is refused with <code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code>,
 which carries the distribution function for inspection.</p>
-<p>One limit is stated rather than solved: for a steep cusp at beta_c = -1/2 the self-consistent center of the
-truncated model is not reached (measured on (alpha, beta) = (2, 4) at K_t = 0.3, from gamma 1.735 on), and the call
+<p>One limit is stated rather than solved: for a steep cusp at <span class="math notranslate nohighlight">\(\beta_{\rm c} = -1/2\)</span> the self-consistent center of the
+truncated model is not reached (measured on <span class="math notranslate nohighlight">\((\alpha, \beta) = (2, 4)\)</span> at <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.3\)</span>, from <span class="math notranslate nohighlight">\(\gamma = 1.735\)</span> on), and the call
 refuses it with an <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> that names the iteration’s response.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Truncation</span></code> takes exactly one of three targets:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>                          <span class="c1"># the truncation energy, in internal units</span>
@@ -318,7 +320,7 @@ refuses it with an <code class="xref py py-class docutils literal notranslate"><
 <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">r_t</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>                          <span class="c1"># a target radius, in units of the scale radius</span>
 </pre></div>
 </div>
-<p>A target mass is given in units of M_0, so it needs the concentration that defines M_0; a target radius and a
+<p>A target mass is given in units of <span class="math notranslate nohighlight">\(M_0\)</span>, so it needs the concentration that defines <span class="math notranslate nohighlight">\(M_0\)</span>; a target radius and a
 truncation energy do not, and a concentration given with them is refused.</p>
 <p><code class="docutils literal notranslate"><span class="pre">solve(component,</span> <span class="pre">truncation)</span></code> runs <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> and <code class="docutils literal notranslate"><span class="pre">truncate</span></code> at once.</p>
 <p>What a model holds: the truncated distribution function, the truncated density, potential and enclosed mass on
@@ -326,16 +328,16 @@ one radial grid (<code class="docutils literal notranslate"><span class="pre">mo
 the total mass, the validation report and the identity. A model that is not spatially finite is still a model:
 it says so (<code class="docutils literal notranslate"><span class="pre">spatially_finite</span></code> is false), states its radius and mass as not finite, and what needs finiteness
 asks for it by name (<a class="reference internal" href="results"><span class="doc">Flags and refusals</span></a>).</p>
-<p>A Type II model (Osipkov-Merritt or Cuddeford) must end inside its anisotropy radius R_a, where its density
-rho_aux / (1 - r^2/R_a^2) has a pole. The lower bound K_t &gt; P(R_a) keeps the untruncated radius of the truncation
-energy inside R_a, but the truncated model’s own edge lies farther out; where that edge would reach R_a the request
-is refused by name (<code class="docutils literal notranslate"><span class="pre">TYPE</span> <span class="pre">II</span> <span class="pre">EDGE</span></code>, with the potential at R_a stated), and a larger K_t brings the edge
-inside. The bound is strict, so where it sets a Type II DF’s <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> that is the next float above P(R_a), the
-smallest K_t the gates admit: necessary, not sufficient, since only the truncated solve places the edge.</p>
-<p>An Osipkov-Merritt Type I model with a small R_a and a low K_t can leave no edge within the solve’s radius;
-the request is refused by name (<code class="docutils literal notranslate"><span class="pre">NO</span> <span class="pre">EDGE</span></code>). On the Hernquist density at the quick settings, R_a = 1 is refused at
-every K_t from 0.005 to 0.3, R_a = 2 below K_t = 0.2, R_a = 5 below 0.03 and R_a = 10 at 0.005; the parents that
-build are at the ceiling tier, set by their distribution function’s <code class="docutils literal notranslate"><span class="pre">high_k_slope_mismatch</span></code> (3.4e-6, at K = 1).</p>
+<p>A Type II model (Osipkov-Merritt or Cuddeford) must end inside its anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, where its density
+<span class="math notranslate nohighlight">\(\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)\)</span> has a pole. The lower bound <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} &gt; P(R_{\rm a})\)</span> keeps the untruncated radius of the truncation
+energy inside <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, but the truncated model’s own edge lies farther out; where that edge would reach <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> the request
+is refused by name (<code class="docutils literal notranslate"><span class="pre">TYPE</span> <span class="pre">II</span> <span class="pre">EDGE</span></code>, with the potential at <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> stated), and a larger <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> brings the edge
+inside. The bound is strict, so where it sets a Type II DF’s <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> that is the next float above <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>, the
+smallest <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> the gates admit: necessary, not sufficient, since only the truncated solve places the edge.</p>
+<p>An Osipkov-Merritt Type I model with a small <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> and a low <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> can leave no edge within the solve’s radius;
+the request is refused by name (<code class="docutils literal notranslate"><span class="pre">NO</span> <span class="pre">EDGE</span></code>). On the Hernquist density at the quick settings, <span class="math notranslate nohighlight">\(R_{\rm a} = 1\)</span> is refused at
+every <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> from 0.005 to 0.3, <span class="math notranslate nohighlight">\(R_{\rm a} = 2\)</span> below <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.2\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a} = 5\)</span> below 0.03 and <span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span> at 0.005; the parents that
+build are at the ceiling tier, set by their distribution function’s <code class="docutils literal notranslate"><span class="pre">high_k_slope_mismatch</span></code> (<span class="math notranslate nohighlight">\(3.4 \times 10^{-6}\)</span>, at <span class="math notranslate nohighlight">\(\mathcal{K} = 1\)</span>).</p>
 </section>
 <section id="method-ii">
 <h2>Method II<a class="headerlink" href="#method-ii" title="Link to this heading">#</a></h2>

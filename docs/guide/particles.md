@@ -27,8 +27,8 @@ GAMER; a Gadget HDF5
 initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
 it with what it wrote before returning. A writer for another simulation code is one registered function.
 
-A model that is not spatially finite needs an explicit sampling radius; the result records the mass inside it
-and the fraction of the total it represents.
+A model that is not spatially finite needs an explicit sampling radius; the sampler holds the mass inside it
+(Sampler.radius_table.mass_sample, in internal units).
 
 Sampler(model, r_range=(r_lo, r_hi)) draws every particle between two radii, in internal units, inside the
 sampling. The draw is the model’s own conditioned on the range, not a selection after a full draw: each
@@ -51,18 +51,18 @@ so the window couples to the angle, and such a model is refused.
 A model whose distribution function is non-negative is not thereby samplable at every tier. The speed table’s
 rows are refined until the error across them is under the goal or their count reaches n_rows_max; the table’s
 report carries that error, and a table beyond the hard limit is refused (Accuracy). Close to the smallest
-anisotropy radius r_a_min at which an Osipkov-Merritt or Cuddeford Type I distribution function is
-non-negative, the rows reach n_rows_max first and the error grows steeply as r_a falls toward
-r_a_min. Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
+anisotropy radius \(R_{\rm a,min}\) (r_a_min) at which an Osipkov-Merritt or Cuddeford Type I distribution function is
+non-negative, the rows reach n_rows_max first and the error grows steeply as \(R_{\rm a}\) falls toward
+\(R_{\rm a,min}\). Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
 default tier, the error crosses the ceiling and the hard limit at:
 
 model
 
-beta_c
+\(\beta_{\rm c}\)
 
-ceiling 1e-4 at r_a/r_a_min
+ceiling \(10^{-4}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
-hard limit 1e-2 at r_a/r_a_min
+hard limit \(10^{-2}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
 Cuddeford I
 
@@ -129,9 +129,9 @@ above 1.23
 1.02
 
 Above the first ratio the table is within the ceiling; between the two it is returned with a warning; below the
-second it is refused. At beta_c = 1/2 the distribution function is non-negative at every r_a, and the
-table is beyond the hard limit at every r_a up to 0.32 scale radii. A constant-anisotropy model is within the
-ceiling up to beta_c = 0.4 (row error 6e-5) and above it at beta_c = 0.45 (4e-4). These bounds are
+second it is refused. At \(\beta_{\rm c} = 1/2\) the distribution function is non-negative at every \(R_{\rm a}\), and the
+table is beyond the hard limit at every \(R_{\rm a}\) up to 0.32 scale radii. A constant-anisotropy model is within the
+ceiling up to \(\beta_{\rm c} = 0.4\) (row error \(6 \times 10^{-5}\)) and above it at \(\beta_{\rm c} = 0.45\) (\(4 \times 10^{-4}\)). These bounds are
 measured, not imposed: each table’s own report is the verdict.
 
      On this page

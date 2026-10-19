@@ -167,7 +167,9 @@ str
 
 Raises:
 
-ResultError – If the file exists and overwrite is false.
+InputError – If the file exists and overwrite is false.
+
+ResultError – If the file does not read back as written.
 
 pianistpy.io.write_table(path, columns, header=(), overwrite=False)
 

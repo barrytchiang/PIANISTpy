@@ -69,11 +69,11 @@ depends on it. Required for a model that is not spatially finite;
 the truncation radius of one that is.
 
 r_range (tuple of float, optional) – Radii (r_lo, r_hi), in internal units, between which every particle
-is drawn: 0 <= r_lo < r_hi <= the outer radius of the sampling. The
-draw is the model’s own conditioned on the range, not a selection:
-each particle’s radius number is taken in the mass fractions of the
-range (stages.radius_bounds), and the particles carry the range’s
-mass. Its other numbers are those of the draw without the range.
+is drawn: 0 <= r_lo < r_hi, r_hi at most the outer radius of the
+sampling. The draw is the model’s own conditioned on the range, not a
+selection: each particle’s radius number is taken in the mass fractions
+of the range (stages.radius_bounds), and the particles carry the
+range’s mass. Its other numbers are those of the draw without the range.
 
 Variables:
 
@@ -87,10 +87,9 @@ InputError – If model is not a Model, or has more components than this release
     samples, or r_range is not a range of radii inside the sampling.
 
 AccuracyError – If the model’s report reads "refused" and its settings do not ask
-    for results from it anyway (Settings, write_anyway).
-
-ResultError – If a speed table lies beyond the hard limit and the settings do not ask
-    for it anyway.
+    for results from it anyway (Settings, write_anyway), or if a
+    speed table lies beyond the hard limit and the settings do not ask for
+    it anyway.
 
 Notes
 
@@ -98,14 +97,15 @@ A physical model is not thereby samplable at every tier. The speed
 table’s rows are refined until the error across them is under the goal
 or their count reaches n_rows_max; close to the smallest anisotropy
 radius at which an Osipkov-Merritt or Cuddeford Type I DF is non-negative,
-the rows reach n_rows_max first and the error grows steeply as r_a
-falls toward that radius. Measured on a truncated NFW density of
-concentration 10 at the default tier, the error crosses the hard limit at
-1.02 to 1.2 times that radius and the ceiling at 1.09 to 1.84 times it
-(up to beta_c = 0.4), the widest for the most negative beta_c; at
-beta_c = 1/2, whose DF is non-negative at every r_a, the table is beyond
-the hard limit at every r_a up to 0.32. A constant-anisotropy model is
-within the ceiling up to beta_c = 0.4. The bound is measured, not
+the rows reach n_rows_max first and the error grows steeply as
+\(R_{\rm a}\) falls toward that radius. Measured on a truncated NFW
+density of concentration 10 at the default tier, the error crosses the hard
+limit at 1.02 to 1.2 times that radius and the ceiling at 1.09 to 1.84
+times it (up to \(\beta_{\rm c} = 0.4\)), the widest for the most
+negative \(\beta_{\rm c}\); at \(\beta_{\rm c} = 1/2\), whose DF is
+non-negative at every \(R_{\rm a}\), the table is beyond the hard limit
+at every \(R_{\rm a}\) up to 0.32. A constant-anisotropy model is within
+the ceiling up to \(\beta_{\rm c} = 0.4\). The bound is measured, not
 imposed: the report of each table is the verdict (the user guide,
 Particles, gives the table per family).
 
@@ -132,7 +132,7 @@ Raises:
 
 InputError – If n is not a positive integer below 2^31.
 
-ResultError – If a particle lies beyond the phase-space bound of its component.
+AccuracyError – If a particle lies beyond the phase-space bound of its component.
 
 speeds(r, seed=0, v_range=None)
 
@@ -140,8 +140,8 @@ Draw one speed at each given radius, within a window of speeds.
 
 Parameters:
 
-r (array-like, shape (n,)) – Radii, in internal units, inside the sampling: 0 < r <= its outer
-radius.
+r (array-like, shape (n,)) – Radii, in internal units, inside the sampling: positive and at most
+its outer radius.
 
 seed (int, optional) – Seed of the random streams. The speed at the i-th radius takes the
 speed number of particle i of sample at the same seed, mapped into

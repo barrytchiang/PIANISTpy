@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'start/install';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -278,7 +280,12 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pianistpy
 </pre></div>
 </div>
-<p>PIANISTpy needs Python 3.10 or later and runs on Linux, macOS and Windows.</p>
+<p>PIANISTpy needs Python 3.11 or later and runs on Linux, macOS and Windows.</p>
+<p>The test suite ships with the package. To run it on an installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pianistpy[test]"</span>
+pytest<span class="w"> </span>--pyargs<span class="w"> </span>pianistpy
+</pre></div>
+</div>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
 <p>The dependencies are installed by pip with the package. Two lists are kept with every release: the versions the
@@ -298,7 +305,7 @@ release was developed and tested with, and the oldest versions that pass the ful
 <tbody>
 <tr class="row-even"><td><p>Python</p></td>
 <td><p>3.11</p></td>
-<td><p>3.10 (the oldest with a JAX 0.6 wheel; the suite is run on 3.11)</p></td>
+<td><p>3.11 (the oldest NumPy 2.3 supports)</p></td>
 </tr>
 <tr class="row-odd"><td><p>NumPy</p></td>
 <td><p>2.4</p></td>
@@ -317,7 +324,7 @@ release was developed and tested with, and the oldest versions that pass the ful
 <td><p>6.1.0</p></td>
 </tr>
 <tr class="row-odd"><td><p>mpmath</p></td>
-<td><p>1.4</p></td>
+<td><p>1.3</p></td>
 <td><p>1.1.0</p></td>
 </tr>
 <tr class="row-even"><td><p>SymPy</p></td>
@@ -342,6 +349,8 @@ release was developed and tested with, and the oldest versions that pass the ful
 <p>The minimum list is measured one package at a time with the others at their newest, and then all the minimum
 versions together as one environment, which passes the suite; the standard list is the environment of the
 release. Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function NumPy 2.4 removed).</p>
+<p>JAX is capped below 0.10.2, on which one test of the suite fails; pip installs the newest JAX below it. The
+standard list is the environment the continuous integration runs.</p>
 </section>
 <section id="jax-and-the-gpu">
 <h2>JAX and the GPU<a class="headerlink" href="#jax-and-the-gpu" title="Link to this heading">#</a></h2>
@@ -355,86 +364,145 @@ Exclusive_Process compute mode (<code class="docutils literal notranslate"><span
 clusters, serves one process, so where another process already holds it the package cannot reach it, and JAX’s
 error begins <code class="docutils literal notranslate"><span class="pre">Unable</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">backend</span> <span class="pre">'cuda'</span></code>. Free the GPU, share it through an MPS daemon
 (<code class="docutils literal notranslate"><span class="pre">nvidia-cuda-mps-control</span> <span class="pre">-d</span></code>), or run in the CPU-only mode.</p>
-<p>A GPU speeds up the sampler and nothing else. The sampler’s speed table builds in 0.6 to 6.6 s on the GPU against
-4.6 to 40 s on 8 cores, and drawing is faster on the GPU from about ten thousand particles, three to five times
-from a hundred thousand. The DF’s Poisson solve runs on the CPU on every platform: it is a serial ODE, and on a
-GPU each step would pay about a millisecond of launch latency, 50 to 200 times the CPU’s wall. The rows of the
-line-of-sight velocity table run in the worker pool on the CPU whatever the platform, so a GPU does not shorten the
-table’s build (the two columns below differ by the main process’s share and the node’s load), and reading a built
-table (the LOSVD, <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>) takes the CPU’s wall. At the quick tier the table’s build ran out of the GPU’s 12 GB, so
-the quick tier’s observables were measured on the CPU only. The walls below are from one 32-core node (AMD Threadripper PRO 5975WX) and one RTX 3080 Ti. The solve’s are
-the medians of five reruns of 37 solves of 21 truncated models, in two groups by their step count. The speed
-table’s are the steady builds of six members (512 to 1,021 rows) at the default tier, on 8 of the node’s cores. The
-sampling’s and the observables’ are on an NFW model (beta_c 0.25, concentration 10) and a truncated Hernquist model
-(Osipkov-Merritt Type I, beta_c -0.25, R_a 10, K_t 0.05); each is the median of three calls after a warm one, except
-the table’s build, which is the first and the second build in one process.</p>
-<div class="pst-scrollable-table-container"><table class="table">
+<p>A GPU speeds up the particle sampler and nothing else: the sampler’s speed table and the draw. The DF’s Poisson
+solve runs on the CPU on every platform: it is a serial ODE, and on a GPU each step would pay about a millisecond of
+launch latency, 50 to 200 times the CPU’s wall. The rows of the line-of-sight velocity table run in the worker pool on
+the CPU whatever the platform, and reading a built table takes the CPU’s wall.</p>
+<p>The table below times one chain of calls, from a density profile to the observables, built as in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al.
+(2026d)</a>: an isotropic NFW parent truncated by Method I, and a child at constant <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.2\)</span> built
+from it by Method II. Each row is the median of three calls after one warm call, except row 6, the table’s
+first build. The inputs are in internal units and every setting is at its default. The first two columns are one AMD Ryzen
+Threadripper PRO 5975WX (64 threads, 256 GB, Linux), on its CPU alone and then with its NVIDIA GeForce RTX 3080 Ti;
+the third is an Intel Core Ultra 9 185H (22 threads, 32 GB, Windows 11), CPU only. These are trial runs on the
+development tree before the release; the release replaces them with runs on its own code.</p>
+<div class="pst-scrollable-table-container"><table class="chain-table table">
+<colgroup>
+<col style="width: 46.0%" />
+<col style="width: 18.0%" />
+<col style="width: 18.0%" />
+<col style="width: 18.0%" />
+</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Stage</p></th>
-<th class="head"><p>CPU (32 cores)</p></th>
-<th class="head"><p>RTX 3080 Ti</p></th>
+<th class="head"><p>Threadripper PRO 5975WX, CPU (28 workers)</p></th>
+<th class="head"><p>Threadripper PRO 5975WX + RTX 3080 Ti (28 workers)</p></th>
+<th class="head"><p>Core Ultra 9 185H, CPU (16 workers)</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>DF solve, one solve (478 to 1574 steps)</p></td>
-<td><p>0.0036 to 0.025 s</p></td>
-<td><p>runs on the CPU (0.66 to 1.55 s when it ran on the GPU, before it was pinned)</p></td>
+<tr class="row-even"><td><p>1. Parent DF: <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> (NFW, isotropic)</p></td>
+<td><p>6.21 s</p></td>
+<td><p>5.48 s</p></td>
+<td><p>12.2 s</p></td>
 </tr>
-<tr class="row-odd"><td><p>The sampler’s speed table, default tier (8 cores)</p></td>
-<td><p>4.6 to 40 s</p></td>
-<td><p>0.63 to 6.6 s</p></td>
+<tr class="row-odd"><td><p>2. Method I truncation (<span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.05\)</span>)</p></td>
+<td><p>4.58 s</p></td>
+<td><p><span class="pinned">4.30 s</span></p></td>
+<td><p>9.9 s</p></td>
 </tr>
-<tr class="row-even"><td><p>Sampling, 1e3 particles</p></td>
-<td><p>0.014 to 0.019 s</p></td>
-<td><p>0.019 to 0.025 s</p></td>
+<tr class="row-even"><td><p>3. Child at constant <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.2\)</span>, Method II (<code class="docutils literal notranslate"><span class="pre">compute_df</span></code>, <code class="docutils literal notranslate"><span class="pre">truncate</span></code>)</p></td>
+<td><p>3.48 s</p></td>
+<td><p><span class="pinned">3.36 s</span></p></td>
+<td><p>9.1 s</p></td>
 </tr>
-<tr class="row-odd"><td><p>Sampling, 1e4 particles</p></td>
-<td><p>0.024 to 0.031 s</p></td>
-<td><p>0.019 to 0.026 s</p></td>
+<tr class="row-odd"><td><p>4. <code class="docutils literal notranslate"><span class="pre">Sampler</span></code>: the speed table</p></td>
+<td><p>6.59 s</p></td>
+<td><p>0.914 s</p></td>
+<td><p>14.5 s</p></td>
 </tr>
-<tr class="row-even"><td><p>Sampling, 1e5 particles</p></td>
-<td><p>0.103 to 0.110 s</p></td>
-<td><p>0.029 to 0.034 s</p></td>
+<tr class="row-even"><td><p>5. Drawing <span class="math notranslate nohighlight">\(10^7\)</span> particles</p></td>
+<td><p>7.08 s</p></td>
+<td><p>1.79 s</p></td>
+<td><p>13.0 s</p></td>
 </tr>
-<tr class="row-odd"><td><p>Sampling, 1e6 particles</p></td>
-<td><p>0.736 to 0.768 s</p></td>
-<td><p>0.162 to 0.211 s</p></td>
+<tr class="row-odd"><td><p>6. <code class="docutils literal notranslate"><span class="pre">LosTable</span></code>: the first build</p></td>
+<td><p>1050 s</p></td>
+<td><p><span class="pinned">1050 s</span></p></td>
+<td><p>5335 s</p></td>
 </tr>
-<tr class="row-even"><td><p>Line-of-sight velocity table, default tier</p></td>
-<td><p>1246 to 2298 s</p></td>
-<td><p>rows in the CPU pool (1014 to 3163 s with the main process on the GPU)</p></td>
+<tr class="row-even"><td><p><strong>On the model</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-odd"><td><p>Line-of-sight velocity table, quick tier</p></td>
-<td><p>238 to 1251 s</p></td>
-<td><p>out of the GPU’s memory</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_r</span></code> at 50 radii</p></td>
+<td><p>3.71 s</p></td>
+<td><p>3.52 s</p></td>
+<td><p>24.9 s</p></td>
 </tr>
-<tr class="row-even"><td><p>LOSVD, 64 velocities at 16 radii, default tier</p></td>
-<td><p>0.46 to 0.48 s</p></td>
-<td><p>0.42 to 0.43 s</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_t</span></code> at 50 radii</p></td>
+<td><p>3.68 s</p></td>
+<td><p>3.52 s</p></td>
+<td><p>33.7 s</p></td>
 </tr>
-<tr class="row-odd"><td><p>LOSVD, 64 velocities at 1024 radii, default tier</p></td>
-<td><p>30.4 to 31.1 s</p></td>
-<td><p>28.4 to 28.9 s</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> at 50 projected radii</p></td>
+<td><p>8.75 s</p></td>
+<td><p>8.20 s</p></td>
+<td><p>53.4 s</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>, 64 velocities at 16 radii, default tier</p></td>
-<td><p>9.2 to 24.4 s</p></td>
-<td><p>9.2 to 24.3 s</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> over a circle of radius 1</p></td>
+<td><p>8.74 s</p></td>
+<td><p>8.18 s</p></td>
+<td><p>31.9 s</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>, 64 velocities at 1024 radii, default tier</p></td>
-<td><p>595 to 1565 s</p></td>
-<td><p>591 to 1568 s</p></td>
+<tr class="row-odd"><td><p><strong>From row 6’s table</strong></p></td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
-<tr class="row-even"><td><p>LOSVD, 64 velocities at 16 to 1024 radii, quick tier</p></td>
-<td><p>0.13 to 9.4 s</p></td>
-<td><p>not measured</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">losvd</span></code> at <span class="math notranslate nohighlight">\(R = 1\)</span>, 201 velocities</p></td>
+<td><p>0.0209 s</p></td>
+<td><p>0.0190 s</p></td>
+<td><p>0.043 s</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>, 64 velocities at 16 to 1024 radii, quick tier</p></td>
-<td><p>4.2 to 709 s</p></td>
-<td><p>not measured</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> over a circle of radius 1, 201 velocities</p></td>
+<td><p>12.2 s</p></td>
+<td><p>12.5 s</p></td>
+<td><p>36.9 s</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> over a circle of radius 1</p></td>
+<td><p>12.6 s</p></td>
+<td><p>12.5 s</p></td>
+<td><p>38.1 s</p></td>
+</tr>
+<tr class="row-odd"><td><p>Gauss-Hermite moments at 10 radii</p></td>
+<td><p>0.0615 s</p></td>
+<td><p>0.0619 s</p></td>
+<td><p>0.095 s</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pdf_v</span></code> at 10 radii, <span class="math notranslate nohighlight">\(V = 0.3\)</span></p></td>
+<td><p>5.18 s</p></td>
+<td><p>5.09 s</p></td>
+<td><p>27.5 s</p></td>
+</tr>
+<tr class="row-odd"><td><p>Speed distribution at <span class="math notranslate nohighlight">\(r = 1\)</span></p></td>
+<td><p>3.87 s</p></td>
+<td><p>3.77 s</p></td>
+<td><p>25.3 s</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jax.grad</span></code> of <code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> at <span class="math notranslate nohighlight">\(R = 1\)</span></p></td>
+<td><p>0.00433 s</p></td>
+<td><p>0.00520 s</p></td>
+<td><p>0.018 s</p></td>
+</tr>
+<tr class="row-odd"><td><p>Peak memory (main process, largest worker)</p></td>
+<td><p>3.84 / 0.94 GiB</p></td>
+<td><p>3.42 / 0.94 GiB</p></td>
+<td><p>2.59 / 0.49 GiB</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>Gray cells: the stage’s core runs on the CPU on every platform (the Poisson solve in rows 2 and 3, the table’s rows
+in the worker pool in row 6), and the number is the stage’s wall with the GPU present. On the model, <code class="docutils literal notranslate"><span class="pre">sigma_r</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_t</span></code> each run the model’s
+moments solve, and <code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> each run that solve and the projection; nothing is kept
+on the model between calls, so each row is the cost of one call. The aperture rows from the
+table time a later call on the same aperture. The first call on a new aperture also finds the distribution
+function’s extrema at the radii the table has not met, once per aperture, and the first aperture call on a table
+starts its worker pool: on the Threadripper’s CPU the first call took 31.0 s.</p>
+<p>On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall. The rows on the
+model run the moments solve serially on one core, and there the wall of identical calls differs by up to half
+from one call to the next, so no ratio between the machines is given for them.</p>
 </section>
 </section>
 

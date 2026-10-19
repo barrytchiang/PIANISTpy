@@ -3,18 +3,18 @@ Radial velocity dispersion
 
 :func:`pianistpy.sigma_r`, :class:`pianistpy.LosTable`
 
-``sigma_r(source, r)`` returns the intrinsic radial velocity dispersion :math:`\sigma_r` at 3D radii: the second
-moment of the radial velocity over the model's distribution function at a fixed radius. As in the paper, it is
+``sigma_r(source, r)`` returns the intrinsic radial velocity dispersion :math:`\sigma_{\rm r}` at 3D radii: the second
+moment of the radial velocity over the model's distribution function at a fixed radius. As in `Chiang et al. (2026d)`_, it is
 the velocity moment of the augmented density :math:`\varrho_{\rm aug}(P, R)` taken at the potential of the radius,
 
 .. math::
 
-   \sigma_r^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
+   \sigma_{\rm r}^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
    {\rm d}\mathcal{K}, \qquad P = P(R),
 
 which for the anisotropy models of the package, whose augmented density separates as
 :math:`\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)`, is the Jeans integral of :math:`\varrho_{\rm aux}`
-over the potential. The radius :math:`R` of the paper is ``r`` in the package.
+over the potential. The radius :math:`R` of `Chiang et al. (2026d)`_ is ``r`` in the package.
 
 Arguments and units
 -------------------
@@ -26,13 +26,13 @@ unit system: internal units by default (the scale radius is 1), parsecs (a float
 physical system).
 
 Of a superposition, whose components share one density, the second moments add with the weights:
-:math:`\sigma_r^2 = \sum_k w_k \sigma_{r,k}^2`.
+:math:`\sigma_{\rm r}^2 = \sum_k w_k \sigma_{{\rm r},k}^2`.
 
 Tiers
 -----
 
 The profile is tabulated once per model in radius, with rows added until every interval between rows reads
-within ``profile_tolerance`` at its midpoint (1e-7 at the default tier, 1e-6 at the quick tier; a tenth of the
+within ``profile_tolerance`` at its midpoint (:math:`10^{-7}` at the default tier, :math:`10^{-6}` at the quick tier; a tenth of the
 goal, the profile's share of the error of what is projected from it). A model beyond the hard limit is refused
 unless its settings ask for it (``write_anyway``), as for every observable (:doc:`accuracy`).
 

@@ -14,7 +14,7 @@ LosTable(model) computes once what the observables of a model read: the intrinsi
 Every observable then takes the table in place of the model and reads from it, so a table is the object to build
 when a model is asked for more than one observable, or for one observable many times (a fit, a grid of apertures).
 
-As in the paper, the dispersion inside an aperture is the surface-density weighted average of
+As in Chiang et al. (2026d), the dispersion inside an aperture is the surface-density weighted average of
 \(\sigma_{\rm los}^2\); a centered circle of radius \(R_{\rm ape}\) gives
 
 \[\overline{\sigma}_{\rm los}^2(R_{\rm ape}) =

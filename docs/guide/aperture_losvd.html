@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/aperture_losvd';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -332,10 +332,10 @@ checked against the aperture’s dispersion from the projected tables, which rea
 tier is the worse of that check and the table’s own (<a class="reference internal" href="lostable"><span class="doc">The prepared table</span></a>); a distribution above the goal says so in a
 warning.</p>
 <p>A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford Type I
-anisotropy (<span class="math notranslate nohighlight">\(\beta_c = -0.25\)</span>, <span class="math notranslate nohighlight">\(R_a = 10\)</span>) in a centered circle of radius 0.05 in the scale radius, the
-quick tier’s second moment differs from the default tier’s by 6.7e-6 of it, and its own check reports 6.2e-6 (above
-the goal, with a warning); in a circle of radius 1 the two differ by 1.5e-6. At the default tier the check reports
-1.0e-7 and 6.4e-8. The quick tier’s table took a quarter of the default’s time.</p>
+anisotropy (<span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.25\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span>) in a centered circle of radius 0.05 in the scale radius, the
+quick tier’s second moment differs from the default tier’s by <span class="math notranslate nohighlight">\(6.7 \times 10^{-6}\)</span> of it, and its own check reports <span class="math notranslate nohighlight">\(6.2 \times 10^{-6}\)</span> (above
+the goal, with a warning); in a circle of radius 1 the two differ by <span class="math notranslate nohighlight">\(1.5 \times 10^{-6}\)</span>. At the default tier the check reports
+<span class="math notranslate nohighlight">\(1.0 \times 10^{-7}\)</span> and <span class="math notranslate nohighlight">\(6.4 \times 10^{-8}\)</span>. The quick tier’s table took a quarter of the default’s time.</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>

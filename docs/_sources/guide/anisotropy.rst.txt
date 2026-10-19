@@ -3,7 +3,7 @@ Velocity anisotropy
 
 :class:`pianistpy.Anisotropy`, :class:`pianistpy.Component`
 
-One class covers every analytical anisotropy model of the paper, ``Anisotropy(beta_c, r_a, kind)``:
+One class covers every analytical anisotropy model of `Chiang et al. (2026d)`_, ``Anisotropy(beta_c, r_a, kind)``:
 
 - the default, ``Anisotropy()``, is isotropy;
 - a finite ``beta_c`` alone, in (-infinity, 1), gives constant anisotropy;

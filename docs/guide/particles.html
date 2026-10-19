@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/particles';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -317,8 +319,8 @@ number of particles requested.</p>
 <a class="reference external" href="https://academic.oup.com/mnras/article/481/4/4815/5106358" rel="noopener" target="_blank">GAMER</a>; a Gadget HDF5
 initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
 it with what it wrote before returning. A writer for another simulation code is one registered function.</p>
-<p>A model that is not spatially finite needs an explicit sampling radius; the result records the mass inside it
-and the fraction of the total it represents.</p>
+<p>A model that is not spatially finite needs an explicit sampling radius; the sampler holds the mass inside it
+(<code class="docutils literal notranslate"><span class="pre">Sampler.radius_table.mass_sample</span></code>, in internal units).</p>
 <p><code class="docutils literal notranslate"><span class="pre">Sampler(model,</span> <span class="pre">r_range=(r_lo,</span> <span class="pre">r_hi))</span></code> draws every particle between two radii, in internal units, inside the
 sampling. The draw is the model’s own conditioned on the range, not a selection after a full draw: each
 particle’s radius number is taken between the mass fractions of <code class="docutils literal notranslate"><span class="pre">r_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">r_hi</span></code>, so every particle lands in
@@ -338,16 +340,16 @@ so the window couples to the angle, and such a model is refused.</p>
 <p>A model whose distribution function is non-negative is not thereby samplable at every tier. The speed table’s
 rows are refined until the error across them is under the goal or their count reaches <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code>; the table’s
 report carries that error, and a table beyond the hard limit is refused (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>). Close to the smallest
-anisotropy radius <code class="docutils literal notranslate"><span class="pre">r_a_min</span></code> at which an Osipkov-Merritt or Cuddeford Type I distribution function is
-non-negative, the rows reach <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code> first and the error grows steeply as <code class="docutils literal notranslate"><span class="pre">r_a</span></code> falls toward
-<code class="docutils literal notranslate"><span class="pre">r_a_min</span></code>. Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
+anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a,min}\)</span> (<code class="docutils literal notranslate"><span class="pre">r_a_min</span></code>) at which an Osipkov-Merritt or Cuddeford Type I distribution function is
+non-negative, the rows reach <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code> first and the error grows steeply as <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> falls toward
+<span class="math notranslate nohighlight">\(R_{\rm a,min}\)</span>. Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
 default tier, the error crosses the ceiling and the hard limit at:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>model</p></th>
-<th class="head"><p><code class="docutils literal notranslate"><span class="pre">beta_c</span></code></p></th>
-<th class="head"><p>ceiling 1e-4 at r_a/r_a_min</p></th>
-<th class="head"><p>hard limit 1e-2 at r_a/r_a_min</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span></p></th>
+<th class="head"><p>ceiling <span class="math notranslate nohighlight">\(10^{-4}\)</span> at <span class="math notranslate nohighlight">\(R_{\rm a}/R_{\rm a,min}\)</span></p></th>
+<th class="head"><p>hard limit <span class="math notranslate nohighlight">\(10^{-2}\)</span> at <span class="math notranslate nohighlight">\(R_{\rm a}/R_{\rm a,min}\)</span></p></th>
 </tr>
 </thead>
 <tbody>
@@ -395,9 +397,9 @@ default tier, the error crosses the ceiling and the hard limit at:</p>
 </table>
 </div>
 <p>Above the first ratio the table is within the ceiling; between the two it is returned with a warning; below the
-second it is refused. At <code class="docutils literal notranslate"><span class="pre">beta_c</span> <span class="pre">=</span> <span class="pre">1/2</span></code> the distribution function is non-negative at every <code class="docutils literal notranslate"><span class="pre">r_a</span></code>, and the
-table is beyond the hard limit at every <code class="docutils literal notranslate"><span class="pre">r_a</span></code> up to 0.32 scale radii. A constant-anisotropy model is within the
-ceiling up to <code class="docutils literal notranslate"><span class="pre">beta_c</span> <span class="pre">=</span> <span class="pre">0.4</span></code> (row error 6e-5) and above it at <code class="docutils literal notranslate"><span class="pre">beta_c</span> <span class="pre">=</span> <span class="pre">0.45</span></code> (4e-4). These bounds are
+second it is refused. At <span class="math notranslate nohighlight">\(\beta_{\rm c} = 1/2\)</span> the distribution function is non-negative at every <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, and the
+table is beyond the hard limit at every <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> up to 0.32 scale radii. A constant-anisotropy model is within the
+ceiling up to <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.4\)</span> (row error <span class="math notranslate nohighlight">\(6 \times 10^{-5}\)</span>) and above it at <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.45\)</span> (<span class="math notranslate nohighlight">\(4 \times 10^{-4}\)</span>). These bounds are
 measured, not imposed: each table’s own report is the verdict.</p>
 </section>
 </section>

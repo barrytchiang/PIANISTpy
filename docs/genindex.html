@@ -32,7 +32,7 @@
     <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -173,7 +173,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -289,8 +289,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/api/io#pianistpy.io.backend_provenance">backend_provenance() (in module pianistpy.io)</a>
 </li>
-      <li><a href="reference/api/numerics#pianistpy.numerics.bell_partitions">bell_partitions() (in module pianistpy.numerics)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/api/observables#pianistpy.observables.Aperture.breaks">breaks() (pianistpy.observables.Aperture method)</a>
@@ -309,10 +307,12 @@
 </li>
       <li><a href="reference/api/observables#pianistpy.observables.Aperture.circle">circle() (pianistpy.observables.Aperture class method)</a>
 </li>
-      <li><a href="reference/api/df#pianistpy.df.Component">Component (class in pianistpy.df)</a>
+      <li><a href="reference/api/observables#pianistpy.observables.LosTable.close">close() (pianistpy.observables.LosTable method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/df#pianistpy.df.Component">Component (class in pianistpy.df)</a>
+</li>
       <li><a href="reference/api/particles#pianistpy.particles.component_view">component_view() (in module pianistpy.particles)</a>
 </li>
       <li><a href="reference/api/df#pianistpy.df.compute_df">compute_df() (in module pianistpy.df)</a>
@@ -336,8 +336,6 @@
       <li><a href="reference/api/profiles#pianistpy.profiles.TruncatedProfile.density">density() (pianistpy.profiles.TruncatedProfile method)</a>
 </li>
       <li><a href="reference/api/profiles#pianistpy.profiles.DoublePowerLaw.depth_inner">depth_inner() (pianistpy.profiles.DoublePowerLaw method)</a>
-</li>
-      <li><a href="reference/api/numerics#pianistpy.numerics.derivative_from_log">derivative_from_log() (in module pianistpy.numerics)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -433,9 +431,11 @@
 </li>
       <li><a href="reference/api/profiles#pianistpy.profiles.TruncatedProfile.interpolation_tables">interpolation_tables() (pianistpy.profiles.TruncatedProfile method)</a>
 </li>
+      <li><a href="reference/api/settings#pianistpy.settings.Settings.inversion">inversion (pianistpy.settings.Settings property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="reference/api/settings#pianistpy.settings.Settings.inversion">inversion (pianistpy.settings.Settings property)</a>
+      <li><a href="reference/api/df#pianistpy.df.gradient.inversion_nodes">inversion_nodes() (in module pianistpy.df.gradient)</a>
 </li>
       <li><a href="reference/api/df#pianistpy.df.DistributionFunction.is_physical">is_physical (pianistpy.df.DistributionFunction property)</a>
 </li>
@@ -483,6 +483,10 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/df#pianistpy.df.gradient.make_inversion_rows">make_inversion_rows() (in module pianistpy.df.gradient)</a>
+</li>
+      <li><a href="reference/api/df#pianistpy.df.gradient.make_inversion_table">make_inversion_table() (in module pianistpy.df.gradient)</a>
+</li>
       <li><a href="reference/api/profiles#pianistpy.profiles.DoublePowerLaw.mass">mass() (pianistpy.profiles.DoublePowerLaw method)</a>
 
       <ul>
@@ -510,6 +514,8 @@
         <li><a href="reference/api/anisotropy#module-pianistpy.anisotropy">pianistpy.anisotropy</a>
 </li>
         <li><a href="reference/api/df#module-pianistpy.df">pianistpy.df</a>
+</li>
+        <li><a href="reference/api/df#module-pianistpy.df.gradient">pianistpy.df.gradient</a>
 </li>
         <li><a href="reference/api/exceptions#module-pianistpy.exceptions">pianistpy.exceptions</a>
 </li>
@@ -606,6 +612,13 @@
 </li>
       </ul></li>
       <li>
+    pianistpy.df.gradient
+
+      <ul>
+        <li><a href="reference/api/df#module-pianistpy.df.gradient">module</a>
+</li>
+      </ul></li>
+      <li>
     pianistpy.exceptions
 
       <ul>
@@ -640,6 +653,8 @@
         <li><a href="reference/api/observables#module-pianistpy.observables">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pianistpy.particles
 
@@ -647,8 +662,6 @@
         <li><a href="reference/api/particles#module-pianistpy.particles">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     pianistpy.profiles
 
@@ -731,10 +744,10 @@
 </li>
       <li><a href="reference/api/runtime#pianistpy.runtime.recent_messages">recent_messages() (in module pianistpy.runtime)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/api/observables#pianistpy.observables.Aperture.rectangle">rectangle() (pianistpy.observables.Aperture class method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="reference/api/validation#pianistpy.validation.refuse_unless_asked">refuse_unless_asked() (in module pianistpy.validation)</a>
 </li>
       <li><a href="reference/api/particles#pianistpy.particles.register_particle_writer">register_particle_writer() (in module pianistpy.particles)</a>
@@ -748,6 +761,8 @@
       <li><a href="reference/api/profiles#pianistpy.profiles.DoublePowerLaw.rho">rho() (pianistpy.profiles.DoublePowerLaw method)</a>
 </li>
       <li><a href="reference/api/profiles#pianistpy.profiles.DoublePowerLaw.rho_norm">rho_norm (pianistpy.profiles.DoublePowerLaw property)</a>
+</li>
+      <li><a href="reference/api/df#pianistpy.df.gradient.rows_jacobian">rows_jacobian() (in module pianistpy.df.gradient)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -807,6 +822,8 @@
 </li>
       <li><a href="reference/api/df#pianistpy.df.Model.spatially_finite">spatially_finite (pianistpy.df.Model property)</a>
 </li>
+      <li><a href="reference/api/observables#pianistpy.observables.stages.speed_distribution">speed_distribution() (in module pianistpy.observables.stages)</a>
+</li>
       <li><a href="reference/api/particles#pianistpy.particles.Sampler.speeds">speeds() (pianistpy.particles.Sampler method)</a>
 </li>
       <li><a href="reference/api/io#pianistpy.io.StoredResult">StoredResult (class in pianistpy.io)</a>
@@ -819,6 +836,8 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="reference/api/df#pianistpy.df.gradient.table_jacobian">table_jacobian() (in module pianistpy.df.gradient)</a>
+</li>
       <li><a href="reference/api/settings#pianistpy.settings.Settings.tier">tier (pianistpy.settings.Settings property)</a>
 
       <ul>

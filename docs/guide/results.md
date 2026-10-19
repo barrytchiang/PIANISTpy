@@ -38,12 +38,10 @@ the model is a valid equilibrium of finite density whose stability is not establ
 ## The accuracy tiers
 
 Every result carries a validation report: a short and fixed summary of the checks it passed, one record per
-check, with its tier. A check within the accuracy goal (a relative error of 1e-6) is silent. Above the goal,
-within the ceiling (1e-4) or within the hard limit (1e-2), the result is returned with a warning in the package’s
+check, with its tier. A check within the accuracy goal (a relative error of \(10^{-6}\)) is silent. Above the goal,
+within the ceiling (\(10^{-4}\)) or within the hard limit (\(10^{-2}\)), the result is returned with a warning in the package’s
 log and as an AccuracyWarning (Python’s standard filter silences or escalates it), and the
 flag stays with the result and with everything computed from it. Beyond the hard limit the result is refused.
-A switch that writes a refused result anyway, marked as unvalidated, is part of the design and is not yet in
-version 0.9.0.
 
 ## One component
 

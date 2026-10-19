@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/results';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -335,12 +337,10 @@ the model is a valid equilibrium of finite density whose stability is not establ
 <section id="the-accuracy-tiers">
 <h2>The accuracy tiers<a class="headerlink" href="#the-accuracy-tiers" title="Link to this heading">#</a></h2>
 <p>Every result carries a validation report: a short and fixed summary of the checks it passed, one record per
-check, with its tier. A check within the accuracy goal (a relative error of 1e-6) is silent. Above the goal,
-within the ceiling (1e-4) or within the hard limit (1e-2), the result is returned with a warning in the package’s
+check, with its tier. A check within the accuracy goal (a relative error of <span class="math notranslate nohighlight">\(10^{-6}\)</span>) is silent. Above the goal,
+within the ceiling (<span class="math notranslate nohighlight">\(10^{-4}\)</span>) or within the hard limit (<span class="math notranslate nohighlight">\(10^{-2}\)</span>), the result is returned with a warning in the package’s
 log and as an <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyWarning</span></code> (Python’s standard filter silences or escalates it), and the
-flag stays with the result and with everything computed from it. Beyond the hard limit the result is refused.
-A switch that writes a refused result anyway, marked as unvalidated, is part of the design and is not yet in
-version 0.9.0.</p>
+flag stays with the result and with everything computed from it. Beyond the hard limit the result is refused.</p>
 </section>
 <section id="one-component">
 <h2>One component<a class="headerlink" href="#one-component" title="Link to this heading">#</a></h2>

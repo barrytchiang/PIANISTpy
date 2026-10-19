@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,7 +46,7 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/anisotropy';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
@@ -180,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -234,7 +234,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -314,7 +326,9 @@ this one class, since the COM model contains the other three.</p>
 exactly 0, gives an isotropic or an OM model.</p></li>
 <li><p><strong>r_a</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> in internal units, positive. The
 default, infinity, gives an isotropic or a constant-anisotropy model.</p></li>
-<li><p><strong>kind</strong> (<em>{&quot;I&quot;</em><em>, </em><em>&quot;II&quot;}</em><em>, </em><em>optional</em>) – Type of the OM or COM model. Ignored when <cite>r_a</cite> is infinite.</p></li>
+<li><p><strong>kind</strong> (<em>{&quot;I&quot;</em><em>, </em><em>&quot;II&quot;}</em><em>, </em><em>optional</em>) – Type of the OM or COM model. Stored as <code class="docutils literal notranslate"><span class="pre">&quot;I&quot;</span></code> when <cite>r_a</cite> is
+infinite, where the type does not enter the model, so that one model
+has one identity.</p></li>
 </ul>
 </dd>
 </dl>
@@ -380,14 +394,9 @@ Poisson solve read too.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.anisotropy.Anisotropy.domain_edge">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">domain_edge</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">float</span></a></span><a class="headerlink" href="#pianistpy.anisotropy.Anisotropy.domain_edge" title="Link to this definition">#</a></dt>
-<dd><p>R_a
-for a Type II model (its factor is real, finite and positive only
-inside it), infinite otherwise.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The outer edge of the radii where the anisotropy is defined</p>
-</dd>
-</dl>
+<dd><p>The outer edge of the radii where the anisotropy is defined:
+<span class="math notranslate nohighlight">\(R_{\rm a}\)</span> for a Type II model (its factor is real, finite and
+positive only inside it), infinite otherwise.</p>
 </dd></dl>
 
 <dl class="py method">

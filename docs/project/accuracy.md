@@ -10,8 +10,6 @@ two releases is a regression by construction.
 
 Version
 
-Commit
-
 Goal
 
 Ceiling
@@ -27,8 +25,6 @@ Excluded
 The grid
 
 0.9.0
-
-f331d969
 
 345
 

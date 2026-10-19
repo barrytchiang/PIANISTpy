@@ -6,13 +6,23 @@ Source: https://pianistpy.com/docs/reference/api/exceptions
 
 Exceptions and warnings raised by PIANISTpy.
 
-exception pianistpy.exceptions.AccuracyError(*args)
+exception pianistpy.exceptions.AccuracyError(message, result=None)
 
-Raised when a result misses the hard accuracy limit.
+Raised when a result misses the hard accuracy limit, or cannot be
+resolved at the settings’ resolution.
 
 Parameters:
 
-args (object)
+message (str) – The check that failed, its error and where.
+
+result (object, optional) – The result that was refused, complete with its validation report,
+where the refusal came after it was built, so that it can be inspected
+without a second computation (Settings(write_anyway=True) returns
+it instead).
+
+Variables:
+
+result (object or None) – The refused result, or None where the refusal came inside a stage.
 
 Return type:
 
@@ -58,11 +68,13 @@ Base class of every warning issued by PIANISTpy.
 
 exception pianistpy.exceptions.ResultError(*args)
 
-Raised when a file does not hold the result it is taken for.
+Raised when a result is not what it is taken for.
 
-This covers an unknown format version, a data digest that does not match
-the stored arrays, and a parent whose identity differs from the one the
-file records.
+A file that does not hold the result it is taken for: an unknown format
+version, a data digest that does not match the stored arrays, a parent
+whose identity differs from the one the file records, a file that does
+not read back as written. Or a stage’s output that fails a structural
+check the next stage needs: rows that are not finite or not increasing.
 
 Parameters:
 

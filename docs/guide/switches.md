@@ -22,8 +22,9 @@ sets it before the package is imported. Each file records the backend that made 
 The workers’ switch sets how many cores the package’s parallel work uses; "auto" uses every allowed core
 inside a batch job and half of them anywhere else, and no value changes a number. The verbosity, the timing and
 the workers can also be set by the environment variables PIANISTPY_VERBOSITY, PIANISTPY_TIMING and
-PIANISTPY_WORKERS.
+PIANISTPY_WORKERS, in any case; PIANISTPY_TIMING reads 1, true, yes or on and 0,
+false, no or off, and any other value is refused by name.
 
-The compilation cache keeps JAX’s compiled kernels between sessions in one folder of the user’s cache directory,
-named for the package and its version, with a text file inside saying what it is; the switch reports where it
-is and clears it.
+The compilation cache keeps JAX’s compiled kernels between sessions in one folder: ~/.cache/pianistpy/jax
+by default, or the folder the environment variable PIANISTPY_COMPILATION_CACHE names (off, 0,
+false or no turns the cache off). The switch returns the folder in use, and the cache changes no number.

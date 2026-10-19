@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -51,7 +51,7 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex" />
     <link rel="search" title="Search" href="../search" />
-    <link rel="next" title="Development" href="../project/index" />
+    <link rel="next" title="T:0 Principles and conventions" href="technical-notes/principles" />
     <link rel="prev" title="Accuracy tables" href="accuracy" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -178,7 +178,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -232,7 +232,19 @@
 <li class="toctree-l1"><a class="reference internal" href="settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="accuracy">Accuracy tables</a></li>
-<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Technical notes</a></li>
+<li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">Technical notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -294,12 +306,82 @@
                   
   <section id="technical-notes">
 <h1>Technical notes<a class="headerlink" href="#technical-notes" title="Link to this heading">#</a></h1>
-<p>The technical notes are the online companion of the paper: the equations, derivations, conditions and bounds
-that the paper does not print, and the numerical design of each stage. Every formula implemented in the package
-cites them from its docstring by a number and a fixed key, as in <code class="docutils literal notranslate"><span class="pre">Notes</span> <span class="pre">Eq.</span> <span class="pre">(I.5)</span> <span class="pre">[conditions]</span></code>; the key never
-changes, the number follows the notes.</p>
-<p>The notes are published as a PDF with each release; the link is added with the 1.0.0 release. Rendering them
-as pages of this manual is among the <a class="reference internal" href="../project/roadmap"><span class="doc">Upcoming features</span></a>.</p>
+<p>This technical document details the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in the initial code release paper of Chiang, van den Bosch and Schive (2026), cited throughout as <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>. Here, we follow and routinely refer to the notations, equations, and results of that paper. This document is organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. <a class="reference internal" href="technical-notes/principles#tn-sec-principles"><span class="std std-ref">Section T:0</span></a> states the conventions and notations used; we then discuss the input potential-density models (<a class="reference internal" href="technical-notes/model#tn-sec-model"><span class="std std-ref">Section T:1</span></a>), the distribution function (<a class="reference internal" href="technical-notes/df#tn-sec-df"><span class="std std-ref">Section T:2</span></a>), the truncation (<a class="reference internal" href="technical-notes/truncation#tn-sec-truncation"><span class="std std-ref">Section T:3</span></a>), the linear superposition of components (<a class="reference internal" href="technical-notes/sup#tn-sec-sup"><span class="std std-ref">Section T:4</span></a>), the particle sampling (<a class="reference internal" href="technical-notes/sampling#tn-sec-sampling"><span class="std std-ref">Section T:5</span></a>), the velocity profiles and projections (<a class="reference internal" href="technical-notes/observables#tn-sec-observables"><span class="std std-ref">Section T:6</span></a>), and the JAX-based gradients (<a class="reference internal" href="technical-notes/gradients#tn-sec-gradients"><span class="std std-ref">Section T:7</span></a>). <a class="reference internal" href="technical-notes/verification#tn-sec-verification"><span class="std std-ref">Section T:8</span></a> documents the accuracy and validation tests and related information.</p>
+<p>This is version 7 of the notes. Their numbers carry the prefix T: (sections T:2.3, equations (T:2.4), tables T:2.1); the package’s docstrings cite them in the form the <a class="reference internal" href="api/index"><span class="doc">API reference</span></a> states. The notes are also published as a PDF with each release; the link is added with the 1.0.0 release.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/principles">T:0 Principles and conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-1-notation">T:0.1 Notation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-2-rules-derived-from-the-inputs-not-fitted-constants">T:0.2 Rules derived from the inputs, not fitted constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-3-exact-arithmetic">T:0.3 Exact arithmetic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-4-host-floors">T:0.4 Host floors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-5-accuracy-tiers-reports-and-refusals">T:0.5 Accuracy tiers, reports, and refusals</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/model">T:1 The model: density and potential</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/model#t-1-1-the-two-maps">T:1.1 The two maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/model#t-1-2-derivatives-of-the-auxiliary-density">T:1.2 Derivatives of the auxiliary density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/model#t-1-3-the-profile-of-a-truncated-model">T:1.3 The profile of a truncated model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/df">T:2 The distribution function</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-1-the-inversion">T:2.1 The inversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-2-asymptotic-behavior-of-the-df">T:2.2 Asymptotic behavior of the DF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-3-the-form-of-every-row">T:2.3 The form of every row</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-4-the-energy-grid">T:2.4 The energy grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-5-beyond-the-table">T:2.5 Beyond the table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-6-a-component-on-a-tabulated-pair-method-ii">T:2.6 A component on a tabulated pair (Method II)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-7-a-distribution-function-from-a-function">T:2.7 A distribution function from a function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/truncation">T:3 Truncation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-1-type-ii-models-beyond-the-anisotropy-radius">T:3.1 Type II models beyond the anisotropy radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-2-the-truncated-df-and-the-poisson-source">T:3.2 The truncated DF and the Poisson source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-3-the-poisson-solve">T:3.3 The Poisson solve</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-4-the-fills-and-the-rows-of-the-profile">T:3.4 The fills and the rows of the profile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-5-the-gates-on-the-truncation-energy">T:3.5 The gates on the truncation energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-6-a-target-mass-or-a-target-radius">T:3.6 A target mass or a target radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-7-the-radius-of-trust-of-an-untruncated-product">T:3.7 The radius of trust of an untruncated product</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-8-what-a-model-checks">T:3.8 What a model checks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/sampling">T:5 Particle sampling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-1-the-velocity-distribution-at-a-given-radius-factorizes">T:5.1 The velocity distribution at a given radius factorizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-2-the-table-of-speeds">T:5.2 The table of speeds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-3-the-draw">T:5.3 The draw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-4-what-a-draw-checks">T:5.4 What a draw checks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/observables">T:6 Velocity profiles and projections</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-1-intrinsic-moments">T:6.1 Intrinsic moments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-2-projection">T:6.2 Projection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-3-apertures">T:6.3 Apertures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-4-the-line-of-sight-velocity-distribution">T:6.4 The line-of-sight velocity distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-5-the-table-of-rows-and-its-certificate">T:6.5 The table of rows and its certificate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-6-the-distribution-in-an-aperture">T:6.6 The distribution in an aperture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-7-gauss-hermite-moments">T:6.7 Gauss-Hermite moments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-8-the-local-speed-distribution">T:6.8 The local speed distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables#t-6-9-superposed-models">T:6.9 Superposed models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/gradients">T:7 Gradients</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients#t-7-1-the-inversion-s-rule">T:7.1 The inversion’s rule</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients#t-7-2-what-is-served">T:7.2 What is served</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients#t-7-3-the-observables-tangent-rows">T:7.3 The observables’ tangent rows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients#t-7-4-the-likelihood">T:7.4 The likelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/verification">T:8 Verification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-1-reports-and-tiers">T:8.1 Reports and tiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-2-reference-values">T:8.2 Reference values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-3-the-roundtrip-test">T:8.3 The roundtrip test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-4-the-accuracy-grid">T:8.4 The accuracy grid</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/references">References</a></li>
+</ul>
+</div>
 </section>
 
 

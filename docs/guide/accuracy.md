@@ -5,8 +5,8 @@ Source: https://pianistpy.com/docs/guide/accuracy
 # Accuracy
 
 Every result carries a validation report, a short and fixed summary of the checks it passed, with its tier: a
-check within the accuracy goal (a relative error of 1e-6) is silent; above the goal, within the ceiling (1e-4) or
-within the hard limit (1e-2), the result is returned with a warning in the package’s log and as an
+check within the accuracy goal (a relative error of \(10^{-6}\)) is silent; above the goal, within the ceiling (\(10^{-4}\)) or
+within the hard limit (\(10^{-2}\)), the result is returned with a warning in the package’s log and as an
 AccuracyWarning (Python’s standard filter silences or escalates it), and the flag stays with the result and with
 everything computed from it; beyond the hard limit the result is refused.
 

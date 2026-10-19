@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/gradient';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -302,26 +304,26 @@
                   
   <section id="end-to-end-differentiability">
 <h1>End-to-end differentiability<a class="headerlink" href="#end-to-end-differentiability" title="Link to this heading">#</a></h1>
-<p><a class="reference internal" href="../reference/api/inference#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.inference.likelihood()</span></code></a>, <code class="docutils literal notranslate"><span class="pre">pianistpy.df.gradient.make_inversion_table</span></code>,
-<code class="docutils literal notranslate"><span class="pre">pianistpy.df.gradient.table_jacobian</span></code>, <code class="docutils literal notranslate"><span class="pre">pianistpy.df.gradient.make_inversion_rows</span></code>,
-<code class="docutils literal notranslate"><span class="pre">pianistpy.df.gradient.rows_jacobian</span></code></p>
+<p><a class="reference internal" href="../reference/api/inference#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.inference.likelihood()</span></code></a>, <a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.make_inversion_table" title="pianistpy.df.gradient.make_inversion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.make_inversion_table()</span></code></a>,
+<a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.table_jacobian" title="pianistpy.df.gradient.table_jacobian"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.table_jacobian()</span></code></a>, <a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.make_inversion_rows()</span></code></a>,
+<a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.rows_jacobian()</span></code></a></p>
 <section id="what-is-differentiable">
 <h2>What is differentiable<a class="headerlink" href="#what-is-differentiable" title="Link to this heading">#</a></h2>
 <p><strong>The weights and the unit scales.</strong> The likelihood of a model against data, <a class="reference internal" href="../reference/api/inference#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.inference.likelihood()</span></code></a>,
 is a JAX function of the components’ weights and of the model’s mass and length scales, traceable and differentiable
-in both. With <code class="docutils literal notranslate"><span class="pre">free=</span></code>, the anisotropy (beta_c, R_a) of the components named there is a parameter of it as well, for
-a component on a truncated profile with a finite R_a; the <a class="reference internal" href="../reference/api/inference"><span class="doc">inference page</span></a> states how.
+in both. With <code class="docutils literal notranslate"><span class="pre">free=</span></code>, the anisotropy <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> of the components named there is a parameter of it as well, for
+a component on a truncated profile with a finite <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>; the <a class="reference internal" href="../reference/api/inference"><span class="doc">inference page</span></a> states how.
 The two calls serve different members: the rule below serves an untruncated analytic component, while <code class="docutils literal notranslate"><span class="pre">likelihood</span></code>
 refuses a member in <code class="docutils literal notranslate"><span class="pre">free=</span></code> that is not spatially finite, by name, since it reads the distribution function at
 the model’s edge.</p>
 <p><strong>The observables.</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Differentiable</span></code> serves a model’s observables as JAX functions of its
-anisotropy (beta_c, R_a), each with the public call’s own value and the tangent rows’ derivative: <a class="reference internal" href="differentiable"><span class="doc">Differentiable observables</span></a>.</p>
+anisotropy <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, each with the public call’s own value and the tangent rows’ derivative: <a class="reference internal" href="differentiable"><span class="doc">Differentiable observables</span></a>.</p>
 <p><strong>The anisotropy parameters.</strong> The distribution function of a component is differentiable in its central anisotropy
-beta_c and its anisotropy radius R_a, for the families served:</p>
+<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and its anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, for the families served:</p>
 <ul class="simple">
-<li><p>constant anisotropy (beta_c),</p></li>
-<li><p>Cuddeford Type I (beta_c and R_a),</p></li>
-<li><p>Osipkov-Merritt Type I and Type II (R_a).</p></li>
+<li><p>constant anisotropy (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>),</p></li>
+<li><p>Cuddeford Type I (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>),</p></li>
+<li><p>Osipkov-Merritt Type I and Type II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>).</p></li>
 </ul>
 <p>Two levels are offered. The inversion’s rows (the distribution function on the inversion’s energy grid) through
 <code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code> and <code class="docutils literal notranslate"><span class="pre">rows_jacobian</span></code>; the distribution function’s table, as the lookup reads it, through
@@ -337,19 +339,19 @@ parameters the function was made at: the derivative is that of the solve with th
 derivative of the table the package returns there. Where a choice changes between two parameters, the solve at the
 second one differs from the held one by its own tolerance.</p>
 <p><strong>Not served,</strong> each refused with an error that names it: Cuddeford Type II, a center on its critical branch (where
-the branch itself changes with beta_c), and a component on a truncated profile that carries no distribution function
+the branch itself changes with <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>), and a component on a truncated profile that carries no distribution function
 of its model.</p>
-<p><strong>Cuddeford Type II.</strong> The inversion’s kernel carries the factor (P - P(R_a))^s, with s = 1 - beta_c - j and j the
-inversion’s order: its interior point P(R_a) moves with R_a and its exponent with beta_c. The derivative of that
-factor in R_a is not integrable at the interior point for s at or below 0, so the rows of the mixed derivative do not
+<p><strong>Cuddeford Type II.</strong> The inversion’s kernel carries the factor <span class="math notranslate nohighlight">\((P - P(R_{\rm a}))^s\)</span>, with <span class="math notranslate nohighlight">\(s = 1 - \beta_{\rm c} - j\)</span> and <span class="math notranslate nohighlight">\(j\)</span> the
+inversion’s order: its interior point <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span> moves with <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> and its exponent with <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>. The derivative of that
+factor in <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is not integrable at the interior point for <span class="math notranslate nohighlight">\(s \le 0\)</span>, so the rows of the mixed derivative do not
 carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A Cuddeford
 Type II model’s second moments take their derivative by the Jeans path (<code class="docutils literal notranslate"><span class="pre">dispersion_profile</span></code>’s tangents); its
 distribution function, and the observables read from it (<code class="docutils literal notranslate"><span class="pre">losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>), take none.</p>
-<p><strong>Where a model’s anisotropy is a parameter.</strong> The derivative of a model’s observables in (beta_c, R_a), through
+<p><strong>Where a model’s anisotropy is a parameter.</strong> The derivative of a model’s observables in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>, through
 <code class="docutils literal notranslate"><span class="pre">likelihood</span></code> with <code class="docutils literal notranslate"><span class="pre">free=</span></code> and through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>, is the full derivative for a Method II model: a
 component whose distribution function is inverted on another model’s truncated profile, held fixed, so its profile
 and its potential do not move with the anisotropy. A Method I truncated model is refused by name: its truncated
-profile is that of its own distribution function, which moves with beta_c and R_a, so neither the Jeans path (a fixed
+profile is that of its own distribution function, which moves with <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, so neither the Jeans path (a fixed
 profile) nor the distribution function’s path at a fixed potential carries the full derivative, and the profile’s
 own motion through the truncation is not served in this version. An untruncated model is refused on both paths,
 since its edge terms read its distribution function.</p>
@@ -362,43 +364,42 @@ promise. It never returns a wrong number. On the CPU every row is served.</p>
 <h2>Per call<a class="headerlink" href="#per-call" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">pianistpy.inference.likelihood</span></code>: differentiable in the weights, the unit scales and, with <code class="docutils literal notranslate"><span class="pre">free=</span></code>, the
-(beta_c, R_a) of the named components; the families and refusals as above.</p></li>
-<li><p>The distribution function (<code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code>, <code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code>): differentiable in (beta_c, R_a)
+<span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> of the named components; the families and refusals as above.</p></li>
+<li><p>The distribution function (<code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code>, <code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code>): differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>
 for the families served.</p></li>
 </ul>
-<p>Each observable is differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable(model)</span></code>, whose methods mirror the
-public calls as JAX functions of theta, for the families above and with the same refusals. <em>Pending: these seven
-lines hold once the object is in the package (1.0.0).</em></p>
+<p>Each observable is differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable(model)</span></code>, whose methods mirror the
+public calls as JAX functions of <span class="math notranslate nohighlight">\(\theta\)</span>, for the families above and with the same refusals.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma_r</span></code>: differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma_t</span></code>: differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma_los</span></code>: differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code>: differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">losvd</span></code>: differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code>: differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>: differentiable in (beta_c, R_a) through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma_r</span></code>: differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma_t</span></code>: differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma_los</span></code>: differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code>: differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">losvd</span></code>: differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code>: differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>: differentiable in <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>.</p></li>
 </ul>
 </section>
 <section id="what-the-record-carries">
 <h2>What the record carries<a class="headerlink" href="#what-the-record-carries" title="Link to this heading">#</a></h2>
-<p>The rule is exact except for one part, the derivative of the inversion’s operator itself in beta_c at a fixed
-source, which has no closed form and is taken from the operator’s values at nearby beta_c. The record returned with
+<p>The rule is exact except for one part, the derivative of the inversion’s operator itself in <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> at a fixed
+source, which has no closed form and is taken from the operator’s values at nearby <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>. The record returned with
 the derivative states how:</p>
 <ul class="simple">
 <li><p>central (a Richardson quotient) inside a form’s region, or one-sided at a corner, where the inversion’s form
-changes on one side (integer and half-integer beta_c);</p></li>
+changes on one side (integer and half-integer <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>);</p></li>
 <li><p>the step, set by measurement: the kernel’s accuracy balanced against the quotient’s truncation term;</p></li>
 <li><p>the quotient’s Richardson residual and, at a corner, the spread of its two sides, both over the column’s scale;</p></li>
 <li><p>for a component on a truncated profile, where its energy grid is placed.</p></li>
 </ul>
 <p>The residual is the derivative’s accuracy, and it reads in the package’s tiers (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>). Inside a form’s
-region it is at the goal. At the isotropic corner, beta_c = 0, the quotient is one-sided, and its residual is about
-1e-5 of the column: the ceiling tier, not the goal, which the record states. A gradient there is usable at that
-accuracy; one at the goal takes a beta_c off the corner.</p>
+region it is at the goal. At the isotropic corner, <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0\)</span>, the quotient is one-sided, and its residual is about
+<span class="math notranslate nohighlight">\(10^{-5}\)</span> of the column: the ceiling tier, not the goal, which the record states. A gradient there is usable at that
+accuracy; one at the goal takes a <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> off the corner.</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
-<p>The derivative of log10 F at one node of a Hernquist component’s table, by the rule and by a central difference of
+<p>The derivative of <span class="math notranslate nohighlight">\(\log_{10} F\)</span> at one node of a Hernquist component’s table, by the rule and by a central difference of
 the same function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -422,7 +423,7 @@ the same function:</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">difference</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The two agree to the difference’s own error (h squared times the third derivative). The table is made once; each
+<p>The two agree to the difference’s own error (<span class="math notranslate nohighlight">\(h^2\)</span> times the third derivative). The table is made once; each
 call of <code class="docutils literal notranslate"><span class="pre">table</span></code> solves the inversion again at the new parameters on the held grid.</p>
 </section>
 </section>

@@ -11,7 +11,8 @@ class pianistpy.observables.Aperture(shape, r_off=0.0, r_ape=None, side_x=None, 
 An aperture on the plane of the sky, circular or rectangular.
 
 Build one with Aperture.circle or Aperture.rectangle. Lengths are
-in internal units.
+in the unit system of the model (or table) it is used with, as the
+observables’ radii are.
 
 Parameters:
 
@@ -151,10 +152,11 @@ first, and is a JAX function of it, traceable and differentiable.
 Parameters:
 
 model (Model) – A model of one component on a truncated profile, spatially finite,
-whose family has beta_c or R_a: constant anisotropy (beta_c; an
-isotropic or constant component’s R_a is held at its own, infinite,
-value with a zero gradient), Cuddeford Type I (both), Osipkov-Merritt
-Type I and Type II (R_a).
+whose family has \(\beta_{\rm c}\) or \(R_{\rm a}\): constant
+anisotropy (\(\beta_{\rm c}\); an isotropic or constant
+component’s \(R_{\rm a}\) is held at its own, infinite, value with
+a zero gradient), Cuddeford Type I (both), Osipkov-Merritt Type I and
+Type II (\(R_{\rm a}\)).
 
 settings (Settings, optional) – Numerical settings of the observables; the model’s by default.
 
@@ -162,7 +164,7 @@ Variables:
 
 model (Model) – The model.
 
-theta (array, shape (2,)) – Its own (beta_c, R_a), in internal units.
+theta (array, shape (2,)) – Its own \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 Raises:
 
@@ -195,7 +197,7 @@ pianistpy.sigma_r of the model at theta.
 
 Parameters:
 
-theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+theta (array-like, shape (2,)) – The component’s \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 r (array-like) – Radii, in internal units.
 
@@ -215,7 +217,7 @@ components together), as pianistpy.sigma_t of the model at theta.
 
 Parameters:
 
-theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+theta (array-like, shape (2,)) – The component’s \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 r (array-like) – Radii, in internal units.
 
@@ -235,7 +237,7 @@ pianistpy.sigma_los of the model at theta.
 
 Parameters:
 
-theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+theta (array-like, shape (2,)) – The component’s \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 r_2d (array-like) – Projected radii, in internal units.
 
@@ -256,7 +258,7 @@ pianistpy.sigma_los_aperture of the model at theta.
 
 Parameters:
 
-theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+theta (array-like, shape (2,)) – The component’s \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 aperture (Aperture) – The aperture, its lengths in internal units.
 
@@ -272,7 +274,7 @@ scalar array
 Notes
 
 The derivative is the aperture’s integral of the tangent rows of
-sigma_los^2, on the nodes and weights of the plain call’s own
+\(\sigma_{\rm los}^2\), on the nodes and weights of the plain call’s own
 quadrature (the integral is linear in the rows), over twice the value.
 
 losvd(theta, r_2d, v)
@@ -282,7 +284,7 @@ Return the line-of-sight velocity distribution at the pairs
 
 Parameters:
 
-theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+theta (array-like, shape (2,)) – The component’s \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 r_2d (array-like) – Projected radii and line-of-sight velocities, in internal units;
 they broadcast against each other.
@@ -314,7 +316,7 @@ pianistpy.pdf_v of the model at theta.
 
 Parameters:
 
-theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+theta (array-like, shape (2,)) – The component’s \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 r (array-like) – Radii and speeds, in internal units; they broadcast against each
 other.
@@ -348,7 +350,7 @@ theta.
 
 Parameters:
 
-theta (array-like, shape (2,)) – The component’s (beta_c, R_a), in internal units.
+theta (array-like, shape (2,)) – The component’s \((\beta_{\rm c}, R_{\rm a})\), in internal units.
 
 aperture (Aperture) – The aperture, its lengths in internal units.
 
@@ -417,6 +419,20 @@ kwargs (Any)
 Return type:
 
 LosTable
+
+close()
+
+Close the worker processes the table’s aperture calls keep.
+
+The first aperture read from a table that needs workers starts a pool
+of them, and the table’s later apertures reuse it; the pool closes
+here, or when the table is gone. A table presented in another unit
+system (to) shares the pool. An aperture read after close starts
+a new one.
+
+Return type:
+
+None
 
 class pianistpy.observables.ProjectedPairs(r_2d, v_los, mass, component, units, record=<factory>, validation=None)
 
@@ -765,9 +781,9 @@ r (array-like) – Radius \(r\) in the model’s unit system, as for sigma_r.
 Returns:
 
 sigma_t – Tangential velocity dispersion of both tangential components
-together, \(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2
-= 2 (1 - \beta_\sigma) \sigma_r^2\), in the model’s unit system, with
-the shape of r.
+together, \(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2\)
+\(= 2 (1 - \beta_\sigma) \sigma_r^2\), in the model’s unit system,
+with the shape of r.
 
 Return type:
 
@@ -777,5 +793,74 @@ Notes
 
 Read as sigma_r is; of a superposition, \(\sigma_{\rm t}^2 =
 \sum_k w_k \sigma_{{\rm t},k}^2\).
+
+## The speed distribution’s stage (pianistpy.observables.stages)
+
+The stage behind pianistpy.observables.pdf_v(), at one radius, with its record (Local speed distribution).
+
+pianistpy.observables.stages.speed_distribution(model, r, settings, profile=None)
+
+Return the local speed distribution of a model at a 3D radius.
+
+Parameters:
+
+model (Model) – A model of one component.
+
+r (float) – Radius, in internal units, inside the profile and, for Type II,
+inside the anisotropy radius.
+
+settings (Settings) – Numerical settings (the observables group’s
+n_speed_angle_nodes, n_speed_angle_panels and
+speed_tolerance).
+
+profile (DispersionProfile, optional) – The model’s intrinsic second moments, which the second moment is
+checked against; computed when not given.
+
+Returns:
+
+distribution
+
+Return type:
+
+SpeedDistribution
+
+Raises:
+
+InputError – For a model of more than one component, or a radius outside the
+    profile or, for Type II, at or beyond the anisotropy radius.
+
+Notes
+
+\(p(V\,|\,r) = (4\pi/\varrho)\, r^{-2b} V^{2-2b} \int_0^1
+(1-t^2)^{-b} f(Q)\,{\rm d}t\) over the DF’s own support (_speed), with
+\(t = \cos\eta\), the angle between the velocity and the radius,
+the variable of the sampler’s angle law. The DF module states the
+support (AsymptoticForm.below_floor): F is read through its lookup,
+zero below its first energy where its rule is "zero". A Type II DF
+is a function of \(Q_+ = Z + L^2/(2r_a^2)\), so its speeds reach
+\(V_{\rm max} = \sqrt{2(\mathcal{P} - K_c)/(1 - r^2/r_a^2)}\),
+beyond the escape speed where its floor \(K_c\) is below
+\(\xi\mathcal{P}(r)\), \(\xi = r^2/r_a^2\), and
+unbound_fraction is the share there. A Type II model is truncated at
+\(K_t \geq \mathcal{P}(r_a)\) (truncate’s domain gate), so its
+floor in the truncated potential is zero and its unbound share is not.
+A floor at \(\mathcal{P}(r_a)\) itself, in the potential that
+vanishes at infinity, would leave no orbit unbound:
+\(Z \geq (\mathcal{P}(r_a) - \xi\mathcal{P}(r))/(1 - \xi) > 0\), since
+\(r^2\mathcal{P}(r)\) increases with \(r\) (its derivative
+\(2r\mathcal{P} - M(r) \geq M(r) > 0\), as
+\(\mathcal{P} \geq M(r)/r\) there).
+
+The angle rule’s nodes double, at most SPEED_DOUBLINGS times, until
+the distribution on the speed rule changes by less than
+speed_tolerance of its largest value. On an untruncated Type I DF
+that diverges at its floor (a tail \(F \propto K^{-1/2}\) with a
+logarithmic factor) the distribution is infinite at exactly
+\(V_*\), an integrable singularity; speeds within
+SPEED_KINK_GAP of it are left out of that check.
+
+References
+
+Paper [eqn:rho_f_anisotropic_scale], [eqn:varphi_prob], [eqn:V_prob].
 
      On this page

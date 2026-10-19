@@ -7,7 +7,7 @@ Source: https://pianistpy.com/docs/guide/pdf_v
 pianistpy.pdf_v(), pianistpy.LosTable
 
 pdf_v(source, r, v) returns the local speed distribution \(p(V\,|\,R)\) at 3D radii: the probability density
-of the speed \(V = |\mathbf{V}|\) of the tracers at a distance \(R\) from the center. As in the paper, the
+of the speed \(V = |\mathbf{V}|\) of the tracers at a distance \(R\) from the center. As in Chiang et al. (2026d), the
 density at a radius is split into the velocity angle \(\varphi\) and the speed,
 
 \[\varrho(R) = 2\pi \int_0^\pi {\rm d}\varphi\; p_\varphi(\varphi\,|\,R)
@@ -20,7 +20,7 @@ and the speed distribution is the inner density integrated over the angle, norma
 
 It integrates to one over \(V \geq 0\). Its support ends at the escape speed \(V_{\rm esc}(R)\) for an
 isotropic, constant-anisotropy or Type I model; a Type II model holds orbits of negative energy as well, and its
-speeds reach \(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\). The radius \(R\) of the paper is r in the
+speeds reach \(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\). The radius \(R\) of Chiang et al. (2026d) is r in the
 package.
 
 ## Arguments and units
@@ -37,12 +37,12 @@ Of a superposition, the components are mixed by their density at the radius,
 ## Tiers
 
 Each radius asked for is computed once, with three checks: the norm of the distribution against the density, its
-second moment against \(\sigma_r^2 (3 - 2\beta_\sigma)\) from Radial velocity dispersion, and the change of the
+second moment against \(\sigma_{\rm r}^2 (3 - 2\beta_\sigma)\) from Radial velocity dispersion, and the change of the
 distribution when the nodes of its angle rule double. The nodes double, at most three times, until that change is
-under speed_tolerance (the goal 1e-6 at the default tier, the ceiling 1e-4 at the quick tier). A distribution
+under speed_tolerance (the goal \(10^{-6}\) at the default tier, the ceiling \(10^{-4}\) at the quick tier). A distribution
 above the goal is returned with a warning; one beyond the hard limit is refused with an
 AccuracyError unless the model’s settings ask for it (write_anyway). The stage behind the
-call, pianistpy.observables.stages.speed_distribution, returns the distribution at one radius with its
+call, pianistpy.observables.stages.speed_distribution(), returns the distribution at one radius with its
 record, its escape speed, the end of its support and, for a Type II model, the share of it beyond the escape
 speed (unbound_fraction).
 

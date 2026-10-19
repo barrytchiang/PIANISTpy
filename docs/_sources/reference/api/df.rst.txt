@@ -3,3 +3,12 @@ Distribution functions and models (``pianistpy.df``)
 
 .. automodule:: pianistpy.df
    :members:
+
+Gradients (``pianistpy.df.gradient``)
+-------------------------------------
+
+The distribution function's rows and table as JAX functions of the anisotropy parameters, and their Jacobians
+(:doc:`../../guide/gradient`).
+
+.. automodule:: pianistpy.df.gradient
+   :members:

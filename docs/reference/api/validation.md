@@ -61,13 +61,24 @@ property tier: str
 
 Name of the worst tier.
 
-classmethod from_dict(record)
+classmethod from_dict(record, key_sets=None)
 
 Build the report from its dictionary form.
 
 Parameters:
 
-record (Mapping[str, Any])
+record (mapping) – The report as to_dict writes it.
+
+key_sets (sequence of tuple of str, optional) – The key sets a report of this kind of result has. Given, a check
+no set holds is refused by name, and the report is read against
+the smallest set that holds all its checks: a check of that set
+the record lacks (a file written before the check was made) is
+read as not judged, with that reason.
+
+Raises:
+
+ResultError – If a check of the record is in none of the key sets, or no one
+    set holds all its checks.
 
 Return type:
 

@@ -4,31 +4,31 @@ Source: https://pianistpy.com/docs/guide/gradient
 
 # End-to-end differentiability
 
-pianistpy.inference.likelihood(), pianistpy.df.gradient.make_inversion_table,
-pianistpy.df.gradient.table_jacobian, pianistpy.df.gradient.make_inversion_rows,
-pianistpy.df.gradient.rows_jacobian
+pianistpy.inference.likelihood(), pianistpy.df.gradient.make_inversion_table(),
+pianistpy.df.gradient.table_jacobian(), pianistpy.df.gradient.make_inversion_rows(),
+pianistpy.df.gradient.rows_jacobian()
 
 ## What is differentiable
 
 The weights and the unit scales. The likelihood of a model against data, pianistpy.inference.likelihood(),
 is a JAX function of the components’ weights and of the model’s mass and length scales, traceable and differentiable
-in both. With free=, the anisotropy (beta_c, R_a) of the components named there is a parameter of it as well, for
-a component on a truncated profile with a finite R_a; the inference page states how.
+in both. With free=, the anisotropy \((\beta_{\rm c}, R_{\rm a})\) of the components named there is a parameter of it as well, for
+a component on a truncated profile with a finite \(R_{\rm a}\); the inference page states how.
 The two calls serve different members: the rule below serves an untruncated analytic component, while likelihood
 refuses a member in free= that is not spatially finite, by name, since it reads the distribution function at
 the model’s edge.
 
 The observables. pianistpy.Differentiable serves a model’s observables as JAX functions of its
-anisotropy (beta_c, R_a), each with the public call’s own value and the tangent rows’ derivative: Differentiable observables.
+anisotropy \((\beta_{\rm c}, R_{\rm a})\), each with the public call’s own value and the tangent rows’ derivative: Differentiable observables.
 
 The anisotropy parameters. The distribution function of a component is differentiable in its central anisotropy
-beta_c and its anisotropy radius R_a, for the families served:
+\(\beta_{\rm c}\) and its anisotropy radius \(R_{\rm a}\), for the families served:
 
-constant anisotropy (beta_c),
+constant anisotropy (\(\beta_{\rm c}\)),
 
-Cuddeford Type I (beta_c and R_a),
+Cuddeford Type I (\(\beta_{\rm c}\) and \(R_{\rm a}\)),
 
-Osipkov-Merritt Type I and Type II (R_a).
+Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)).
 
 Two levels are offered. The inversion’s rows (the distribution function on the inversion’s energy grid) through
 make_inversion_rows and rows_jacobian; the distribution function’s table, as the lookup reads it, through
@@ -46,21 +46,21 @@ derivative of the table the package returns there. Where a choice changes betwee
 second one differs from the held one by its own tolerance.
 
 Not served, each refused with an error that names it: Cuddeford Type II, a center on its critical branch (where
-the branch itself changes with beta_c), and a component on a truncated profile that carries no distribution function
+the branch itself changes with \(\beta_{\rm c}\)), and a component on a truncated profile that carries no distribution function
 of its model.
 
-Cuddeford Type II. The inversion’s kernel carries the factor (P - P(R_a))^s, with s = 1 - beta_c - j and j the
-inversion’s order: its interior point P(R_a) moves with R_a and its exponent with beta_c. The derivative of that
-factor in R_a is not integrable at the interior point for s at or below 0, so the rows of the mixed derivative do not
+Cuddeford Type II. The inversion’s kernel carries the factor \((P - P(R_{\rm a}))^s\), with \(s = 1 - \beta_{\rm c} - j\) and \(j\) the
+inversion’s order: its interior point \(P(R_{\rm a})\) moves with \(R_{\rm a}\) and its exponent with \(\beta_{\rm c}\). The derivative of that
+factor in \(R_{\rm a}\) is not integrable at the interior point for \(s \le 0\), so the rows of the mixed derivative do not
 carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A Cuddeford
 Type II model’s second moments take their derivative by the Jeans path (dispersion_profile’s tangents); its
 distribution function, and the observables read from it (losvd, aperture_losvd, pdf_v), take none.
 
-Where a model’s anisotropy is a parameter. The derivative of a model’s observables in (beta_c, R_a), through
+Where a model’s anisotropy is a parameter. The derivative of a model’s observables in \((\beta_{\rm c}, R_{\rm a})\), through
 likelihood with free= and through pp.Differentiable, is the full derivative for a Method II model: a
 component whose distribution function is inverted on another model’s truncated profile, held fixed, so its profile
 and its potential do not move with the anisotropy. A Method I truncated model is refused by name: its truncated
-profile is that of its own distribution function, which moves with beta_c and R_a, so neither the Jeans path (a fixed
+profile is that of its own distribution function, which moves with \(\beta_{\rm c}\) and \(R_{\rm a}\), so neither the Jeans path (a fixed
 profile) nor the distribution function’s path at a fixed potential carries the full derivative, and the profile’s
 own motion through the truncation is not served in this version. An untruncated model is refused on both paths,
 since its edge terms read its distribution function.
@@ -73,37 +73,36 @@ promise. It never returns a wrong number. On the CPU every row is served.
 ## Per call
 
 pianistpy.inference.likelihood: differentiable in the weights, the unit scales and, with free=, the
-(beta_c, R_a) of the named components; the families and refusals as above.
+\((\beta_{\rm c}, R_{\rm a})\) of the named components; the families and refusals as above.
 
-The distribution function (make_inversion_rows, make_inversion_table): differentiable in (beta_c, R_a)
+The distribution function (make_inversion_rows, make_inversion_table): differentiable in \((\beta_{\rm c}, R_{\rm a})\)
 for the families served.
 
-Each observable is differentiable in (beta_c, R_a) through pp.Differentiable(model), whose methods mirror the
-public calls as JAX functions of theta, for the families above and with the same refusals. Pending: these seven
-lines hold once the object is in the package (1.0.0).
+Each observable is differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable(model), whose methods mirror the
+public calls as JAX functions of \(\theta\), for the families above and with the same refusals.
 
-sigma_r: differentiable in (beta_c, R_a) through pp.Differentiable.
+sigma_r: differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable.
 
-sigma_t: differentiable in (beta_c, R_a) through pp.Differentiable.
+sigma_t: differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable.
 
-sigma_los: differentiable in (beta_c, R_a) through pp.Differentiable.
+sigma_los: differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable.
 
-sigma_los_aperture: differentiable in (beta_c, R_a) through pp.Differentiable.
+sigma_los_aperture: differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable.
 
-losvd: differentiable in (beta_c, R_a) through pp.Differentiable.
+losvd: differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable.
 
-aperture_losvd: differentiable in (beta_c, R_a) through pp.Differentiable.
+aperture_losvd: differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable.
 
-pdf_v: differentiable in (beta_c, R_a) through pp.Differentiable.
+pdf_v: differentiable in \((\beta_{\rm c}, R_{\rm a})\) through pp.Differentiable.
 
 ## What the record carries
 
-The rule is exact except for one part, the derivative of the inversion’s operator itself in beta_c at a fixed
-source, which has no closed form and is taken from the operator’s values at nearby beta_c. The record returned with
+The rule is exact except for one part, the derivative of the inversion’s operator itself in \(\beta_{\rm c}\) at a fixed
+source, which has no closed form and is taken from the operator’s values at nearby \(\beta_{\rm c}\). The record returned with
 the derivative states how:
 
 central (a Richardson quotient) inside a form’s region, or one-sided at a corner, where the inversion’s form
-changes on one side (integer and half-integer beta_c);
+changes on one side (integer and half-integer \(\beta_{\rm c}\));
 
 the step, set by measurement: the kernel’s accuracy balanced against the quotient’s truncation term;
 
@@ -112,13 +111,13 @@ the quotient’s Richardson residual and, at a corner, the spread of its two sid
 for a component on a truncated profile, where its energy grid is placed.
 
 The residual is the derivative’s accuracy, and it reads in the package’s tiers (Accuracy). Inside a form’s
-region it is at the goal. At the isotropic corner, beta_c = 0, the quotient is one-sided, and its residual is about
-1e-5 of the column: the ceiling tier, not the goal, which the record states. A gradient there is usable at that
-accuracy; one at the goal takes a beta_c off the corner.
+region it is at the goal. At the isotropic corner, \(\beta_{\rm c} = 0\), the quotient is one-sided, and its residual is about
+\(10^{-5}\) of the column: the ceiling tier, not the goal, which the record states. A gradient there is usable at that
+accuracy; one at the goal takes a \(\beta_{\rm c}\) off the corner.
 
 ## Example
 
-The derivative of log10 F at one node of a Hernquist component’s table, by the rule and by a central difference of
+The derivative of \(\log_{10} F\) at one node of a Hernquist component’s table, by the rule and by a central difference of
 the same function:
 
 ```
@@ -143,7 +142,7 @@ print(rule, difference)
 
 ```
 
-The two agree to the difference’s own error (h squared times the third derivative). The table is made once; each
+The two agree to the difference’s own error (\(h^2\) times the third derivative). The table is made once; each
 call of table solves the inversion again at the new parameters on the held grid.
 
      On this page

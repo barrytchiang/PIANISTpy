@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=26d89d61" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a83410f0" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -46,6 +46,8 @@
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/particles';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/logo.png"/>
@@ -178,7 +180,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with the paper that describes the method.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang et al. (2026d)</a>.</div></div>
 
 <!-- /band -->
 
@@ -232,7 +234,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../notes">Technical notes</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -356,11 +370,11 @@ one object however many tables there are.</p>
 depends on it. Required for a model that is not spatially finite;
 the truncation radius of one that is.</p></li>
 <li><p><strong>r_range</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Radii (r_lo, r_hi), in internal units, between which every particle
-is drawn: 0 &lt;= r_lo &lt; r_hi &lt;= the outer radius of the sampling. The
-draw is the model’s own conditioned on the range, not a selection:
-each particle’s radius number is taken in the mass fractions of the
-range (<cite>stages.radius_bounds</cite>), and the particles carry the range’s
-mass. Its other numbers are those of the draw without the range.</p></li>
+is drawn: <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">r_lo</span> <span class="pre">&lt;</span> <span class="pre">r_hi</span></code>, <code class="docutils literal notranslate"><span class="pre">r_hi</span></code> at most the outer radius of the
+sampling. The draw is the model’s own conditioned on the range, not a
+selection: each particle’s radius number is taken in the mass fractions
+of the range (<cite>stages.radius_bounds</cite>), and the particles carry the
+range’s mass. Its other numbers are those of the draw without the range.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
@@ -373,9 +387,9 @@ warning; one beyond the hard limit is refused.</p>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>model</cite> is not a Model, or has more components than this release
     samples, or <cite>r_range</cite> is not a range of radii inside the sampling.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><strong>AccuracyError</strong></a> – If the model’s report reads <code class="docutils literal notranslate"><span class="pre">&quot;refused&quot;</span></code> and its settings do not ask
-    for results from it anyway (<cite>Settings</cite>, <code class="docutils literal notranslate"><span class="pre">write_anyway</span></code>).</p></li>
-<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a speed table lies beyond the hard limit and the settings do not ask
-    for it anyway.</p></li>
+    for results from it anyway (<cite>Settings</cite>, <code class="docutils literal notranslate"><span class="pre">write_anyway</span></code>), or if a
+    speed table lies beyond the hard limit and the settings do not ask for
+    it anyway.</p></li>
 </ul>
 </dd>
 </dl>
@@ -384,14 +398,15 @@ warning; one beyond the hard limit is refused.</p>
 table’s rows are refined until the error across them is under the goal
 or their count reaches <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code>; close to the smallest anisotropy
 radius at which an Osipkov-Merritt or Cuddeford Type I DF is non-negative,
-the rows reach <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code> first and the error grows steeply as r_a
-falls toward that radius. Measured on a truncated NFW density of
-concentration 10 at the default tier, the error crosses the hard limit at
-1.02 to 1.2 times that radius and the ceiling at 1.09 to 1.84 times it
-(up to beta_c = 0.4), the widest for the most negative beta_c; at
-beta_c = 1/2, whose DF is non-negative at every r_a, the table is beyond
-the hard limit at every r_a up to 0.32. A constant-anisotropy model is
-within the ceiling up to beta_c = 0.4. The bound is measured, not
+the rows reach <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code> first and the error grows steeply as
+<span class="math notranslate nohighlight">\(R_{\rm a}\)</span> falls toward that radius. Measured on a truncated NFW
+density of concentration 10 at the default tier, the error crosses the hard
+limit at 1.02 to 1.2 times that radius and the ceiling at 1.09 to 1.84
+times it (up to <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.4\)</span>), the widest for the most
+negative <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>; at <span class="math notranslate nohighlight">\(\beta_{\rm c} = 1/2\)</span>, whose DF is
+non-negative at every <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, the table is beyond the hard limit
+at every <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> up to 0.32. A constant-anisotropy model is within
+the ceiling up to <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.4\)</span>. The bound is measured, not
 imposed: the report of each table is the verdict (the user guide,
 Particles, gives the table per family).</p>
 <dl class="py method">
@@ -415,7 +430,7 @@ made in internal units and converted at the output only.</p>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If n is not a positive integer below 2^31.</p></li>
-<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a particle lies beyond the phase-space bound of its component.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><strong>AccuracyError</strong></a> – If a particle lies beyond the phase-space bound of its component.</p></li>
 </ul>
 </dd>
 </dl>
@@ -428,13 +443,13 @@ made in internal units and converted at the output only.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Radii, in internal units, inside the sampling: 0 &lt; r &lt;= its outer
-radius.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Radii, in internal units, inside the sampling: positive and at most
+its outer radius.</p></li>
 <li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – Seed of the random streams. The speed at the i-th radius takes the
 speed number of particle i of <cite>sample</cite> at the same seed, mapped into
 the window’s numbers (and, for a superposition, its component by
 the window’s share of each component).</p></li>
-<li><p><strong>v_range</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em> or </em><em>of array-like</em><em>, </em><em>optional</em>) – The speeds (v_lo, v_hi), in internal units, 0 &lt;= v_lo &lt; v_hi. Each
+<li><p><strong>v_range</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em> or </em><em>of array-like</em><em>, </em><em>optional</em>) – The speeds (v_lo, v_hi), in internal units, <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">v_lo</span> <span class="pre">&lt;</span> <span class="pre">v_hi</span></code>. Each
 bound is a float, the same window at every radius, or an array that
 broadcasts against <cite>r</cite>, a window at each radius (as a grid in units
 of each radius’s escape speed needs). Without it, the whole speed

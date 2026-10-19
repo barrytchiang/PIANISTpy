@@ -193,7 +193,7 @@ density by \((4\pi C q)^{-1}\) to reach the model units.
 
 References
 
-Paper I, Section on units (labels ssec:Units, eqn:M_nor_1).
+Chiang et al. (2026d), Section on units (labels ssec:Units, eqn:M_nor_1).
 
 Examples
 
