@@ -40,7 +40,7 @@ python -m pip install pytest ruff mypy
 4. Add a test for the change. A new function comes with a test of its result against an independent
    reference: a closed form, a limit, or an identity that the result must satisfy.
 
-## Rules for every change
+## Rules for pull requests
 
 - **One quantity, one function.** Each quantity is computed by exactly one function; a second route to the same
   number replaces the first rather than sitting beside it.
@@ -50,3 +50,6 @@ python -m pip install pytest ruff mypy
   computed.
 - **Accuracy is verified, not assumed.** A numerical setting joins a tested tier only after passing that tier's
   checks.
+- **LLM-assisted development.** Code written with the help of large language models is permitted and
+  encouraged. The contributor must review every change, and the pull request description itself, thoroughly
+  before submitting; a pull request that shows it was not reviewed this way is rejected outright.
