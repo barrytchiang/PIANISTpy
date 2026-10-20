@@ -34,10 +34,10 @@ their weights times their surface densities, \(D = \sum_k w_k \Sigma_k D_k / \su
 
 ## Tiers
 
-The distribution is read from the rows of the table between rows by the reading the table certified its rows for,
+The distribution is read from the rows of the table between rows by the same reading the table checked its rows with,
 so the tier is that of the table (The prepared table): each row’s norm against the surface density and its second
 moment against the projected dispersion, and the table’s estimate of its reading between rows. A projected radius
-in an interval the table left uncertified is refused by name.
+in an interval where the table could not meet its tolerance is refused by name.
 
 ## Example
 

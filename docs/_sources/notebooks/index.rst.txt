@@ -15,7 +15,7 @@ Tutorials
    Generate particle initial conditions <tutorials/particles>
    Compute observables from a model <tutorials/observables>
 
-Planned for 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
+Planned for ver. 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
 fit a superposition to data; observables in an aperture of any shape.
 
 Reproducing |paper-name|
@@ -23,8 +23,8 @@ Reproducing |paper-name|
 
 One notebook per figure of |paper|, from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
-anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
-1.0.0 release.
+anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Released with
+ver. 0.9.9.
 
 :math:`N`-body tests with GAMER
 -------------------------------

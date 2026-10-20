@@ -221,7 +221,7 @@ For Type II models, \(\varrho_\mathrm{aux} \propto w^{1-\beta_\mathrm{c}}\) as 
   \frac{\mathrm{d}^m\varrho_\mathrm{aux}}{\mathrm{d} P^m} \propto |P - P(R_\mathrm{a})|^{\,1-\beta_\mathrm{c}-m} = |P - P(R_\mathrm{a})|^{\,n - 1/2},
   \tag{T:2.15}
 \end{equation}
-which diverges at \(P(R_\mathrm{a})\) for \(n < 1/2\). The divergence is approached from inside \(R_\mathrm{a}\) and does not depend on how \(\varrho_\mathrm{aux}\) is continued beyond it (Section T:3.1). For OM Type II, \(n = 1/2\) and the factor is a polynomial, so the conditions of Eq. (T:2.1) hold. A truncated model with \(R_\mathrm{t} \leq R_\mathrm{a}\) does not contain the point at all.
+which diverges at \(P(R_\mathrm{a})\) for \(n < 1/2\). The divergence is approached from inside \(R_\mathrm{a}\) and does not depend on how \(\varrho_\mathrm{aux}\) is continued beyond it (Section T:3.1). For OM Type II, \(n = 1/2\) and the factor is a polynomial, so the conditions of Eq. (T:2.1) hold. A truncated model with \(R_\mathrm{t} \leq {R_\mathrm{a}}\) does not contain the point at all.
 
 ## T:2.3 The form of every row
 
@@ -255,7 +255,7 @@ The table of \(\varrho_\mathrm{aux}\) and its derivatives starts at a floor \(q_
   \frac{\mathrm{d}}{\mathrm{d}\mathcal{K}}\int_0^{\mathcal{K}}\frac{\varrho_\mathrm{aux}^{(j)}(P)}{(\mathcal{K}-P)^{n}}\,\mathrm{d} P = \int_{q_0}^{\mathcal{K}}\frac{\varrho_\mathrm{aux}^{(j+1)}(P)}{(\mathcal{K}-P)^{n}}\,\mathrm{d} P + \frac{\varrho_\mathrm{aux}^{(j)}(q_0)}{(\mathcal{K}-q_0)^{n}} - n\int_0^{q_0}\frac{\varrho_\mathrm{aux}^{(j)}(P)}{(\mathcal{K}-P)^{n+1}}\,\mathrm{d} P ,
   \tag{T:2.17}
 \end{equation}
-where \(\varrho_\mathrm{aux}^{(j)} \equiv \mathrm{d}^j\varrho_\mathrm{aux}/\mathrm{d} P^j\). The first two terms need only the table. The third term is the contribution of the stretch below the floor. In Method I it is evaluated from the exact derivatives of Section T:1.2.1 on Gauss-Legendre nodes in \(\ln P\), down to a lower limit far below \(q_0\), so that the floor of the table is not the floor of the model; in Method II it is the closed form of Section T:2.6. The default floor is \(q_0 = 10^{-10}\) in units of the central potential, and untruncated DF tables are written from \(2\,q_0\) upward.
+where \(\varrho_\mathrm{aux}^{(j)} \equiv {\mathrm{d}}^j\varrho_\mathrm{aux}/\mathrm{d} P^j\). The first two terms need only the table. The third term is the contribution of the stretch below the floor. In Method I it is evaluated from the exact derivatives of Section T:1.2.1 on Gauss-Legendre nodes in \(\ln P\), down to a lower limit far below \(q_0\), so that the floor of the table is not the floor of the model; in Method II it is the closed form of Section T:2.6. The default floor is \(q_0 = 10^{-10}\) in units of the central potential, and untruncated DF tables are written from \(2\,q_0\) upward.
 
 ### T:2.3.3 The general form on a split
 
@@ -307,7 +307,7 @@ Two cases depart from Eq. (T:2.21). Where the leading power is positive and the 
 
 Where the rows end below the gap (Section T:2.5.1), the node at which the form takes over is called the anchor. The regular part is then a fit \(B + D u\) to the rows below the anchor, over a window that widens until the three-term and the four-term fits agree in amplitude to one tenth of the goal; the singular exponent is never fitted. A band of rows at the top that is not positive is excluded only where the form holds there, as judged by the local slope \(\mathrm{d}\ln F/\mathrm{d}\ln u\) against \(\kappa\).
 
-A truncated Method I model has \(\hat{F}_\mathcal{K}(\hat\mathcal{K}) = F_\mathcal{K}(\hat\mathcal{K} + \mathcal{K}_\mathrm{t}) - F_\mathcal{K}(\mathcal{K}_\mathrm{t})\), which differs from the untruncated DF by a constant. Its singular terms and their coefficients are those of the untruncated model, with \(u\) measured from the truncated central potential.
+A truncated Method I model has \(\hat{F}_\mathcal{K}(\hat{\mathcal{K}}) = F_\mathcal{K}(\hat{\mathcal{K}} + \mathcal{K}_\mathrm{t}) - F_\mathcal{K}(\mathcal{K}_\mathrm{t})\), which differs from the untruncated DF by a constant. Its singular terms and their coefficients are those of the untruncated model, with \(u\) measured from the truncated central potential.
 
 The stored form is tested against the table that it continues. Across the top decade of the table, \(u_{\rm top} \leq u \leq 10\,u_{\rm top}\), the table less its singular terms may change only by the variation of the analytic part. A change above the accuracy goal is reported with the product; a change above the hard limit means that the stored form belongs to a different model, and the product is refused.
 
@@ -317,7 +317,7 @@ Below its first energy, the DF follows a stated rule that is recorded with the t
 
 ### T:2.5.4 The lookup
 
-Inside the table, the base-10 logarithm of the DF is the cubic Hermite interpolant in \(\ln\mathcal{K}\) through the nodes with the exact slope column. Where a table carries no exact slopes (a DF from a function, Section T:2.7), the slopes are those of the not-a-knot spline through the nodes. The lookup has two entry points, by the energy and by the depth \(u = P_0 - \mathcal{K}\), and a caller asks by whichever argument it holds exactly. For example, a speed draw near the top holds the depth \(u = (P_0 - \Psi) + \Psi x^2\) exactly, whereas the energy \(\Psi(1 - x^2)\) formed in doubles loses it. In the entry by \(u\), the cell position is formed from \(u_i - u\) with \(u_i = P_0 - \mathcal{K}_i\), which is exact for \(\mathcal{K}_i \geq P_0/2\), and the form above the table is read at \(u\) itself. The nodes and every number of the forms are arrays, so that under JAX the table is a traced argument, and two tables with the same node bucket and the same kinds of forms share one compiled function.
+Inside the table, the base-10 logarithm of the DF is the cubic Hermite interpolant in \(\ln{\mathcal{K}}\) through the nodes with the exact slope column. Where a table carries no exact slopes (a DF from a function, Section T:2.7), the slopes are those of the not-a-knot spline through the nodes. The lookup has two entry points, by the energy and by the depth \(u = P_0 - \mathcal{K}\), and a caller asks by whichever argument it holds exactly. For example, a speed draw near the top holds the depth \(u = (P_0 - \Psi) + \Psi x^2\) exactly, whereas the energy \(\Psi(1 - x^2)\) formed in doubles loses it. In the entry by \(u\), the cell position is formed from \(u_i - u\) with \(u_i = P_0 - \mathcal{K}_i\), which is exact for \(\mathcal{K}_i \geq P_0/2\), and the form above the table is read at \(u\) itself. The nodes and every number of the forms are arrays, so that under JAX the table is a traced argument, and two tables with the same node bucket and the same kinds of forms share one compiled function.
 
 ### T:2.5.5 What a table states about itself
 

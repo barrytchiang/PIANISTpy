@@ -1,8 +1,10 @@
-# Observables (pianistpy.observables)
+# Observables
 
 Source: https://pianistpy.com/docs/reference/api/observables
 
-# Observables (pianistpy.observables)
+# Observables
+
+Module pianistpy.observables
 
 Observables: dispersions, line-of-sight velocity distributions and apertures.
 
@@ -670,7 +672,7 @@ p_k / \sum_k w_k \varrho_k\).
 
 References
 
-Paper, Sect. 5.1 and [eqn:rho_f_anisotropic_scale].
+Chiang+(2026d), Sect. 5.1 and [eqn:rho_f_anisotropic_scale].
 
 pianistpy.observables.sigma_los_aperture(source, aperture)
 
@@ -794,7 +796,9 @@ Notes
 Read as sigma_r is; of a superposition, \(\sigma_{\rm t}^2 =
 \sum_k w_k \sigma_{{\rm t},k}^2\).
 
-## The speed distribution’s stage (pianistpy.observables.stages)
+## The speed distribution’s stage
+
+Module pianistpy.observables.stages
 
 The stage behind pianistpy.observables.pdf_v(), at one radius, with its record (Local speed distribution).
 
@@ -861,6 +865,6 @@ SPEED_KINK_GAP of it are left out of that check.
 
 References
 
-Paper [eqn:rho_f_anisotropic_scale], [eqn:varphi_prob], [eqn:V_prob].
+Chiang+(2026d) [eqn:rho_f_anisotropic_scale], [eqn:varphi_prob], [eqn:V_prob].
 
      On this page

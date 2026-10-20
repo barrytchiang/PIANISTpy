@@ -68,8 +68,8 @@ the table’s estimate of its reading between rows; and layer_floor, the error a
 toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
 center (below the goal: a floor above it is refused). The report’s tier is the worst of these and of the model’s own; a table
 above the goal says so in a warning when it is built (Accuracy), and a table beyond the hard limit (tier “refused”)
-is refused unless its settings ask for it (Settings(write_anyway=True)), as an aperture’s distribution is. Intervals of projected radius that the
-table could not certify are recorded in table.table.r_uncertified, and a request inside one is refused by name.
+is refused unless its settings ask for it (Settings(write_anyway=True)), as an aperture’s distribution is. Intervals of projected radius where the
+table could not meet its tolerance are recorded in table.table.r_uncertified, and a request inside one is refused by name.
 
 ## Example
 

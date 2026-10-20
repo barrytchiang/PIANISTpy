@@ -1,5 +1,7 @@
-The package (``pianistpy``)
-===========================
+The package
+===========
+
+Package ``pianistpy``
 
 .. automodule:: pianistpy
 

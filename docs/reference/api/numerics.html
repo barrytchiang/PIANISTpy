@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Numerics (pianistpy.numerics) &#8212; PIANISTpy 0.9.0</title>
+    <title>Numerics &#8212; PIANISTpy ver. 0.9.9</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=5cc9d92e"></script>
+    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -52,12 +52,12 @@
     <link rel="index" title="Index" href="../../genindex" />
     <link rel="search" title="Search" href="../../search" />
     <link rel="next" title="Settings tables" href="../settings" />
-    <link rel="prev" title="Runtime options (pianistpy.runtime)" href="runtime" />
+    <link rel="prev" title="Runtime options" href="runtime" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.0" />
+  <meta name="docsearch:version" content="0.9.9" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; version 0.9.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -126,6 +126,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -136,7 +137,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options (set_platform, set_workers, ...)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
@@ -178,7 +179,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -212,21 +213,21 @@
   <p class="bd-links__title" role="heading" aria-level="1">API reference</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index">Functions by subpackage</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="pianistpy">The package (<code class="docutils literal notranslate"><span class="pre">pianistpy</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="profiles">Density profiles (<code class="docutils literal notranslate"><span class="pre">pianistpy.profiles</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="anisotropy">Velocity anisotropy (<code class="docutils literal notranslate"><span class="pre">pianistpy.anisotropy</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="df">Distribution functions and models (<code class="docutils literal notranslate"><span class="pre">pianistpy.df</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="particles">Particles (<code class="docutils literal notranslate"><span class="pre">pianistpy.particles</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="observables">Observables (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="superposition">Superposition (<code class="docutils literal notranslate"><span class="pre">pianistpy.superposition</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="inference">Inference (<code class="docutils literal notranslate"><span class="pre">pianistpy.inference</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units">Units (<code class="docutils literal notranslate"><span class="pre">pianistpy.units</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="io">Results and files (<code class="docutils literal notranslate"><span class="pre">pianistpy.io</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="settings">Settings (<code class="docutils literal notranslate"><span class="pre">pianistpy.settings</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="validation">Validation (<code class="docutils literal notranslate"><span class="pre">pianistpy.validation</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="exceptions">Exceptions (<code class="docutils literal notranslate"><span class="pre">pianistpy.exceptions</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options (<code class="docutils literal notranslate"><span class="pre">pianistpy.runtime</span></code>)</a></li>
-<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pianistpy">The package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiles">Density profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anisotropy">Velocity anisotropy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="df">Distribution functions and models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="particles">Particles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observables">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superposition">Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference">Inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="io">Results and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="validation">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Numerics</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
@@ -290,7 +291,7 @@
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Functions by subpackage</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Numerics</span></li>
   </ul>
 </nav>
 </div>
@@ -307,9 +308,10 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-pianistpy.numerics">
-<span id="numerics-pianistpy-numerics"></span><h1>Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)<a class="headerlink" href="#module-pianistpy.numerics" title="Link to this heading">#</a></h1>
-<p>Shared numerical leaves: quadrature, interpolation and special functions.</p>
+  <section id="numerics">
+<h1>Numerics<a class="headerlink" href="#numerics" title="Link to this heading">#</a></h1>
+<p>Module <code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code></p>
+<p id="module-pianistpy.numerics">Shared numerical leaves: quadrature, interpolation and special functions.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.numerics.gauss_legendre">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.numerics.</span></span><span class="sig-name descname"><span class="pre">gauss_legendre</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.numerics.gauss_legendre" title="Link to this definition">#</a></dt>

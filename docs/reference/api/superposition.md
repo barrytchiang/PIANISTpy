@@ -1,8 +1,10 @@
-# Superposition (pianistpy.superposition)
+# Superposition
 
 Source: https://pianistpy.com/docs/reference/api/superposition
 
-# Superposition (pianistpy.superposition)
+# Superposition
+
+Module pianistpy.superposition
 
 Linear superposition of models that share one density.
 
@@ -66,7 +68,7 @@ so the moments of the mixture are the weighted sums
 
 References
 
-Paper Eqs. (B42), (B43) [eqn:linearity_2, eqn:linearity_beta_1] and
+Chiang+(2026d), Eqs. (B42), (B43) [eqn:linearity_2, eqn:linearity_beta_1] and
 eqn:beta_sigma_sup.
 
 pianistpy.superposition.superpose(members)

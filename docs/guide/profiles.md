@@ -6,7 +6,8 @@ Source: https://pianistpy.com/docs/guide/profiles
 
 pianistpy.DoublePowerLaw
 
-Any double power law in its three slopes, DoublePowerLaw(rho_alpha, rho_beta, rho_gamma): the inner slope,
+An analytical double-power-law density profile with a finite central potential (an inner slope below 2), in
+its three slopes, DoublePowerLaw(rho_alpha, rho_beta, rho_gamma): the inner slope,
 the outer slope and the sharpness of the transition between them, with the scale radius and the central
 potential of the untruncated profile set to one (the internal units, Units). The named profiles are
 presets of the same class, not classes of their own:

@@ -1,8 +1,10 @@
-# Distribution functions and models (pianistpy.df)
+# Distribution functions and models
 
 Source: https://pianistpy.com/docs/reference/api/df
 
-# Distribution functions and models (pianistpy.df)
+# Distribution functions and models
+
+Module pianistpy.df
 
 Distribution functions and equilibrium models.
 
@@ -14,7 +16,7 @@ A model is a sequence of components that share one total potential. A
 single component is a sequence of length one.
 
 Given the truncated profile of another model (parent.profile) in
-place of an analytic profile, the component is Method II of the paper:
+place of an analytic profile, the component is Method II of Chiang+(2026d):
 the density of the parent in the parent’s potential, with a new
 anisotropy. It is refused here where no distribution function exists
 for that anisotropy at the edge of the density.
@@ -380,7 +382,7 @@ class pianistpy.df.Truncation(k_t=None, mass_t=None, r_t=None, concentration=Non
 
 How the distribution function of a model is truncated.
 
-This is Method I of the paper. Method II needs no truncation: it is a
+This is Method I of Chiang+(2026d). Method II needs no truncation: it is a
 component whose profile is the truncated profile of another model, given
 a new anisotropy.
 
@@ -505,7 +507,9 @@ UnphysicalModelError – If no valid equilibrium exists for the request. The exc
 InputError – If the DF comes from a function (DistributionFunction.from_function):
     it carries no inversion rows, which truncation needs.
 
-## Gradients (pianistpy.df.gradient)
+## Gradients
+
+Module pianistpy.df.gradient
 
 The distribution function’s rows and table as JAX functions of the anisotropy parameters, and their Jacobians
 (End-to-end differentiability).

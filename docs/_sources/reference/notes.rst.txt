@@ -9,7 +9,7 @@ This technical document details the analytical and numerical treatments implemen
 
 
 
-This is version 7 of the notes. Their numbers carry the prefix T: (sections T:2.3, equations (T:2.4), tables T:2.1); the package's docstrings cite them in the form the :doc:`API reference <api/index>` states. The notes are also published as a PDF with each release; the link is added with the 1.0.0 release.
+This is version 7 of the notes. Their numbers carry the prefix T: (sections T:2.3, equations (T:2.4), tables T:2.1); the package's docstrings cite them in the form the :doc:`API reference <api/index>` states. The notes are also published as a PDF with each release; the link is added with ver. 1.0.0.
 
 .. toctree::
    :maxdepth: 2

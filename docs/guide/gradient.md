@@ -26,7 +26,7 @@ The anisotropy parameters. The distribution function of a component is different
 
 constant anisotropy (\(\beta_{\rm c}\)),
 
-Cuddeford Type I (\(\beta_{\rm c}\) and \(R_{\rm a}\)),
+Cuddeford-Osipkov-Merritt (COM) Type I (\(\beta_{\rm c}\) and \(R_{\rm a}\)),
 
 Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)).
 
@@ -45,14 +45,14 @@ parameters the function was made at: the derivative is that of the solve with th
 derivative of the table the package returns there. Where a choice changes between two parameters, the solve at the
 second one differs from the held one by its own tolerance.
 
-Not served, each refused with an error that names it: Cuddeford Type II, a center on its critical branch (where
+Not served, each refused with an error that names it: COM Type II, a center on its critical branch (where
 the branch itself changes with \(\beta_{\rm c}\)), and a component on a truncated profile that carries no distribution function
 of its model.
 
-Cuddeford Type II. The inversion’s kernel carries the factor \((P - P(R_{\rm a}))^s\), with \(s = 1 - \beta_{\rm c} - j\) and \(j\) the
+COM Type II. The inversion’s kernel carries the factor \((P - P(R_{\rm a}))^s\), with \(s = 1 - \beta_{\rm c} - j\) and \(j\) the
 inversion’s order: its interior point \(P(R_{\rm a})\) moves with \(R_{\rm a}\) and its exponent with \(\beta_{\rm c}\). The derivative of that
 factor in \(R_{\rm a}\) is not integrable at the interior point for \(s \le 0\), so the rows of the mixed derivative do not
-carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A Cuddeford
+carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A COM
 Type II model’s second moments take their derivative by the Jeans path (dispersion_profile’s tangents); its
 distribution function, and the observables read from it (losvd, aperture_losvd, pdf_v), take none.
 

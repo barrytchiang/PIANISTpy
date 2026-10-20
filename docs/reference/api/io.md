@@ -1,8 +1,10 @@
-# Results and files (pianistpy.io)
+# Results and files
 
 Source: https://pianistpy.com/docs/reference/api/io
 
-# Results and files (pianistpy.io)
+# Results and files
+
+Module pianistpy.io
 
 Reading and writing results.
 

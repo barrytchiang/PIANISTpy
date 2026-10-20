@@ -1,8 +1,10 @@
-# Particles (pianistpy.particles)
+# Particles
 
 Source: https://pianistpy.com/docs/reference/api/particles
 
-# Particles (pianistpy.particles)
+# Particles
+
+Module pianistpy.particles
 
 Particle sampling: the prepared sampler and the particle result.
 

@@ -316,7 +316,7 @@ For Type II models, :math:`\varrho_\mathrm{aux} \propto w^{1-\beta_\mathrm{c}}`
      \tag{T:2.15}
    \end{equation}
 
-which diverges at :math:`P(R_\mathrm{a})` for :math:`n < 1/2`. The divergence is approached from inside :math:`R_\mathrm{a}` and does not depend on how :math:`\varrho_\mathrm{aux}` is continued beyond it (:ref:`Section T:3.1 <tn-sec-typeII>`). For OM Type II, :math:`n = 1/2` and the factor is a polynomial, so the conditions of :ref:`Eq. (T:2.1) <tn-eq-conditions>` hold. A truncated model with :math:`R_\mathrm{t} \leq R_\mathrm{a}` does not contain the point at all.
+which diverges at :math:`P(R_\mathrm{a})` for :math:`n < 1/2`. The divergence is approached from inside :math:`R_\mathrm{a}` and does not depend on how :math:`\varrho_\mathrm{aux}` is continued beyond it (:ref:`Section T:3.1 <tn-sec-typeII>`). For OM Type II, :math:`n = 1/2` and the factor is a polynomial, so the conditions of :ref:`Eq. (T:2.1) <tn-eq-conditions>` hold. A truncated model with :math:`R_\mathrm{t} \leq {R_\mathrm{a}}` does not contain the point at all.
 
 .. _tn-sec-num-forms:
 
@@ -371,7 +371,7 @@ The table of :math:`\varrho_\mathrm{aux}` and its derivatives starts at a floor 
      \tag{T:2.17}
    \end{equation}
 
-where :math:`\varrho_\mathrm{aux}^{(j)} \equiv \mathrm{d}^j\varrho_\mathrm{aux}/\mathrm{d} P^j`. The first two terms need only the table. The third term is the contribution of the stretch below the floor. In Method I it is evaluated from the exact derivatives of :ref:`Section T:1.2.1 <tn-sec-derivatives>` on Gauss-Legendre nodes in :math:`\ln P`, down to a lower limit far below :math:`q_0`, so that the floor of the table is not the floor of the model; in Method II it is the closed form of :ref:`Section T:2.6 <tn-sec-tabulated>`. The default floor is :math:`q_0 = 10^{-10}` in units of the central potential, and untruncated DF tables are written from :math:`2\,q_0` upward.
+where :math:`\varrho_\mathrm{aux}^{(j)} \equiv {\mathrm{d}}^j\varrho_\mathrm{aux}/\mathrm{d} P^j`. The first two terms need only the table. The third term is the contribution of the stretch below the floor. In Method I it is evaluated from the exact derivatives of :ref:`Section T:1.2.1 <tn-sec-derivatives>` on Gauss-Legendre nodes in :math:`\ln P`, down to a lower limit far below :math:`q_0`, so that the floor of the table is not the floor of the model; in Method II it is the closed form of :ref:`Section T:2.6 <tn-sec-tabulated>`. The default floor is :math:`q_0 = 10^{-10}` in units of the central potential, and untruncated DF tables are written from :math:`2\,q_0` upward.
 
 .. _tn-sec-split:
 
@@ -465,7 +465,7 @@ Two cases depart from :ref:`Eq. (T:2.21) <tn-eq-top>`. Where the leading power i
 
 Where the rows end below the gap (:ref:`Section T:2.5.1 <tn-sec-top-limit>`), the node at which the form takes over is called the anchor. The regular part is then a fit :math:`B + D u` to the rows below the anchor, over a window that widens until the three-term and the four-term fits agree in amplitude to one tenth of the goal; the singular exponent is never fitted. A band of rows at the top that is not positive is excluded only where the form holds there, as judged by the local slope :math:`\mathrm{d}\ln F/\mathrm{d}\ln u` against :math:`\kappa`.
 
-A truncated Method I model has :math:`\hat{F}_\mathcal{K}(\hat\mathcal{K}) = F_\mathcal{K}(\hat\mathcal{K} + \mathcal{K}_\mathrm{t}) - F_\mathcal{K}(\mathcal{K}_\mathrm{t})`, which differs from the untruncated DF by a constant. Its singular terms and their coefficients are those of the untruncated model, with :math:`u` measured from the truncated central potential.
+A truncated Method I model has :math:`\hat{F}_\mathcal{K}(\hat{\mathcal{K}}) = F_\mathcal{K}(\hat{\mathcal{K}} + \mathcal{K}_\mathrm{t}) - F_\mathcal{K}(\mathcal{K}_\mathrm{t})`, which differs from the untruncated DF by a constant. Its singular terms and their coefficients are those of the untruncated model, with :math:`u` measured from the truncated central potential.
 
 The stored form is tested against the table that it continues. Across the top decade of the table, :math:`u_{\rm top} \leq u \leq 10\,u_{\rm top}`, the table less its singular terms may change only by the variation of the analytic part. A change above the accuracy goal is reported with the product; a change above the hard limit means that the stored form belongs to a different model, and the product is refused.
 
@@ -481,7 +481,7 @@ Below its first energy, the DF follows a stated rule that is recorded with the t
 T:2.5.4 The lookup
 ~~~~~~~~~~~~~~~~~~
 
-Inside the table, the base-10 logarithm of the DF is the cubic Hermite interpolant in :math:`\ln\mathcal{K}` through the nodes with the exact slope column. Where a table carries no exact slopes (a DF from a function, :ref:`Section T:2.7 <tn-sec-from-function>`), the slopes are those of the not-a-knot spline through the nodes. The lookup has two entry points, by the energy and by the depth :math:`u = P_0 - \mathcal{K}`, and a caller asks by whichever argument it holds exactly. For example, a speed draw near the top holds the depth :math:`u = (P_0 - \Psi) + \Psi x^2` exactly, whereas the energy :math:`\Psi(1 - x^2)` formed in doubles loses it. In the entry by :math:`u`, the cell position is formed from :math:`u_i - u` with :math:`u_i = P_0 - \mathcal{K}_i`, which is exact for :math:`\mathcal{K}_i \geq P_0/2`, and the form above the table is read at :math:`u` itself. The nodes and every number of the forms are arrays, so that under JAX the table is a traced argument, and two tables with the same node bucket and the same kinds of forms share one compiled function.
+Inside the table, the base-10 logarithm of the DF is the cubic Hermite interpolant in :math:`\ln{\mathcal{K}}` through the nodes with the exact slope column. Where a table carries no exact slopes (a DF from a function, :ref:`Section T:2.7 <tn-sec-from-function>`), the slopes are those of the not-a-knot spline through the nodes. The lookup has two entry points, by the energy and by the depth :math:`u = P_0 - \mathcal{K}`, and a caller asks by whichever argument it holds exactly. For example, a speed draw near the top holds the depth :math:`u = (P_0 - \Psi) + \Psi x^2` exactly, whereas the energy :math:`\Psi(1 - x^2)` formed in doubles loses it. In the entry by :math:`u`, the cell position is formed from :math:`u_i - u` with :math:`u_i = P_0 - \mathcal{K}_i`, which is exact for :math:`\mathcal{K}_i \geq P_0/2`, and the form above the table is read at :math:`u` itself. The nodes and every number of the forms are arrays, so that under JAX the table is a traced argument, and two tables with the same node bucket and the same kinds of forms share one compiled function.
 
 .. _tn-sec-df-checks:
 

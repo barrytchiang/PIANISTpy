@@ -1,8 +1,10 @@
-# The package (pianistpy)
+# The package
 
 Source: https://pianistpy.com/docs/reference/api/pianistpy
 
-# The package (pianistpy)
+# The package
+
+Package pianistpy
 
 PIANISTpy: equilibrium models of anisotropic spherical systems.
 

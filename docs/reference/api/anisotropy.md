@@ -1,8 +1,10 @@
-# Velocity anisotropy (pianistpy.anisotropy)
+# Velocity anisotropy
 
 Source: https://pianistpy.com/docs/reference/api/anisotropy
 
-# Velocity anisotropy (pianistpy.anisotropy)
+# Velocity anisotropy
+
+Module pianistpy.anisotropy
 
 Velocity anisotropy models.
 
@@ -79,7 +81,7 @@ InputError – For a Type II model at a radius at or beyond \(R_{\rm a}\),
 
 References
 
-Paper Eq. (B43) [eqn:linearity_beta_1].
+Chiang+(2026d), Eq. (B43) [eqn:linearity_beta_1].
 
 property model: str
 
@@ -87,7 +89,7 @@ isotropic, constant, om or com.
 
 Type:
 
-Label of the model in the paper
+Label of the model in Chiang+(2026d)
 
 property domain_edge: float
 

@@ -1,8 +1,10 @@
-# Units (pianistpy.units)
+# Units
 
 Source: https://pianistpy.com/docs/reference/api/units
 
-# Units (pianistpy.units)
+# Units
+
+Module pianistpy.units
 
 Conversion from internal units to model and physical units.
 
@@ -193,7 +195,7 @@ density by \((4\pi C q)^{-1}\) to reach the model units.
 
 References
 
-Chiang et al. (2026d), Section on units (labels ssec:Units, eqn:M_nor_1).
+Chiang+(2026d), Section on units (labels ssec:Units, eqn:M_nor_1).
 
 Examples
 

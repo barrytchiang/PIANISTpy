@@ -1,8 +1,10 @@
-# Runtime options (pianistpy.runtime)
+# Runtime options
 
 Source: https://pianistpy.com/docs/reference/api/runtime
 
-# Runtime options (pianistpy.runtime)
+# Runtime options
+
+Module pianistpy.runtime
 
 Runtime options of the session: verbosity, timing and workers.
 

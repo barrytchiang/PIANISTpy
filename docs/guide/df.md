@@ -18,7 +18,7 @@ df = pp.compute_df(halo)
 
 ```
 
-A distribution function from elsewhere, a fitting function or another code’s output, is certified the same way:
+A distribution function from elsewhere, a fitting function or another code’s output, is validated the same way:
 DistributionFunction.from_function(component, f) takes f(k, depth), which returns the DF (not its
 logarithm) at an array of energies in internal units and their depths below the center,
 \(P_0 - \mathcal{K}\) (depth), as the grid carries it (a fit in the depth near the center reads it there; a function of the

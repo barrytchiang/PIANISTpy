@@ -29,9 +29,9 @@ Everything is in internal units, whatever the model’s unit system: \(\theta\),
 a method reads, and the velocities it returns. d.theta is the model’s own anisotropy.
 
 The families are those of the distribution function’s own rule (End-to-end differentiability): constant anisotropy (\(\beta_{\rm c}\); an
-isotropic or constant component’s \(R_{\rm a}\) is held at its own, infinite, value with a zero gradient), Cuddeford Type I
+isotropic or constant component’s \(R_{\rm a}\) is held at its own, infinite, value with a zero gradient), Cuddeford-Osipkov-Merritt (COM) Type I
 (\(\beta_{\rm c}\) and \(R_{\rm a}\)), Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)). Refused at construction, each with an error that names it:
-Cuddeford Type II (its interior point at \(P(R_{\rm a})\) moves with both parameters), a superposition or a model of several
+COM Type II (its interior point at \(P(R_{\rm a})\) moves with both parameters), a superposition or a model of several
 components (its components are differentiated through the likelihood), a component that is not spatially finite, and
 one not on a truncated profile that carries its parent’s distribution function.
 
@@ -54,6 +54,13 @@ The first time a method meets a \(\theta\), the host rebuilds the model there: t
 on the component’s truncated profile, then the dispersion profile and the projected table with their tangent rows.
 That is the cost of the likelihood’s own rebuild of a free component, about that of the plain call on the model at
 \(\theta\). The last eight \(\theta\) are kept, so the value and the gradient at one \(\theta\) share one rebuild.
+
+The derivative of losvd and aperture_losvd costs far more: it goes back through the rows of the line-of-sight
+table, whose transpose recomputes each row and differentiates it in \(\theta\), one row after another in the
+calling process. On a CPU node of 32 cores (AMD Ryzen Threadripper PRO 5975WX), the derivative of losvd in
+\(\beta_{\rm c}\) at one projected radius and 21 velocities, with the quick settings and a smaller table, did not
+finish in 2 h of wall-clock time, with 6 to 7 cores in use on average; the derivative of the example below takes 65 s
+there. The values of these methods are not affected.
 
 ## Example
 

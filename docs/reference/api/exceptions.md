@@ -1,8 +1,10 @@
-# Exceptions (pianistpy.exceptions)
+# Exceptions
 
 Source: https://pianistpy.com/docs/reference/api/exceptions
 
-# Exceptions (pianistpy.exceptions)
+# Exceptions
+
+Module pianistpy.exceptions
 
 Exceptions and warnings raised by PIANISTpy.
 

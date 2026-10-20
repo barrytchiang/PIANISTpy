@@ -21,4 +21,4 @@ Accuracy
 
 Input and output (write, read)
 
-Runtime options (set_platform, set_workers, ...)
+Runtime options

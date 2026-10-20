@@ -1,8 +1,10 @@
-# Validation (pianistpy.validation)
+# Validation
 
 Source: https://pianistpy.com/docs/reference/api/validation
 
-# Validation (pianistpy.validation)
+# Validation
+
+Module pianistpy.validation
 
 Accuracy tiers and the validation report of a result.
 

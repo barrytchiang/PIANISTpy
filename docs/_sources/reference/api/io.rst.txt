@@ -1,5 +1,7 @@
-Results and files (``pianistpy.io``)
-====================================
+Results and files
+=================
+
+Module ``pianistpy.io``
 
 .. automodule:: pianistpy.io
    :members:

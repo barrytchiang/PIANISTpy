@@ -18,7 +18,7 @@ The rows of the inversion are :math:`F = T_b[g](q)` on a fixed grid :math:`q`, w
    :nowrap:
 
    \begin{equation}
-     \frac{\partial F}{\partial R_\mathrm{a}} = T_b\!\left[\partial_{R_\mathrm{a}} g\right], \qquad \frac{\partial F}{\partial \beta_\mathrm{c}} = T_b\!\left[\partial_{b}\, g\right] + E_b[g] ,
+     \frac{\partial F}{\partial {R_\mathrm{a}}} = T_b\!\left[\partial_{R_\mathrm{a}} g\right], \qquad \frac{\partial F}{\partial {\beta_\mathrm{c}}} = T_b\!\left[\partial_{b}\, g\right] + E_b[g] ,
      \tag{T:7.1}
    \end{equation}
 

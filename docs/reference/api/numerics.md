@@ -1,8 +1,10 @@
-# Numerics (pianistpy.numerics)
+# Numerics
 
 Source: https://pianistpy.com/docs/reference/api/numerics
 
-# Numerics (pianistpy.numerics)
+# Numerics
+
+Module pianistpy.numerics
 
 Shared numerical leaves: quadrature, interpolation and special functions.
 

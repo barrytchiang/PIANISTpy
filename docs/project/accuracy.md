@@ -8,7 +8,7 @@ Every release reruns the same accuracy grid (Accuracy tables) and publishes it a
 counts the grid’s values by tier, its refusals and the cells below the cusp bound, and lists each release’s CSV; a cell that moves beyond its tier between
 two releases is a regression by construction.
 
-Version
+Release
 
 Goal
 
@@ -24,7 +24,23 @@ Excluded
 
 The grid
 
-0.9.0
+Ver. 0.9.9
+
+376
+
+59
+
+22
+
+19
+
+82
+
+19
+
+CSV, members
+
+Ver. 0.9.0
 
 345
 

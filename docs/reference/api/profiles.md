@@ -1,8 +1,10 @@
-# Density profiles (pianistpy.profiles)
+# Density profiles
 
 Source: https://pianistpy.com/docs/reference/api/profiles
 
-# Density profiles (pianistpy.profiles)
+# Density profiles
+
+Module pianistpy.profiles
 
 Density profiles.
 
@@ -39,7 +41,7 @@ the general incomplete-Beta form.
 
 References
 
-Chiang et al. (2026d), Appendix A (labels eqn:double_power_law_MT,
+Chiang+(2026d), Appendix A (labels eqn:double_power_law_MT,
 eqn:double_power_law_mass, app:P_beta).
 
 Examples
@@ -258,7 +260,7 @@ The self-consistent profile of a truncated model.
 
 It is the profile of a model, and it can be the profile of a component
 of another model: a component given the truncated profile of a parent
-model and a new anisotropy is Method II of the paper.
+model and a new anisotropy is Method II of Chiang+(2026d).
 
 Two profiles are equal where they belong to the same model: the identity
 of a model determines its profile.

@@ -14,4 +14,4 @@ One page per topic, each with the classes and functions it uses; every name link
    units
    accuracy
    Input and output (write, read) <files>
-   Runtime options (set_platform, set_workers, ...) <switches>
+   Runtime options <switches>

@@ -17,7 +17,7 @@ JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo infe
       :link: start/index
       :link-type: doc
 
-      Install, the dependencies, the quick start.
+      Install, the dependencies, the quick start, the representative computing time.
 
    .. grid-item-card:: User guide
       :link: guide/index

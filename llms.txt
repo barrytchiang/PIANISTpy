@@ -8,7 +8,7 @@ Every page of the manual has a markdown twin at the same address with
 
 ## Documentation
 
-- [Install, dependencies, quick start](https://pianistpy.com/docs/start/index.md)
+- [Install, dependencies, quick start, representative computing time](https://pianistpy.com/docs/start/index.md)
 - [The user guide, one page per topic](https://pianistpy.com/docs/guide/index.md)
 - [What the package returns, flags and refuses](https://pianistpy.com/docs/guide/results.md)
 - [Example notebooks and the figures of Chiang+(2026d)](https://pianistpy.com/docs/notebooks/index.md)

@@ -51,7 +51,7 @@ so the window couples to the angle, and such a model is refused.
 A model whose distribution function is non-negative is not thereby samplable at every tier. The speed table’s
 rows are refined until the error across them is under the goal or their count reaches n_rows_max; the table’s
 report carries that error, and a table beyond the hard limit is refused (Accuracy). Close to the smallest
-anisotropy radius \(R_{\rm a,min}\) (r_a_min) at which an Osipkov-Merritt or Cuddeford Type I distribution function is
+anisotropy radius \(R_{\rm a,min}\) (r_a_min) at which an Osipkov-Merritt or Cuddeford-Osipkov-Merritt (COM) Type I distribution function is
 non-negative, the rows reach n_rows_max first and the error grows steeply as \(R_{\rm a}\) falls toward
 \(R_{\rm a,min}\). Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
 default tier, the error crosses the ceiling and the hard limit at:
@@ -64,7 +64,7 @@ ceiling \(10^{-4}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
 hard limit \(10^{-2}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
-Cuddeford I
+COM I
 
 -0.75
 
@@ -72,7 +72,7 @@ Cuddeford I
 
 1.16
 
-Cuddeford I
+COM I
 
 -0.50
 
@@ -80,7 +80,7 @@ Cuddeford I
 
 1.20
 
-Cuddeford I
+COM I
 
 -0.25
 
@@ -96,7 +96,7 @@ OM I
 
 1.07
 
-Cuddeford I
+COM I
 
 +0.05
 
@@ -104,7 +104,7 @@ Cuddeford I
 
 1.07
 
-Cuddeford I
+COM I
 
 +0.25
 
@@ -112,7 +112,7 @@ Cuddeford I
 
 1.04
 
-Cuddeford I
+COM I
 
 +0.40
 
@@ -120,7 +120,7 @@ Cuddeford I
 
 1.02
 
-Cuddeford I
+COM I
 
 +0.45
 

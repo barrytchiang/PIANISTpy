@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Runtime options &#8212; PIANISTpy 0.9.0</title>
+    <title>Runtime options &#8212; PIANISTpy ver. 0.9.9</title>
   
   
   
@@ -42,10 +42,12 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=5cc9d92e"></script>
+    <script src="../_static/documentation_options.js?v=78e02b37"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/switches';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -57,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.0" />
+  <meta name="docsearch:version" content="0.9.9" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -117,7 +119,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; version 0.9.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -126,6 +128,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -136,7 +139,7 @@
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Runtime options (set_platform, set_workers, ...)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
@@ -178,7 +181,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -237,7 +240,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Runtime options (set_platform, set_workers, ...)</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -299,8 +302,8 @@
                   
   <section id="runtime-options">
 <h1>Runtime options<a class="headerlink" href="#runtime-options" title="Link to this heading">#</a></h1>
-<p>None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
-each file records which made it.</p>
+<p>None of these changes a number, except the platform: results on a GPU and a CPU agree to better than
+<span class="math notranslate nohighlight">\(10^{-10}\)</span> in relative terms, and each file records which made it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)</span>   <span class="c1"># "quiet" (the default), "info" or "debug"</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">set_timing</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>        <span class="c1"># print the wall time of each stage</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">set_workers</span><span class="p">(</span><span class="s2">"half"</span><span class="p">)</span>     <span class="c1"># "auto" (the default), "full", "half" or a number of cores</span>
@@ -310,6 +313,9 @@ each file records which made it.</p>
 </div>
 <p>The CPU-only mode gives the same numbers on every machine; the environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_PLATFORM=cpu</span></code>
 sets it before the package is imported. Each file records the backend that made it.</p>
+<p>On shared clusters, a GPU in the Exclusive_Process compute mode serves one process at a time; if another process
+holds it, JAX stops with <code class="docutils literal notranslate"><span class="pre">Unable</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">backend</span> <span class="pre">'cuda'</span></code>. Free the GPU, share it through an MPS daemon
+(<code class="docutils literal notranslate"><span class="pre">nvidia-cuda-mps-control</span> <span class="pre">-d</span></code>), or use the CPU-only mode.</p>
 <p>The workers’ switch sets how many cores the package’s parallel work uses; <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> uses every allowed core
 inside a batch job and half of them anywhere else, and no value changes a number. The verbosity, the timing and
 the workers can also be set by the environment variables <code class="docutils literal notranslate"><span class="pre">PIANISTPY_VERBOSITY</span></code>, <code class="docutils literal notranslate"><span class="pre">PIANISTPY_TIMING</span></code> and

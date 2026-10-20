@@ -1,8 +1,10 @@
-# Settings (pianistpy.settings)
+# Settings
 
 Source: https://pianistpy.com/docs/reference/api/settings
 
-# Settings (pianistpy.settings)
+# Settings
+
+Module pianistpy.settings
 
 Numerical settings: the tested tiers and expert overrides.
 

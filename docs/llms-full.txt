@@ -55,8 +55,8 @@ the default, Anisotropy(), is isotropy;
 
 a finite beta_c alone, in (-infinity, 1), gives constant anisotropy;
 
-a finite anisotropy radius r_a gives the Osipkov-Merritt model (with beta_c = 0) or the generalized
-Osipkov-Merritt (Cuddeford) model (with beta_c given), radially biased with kind="I" or tangentially
+a finite anisotropy radius r_a gives the Osipkov-Merritt model (with beta_c = 0) or the
+Cuddeford-Osipkov-Merritt (COM) model (with beta_c given), radially biased with kind="I" or tangentially
 biased with kind="II".
 
 The comparison at the interface is exact: beta_c=0.0 is isotropic, beta_c=1e-12 is a constant-anisotropy
@@ -67,7 +67,7 @@ a model a hair away from one agrees with the model at it to the accuracy the tie
 pp.Anisotropy()                           # isotropic
 pp.Anisotropy(beta_c=0.25)                # constant anisotropy
 pp.Anisotropy(r_a=10.0, kind="I")         # Osipkov-Merritt, radially biased
-pp.Anisotropy(beta_c=-0.25, r_a=10.0)     # Cuddeford, Type I by default
+pp.Anisotropy(beta_c=-0.25, r_a=10.0)     # COM, Type I by default
 
 ```
 
@@ -116,7 +116,7 @@ checked against the aperture’s dispersion from the projected tables, which rea
 tier is the worse of that check and the table’s own (The prepared table); a distribution above the goal says so in a
 warning.
 
-A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford Type I
+A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford-Osipkov-Merritt (COM) Type I
 anisotropy (\(\beta_{\rm c} = -0.25\), \(R_{\rm a} = 10\)) in a centered circle of radius 0.05 in the scale radius, the
 quick tier’s second moment differs from the default tier’s by \(6.7 \times 10^{-6}\) of it, and its own check reports \(6.2 \times 10^{-6}\) (above
 the goal, with a warning); in a circle of radius 1 the two differ by \(1.5 \times 10^{-6}\). At the default tier the check reports
@@ -171,7 +171,7 @@ df = pp.compute_df(halo)
 
 ```
 
-A distribution function from elsewhere, a fitting function or another code’s output, is certified the same way:
+A distribution function from elsewhere, a fitting function or another code’s output, is validated the same way:
 DistributionFunction.from_function(component, f) takes f(k, depth), which returns the DF (not its
 logarithm) at an array of energies in internal units and their depths below the center,
 \(P_0 - \mathcal{K}\) (depth), as the grid carries it (a fit in the depth near the center reads it there; a function of the
@@ -236,9 +236,9 @@ Everything is in internal units, whatever the model’s unit system: \(\theta\),
 a method reads, and the velocities it returns. d.theta is the model’s own anisotropy.
 
 The families are those of the distribution function’s own rule (End-to-end differentiability): constant anisotropy (\(\beta_{\rm c}\); an
-isotropic or constant component’s \(R_{\rm a}\) is held at its own, infinite, value with a zero gradient), Cuddeford Type I
+isotropic or constant component’s \(R_{\rm a}\) is held at its own, infinite, value with a zero gradient), Cuddeford-Osipkov-Merritt (COM) Type I
 (\(\beta_{\rm c}\) and \(R_{\rm a}\)), Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)). Refused at construction, each with an error that names it:
-Cuddeford Type II (its interior point at \(P(R_{\rm a})\) moves with both parameters), a superposition or a model of several
+COM Type II (its interior point at \(P(R_{\rm a})\) moves with both parameters), a superposition or a model of several
 components (its components are differentiated through the likelihood), a component that is not spatially finite, and
 one not on a truncated profile that carries its parent’s distribution function.
 
@@ -261,6 +261,13 @@ The first time a method meets a \(\theta\), the host rebuilds the model there: t
 on the component’s truncated profile, then the dispersion profile and the projected table with their tangent rows.
 That is the cost of the likelihood’s own rebuild of a free component, about that of the plain call on the model at
 \(\theta\). The last eight \(\theta\) are kept, so the value and the gradient at one \(\theta\) share one rebuild.
+
+The derivative of losvd and aperture_losvd costs far more: it goes back through the rows of the line-of-sight
+table, whose transpose recomputes each row and differentiates it in \(\theta\), one row after another in the
+calling process. On a CPU node of 32 cores (AMD Ryzen Threadripper PRO 5975WX), the derivative of losvd in
+\(\beta_{\rm c}\) at one projected radius and 21 velocities, with the quick settings and a smaller table, did not
+finish in 2 h of wall-clock time, with 6 to 7 cores in use on average; the derivative of the example below takes 65 s
+there. The values of these methods are not affected.
 
 ## Example
 
@@ -338,7 +345,7 @@ The anisotropy parameters. The distribution function of a component is different
 
 constant anisotropy (\(\beta_{\rm c}\)),
 
-Cuddeford Type I (\(\beta_{\rm c}\) and \(R_{\rm a}\)),
+Cuddeford-Osipkov-Merritt (COM) Type I (\(\beta_{\rm c}\) and \(R_{\rm a}\)),
 
 Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)).
 
@@ -357,14 +364,14 @@ parameters the function was made at: the derivative is that of the solve with th
 derivative of the table the package returns there. Where a choice changes between two parameters, the solve at the
 second one differs from the held one by its own tolerance.
 
-Not served, each refused with an error that names it: Cuddeford Type II, a center on its critical branch (where
+Not served, each refused with an error that names it: COM Type II, a center on its critical branch (where
 the branch itself changes with \(\beta_{\rm c}\)), and a component on a truncated profile that carries no distribution function
 of its model.
 
-Cuddeford Type II. The inversion’s kernel carries the factor \((P - P(R_{\rm a}))^s\), with \(s = 1 - \beta_{\rm c} - j\) and \(j\) the
+COM Type II. The inversion’s kernel carries the factor \((P - P(R_{\rm a}))^s\), with \(s = 1 - \beta_{\rm c} - j\) and \(j\) the
 inversion’s order: its interior point \(P(R_{\rm a})\) moves with \(R_{\rm a}\) and its exponent with \(\beta_{\rm c}\). The derivative of that
 factor in \(R_{\rm a}\) is not integrable at the interior point for \(s \le 0\), so the rows of the mixed derivative do not
-carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A Cuddeford
+carry the derivative there, and the rule refuses the family for both parameters, naming the interior point. A COM
 Type II model’s second moments take their derivative by the Jeans path (dispersion_profile’s tangents); its
 distribution function, and the observables read from it (losvd, aperture_losvd, pdf_v), take none.
 
@@ -485,7 +492,7 @@ Accuracy
 
 Input and output (write, read)
 
-Runtime options (set_platform, set_workers, ...)
+Runtime options
 
 
 ---
@@ -560,8 +567,8 @@ the table’s estimate of its reading between rows; and layer_floor, the error a
 toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
 center (below the goal: a floor above it is refused). The report’s tier is the worst of these and of the model’s own; a table
 above the goal says so in a warning when it is built (Accuracy), and a table beyond the hard limit (tier “refused”)
-is refused unless its settings ask for it (Settings(write_anyway=True)), as an aperture’s distribution is. Intervals of projected radius that the
-table could not certify are recorded in table.table.r_uncertified, and a request inside one is refused by name.
+is refused unless its settings ask for it (Settings(write_anyway=True)), as an aperture’s distribution is. Intervals of projected radius where the
+table could not meet its tolerance are recorded in table.table.r_uncertified, and a request inside one is refused by name.
 
 ## Example
 
@@ -634,10 +641,10 @@ their weights times their surface densities, \(D = \sum_k w_k \Sigma_k D_k / \su
 
 ## Tiers
 
-The distribution is read from the rows of the table between rows by the reading the table certified its rows for,
+The distribution is read from the rows of the table between rows by the same reading the table checked its rows with,
 so the tier is that of the table (The prepared table): each row’s norm against the surface density and its second
 moment against the projected dispersion, and the table’s estimate of its reading between rows. A projected radius
-in an interval the table left uncertified is refused by name.
+in an interval where the table could not meet its tolerance is refused by name.
 
 ## Example
 
@@ -811,7 +818,7 @@ so the window couples to the angle, and such a model is refused.
 A model whose distribution function is non-negative is not thereby samplable at every tier. The speed table’s
 rows are refined until the error across them is under the goal or their count reaches n_rows_max; the table’s
 report carries that error, and a table beyond the hard limit is refused (Accuracy). Close to the smallest
-anisotropy radius \(R_{\rm a,min}\) (r_a_min) at which an Osipkov-Merritt or Cuddeford Type I distribution function is
+anisotropy radius \(R_{\rm a,min}\) (r_a_min) at which an Osipkov-Merritt or Cuddeford-Osipkov-Merritt (COM) Type I distribution function is
 non-negative, the rows reach n_rows_max first and the error grows steeply as \(R_{\rm a}\) falls toward
 \(R_{\rm a,min}\). Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
 default tier, the error crosses the ceiling and the hard limit at:
@@ -824,7 +831,7 @@ ceiling \(10^{-4}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
 hard limit \(10^{-2}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
-Cuddeford I
+COM I
 
 -0.75
 
@@ -832,7 +839,7 @@ Cuddeford I
 
 1.16
 
-Cuddeford I
+COM I
 
 -0.50
 
@@ -840,7 +847,7 @@ Cuddeford I
 
 1.20
 
-Cuddeford I
+COM I
 
 -0.25
 
@@ -856,7 +863,7 @@ OM I
 
 1.07
 
-Cuddeford I
+COM I
 
 +0.05
 
@@ -864,7 +871,7 @@ Cuddeford I
 
 1.07
 
-Cuddeford I
+COM I
 
 +0.25
 
@@ -872,7 +879,7 @@ Cuddeford I
 
 1.04
 
-Cuddeford I
+COM I
 
 +0.40
 
@@ -880,7 +887,7 @@ Cuddeford I
 
 1.02
 
-Cuddeford I
+COM I
 
 +0.45
 
@@ -980,7 +987,8 @@ Source: https://pianistpy.com/docs/guide/profiles
 
 pianistpy.DoublePowerLaw
 
-Any double power law in its three slopes, DoublePowerLaw(rho_alpha, rho_beta, rho_gamma): the inner slope,
+An analytical double-power-law density profile with a finite central potential (an inner slope below 2), in
+its three slopes, DoublePowerLaw(rho_alpha, rho_beta, rho_gamma): the inner slope,
 the outer slope and the sharpness of the transition between them, with the scale radius and the central
 potential of the untruncated profile set to one (the internal units, Units). The named profiles are
 presets of the same class, not classes of their own:
@@ -1239,8 +1247,8 @@ Source: https://pianistpy.com/docs/guide/switches
 
 # Runtime options
 
-None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
-each file records which made it.
+None of these changes a number, except the platform: results on a GPU and a CPU agree to better than
+\(10^{-10}\) in relative terms, and each file records which made it.
 
 ```
 pp.set_verbosity("info")   # "quiet" (the default), "info" or "debug"
@@ -1253,6 +1261,10 @@ pp.set_platform("cpu")     # "auto" (the default), "cpu" (the CPU-only mode) or 
 
 The CPU-only mode gives the same numbers on every machine; the environment variable PIANISTPY_PLATFORM=cpu
 sets it before the package is imported. Each file records the backend that made it.
+
+On shared clusters, a GPU in the Exclusive_Process compute mode serves one process at a time; if another process
+holds it, JAX stops with Unable to initialize backend 'cuda'. Free the GPU, share it through an MPS daemon
+(nvidia-cuda-mps-control -d), or use the CPU-only mode.
 
 The workers’ switch sets how many cores the package’s parallel work uses; "auto" uses every allowed core
 inside a batch job and half of them anywhere else, and no value changes a number. The verbosity, the timing and
@@ -1306,7 +1318,7 @@ the total mass, the validation report and the identity. A model that is not spat
 it says so (spatially_finite is false), states its radius and mass as not finite, and what needs finiteness
 asks for it by name (Flags and refusals).
 
-A Type II model (Osipkov-Merritt or Cuddeford) must end inside its anisotropy radius \(R_{\rm a}\), where its density
+A Type II model (Osipkov-Merritt or Cuddeford-Osipkov-Merritt) must end inside its anisotropy radius \(R_{\rm a}\), where its density
 \(\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)\) has a pole. The lower bound \(\mathcal{K}_{\rm t} > P(R_{\rm a})\) keeps the untruncated radius of the truncation
 energy inside \(R_{\rm a}\), but the truncated model’s own edge lies farther out; where that edge would reach \(R_{\rm a}\) the request
 is refused by name (TYPE II EDGE, with the potential at \(R_{\rm a}\) stated), and a larger \(\mathcal{K}_{\rm t}\) brings the edge
@@ -1376,15 +1388,15 @@ Generate particle initial conditions
 
 Compute observables from a model
 
-Planned for 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
+Planned for ver. 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
 fit a superposition to data; observables in an aperture of any shape.
 
 ## Reproducing Chiang+(2026d)
 
 One notebook per figure of Chiang+(2026d), from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
-anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
-1.0.0 release.
+anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Released with
+ver. 0.9.9.
 
 ## \(N\)-body tests with GAMER
 
@@ -1565,7 +1577,7 @@ Every release reruns the same accuracy grid (Accuracy tables) and publishes it a
 counts the grid’s values by tier, its refusals and the cells below the cusp bound, and lists each release’s CSV; a cell that moves beyond its tier between
 two releases is a regression by construction.
 
-Version
+Release
 
 Goal
 
@@ -1581,7 +1593,23 @@ Excluded
 
 The grid
 
-0.9.0
+Ver. 0.9.9
+
+376
+
+59
+
+22
+
+19
+
+82
+
+19
+
+CSV, members
+
+Ver. 0.9.0
 
 345
 
@@ -1609,17 +1637,25 @@ Source: https://pianistpy.com/docs/project/changelog
 What each version adds, changes and fixes, newest first. A change that moves a number beyond rounding is named
 with the size of the move; the standard and the minimum dependencies are listed with each release.
 
-## 1.0.0
+## Ver. 1.0.0
 
 Draft: this entry is final at the release.
 
-The first release, with the paper that describes the method, Chiang+(2026d) (MNRAS,
-submitted). Everything 0.9.0 announced for this version is in.
+The first stable release: the code of ver. 0.9.9 with the citation entry of Chiang+(2026d) and the DOI of the software
+release. Changes to the code since ver. 0.9.9 are listed here at the release.
+
+## Ver. 0.9.9
+
+Draft: this entry is final at the release.
+
+The code of the paper that describes the method, Chiang+(2026d) (MNRAS, submitted), released with its arXiv
+submission. Ver. 1.0.0 adds the citation entry.
 
 ### Added
 
-The certified accuracy tiers (goal, ceiling, warning, refused) reported with every result, on the CPU and on
-the GPU; the accuracy grid of the release is on Accuracy tables, and every release’s on
+A report of the numerical accuracy with every result, on the CPU and on the GPU: the relative error of each
+check against the goal of \(10^{-6}\), the ceiling of \(10^{-4}\) and the hard limit of \(10^{-2}\)
+(Accuracy); the accuracy grid of the release is on Accuracy tables, and every release’s on
 Accuracy by release.
 
 The observables as calls of their own: sigma_r, sigma_t, losvd, aperture_losvd and pdf_v
@@ -1630,7 +1666,7 @@ Ranged draws: a range of radii for Sampler (r_range), a range of speeds at given
 (Sampler.speeds, v_range), and the projected sampler of \((R, V_{\rm los})\) pairs (ProjectedSampler).
 
 The likelihood of the inference is differentiable in the superposition weights, the unit scales and the
-anisotropy parameters \((\beta_{\rm c}, R_{\rm a})\) of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
+anisotropy parameters \((\beta_{\rm c}, R_{\rm a})\) of the constant, Cuddeford-Osipkov-Merritt (COM) Type I and Osipkov-Merritt families; and,
 through pp.Differentiable, the seven observables as JAX functions of those parameters
 (End-to-end differentiability).
 
@@ -1698,7 +1734,7 @@ A result file is read back after it is written and refused unless it holds what 
 the particle files are.
 
 A report read from a file is checked against the reports of its kind: a check no such report has is refused
-by name, and a check the file lacks (an earlier version made fewer) reads as not judged, so a 0.9.0 file loads
+by name, and a check the file lacks (an earlier version made fewer) reads as not judged, so a ver. 0.9.0 file loads
 and says what it lacks. An untruncated model’s outer join and eps, which its closed-form profile does not
 measure, are not judged (they read 0 before).
 
@@ -1724,14 +1760,14 @@ the potential and its slope there); before, it was returned as a truncated model
 profile that is not spatially finite is refused by name.
 
 At an inner slope near 2 with a positive \(\beta_{\rm c}\), the inversion’s table reaches the depth the host’s smallest
-radius allows, and these models build where they were refused; the validity certificate is judged at that
-depth. A central series that degenerates (\(\gamma = 2\beta_{\rm c}\) at the center) is refused by name
+radius allows, and these models build where they were refused; the distribution function’s validity is checked
+at that depth. A central series that degenerates (\(\gamma = 2\beta_{\rm c}\) at the center) is refused by name
 (CENTRAL SERIES).
 
 At an inner slope near 2 the inner extension’s radius no longer underflows to zero; where it lies below the
 double’s range the solve is refused by name.
 
-Cuddeford Type II models at an inner slope near 2 no longer fail in the inversion with non-finite slopes.
+COM Type II models at an inner slope near 2 no longer fail in the inversion with non-finite slopes.
 
 A cusp at the marginal anisotropy \(2\beta_{\rm c} = \gamma\) solves its central deficit: on NFW with \(\beta_{\rm c} = 0.5\) the
 density from the distribution function moves from \(7.7 \times 10^{-4}\) to \(3.2 \times 10^{-9}\) of the profile (warning to goal).
@@ -1742,7 +1778,7 @@ one unit in the last place of the potential moved it by \(1.1 \times 10^{-4}\) a
 The lowest row of the truncated density continues the edge law (it read \(2.5 \times 10^{-4}\) above it).
 
 DistributionFunction.from_function reads the function below the written floor as compute_df does: the
-Plummer and Hernquist closed forms certify at the goal (round trip \(2.0 \times 10^{-14}\) and \(4.6 \times 10^{-11}\), where 1.0 before).
+Plummer and Hernquist closed forms are read back with a density round trip of \(2.0 \times 10^{-14}\) and \(4.6 \times 10^{-11}\) (1.0 before).
 
 The particle sampler’s speed table reads its rows at their exact depths and its first slope from the rule below
 it; on the speed tables of the Fig. 7 models of Chiang+(2026d) with \(\beta_{\rm c} = 1/2\) the worst row falls from \(4.1 \times 10^{-4}\) to \(1.7 \times 10^{-6}\). Where
@@ -1767,7 +1803,7 @@ name.
 One component per model at the public calls; several components in one potential are planned
 (Upcoming features).
 
-The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with \(R_{\rm a}\).
+The gradient in the anisotropy parameters refuses COM Type II, whose interior point moves with \(R_{\rm a}\).
 
 The gradient in the anisotropy parameters refuses a Method I truncated model, whose profile moves with them; a
 Method II model on a fixed parent takes it (End-to-end differentiability).
@@ -1780,12 +1816,10 @@ Spherical, non-rotating systems with an analytical double-power-law parent profi
 
 Dependencies: the standard and the minimum lists on Install.
 
-## 0.9.0
+## Ver. 0.9.0
 
 A pre-release with the whole public interface: the distribution functions and their truncation
 (compute_df, truncate, solve), the particles, the observables, the superposition and the inference.
-Version 1.0.0, released with Chiang+(2026d), adds the certified accuracy tiers on both
-backends, the remaining capabilities and the citation.
 
 Standard dependencies (the versions this release was developed and tested with): Python 3.11.13, NumPy
 2.4.3, SciPy 1.17.1, h5py 3.15.1, Astropy 7.2.0, mpmath 1.3.0, SymPy 1.14.0, JAX 0.9.2, Diffrax 0.7.2,
@@ -1809,7 +1843,7 @@ Source: https://pianistpy.com/docs/project/citing
 # How to cite
 
 Please cite the initial release paper, Chiang, van den Bosch and Schive (2026d), MNRAS, submitted (henceforth Chiang+(2026d)), in work that uses PIANISTpy. The
-citation entry, the arXiv link and the DOI of the software release are added with the 1.0.0 release.
+citation entry, the arXiv link and the DOI of the software release are added with ver. 1.0.0.
 
 
 ---
@@ -1915,7 +1949,7 @@ Source: https://pianistpy.com/docs/project/roadmap
 
 # Upcoming features
 
-What is planned or under development after the first release. The list is written at the 1.0.0 release.
+What is planned or under development after the first release. The list is written at the release of ver. 1.0.0.
 
 Several components in one potential, and tracers in a fixed potential: the package’s results, stages and files
 are shaped per component already; what is to be written is the theory.
@@ -1952,7 +1986,7 @@ A † marks a cell whose outcome is not the one the grid expects. The tables are
 every range the grid reads, the radius of each maximum and the compute times. The tables of earlier releases are
 on Accuracy by release.
 
-The grid of version 0.9.0 (cpu), the default tier: the full grid as CSV and its member list.
+The grid of ver. 0.9.9, run at d59731fb, whose numerical code is 52a0ef0b’s (cpu), the default tier: the full grid as CSV and its member list.
 
 ### Table 1. Profiles by anisotropy
 
@@ -1979,7 +2013,7 @@ excluded
 goalsupport above \({P(R_{\rm a})}\)
 \({1.4 \times 10^{-8}}\)\({1.2 \times 10^{-9}}\)goal
 excluded
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (0.5, 3)}\)
 \({8.0 \times 10^{-11}}\)\({1.7 \times 10^{-13}}\)goal
@@ -1991,7 +2025,7 @@ excluded
 goalsupport above \({P(R_{\rm a})}\)
 \({3.0 \times 10^{-9}}\)\({1.7 \times 10^{-9}}\)goal
 \({1.8 \times 10^{-10}}\)\({1.7 \times 10^{-11}}\)goal
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (1, 3)}\)
 \({8.8 \times 10^{-11}}\)\({1.5 \times 10^{-13}}\)goal
@@ -2003,11 +2037,11 @@ warningsupport above \({P(R_{\rm a})}\)
 goalsupport above \({P(R_{\rm a})}\)
 \({5.8 \times 10^{-9}}\)\({2.9 \times 10^{-9}}\)goal
 \({1.6 \times 10^{-9}}\)\({3.5 \times 10^{-11}}\)goal
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (1.5, 3)}\)
 \({1.5 \times 10^{-10}}\)\({1.2 \times 10^{-13}}\)goal
-\({1.3 \times 10^{-10}}\)\({8.3 \times 10^{-14}}\)goal
+\({1.3 \times 10^{-10}}\)\({8.7 \times 10^{-14}}\)goal
 \({6.5 \times 10^{-10}}\)\({4.3 \times 10^{-13}}\)goal
 \({9.5 \times 10^{-10}}\)\({2.5 \times 10^{-12}}\)goal
 \({2.9 \times 10^{-11}}\)\({2.5 \times 10^{-14}}\)goal
@@ -2015,31 +2049,31 @@ warningsupport above \({P(R_{\rm a})}\)
 goalsupport above \({P(R_{\rm a})}\)
 \({2.6 \times 10^{-8}}\)\({3.0 \times 10^{-9}}\)goal
 \({9.5 \times 10^{-10}}\)\({3.0 \times 10^{-11}}\)goal
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (1.9, 3)}\)
 \({1.2 \times 10^{-12}}\)\({1.1 \times 10^{-13}}\)goal
-\({1.3 \times 10^{-12}}\)\({7.0 \times 10^{-14}}\)goal
+\({1.3 \times 10^{-12}}\)\({7.1 \times 10^{-14}}\)goal
 \({3.2 \times 10^{-11}}\)\({5.9 \times 10^{-13}}\)goal
 \({1.3 \times 10^{-10}}\)\({1.8 \times 10^{-12}}\)goal
 \({7.4 \times 10^{-14}}\)\({2.4 \times 10^{-14}}\)goal
 \({7.3 \times 10^{-11}}\)\({2.5 \times 10^{-11}}\)ceiling
 goalsupport above \({P(R_{\rm a})}\)
-\({9.3 \times 10^{-8}}\)\({5.1 \times 10^{-9}}\)ceiling
+\({5.3 \times 10^{-9}}\)\({2.7 \times 10^{-9}}\)ceiling
 \({1.3 \times 10^{-10}}\)\({2.4 \times 10^{-11}}\)goal
-refusedsupport above \({P(R_{\rm a})}\)
+refusednot physical
 
 \({(\gamma, \beta) = (1.99, 3)}\)
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedInputError†
-refusedInputError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedInputError†
-refusedValueError†
+\({3.5 \times 10^{-11}}\)\({2.7 \times 10^{-12}}\)refused
+\({3.3 \times 10^{-11}}\)\({1.9 \times 10^{-12}}\)goal
+\({2.8 \times 10^{-10}}\)\({2.4 \times 10^{-12}}\)goal
+\({6.4 \times 10^{-11}}\)\({1.3 \times 10^{-12}}\)goal
+\({1.4 \times 10^{-11}}\)\({1.2 \times 10^{-13}}\)goal
+\({1.6 \times 10^{-7}}\)\({3.9 \times 10^{-10}}\)refused
+refusedAccuracyError†
+\({4.0 \times 10^{-6}}\)\({7.4 \times 10^{-9}}\)warning
+\({6.0 \times 10^{-10}}\)\({2.6 \times 10^{-11}}\)warning
+refusednot physical
 
 \({(\gamma, \beta) = (0, 4)}\)
 \({1.7 \times 10^{-11}}\)\({1.3 \times 10^{-13}}\)goal
@@ -2051,7 +2085,7 @@ excluded
 goalsupport above \({P(R_{\rm a})}\)
 \({6.7 \times 10^{-9}}\)\({1.4 \times 10^{-10}}\)goal
 excluded
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (0.5, 4)}\)
 \({7.1 \times 10^{-11}}\)\({1.2 \times 10^{-13}}\)goal
@@ -2062,8 +2096,8 @@ excluded
 \({7.2 \times 10^{-11}}\)\({9.0 \times 10^{-13}}\)goal
 goalsupport above \({P(R_{\rm a})}\)
 \({8.7 \times 10^{-9}}\)\({1.2 \times 10^{-10}}\)goal
-\({1.7 \times 10^{-10}}\)\({4.1 \times 10^{-12}}\)goal
-warningsupport above \({P(R_{\rm a})}\)
+\({1.8 \times 10^{-10}}\)\({4.1 \times 10^{-12}}\)goal
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (1, 4)}\)
 \({8.6 \times 10^{-11}}\)\({1.2 \times 10^{-13}}\)goal
@@ -2075,7 +2109,7 @@ warningsupport above \({P(R_{\rm a})}\)
 goalsupport above \({P(R_{\rm a})}\)
 \({1.2 \times 10^{-8}}\)\({8.9 \times 10^{-11}}\)goal
 \({1.3 \times 10^{-9}}\)\({1.8 \times 10^{-11}}\)goal
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (1.5, 4)}\)
 \({1.4 \times 10^{-10}}\)\({1.0 \times 10^{-13}}\)goal
@@ -2087,7 +2121,7 @@ warningsupport above \({P(R_{\rm a})}\)
 goalsupport above \({P(R_{\rm a})}\)
 \({2.6 \times 10^{-8}}\)\({1.3 \times 10^{-11}}\)goal
 \({6.8 \times 10^{-10}}\)\({1.2 \times 10^{-11}}\)goal
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (1.9, 4)}\)
 \({1.1 \times 10^{-11}}\)\({1.1 \times 10^{-13}}\)goal
@@ -2099,19 +2133,19 @@ warningsupport above \({P(R_{\rm a})}\)
 goalsupport above \({P(R_{\rm a})}\)
 \({3.9 \times 10^{-9}}\)\({4.9 \times 10^{-11}}\)ceiling
 \({9.8 \times 10^{-11}}\)\({3.1 \times 10^{-12}}\)goal
-refusedsupport above \({P(R_{\rm a})}\)
+refusednot physical
 
 \({(\gamma, \beta) = (1.99, 4)}\)
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedInputError†
-refusedInputError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedInputError†
-refusedValueError†
+\({1.4 \times 10^{-10}}\)\({5.0 \times 10^{-12}}\)refused
+\({3.2 \times 10^{-11}}\)\({9.9 \times 10^{-13}}\)goal
+\({2.7 \times 10^{-10}}\)\({2.6 \times 10^{-12}}\)goal
+\({5.7 \times 10^{-11}}\)\({3.3 \times 10^{-12}}\)goal
+\({8.8 \times 10^{-12}}\)\({8.7 \times 10^{-14}}\)goal
+\({1.4 \times 10^{-7}}\)\({2.1 \times 10^{-10}}\)refused
+refusedAccuracyError†
+\({2.4 \times 10^{-6}}\)\({3.7 \times 10^{-11}}\)warning
+\({5.6 \times 10^{-10}}\)\({4.1 \times 10^{-12}}\)warning
+refusednot physical
 
 \({(\gamma, \beta) = (0, 5)}\)
 \({1.5 \times 10^{-11}}\)\({1.7 \times 10^{-13}}\)goal
@@ -2123,11 +2157,11 @@ excluded
 goalsupport above \({P(R_{\rm a})}\)
 \({2.7 \times 10^{-9}}\)\({9.4 \times 10^{-12}}\)goal
 excluded
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (0.5, 5)}\)
 \({6.9 \times 10^{-11}}\)\({1.7 \times 10^{-13}}\)goal
-\({7.2 \times 10^{-11}}\)\({4.9 \times 10^{-14}}\)goal
+\({7.2 \times 10^{-11}}\)\({4.8 \times 10^{-14}}\)goal
 \({1.9 \times 10^{-9}}\)\({3.7 \times 10^{-13}}\)goal
 \({1.0 \times 10^{-11}}\)\({3.8 \times 10^{-12}}\)goal
 excluded
@@ -2135,7 +2169,7 @@ excluded
 goalsupport above \({P(R_{\rm a})}\)
 \({1.8 \times 10^{-9}}\)\({4.7 \times 10^{-12}}\)goal
 \({2.2 \times 10^{-10}}\)\({3.0 \times 10^{-12}}\)goal
-refusedsupport above \({P(R_{\rm a})}\)
+refusednot physical
 
 \({(\gamma, \beta) = (1, 5)}\)
 \({8.7 \times 10^{-11}}\)\({1.5 \times 10^{-13}}\)goal
@@ -2147,7 +2181,7 @@ refusedsupport above \({P(R_{\rm a})}\)
 goalsupport above \({P(R_{\rm a})}\)
 \({1.2 \times 10^{-9}}\)\({3.0 \times 10^{-12}}\)goal
 \({1.1 \times 10^{-9}}\)\({3.9 \times 10^{-12}}\)goal
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 \({(\gamma, \beta) = (1.5, 5)}\)
 \({1.4 \times 10^{-10}}\)\({1.8 \times 10^{-13}}\)goal
@@ -2159,7 +2193,7 @@ warningsupport above \({P(R_{\rm a})}\)
 goalsupport above \({P(R_{\rm a})}\)
 \({3.3 \times 10^{-10}}\)\({3.3 \times 10^{-12}}\)goal
 \({5.6 \times 10^{-10}}\)\({2.9 \times 10^{-12}}\)goal
-refusedsupport above \({P(R_{\rm a})}\)
+refusednot physical
 
 \({(\gamma, \beta) = (1.9, 5)}\)
 \({3.6 \times 10^{-11}}\)\({2.1 \times 10^{-13}}\)goal
@@ -2171,22 +2205,22 @@ refusedsupport above \({P(R_{\rm a})}\)
 ceilingsupport above \({P(R_{\rm a})}\)
 \({4.2 \times 10^{-11}}\)\({3.3 \times 10^{-12}}\)ceiling
 \({8.5 \times 10^{-11}}\)\({3.2 \times 10^{-12}}\)goal
-refusedsupport above \({P(R_{\rm a})}\)
+refusednot physical
 
 \({(\gamma, \beta) = (1.99, 5)}\)
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedInputError†
-refusedInputError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedInputError†
-refusedValueError†
+\({5.5 \times 10^{-10}}\)\({6.3 \times 10^{-12}}\)refused
+\({3.2 \times 10^{-11}}\)\({9.1 \times 10^{-13}}\)goal
+\({2.6 \times 10^{-10}}\)\({4.1 \times 10^{-12}}\)goal
+\({2.5 \times 10^{-10}}\)\({6.0 \times 10^{-12}}\)goal
+\({7.2 \times 10^{-12}}\)\({3.0 \times 10^{-13}}\)goal
+\({1.5 \times 10^{-8}}\)\({2.1 \times 10^{-10}}\)refused
+refusedAccuracyError†
+\({2.0 \times 10^{-9}}\)\({5.5 \times 10^{-12}}\)refused†
+\({1.1 \times 10^{-10}}\)\({7.4 \times 10^{-12}}\)ceiling
+refusednot physical
 
 Plummer (\({\alpha = 2, \beta = 5, \gamma = 0}\))
-\({1.1 \times 10^{-12}}\)\({9.3 \times 10^{-15}}\)goal
+\({1.1 \times 10^{-12}}\)\({9.4 \times 10^{-15}}\)goal
 \({4.2 \times 10^{-11}}\)\({1.4 \times 10^{-14}}\)goal
 \({2.7 \times 10^{-9}}\)\({1.7 \times 10^{-13}}\)goal
 excluded
@@ -2195,11 +2229,11 @@ excluded
 goalsupport above \({P(R_{\rm a})}\)
 \({2.7 \times 10^{-9}}\)\({7.6 \times 10^{-12}}\)goal
 excluded
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 ### Table 2. The anisotropy radius
 
-Osipkov-Merritt (OM) and generalized Osipkov-Merritt (COM, \({\beta_{\rm c} = -0.25}\)) models of Type I and Type II on three profiles, from \({R_{\rm a} = 0.3}\) to 1000.
+Osipkov-Merritt (OM) and Cuddeford-Osipkov-Merritt (COM, \({\beta_{\rm c} = -0.25}\)) models of Type I and Type II on three profiles, from \({R_{\rm a} = 0.3}\) to 1000.
 
 \({R_{\rm a} = 0.3}\)
 \({R_{\rm a} = 1}\)
@@ -2234,16 +2268,16 @@ refused
 \({5.8 \times 10^{-9}}\)\({2.9 \times 10^{-9}}\)goal
 \({5.7 \times 10^{-9}}\)\({2.9 \times 10^{-9}}\)goal
 \({5.7 \times 10^{-9}}\)\({2.9 \times 10^{-9}}\)goal
-\({5.8 \times 10^{-9}}\)\({1.6 \times 10^{-9}}\)goal
+\({5.9 \times 10^{-9}}\)\({1.5 \times 10^{-9}}\)goal
 
 NFW · COM II
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 cored (\({\gamma = 0, \beta = 4}\)) · OM I
 refused
@@ -2273,13 +2307,13 @@ refused
 \({2.1 \times 10^{-9}}\)\({2.8 \times 10^{-11}}\)goal
 
 cored (\({\gamma = 0, \beta = 4}\)) · COM II
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · OM I
 \({1.7 \times 10^{-10}}\)\({6.3 \times 10^{-13}}\)goal
@@ -2302,20 +2336,20 @@ goalsupport above \({P(R_{\rm a})}\)
 steep (\({\gamma = 1.5, \beta = 4}\)) · COM I
 \({2.6 \times 10^{-8}}\)\({6.9 \times 10^{-13}}\)goal
 \({2.6 \times 10^{-8}}\)\({3.9 \times 10^{-13}}\)goal
-\({2.6 \times 10^{-8}}\)\({9.2 \times 10^{-11}}\)goal
+\({2.6 \times 10^{-8}}\)\({9.4 \times 10^{-11}}\)goal
 \({2.6 \times 10^{-8}}\)\({1.3 \times 10^{-11}}\)goal
 \({2.6 \times 10^{-8}}\)\({1.8 \times 10^{-11}}\)goal
 \({2.6 \times 10^{-8}}\)\({9.6 \times 10^{-12}}\)goal
 \({2.6 \times 10^{-8}}\)\({9.5 \times 10^{-12}}\)goal
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · COM II
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
-warningsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
+goalsupport above \({P(R_{\rm a})}\)
 
 ### Table 3. Truncations
 
@@ -2329,69 +2363,69 @@ Method I and Method II truncations at energy \({\mathcal{K}_{\rm t}}\) on four p
 
 NFW · isotropic · Method I
 \({1.0 \times 10^{-7}}\)\({1.7 \times 10^{-12}}\)goal
-\({1.0 \times 10^{-7}}\)\({2.1 \times 10^{-12}}\)goal
-\({1.0 \times 10^{-7}}\)\({5.5 \times 10^{-12}}\)goal
+\({1.0 \times 10^{-7}}\)\({2.6 \times 10^{-12}}\)goal
+\({1.0 \times 10^{-7}}\)\({5.6 \times 10^{-12}}\)goal
 \({1.0 \times 10^{-7}}\)\({1.4 \times 10^{-11}}\)goal
-\({8.3 \times 10^{-7}}\)\({5.6 \times 10^{-11}}\)goal
+\({8.3 \times 10^{-7}}\)\({5.7 \times 10^{-11}}\)goal
 
 NFW · isotropic · Method II
-\({1.1 \times 10^{-7}}\)\({1.2 \times 10^{-10}}\)goal†
-\({1.0 \times 10^{-7}}\)\({9.4 \times 10^{-11}}\)goal†
-\({1.0 \times 10^{-7}}\)\({8.8 \times 10^{-11}}\)goal†
-\({1.0 \times 10^{-7}}\)\({7.2 \times 10^{-11}}\)goal†
-\({8.3 \times 10^{-7}}\)\({1.2 \times 10^{-10}}\)goal†
+\({1.0 \times 10^{-7}}\)\({1.2 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({1.4 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({8.9 \times 10^{-11}}\)goal
+\({1.0 \times 10^{-7}}\)\({7.3 \times 10^{-11}}\)goal
+\({8.3 \times 10^{-7}}\)\({1.2 \times 10^{-10}}\)goal
 
 NFW · \({\beta_{\rm c} = -0.50}\) · Method I
-\({2.0 \times 10^{-7}}\)\({1.4 \times 10^{-11}}\)ceiling
-\({2.0 \times 10^{-7}}\)\({7.1 \times 10^{-12}}\)ceiling
+\({2.0 \times 10^{-7}}\)\({1.4 \times 10^{-11}}\)goal
+\({2.0 \times 10^{-7}}\)\({8.4 \times 10^{-12}}\)ceiling
 \({2.0 \times 10^{-7}}\)\({1.1 \times 10^{-11}}\)goal
 \({2.0 \times 10^{-7}}\)\({2.0 \times 10^{-11}}\)goal
-\({2.2 \times 10^{-6}}\)\({5.3 \times 10^{-11}}\)goal
+\({2.2 \times 10^{-6}}\)\({5.4 \times 10^{-11}}\)ceiling
 
 NFW · \({\beta_{\rm c} = -0.50}\) · Method II
 \({2.2 \times 10^{-7}}\)\({2.3 \times 10^{-9}}\)goal
 \({2.2 \times 10^{-7}}\)\({1.2 \times 10^{-9}}\)goal
 \({2.2 \times 10^{-7}}\)\({6.1 \times 10^{-10}}\)goal
-\({2.2 \times 10^{-7}}\)\({3.2 \times 10^{-10}}\)goal
-\({8.3 \times 10^{-7}}\)\({2.0 \times 10^{-10}}\)goal
+\({2.2 \times 10^{-7}}\)\({3.3 \times 10^{-10}}\)goal
+\({8.3 \times 10^{-7}}\)\({1.9 \times 10^{-10}}\)goal
 
 NFW · \({\beta_{\rm c} = 0.25}\) · Method I
-\({3.6 \times 10^{-8}}\)\({1.2 \times 10^{-12}}\)goal
-\({5.5 \times 10^{-8}}\)\({1.7 \times 10^{-12}}\)goal
+\({3.6 \times 10^{-8}}\)\({1.3 \times 10^{-12}}\)goal
+\({5.5 \times 10^{-8}}\)\({2.0 \times 10^{-12}}\)goal
 \({5.4 \times 10^{-8}}\)\({4.6 \times 10^{-12}}\)goal
-\({5.4 \times 10^{-8}}\)\({1.2 \times 10^{-11}}\)goal
-\({4.2 \times 10^{-7}}\)\({6.5 \times 10^{-11}}\)goal
+\({5.3 \times 10^{-8}}\)\({1.3 \times 10^{-11}}\)goal
+\({4.2 \times 10^{-7}}\)\({6.6 \times 10^{-11}}\)goal
 
 NFW · \({\beta_{\rm c} = 0.25}\) · Method II
-\({4.1 \times 10^{-8}}\)\({1.8 \times 10^{-9}}\)goal
-\({4.1 \times 10^{-8}}\)\({6.7 \times 10^{-10}}\)goal
-\({4.1 \times 10^{-8}}\)\({6.9 \times 10^{-10}}\)goal
-\({4.1 \times 10^{-8}}\)\({6.8 \times 10^{-10}}\)goal
+\({4.1 \times 10^{-8}}\)\({1.9 \times 10^{-9}}\)goal
+\({4.1 \times 10^{-8}}\)\({5.9 \times 10^{-10}}\)goal
+\({4.1 \times 10^{-8}}\)\({7.0 \times 10^{-10}}\)goal
+\({4.0 \times 10^{-8}}\)\({6.9 \times 10^{-10}}\)goal
 \({8.3 \times 10^{-7}}\)\({5.1 \times 10^{-10}}\)goal
 
 NFW · OM I \({R_{\rm a} = 10}\) · Method I
-\({1.0 \times 10^{-7}}\)\({1.7 \times 10^{-12}}\)ceiling
-\({1.0 \times 10^{-7}}\)\({4.8 \times 10^{-12}}\)ceiling
-\({1.0 \times 10^{-7}}\)\({3.6 \times 10^{-11}}\)ceiling
-refusedUnphysicalModelError†
-refusedUnphysicalModelError†
+\({1.0 \times 10^{-7}}\)\({1.8 \times 10^{-12}}\)ceiling
+\({1.0 \times 10^{-7}}\)\({6.2 \times 10^{-12}}\)ceiling
+refusedNO EDGE
+refusedUnphysicalModelError
+refusedUnphysicalModelError
 
 NFW · OM I \({R_{\rm a} = 10}\) · Method II
-\({1.1 \times 10^{-7}}\)\({1.5 \times 10^{-10}}\)goal
-\({1.0 \times 10^{-7}}\)\({6.7 \times 10^{-11}}\)goal
-\({1.0 \times 10^{-7}}\)\({5.8 \times 10^{-10}}\)goal
-\({1.0 \times 10^{-7}}\)\({8.1 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({1.7 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({9.7 \times 10^{-11}}\)goal
+\({1.0 \times 10^{-7}}\)\({5.9 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({8.0 \times 10^{-10}}\)goal
 \({8.3 \times 10^{-7}}\)\({5.1 \times 10^{-10}}\)goal
 
 NFW · OM II \({R_{\rm a} = 10}\) · Method I
-\({4.6 \times 10^{-7}}\)\({5.6 \times 10^{-11}}\)goal
-refusedDOMAIN†
-refusedDOMAIN†
-refusedDOMAIN†
-refusedDOMAIN†
+\({4.6 \times 10^{-7}}\)\({5.9 \times 10^{-11}}\)goal
+refusedDOMAIN
+refusedDOMAIN
+refusedDOMAIN
+refusedDOMAIN
 
 NFW · OM II \({R_{\rm a} = 10}\) · Method II
-\({1.1 \times 10^{-7}}\)\({2.1 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({2.2 \times 10^{-10}}\)goal
 refusedInputError
 refusedInputError
 refusedInputError
@@ -2399,129 +2433,129 @@ refusedInputError
 
 NFW · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method I
 \({1.5 \times 10^{-7}}\)\({4.3 \times 10^{-12}}\)goal
-\({1.5 \times 10^{-7}}\)\({6.3 \times 10^{-12}}\)goal
-\({1.5 \times 10^{-7}}\)\({1.2 \times 10^{-10}}\)goal
-refusedUnphysicalModelError†
-refusedUnphysicalModelError†
+\({1.5 \times 10^{-7}}\)\({6.7 \times 10^{-12}}\)goal
+refusedNO EDGE
+refusedUnphysicalModelError
+refusedUnphysicalModelError
 
 NFW · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method II
 \({1.7 \times 10^{-7}}\)\({1.7 \times 10^{-9}}\)goal
-\({1.6 \times 10^{-7}}\)\({9.9 \times 10^{-10}}\)goal
-\({1.7 \times 10^{-7}}\)\({9.3 \times 10^{-10}}\)goal
-\({1.7 \times 10^{-7}}\)\({9.0 \times 10^{-10}}\)goal
-\({8.3 \times 10^{-7}}\)\({4.4 \times 10^{-10}}\)goal
+\({1.7 \times 10^{-7}}\)\({9.7 \times 10^{-10}}\)goal
+\({1.7 \times 10^{-7}}\)\({9.1 \times 10^{-10}}\)goal
+\({1.7 \times 10^{-7}}\)\({8.8 \times 10^{-10}}\)goal
+\({8.3 \times 10^{-7}}\)\({4.5 \times 10^{-10}}\)goal
 
 Hernquist · isotropic · Method I
-\({1.1 \times 10^{-8}}\)\({1.5 \times 10^{-12}}\)goal
-\({1.0 \times 10^{-7}}\)\({1.8 \times 10^{-12}}\)goal
-\({1.0 \times 10^{-7}}\)\({5.9 \times 10^{-12}}\)goal
+\({1.1 \times 10^{-8}}\)\({1.6 \times 10^{-12}}\)goal
+\({1.0 \times 10^{-7}}\)\({2.5 \times 10^{-12}}\)goal
+\({1.0 \times 10^{-7}}\)\({6.2 \times 10^{-12}}\)goal
 \({1.0 \times 10^{-7}}\)\({2.0 \times 10^{-11}}\)goal
-\({1.3 \times 10^{-6}}\)\({6.3 \times 10^{-11}}\)goal
+\({1.3 \times 10^{-6}}\)\({6.5 \times 10^{-11}}\)ceiling
 
 Hernquist · isotropic · Method II
-\({2.1 \times 10^{-8}}\)\({1.1 \times 10^{-10}}\)goal†
-\({1.0 \times 10^{-7}}\)\({7.9 \times 10^{-11}}\)goal†
-\({1.0 \times 10^{-7}}\)\({9.0 \times 10^{-11}}\)goal†
-\({1.0 \times 10^{-7}}\)\({1.0 \times 10^{-10}}\)goal†
-\({1.3 \times 10^{-6}}\)\({1.3 \times 10^{-10}}\)goal†
+\({2.1 \times 10^{-8}}\)\({1.1 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({1.0 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({9.2 \times 10^{-11}}\)goal
+\({1.0 \times 10^{-7}}\)\({1.1 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({1.3 \times 10^{-10}}\)ceiling
 
 Hernquist · \({\beta_{\rm c} = -0.50}\) · Method I
-\({2.0 \times 10^{-7}}\)\({1.3 \times 10^{-11}}\)ceiling
-\({2.0 \times 10^{-7}}\)\({6.2 \times 10^{-12}}\)ceiling
+\({2.0 \times 10^{-7}}\)\({1.3 \times 10^{-11}}\)goal
+\({2.0 \times 10^{-7}}\)\({8.7 \times 10^{-12}}\)ceiling
 \({2.0 \times 10^{-7}}\)\({1.1 \times 10^{-11}}\)goal
 \({2.0 \times 10^{-7}}\)\({2.7 \times 10^{-11}}\)goal
-\({2.7 \times 10^{-6}}\)\({6.3 \times 10^{-11}}\)goal
+\({2.7 \times 10^{-6}}\)\({6.4 \times 10^{-11}}\)ceiling
 
 Hernquist · \({\beta_{\rm c} = -0.50}\) · Method II
-\({4.3 \times 10^{-8}}\)\({2.3 \times 10^{-9}}\)goal
-\({2.2 \times 10^{-7}}\)\({2.0 \times 10^{-9}}\)goal
+\({4.3 \times 10^{-8}}\)\({2.2 \times 10^{-9}}\)goal
+\({2.2 \times 10^{-7}}\)\({1.9 \times 10^{-9}}\)goal
 \({2.2 \times 10^{-7}}\)\({1.2 \times 10^{-9}}\)goal
 \({2.2 \times 10^{-7}}\)\({6.4 \times 10^{-10}}\)goal
-\({1.3 \times 10^{-6}}\)\({2.8 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({2.8 \times 10^{-10}}\)ceiling
 
 Hernquist · \({\beta_{\rm c} = 0.25}\) · Method I
-\({7.3 \times 10^{-9}}\)\({9.6 \times 10^{-13}}\)goal
-\({7.5 \times 10^{-9}}\)\({1.5 \times 10^{-12}}\)goal
-\({5.4 \times 10^{-8}}\)\({5.1 \times 10^{-12}}\)goal
+\({7.3 \times 10^{-9}}\)\({9.9 \times 10^{-13}}\)goal
+\({7.5 \times 10^{-9}}\)\({2.1 \times 10^{-12}}\)goal
+\({5.4 \times 10^{-8}}\)\({5.2 \times 10^{-12}}\)goal
 \({5.4 \times 10^{-8}}\)\({1.9 \times 10^{-11}}\)goal
-\({8.1 \times 10^{-7}}\)\({6.7 \times 10^{-11}}\)goal
+\({8.1 \times 10^{-7}}\)\({6.9 \times 10^{-11}}\)goal
 
 Hernquist · \({\beta_{\rm c} = 0.25}\) · Method II
-\({3.2 \times 10^{-8}}\)\({2.6 \times 10^{-9}}\)goal
-\({4.0 \times 10^{-8}}\)\({1.5 \times 10^{-9}}\)goal
+\({3.2 \times 10^{-8}}\)\({2.7 \times 10^{-9}}\)goal
+\({4.1 \times 10^{-8}}\)\({1.5 \times 10^{-9}}\)goal
 \({4.0 \times 10^{-8}}\)\({8.3 \times 10^{-10}}\)goal
 \({5.2 \times 10^{-8}}\)\({1.0 \times 10^{-9}}\)goal
-\({1.3 \times 10^{-6}}\)\({6.9 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({6.8 \times 10^{-10}}\)ceiling
 
 Hernquist · OM I \({R_{\rm a} = 10}\) · Method I
 \({1.1 \times 10^{-8}}\)\({1.6 \times 10^{-12}}\)ceiling
-\({1.0 \times 10^{-7}}\)\({1.8 \times 10^{-12}}\)ceiling
-\({1.0 \times 10^{-7}}\)\({6.0 \times 10^{-12}}\)ceiling
-\({1.0 \times 10^{-7}}\)\({2.3 \times 10^{-11}}\)ceiling
-\({1.0 \times 10^{-7}}\)\({9.5 \times 10^{-12}}\)ceiling
+\({1.0 \times 10^{-7}}\)\({2.5 \times 10^{-12}}\)ceiling
+\({1.0 \times 10^{-7}}\)\({6.1 \times 10^{-12}}\)ceiling
+\({1.0 \times 10^{-7}}\)\({2.4 \times 10^{-11}}\)ceiling
+refusedNO EDGE
 
 Hernquist · OM I \({R_{\rm a} = 10}\) · Method II
-\({2.1 \times 10^{-8}}\)\({7.2 \times 10^{-11}}\)goal
-\({1.0 \times 10^{-7}}\)\({1.6 \times 10^{-11}}\)goal
+\({2.1 \times 10^{-8}}\)\({8.0 \times 10^{-11}}\)goal
+\({1.0 \times 10^{-7}}\)\({2.4 \times 10^{-11}}\)goal
 \({1.0 \times 10^{-7}}\)\({1.1 \times 10^{-10}}\)goal
 \({1.0 \times 10^{-7}}\)\({3.1 \times 10^{-10}}\)goal
-\({1.3 \times 10^{-6}}\)\({2.8 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({2.9 \times 10^{-10}}\)ceiling
 
 Hernquist · OM II \({R_{\rm a} = 10}\) · Method I
-\({4.6 \times 10^{-7}}\)\({5.8 \times 10^{-11}}\)goal
-\({1.8 \times 10^{-7}}\)\({5.3 \times 10^{-11}}\)goal
-refusedDOMAIN†
-refusedDOMAIN†
-refusedDOMAIN†
+\({4.6 \times 10^{-7}}\)\({5.9 \times 10^{-11}}\)goal
+\({1.8 \times 10^{-7}}\)\({6.4 \times 10^{-11}}\)goal
+refusedDOMAIN
+refusedDOMAIN
+refusedDOMAIN
 
 Hernquist · OM II \({R_{\rm a} = 10}\) · Method II
 \({2.1 \times 10^{-8}}\)\({2.7 \times 10^{-10}}\)goal
-\({1.0 \times 10^{-7}}\)\({2.0 \times 10^{-10}}\)goal
+\({1.0 \times 10^{-7}}\)\({2.8 \times 10^{-10}}\)goal
 refusedInputError
 refusedInputError
 refusedInputError
 
 Hernquist · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method I
 \({1.6 \times 10^{-7}}\)\({3.7 \times 10^{-12}}\)goal
-\({1.5 \times 10^{-7}}\)\({3.6 \times 10^{-12}}\)goal
+\({1.6 \times 10^{-7}}\)\({3.8 \times 10^{-12}}\)goal
 \({1.5 \times 10^{-7}}\)\({1.3 \times 10^{-11}}\)goal
 \({1.5 \times 10^{-7}}\)\({2.9 \times 10^{-11}}\)goal
-\({1.5 \times 10^{-7}}\)\({2.4 \times 10^{-11}}\)goal
+refusedNO EDGE
 
 Hernquist · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method II
 \({3.3 \times 10^{-8}}\)\({1.8 \times 10^{-9}}\)goal
-\({1.6 \times 10^{-7}}\)\({1.5 \times 10^{-9}}\)goal
-\({1.7 \times 10^{-7}}\)\({1.1 \times 10^{-9}}\)goal
+\({1.7 \times 10^{-7}}\)\({1.4 \times 10^{-9}}\)goal
 \({1.7 \times 10^{-7}}\)\({1.2 \times 10^{-9}}\)goal
-\({1.3 \times 10^{-6}}\)\({9.8 \times 10^{-10}}\)goal
+\({1.7 \times 10^{-7}}\)\({1.1 \times 10^{-9}}\)goal
+\({1.3 \times 10^{-6}}\)\({9.9 \times 10^{-10}}\)ceiling
 
 cored (\({\gamma = 0, \beta = 4}\)) · isotropic · Method I
 \({2.2 \times 10^{-3}}\)\({4.3 \times 10^{-12}}\)warning
-\({1.8 \times 10^{-4}}\)\({4.9 \times 10^{-12}}\)warning
+\({1.8 \times 10^{-4}}\)\({5.7 \times 10^{-12}}\)warning
 \({5.2 \times 10^{-6}}\)\({1.2 \times 10^{-11}}\)ceiling
 \({9.2 \times 10^{-8}}\)\({3.2 \times 10^{-11}}\)goal
-\({1.3 \times 10^{-6}}\)\({7.5 \times 10^{-11}}\)goal
+\({1.3 \times 10^{-6}}\)\({7.5 \times 10^{-11}}\)ceiling
 
 cored (\({\gamma = 0, \beta = 4}\)) · isotropic · Method II
-\({2.2 \times 10^{-3}}\)\({1.7 \times 10^{-10}}\)warning†
-\({1.8 \times 10^{-4}}\)\({1.6 \times 10^{-10}}\)warning†
-\({5.2 \times 10^{-6}}\)\({1.6 \times 10^{-10}}\)ceiling†
-\({9.5 \times 10^{-8}}\)\({1.8 \times 10^{-10}}\)goal†
-\({1.3 \times 10^{-6}}\)\({1.5 \times 10^{-10}}\)goal†
+\({2.2 \times 10^{-3}}\)\({1.7 \times 10^{-10}}\)warning
+\({1.8 \times 10^{-4}}\)\({1.9 \times 10^{-10}}\)warning
+\({5.2 \times 10^{-6}}\)\({1.6 \times 10^{-10}}\)ceiling
+\({9.5 \times 10^{-8}}\)\({1.8 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({1.5 \times 10^{-10}}\)ceiling
 
 cored (\({\gamma = 0, \beta = 4}\)) · \({\beta_{\rm c} = -0.50}\) · Method I
 \({1.4 \times 10^{-3}}\)\({2.1 \times 10^{-11}}\)warning
-\({5.3 \times 10^{-5}}\)\({1.3 \times 10^{-11}}\)ceiling
+\({5.3 \times 10^{-5}}\)\({1.6 \times 10^{-11}}\)ceiling
 \({6.9 \times 10^{-7}}\)\({1.7 \times 10^{-11}}\)goal
 \({1.1 \times 10^{-7}}\)\({3.4 \times 10^{-11}}\)goal
-\({2.7 \times 10^{-6}}\)\({6.7 \times 10^{-11}}\)goal
+\({2.7 \times 10^{-6}}\)\({6.7 \times 10^{-11}}\)ceiling
 
 cored (\({\gamma = 0, \beta = 4}\)) · \({\beta_{\rm c} = -0.50}\) · Method II
-\({2.1 \times 10^{-3}}\)\({7.8 \times 10^{-9}}\)refused
-\({1.6 \times 10^{-4}}\)\({2.2 \times 10^{-9}}\)refused
+refusedAccuracyError
+refusedAccuracyError
 \({4.7 \times 10^{-6}}\)\({7.0 \times 10^{-10}}\)warning
 \({1.3 \times 10^{-7}}\)\({3.6 \times 10^{-10}}\)ceiling
-\({1.3 \times 10^{-6}}\)\({2.1 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({2.1 \times 10^{-10}}\)ceiling
 
 cored (\({\gamma = 0, \beta = 4}\)) · \({\beta_{\rm c} = 0.25}\) · Method I
 refusedCENTRAL VALIDITY
@@ -2531,32 +2565,32 @@ refusedCENTRAL VALIDITY
 refusedCENTRAL VALIDITY
 
 cored (\({\gamma = 0, \beta = 4}\)) · \({\beta_{\rm c} = 0.25}\) · Method II
-refusedUnphysicalModelError†
-refusedUnphysicalModelError†
-refusedUnphysicalModelError†
-refusedUnphysicalModelError†
-refusedUnphysicalModelError†
+refusedCENTRAL VALIDITY
+refusedCENTRAL VALIDITY
+refusedCENTRAL VALIDITY
+refusedCENTRAL VALIDITY
+refusedCENTRAL VALIDITY
 
 cored (\({\gamma = 0, \beta = 4}\)) · OM I \({R_{\rm a} = 10}\) · Method I
 \({2.3 \times 10^{-3}}\)\({4.2 \times 10^{-12}}\)warning
-\({2.2 \times 10^{-4}}\)\({5.0 \times 10^{-12}}\)warning
+\({2.2 \times 10^{-4}}\)\({5.9 \times 10^{-12}}\)warning
 \({2.9 \times 10^{-5}}\)\({9.3 \times 10^{-12}}\)ceiling
-\({1.1 \times 10^{-5}}\)\({8.3 \times 10^{-12}}\)ceiling
-\({5.1 \times 10^{-6}}\)\({9.7 \times 10^{-12}}\)ceiling
+refusedNO EDGE
+refusedNO EDGE
 
 cored (\({\gamma = 0, \beta = 4}\)) · OM I \({R_{\rm a} = 10}\) · Method II
 \({2.2 \times 10^{-3}}\)\({3.8 \times 10^{-10}}\)warning
-\({1.8 \times 10^{-4}}\)\({4.2 \times 10^{-10}}\)warning
+\({1.8 \times 10^{-4}}\)\({4.9 \times 10^{-10}}\)warning
 \({5.2 \times 10^{-6}}\)\({3.4 \times 10^{-10}}\)ceiling
 \({9.5 \times 10^{-8}}\)\({8.6 \times 10^{-10}}\)goal
-\({1.3 \times 10^{-6}}\)\({4.1 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({4.1 \times 10^{-10}}\)ceiling
 
 cored (\({\gamma = 0, \beta = 4}\)) · OM II \({R_{\rm a} = 10}\) · Method I
 \({2.2 \times 10^{-3}}\)\({1.0 \times 10^{-10}}\)warning
-refusedTYPE II EDGE†
-refusedDOMAIN†
-refusedDOMAIN†
-refusedDOMAIN†
+refusedTYPE II EDGE
+refusedDOMAIN
+refusedDOMAIN
+refusedDOMAIN
 
 cored (\({\gamma = 0, \beta = 4}\)) · OM II \({R_{\rm a} = 10}\) · Method II
 \({2.2 \times 10^{-3}}\)\({6.8 \times 10^{-10}}\)warning
@@ -2567,101 +2601,101 @@ refusedInputError
 
 cored (\({\gamma = 0, \beta = 4}\)) · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method I
 \({9.5 \times 10^{-3}}\)\({7.2 \times 10^{-12}}\)warning
-\({6.8 \times 10^{-4}}\)\({8.8 \times 10^{-12}}\)warning
-\({7.7 \times 10^{-5}}\)\({4.0 \times 10^{-11}}\)ceiling
-\({4.0 \times 10^{-5}}\)\({1.6 \times 10^{-10}}\)ceiling
-\({2.7 \times 10^{-5}}\)\({3.7 \times 10^{-10}}\)ceiling
+\({6.8 \times 10^{-4}}\)\({9.9 \times 10^{-12}}\)warning
+\({7.7 \times 10^{-5}}\)\({4.1 \times 10^{-11}}\)ceiling
+refusedNO EDGE
+refusedNO EDGE
 
 cored (\({\gamma = 0, \beta = 4}\)) · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method II
-\({2.4 \times 10^{-3}}\)\({4.2 \times 10^{-9}}\)refused
-\({1.9 \times 10^{-4}}\)\({1.5 \times 10^{-9}}\)warning
+refusedAccuracyError
+\({1.9 \times 10^{-4}}\)\({1.3 \times 10^{-9}}\)warning
 \({5.5 \times 10^{-6}}\)\({1.1 \times 10^{-9}}\)warning
 \({1.8 \times 10^{-7}}\)\({8.5 \times 10^{-10}}\)ceiling
-\({1.3 \times 10^{-6}}\)\({7.6 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({7.6 \times 10^{-10}}\)ceiling
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · isotropic · Method I
-refusedAccuracyError†
-\({3.0 \times 10^{-7}}\)\({2.3 \times 10^{-12}}\)goal
-\({3.0 \times 10^{-7}}\)\({7.5 \times 10^{-12}}\)goal
-\({3.0 \times 10^{-7}}\)\({2.6 \times 10^{-11}}\)goal
-\({1.3 \times 10^{-6}}\)\({7.8 \times 10^{-11}}\)goal
+\({9.3 \times 10^{-9}}\)\({4.0 \times 10^{-12}}\)goal
+\({3.0 \times 10^{-7}}\)\({2.5 \times 10^{-12}}\)goal
+\({3.0 \times 10^{-7}}\)\({8.2 \times 10^{-12}}\)goal
+\({3.0 \times 10^{-7}}\)\({2.7 \times 10^{-11}}\)goal
+\({1.3 \times 10^{-6}}\)\({8.1 \times 10^{-11}}\)ceiling
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · isotropic · Method II
-refusedAccuracyError†
-\({3.0 \times 10^{-7}}\)\({1.1 \times 10^{-10}}\)goal†
-\({3.0 \times 10^{-7}}\)\({1.0 \times 10^{-10}}\)goal†
-\({3.0 \times 10^{-7}}\)\({1.1 \times 10^{-10}}\)goal†
-\({1.3 \times 10^{-6}}\)\({1.5 \times 10^{-10}}\)goal†
+\({9.3 \times 10^{-9}}\)\({1.8 \times 10^{-10}}\)goal
+\({3.0 \times 10^{-7}}\)\({1.1 \times 10^{-10}}\)goal
+\({3.0 \times 10^{-7}}\)\({1.1 \times 10^{-10}}\)goal
+\({3.0 \times 10^{-7}}\)\({1.2 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({1.5 \times 10^{-10}}\)ceiling
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · \({\beta_{\rm c} = -0.50}\) · Method I
-\({5.0 \times 10^{-7}}\)\({2.7 \times 10^{-11}}\)ceiling
-\({4.9 \times 10^{-7}}\)\({8.4 \times 10^{-12}}\)ceiling
-\({4.9 \times 10^{-7}}\)\({1.4 \times 10^{-11}}\)goal
-\({4.9 \times 10^{-7}}\)\({3.5 \times 10^{-11}}\)goal
-\({2.7 \times 10^{-6}}\)\({8.3 \times 10^{-11}}\)goal
+\({5.1 \times 10^{-7}}\)\({2.9 \times 10^{-11}}\)goal
+\({4.9 \times 10^{-7}}\)\({9.3 \times 10^{-12}}\)ceiling
+\({4.9 \times 10^{-7}}\)\({1.5 \times 10^{-11}}\)goal
+\({4.9 \times 10^{-7}}\)\({3.6 \times 10^{-11}}\)goal
+\({2.7 \times 10^{-6}}\)\({8.5 \times 10^{-11}}\)ceiling
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · \({\beta_{\rm c} = -0.50}\) · Method II
-refusedAccuracyError†
-\({5.2 \times 10^{-7}}\)\({2.9 \times 10^{-9}}\)goal
+\({2.7 \times 10^{-8}}\)\({1.9 \times 10^{-9}}\)goal
+\({5.1 \times 10^{-7}}\)\({2.4 \times 10^{-9}}\)goal
 \({5.1 \times 10^{-7}}\)\({1.8 \times 10^{-9}}\)goal
-\({5.1 \times 10^{-7}}\)\({1.0 \times 10^{-9}}\)goal
-\({1.3 \times 10^{-6}}\)\({3.8 \times 10^{-10}}\)goal
+\({5.1 \times 10^{-7}}\)\({9.8 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({3.6 \times 10^{-10}}\)ceiling
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · \({\beta_{\rm c} = 0.25}\) · Method I
-refusedAccuracyError†
-\({2.2 \times 10^{-7}}\)\({2.0 \times 10^{-12}}\)goal
-\({2.0 \times 10^{-7}}\)\({6.9 \times 10^{-12}}\)goal
-\({2.0 \times 10^{-7}}\)\({2.7 \times 10^{-11}}\)goal
-\({8.1 \times 10^{-7}}\)\({8.9 \times 10^{-11}}\)goal
+\({8.3 \times 10^{-9}}\)\({3.3 \times 10^{-12}}\)goal
+\({2.1 \times 10^{-7}}\)\({2.2 \times 10^{-12}}\)goal
+\({2.0 \times 10^{-7}}\)\({7.6 \times 10^{-12}}\)goal
+\({2.0 \times 10^{-7}}\)\({2.8 \times 10^{-11}}\)goal
+\({8.1 \times 10^{-7}}\)\({9.2 \times 10^{-11}}\)goal
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · \({\beta_{\rm c} = 0.25}\) · Method II
-refusedAccuracyError†
+\({1.3 \times 10^{-8}}\)\({1.7 \times 10^{-9}}\)goal
 \({1.9 \times 10^{-7}}\)\({2.1 \times 10^{-9}}\)goal
 \({1.9 \times 10^{-7}}\)\({8.1 \times 10^{-10}}\)goal
-\({1.9 \times 10^{-7}}\)\({1.2 \times 10^{-9}}\)goal
-\({1.3 \times 10^{-6}}\)\({6.9 \times 10^{-10}}\)goal
+\({1.9 \times 10^{-7}}\)\({1.0 \times 10^{-9}}\)goal
+\({1.3 \times 10^{-6}}\)\({6.8 \times 10^{-10}}\)ceiling
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · OM I \({R_{\rm a} = 10}\) · Method I
-refusedAccuracyError†
-\({3.0 \times 10^{-7}}\)\({2.3 \times 10^{-12}}\)goal
-\({3.0 \times 10^{-7}}\)\({7.7 \times 10^{-12}}\)goal
-\({3.0 \times 10^{-7}}\)\({2.4 \times 10^{-11}}\)goal
-\({3.0 \times 10^{-7}}\)\({6.9 \times 10^{-12}}\)goal
+\({9.3 \times 10^{-9}}\)\({4.1 \times 10^{-12}}\)goal
+\({3.0 \times 10^{-7}}\)\({2.6 \times 10^{-12}}\)goal
+\({3.0 \times 10^{-7}}\)\({8.4 \times 10^{-12}}\)goal
+\({3.0 \times 10^{-7}}\)\({2.5 \times 10^{-11}}\)goal
+refusedNO EDGE
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · OM I \({R_{\rm a} = 10}\) · Method II
-refusedAccuracyError†
-\({3.0 \times 10^{-7}}\)\({9.7 \times 10^{-11}}\)goal
+\({9.3 \times 10^{-9}}\)\({1.9 \times 10^{-10}}\)goal
+\({3.0 \times 10^{-7}}\)\({1.0 \times 10^{-10}}\)goal
 \({3.0 \times 10^{-7}}\)\({1.2 \times 10^{-10}}\)goal
 \({3.0 \times 10^{-7}}\)\({2.0 \times 10^{-10}}\)goal
-\({1.3 \times 10^{-6}}\)\({2.4 \times 10^{-10}}\)goal
+\({1.3 \times 10^{-6}}\)\({2.5 \times 10^{-10}}\)ceiling
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · OM II \({R_{\rm a} = 10}\) · Method I
-refusedAccuracyError†
-\({1.2 \times 10^{-7}}\)\({5.1 \times 10^{-11}}\)goal
-refusedTYPE II EDGE†
-refusedDOMAIN†
-refusedDOMAIN†
+\({4.6 \times 10^{-7}}\)\({6.3 \times 10^{-11}}\)goal
+\({1.2 \times 10^{-7}}\)\({5.4 \times 10^{-11}}\)goal
+refusedTYPE II EDGE
+refusedDOMAIN
+refusedDOMAIN
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · OM II \({R_{\rm a} = 10}\) · Method II
-refusedAccuracyError†
-\({3.0 \times 10^{-7}}\)\({2.8 \times 10^{-10}}\)goal
+\({9.3 \times 10^{-9}}\)\({3.4 \times 10^{-10}}\)goal
+\({3.0 \times 10^{-7}}\)\({2.7 \times 10^{-10}}\)goal
 refusedInputError
 refusedInputError
 refusedInputError
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method I
-refusedAccuracyError†
-\({4.0 \times 10^{-7}}\)\({2.8 \times 10^{-12}}\)goal
-\({4.0 \times 10^{-7}}\)\({8.7 \times 10^{-12}}\)goal
-\({4.0 \times 10^{-7}}\)\({2.7 \times 10^{-11}}\)goal
-\({4.0 \times 10^{-7}}\)\({9.8 \times 10^{-12}}\)goal
+\({4.2 \times 10^{-7}}\)\({5.4 \times 10^{-12}}\)goal
+\({4.0 \times 10^{-7}}\)\({2.9 \times 10^{-12}}\)goal
+\({4.0 \times 10^{-7}}\)\({9.4 \times 10^{-12}}\)goal
+\({4.0 \times 10^{-7}}\)\({2.9 \times 10^{-11}}\)goal
+refusedNO EDGE
 
 steep (\({\gamma = 1.5, \beta = 4}\)) · COM I \({(\beta_{\rm c}, R_{\rm a}) = (-0.25, 10)}\) · Method II
-refusedAccuracyError†
-\({4.1 \times 10^{-7}}\)\({2.1 \times 10^{-9}}\)goal
+\({2.0 \times 10^{-8}}\)\({1.9 \times 10^{-9}}\)goal
+\({4.1 \times 10^{-7}}\)\({1.9 \times 10^{-9}}\)goal
 \({4.1 \times 10^{-7}}\)\({1.5 \times 10^{-9}}\)goal
-\({4.1 \times 10^{-7}}\)\({1.2 \times 10^{-9}}\)goal
-\({1.3 \times 10^{-6}}\)\({5.2 \times 10^{-10}}\)goal
+\({4.1 \times 10^{-7}}\)\({1.0 \times 10^{-9}}\)goal
+\({1.3 \times 10^{-6}}\)\({5.1 \times 10^{-10}}\)ceiling
 
 ### Table 4. Edges
 
@@ -2681,8 +2715,8 @@ OM I \({R_{\rm a} = 0.3}\) \({\mathcal{K}_{\rm t} = 0.01}\)
 \({3.7 \times 10^{-9}}\)\({3.0 \times 10^{-13}}\)goal
 \({5.6 \times 10^{-9}}\)\({1.2 \times 10^{-13}}\)goal
 excluded
-refusedD13†
-\({1.9 \times 10^{-9}}\)\({6.3 \times 10^{-14}}\)goal
+refusedUnphysicalModelError
+\({2.1 \times 10^{-4}}\)\({1.7 \times 10^{-11}}\)warning
 
 \({(\gamma, \beta) = (0.5, 4)}\)
 \({1.2 \times 10^{-11}}\)\({1.9 \times 10^{-12}}\)goal
@@ -2690,8 +2724,8 @@ refusedD13†
 \({1.9 \times 10^{-10}}\)\({3.0 \times 10^{-13}}\)goal
 \({1.6 \times 10^{-10}}\)\({9.7 \times 10^{-14}}\)goal
 excluded
-refusedD13†
-\({7.8 \times 10^{-11}}\)\({5.0 \times 10^{-14}}\)goal
+refusedUnphysicalModelError
+\({1.0 \times 10^{-7}}\)\({1.1 \times 10^{-11}}\)goal
 
 \({(\gamma, \beta) = (1, 4)}\)
 \({1.0 \times 10^{-14}}\)\({2.8 \times 10^{-15}}\)goal
@@ -2699,8 +2733,8 @@ refusedD13†
 \({1.9 \times 10^{-10}}\)\({2.7 \times 10^{-13}}\)ceiling
 \({1.3 \times 10^{-10}}\)\({7.7 \times 10^{-14}}\)goal
 excluded
-refusedUnphysicalModelError†
-\({7.2 \times 10^{-11}}\)\({3.9 \times 10^{-14}}\)goal
+refusedUnphysicalModelError
+\({2.0 \times 10^{-7}}\)\({7.0 \times 10^{-12}}\)ceiling
 
 \({(\gamma, \beta) = (1.5, 4)}\)
 \({1.5 \times 10^{-11}}\)\({1.9 \times 10^{-13}}\)goal
@@ -2708,8 +2742,8 @@ refusedUnphysicalModelError†
 \({3.3 \times 10^{-10}}\)\({2.4 \times 10^{-13}}\)goal
 \({2.4 \times 10^{-10}}\)\({7.5 \times 10^{-14}}\)goal
 \({1.5 \times 10^{-11}}\)\({1.9 \times 10^{-13}}\)goal
-refusedUnphysicalModelError†
-\({1.3 \times 10^{-10}}\)\({4.3 \times 10^{-14}}\)goal
+refusedUnphysicalModelError
+\({4.9 \times 10^{-7}}\)\({1.3 \times 10^{-11}}\)ceiling
 
 \({(\gamma, \beta) = (1.9, 4)}\)
 \({3.8 \times 10^{-10}}\)\({2.1 \times 10^{-11}}\)goal
@@ -2717,26 +2751,26 @@ refusedUnphysicalModelError†
 \({2.3 \times 10^{-11}}\)\({2.2 \times 10^{-13}}\)goal
 \({3.9 \times 10^{-12}}\)\({1.1 \times 10^{-13}}\)goal
 \({3.0 \times 10^{-10}}\)\({1.6 \times 10^{-13}}\)ceiling
-refusedUnphysicalModelError†
-refusedValueError†
+refusedUnphysicalModelError
+refusedAccuracyError
 
 \({(\gamma, \beta) = (1.99, 4)}\)
-refusedInputError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedInputError†
-refusedResultError†
-refusedResultError†
+refusedCENTRAL SERIES
+\({6.5 \times 10^{-10}}\)\({8.3 \times 10^{-12}}\)goal
+\({2.8 \times 10^{-10}}\)\({8.8 \times 10^{-12}}\)goal
+\({5.7 \times 10^{-11}}\)\({1.7 \times 10^{-12}}\)ceiling
+\({8.9 \times 10^{-10}}\)\({1.9 \times 10^{-12}}\)ceiling
+refusedInputError
+refusedInputError
 
 Plummer (\({\alpha = 2, \beta = 5, \gamma = 0}\))
-\({1.1 \times 10^{-12}}\)\({9.3 \times 10^{-15}}\)goal
+\({1.1 \times 10^{-12}}\)\({9.4 \times 10^{-15}}\)goal
 \({1.5 \times 10^{-10}}\)\({1.2 \times 10^{-13}}\)goal
 \({3.1 \times 10^{-10}}\)\({2.4 \times 10^{-13}}\)goal
 \({7.9 \times 10^{-11}}\)\({3.1 \times 10^{-14}}\)goal
 excluded
-refusedCENTRAL SIGN†
-\({4.2 \times 10^{-11}}\)\({1.4 \times 10^{-14}}\)goal
+refusedCENTRAL SIGN
+\({9.7 \times 10^{-3}}\)\({2.2 \times 10^{-11}}\)warning
 
 \({(\gamma, \beta) = (2, 4)}\)
 refusedInputError
@@ -2748,22 +2782,24 @@ refusedInputError
 refusedInputError
 
 \({(\gamma, \beta) = (1, 2.5)}\)
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
-refusedResultError†
+refusedOUTER SLOPE
+refusedOUTER SLOPE
+refusedOUTER SLOPE
+refusedOUTER SLOPE
+refusedOUTER SLOPE
+refusedOUTER SLOPE
+refusedOUTER SLOPE
 
 
 ---
 
-# Velocity anisotropy (pianistpy.anisotropy)
+# Velocity anisotropy
 
 Source: https://pianistpy.com/docs/reference/api/anisotropy
 
-# Velocity anisotropy (pianistpy.anisotropy)
+# Velocity anisotropy
+
+Module pianistpy.anisotropy
 
 Velocity anisotropy models.
 
@@ -2840,7 +2876,7 @@ InputError – For a Type II model at a radius at or beyond \(R_{\rm a}\),
 
 References
 
-Paper Eq. (B43) [eqn:linearity_beta_1].
+Chiang+(2026d), Eq. (B43) [eqn:linearity_beta_1].
 
 property model: str
 
@@ -2848,7 +2884,7 @@ isotropic, constant, om or com.
 
 Type:
 
-Label of the model in the paper
+Label of the model in Chiang+(2026d)
 
 property domain_edge: float
 
@@ -2881,11 +2917,13 @@ Anisotropy
 
 ---
 
-# Distribution functions and models (pianistpy.df)
+# Distribution functions and models
 
 Source: https://pianistpy.com/docs/reference/api/df
 
-# Distribution functions and models (pianistpy.df)
+# Distribution functions and models
+
+Module pianistpy.df
 
 Distribution functions and equilibrium models.
 
@@ -2897,7 +2935,7 @@ A model is a sequence of components that share one total potential. A
 single component is a sequence of length one.
 
 Given the truncated profile of another model (parent.profile) in
-place of an analytic profile, the component is Method II of the paper:
+place of an analytic profile, the component is Method II of Chiang+(2026d):
 the density of the parent in the parent’s potential, with a new
 anisotropy. It is refused here where no distribution function exists
 for that anisotropy at the edge of the density.
@@ -3263,7 +3301,7 @@ class pianistpy.df.Truncation(k_t=None, mass_t=None, r_t=None, concentration=Non
 
 How the distribution function of a model is truncated.
 
-This is Method I of the paper. Method II needs no truncation: it is a
+This is Method I of Chiang+(2026d). Method II needs no truncation: it is a
 component whose profile is the truncated profile of another model, given
 a new anisotropy.
 
@@ -3388,7 +3426,9 @@ UnphysicalModelError – If no valid equilibrium exists for the request. The exc
 InputError – If the DF comes from a function (DistributionFunction.from_function):
     it carries no inversion rows, which truncation needs.
 
-## Gradients (pianistpy.df.gradient)
+## Gradients
+
+Module pianistpy.df.gradient
 
 The distribution function’s rows and table as JAX functions of the anisotropy parameters, and their Jacobians
 (End-to-end differentiability).
@@ -3591,11 +3631,13 @@ tuple[dict[str, ndarray], dict[str, dict[str, ndarray]], dict[str, Any]]
 
 ---
 
-# Exceptions (pianistpy.exceptions)
+# Exceptions
 
 Source: https://pianistpy.com/docs/reference/api/exceptions
 
-# Exceptions (pianistpy.exceptions)
+# Exceptions
+
+Module pianistpy.exceptions
 
 Exceptions and warnings raised by PIANISTpy.
 
@@ -3708,48 +3750,50 @@ Source: https://pianistpy.com/docs/reference/api/
 # Functions by subpackage
 
 Docstrings cite two documents. An equation of Chiang+(2026d) is cited by its own label in that paper,
-for example “Chiang et al. (2026d), Eq. (B9)”. An equation, section or table of the technical notes is cited by its number, which carries the prefix “T:”, together with a fixed key in brackets, for
+for example “Chiang+(2026d), Eq. (B9)”. An equation, section or table of the technical notes is cited by its number, which carries the prefix “T:”, together with a fixed key in brackets, for
 example “Eq. (T:2.4) [conditions]”, “Section T:2.3.1 [df-form]” or “Table T:2.1 [critical]”; the key is the
 item’s label and does not change when the notes are revised and a number moves.
 
-The package (pianistpy)
+The package
 
-Density profiles (pianistpy.profiles)
+Density profiles
 
-Velocity anisotropy (pianistpy.anisotropy)
+Velocity anisotropy
 
-Distribution functions and models (pianistpy.df)
+Distribution functions and models
 
-Particles (pianistpy.particles)
+Particles
 
-Observables (pianistpy.observables)
+Observables
 
-Superposition (pianistpy.superposition)
+Superposition
 
-Inference (pianistpy.inference)
+Inference
 
-Units (pianistpy.units)
+Units
 
-Results and files (pianistpy.io)
+Results and files
 
-Settings (pianistpy.settings)
+Settings
 
-Validation (pianistpy.validation)
+Validation
 
-Exceptions (pianistpy.exceptions)
+Exceptions
 
-Runtime options (pianistpy.runtime)
+Runtime options
 
-Numerics (pianistpy.numerics)
+Numerics
 
 
 ---
 
-# Inference (pianistpy.inference)
+# Inference
 
 Source: https://pianistpy.com/docs/reference/api/inference
 
-# Inference (pianistpy.inference)
+# Inference
+
+Module pianistpy.inference
 
 The log-likelihood of a model against data.
 
@@ -3973,11 +4017,13 @@ The value of likelihood at the model’s own weights and scales.
 
 ---
 
-# Results and files (pianistpy.io)
+# Results and files
 
 Source: https://pianistpy.com/docs/reference/api/io
 
-# Results and files (pianistpy.io)
+# Results and files
+
+Module pianistpy.io
 
 Reading and writing results.
 
@@ -4185,11 +4231,13 @@ None
 
 ---
 
-# Numerics (pianistpy.numerics)
+# Numerics
 
 Source: https://pianistpy.com/docs/reference/api/numerics
 
-# Numerics (pianistpy.numerics)
+# Numerics
+
+Module pianistpy.numerics
 
 Shared numerical leaves: quadrature, interpolation and special functions.
 
@@ -4328,11 +4376,13 @@ Examples
 
 ---
 
-# Observables (pianistpy.observables)
+# Observables
 
 Source: https://pianistpy.com/docs/reference/api/observables
 
-# Observables (pianistpy.observables)
+# Observables
+
+Module pianistpy.observables
 
 Observables: dispersions, line-of-sight velocity distributions and apertures.
 
@@ -5000,7 +5050,7 @@ p_k / \sum_k w_k \varrho_k\).
 
 References
 
-Paper, Sect. 5.1 and [eqn:rho_f_anisotropic_scale].
+Chiang+(2026d), Sect. 5.1 and [eqn:rho_f_anisotropic_scale].
 
 pianistpy.observables.sigma_los_aperture(source, aperture)
 
@@ -5124,7 +5174,9 @@ Notes
 Read as sigma_r is; of a superposition, \(\sigma_{\rm t}^2 =
 \sum_k w_k \sigma_{{\rm t},k}^2\).
 
-## The speed distribution’s stage (pianistpy.observables.stages)
+## The speed distribution’s stage
+
+Module pianistpy.observables.stages
 
 The stage behind pianistpy.observables.pdf_v(), at one radius, with its record (Local speed distribution).
 
@@ -5191,18 +5243,20 @@ SPEED_KINK_GAP of it are left out of that check.
 
 References
 
-Paper [eqn:rho_f_anisotropic_scale], [eqn:varphi_prob], [eqn:V_prob].
+Chiang+(2026d) [eqn:rho_f_anisotropic_scale], [eqn:varphi_prob], [eqn:V_prob].
 
      On this page
 
 
 ---
 
-# Particles (pianistpy.particles)
+# Particles
 
 Source: https://pianistpy.com/docs/reference/api/particles
 
-# Particles (pianistpy.particles)
+# Particles
+
+Module pianistpy.particles
 
 Particle sampling: the prepared sampler and the particle result.
 
@@ -5458,11 +5512,13 @@ None
 
 ---
 
-# The package (pianistpy)
+# The package
 
 Source: https://pianistpy.com/docs/reference/api/pianistpy
 
-# The package (pianistpy)
+# The package
+
+Package pianistpy
 
 PIANISTpy: equilibrium models of anisotropic spherical systems.
 
@@ -5472,11 +5528,13 @@ pages.
 
 ---
 
-# Density profiles (pianistpy.profiles)
+# Density profiles
 
 Source: https://pianistpy.com/docs/reference/api/profiles
 
-# Density profiles (pianistpy.profiles)
+# Density profiles
+
+Module pianistpy.profiles
 
 Density profiles.
 
@@ -5513,7 +5571,7 @@ the general incomplete-Beta form.
 
 References
 
-Chiang et al. (2026d), Appendix A (labels eqn:double_power_law_MT,
+Chiang+(2026d), Appendix A (labels eqn:double_power_law_MT,
 eqn:double_power_law_mass, app:P_beta).
 
 Examples
@@ -5732,7 +5790,7 @@ The self-consistent profile of a truncated model.
 
 It is the profile of a model, and it can be the profile of a component
 of another model: a component given the truncated profile of a parent
-model and a new anisotropy is Method II of the paper.
+model and a new anisotropy is Method II of Chiang+(2026d).
 
 Two profiles are equal where they belong to the same model: the identity
 of a model determines its profile.
@@ -5983,11 +6041,13 @@ dict[str, Any]
 
 ---
 
-# Runtime options (pianistpy.runtime)
+# Runtime options
 
 Source: https://pianistpy.com/docs/reference/api/runtime
 
-# Runtime options (pianistpy.runtime)
+# Runtime options
+
+Module pianistpy.runtime
 
 Runtime options of the session: verbosity, timing and workers.
 
@@ -6290,11 +6350,13 @@ bool
 
 ---
 
-# Settings (pianistpy.settings)
+# Settings
 
 Source: https://pianistpy.com/docs/reference/api/settings
 
-# Settings (pianistpy.settings)
+# Settings
+
+Module pianistpy.settings
 
 Numerical settings: the tested tiers and expert overrides.
 
@@ -6476,11 +6538,13 @@ Settings
 
 ---
 
-# Superposition (pianistpy.superposition)
+# Superposition
 
 Source: https://pianistpy.com/docs/reference/api/superposition
 
-# Superposition (pianistpy.superposition)
+# Superposition
+
+Module pianistpy.superposition
 
 Linear superposition of models that share one density.
 
@@ -6544,7 +6608,7 @@ so the moments of the mixture are the weighted sums
 
 References
 
-Paper Eqs. (B42), (B43) [eqn:linearity_2, eqn:linearity_beta_1] and
+Chiang+(2026d), Eqs. (B42), (B43) [eqn:linearity_2, eqn:linearity_beta_1] and
 eqn:beta_sigma_sup.
 
 pianistpy.superposition.superpose(members)
@@ -6582,11 +6646,13 @@ InputError – If fewer than two members are given, a weight is not positive and
 
 ---
 
-# Units (pianistpy.units)
+# Units
 
 Source: https://pianistpy.com/docs/reference/api/units
 
-# Units (pianistpy.units)
+# Units
+
+Module pianistpy.units
 
 Conversion from internal units to model and physical units.
 
@@ -6777,7 +6843,7 @@ density by \((4\pi C q)^{-1}\) to reach the model units.
 
 References
 
-Chiang et al. (2026d), Section on units (labels ssec:Units, eqn:M_nor_1).
+Chiang+(2026d), Section on units (labels ssec:Units, eqn:M_nor_1).
 
 Examples
 
@@ -6795,11 +6861,13 @@ True
 
 ---
 
-# Validation (pianistpy.validation)
+# Validation
 
 Source: https://pianistpy.com/docs/reference/api/validation
 
-# Validation (pianistpy.validation)
+# Validation
+
+Module pianistpy.validation
 
 Accuracy tiers and the validation report of a result.
 
@@ -6995,7 +7063,7 @@ Source: https://pianistpy.com/docs/reference/notes
 
 This technical document details the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in the initial code release paper of Chiang, van den Bosch and Schive (2026d), cited throughout as Chiang+(2026d). Here, we follow and routinely refer to the notations, equations, and results of that paper. This document is organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. Section T:0 states the conventions and notations used; we then discuss the input potential-density models (Section T:1), the distribution function (Section T:2), the truncation (Section T:3), the linear superposition of components (Section T:4), the particle sampling (Section T:5), the velocity profiles and projections (Section T:6), and the JAX-based gradients (Section T:7). Section T:8 documents the accuracy and validation tests and related information.
 
-This is version 7 of the notes. Their numbers carry the prefix T: (sections T:2.3, equations (T:2.4), tables T:2.1); the package’s docstrings cite them in the form the API reference states. The notes are also published as a PDF with each release; the link is added with the 1.0.0 release.
+This is version 7 of the notes. Their numbers carry the prefix T: (sections T:2.3, equations (T:2.4), tables T:2.1); the package’s docstrings cite them in the form the API reference states. The notes are also published as a PDF with each release; the link is added with ver. 1.0.0.
 
 T:0 Principles and conventions
 T:0.1 Notation
@@ -8179,7 +8247,7 @@ For Type II models, \(\varrho_\mathrm{aux} \propto w^{1-\beta_\mathrm{c}}\) as 
   \frac{\mathrm{d}^m\varrho_\mathrm{aux}}{\mathrm{d} P^m} \propto |P - P(R_\mathrm{a})|^{\,1-\beta_\mathrm{c}-m} = |P - P(R_\mathrm{a})|^{\,n - 1/2},
   \tag{T:2.15}
 \end{equation}
-which diverges at \(P(R_\mathrm{a})\) for \(n < 1/2\). The divergence is approached from inside \(R_\mathrm{a}\) and does not depend on how \(\varrho_\mathrm{aux}\) is continued beyond it (Section T:3.1). For OM Type II, \(n = 1/2\) and the factor is a polynomial, so the conditions of Eq. (T:2.1) hold. A truncated model with \(R_\mathrm{t} \leq R_\mathrm{a}\) does not contain the point at all.
+which diverges at \(P(R_\mathrm{a})\) for \(n < 1/2\). The divergence is approached from inside \(R_\mathrm{a}\) and does not depend on how \(\varrho_\mathrm{aux}\) is continued beyond it (Section T:3.1). For OM Type II, \(n = 1/2\) and the factor is a polynomial, so the conditions of Eq. (T:2.1) hold. A truncated model with \(R_\mathrm{t} \leq {R_\mathrm{a}}\) does not contain the point at all.
 
 ## T:2.3 The form of every row
 
@@ -8213,7 +8281,7 @@ The table of \(\varrho_\mathrm{aux}\) and its derivatives starts at a floor \(q_
   \frac{\mathrm{d}}{\mathrm{d}\mathcal{K}}\int_0^{\mathcal{K}}\frac{\varrho_\mathrm{aux}^{(j)}(P)}{(\mathcal{K}-P)^{n}}\,\mathrm{d} P = \int_{q_0}^{\mathcal{K}}\frac{\varrho_\mathrm{aux}^{(j+1)}(P)}{(\mathcal{K}-P)^{n}}\,\mathrm{d} P + \frac{\varrho_\mathrm{aux}^{(j)}(q_0)}{(\mathcal{K}-q_0)^{n}} - n\int_0^{q_0}\frac{\varrho_\mathrm{aux}^{(j)}(P)}{(\mathcal{K}-P)^{n+1}}\,\mathrm{d} P ,
   \tag{T:2.17}
 \end{equation}
-where \(\varrho_\mathrm{aux}^{(j)} \equiv \mathrm{d}^j\varrho_\mathrm{aux}/\mathrm{d} P^j\). The first two terms need only the table. The third term is the contribution of the stretch below the floor. In Method I it is evaluated from the exact derivatives of Section T:1.2.1 on Gauss-Legendre nodes in \(\ln P\), down to a lower limit far below \(q_0\), so that the floor of the table is not the floor of the model; in Method II it is the closed form of Section T:2.6. The default floor is \(q_0 = 10^{-10}\) in units of the central potential, and untruncated DF tables are written from \(2\,q_0\) upward.
+where \(\varrho_\mathrm{aux}^{(j)} \equiv {\mathrm{d}}^j\varrho_\mathrm{aux}/\mathrm{d} P^j\). The first two terms need only the table. The third term is the contribution of the stretch below the floor. In Method I it is evaluated from the exact derivatives of Section T:1.2.1 on Gauss-Legendre nodes in \(\ln P\), down to a lower limit far below \(q_0\), so that the floor of the table is not the floor of the model; in Method II it is the closed form of Section T:2.6. The default floor is \(q_0 = 10^{-10}\) in units of the central potential, and untruncated DF tables are written from \(2\,q_0\) upward.
 
 ### T:2.3.3 The general form on a split
 
@@ -8265,7 +8333,7 @@ Two cases depart from Eq. (T:2.21). Where the leading power is positive and the 
 
 Where the rows end below the gap (Section T:2.5.1), the node at which the form takes over is called the anchor. The regular part is then a fit \(B + D u\) to the rows below the anchor, over a window that widens until the three-term and the four-term fits agree in amplitude to one tenth of the goal; the singular exponent is never fitted. A band of rows at the top that is not positive is excluded only where the form holds there, as judged by the local slope \(\mathrm{d}\ln F/\mathrm{d}\ln u\) against \(\kappa\).
 
-A truncated Method I model has \(\hat{F}_\mathcal{K}(\hat\mathcal{K}) = F_\mathcal{K}(\hat\mathcal{K} + \mathcal{K}_\mathrm{t}) - F_\mathcal{K}(\mathcal{K}_\mathrm{t})\), which differs from the untruncated DF by a constant. Its singular terms and their coefficients are those of the untruncated model, with \(u\) measured from the truncated central potential.
+A truncated Method I model has \(\hat{F}_\mathcal{K}(\hat{\mathcal{K}}) = F_\mathcal{K}(\hat{\mathcal{K}} + \mathcal{K}_\mathrm{t}) - F_\mathcal{K}(\mathcal{K}_\mathrm{t})\), which differs from the untruncated DF by a constant. Its singular terms and their coefficients are those of the untruncated model, with \(u\) measured from the truncated central potential.
 
 The stored form is tested against the table that it continues. Across the top decade of the table, \(u_{\rm top} \leq u \leq 10\,u_{\rm top}\), the table less its singular terms may change only by the variation of the analytic part. A change above the accuracy goal is reported with the product; a change above the hard limit means that the stored form belongs to a different model, and the product is refused.
 
@@ -8275,7 +8343,7 @@ Below its first energy, the DF follows a stated rule that is recorded with the t
 
 ### T:2.5.4 The lookup
 
-Inside the table, the base-10 logarithm of the DF is the cubic Hermite interpolant in \(\ln\mathcal{K}\) through the nodes with the exact slope column. Where a table carries no exact slopes (a DF from a function, Section T:2.7), the slopes are those of the not-a-knot spline through the nodes. The lookup has two entry points, by the energy and by the depth \(u = P_0 - \mathcal{K}\), and a caller asks by whichever argument it holds exactly. For example, a speed draw near the top holds the depth \(u = (P_0 - \Psi) + \Psi x^2\) exactly, whereas the energy \(\Psi(1 - x^2)\) formed in doubles loses it. In the entry by \(u\), the cell position is formed from \(u_i - u\) with \(u_i = P_0 - \mathcal{K}_i\), which is exact for \(\mathcal{K}_i \geq P_0/2\), and the form above the table is read at \(u\) itself. The nodes and every number of the forms are arrays, so that under JAX the table is a traced argument, and two tables with the same node bucket and the same kinds of forms share one compiled function.
+Inside the table, the base-10 logarithm of the DF is the cubic Hermite interpolant in \(\ln{\mathcal{K}}\) through the nodes with the exact slope column. Where a table carries no exact slopes (a DF from a function, Section T:2.7), the slopes are those of the not-a-knot spline through the nodes. The lookup has two entry points, by the energy and by the depth \(u = P_0 - \mathcal{K}\), and a caller asks by whichever argument it holds exactly. For example, a speed draw near the top holds the depth \(u = (P_0 - \Psi) + \Psi x^2\) exactly, whereas the energy \(\Psi(1 - x^2)\) formed in doubles loses it. In the entry by \(u\), the cell position is formed from \(u_i - u\) with \(u_i = P_0 - \mathcal{K}_i\), which is exact for \(\mathcal{K}_i \geq P_0/2\), and the form above the table is read at \(u\) itself. The nodes and every number of the forms are arrays, so that under JAX the table is a traced argument, and two tables with the same node bucket and the same kinds of forms share one compiled function.
 
 ### T:2.5.5 What a table states about itself
 
@@ -8331,7 +8399,7 @@ Source: https://pianistpy.com/docs/reference/technical-notes/gradients
 The rows of the inversion are \(F = T_b[g](q)\) on a fixed grid \(q\), where \(T_b\) is the operator of Section T:2.3 with its completion below the floor, applied to the source \(g\), namely the rows of \(\mathrm{d}^N\varrho_\mathrm{aux}/\mathrm{d} P^N\). At a fixed central anisotropy \(b = \beta_\mathrm{c}\), the operator is linear in its source, so that
 
 \begin{equation}
-  \frac{\partial F}{\partial R_\mathrm{a}} = T_b\!\left[\partial_{R_\mathrm{a}} g\right], \qquad \frac{\partial F}{\partial \beta_\mathrm{c}} = T_b\!\left[\partial_{b}\, g\right] + E_b[g] ,
+  \frac{\partial F}{\partial {R_\mathrm{a}}} = T_b\!\left[\partial_{R_\mathrm{a}} g\right], \qquad \frac{\partial F}{\partial {\beta_\mathrm{c}}} = T_b\!\left[\partial_{b}\, g\right] + E_b[g] ,
   \tag{T:7.1}
 \end{equation}
 where \(\partial_\theta g\) denotes the mixed derivatives at fixed \(P\), formed symbolically in the same way as the derivatives of Section T:1.2.1, and \(E_b\) is the derivative of the operator itself with respect to \(b\) at fixed \(g\), through its prefactor and the exponent of its kernel. \(E_b\) has no closed form and is taken from the values of the operator at nearby \(b\): a central Richardson quotient over a step and its half inside the region of one form, or the one-sided third-order combinations of both sides and their mean at a corner where the form changes on one side (half-integer \(\beta_\mathrm{c}\), or the switch of the pair). The step balances the measured accuracy of the kernel against the truncation term of the quotient. The record states the Richardson residual of the quotient and, at a corner, the spread between its two sides, both relative to the scale of the column, and the residual is read in the tiers of Section T:0.5.
@@ -8394,7 +8462,7 @@ The inversion requires \(\mathrm{d}^j\varrho_\mathrm{aux}/\mathrm{d} P^j\) up to
 \end{equation}
 with the closed-form enclosed mass \(M(R)\) of Chiang+(2026d), Eq. (A7), is applied symbolically to the closed-form auxiliary density \(\varrho_\mathrm{aux}(R) = \varrho(R)\,h(R)\), where \(h = R^{2\beta_\mathrm{c}}(1 \pm R^2/R_\mathrm{a}^2)^{s}\) is the inverse of the anisotropy factor (\(s = 1\) for OM, \(s = 1 - \beta_\mathrm{c}\) for COM, and \(s = 0\) otherwise). The result is evaluated at \(R(P)\), which we obtain by bisection in \(\ln R\) on the monotonic \(P(R)\) and, near the center, on the subtraction-free depth. The potential \(P(R)\) itself never enters in closed form. A single expression of \(h\) serves every occurrence of the factor in the package: the Method I sources, the Method II sources, the edge law, the density of the Poisson solve, and the parameter derivatives of Section T:7. In Method II the input is a tabulated pair, and the derivatives are integrals of the parent’s DF (Section T:2.6).
 
-Our first design for the tabulated case was a spline of \(\ln\varrho_\mathrm{aux}\) in \(P\) with knots placed by the equidistribution principle (de Boor 1978). Its derivatives of second and higher order carried the conditioning of the spline, which grows as the square of the ratio of its largest to its smallest knot spacing, into the inversion. The exact and integral forms replaced it.
+Our first design for the tabulated case was a spline of \(\ln{\varrho_\mathrm{aux}}\) in \(P\) with knots placed by the equidistribution principle (de Boor 1978). Its derivatives of second and higher order carried the conditioning of the spline, which grows as the square of the ratio of its largest to its smallest knot spacing, into the inversion. The exact and integral forms replaced it.
 
 ### T:1.2.2 The inner series and where it is trusted
 
@@ -8676,7 +8744,7 @@ The two truncation methods are defined in Chiang+(2026d), Section 3.1.
 
 ## T:3.1 Type II models beyond the anisotropy radius
 
-The model is not defined for \(R > R_\mathrm{a}\). In the Type II variable \(Q_+\), the tangential velocity enters with the factor \(1 - R^2/R_\mathrm{a}^2\). For \(R > R_\mathrm{a}\) this factor is negative, the velocity integral diverges, and no DF of this form yields a density. An untruncated profile that extends beyond \(R_\mathrm{a}\) therefore has no Type II DF, whereas a truncated model with \(R_\mathrm{t} \leq R_\mathrm{a}\) is well defined.
+The model is not defined for \(R > R_\mathrm{a}\). In the Type II variable \(Q_+\), the tangential velocity enters with the factor \(1 - R^2/R_\mathrm{a}^2\). For \(R > R_\mathrm{a}\) this factor is negative, the velocity integral diverges, and no DF of this form yields a density. An untruncated profile that extends beyond \(R_\mathrm{a}\) therefore has no Type II DF, whereas a truncated model with \(R_\mathrm{t} \leq {R_\mathrm{a}}\) is well defined.
 
 Method I nevertheless needs \(\varrho_\mathrm{aux}\) there. The inversion solves the Volterra equation Eq. (T:2.3), whose lower limit lies at \(R = \infty\). The values of \(\varrho_\mathrm{aux}\) on \(P > P(R_\mathrm{a})\) determine \(F_\mathcal{K}\) there only in combination with \(F_\mathcal{K}\) on \(P < P(R_\mathrm{a})\). Method I constructs the truncated DF from the untruncated one by the shift of Chiang+(2026d), Eq. (B27), and the contribution of the stretch \(0 < P < P(R_\mathrm{a})\) to \(F_\mathcal{K}\) depends on \(\mathcal{K}\), so it does not cancel in that difference. A value of \(\varrho_\mathrm{aux}\) must therefore be supplied on that stretch.
 
@@ -8690,7 +8758,7 @@ which is odd in \(w\) and reduces to the OM form at \(\beta_\mathrm{c} = 0\). Th
 
 The support. An untruncated Type II model is defined only inside \(R_\mathrm{a}\), so its DF is returned over \(\mathcal{K} > P(R_\mathrm{a})\) only. The table keeps its fixed grid, the rows at and below \(P(R_\mathrm{a})\) hold no value, and the record states the first row of the support. The values that the inversion forms below \(P(R_\mathrm{a})\) belong to the continuation rather than to the model, whatever their sign; they are used by the inversion above \(P(R_\mathrm{a})\), which depends on them non-locally, and they are not reported. The gates on the sign and on the last minimum of \(F_\mathcal{K}\) are evaluated on the support, and the lowest admissible truncation value is \(\max(\mathcal{K}_0, \mathcal{K}_{\min}, P(R_\mathrm{a}))\), so that every truncated Type II model has \(R_\mathrm{t} < R_\mathrm{a}\). The anisotropy object declares the edge of its domain (\(R_\mathrm{a}\) for Type II, none otherwise), and no rule reads the Type directly. The same bound holds for a Method II child whose anisotropy is of Type II: its \(R_\mathrm{a}\) lies beyond the parent’s edge by the existence condition.
 
-What the convention can and cannot change. Every DF of the form \(\hat F(\hat\mathcal{K})\,L^{-2\beta_\mathrm{c}}\) in the Type II variable has the COM Type II anisotropy profile, and the truncated density is computed from \(\hat F\). The convention therefore affects neither the anisotropy profile nor the self-consistency of a Method I model. What it selects is which truncated density the model has, and under Method I that density is an output. For that density the DF is unique. The effect of the convention on the truncated density exceeds the accuracy goal of Section T:0.5.
+What the convention can and cannot change. Every DF of the form \(\hat F(\hat{\mathcal{K}})\,L^{-2\beta_\mathrm{c}}\) in the Type II variable has the COM Type II anisotropy profile, and the truncated density is computed from \(\hat F\). The convention therefore affects neither the anisotropy profile nor the self-consistency of a Method I model. What it selects is which truncated density the model has, and under Method I that density is an output. For that density the DF is unique. The effect of the convention on the truncated density exceeds the accuracy goal of Section T:0.5.
 
 Method II inverts the truncated pair, which lies within \(R_\mathrm{a}\), and never evaluates the continuation. A user who needs a Type II model with a prescribed density should therefore use Method II.
 
@@ -8702,7 +8770,7 @@ From the table that the inversion leaves, the truncation energy, and the setting
   \varrho_\mathrm{aux}(P) = \int_0^{P} \hat F(\mathcal{K})\,\left[2(P - \mathcal{K})\right]^{n}\,\mathrm{d}\mathcal{K}
   \tag{T:3.2}
 \end{equation}
-is what the Poisson solve takes as its source; the density of a component is \(\varrho_\mathrm{aux}\) multiplied by the factor of its anisotropy in \(r\), which the solve applies. The source grid runs from the floor to the gap below the truncated central potential, with logarithmic tails toward both ends over a stated fraction of the top. The integral at each potential is taken on two intervals: nodes uniform in \(\ln\mathcal{K}\) below a split at a stated fraction of \(P\), and above the split the map \(\mathcal{K} = P - v^{k}\), which removes the end-point behavior of the kernel where \(n\) is not negative. The lookup at a grid node returns the node’s value; no clip by an absolute epsilon enters a quantity that spans ten decades, and the rows below the floor are zero by the DF’s own rule.
+is what the Poisson solve takes as its source; the density of a component is \(\varrho_\mathrm{aux}\) multiplied by the factor of its anisotropy in \(r\), which the solve applies. The source grid runs from the floor to the gap below the truncated central potential, with logarithmic tails toward both ends over a stated fraction of the top. The integral at each potential is taken on two intervals: nodes uniform in \(\ln{\mathcal{K}}\) below a split at a stated fraction of \(P\), and above the split the map \(\mathcal{K} = P - v^{k}\), which removes the end-point behavior of the kernel where \(n\) is not negative. The lookup at a grid node returns the node’s value; no clip by an absolute epsilon enters a quantity that spans ten decades, and the rows below the floor are zero by the DF’s own rule.
 
 ### T:3.2.1 The tail of the DF in the density integral
 
@@ -8728,7 +8796,7 @@ The truncation of Chiang+(2026d), Eq. (B27) requires a DF that is non-negative 
 
 ## T:3.6 A target mass or a target radius
 
-Under Method I the untruncated DF does not depend on the truncation, so it is inverted once, and every evaluation of a target costs one truncated solve. The search runs on \(x = \ln\mathcal{K}_\mathrm{t}\) for a target \(v = M_\mathrm{t}\) or \(v = R_\mathrm{t}\), in four stages: deeper truncation from a probe until the model is admissible; a bracket by secant steps in \((\ln\mathcal{K}_\mathrm{t}, \ln v)\) toward the target, by at most a factor of 16 per step, until one admissible model lies on each side; where a step lands outside the admissible set, its boundary, namely the \(\mathcal{K}_\mathrm{t}\) at which \(R_\mathrm{t}\) reaches its limit (the cap, or \(R_\mathrm{a}\)), found by regula falsi on \(1/R_\mathrm{t}\); and finally the Illinois form of regula falsi on \((\ln\mathcal{K}_\mathrm{t}, \ln(v/\text{target}))\) until \(|v/\text{target} - 1|\) is within the goal. A value of \(\mathcal{K}_\mathrm{t}\) is admissible when its solve succeeds, the model is spatially finite, \(R_\mathrm{t}\) is within the cap and, for Type II, inside \(R_\mathrm{a}\), and \(\mathcal{K}_\mathrm{t}\) lies at or above the gates and at or below \(0.9\) of the central potential; on the admissible set both targets decrease with \(\mathcal{K}_\mathrm{t}\). When no admissible model reaches the target, the request is refused with a named reason and the value reached at the limit that binds; the solve takes no fallback.
+Under Method I the untruncated DF does not depend on the truncation, so it is inverted once, and every evaluation of a target costs one truncated solve. The search runs on \(x = \ln{\mathcal{K}_\mathrm{t}}\) for a target \(v = M_\mathrm{t}\) or \(v = R_\mathrm{t}\), in four stages: deeper truncation from a probe until the model is admissible; a bracket by secant steps in \((\ln{\mathcal{K}_\mathrm{t}}, \ln v)\) toward the target, by at most a factor of 16 per step, until one admissible model lies on each side; where a step lands outside the admissible set, its boundary, namely the \(\mathcal{K}_\mathrm{t}\) at which \(R_\mathrm{t}\) reaches its limit (the cap, or \(R_\mathrm{a}\)), found by regula falsi on \(1/R_\mathrm{t}\); and finally the Illinois form of regula falsi on \((\ln{\mathcal{K}_\mathrm{t}}, \ln(v/\text{target}))\) until \(|v/\text{target} - 1|\) is within the goal. A value of \(\mathcal{K}_\mathrm{t}\) is admissible when its solve succeeds, the model is spatially finite, \(R_\mathrm{t}\) is within the cap and, for Type II, inside \(R_\mathrm{a}\), and \(\mathcal{K}_\mathrm{t}\) lies at or above the gates and at or below \(0.9\) of the central potential; on the admissible set both targets decrease with \(\mathcal{K}_\mathrm{t}\). When no admissible model reaches the target, the request is refused with a named reason and the value reached at the limit that binds; the solve takes no fallback.
 
 ## T:3.7 The radius of trust of an untruncated product
 
@@ -8798,8 +8866,10 @@ Install
 
 Quick start
 
-Three pages: what PIANISTpy does, how to install it and what it needs, and a complete example from a density
-profile to particles and an observable. What the package returns, flags and refuses is one page of the guide,
+Representative computing time
+
+Four pages: what PIANISTpy does, how to install it and what it needs, a complete example from a density
+profile to particles and an observable, and the representative computing time of each stage. What the package returns, flags and refuses is one page of the guide,
 Flags and refusals; read it before relying on a result.
 
 
@@ -8900,36 +8970,122 @@ Optimistix
 
 Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function NumPy 2.4 removed).
 
-JAX is capped below 0.10.2, on which one test of the suite fails; pip installs the newest JAX below it. The
-standard list is the environment the continuous integration runs.
+This standard list is the systematically tested environment, which can differ from the default package versions
+that pip installs by taking the newest version of each dependency that PIANISTpy allows. To reproduce the tested
+environment, manual specifications of each dependent package version during installation may be required. JAX
+0.10.2 and later are not allowed by PIANISTpy, because one test of the suite fails on 0.10.2.
 
 ## CPU and GPU
 
-The package runs on the CPU everywhere and uses a GPU where the installed JAX supports one, with no setting to
-make. JAX’s CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
-(or a Linux virtual machine) with the Linux wheels, and a native Windows Python runs the CPU-only mode. A GPU and
-a CPU give results that differ at rounding on the kernels; the accuracy goal holds on both, and each file
-records the backend that made it. To force one or the other, see Runtime options.
+PIANISTpy runs on the CPU with the default installation. With a CUDA build of JAX installed, it automatically
+becomes GPU-enabled for the GPU-implemented features, with no manual setting needed in PIANISTpy. JAX’s CUDA builds
+are for Linux only, so macOS runs the CPU-only mode. A native Windows Python also runs the CPU-only mode; on
+Windows the GPU is reached through the Windows Subsystem for Linux (or a Linux virtual machine). Results on the
+GPU and the CPU agree to better than \(10^{-10}\) in relative terms, and the accuracy goal holds on both. To
+choose the CPU or the GPU explicitly, see Runtime options.
 
-Only the main process uses the GPU: the worker processes of the observables’ pools run on the CPU. A GPU in the
-Exclusive_Process compute mode (nvidia-smi --query-gpu=compute_mode --format=csv shows it), common on shared
-clusters, serves one process, so where another process already holds it the package cannot reach it, and JAX’s
-error begins Unable to initialize backend 'cuda'. Free the GPU, share it through an MPS daemon
-(nvidia-cuda-mps-control -d), or run in the CPU-only mode.
+In ver. 1.0.0, only the particle sampler (its speed table and the draw) uses the GPU.
 
-A GPU speeds up the particle sampler and nothing else: the sampler’s speed table and the draw. The DF’s Poisson
-solve runs on the CPU on every platform: it is a serial ODE, and on a GPU each step would pay about a millisecond of
-launch latency, 50 to 200 times the CPU’s wall-clock time. The rows of the line-of-sight velocity table run in the
-worker pool on the CPU whatever the platform, and reading a built table takes the CPU’s wall-clock time.
+     On this page
 
-## Fiducial benchmarks
+
+---
+
+# What PIANISTpy does
+
+Source: https://pianistpy.com/docs/start/overview
+
+# What PIANISTpy does
+
+Density profiles. Analytical double-power-law density profiles with a finite central
+potential, including the commonly used Navarro-Frenk-White, Hernquist and Plummer profiles.
+
+Velocity anisotropy. Isotropic, constant-anisotropy, Osipkov-Merritt and
+Cuddeford-Osipkov-Merritt models, the latter two radially (Type I) or tangentially (Type II) biased.
+
+Distribution functions. Each anisotropy model’s distribution function, inverted from the
+input density with exact symbolic expressions up to the final numerical integration, with
+extensively validated numerical accuracy and checks that it is non-negative
+(physical) and monotonic (dynamically stable).
+
+Truncation in phase space. Model truncation performed in phase space, such that the
+truncation boundary is fully self-consistent and in dynamical equilibrium, by two methods: one preserves the
+model’s anisotropy profile (Method I), the other gives different anisotropy models an identical truncated
+density (Method II).
+
+Particles. Particle initial conditions with a finite, dynamically stable truncation
+boundary, drawn from the truncated distribution function, in internal, model or physical units.
+
+Observables. Radial, tangential and line-of-sight velocity dispersions,
+line-of-sight velocity distributions and their Gauss-Hermite moments, and the local 3D velocity distribution at
+any radius; projected quantities averaged over centered or offset circular and rectangular apertures.
+
+Superposition. Distribution functions of different anisotropy models on one
+truncated density, linearly superposed into one equilibrium model whose anisotropy profile lies beyond the
+analytical families, such as one fitted to simulated halos.
+
+Inference. End-to-end differentiable in JAX: the likelihood of a model against
+kinematic data, and every observable, with gradients in the superposition weights, the unit scales and the
+anisotropy parameters, for gradient-based Monte Carlo inference.
+
+
+---
+
+# Quick start
+
+Source: https://pianistpy.com/docs/start/quickstart
+
+# Quick start
+
+The example of the first figure of Chiang+(2026d): an NFW halo with a constant velocity anisotropy of 0.25, truncated in
+phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
+
+```
+import pianistpy as pp
+import astropy.units as u
+
+# an untruncated NFW density profile with a constant velocity anisotropy of 0.25
+halo = pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy(beta_c=0.25))
+
+# the untruncated distribution function
+df = pp.compute_df(halo)
+
+# Method I: truncate it so that the truncated mass equals the virial mass of the
+# untruncated NFW halo of concentration 10 (the mass inside 10 scale radii)
+model = pp.truncate(df, pp.Truncation(mass_t=1.0, concentration=10))
+
+# physical units: a halo of 1e12 solar masses with R_vir = c * r_0 = 200 kpc
+model = model.to("physical", mass_0=1e12 * u.Msun, r_0=20 * u.kpc)
+
+# draw ten million equal-mass particles centered at the origin and write them to a file
+particles = pp.Sampler(model).sample(10_000_000, seed=1)
+particles.write("NFW_Const0p25_Mt1e12_PARIC.h5")
+
+# the line-of-sight velocity dispersion at three projected radii
+sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
+
+```
+
+pp.solve(halo, truncation) runs the two steps at once.
+
+Every result carries a validation report with its accuracy tier, and a model is always a valid equilibrium; what
+the package returns, flags and refuses is on one page, Flags and refusals.
+
+
+---
+
+# Representative computing time
+
+Source: https://pianistpy.com/docs/start/timing
+
+# Representative computing time
 
 The table below times one chain of calls, from a density profile to the observables, built as in Chiang+(2026d): an isotropic NFW parent truncated by Method I, and a child at constant \(\beta_{\rm c} = 0.2\) built
 from it by Method II. Each row is the median of three calls after one warm call, except row 6, the table’s
 first build. The inputs are in internal units and every setting is at its default. The first two columns are one AMD Ryzen
 Threadripper PRO 5975WX (64 threads, 256 GB, Linux), on its CPU alone and then with its NVIDIA GeForce RTX 3080 Ti;
 the third is an Intel Core Ultra 9 185H (22 threads, 32 GB, Windows 11), CPU only. These are trial runs on the
-development tree before the release; the release replaces them with runs on its own code.
+development tree; ver. 1.0.0 replaces them with runs on its own code.
 
 Stage
 
@@ -9098,82 +9254,3 @@ starts its worker pool: on the Threadripper’s CPU the first call took 31.0 s.
 On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall-clock time. The rows
 on the model run the moments solve serially on one core, and there the wall-clock time of identical calls differs by up to half
 from one call to the next, so no ratio between the machines is given for them.
-
-     On this page
-
-
----
-
-# What PIANISTpy does
-
-Source: https://pianistpy.com/docs/start/overview
-
-# What PIANISTpy does
-
-Density profiles. Any double power law in its three slopes, with the
-Navarro-Frenk-White, Hernquist and Plummer profiles as named presets.
-
-Velocity anisotropy. Isotropic, constant, Osipkov-Merritt, and the generalized
-Osipkov-Merritt (Cuddeford) models, radially biased (Type I) or tangentially biased (Type II).
-
-Distribution functions. The distribution function of each model, from the analytic
-inversion of its density, returned whether or not it is physical, with a statement of where it is not.
-
-Truncation in phase space. Method I truncates a model’s own distribution function
-at a user-specified energy, or at the energy that yields a target mass or a target radius. Method II gives a new
-anisotropy to a density that is already truncated.
-
-Particles. Positions and velocities drawn by inversion, with no rejection step, and
-reproducible particle by particle.
-
-Observables. Intrinsic and line-of-sight velocity dispersions, line-of-sight
-velocity distributions, and their averages over apertures.
-
-Superposition. Distribution functions inverted from one truncated density,
-combined with positive weights that sum to one into one equilibrium model.
-
-Inference. The log-likelihood of a model against data, as a JAX function of the
-components’ weights and the scales of the units.
-
-
----
-
-# Quick start
-
-Source: https://pianistpy.com/docs/start/quickstart
-
-# Quick start
-
-The example of the first figure of Chiang+(2026d): an NFW halo with a constant velocity anisotropy of 0.25, truncated in
-phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
-
-```
-import pianistpy as pp
-import astropy.units as u
-
-# an untruncated NFW density profile with a constant velocity anisotropy of 0.25
-halo = pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy(beta_c=0.25))
-
-# the untruncated distribution function
-df = pp.compute_df(halo)
-
-# Method I: truncate it so that the truncated mass equals the virial mass of the
-# untruncated NFW halo of concentration 10 (the mass inside 10 scale radii)
-model = pp.truncate(df, pp.Truncation(mass_t=1.0, concentration=10))
-
-# physical units: a halo of 1e12 solar masses with R_vir = c * r_0 = 200 kpc
-model = model.to("physical", mass_0=1e12 * u.Msun, r_0=20 * u.kpc)
-
-# draw ten million equal-mass particles centered at the origin and write them to a file
-particles = pp.Sampler(model).sample(10_000_000, seed=1)
-particles.write("NFW_Const0p25_Mt1e12_PARIC.h5")
-
-# the line-of-sight velocity dispersion at three projected radii
-sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
-
-```
-
-pp.solve(halo, truncation) runs the two steps at once.
-
-Every result carries a validation report with its accuracy tier, and a model is always a valid equilibrium; what
-the package returns, flags and refuses is on one page, Flags and refusals.

@@ -7,17 +7,25 @@ Source: https://pianistpy.com/docs/project/changelog
 What each version adds, changes and fixes, newest first. A change that moves a number beyond rounding is named
 with the size of the move; the standard and the minimum dependencies are listed with each release.
 
-## 1.0.0
+## Ver. 1.0.0
 
 Draft: this entry is final at the release.
 
-The first release, with the paper that describes the method, Chiang+(2026d) (MNRAS,
-submitted). Everything 0.9.0 announced for this version is in.
+The first stable release: the code of ver. 0.9.9 with the citation entry of Chiang+(2026d) and the DOI of the software
+release. Changes to the code since ver. 0.9.9 are listed here at the release.
+
+## Ver. 0.9.9
+
+Draft: this entry is final at the release.
+
+The code of the paper that describes the method, Chiang+(2026d) (MNRAS, submitted), released with its arXiv
+submission. Ver. 1.0.0 adds the citation entry.
 
 ### Added
 
-The certified accuracy tiers (goal, ceiling, warning, refused) reported with every result, on the CPU and on
-the GPU; the accuracy grid of the release is on Accuracy tables, and every release’s on
+A report of the numerical accuracy with every result, on the CPU and on the GPU: the relative error of each
+check against the goal of \(10^{-6}\), the ceiling of \(10^{-4}\) and the hard limit of \(10^{-2}\)
+(Accuracy); the accuracy grid of the release is on Accuracy tables, and every release’s on
 Accuracy by release.
 
 The observables as calls of their own: sigma_r, sigma_t, losvd, aperture_losvd and pdf_v
@@ -28,7 +36,7 @@ Ranged draws: a range of radii for Sampler (r_range), a range of speeds at given
 (Sampler.speeds, v_range), and the projected sampler of \((R, V_{\rm los})\) pairs (ProjectedSampler).
 
 The likelihood of the inference is differentiable in the superposition weights, the unit scales and the
-anisotropy parameters \((\beta_{\rm c}, R_{\rm a})\) of the constant, Cuddeford Type I and Osipkov-Merritt families; and,
+anisotropy parameters \((\beta_{\rm c}, R_{\rm a})\) of the constant, Cuddeford-Osipkov-Merritt (COM) Type I and Osipkov-Merritt families; and,
 through pp.Differentiable, the seven observables as JAX functions of those parameters
 (End-to-end differentiability).
 
@@ -96,7 +104,7 @@ A result file is read back after it is written and refused unless it holds what 
 the particle files are.
 
 A report read from a file is checked against the reports of its kind: a check no such report has is refused
-by name, and a check the file lacks (an earlier version made fewer) reads as not judged, so a 0.9.0 file loads
+by name, and a check the file lacks (an earlier version made fewer) reads as not judged, so a ver. 0.9.0 file loads
 and says what it lacks. An untruncated model’s outer join and eps, which its closed-form profile does not
 measure, are not judged (they read 0 before).
 
@@ -122,14 +130,14 @@ the potential and its slope there); before, it was returned as a truncated model
 profile that is not spatially finite is refused by name.
 
 At an inner slope near 2 with a positive \(\beta_{\rm c}\), the inversion’s table reaches the depth the host’s smallest
-radius allows, and these models build where they were refused; the validity certificate is judged at that
-depth. A central series that degenerates (\(\gamma = 2\beta_{\rm c}\) at the center) is refused by name
+radius allows, and these models build where they were refused; the distribution function’s validity is checked
+at that depth. A central series that degenerates (\(\gamma = 2\beta_{\rm c}\) at the center) is refused by name
 (CENTRAL SERIES).
 
 At an inner slope near 2 the inner extension’s radius no longer underflows to zero; where it lies below the
 double’s range the solve is refused by name.
 
-Cuddeford Type II models at an inner slope near 2 no longer fail in the inversion with non-finite slopes.
+COM Type II models at an inner slope near 2 no longer fail in the inversion with non-finite slopes.
 
 A cusp at the marginal anisotropy \(2\beta_{\rm c} = \gamma\) solves its central deficit: on NFW with \(\beta_{\rm c} = 0.5\) the
 density from the distribution function moves from \(7.7 \times 10^{-4}\) to \(3.2 \times 10^{-9}\) of the profile (warning to goal).
@@ -140,7 +148,7 @@ one unit in the last place of the potential moved it by \(1.1 \times 10^{-4}\) a
 The lowest row of the truncated density continues the edge law (it read \(2.5 \times 10^{-4}\) above it).
 
 DistributionFunction.from_function reads the function below the written floor as compute_df does: the
-Plummer and Hernquist closed forms certify at the goal (round trip \(2.0 \times 10^{-14}\) and \(4.6 \times 10^{-11}\), where 1.0 before).
+Plummer and Hernquist closed forms are read back with a density round trip of \(2.0 \times 10^{-14}\) and \(4.6 \times 10^{-11}\) (1.0 before).
 
 The particle sampler’s speed table reads its rows at their exact depths and its first slope from the rule below
 it; on the speed tables of the Fig. 7 models of Chiang+(2026d) with \(\beta_{\rm c} = 1/2\) the worst row falls from \(4.1 \times 10^{-4}\) to \(1.7 \times 10^{-6}\). Where
@@ -165,7 +173,7 @@ name.
 One component per model at the public calls; several components in one potential are planned
 (Upcoming features).
 
-The gradient in the anisotropy parameters refuses Cuddeford Type II, whose interior point moves with \(R_{\rm a}\).
+The gradient in the anisotropy parameters refuses COM Type II, whose interior point moves with \(R_{\rm a}\).
 
 The gradient in the anisotropy parameters refuses a Method I truncated model, whose profile moves with them; a
 Method II model on a fixed parent takes it (End-to-end differentiability).
@@ -178,12 +186,10 @@ Spherical, non-rotating systems with an analytical double-power-law parent profi
 
 Dependencies: the standard and the minimum lists on Install.
 
-## 0.9.0
+## Ver. 0.9.0
 
 A pre-release with the whole public interface: the distribution functions and their truncation
 (compute_df, truncate, solve), the particles, the observables, the superposition and the inference.
-Version 1.0.0, released with Chiang+(2026d), adds the certified accuracy tiers on both
-backends, the remaining capabilities and the citation.
 
 Standard dependencies (the versions this release was developed and tested with): Python 3.11.13, NumPy
 2.4.3, SciPy 1.17.1, h5py 3.15.1, Astropy 7.2.0, mpmath 1.3.0, SymPy 1.14.0, JAX 0.9.2, Diffrax 0.7.2,

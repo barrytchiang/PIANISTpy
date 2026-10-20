@@ -37,7 +37,7 @@ the total mass, the validation report and the identity. A model that is not spat
 it says so (spatially_finite is false), states its radius and mass as not finite, and what needs finiteness
 asks for it by name (Flags and refusals).
 
-A Type II model (Osipkov-Merritt or Cuddeford) must end inside its anisotropy radius \(R_{\rm a}\), where its density
+A Type II model (Osipkov-Merritt or Cuddeford-Osipkov-Merritt) must end inside its anisotropy radius \(R_{\rm a}\), where its density
 \(\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)\) has a pole. The lower bound \(\mathcal{K}_{\rm t} > P(R_{\rm a})\) keeps the untruncated radius of the truncation
 energy inside \(R_{\rm a}\), but the truncated model’s own edge lies farther out; where that edge would reach \(R_{\rm a}\) the request
 is refused by name (TYPE II EDGE, with the potential at \(R_{\rm a}\) stated), and a larger \(\mathcal{K}_{\rm t}\) brings the edge

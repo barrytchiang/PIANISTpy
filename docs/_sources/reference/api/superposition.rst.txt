@@ -1,5 +1,7 @@
-Superposition (``pianistpy.superposition``)
-===========================================
+Superposition
+=============
+
+Module ``pianistpy.superposition``
 
 .. automodule:: pianistpy.superposition
    :members:

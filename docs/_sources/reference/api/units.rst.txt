@@ -1,5 +1,7 @@
-Units (``pianistpy.units``)
-===========================
+Units
+=====
+
+Module ``pianistpy.units``
 
 .. automodule:: pianistpy.units
    :members:

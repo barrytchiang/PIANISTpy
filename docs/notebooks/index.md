@@ -15,15 +15,15 @@ Generate particle initial conditions
 
 Compute observables from a model
 
-Planned for 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
+Planned for ver. 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
 fit a superposition to data; observables in an aperture of any shape.
 
 ## Reproducing Chiang+(2026d)
 
 One notebook per figure of Chiang+(2026d), from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
-anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
-1.0.0 release.
+anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Released with
+ver. 0.9.9.
 
 ## \(N\)-body tests with GAMER
 

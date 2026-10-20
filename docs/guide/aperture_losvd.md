@@ -36,7 +36,7 @@ checked against the aperture’s dispersion from the projected tables, which rea
 tier is the worse of that check and the table’s own (The prepared table); a distribution above the goal says so in a
 warning.
 
-A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford Type I
+A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford-Osipkov-Merritt (COM) Type I
 anisotropy (\(\beta_{\rm c} = -0.25\), \(R_{\rm a} = 10\)) in a centered circle of radius 0.05 in the scale radius, the
 quick tier’s second moment differs from the default tier’s by \(6.7 \times 10^{-6}\) of it, and its own check reports \(6.2 \times 10^{-6}\) (above
 the goal, with a warning); in a circle of radius 1 the two differ by \(1.5 \times 10^{-6}\). At the default tier the check reports

@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:7 Gradients &#8212; PIANISTpy 0.9.0</title>
+    <title>T:7 Gradients &#8212; PIANISTpy ver. 0.9.9</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=5cc9d92e"></script>
+    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.0" />
+  <meta name="docsearch:version" content="0.9.9" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -119,7 +119,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; version 0.9.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -128,6 +128,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -138,7 +139,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options (set_platform, set_workers, ...)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
@@ -180,7 +181,7 @@
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: version 0.9.0 is a preview of the package and of this manual; version 1.0.0 is released with <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</div></div>
+<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -214,21 +215,21 @@
   <p class="bd-links__title" role="heading" aria-level="1">API reference</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../api/index">Functions by subpackage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../api/pianistpy">The package (<code class="docutils literal notranslate"><span class="pre">pianistpy</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/profiles">Density profiles (<code class="docutils literal notranslate"><span class="pre">pianistpy.profiles</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/anisotropy">Velocity anisotropy (<code class="docutils literal notranslate"><span class="pre">pianistpy.anisotropy</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/df">Distribution functions and models (<code class="docutils literal notranslate"><span class="pre">pianistpy.df</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/particles">Particles (<code class="docutils literal notranslate"><span class="pre">pianistpy.particles</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/observables">Observables (<code class="docutils literal notranslate"><span class="pre">pianistpy.observables</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/superposition">Superposition (<code class="docutils literal notranslate"><span class="pre">pianistpy.superposition</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/inference">Inference (<code class="docutils literal notranslate"><span class="pre">pianistpy.inference</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/units">Units (<code class="docutils literal notranslate"><span class="pre">pianistpy.units</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/io">Results and files (<code class="docutils literal notranslate"><span class="pre">pianistpy.io</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/settings">Settings (<code class="docutils literal notranslate"><span class="pre">pianistpy.settings</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/validation">Validation (<code class="docutils literal notranslate"><span class="pre">pianistpy.validation</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/exceptions">Exceptions (<code class="docutils literal notranslate"><span class="pre">pianistpy.exceptions</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/runtime">Runtime options (<code class="docutils literal notranslate"><span class="pre">pianistpy.runtime</span></code>)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api/numerics">Numerics (<code class="docutils literal notranslate"><span class="pre">pianistpy.numerics</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/pianistpy">The package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/profiles">Density profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/anisotropy">Velocity anisotropy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/df">Distribution functions and models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/particles">Particles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/observables">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/superposition">Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/inference">Inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/units">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/io">Results and files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/settings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/validation">Validation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/exceptions">Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/runtime">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/numerics">Numerics</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
@@ -316,7 +317,7 @@
 <p>The rows of the inversion are <span class="math notranslate nohighlight">\(F = T_b[g](q)\)</span> on a fixed grid <span class="math notranslate nohighlight">\(q\)</span>, where <span class="math notranslate nohighlight">\(T_b\)</span> is the operator of <a class="reference internal" href="df#tn-sec-num-forms"><span class="std std-ref">Section T:2.3</span></a> with its completion below the floor, applied to the source <span class="math notranslate nohighlight">\(g\)</span>, namely the rows of <span class="math notranslate nohighlight">\(\mathrm{d}^N\varrho_\mathrm{aux}/\mathrm{d} P^N\)</span>. At a fixed central anisotropy <span class="math notranslate nohighlight">\(b = \beta_\mathrm{c}\)</span>, the operator is linear in its source, so that</p>
 <div class="math notranslate nohighlight" id="tn-eq-gradient-rule">
 \begin{equation}
-  \frac{\partial F}{\partial R_\mathrm{a}} = T_b\!\left[\partial_{R_\mathrm{a}} g\right], \qquad \frac{\partial F}{\partial \beta_\mathrm{c}} = T_b\!\left[\partial_{b}\, g\right] + E_b[g] ,
+  \frac{\partial F}{\partial {R_\mathrm{a}}} = T_b\!\left[\partial_{R_\mathrm{a}} g\right], \qquad \frac{\partial F}{\partial {\beta_\mathrm{c}}} = T_b\!\left[\partial_{b}\, g\right] + E_b[g] ,
   \tag{T:7.1}
 \end{equation}</div><p>where <span class="math notranslate nohighlight">\(\partial_\theta g\)</span> denotes the mixed derivatives at fixed <span class="math notranslate nohighlight">\(P\)</span>, formed symbolically in the same way as the derivatives of <a class="reference internal" href="model#tn-sec-derivatives"><span class="std std-ref">Section T:1.2.1</span></a>, and <span class="math notranslate nohighlight">\(E_b\)</span> is the derivative of the operator itself with respect to <span class="math notranslate nohighlight">\(b\)</span> at fixed <span class="math notranslate nohighlight">\(g\)</span>, through its prefactor and the exponent of its kernel. <span class="math notranslate nohighlight">\(E_b\)</span> has no closed form and is taken from the values of the operator at nearby <span class="math notranslate nohighlight">\(b\)</span>: a central Richardson quotient over a step and its half inside the region of one form, or the one-sided third-order combinations of both sides and their mean at a corner where the form changes on one side (half-integer <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>, or the switch of the pair). The step balances the measured accuracy of the kernel against the truncation term of the quotient. The record states the Richardson residual of the quotient and, at a corner, the spread between its two sides, both relative to the scale of the column, and the residual is read in the tiers of <a class="reference internal" href="principles#tn-sec-tiers"><span class="std std-ref">Section T:0.5</span></a>.</p>
 <p>The table that the lookup reads is a function of the rows and of closed forms in <span class="math notranslate nohighlight">\(\theta\)</span>, so its derivative is the chain rule through each piece, with every discrete choice of the forward pass held fixed: the grid, the anchor, the window of the fit, and the nodes below the written floor. The contribution of the rows is <a class="reference internal" href="#tn-eq-gradient-rule"><span class="std std-ref">Eq. (T:7.1)</span></a> along the rows. The form above the anchor is its least-squares fit linearized in the rows, with the exponent <span class="math notranslate nohighlight">\(\kappa(b)\)</span> and the amplitude <span class="math notranslate nohighlight">\(A(b)\)</span> of the center in closed form on the regular branch. The nodes below the floor are the integral, which is linear in its source, with the source’s cubic in <span class="math notranslate nohighlight">\((\ln P, \ln|g|)\)</span> linearized; in <span class="math notranslate nohighlight">\(b\)</span>, the exponent and the prefactor of the floor pair are differenced in the same way as <span class="math notranslate nohighlight">\(E_b\)</span>. The tail contributes through its amplitude, exponent, and scale from the first node below the floor. On a Method II child the parent is held fixed, and the sources of the child are the Leibniz sum of <a class="reference internal" href="df#tn-sec-tabulated"><span class="std std-ref">Section T:2.6</span></a>, whose derivative is the same sum with <span class="math notranslate nohighlight">\(\partial h/\partial\theta\)</span> in closed form; the leaves are the rows, the edge law, and the stated form of the center, each with its derivative written out. The derivative is that of the solve with its choices fixed; between two parameters at which a choice changes, the solve at the second differs from the held one by its own tolerance.</p>

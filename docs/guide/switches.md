@@ -4,8 +4,8 @@ Source: https://pianistpy.com/docs/guide/switches
 
 # Runtime options
 
-None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
-each file records which made it.
+None of these changes a number, except the platform: results on a GPU and a CPU agree to better than
+\(10^{-10}\) in relative terms, and each file records which made it.
 
 ```
 pp.set_verbosity("info")   # "quiet" (the default), "info" or "debug"
@@ -18,6 +18,10 @@ pp.set_platform("cpu")     # "auto" (the default), "cpu" (the CPU-only mode) or 
 
 The CPU-only mode gives the same numbers on every machine; the environment variable PIANISTPY_PLATFORM=cpu
 sets it before the package is imported. Each file records the backend that made it.
+
+On shared clusters, a GPU in the Exclusive_Process compute mode serves one process at a time; if another process
+holds it, JAX stops with Unable to initialize backend 'cuda'. Free the GPU, share it through an MPS daemon
+(nvidia-cuda-mps-control -d), or use the CPU-only mode.
 
 The workers’ switch sets how many cores the package’s parallel work uses; "auto" uses every allowed core
 inside a batch job and half of them anywhere else, and no value changes a number. The verbosity, the timing and

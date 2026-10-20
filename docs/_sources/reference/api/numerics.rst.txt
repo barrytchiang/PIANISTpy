@@ -1,5 +1,7 @@
-Numerics (``pianistpy.numerics``)
-=================================
+Numerics
+========
+
+Module ``pianistpy.numerics``
 
 .. automodule:: pianistpy.numerics
    :members:

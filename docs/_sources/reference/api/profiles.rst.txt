@@ -1,5 +1,7 @@
-Density profiles (``pianistpy.profiles``)
-=========================================
+Density profiles
+================
+
+Module ``pianistpy.profiles``
 
 .. automodule:: pianistpy.profiles
    :members:

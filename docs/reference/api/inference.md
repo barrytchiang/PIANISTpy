@@ -1,8 +1,10 @@
-# Inference (pianistpy.inference)
+# Inference
 
 Source: https://pianistpy.com/docs/reference/api/inference
 
-# Inference (pianistpy.inference)
+# Inference
+
+Module pianistpy.inference
 
 The log-likelihood of a model against data.
 
