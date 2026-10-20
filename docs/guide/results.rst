@@ -1,5 +1,5 @@
-Results, flags and refusals
-===========================
+Flags and refusals
+==================
 
 What the package returns, what it flags and what it refuses, in one place.
 
@@ -40,12 +40,10 @@ The accuracy tiers
 ------------------
 
 Every result carries a validation report: a short and fixed summary of the checks it passed, one record per
-check, with its tier. A check within the accuracy goal (a relative error of 1e-6) is silent. Above the goal,
-within the ceiling (1e-4) or within the hard limit (1e-2), the result is returned with a warning in the package's
+check, with its tier. A check within the accuracy goal (a relative error of :math:`10^{-6}`) is silent. Above the goal,
+within the ceiling :math:`(10^{-4})` or within the hard limit :math:`(10^{-2})`, the result is returned with a warning in the package's
 log and as an :class:`~pianistpy.AccuracyWarning` (Python's standard filter silences or escalates it), and the
 flag stays with the result and with everything computed from it. Beyond the hard limit the result is refused.
-A switch that writes a refused result anyway, marked as unvalidated, is part of the design and is not yet in
-version 0.9.0.
 
 One component
 -------------
@@ -59,4 +57,4 @@ The keys to read first in a result
 
 ``validation`` (the report and its tier), ``spatially_finite``, ``r_t`` and ``mass_t`` (the truncation radius
 and the total mass), ``identity`` (what the result was computed from), ``units`` (the system it is presented in),
-``timing`` (the wall time of each stage) and, on a file, the backend that made it.
+``timing`` (the wall-clock time of each stage) and, on a file, the backend that made it.

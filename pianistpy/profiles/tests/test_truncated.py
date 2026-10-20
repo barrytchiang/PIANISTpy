@@ -123,7 +123,7 @@ def test_a_finite_profile_reads_its_last_interval_by_the_edge_forms():
     assert profile.radius(0.0) == profile.r_t
     assert profile.radius(-1.0) == profile.r_t
     # inside, the rows are read by the interpolants (the logarithm of the
-    # potential steepens towards the edge, where the rows of this test are
+    # potential steepens toward the edge, where the rows of this test are
     # coarse; a real profile is dense there)
     r_in = np.geomspace(2e-3, 0.5 * profile.r_t, 40)
     assert_allclose(profile.potential(r_in), (4.0 - r_in**2) / 16.0, rtol=1e-9)

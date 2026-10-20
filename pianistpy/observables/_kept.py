@@ -1,6 +1,6 @@
 """Where V_rad and V_k are kept as breaks of a row, over projected radius."""
 
-__all__ = ["single_v", "vk_kept_ranges", "vrad_kept_ranges"]
+__all__ = ["extrema_in_pool", "single_v", "vk_kept_ranges", "vrad_kept_ranges"]
 
 import time
 from collections.abc import Callable
@@ -18,11 +18,37 @@ WORKER: dict[str, EllipseRoute] = {}
 
 
 def single_v_worker(args: tuple[float, float]) -> float:
-    """D at one (R_2D, V) by the row's own rule, in a pool worker."""
+    r"""D at one :math:`(R_{\rm 2D}, V)` by the row's own rule, in a pool worker."""
     r2, v = args
     route = WORKER["route"]
     rule, _ = route.rule(r2)
     return float(route.row(r2, np.array([v]), rule)[0])
+
+
+def extrema_worker(r2: Array) -> list[Array]:
+    """`EllipseRoute.f_extrema_many` at the radii, in a pool worker."""
+    return WORKER["route"].f_extrema_many(r2)
+
+
+def extrema_in_pool(
+    route: EllipseRoute, r2: ArrayLike, pool_of: Callable[[], Any], n_parts: int
+) -> None:
+    """Compute `EllipseRoute.f_extrema` at the radii the route has not cached,
+    in `n_parts` pieces in the pool `pool_of` returns (called only where a
+    radius is not cached), and cache them on the route. Every number is the
+    one `f_extrema` forms at that radius alone, so the route reads
+    the same extrema as it would have formed."""
+    todo = [
+        x
+        for x in np.unique(np.asarray(r2, dtype=np.float64)).tolist()
+        if x not in route._fext
+    ]
+    if not todo:
+        return
+    parts = np.array_split(np.array(todo), min(n_parts, len(todo)))
+    for part, found in zip(parts, pool_of().map(extrema_worker, parts), strict=True):
+        for x, ext in zip(part.tolist(), found, strict=True):
+            route._fext[x] = ext
 
 
 def single_v(
@@ -46,8 +72,9 @@ def single_v(
 def _ranges(
     rs: Array, bound: Callable[[Array], Array], n_bisect: int, info: dict[str, Any]
 ) -> Array:
-    """The ranges where bound > VRAD_KEEP: each change between neighboring
-    samples bisected in ln R_2D, the ends 0 and inf where a range runs off."""
+    r"""The ranges where bound > VRAD_KEEP: each change between neighboring
+    samples bisected in :math:`\ln R_{\rm 2D}`, the ends 0 and inf where a
+    range runs off."""
     keep = bound(rs) > VRAD_KEEP
     info["rows"] = info["calls"]
     j = np.flatnonzero(keep[1:] != keep[:-1])
@@ -78,13 +105,14 @@ def vrad_kept_ranges(
     sigma_fn: Callable[[Array], tuple[Array, Array]],
     pmap: Callable[..., Any] | None = None,
 ) -> tuple[Array, dict[str, Any]]:
-    """Return (ranges, info): the R_2D ranges where V_rad is kept as a break.
+    r"""Return (ranges, info): the :math:`R_{\rm 2D}` ranges where V_rad is
+    kept as a break.
 
     The bound is B = 2 D(V_rad) (V_end - V_rad) / Sigma, or V_end^2 times that
-    over Sigma sigma_los^2 where larger, with D(V_rad) one single-V row and
-    Sigma, sigma_los^2 from `sigma_fn`; 0 where the floor merges V_rad, inf
-    where D > 0 on a row without surface density. Taken on the base rows,
-    each change bisected.
+    over Sigma :math:`\sigma_{\rm los}^2` where larger, with D(V_rad) one
+    single-V row and Sigma, :math:`\sigma_{\rm los}^2` from `sigma_fn`; 0
+    where the floor merges V_rad, inf where D > 0 on a row without surface
+    density. Taken on the base rows, each change bisected.
     """
     r = np.asarray(r_base, dtype=np.float64)
     info: dict[str, Any] = {"rows": 0, "calls": 0, "changes": 0, "seconds": 0.0}
@@ -128,7 +156,8 @@ def vk_kept_ranges(
     sigma_fn: Callable[[Array], tuple[Array, Array]],
     pmap: Callable[..., Any] | None = None,
 ) -> tuple[Array, dict[str, Any]]:
-    """Return (ranges, info): the R_2D ranges where V_k is kept as a break.
+    r"""Return (ranges, info): the :math:`R_{\rm 2D}` ranges where V_k is kept
+    as a break.
 
     The bound of `vrad_kept_ranges` for both panels at V_k, [V_k, V_end] and
     [0, V_k], the smaller of the two; inf, and no single-V row, where V_k lies

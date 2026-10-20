@@ -30,7 +30,7 @@ def plummer():
 
 
 def test_dispersion_profile_of_plummer(plummer):
-    # rho = 3 P^5 and isotropy give sigma_r^2 = P / 6 (paper Eq. B42)
+    # rho = 3 P^5 and isotropy give sigma_r^2 = P / 6 (Chiang+(2026d), Eq. B42)
     model, profile, _ = plummer
     r = np.logspace(-4, 3, 15)
     sigma_r, sigma_t, beta = profile.read(r)
@@ -66,7 +66,7 @@ def test_projected_dispersion_of_plummer(plummer):
 
 
 def test_aperture_dispersion_of_plummer(plummer):
-    # Over a centerd circle of radius A the mean square is
+    # Over a centered circle of radius A the mean square is
     # (pi / 32) [1 - (1 + A^2)^(-3/2)] / [1 - (1 + A^2)^-1].
     _, _, projected = plummer
     for a in (0.05, 0.5, 3.0, 50.0):

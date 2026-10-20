@@ -196,7 +196,7 @@ def curve_radii(
 def aperture_output_rule(
     route: EllipseRoute, curves: dict[str, Array], v_top: float
 ) -> tuple[Array, Array, Array, Array]:
-    """Return the V >= 0 nodes and weights of the aperture distribution's own
+    """Return the ``V >= 0`` nodes and weights of the aperture distribution's own
     panels, its breaks and its sub-panels' edges: breaks at 0, at the least
     and largest value of each row break over the aperture, and at `v_top`,
     graded as a row's panels are; two breaks within BREAK_TOL of `v_top`
@@ -275,17 +275,29 @@ def aperture_losvd_panels(
     nodes_per_decade: int,
     inner_tolerance: float,
     even: Sequence[float] | None = None,
+    record: list[tuple[Array, Array, dict[str, Array]]] | None = None,
+    extrema: Callable[[Array], None] | None = None,
 ) -> tuple[Array, Array, Array, Array, dict[str, Any], Array | None, Array | None]:
-    """Return the aperture-averaged distribution on its own panels: (V nodes
-    >= 0, weights, D, breaks, info, V on an even grid, D there).
+    r"""Return the aperture-averaged distribution on its own panels: (the
+    ``V >= 0`` nodes, weights, D, breaks, info, V on an even grid, D there).
 
     The radial rule over the aperture is `general_aperture_nodes` up to the
     tables' common edge, weighted by the surface density. A V that meets no
     row break inside the aperture takes that rule; each other V takes its own,
     with the radii where a break curve equals it as breaks. The output rule
     refines itself, bisecting its widest sub-panels, until its moments are
-    within 1e-2 of the goal of the rows' own rule's, the widest is no wider
+    within :math:`10^{-2}` of the goal of the rows' own rule's, the widest is no wider
     than the narrowest it began with, or a round moves nothing.
+
+    With `record`, the source of each value of the returned D is appended to
+    it in order: the radii it reads the table at, their weights and the
+    breaks there, so that D at a node is the weighted sum of the table read
+    at those radii and the node's V.
+
+    With `extrema`, the extrema of the line of sight (`EllipseRoute.f_extrema`)
+    at the radii of the sample and of the V's own radial rules are computed
+    by it at once, before the curves read them one rule after another: each
+    radius's are the ones it forms alone, so every number is the same.
 
     Raises
     ------
@@ -322,6 +334,8 @@ def aperture_losvd_panels(
             [r_base, np.geomspace(float(r_base.min()), float(r_base.max()), 65)]
         )
     )
+    if extrema is not None:
+        extrema(rs)
     sample = curves(rs)
     v_top = float(np.nanmax(sample["V_end"]))
     vp, wp, breaks, sub = aperture_output_rule(route, sample, v_top)
@@ -336,10 +350,16 @@ def aperture_losvd_panels(
 
     _refuse_below(r_base, float(table.R_2D[0]), "line-of-sight velocity distribution")
 
-    def d_bar(v: Array, extra: list[list[float]]) -> tuple[Array, int]:
+    def d_bar(
+        v: Array,
+        extra: list[list[float]],
+        src: list[Any] | None = None,
+    ) -> tuple[Array, int]:
         d = np.zeros(len(v))
         nr = len(r_base)
         base = [s for s in range(len(v)) if not extra[s]]
+        if src is not None:
+            src[:] = [None] * len(v)
         if base:
             cb = curves(r_base)
             dq = table.at_pairs(
@@ -350,12 +370,17 @@ def aperture_losvd_panels(
             ).reshape(len(base), nr)
             for t, s in enumerate(base):
                 d[s] = float(np.dot(w_base, dq[t]))
+                if src is not None:
+                    src[s] = (r_base, w_base, cb)
         mine = [s for s in range(len(v)) if extra[s]]
         if mine:
             sets = [radial(extra[s]) for s in mine]
+            if extrema is not None:
+                extrema(np.concatenate([x[0] for x in sets]))
             for x in sets:
                 curves(x[0])
             rq = np.concatenate([x[0] for x in sets])
+            cq = curves(rq)
             dq = table.at_pairs(
                 route,
                 rq,
@@ -365,15 +390,19 @@ def aperture_losvd_panels(
                         for s, x in zip(mine, sets, strict=True)
                     ]
                 ),
-                curves=curves(rq),
+                curves=cq,
             )
             o = 0
             for s, (rn, wn, _) in zip(mine, sets, strict=True):
                 d[s] = float(np.dot(wn, dq[o : o + len(rn)])) / denom
+                if src is not None:
+                    part = slice(o, o + len(rn))
+                    src[s] = (rn, wn / denom, {k: x[part] for k, x in cq.items()})
                 o += len(rn)
         return d, len(mine)
 
-    dp, own = d_bar(vp, radii_for(vp))
+    sp: list[Any] | None = None if record is None else []
+    dp, own = d_bar(vp, radii_for(vp), sp)
     n_rows, m2_rows = rows_rule_moments(table, route, r_base, w_base)
     k_use = int(table.order)
     table.order = k_use - 2
@@ -399,6 +428,7 @@ def aperture_losvd_panels(
         v_new: list[Array] = []
         w_new: list[Array] = []
         d_new: list[Any] = []
+        s_new: list[Any] = []
         sub_new: list[tuple[float, float]] = []
         todo: list[int] = []
         par: list[int] = []
@@ -411,16 +441,22 @@ def aperture_losvd_panels(
                     v_new.append(lo + (hi - lo) * xg_o)
                     w_new.append((hi - lo) * wg_o)
                     d_new.append(None)
+                    s_new.append(None)
                     sub_new.append((lo, hi))
             else:
                 v_new.append(vp[k * m_o : (k + 1) * m_o])
                 w_new.append(wp[k * m_o : (k + 1) * m_o])
                 d_new.append(dp[k * m_o : (k + 1) * m_o])
+                if sp is not None:
+                    s_new.append(sp[k * m_o : (k + 1) * m_o])
                 sub_new.append((a, b))
         vq = np.concatenate([v_new[j] for j in todo])
-        dq, own_q = d_bar(vq, radii_for(vq))
+        sq: list[Any] | None = None if sp is None else []
+        dq, own_q = d_bar(vq, radii_for(vq), sq)
         for t, j in enumerate(todo):
             d_new[j] = dq[t * m_o : (t + 1) * m_o]
+            if sq is not None:
+                s_new[j] = sq[t * m_o : (t + 1) * m_o]
         moved = 0.0
         for t in range(0, len(todo), 2):
             k, j0, j1 = par[t], todo[t], todo[t + 1]
@@ -437,6 +473,8 @@ def aperture_losvd_panels(
             )
             moved = max(moved, abs(dn) / n_rows, abs(dm) / m2_rows)
         vp, wp, dp = np.concatenate(v_new), np.concatenate(w_new), np.concatenate(d_new)
+        if sp is not None:
+            sp = [x for part in s_new for x in part]
         sub = np.array(sub_new)
         own += own_q
         rounds += 1
@@ -463,6 +501,8 @@ def aperture_losvd_panels(
         gap_first=gap0,
         gap_last=gap,
     )
+    if record is not None and sp is not None:
+        record.extend(sp)
     v_even = d_even = None
     if even is not None:
         vt = float(even[1]) if float(even[1]) > 0.0 else v_top

@@ -1,5 +1,5 @@
 """The table of rows of the line-of-sight velocity distribution, computed in
-a pool and certified for its reading between rows."""
+a pool and checked for its reading between rows."""
 
 __all__ = [
     "START_METHOD",
@@ -19,10 +19,10 @@ from typing import Any
 import numpy as np
 
 from ..exceptions import ResultError
-from ..runtime import log, single_threaded_workers
+from ..runtime import get_workers, log, worker_environment
 from ..typing import Array, ArrayLike
 from ._ellipse import T_SET_BY, EllipseRoute
-from ._ellipse_rules import ROW_TOL_M2, ROW_TOL_PW
+from ._ellipse_rules import BREAK_PAST_END, ROW_TOL_M2, ROW_TOL_PW
 from ._kept import WORKER
 from ._panel_table import PanelTable
 
@@ -34,11 +34,11 @@ START_METHOD = "spawn"
 
 def new_pool(n_workers: int, route: EllipseRoute) -> Any:
     """A spawn pool of `n_workers` processes, each holding a copy of the
-    route (`init_worker`) and running its BLAS and OpenMP on one thread
-    [3-181]: the pool is the parallelism and a worker is one process. The
-    thread variables are the runtime service's (`single_threaded_workers`),
-    held at one for the spawn."""
-    with single_threaded_workers():
+    route (`init_worker`) and running its BLAS and OpenMP on one thread,
+    on the CPU: the pool is the parallelism and a worker is one process.
+    The workers' variables are the runtime service's
+    (`worker_environment`), held for the spawn."""
+    with worker_environment():
         return mp.get_context(START_METHOD).Pool(
             processes=n_workers, initializer=init_worker, initargs=(route,)
         )
@@ -86,12 +86,12 @@ def row_worker(args: tuple[Any, ...]) -> tuple[Any, ...]:
 
 
 def row_worker_or_none(args: tuple[Any, ...]) -> tuple[Any, ...]:
-    """A row the certificate adds: `row_worker`, but a radius whose own scan
+    """A row the check between rows adds: `row_worker`, but a radius whose own scan
     puts a decided break on or past its V_end returns (index, None)."""
     try:
         return row_worker(args)
     except ResultError as e:
-        if "[3-76]" not in str(e):
+        if BREAK_PAST_END not in str(e):
             raise
         return (args[0], None)
 
@@ -107,11 +107,11 @@ def losvd_rows(
     sigma_at: Callable[[Array], tuple[Array, Array]] | None = None,
     certify: bool = True,
     r_edge: float = float("inf"),
-    n_workers: int = 8,
     pool: Any = None,
     df_scale: float = 1.0,
+    read_range: tuple[float, float] = (0.0, float("inf")),
 ) -> tuple[PanelTable, Array, Array, Array, dict[str, Any]]:
-    """Return the table of rows at radii `r_2d`, with its self-check.
+    r"""Return the table of rows at radii `r_2d`, with its self-check.
 
     Each row is computed in a pool (`row_worker`) and normalized to unit
     integral over V. Where `certify`, the table is then read between its rows
@@ -136,25 +136,27 @@ def losvd_rows(
     vrad_kept, vk_kept : array or None
         The kept ranges of V_rad and V_k.
     sigma_at : callable, optional
-        (Sigma, sigma_los^2) at added radii.
+        (Sigma, :math:`\sigma_{\rm los}^2`) at added radii.
     certify : bool
-        Whether to certify the reading between rows.
+        Whether to check the reading between rows.
     r_edge : float
         The parent's end, a true end of the last stretch where finite.
-    n_workers : int
-        Processes of the pool, where none is given.
     pool : optional
-        A pool already started with `init_worker`.
+        A pool already started with `init_worker`; by default one of the
+        package's worker count (`pianistpy.set_workers`).
     df_scale : float
         The constant factor the rows' DF carries (`EllipseDF.scale`): a row
         integrates to the surface density times it.
+    read_range : tuple of float
+        The radii the table is read over: an end gap whose end lies outside
+        it is not read (the rows of a table cut there end before it).
 
     Returns
     -------
     table, norm_rel, m2_rel, beyond_rel, info
         The table; each row's norm against Sigma and second moment against
-        sigma_los^2, less one; its share beyond the escape speed; and the rows'
-        and the certificate's record.
+        :math:`\sigma_{\rm los}^2`, less one; its share beyond the escape
+        speed; and the record of the rows and of the check.
     """
     rr = route.rules
     lat = route.lattice
@@ -191,7 +193,7 @@ def losvd_rows(
     )
     t0 = time.perf_counter()
     started = (
-        new_pool(n_workers, route) if pool is None else contextlib.nullcontext(pool)
+        new_pool(get_workers(), route) if pool is None else contextlib.nullcontext(pool)
     )
     with started as pool_:
         for i, vp, wp, dp, nm, mm, bb, cc, brk, dt, trep in pool_.imap_unordered(
@@ -331,6 +333,11 @@ def losvd_rows(
                     for top in (False, True):
                         if (st, top) in gap_shut:
                             continue
+                        end = float(
+                            np.exp(table._st_hi[st] if top else table._st_lo[st])
+                        )
+                        if not read_range[0] <= end <= read_range[1]:
+                            continue
                         g = table.gap_estimate(route, st, top, rr.row_order_test)
                         if g is None and (st, top) not in own:
                             continue
@@ -460,7 +467,7 @@ def losvd_rows(
                         if new[res[0]] in gap_now:
                             gap_shut[gap_now[new[res[0]]][0]] = gap_now[new[res[0]]][1]
                             gap_why[gap_now[new[res[0]]][0]] = (
-                                "its row refused by its own breaks [3-76]"
+                                f"its row refused by its own breaks {BREAK_PAST_END}"
                             )
                         continue
                     _, vp, wp, dp, nm, mm, bb, cc, brk, dt, trep = res
@@ -588,7 +595,7 @@ def losvd_rows(
                 "The table read between its rows: the worst interval %.2e of the "
                 "tolerance before and %.2e after; %d row(s) added in %d round(s), %d "
                 "refused; ended: %s; %d rows; %d end gap(s) and %d interval(s) left "
-                "uncertified.",
+                "above the tolerance.",
                 cert["est_first"],
                 cert["est_last"],
                 cert["rows_added"],

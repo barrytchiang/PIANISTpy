@@ -2,7 +2,7 @@
 
 Several distribution functions inverted from one truncated pair (Method II
 children of one parent) are an equilibrium in that pair for any positive
-weights that sum to one (Paper I, Appendix B5). `superpose` returns that
+weights that sum to one (Chiang+(2026d), Appendix B5). `superpose` returns that
 equilibrium as a `Model`: its components are the members' components, each
 with its own DF table on its own energy grid, and its density is the shared
 one, split among the components by weight.
@@ -81,7 +81,7 @@ def moments(model: Model, r: Any, n_nodes: int | None = None) -> dict[str, Any]:
     -----
     Each component's radial dispersion is the Jeans integral of its
     auxiliary density on the shared profile (`radial_dispersion`, the
-    Gauss-Legendre rule in ln(1 - K / P_0)); its components share the density,
+    Gauss-Legendre rule in ``ln(1 - K / P_0)``); its components share the density,
     so the moments of the mixture are the weighted sums
     :math:`\sigma_r^2 = \sum_k w_k\sigma_{r,k}^2`,
     :math:`\sigma_t^2 = 2\sum_k w_k(1-\beta_k)\sigma_{r,k}^2` and
@@ -89,7 +89,7 @@ def moments(model: Model, r: Any, n_nodes: int | None = None) -> dict[str, Any]:
 
     References
     ----------
-    Paper Eqs. (B42), (B43) [eqn:linearity_2, eqn:linearity_beta_1] and
+    Chiang+(2026d), Eqs. (B42), (B43) [eqn:linearity_2, eqn:linearity_beta_1] and
     eqn:beta_sigma_sup.
     """
     if not isinstance(model, Model):

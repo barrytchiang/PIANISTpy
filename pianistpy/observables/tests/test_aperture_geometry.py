@@ -50,7 +50,7 @@ def test_the_arc_is_the_counted_angular_measure(aperture):
     assert np.all((exact >= 0.0) & (exact <= 2.0 * np.pi + 1e-15))
 
 
-def test_a_centerd_circle_is_the_full_circle_inside_and_nothing_outside():
+def test_a_centered_circle_is_the_full_circle_inside_and_nothing_outside():
     aperture = Aperture.circle(2.0)
     assert np.array_equal(
         aperture.arc([0.5, 2.0, 2.5]), [2.0 * np.pi, 2.0 * np.pi, 0.0]

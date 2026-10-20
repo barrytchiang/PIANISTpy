@@ -59,3 +59,39 @@ def test_only_near_duplicates_at_the_joins_are_dropped(q_max, n_dropped):
     for x in dropped:
         k = int(np.searchsorted(merged, x))
         assert d[k - 1] < 0.05 * np.median(d)
+
+
+def test_a_lowered_df_negative_beyond_rounding_is_refused():
+    # release audit 317 A3: F(K + K_t) - F(K_t) below zero by more than the
+    # rounding of the difference is a refusal by name, never a clip; F here
+    # rises to K = 2/3 and falls after it, so the DF lowered at K_t = 0.7 is
+    # negative above its edge
+    from pianistpy import UnphysicalModelError
+    from pianistpy.df.truncation import truncated_source
+
+    q = np.geomspace(1e-6, 0.999, 400)
+    with pytest.raises(UnphysicalModelError, match="NEGATIVE TRUNCATED DF"):
+        truncated_source(
+            q_table=q,
+            df_table=q**2 * (1.0 - q),
+            ddf_dq=None,
+            df_has_neg=False,
+            k_t=0.7,
+            p_center=1.0,
+            beta_c=0.0,
+            model_type="isotropic",
+            settings=Settings().truncation,
+        )
+
+
+def test_a_non_finite_center_form_is_refused_with_its_values():
+    # release audit 317 A3: the center's form above the table, where it is NaN,
+    # is refused by name and carries what was made, never set to 0 (beyond the
+    # range of a double it is +inf, the table's own top band)
+    from pianistpy import AccuracyError
+    from pianistpy.df.truncated import _extend
+
+    q = np.linspace(0.1, 0.5, 50)
+    with pytest.raises(AccuracyError, match="NaN or -inf") as refused:
+        _extend(q, q.copy(), 1.0, np.nan, 0.5, -1.0, 0.0, 0.0, ode_rtol=1e-10)
+    assert set(refused.value.result) == {"k", "f"}

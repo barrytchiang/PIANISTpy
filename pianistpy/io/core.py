@@ -30,7 +30,7 @@ import h5py
 import numpy as np
 
 from .._version import __version__
-from ..exceptions import ResultError
+from ..exceptions import InputError, ResultError
 from ..identity import FORMAT_VERSION
 
 DATA_GROUP = "data"
@@ -186,13 +186,16 @@ def write_result(
 
     Raises
     ------
-    ResultError
+    InputError
         If the file exists and `overwrite` is false.
+    ResultError
+        If the file does not read back as written.
     """
     path = Path(path)
     if path.exists() and not overwrite:
-        raise ResultError(f"The file {path} exists; pass overwrite=True to replace it.")
-    created = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+        raise InputError(f"{str(path)!r} exists; pass overwrite=True to replace it.")
+    now = datetime.datetime.now(datetime.timezone.utc)  # noqa: UP017 (any Python)
+    created = now.isoformat(timespec="seconds")
     with h5py.File(path, "w") as file:
         group = file.create_group(DATA_GROUP)
         for name, values in arrays.items():
@@ -209,7 +212,50 @@ def write_result(
         provenance.attrs["created"] = created
         for key, value in backend_provenance().items():
             provenance.attrs[key] = value
+    _check_read_back(path, kind, identity, record, arrays, parents, digest)
     return digest
+
+
+def _check_read_back(
+    path: Path,
+    kind: str,
+    identity: str,
+    record: Mapping[str, Any],
+    arrays: Mapping[str, Any],
+    parents: Sequence[str],
+    digest: str,
+) -> None:
+    """Read the file just written and refuse it unless it holds what was
+    asked to be written: the arrays to the bit, the record, the identity.
+    The arrays are compared one at a time, so the check holds at most one of
+    them beside the caller's."""
+    with h5py.File(path, "r") as file:
+        group = file[DATA_GROUP]
+        stored: list[str] = []
+        group.visititems(
+            lambda name, item: (
+                stored.append(name) if isinstance(item, h5py.Dataset) else None
+            )
+        )
+        same = (
+            str(file.attrs["result_kind"]) == kind
+            and str(file.attrs["identity"]) == identity
+            and str(file.attrs["data_sha256"]) == digest
+            and data_digest(file) == digest
+            and str(file.attrs["record"]) == json.dumps(dict(record), sort_keys=True)
+            and tuple(json.loads(file.attrs["parents"])) == tuple(parents)
+            and sorted(stored) == sorted(arrays)
+        )
+        for name, values in arrays.items():
+            if not same:
+                break
+            expected = np.asarray(values)
+            found = group[name][...]
+            same = found.dtype == expected.dtype and np.array_equal(
+                found, expected, equal_nan=expected.dtype.kind in "fc"
+            )
+    if not same:
+        raise ResultError(f"{path} does not read back as written; the file is refused.")
 
 
 def read_result(path: str | os.PathLike) -> StoredResult:
@@ -294,7 +340,7 @@ READERS: dict[str, Callable[[StoredResult], Any]] = {}
 
 
 def register_reader(kind: str, reader: Callable[[StoredResult], Any]) -> None:
-    """Register the function that rebuilds the results of one kind from a file.
+    """Make `reader` the function that rebuilds the results of one kind from a file.
 
     Parameters
     ----------

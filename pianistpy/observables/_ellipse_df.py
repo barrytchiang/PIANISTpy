@@ -24,7 +24,9 @@ class EllipseDF:
     q_grid : array-like
         The DF table's energies; its first and last are its floor and top.
     f : callable
-        F at energies, zero where the DF has no value.
+        F at energies, zero where the DF has no value; the route also passes
+        it the depths below P0 near the top, where it holds them, as a second
+        argument (`DfReading`).
     log10_f : callable
         The lookup's base-10 logarithm of F, which `f` may carry a constant
         factor against.
@@ -40,16 +42,17 @@ class EllipseDF:
 
     Notes
     -----
-    G runs on three branches with Simpson's rule: in ln Q from 1e-40 Q_0 to the
-    floor Q_0, in ln Q from Q_0 to half the top, and in ln(Q_end - Q) from
-    there to 1e-13 Q_end, Q_end the lookup's P0 where it lies above the top.
+    G runs on three branches with Simpson's rule: in ln Q from
+    :math:`10^{-40}` Q_0 to the floor Q_0, in ln Q from Q_0 to half the top,
+    and in ln(Q_end - Q) from there to :math:`10^{-13}` Q_end, Q_end the
+    lookup's P0 where it lies above the top.
     Each branch starts from the lookup's own cumulative integral.
     """
 
     def __init__(
         self,
         q_grid: ArrayLike,
-        f: Callable[[Array], Array],
+        f: Callable[..., Array],
         log10_f: Callable[[Array], Array],
         cumulative: Callable[[float], float],
         info: Mapping[str, Any],
@@ -71,6 +74,8 @@ class EllipseDF:
         gl = self._cum(f(np.exp(lq)) * np.exp(lq), lq[1] - lq[0], base)
         p0 = float(info.get("P0", float("nan")))
         self.Qend = p0 if np.isfinite(p0) and p0 > self.Qtop else self.Qtop
+        # a depth below the lookup's P0 is the top branch's own variable
+        self.depth_end = bool(np.isfinite(p0) and p0 > self.Qtop)
         y = np.linspace(np.log(self.Qend - self.Qmid), np.log(1e-13 * self.Qend), n)
         gu = self._cum(f(self.Qend - np.exp(y)) * np.exp(y), y[0] - y[1], gl[-1])
         self._lq, self._lGl = lq, np.log(np.maximum(gl, 1e-300))
@@ -121,7 +126,7 @@ class EllipseDF:
         r"""Return whether the s panel that touches K = 0 takes the map that
         carries :math:`F \sim K^p` exactly: where m-node Gauss-Legendre's own
         error on :math:`K^p` over that panel, :math:`|(p+1)\sum w x^p - 1|`
-        times its share :math:`(0.5\,r^{K_q})^{p+1}`, exceeds 1e-2 of the
+        times its share :math:`(0.5\,r^{K_q})^{p+1}`, exceeds :math:`10^{-2}` of the
         goal."""
         key = (int(m), int(kq))
         if key not in self._zmap:
@@ -144,8 +149,12 @@ class EllipseDF:
         c[1:-1:2] = 0.5 * (c[0:-2:2] + c[2::2]) + (h / 4.0) * (g[0:-2:2] - g[2::2])
         return c
 
-    def G(self, q: ArrayLike) -> Array:
+    def G(self, q: ArrayLike, depth: ArrayLike | None = None) -> Array:
         r"""Return :math:`\int_0^Q F\,{\rm d}K` at energies.
+
+        `depth`, :math:`P_0 - Q` where the caller holds it exactly (NaN where
+        not), is the top branch's variable in place of the difference, which
+        has lost the digits near :math:`P_0`.
 
         Raises
         ------
@@ -172,9 +181,13 @@ class EllipseDF:
                 f"the DF has no value: the profile's potential exceeds the model's "
                 f"own P0."
             )
+        below = self.Qend - q[c]
+        if depth is not None and self.depth_end:
+            held = np.broadcast_to(np.asarray(depth, dtype=np.float64), q.shape)[c]
+            below = np.where(np.isfinite(held), held, below)
         out[c] = np.exp(
             np.interp(
-                np.log(np.maximum(self.Qend - q[c], 1e-13 * self.Qend)),
+                np.log(np.maximum(below, 1e-13 * self.Qend)),
                 self._yu,
                 self._lGu,
             )

@@ -1,10 +1,11 @@
-Reference
-=========
+API reference
+=============
 
 .. toctree::
    :maxdepth: 1
 
-   api/index
-   notes
+   Functions by subpackage <api/index>
    settings
-   symbols
+   Names and paper symbols <symbols>
+   Accuracy tables <accuracy>
+   notes

@@ -14,11 +14,11 @@ __all__ = [
 
 import logging
 import warnings
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from .exceptions import AccuracyError, AccuracyWarning, InputError
+from .exceptions import AccuracyError, AccuracyWarning, InputError, ResultError
 
 _log = logging.getLogger("pianistpy")
 
@@ -30,6 +30,9 @@ CEILING = 1e-4
 HARD_LIMIT = 1e-2
 
 TIER_NAMES = ("goal", "ceiling", "warning", "refused")
+_NAN = float("nan")
+# why a check a report of its kind has is absent from a file
+NOT_IN_FILE = "not in the file: the version that wrote it did not make this check"
 
 
 def tier_level(error: float) -> int:
@@ -70,20 +73,34 @@ class Check:
     where : float, optional
         The place of the largest error, in the variable the check runs over
         (a radius or an energy). Absent where that has no meaning.
+    reason : str, optional
+        Why the check was not judged, where it was not: such a check has no
+        error (NaN), its tier reads ``"not judged"``, and the result's tier
+        is the worst of the checks that were.
+    source : str, optional
+        Where a judged check read its input from another source than its
+        own, what it read and why; the error and the tier are as measured.
+    excluded : str, optional
+        Where a judged check leaves part of its input unjudged, which part
+        and why; the error and the tier are those of the rest.
     """
 
     error: float
     where: float | None = None
+    reason: str | None = None
+    source: str | None = None
+    excluded: str | None = None
 
     @property
     def level(self) -> int:
-        """Tier of the error, as returned by `tier_level`."""
-        return tier_level(self.error)
+        """Tier of the error, as returned by `tier_level`; 0 for a check not
+        judged, which leaves the result's tier to the others."""
+        return 0 if self.reason is not None else tier_level(self.error)
 
     @property
     def tier(self) -> str:
-        """Name of the tier of the error."""
-        return TIER_NAMES[self.level]
+        """Name of the tier of the error, or ``"not judged"``."""
+        return "not judged" if self.reason is not None else TIER_NAMES[self.level]
 
 
 @dataclass(frozen=True)
@@ -128,14 +145,62 @@ class ValidationReport:
         return TIER_NAMES[self.level]
 
     @classmethod
-    def from_dict(cls, record: Mapping[str, Any]) -> "ValidationReport":
-        """Build the report from its dictionary form."""
+    def from_dict(
+        cls,
+        record: Mapping[str, Any],
+        key_sets: Sequence[tuple[str, ...]] | None = None,
+    ) -> "ValidationReport":
+        """Build the report from its dictionary form.
+
+        Parameters
+        ----------
+        record : mapping
+            The report as `to_dict` writes it.
+        key_sets : sequence of tuple of str, optional
+            The key sets a report of this kind of result has. Given, a check
+            no set holds is refused by name, and the report is read against
+            the smallest set that holds all its checks: a check of that set
+            the record lacks (a file written before the check was made) is
+            read as not judged, with that reason.
+
+        Raises
+        ------
+        ResultError
+            If a check of the record is in none of the key sets, or no one
+            set holds all its checks.
+        """
+        found = tuple(record["checks"])
+        keys = found
+        if key_sets is not None:
+            known = {key for key_set in key_sets for key in key_set}
+            unknown = [key for key in found if key not in known]
+            if unknown:
+                raise ResultError(
+                    f"The report holds the check(s) {unknown}, which no report "
+                    "of this kind of result has."
+                )
+            holding = [s for s in key_sets if set(found) <= set(s)]
+            if not holding:
+                raise ResultError(
+                    f"No report of this kind of result holds the checks {list(found)} "
+                    "together."
+                )
+            keys = min(holding, key=len)
         checks = {
-            key: Check(error=float(item["error"]), where=item["where"])
+            key: Check(
+                error=float(item["error"]),
+                where=item["where"],
+                reason=item.get("reason"),
+                source=item.get("source"),
+                excluded=item.get("excluded"),
+            )
             for key, item in record["checks"].items()
         }
+        for key in keys:
+            if key not in checks:
+                checks[key] = Check(_NAN, reason=NOT_IN_FILE)
         return cls(
-            keys=tuple(record["checks"]),
+            keys=keys,
             checks=checks,
             parents_level=TIER_NAMES.index(record["parents_tier"]),
         )
@@ -145,15 +210,25 @@ class ValidationReport:
         return {
             "tier": self.tier,
             "parents_tier": TIER_NAMES[self.parents_level],
-            "checks": {
-                key: {
-                    "error": self.checks[key].error,
-                    "where": self.checks[key].where,
-                    "tier": self.checks[key].tier,
-                }
-                for key in self.keys
-            },
+            "checks": {key: _check_record(self.checks[key]) for key in self.keys},
         }
+
+
+def _check_record(check: Check) -> dict[str, Any]:
+    """A check's dictionary form; the reason, the source and the excluded part
+    only where one is stated, so the record of any other check is as before."""
+    record: dict[str, Any] = {
+        "error": check.error,
+        "where": check.where,
+        "tier": check.tier,
+    }
+    if check.reason is not None:
+        record["reason"] = check.reason
+    if check.source is not None:
+        record["source"] = check.source
+    if check.excluded is not None:
+        record["excluded"] = check.excluded
+    return record
 
 
 def refuse_unless_asked(what: str, report: ValidationReport, settings: Any) -> None:

@@ -27,7 +27,7 @@ def _sigma_r2(r):
 
 def test_projection_of_a_uniform_isotropic_sphere():
     # Sigma = 2 (R_t^2 - R_2D^2)^(1/2); with beta = 0 and sigma_r^2 constant,
-    # sigma_los^2 equals it (paper Eqs. B45, B46)
+    # sigma_los^2 equals it (Chiang+(2026d), Eqs. B45, B46)
     r_2d = np.array([1e-3, 0.1, 0.5, 1.0, 1.9])
     surface_density, sigma_los2 = project(
         r_2d, _density, _sigma_r2, R_T, Anisotropy(), 200

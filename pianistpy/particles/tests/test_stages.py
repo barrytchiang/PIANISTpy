@@ -13,7 +13,7 @@ from pianistpy.df.edge import density_edge_exponent
 from pianistpy.df.inputs import Component
 from pianistpy.df.lookup import log10_df
 from pianistpy.df.stages import DfTable
-from pianistpy.exceptions import InputError, ResultError
+from pianistpy.exceptions import AccuracyError, InputError, ResultError
 from pianistpy.particles import Sampler, speed, stages
 from pianistpy.particles.stages import (
     SpeedTable,
@@ -31,7 +31,8 @@ from pianistpy.validation import GOAL, HARD_LIMIT, ValidationReport
 
 
 def _model_with(beta_cs):
-    """The analytic Hernquist model, its component repeated with the given beta_c."""
+    r"""The analytic Hernquist model, its component repeated with the given
+    :math:`\beta_{\rm c}`."""
     model = analytic_model("hernquist")
     profile = model.components[0].profile
     components = tuple(
@@ -211,9 +212,9 @@ def test_validate_particles_refuses_a_particle_beyond_the_bound():
     x, d, psi = np.full(n, 0.5), np.full(n, 0.5), np.full(n, 0.5)
     report = validate_particles(model, 0, position, velocity, x, d, psi)
     assert report.tier == "goal"
-    with pytest.raises(ResultError):
+    with pytest.raises(AccuracyError):
         validate_particles(model, 0, position, velocity, x, -d, psi)
-    with pytest.raises(ResultError):
+    with pytest.raises(AccuracyError):
         validate_particles(model, 0, position, 20.0 * velocity, x, d, psi)
 
 
@@ -236,12 +237,13 @@ REDUCED = {"n_rows": 9, "n_rows_max": 51, "n_nodes": 256}
 
 
 def _lowered_hernquist(k_t=0.05, n_nodes=2001, stationary=False):
-    """A truncated model from closed forms: the Hernquist DF lowered by its
-    value at k_t, F(K + k_t) - F(k_t), with its Taylor form below the table,
-    on the Hernquist potential lowered by k_t, whose last row is zero. With
-    `stationary`, lowered by its slope there too, F(K + k_t) - F(k_t) - F'(k_t)
-    K, so that F_1 = 0 (the stationary edge); its floor is higher, 1e-3, where
-    the two subtractions keep 10 digits."""
+    r"""A truncated model from closed forms: the Hernquist DF lowered by its
+    value at :math:`\mathcal{K}_{\rm t}`, ``F(K + k_t) - F(k_t)``, with its Taylor
+    form below the table, on the Hernquist potential lowered by
+    :math:`\mathcal{K}_{\rm t}`, whose last row is zero. With `stationary`, lowered
+    by its slope there too, ``F(K + k_t) - F(k_t) - F'(k_t) K``, so that F_1 = 0
+    (the stationary edge); its floor is higher, :math:`10^{-3}`, where the two
+    subtractions keep 10 digits."""
     model = analytic_model("hernquist")
     p_0, k_floor = 1.0 - k_t, (1e-3 if stationary else 1e-6)
     n_lower = n_nodes // 2 + 1
@@ -480,6 +482,17 @@ def test_sampler_draws_the_hernquist_model_end_to_end(caplog):
     )
 
 
+def test_the_speeds_window_is_two_speeds():
+    sampler = Sampler(
+        dataclasses.replace(
+            analytic_model("hernquist"), settings=Settings(sampling=REDUCED)
+        ),
+        r_sample=100.0,
+    )
+    with pytest.raises(InputError, match="two speeds"):
+        sampler.speeds(np.array([1.0]), v_range=("slow", "fast"))
+
+
 def test_the_sampler_refuses_several_components():
     with pytest.raises(InputError, match="one component"):
         Sampler(_model_with([0.0, 0.25]), r_sample=100.0)
@@ -556,3 +569,218 @@ def test_an_empty_or_inverted_span_is_refused_by_name():
     )
     with pytest.raises(ResultError, match="potential"):
         speed.build_speed_table(flat, settings)
+
+
+@pytest.fixture(scope="module")
+def hernquist_sampler():
+    """The analytic Hernquist model's sampler to r = 100, reduced settings."""
+    settings = Settings(sampling=REDUCED)
+    model = dataclasses.replace(analytic_model("hernquist"), settings=settings)
+    return model, Sampler(model, r_sample=100.0)
+
+
+def test_a_radius_range_draws_the_model_on_that_range(hernquist_sampler):
+    model, whole = hernquist_sampler
+    r_lo, r_hi = 0.5, 5.0
+    ranged = Sampler(model, r_sample=100.0, r_range=(r_lo, r_hi))
+    particles = ranged.sample(4000, seed=3)
+    r = np.linalg.norm(particles.position, axis=1)
+    # inside the range by construction, to the rounding of the logit
+    assert np.all(r >= r_lo * (1.0 - 1e-12)) and np.all(r <= r_hi * (1.0 + 1e-12))
+
+    # the range's mass, M(r) = (r / (1 + r))^2, to the profile's rows
+    def mass(x):
+        return (x / (1.0 + x)) ** 2
+
+    assert particles.mass.sum() == pytest.approx(mass(r_hi) - mass(r_lo), rel=1e-6)
+    # the radii follow M(r) conditioned on the range (Kolmogorov-Smirnov)
+    cdf = (mass(np.sort(r)) - mass(r_lo)) / (mass(r_hi) - mass(r_lo))
+    ecdf = np.arange(1, r.size + 1) / r.size
+    distance = max(np.max(ecdf - cdf), np.max(cdf - (ecdf - 1.0 / r.size)))
+    assert distance < 1.63 / np.sqrt(r.size)  # 1 % level
+    # the same seed draws the same particles; the range is in the identity
+    again = Sampler(model, r_sample=100.0, r_range=(r_lo, r_hi)).sample(4000, seed=3)
+    assert np.array_equal(again.position, particles.position)
+    assert ranged.identity != whole.identity
+
+
+def test_the_whole_range_is_the_draw_without_one(hernquist_sampler):
+    model, whole = hernquist_sampler
+    full = Sampler(model, r_sample=100.0, r_range=(0.0, 100.0))
+    assert full.bounds == [(0.0, 1.0)]
+    a, b = whole.sample(1000, seed=5), full.sample(1000, seed=5)
+    assert np.array_equal(a.position, b.position)
+    assert np.array_equal(a.velocity, b.velocity)
+    assert np.array_equal(a.mass, b.mass)
+
+
+@pytest.mark.parametrize(
+    "r_range, match",
+    [
+        ((5.0, 0.5), "r_lo < r_hi"),
+        ((-1.0, 1.0), "r_lo < r_hi"),
+        ((0.5, np.inf), "finite"),
+        ((0.5,), "two radii"),
+        ((0.5, 200.0), "beyond the outer radius"),
+    ],
+)
+def test_a_radius_range_outside_the_sampling_is_refused(
+    hernquist_sampler, r_range, match
+):
+    model, _ = hernquist_sampler
+    with pytest.raises(InputError, match=match):
+        Sampler(model, r_sample=100.0, r_range=r_range)
+
+
+def _hernquist_speed_cdf(r, v):
+    """The isotropic Hernquist model's speed distribution at r, by quadrature of
+    F(P - v^2 / 2) v^2 on the closed-form DF, P = 1 / (1 + r)."""
+    psi = 1.0 / (1.0 + r)
+
+    def density(w):
+        return float(hernquist_df(psi - 0.5 * w * w)[0]) * w * w
+
+    v_esc = np.sqrt(2.0 * psi)
+    total = integrate.quad(density, 0.0, v_esc, epsabs=0.0, epsrel=1e-12)[0]
+    return (
+        np.array(
+            [
+                integrate.quad(density, 0.0, min(x, v_esc), epsabs=0.0, epsrel=1e-12)[0]
+                for x in np.atleast_1d(v)
+            ]  # fmt: skip
+        )
+        / total
+    )
+
+
+@pytest.mark.parametrize("r", [0.3, 1.0, 5.0])
+def test_a_speed_window_draws_the_speed_distribution_conditioned_on_it(
+    hernquist_sampler, r
+):
+    _, sampler = hernquist_sampler
+    v_esc = np.sqrt(2.0 / (1.0 + r))
+    v_lo, v_hi = 0.25 * v_esc, 0.55 * v_esc
+    n = 4000
+    v, fraction = sampler.speeds(np.full(n, r), seed=4, v_range=(v_lo, v_hi))
+    # every speed in the window, to the bisection's rounding
+    assert np.all(v >= v_lo * (1.0 - 1e-10)) and np.all(v <= v_hi * (1.0 + 1e-10))
+    # the window's fraction against the closed form, to the reduced table's
+    # row error (warning tier, 3.4e-4)
+    exact = np.diff(_hernquist_speed_cdf(r, [v_lo, v_hi]))[0]
+    np.testing.assert_allclose(fraction, exact, rtol=2e-3)
+    # the speeds follow the distribution conditioned on the window
+    # (Kolmogorov-Smirnov against the closed form)
+    base = _hernquist_speed_cdf(r, v_lo)[0]
+    cdf = (_hernquist_speed_cdf(r, np.sort(v)) - base) / exact
+    ecdf = np.arange(1, n + 1) / n
+    distance = max(np.max(ecdf - cdf), np.max(cdf - (ecdf - 1.0 / n)))
+    assert distance < 1.63 / np.sqrt(n)  # 1 % level
+
+
+def test_the_whole_window_is_the_speed_draw_without_one(hernquist_sampler):
+    # no window, or one wider than the escape speed: the speed numbers are
+    # unmapped, so the speeds are draw_speed's at the same numbers, to the bit
+    _, sampler = hernquist_sampler
+    r = np.geomspace(1e-2, 50.0, 500)
+    part = sampler.parts[0]
+    numbers = stages.random_numbers_block(6, 0, 0, r.size)
+    expected = stages.draw_speed(
+        part.speed_table, part.model, 0, r, np.ones(r.size), numbers
+    )[0]
+    for window in (None, (0.0, 10.0)):
+        v, fraction = sampler.speeds(r, seed=6, v_range=window)
+        assert np.all(fraction == 1.0)
+        assert np.array_equal(v, expected)
+
+
+def test_adjacent_speed_windows_add_up(hernquist_sampler):
+    _, sampler = hernquist_sampler
+    r = np.array([0.1, 1.0, 10.0])
+    v_esc = np.sqrt(2.0 / (1.0 + r))
+    lo, mid, hi = 0.2 * v_esc.min(), 0.4 * v_esc.min(), 0.6 * v_esc.min()
+    whole = sampler.speeds(r, v_range=(lo, hi))[1]
+    parts = (
+        sampler.speeds(r, v_range=(lo, mid))[1]
+        + sampler.speeds(r, v_range=(mid, hi))[1]
+    )
+    np.testing.assert_allclose(parts, whole, rtol=0.0, atol=1e-13)
+
+
+def test_a_window_at_each_radius_is_the_single_window_at_that_radius(hernquist_sampler):
+    # bounds given per radius, here in units of each radius's escape speed: at
+    # each radius the speed and the fraction are, to the byte, those of the one
+    # window applied to every radius (the same speed numbers, particle i)
+    _, sampler = hernquist_sampler
+    r = np.array([0.3, 1.0, 5.0])
+    v_esc = np.sqrt(2.0 / (1.0 + r))
+    lo, hi = 0.25 * v_esc, 0.55 * v_esc
+    v, fraction = sampler.speeds(r, seed=4, v_range=(lo, hi))
+    for i in range(r.size):
+        v_i, fraction_i = sampler.speeds(r, seed=4, v_range=(lo[i], hi[i]))
+        assert v[i].tobytes() == v_i[i].tobytes()
+        assert fraction[i].tobytes() == fraction_i[i].tobytes()
+    # a scalar bound with an array bound: broadcast
+    _, f_scalar_lo = sampler.speeds(r, seed=4, v_range=(0.0, hi))
+    for i in range(r.size):
+        assert (
+            f_scalar_lo[i].tobytes()
+            == sampler.speeds(r, seed=4, v_range=(0.0, hi[i]))[1][i].tobytes()
+        )
+
+
+@pytest.mark.parametrize(
+    "v_range, match",
+    [
+        ((np.zeros(2), np.ones(2)), r"shape \(3,\).*v_lo of shape \(2,\)"),
+        ((0.1, np.ones((3, 2))), r"v_hi of shape \(3, 2\)"),
+        ((np.array([0.1, 0.6, 0.1]), np.full(3, 0.5)), "v_lo < v_hi at every radius"),
+        ((np.array([0.1, -0.1, 0.1]), 0.5), "v_lo < v_hi at every radius"),
+    ],
+)
+def test_windows_that_do_not_fit_the_radii_are_refused(
+    hernquist_sampler, v_range, match
+):
+    _, sampler = hernquist_sampler
+    with pytest.raises(InputError, match=match):
+        sampler.speeds(np.array([0.3, 1.0, 5.0]), v_range=v_range)
+
+
+def test_a_window_above_the_escape_speed_draws_nothing(hernquist_sampler):
+    _, sampler = hernquist_sampler
+    r = np.array([1.0, 10.0])
+    v, fraction = sampler.speeds(r, v_range=(1.5, 2.0))  # v_esc(1) = 1
+    assert np.all(fraction == 0.0) and np.all(np.isnan(v))
+
+
+def test_a_speed_window_with_a_finite_anisotropy_radius_is_refused(hernquist_sampler):
+    # the window couples to the drawn angle there; refused before any table is read
+    import copy
+
+    _, sampler = hernquist_sampler
+    model = sampler.model
+    om = Component(
+        profile=model.components[0].profile, anisotropy=Anisotropy(r_a=3.0, kind="I")
+    )
+    coupled = copy.copy(sampler)
+    coupled.model = dataclasses.replace(model, components=(om,))
+    with pytest.raises(InputError, match="couples to the angle"):
+        coupled.speeds([1.0], v_range=(0.1, 0.5))
+
+
+@pytest.mark.parametrize(
+    "r, v_range, match",
+    [
+        ([1.0], (0.5, 0.1), "v_lo < v_hi"),
+        ([1.0], (-0.1, 0.5), "v_lo < v_hi"),
+        ([1.0], (np.inf, np.inf), "v_lo finite"),
+        ([1.0], (0.5,), "two speeds"),
+        ([0.0], (0.1, 0.5), "0 < r"),
+        ([200.0], (0.1, 0.5), "outer radius"),
+    ],
+)
+def test_a_speed_window_outside_the_model_is_refused(
+    hernquist_sampler, r, v_range, match
+):
+    _, sampler = hernquist_sampler
+    with pytest.raises(InputError, match=match):
+        sampler.speeds(r, v_range=v_range)

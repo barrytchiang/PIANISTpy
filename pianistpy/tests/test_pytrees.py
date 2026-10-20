@@ -79,10 +79,12 @@ def test_jit_retraces_on_the_family_not_on_the_values():
     assert len(calls) == 1
     g(Anisotropy(beta_c=0.1, r_a=5.0), r)
     assert len(calls) == 2
-    np.testing.assert_array_equal(
-        np.asarray(g(Anisotropy(beta_c=0.1, r_a=5.0), r)),
-        Anisotropy(beta_c=0.1, r_a=5.0).factor(np.asarray([0.5, 2.0])),
-    )
+    # beta_c traced, the power is XLA's, not NumPy's: at rounding (measured on
+    # the CPU, 4000 radii 1e-3 to 1e3 and five beta_c: up to 8 ulp, 86 percent
+    # to the bit; the form g = R^(-2 beta_c) u^(-s) the same, up to 7 ulp)
+    got = np.asarray(g(Anisotropy(beta_c=0.1, r_a=5.0), r))
+    want = Anisotropy(beta_c=0.1, r_a=5.0).factor(np.asarray([0.5, 2.0]))
+    assert np.all(np.abs(got - want) <= 16 * np.spacing(np.abs(want)))
 
 
 def test_a_model_is_a_pytree_of_its_arrays_with_its_records_static():

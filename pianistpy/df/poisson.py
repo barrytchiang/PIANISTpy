@@ -5,9 +5,9 @@ anisotropy's factor in r and the source profile: the potential Phi(r) and
 its gradient on a grid in r, from the center to the edge where Phi reaches
 the floor (the edge of a spatially finite model), or to the outer radius.
 
-The state is [Phi, W = r dPhi/dr, u = P_0 - Phi] in s = ln r under a
+The state is ``[Phi, W = r dPhi/dr, u = P_0 - Phi]`` in s = ln r under a
 relative tolerance, started from the cusp's series; a truncated model's
-last rows are re-solved on a grid geometric in R_t - r, and the row at the
+last rows are re-solved on a grid geometric in ``R_t - r``, and the row at the
 floor is the event's crossing. The arithmetic is the working pipeline's,
 operation for operation; the settings are read by the names it uses.
 """
@@ -17,12 +17,14 @@ __all__ = [
     "EVENT_RTOL",
     "PoissonSolve",
     "cuddeford_prefactor",
+    "density_cut",
     "poisson_source",
     "profile_density",
     "run_poisson_ode",
     "source_slopes",
 ]
 
+import math
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from functools import partial
@@ -34,12 +36,13 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from scipy.special import gamma as _sgamma
 
-from ..exceptions import AccuracyError, InputError
+from ..anisotropy.factor import inverse_factor
+from ..exceptions import AccuracyError, InputError, UnphysicalModelError
 from ..numerics.pchip import interp1d, pchip_slopes
 from ..typing import Array
-from .truncation import INNER_DEPTH, K_FLOOR, ROW_BINS_TOP
+from .truncation import K_FLOOR, ROW_BINS_TOP, inner_zone_depth
 
-# the lookup's margins inside the source table, and the floor of a physical potential
+# the lookup's margin below the source table's top, and a physical potential's floor
 PHI_CLIP_EPS = 1e-14
 PHYS_FLOOR = 1e-13
 # the floor events' root finder, on ln r: |delta ln r| <= EVENT_ATOL + EVENT_RTOL |ln r|
@@ -59,7 +62,7 @@ class PoissonSolve:
         Potential and its radial derivative; +inf past the event on a
         model the edge continuation did not re-solve.
     u_r, u : array, shape (m,)
-        The central coordinate u = P_0 - Phi at the pass-1 nodes.
+        The central coordinate ``u = P_0 - Phi`` at the pass-1 nodes.
     event_hit : bool
         Whether Phi reached the floor inside the outer radius.
     r_event : float
@@ -98,12 +101,34 @@ def cuddeford_prefactor(bc: float) -> float:
     return float(2.0 * np.pi**1.5 * _sgamma(1.0 - bc) / _sgamma(1.5 - bc))
 
 
+def _density_of(rhs, r, ra, model_type, bc):
+    r"""Return rho = rho_aux over the anisotropy's h (`inverse_factor`), with
+    rho_aux = ``rhs`` times the family's prefactor. A Type II model is not
+    defined beyond :math:`R_{\rm a}`: the solve carries zero density there (its
+    h is read at :math:`R_{\rm a} / 2` in its place, so that no value beyond
+    :math:`R_{\rm a}` enters), and a truncation whose edge lies at or beyond
+    :math:`R_{\rm a}` is refused after the solve (TYPE II EDGE)."""
+    if model_type in ("OM_I", "OM_II"):
+        pref = 4.0 * jnp.pi
+    else:
+        pref = cuddeford_prefactor(bc)
+    if model_type not in ("OM_I", "OM_II", "COM_I", "COM_II"):
+        (h,) = inverse_factor(r, "constant", bc, math.inf)
+        return pref * rhs / h
+    if model_type in ("OM_I", "COM_I"):
+        (h,) = inverse_factor(r, model_type, bc, ra)
+        return pref * rhs / h
+    inside = r < ra
+    (h,) = inverse_factor(jnp.where(inside, r, 0.5 * ra), model_type, bc, ra)
+    return jnp.where(inside, pref * rhs / h, 0.0)
+
+
 def source_slopes(
     q: Any, p_rhs: Any, p_0: float | None, p_s: float, order: str = "cubic"
 ) -> Array:
     """Return the source lookup's node slopes, d ln rho_aux / dx.
 
-    x is the logit ln(Q / (P_0 - Q)) where P_0 is given, ln Q otherwise. A
+    x is the logit ``ln(Q / (P_0 - Q))`` where :math:`P_0` is given, ln Q otherwise. A
     not-a-knot cubic spline over each unbroken run of positive rho_aux,
     split at the inversion's interior point P_s where it is finite; PCHIP's
     slopes on the nodes outside such runs.
@@ -131,7 +156,9 @@ def poisson_source(
 ):
     """Return the density at (Phi, r) from the source table, and whether Phi
     is physical there. Exact vacuum below the table."""
-    phi_safe = jnp.clip(phi, q[0] + PHI_CLIP_EPS, q[-1] - PHI_CLIP_EPS)
+    # the lower clip is the table's first node itself: an absolute epsilon
+    # there moves the floor's potential, 1e-10, by its own size over 1e-10
+    phi_safe = jnp.clip(phi, q[0], q[-1] - PHI_CLIP_EPS)
     is_physical = phi_safe > PHYS_FLOOR
     log_phi = jnp.log(jnp.maximum(phi_safe, 1e-300))
     log_q = jnp.log(jnp.maximum(q, 1e-300))
@@ -157,45 +184,35 @@ def poisson_source(
     )
     rhs = jnp.where(phi < q[0], 0.0, rhs)
     # rho = rho_aux over the anisotropy's factor in r (zero beyond R_a for Type II)
-    if model_type == "OM_I":
-        source = 4.0 * jnp.pi * rhs / (1.0 + (r / ra) ** 2)
-    elif model_type == "OM_II":
-        source = jnp.where(
-            r < ra, 4.0 * jnp.pi * rhs / jnp.maximum(1.0 - (r / ra) ** 2, 1e-30), 0.0
-        )
-    elif model_type == "COM_I":
-        source = (
-            cuddeford_prefactor(bc)
-            * rhs
-            / (r ** (2.0 * bc) * (1.0 + (r / ra) ** 2) ** (1.0 - bc))
-        )
-    elif model_type == "COM_II":
-        source = jnp.where(
-            r < ra,
-            cuddeford_prefactor(bc)
-            * rhs
-            / (r ** (2.0 * bc) * jnp.maximum(1.0 - (r / ra) ** 2, 1e-30) ** (1.0 - bc)),
-            0.0,
-        )
-    else:
-        source = cuddeford_prefactor(bc) * rhs / (r ** (2.0 * bc))
-    return source, is_physical
+    return _density_of(rhs, r, ra, model_type, bc), is_physical
+
+
+def density_cut(c: float, gamma: float) -> float:
+    """Return the radius below which the profile's cusp density C R^-gamma
+    leaves float64's range, (C / DBL_MAX)^(1/gamma); 0 where ``gamma <= 0``."""
+    if not float(gamma) > 0.0:
+        return 0.0
+    log_max = float(np.log(np.finfo(np.float64).max))
+    return float(np.exp((np.log(float(c)) - log_max) / float(gamma)))
 
 
 @partial(jax.jit, static_argnames=("model_type", "bc", "order"))
 def profile_density(
-    r, phi, q, p_rhs, ra, bc, model_type, p_0=None, m=None, order="cubic"
+    r, phi, q, p_rhs, ra, bc, model_type, p_0=None, m=None, order="cubic", *, r_cut
 ):
-    """Return the density on the solve's rows: rho_aux at Phi over the
-    anisotropy's factor in r, zero beyond R_a for Type II, below the table
-    and at r <= 1e-13 (those rows are replaced by the inner fill).
+    r"""Return the density on the solve's rows: rho_aux at Phi over the
+    anisotropy's factor in r, zero beyond :math:`R_{\rm a}` for Type II, below
+    the table and at ``r <= r_cut``, the profile's `density_cut` (those rows are
+    replaced by the inner fill).
 
     Raises
     ------
     InputError
         Where the cubic lookup is asked for without its slopes ``m``.
     """
-    phi_safe = jnp.clip(phi, q[0] + PHI_CLIP_EPS, q[-1])
+    # clipped at the table's first node itself, as `poisson_source`: the floor
+    # row's density is read at the floor's potential
+    phi_safe = jnp.clip(phi, q[0], q[-1])
     log_phi = jnp.log(jnp.maximum(phi_safe, 1e-300))
     log_q = jnp.log(jnp.maximum(q, 1e-300))
     if p_0 is not None:
@@ -216,33 +233,13 @@ def profile_density(
         )
     )
     rhs = jnp.where(phi < q[0], 0.0, rhs)
-    if model_type == "OM_I":
-        rho = 4.0 * jnp.pi * rhs / (1.0 + (r / ra) ** 2)
-    elif model_type == "OM_II":
-        rho = jnp.where(
-            r < ra, 4.0 * jnp.pi * rhs / jnp.maximum(1.0 - (r / ra) ** 2, 1e-30), 0.0
-        )
-    elif model_type == "COM_I":
-        rho = (
-            cuddeford_prefactor(bc)
-            * rhs
-            / (r ** (2.0 * bc) * (1.0 + (r / ra) ** 2) ** (1.0 - bc))
-        )
-    elif model_type == "COM_II":
-        rho = (
-            cuddeford_prefactor(bc)
-            * rhs
-            / (r ** (2.0 * bc) * jnp.maximum(1.0 - (r / ra) ** 2, 1e-30) ** (1.0 - bc))
-            * (r < ra)
-        )
-    else:
-        rho = cuddeford_prefactor(bc) * rhs / (r ** (2.0 * bc))
-    return jnp.where(r > 1e-13, rho, 0.0)
+    rho = _density_of(rhs, r, ra, model_type, bc)
+    return jnp.where(r > r_cut, rho, 0.0)
 
 
 def phi_ic_series(p_0, r0, q, p_rhs, ra, model_type, bc, gamma_inner):
-    """Return u(r0) = P_0 - Phi(r0) of the cusp's series,
-    u = source(P_0 - u, r0) r0^2 / ((3 - g)(2 - g)),
+    """Return ``u(r0) = P_0 - Phi(r0)`` of the cusp's series,
+    ``u = source(P_0 - u, r0) r0^2 / ((3 - g)(2 - g))``,
     by bisection in ln u.
 
     Raises
@@ -266,23 +263,14 @@ def phi_ic_series(p_0, r0, q, p_rhs, ra, model_type, bc, gamma_inner):
                 )
             )
         )
-        if model_type == "OM_I":
-            return 4.0 * np.pi * rhs / (1.0 + (r0 / ra) ** 2)
-        if model_type == "OM_II":
-            return 4.0 * np.pi * rhs / max(1.0 - (r0 / ra) ** 2, 1e-30)
-        if model_type == "COM_I":
-            return (
-                cuddeford_prefactor(bc)
-                * rhs
-                / (r0 ** (2.0 * bc) * (1.0 + (r0 / ra) ** 2) ** (1.0 - bc))
-            )
-        if model_type == "COM_II":
-            return (
-                cuddeford_prefactor(bc)
-                * rhs
-                / (r0 ** (2.0 * bc) * max(1.0 - (r0 / ra) ** 2, 1e-30) ** (1.0 - bc))
-            )
-        return cuddeford_prefactor(bc) * rhs / (r0 ** (2.0 * bc))
+        if model_type in ("OM_I", "OM_II"):
+            (h,) = inverse_factor(r0, model_type, bc, ra)
+            return 4.0 * np.pi * rhs / h
+        if model_type in ("COM_I", "COM_II"):
+            (h,) = inverse_factor(r0, model_type, bc, ra)
+            return cuddeford_prefactor(bc) * rhs / h
+        (h,) = inverse_factor(r0, "constant", bc, math.inf)
+        return cuddeford_prefactor(bc) * rhs / h
 
     def _resid(lu):
         u = np.exp(lu)
@@ -311,7 +299,7 @@ def phi_ic_series(p_0, r0, q, p_rhs, ra, model_type, bc, gamma_inner):
 
 class _SourceArgs(NamedTuple):
     """The model's quantities the solve's vector fields read, passed as the
-    solve's arguments: the arrays and P_0, R_a traced, so one compiled solve
+    solve's arguments: the arrays and ``p_0``, ``ra`` traced, so one compiled solve
     serves every model of the same family, beta and grid size."""
 
     p_0: Any
@@ -395,7 +383,7 @@ def run_poisson_ode(
         The source grid (shifted by the boundary-value closure where the
         run applies one) and rho_aux on it.
     p_0 : float
-        The model's central potential, P_0 - K_t.
+        The model's central potential, ``P_0 - K_t``.
     ra, bc, model_type : float, float, str
         The anisotropy.
     gamma_inner : float
@@ -427,16 +415,19 @@ def run_poisson_ode(
     r_min_exp = float(settings["log10_r_min"])
     r_max_exp = float(settings["log10_r_max"])
     n_inner, n_outer = int(settings["n_rows_inner"]), int(settings["n_rows_outer"])
-    f32_eps = INNER_DEPTH
     ode_rtol, ode_atol = float(settings["ode_rtol"]), float(settings["ode_atol"])
 
-    # the radius where Phi reaches P_0 (1 - INNER_DEPTH), log-log on the
-    # profile's potential
+    # the inner zone ends where the depth reaches `inner_zone_depth`: near the
+    # center the truncated depth equals the untruncated one, so at the radius
+    # where the profile's own potential (1 at the center) reaches 1 less that
+    # depth, log-log
     _psi_ref_arr = jnp.array(potential(jnp.logspace(r_min_exp, -3, 10000)))
     _r_ref_arr = jnp.logspace(r_min_exp, -3, 10000)
     _log_psi_ref = jnp.log(jnp.maximum(jnp.flip(_psi_ref_arr), 1e-300))
     _log_r_ref = jnp.log(jnp.maximum(jnp.flip(_r_ref_arr), 1e-300))
-    _log_psi_tgt = jnp.log(jnp.maximum(jnp.array(p_0 * (1.0 - f32_eps)), 1e-300))
+    _log_psi_tgt = jnp.log(
+        jnp.maximum(jnp.array(1.0 - inner_zone_depth(p_0, ode_rtol)), 1e-300)
+    )
     _r_split = float(jnp.exp(jnp.interp(_log_psi_tgt, _log_psi_ref, _log_r_ref)))
 
     # the grid: an inner zone to r_split, four overlapping outer zones, and dense points
@@ -483,6 +474,20 @@ def run_poisson_ode(
     _u_floor_target = float(np.sqrt(ode_atol))
     if float(gamma_inner) < 2.0 and _u_ic > _u_floor_target:
         _A_cusp = _u_ic / float(r_ode[0]) ** (2.0 - float(gamma_inner))
+        # the radius in log space first: at a steep cusp it lies below the
+        # double's range, where the power below rounds to 0
+        _log10_r_g4 = (np.log10(_u_floor_target) - np.log10(_A_cusp)) / (
+            2.0 - float(gamma_inner)
+        )
+        _tiny = float(np.finfo(np.float64).tiny)
+        if _log10_r_g4 < np.log10(_tiny):
+            raise InputError(
+                "the series meets the solver's absolute tolerance only at R = "
+                f"(sqrt(ode_atol) / A)^(1 / (2 - gamma)) = 10^{_log10_r_g4:.1f} "
+                f"(ode_atol = {ode_atol:.1e}, A = {_A_cusp:.3e}, "
+                f"gamma = {float(gamma_inner):.3f}), below the double's range "
+                f"({_tiny:.3e}): the inner floor is not representable"
+            )
         _r_min_g4 = (_u_floor_target / _A_cusp) ** (1.0 / (2.0 - float(gamma_inner)))
         _dec_ext = float(np.log10(float(r_ode[0]) / _r_min_g4))
         _dec_inner = max(float(np.log10(float(_r_split))) - float(r_min_exp), 1.0)
@@ -571,21 +576,51 @@ def run_poisson_ode(
         cond_fn=_floor_cond,
         root_finder=optimistix.Newton(rtol=EVENT_RTOL, atol=EVENT_ATOL),
     )
-    sol_obj = diffrax.diffeqsolve(
-        diffrax.ODETerm(_logr_term),
-        diffrax.Dopri5(),
-        t0=_s_ode[0],
-        t1=_s_ode[-1],
-        dt0=1e-3,
-        y0=y0,
-        args=_args,
-        stepsize_controller=diffrax.PIDController(rtol=ode_rtol, atol=0.0),
-        saveat=diffrax.SaveAt(
-            subs=[diffrax.SubSaveAt(ts=_s_ode), diffrax.SubSaveAt(t1=True)], dense=True
-        ),
-        event=_event,
-        max_steps=200_000,
+    # the solve runs on the CPU on every platform: it is a serial ODE, and on a
+    # GPU each step pays the launch latency (50 to 200 times the CPU's wall)
+    cpu = jax.devices("cpu")[0]
+    y0, _s_ode, _args = jax.tree.map(
+        lambda x: jax.device_put(x, cpu) if isinstance(x, jax.Array) else x,
+        (y0, _s_ode, _args),
     )
+    with jax.default_device(cpu):
+        sol_obj = diffrax.diffeqsolve(
+            diffrax.ODETerm(_logr_term),
+            diffrax.Dopri5(),
+            t0=_s_ode[0],
+            t1=_s_ode[-1],
+            dt0=1e-3,
+            y0=y0,
+            args=_args,
+            stepsize_controller=diffrax.PIDController(rtol=ode_rtol, atol=0.0),
+            saveat=diffrax.SaveAt(
+                subs=[diffrax.SubSaveAt(ts=_s_ode), diffrax.SubSaveAt(t1=True)],
+                dense=True,
+            ),
+            event=_event,
+            max_steps=200_000,
+            throw=False,
+        )
+    if not bool(diffrax.is_okay(sol_obj.result)):
+        # a Type II model whose potential is still above the floor at R_a: its
+        # density rho_aux / (1 - r^2/R_a^2) has a pole there, which the solve
+        # approaches in steps proportional to R_a - r and does not pass
+        _s_stop = float(np.asarray(sol_obj.ts[1], dtype=np.float64).reshape(-1)[-1])
+        _y_stop = np.asarray(sol_obj.ys[1], dtype=np.float64).reshape(-1)
+        _r_stop = float(np.exp(_s_stop))
+        if model_type in ("OM_II", "COM_II") and abs(_r_stop / float(ra) - 1.0) < 1e-6:
+            raise UnphysicalModelError(
+                f"TYPE II EDGE: the model's potential at R_a = {float(ra):g} is "
+                f"Phi = {_y_stop[0]:.6e}, above the floor, so its truncation radius "
+                "lies beyond R_a, where the Type II density rho_aux / (1 - r^2/R_a^2) "
+                "has a pole (the solve stopped at R_a - r = "
+                f"{float(ra) - _r_stop:.3e}); a larger K_t moves the edge inside R_a"
+            )
+        # any other stop is the solve's own failure, refused by name
+        raise AccuracyError(
+            f"the Poisson solve stopped at R = {_r_stop:.6e} before its last radius "
+            f"R = {float(np.exp(float(_s_ode[-1]))):.6e} ({sol_obj.result}): refused"
+        )
     _ys_uw = sol_obj.ys[0]
     # the smaller of Phi and u is the primary variable, the other P_0 less it
     _u_prim = _ys_uw[:, 2] < _ys_uw[:, 0]
@@ -614,6 +649,15 @@ def run_poisson_ode(
         and np.all(np.isfinite(_y_t1))
     )
     r_event = float(np.exp(_s_t1)) if _ev_hit else float("inf")
+    if model_type in ("OM_II", "COM_II") and _ev_hit and not r_event < float(ra):
+        # the solve passed R_a with the potential above the floor (the density
+        # there carried as zero) and placed the edge beyond it, where the
+        # model is not defined
+        raise UnphysicalModelError(
+            f"TYPE II EDGE: the model's edge R_t = {r_event:.10g} lies at or beyond "
+            f"R_a = {float(ra):g}, where the Type II model is not defined; a "
+            "larger K_t moves the edge inside R_a"
+        )
     sol = jnp.stack([_ys_ts[:, 0], _ys_ts[:, 1] / r_ode], axis=1)
 
     # a truncated model's last rows, re-solved on a grid geometric in R_t - r

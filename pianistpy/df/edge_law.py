@@ -49,6 +49,7 @@ import numpy as np
 from scipy.special import gamma as gamma_function
 
 from ..anisotropy import Anisotropy
+from ..anisotropy.factor import inverse_factor
 from ..exceptions import InputError
 from .edge import df_edge_amplitude, df_edge_exponent
 from .inversion import inversion_prefactor, order_pair
@@ -90,28 +91,15 @@ class EdgeExpansion:
 def _inverse_factor_and_slope(
     anisotropy: Anisotropy, r_t: float
 ) -> tuple[float, float]:
-    """Return h = 1/g at the edge and dh/dR there, in closed form."""
-    r_t = float(r_t)
-    bc = float(anisotropy.beta_c)
-    family = anisotropy.family
-    if family == "isotropic":
+    """Return h = 1/g at the edge and dh/dR there (`inverse_factor`)."""
+    if anisotropy.family == "isotropic":
         return 1.0, 0.0
-    if family == "constant":
-        return r_t ** (2.0 * bc), 2.0 * bc * r_t ** (2.0 * bc - 1.0)
-    sign = 1.0 if family.endswith("_I") else -1.0
-    r_a = float(anisotropy.r_a)
-    u = 1.0 + sign * (r_t / r_a) ** 2
-    if not u > 0.0:
-        raise InputError(
-            f"A Type II model's edge R_t = {r_t} lies at or beyond R_a = {r_a}: "
-            "the anisotropy factor is not defined there."
-        )
-    s = 1.0 if family.startswith("OM") else 1.0 - bc
-    du = sign * 2.0 * r_t / r_a**2
-    h = r_t ** (2.0 * bc) * u**s
-    dh = (
-        2.0 * bc * r_t ** (2.0 * bc - 1.0) * u**s
-        + r_t ** (2.0 * bc) * s * u ** (s - 1.0) * du
+    h, dh = inverse_factor(
+        float(r_t),
+        anisotropy.family,
+        float(anisotropy.beta_c),
+        float(anisotropy.r_a),
+        1,
     )
     return float(h), float(dh)
 

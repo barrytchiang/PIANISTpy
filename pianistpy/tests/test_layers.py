@@ -36,6 +36,7 @@ LEAVES = {
     "df.inputs",
     "observables.aperture",
     "observables._angle_rule",
+    "observables._panels",
 }
 SOLVERS = {
     "settings",
@@ -74,6 +75,9 @@ SOLVERS = {
     "observables._aperture_losvd",
     "observables._ellipse_model",
     "observables._losvd_stages",
+    "observables._speed",
+    "observables._table_vjp",
+    "observables._rows_theta",
 }
 DRIVERS = {
     "",
@@ -83,8 +87,8 @@ DRIVERS = {
     "df",
     "df.core",
     "df.results",
-    "df.assembly",
     "df.invert",
+    "df.gradient",
     "df.truncated",
     "df.target",
     "df.tabulated",
@@ -94,10 +98,13 @@ DRIVERS = {
     "particles.writers",
     "observables",
     "observables.core",
+    "observables.projected",
+    "observables._differentiable",
     "superposition",
     "superposition.core",
     "inference",
     "inference.core",
+    "inference._binned",
 }
 
 # What may not be imported below the third layer: file access.

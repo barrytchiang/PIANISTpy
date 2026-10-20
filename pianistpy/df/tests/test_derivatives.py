@@ -64,3 +64,26 @@ def test_no_cached_construction_where_the_cache_is_off(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
     ExactDerivs(DoublePowerLaw.hernquist(), max_order=2)
     assert not any(tmp_path.rglob("*.json"))
+
+
+def test_the_construction_cache_reads_the_factor_and_the_version(monkeypatch):
+    # an edit of the factor's expression or a new package version is another
+    # cache file, so a stale construction is never served (release audit 317 A6)
+    import inspect
+
+    from pianistpy import _version
+    from pianistpy.df import derivatives
+
+    key = ("probe", 1.0)
+    name = derivatives._construction_name(key)
+    monkeypatch.setattr(_version, "__version__", _version.__version__ + "+probe")
+    assert derivatives._construction_name(key) != name
+    monkeypatch.undo()
+    source = inspect.getsource
+
+    def edited(obj):
+        text = source(obj)
+        return text + "# edited" if obj is derivatives.inverse_factor_expr else text
+
+    monkeypatch.setattr(inspect, "getsource", edited)
+    assert derivatives._construction_name(key) != name

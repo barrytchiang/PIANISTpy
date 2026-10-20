@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from pianistpy import InputError
+from pianistpy import InputError, ResultError
 from pianistpy.numerics import gauss_legendre, gauss_legendre_unit
 from pianistpy.validation import (
     CEILING,
@@ -110,3 +110,20 @@ def test_announce_logs_and_warns_above_the_goal_and_is_silent_within(caplog):
         "The sampler of 'x' is above the goal (tier 'warning'): "
         "row 3.0e-04 at Psi = 2.0."
     ]
+
+
+def test_a_report_is_read_against_the_key_sets_of_its_kind():
+    sets = (("a", "b"), ("a", "b", "c"))
+    written = ValidationReport(("a", "b"), {"a": Check(1e-8), "b": Check(2e-8)})
+    record = written.to_dict()
+    assert ValidationReport.from_dict(record, sets).keys == ("a", "b")
+    # a check the file lacks (an earlier version's) is read as not judged
+    older = dict(record, checks={"a": record["checks"]["a"]})
+    read = ValidationReport.from_dict(older, (("a", "c"),))
+    assert read.keys == ("a", "c")
+    assert read.checks["c"].tier == "not judged"
+    assert read.checks["c"].reason
+    # a check no report of the kind has is refused by name
+    stray = dict(record, checks={**record["checks"], "z": record["checks"]["a"]})
+    with pytest.raises(ResultError, match="'z'"):
+        ValidationReport.from_dict(stray, sets)

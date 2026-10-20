@@ -100,6 +100,12 @@ def test_a_file_of_an_unknown_kind_is_refused(tmp_path):
         read(path)
 
 
+def test_a_draw_of_2_31_particles_is_refused_by_name():
+    # refused before the sampler is read: no tables are built here
+    with pytest.raises(InputError, match="reaches 2\\^31"):
+        Sampler.sample(None, 2**31)
+
+
 def test_a_sampler_is_built_from_a_model():
     with pytest.raises(InputError):
         Sampler("not a model")

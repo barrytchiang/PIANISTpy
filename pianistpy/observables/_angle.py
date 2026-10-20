@@ -15,7 +15,7 @@ from collections.abc import Callable
 from typing import Any
 
 import numpy as np
-from scipy.special import ellipe, ellipkm1, elliprj
+from scipy.special import ellipkm1
 
 from ..typing import Array
 from ._ellipse_rules import ANGLE_TOL, gl01
@@ -23,6 +23,10 @@ from ._ellipse_rules import ANGLE_TOL, gl01
 # The grid of the angle rule's need in (log10 a_+, log10 a_-): its start, step
 # and points.
 _U0, _DU, _NU = -16.0, 0.05, 371
+# Bulirsch's cel: the steps every element takes. The convergence is quadratic:
+# 14 steps bring E(k^2) to 1e-15 of scipy's for k_c down to 1e-300 (12 leave
+# 8e-13 there), and the third-kind term to 1e-15 for k_c down to 1e-150.
+CEL_STEPS = 14
 _TABLE: dict[str, Any] = {}
 
 
@@ -36,7 +40,7 @@ def _roots(c1: Array, c2: Array, c3: Array, e: Array) -> tuple[Array, Array]:
 
 
 def _need(ap: Array, am: Array, lam: Array, lpi: Array) -> Array:
-    """The least n (real) with rho^(-2n) <= ANGLE_TOL on both halves, rho over
+    """The least n (real) with ``rho^(-2n) <= ANGLE_TOL`` on both halves, rho over
     every image of P's zeros."""
     rmin = np.full(np.shape(lam), np.inf)
     for lm, sing in (
@@ -119,14 +123,54 @@ def lam_half(c1: Array, c3: Array, e: Array, dm: Array) -> Array:
         return 2.0 * ellipkm1((dm / t) ** 2) / np.sqrt(t)
 
 
+def cel(kc: Array, p: Array, a: Array, b: Array) -> Array:
+    r"""Return Bulirsch's general complete elliptic integral, for `p` > 0.
+
+    :math:`{\rm cel}(k_c, p, a, b) = \int_0^{\pi/2} \frac{a\cos^2\theta +
+    b\sin^2\theta}{(\cos^2\theta + p\sin^2\theta)\sqrt{\cos^2\theta +
+    k_c^2\sin^2\theta}}\,d\theta` by Bulirsch's quadratically convergent
+    iteration (Bulirsch 1969, Numer. Math. 13, 305), `CEL_STEPS` steps for
+    every element: the same arithmetic on each, whatever else is in the call,
+    so an element's value depends on it alone. At :math:`k_c = 0` the
+    iteration does not converge: callers handle it.
+    """
+    shape = np.broadcast_shapes(np.shape(kc), np.shape(p), np.shape(a), np.shape(b))
+
+    def full(x: Any) -> Array:
+        return np.broadcast_to(np.asarray(x, dtype=np.float64), shape).copy()
+
+    qc = full(np.abs(np.asarray(kc, dtype=np.float64)))
+    p = full(np.sqrt(np.asarray(p, dtype=np.float64)))
+    a = full(a)
+    b = full(b)
+    b /= p
+    e, em = qc.copy(), np.ones(shape)
+    f, g = np.empty(shape), np.empty(shape)
+    for _ in range(CEL_STEPS):
+        np.copyto(f, a)
+        a += b / p
+        np.divide(e, p, out=g)
+        b += f * g
+        b *= 2.0
+        p += g
+        em += qc
+        np.sqrt(e, out=qc)
+        qc *= 2.0
+        np.multiply(qc, em, out=e)
+    return 0.5 * np.pi * (b + a * em) / (em * (em + p))
+
+
 def lam_mhalf(c1: Array, c2: Array, e: Array, dm: Array) -> Array:
     r"""Return :math:`\Lambda` at :math:`\beta_c = -1/2` in closed form.
 
     :math:`2\sqrt{M}\,[E(k^2) + (1 - k^2)(\Pi(n|k^2) - K(k^2))]` with
     :math:`B = \max(c_1^2, c_2^2)`, :math:`M = B + e`,
-    :math:`1 - k^2 = |d_m|/M`, :math:`n = \min(c_1^2, c_2^2)/B` and
-    :math:`\Pi - K = (n/3) R_J(0, 1 - k^2, 1, 1 - n)`; at :math:`d_m = 0` the
-    term's limit :math:`{\rm arsinh}\sqrt{h}/\sqrt{h(1+h)}`, :math:`h = e/B`.
+    :math:`k_c^2 = 1 - k^2 = |d_m|/M` and :math:`n = \min(c_1^2, c_2^2)/B`,
+    both terms by Bulirsch's `cel`: :math:`E = {\rm cel}(k_c, 1, 1, k_c^2)`
+    and :math:`k_c^2(\Pi - K) = {\rm cel}(k_c, 1 - n, 0, k_c^2 n)`, with
+    :math:`1 - n = |d_m|/B`; :math:`E = 1` at :math:`k_c = 0`; at
+    :math:`d_m = 0` the second term's limit
+    :math:`{\rm arsinh}\sqrt{h}/\sqrt{h(1+h)}`, :math:`h = e/B`.
     """
     with np.errstate(all="ignore"):
         c1s, c2s = c1 * c1, c2 * c2
@@ -137,15 +181,17 @@ def lam_mhalf(c1: Array, c2: Array, e: Array, dm: Array) -> Array:
         n = np.where(b_ > 0.0, np.minimum(c1s, c2s) / np.where(b_ > 0.0, b_, 1.0), 0.0)
         ok = (n > 0.0) & (adm > 0.0)
         h = e / np.where(b_ > 0.0, b_, 1.0)
-        rj = elliprj(
-            0.0,
-            np.where(ok, k1, 1.0),
-            1.0,
+        kc = np.sqrt(k1)
+        e_k = np.where(k1 > 0.0, cel(kc, 1.0, 1.0, k1), 1.0)
+        pi_k = cel(
+            np.where(ok, kc, 1.0),
             np.where(ok, adm / np.where(b_ > 0.0, b_, 1.0), 1.0),
+            0.0,
+            np.where(ok, k1 * n, 0.0),
         )
         lim = np.arcsinh(np.sqrt(h)) / np.sqrt(h * (1.0 + h))
-        term = np.where(ok, k1 * (n / 3.0) * rj, np.where(n > 0.0, lim, 0.0))
-        return 2.0 * np.sqrt(m_) * (ellipe(1.0 - k1) + term)
+        term = np.where(ok, pi_k, np.where(n > 0.0, lim, 0.0))
+        return 2.0 * np.sqrt(m_) * (e_k + term)
 
 
 class _Power:

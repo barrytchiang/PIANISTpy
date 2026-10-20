@@ -1,34 +1,47 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=77"]  # the license as an SPDX expression
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pianistpy"
-description = "Distribution functions, particles and observables of anisotropic spherical systems."
+description = "Spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 # Lower bounds: the oldest version of each dependency that passes the full test
-# suite, measured one package at a time with the others at their newest. jax,
-# diffrax and optimistix are bound together: diffrax 0.6.2 and optimistix 0.0.10
-# pass only with a newer jax, and the three floors below were measured as one
-# environment (equinox 0.13.8).
-# filelock: JAX 0.10 and later need it to bound the compilation cache, which the
-# package does by default (runtime.set_compilation_cache); JAX does not declare it.
+# suite, measured one package at a time with the others at their newest, and
+# then all of them together as one environment on Python 3.11 (jax 0.6.0 brings
+# equinox 0.13.8 and lineax 0.0.8 through diffrax), which passes. Python 3.11
+# is the oldest numpy 2.3 supports; CI runs the suite on 3.11 (the standard
+# list), 3.12 and 3.13.
 dependencies = [
-    "numpy>=2.0.0",
-    "scipy>=1.14.0",
+    "numpy>=2.3.0",
+    "scipy>=1.15.0",
     "h5py>=3.11.0",
-    "astropy>=7.2.0",
-    "mpmath>=0.17",
+    "astropy>=6.1.0",
+    "mpmath>=1.1.0",
     "sympy>=1.2",
-    "jax>=0.6.1",
-    "diffrax>=0.7.0",
-    "optimistix>=0.0.11",
-    "filelock",
+    # one test of the suite fails on jax 0.10.2, so the newest supported is below it
+    "jax>=0.6.0,<0.10.2",
+    "diffrax>=0.7.1",
+    "optimistix>=0.1.0",
 ]
-license = {file = "LICENSE"}
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 authors = [{name = "Barry T. Chiang", email = "barrytchiang@gmail.com"}]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 dynamic = ["version"]
+
+[project.optional-dependencies]
+# the test suite of an installed package: pytest --pyargs pianistpy
+test = ["pytest"]
 
 [project.urls]
 Homepage = "https://pianistpy.com"
@@ -41,6 +54,9 @@ version = {attr = "pianistpy._version.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["pianistpy*"]
+
+[tool.setuptools.package-data]
+pianistpy = ["py.typed"]
 
 [tool.ruff]
 line-length = 88
@@ -56,7 +72,7 @@ testpaths = ["pianistpy"]
 addopts = "--doctest-modules"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 files = ["pianistpy"]
 exclude = ["/tests/"]
 warn_unused_ignores = true

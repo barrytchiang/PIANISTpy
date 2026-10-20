@@ -3,15 +3,17 @@ rows, the pool, and the conversion between the table of rows and the stencil
 that reads it."""
 
 __all__ = [
-    "GPU_FOOTPRINT_MARGIN",
-    "GPU_RESERVE",
     "base_rows",
+    "cut_rows",
     "ellipse_rules",
-    "gpu_pool_size",
     "panel_table_of",
+    "row_start",
+    "row_stop",
     "rows_of",
+    "served_radius",
     "shared_pool",
     "start_pool",
+    "table_stencil",
 ]
 
 import contextlib
@@ -22,15 +24,18 @@ from typing import Any
 import numpy as np
 
 from ..df import Model
-from ..exceptions import InputError, ResultError
-from ..runtime import card_memory, get_workers, log, workers_explicit
+from ..exceptions import InputError
+from ..runtime import get_workers
 from ..settings import Settings
 from ..typing import Array
+from ..validation import GOAL
 from ._ellipse import EllipseRoute
+from ._ellipse_model import floor_radius
 from ._ellipse_rules import EllipseRules
 from ._layout import Lattice
-from ._losvd_table import new_pool, row_worker
+from ._losvd_table import new_pool
 from ._panel_table import PanelTable
+from ._projection import TINY, surface_density_reader
 
 # The base rows end this far inside the last row of the profile.
 EDGE_FRACTION = 0.9999
@@ -101,14 +106,89 @@ def ellipse_rules(settings: Settings) -> EllipseRules:
 
 def base_rows(model: Model, settings: Settings) -> Array:
     """Return the base rows: ``rows_per_decade`` a decade, logarithmic from
-    the profile's first row to `EDGE_FRACTION` of its last."""
+    the profile's first row to `EDGE_FRACTION` of where the rows end
+    (`floor_radius`: the profile's last row, or the DF's floor inside it)."""
     lo = float(model.profile.r[0])
-    hi = float(model.profile.r_table_max) * EDGE_FRACTION
+    hi = floor_radius(model) * EDGE_FRACTION
     per_decade = int(settings.losvd["rows_per_decade"])
     n = int(math.ceil(per_decade * math.log10(hi / lo))) + 1
     base = np.logspace(math.log10(lo), math.log10(hi), n)
     base[0] = max(float(base[0]), lo)
     return base
+
+
+def _projected_mass(model: Model, projected: Any) -> tuple[Array, Array, float]:
+    r"""Return (ln R, :math:`\int_0^R \Sigma R'\,{\rm d}R'` at the rows of
+    `projected`, the integral over all R): the surface density reader's disk
+    inside the first row (`SurfaceDensityReading.inner_disk`), the trapezoid
+    in :math:`\ln R` over the rows, and the annulus beyond the last row with
+    the edge-divided surface density frozen there, relative to the rows' own
+    trapezoid in R."""
+    r = np.asarray(projected.r_2d, dtype=np.float64)
+    sigma = np.asarray(projected.surface_density[0], dtype=np.float64)
+    r_t = float(model.profile.r_table_max)
+    reading = surface_density_reader(r, sigma, r_t, model.spatially_finite)
+    f = sigma * r * r
+    ln_r = np.log(r)
+    steps = np.cumsum(0.5 * (f[1:] + f[:-1]) * np.diff(ln_r))
+    inside = reading.inner_disk + np.concatenate([[0.0], steps])
+    v_max = float(np.sqrt(max(r_t**2 - float(r[-1]) ** 2, 0.0)))
+    annulus = (
+        (float(sigma[-1]) / v_max * v_max**3 / 3.0)
+        if (reading.r_t is not None and v_max > 0.0)
+        else float(sigma[-1]) * v_max**2 / 2.0
+    )
+    rows = max(float(np.trapezoid(sigma * r, r)), TINY)
+    total = float(inside[-1]) + annulus / rows * float(steps[-1])
+    return ln_r, inside, total
+
+
+def row_start(model: Model, projected: Any, r_read: float) -> float:
+    """Return the projected radius whose disk holds `GOAL` times the
+    projected mass inside `r_read`, from the model's surface density
+    (`_projected_mass`); the profile's first row where `r_read` is not
+    positive or the radius lies inside it."""
+    lo = float(model.profile.r[0])
+    if r_read <= 0.0:
+        return lo
+    ln_r, inside, _ = _projected_mass(model, projected)
+    target = GOAL * float(np.interp(np.log(r_read), ln_r, inside))
+    if target <= inside[0]:
+        return lo
+    return max(lo, float(np.exp(np.interp(target, inside, ln_r))))
+
+
+def row_stop(model: Model, projected: Any, share: float) -> float:
+    """Return the projected radius outside which `share` of the total
+    projected mass lies, from the model's surface density
+    (`_projected_mass`); infinity where `share` is not positive or the
+    radius lies beyond the rows of `projected`."""
+    if share <= 0.0:
+        return float("inf")
+    ln_r, inside, total = _projected_mass(model, projected)
+    target = (1.0 - share) * total
+    if target >= inside[-1]:
+        return float("inf")
+    return float(np.exp(np.interp(target, inside, ln_r)))
+
+
+def served_radius(model: Model, projected: Any, r_first: float) -> float:
+    """Return the smallest radius of a centered circle a table whose rows
+    start at `r_first` serves at the goal: the radius whose disk holds the
+    projected mass inside `r_first` over `GOAL` (`_projected_mass`)."""
+    ln_r, inside, _ = _projected_mass(model, projected)
+    target = float(np.interp(np.log(r_first), ln_r, inside)) / GOAL
+    if target >= inside[-1]:
+        return float("inf")
+    return float(np.exp(np.interp(target, inside, ln_r)))
+
+
+def cut_rows(rows: Array, r_start: float, r_stop: float) -> Array:
+    """Return the rows from the last one at or inside `r_start` to the first
+    one at or beyond `r_stop`: the rows kept are the full grid's own."""
+    first = max(int(np.searchsorted(rows, r_start, side="right")) - 1, 0)
+    last = min(int(np.searchsorted(rows, r_stop, side="left")), len(rows) - 1)
+    return rows[first : last + 1]
 
 
 # The pools of the open `shared_pool` scope, by the key of their route: one
@@ -132,88 +212,19 @@ def shared_pool() -> Iterator[None]:
             pool.join()
 
 
-# On a GPU every worker is a process with its own CUDA context and its own
-# allocations on the one card, so the card's memory bounds the pool, not the
-# cores [3-182]. A worker's footprint is read from the card at the pool's
-# start: the drop in the card's free memory across one worker's start and one
-# row of the live table. Both bounds are measured (2026-10-12, the 3-182
-# battery, 45 pools on the card): the margin is the largest ratio of a worker's
-# peak over the table to its pool's probe footprint, 328 / 327 MB = 1.003 in 23
-# losvd_table pools (first FV_nfw10_COMI_b+0.25_Ra10_Zt0p05), taken to 1.01 for
-# the 1 MB reading (329 / 326); the reserve is the main process's growth on
-# the card after the probe, 0 MB in every pool.
-GPU_FOOTPRINT_MARGIN = 1.01
-GPU_RESERVE = 0.0
-
-
-def gpu_pool_size(free: int, total: int, footprint: int, n_max: int) -> int:
-    """Return the workers a card holds: the probe's worker and as many more
-    as `free` (after the probe) holds at `GPU_FOOTPRINT_MARGIN` times the
-    `footprint`, keeping `GPU_RESERVE` of `total` free; at least one, at most
-    `n_max`."""
-    room = free - GPU_RESERVE * total
-    more = math.floor(room / (GPU_FOOTPRINT_MARGIN * max(footprint, 1)))
-    return max(1, min(n_max, 1 + max(more, 0)))
-
-
-def _workers_for(route: EllipseRoute, probe_r2d: float | None) -> int:
-    """`get_workers`, or on a GPU, unless the workers were set to a number,
-    what the card holds (`gpu_pool_size`), measured on a row at
-    `probe_r2d`."""
-    n_max = get_workers()
-    if probe_r2d is None or workers_explicit() or n_max == 1:
-        return n_max
-    before = card_memory()
-    if before is None:
-        return n_max
-    none = np.zeros((0, 2))
-    try:
-        with new_pool(1, route) as probe:
-            probe.apply(row_worker, ((0, probe_r2d, (none, none)),))
-            after = card_memory()
-    except RuntimeError as e:
-        # a second process on a card in Exclusive_Process mode, with no MPS
-        # server of this user's to share it through (measured 2026-10-12)
-        if "Unable to initialize backend" not in str(e):
-            raise
-        raise ResultError(
-            "The GPU pool's probe worker could not reach the card, which the "
-            "main process holds; a card in Exclusive_Process mode takes a "
-            f"second process only through an MPS server ({e})."
-        ) from e
-    if after is None:
-        return n_max
-    n = gpu_pool_size(after[0], after[1], before[0] - after[0], n_max)
-    log.info(
-        "GPU pool: %d workers (a worker %.0f MB on the card, %.0f MB free of "
-        "%.0f MB; %d asked).",
-        n,
-        (before[0] - after[0]) / 2**20,
-        after[0] / 2**20,
-        after[1] / 2**20,
-        n_max,
-    )
-    return n
-
-
-def start_pool(
-    route: EllipseRoute, key: Any = None, probe_r2d: float | None = None
-) -> Any:
+def start_pool(route: EllipseRoute, key: Any = None) -> Any:
     """Return a pool of `get_workers` processes, each holding a copy of the
-    route (`init_worker`), to be used as a context manager.
+    route (`init_worker`), on the CPU, to be used as a context manager.
 
-    On a GPU, given `probe_r2d` (a radius of the live table) and unless the
-    workers were set to a number, the pool takes what the card's memory
-    holds instead (`gpu_pool_size`) [3-182]. Inside a `shared_pool` scope, a
-    pool started for `key` (the model's identity and the rules the route was
-    built with) is kept and returned again for the same key; the scope
-    closes it.
+    Inside a `shared_pool` scope, a pool started for `key` (the model's
+    identity and the rules the route was built with) is kept and returned
+    again for the same key; the scope closes it.
     """
     if not _SCOPES or key is None:
-        return new_pool(_workers_for(route, probe_r2d), route)
+        return new_pool(get_workers(), route)
     pools = _SCOPES[-1]
     if key not in pools:
-        pools[key] = new_pool(_workers_for(route, probe_r2d), route)
+        pools[key] = new_pool(get_workers(), route)
     return contextlib.nullcontext(pools[key])
 
 
@@ -276,11 +287,46 @@ def panel_table_of(
     order: int,
     uncertified: Array,
     why: list[str],
+    r_end: float = float("inf"),
 ) -> PanelTable:
     """Return the stencil of a table from its rows ``(V, w, D, v_esc, V_k,
-    V_end, V_rad, n_panels, code, V_edge, V_c)``, the D of each normalized."""
+    V_end, V_rad, n_panels, code, V_edge, V_c)``, the D of each normalized;
+    read to `r_end` at most (the last row of a table cut inside its edge)."""
     table = PanelTable.from_rows(lattice, r_2d, rows, r_breaks=r_breaks, r_edge=r_edge)
+    table.R_end = min(table.R_end, float(r_end))
     table.order = int(order)
     table.uncert = np.asarray(uncertified, dtype=np.float64).reshape(-1, 2)
     table.uncert_why = list(why)
     return table
+
+
+def table_stencil(route: Any, table: Any) -> PanelTable:
+    """Return the stencil that reads a `LosvdTable` between its rows: its
+    stored rows, each normalized, on the route's lattice, with the table's
+    breaks, edge, order and unchecked intervals."""
+    return panel_table_of(
+        route.lattice,
+        np.array([row.r_2d for row in table.rows]),
+        [
+            (
+                row.v_nodes,
+                row.v_weights,
+                row.losvd[0],
+                row.v_escape,
+                row.v_breaks["v_k"],
+                row.v_breaks["v_end"],
+                row.v_breaks["v_rad"],
+                len(row.panel_edges) - 1,
+                int(row.layout),
+                row.v_breaks["v_edge"],
+                row.v_breaks["v_c"],
+            )
+            for row in table.rows
+        ],
+        table.r_breaks,
+        float(table.identity["r_edge"]),
+        table.order,
+        table.r_uncertified,
+        list(table.why_uncertified),
+        float(table.identity.get("r_end", float("inf"))),
+    )

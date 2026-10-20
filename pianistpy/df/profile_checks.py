@@ -5,21 +5,22 @@ that a model from a run and a model from a file are checked alike.
 
 * ``poisson_residual``: Poisson's equation in integral form on every interval
   between consecutive rows, the edge row's included,
-  Phi(r_a) - Phi(r_b) = INT M / r^2 dr and M(r_b) - M(r_a) = INT rho r^2 dr,
+  ``Phi(r_a) - Phi(r_b) = INT M / r^2 dr`` and ``M(r_b) - M(r_a) = INT rho r^2 dr``,
   each relative to the larger of its two
   rows' values; the largest over the intervals.
 * ``round_trip``: the density the model's own DF gives at a row,
-  rho = C(beta_c) INT_0^Phi F(Q) (2 (Phi - Q))^(1/2 - beta_c) dQ over the
+  ``rho = C(beta_c) INT_0^Phi F(Q) (2 (Phi - Q))^(1/2 - beta_c) dQ`` over the
   anisotropy's factor in r, F through the lookup (the table and its forms),
-  against the row's density, at the rows nearest each half-decade of radius;
+  against the row's density, at the rows nearest each half-decade of radius,
+  and at every row beyond the last of them to the last row before the edge;
   the largest relative difference.
 * ``row_density``: the rows per bin the fills keep, at least
   ``profile_rows_per_decade`` per decade in bins of ``profile_bin_decades`` of
   the potential and of the depth, over the profile's own span, the fill's
   bins (`truncation.row_bin_edges`): the potential up to ROW_BINS_TOP times
-  P_0, the depth up to ROW_BINS_DEPTH_TOP, whole bins only; a count, not an
-  accuracy, so the check is silent where every bin is full and refused at any
-  shortfall.
+  :math:`P_0`, the depth up to the same fraction of :math:`P_0`, whole bins
+  only; a count, not an accuracy, so the check is silent where every bin is
+  full and refused at any shortfall.
 """
 
 __all__ = [
@@ -42,7 +43,7 @@ from ..typing import Array
 from ..validation import Check
 from .lookup import below_floor_mass, evaluate_lookup, prepare_lookup
 from .poisson import EVENT_ATOL, EVENT_RTOL, cuddeford_prefactor
-from .truncation import K_FLOOR, ORIGINS, ROW_BINS_DEPTH_TOP, row_bin_edges
+from .truncation import K_FLOOR, ORIGINS, ROW_BINS_TOP, row_bin_edges
 
 _GL_X, _GL_W = np.polynomial.legendre.leggauss(8)
 PROFILE_CHECK_KEYS = ("poisson_residual", "round_trip", "row_density")
@@ -52,6 +53,22 @@ def _p_0(profile: TruncatedProfile) -> float:
     """The central potential: the first row's potential and its depth."""
     u_0 = float(profile.u_trunc[0]) if profile.u_trunc.size else 0.0
     return float(profile.p_trunc[0]) + u_0
+
+
+# the record of a check that formed its depths by subtraction
+DEPTH_FALLBACK = (
+    "depth formed from p_0 - Phi: no depth column for these rows (no u column, "
+    "or the solve's u record does not match the rows)"
+)
+
+
+def _row_depths(profile: TruncatedProfile, n: int) -> Array | None:
+    """The depths ``P_0 - Phi`` of the first `n` rows from the profile's
+    column u_trunc, the solve's own, exact near the center where ``P_0 - Phi``
+    has lost its digits; None where the column does not cover them, and the
+    caller then forms ``P_0 - Phi``."""
+    u = np.asarray(profile.u_trunc, dtype=np.float64)
+    return u[:n] if u.size >= n else None
 
 
 def _interior(profile: TruncatedProfile) -> int:
@@ -109,17 +126,26 @@ def poisson_residual(profile: TruncatedProfile, rtol: float) -> Check:
     return Check(error=float(e[j]), where=float(b[j]))
 
 
+def _nearest(x: Array, targets: Array) -> Array:
+    """The indices of the entries of increasing `x` nearest each target."""
+    i = np.clip(np.searchsorted(x, targets), 1, x.size - 1)
+    return np.where(np.abs(x[i - 1] - targets) <= np.abs(x[i] - targets), i - 1, i)
+
+
 def _check_radii(profile: TruncatedProfile, phi_min: float) -> Array:
-    """The rows nearest each half-decade of radius, the edge row excluded."""
+    """The rows nearest each half-decade of radius, and every row beyond the
+    last of them to the last row (on a truncated model the floor event's):
+    the rows approaching an edge are dense in the potential and not in the
+    radius, and a sampling of them can miss a peak a few rows wide. The edge
+    row, whose potential and density are zero, is not one."""
     n = _interior(profile)
     r = np.asarray(profile.r[:n], dtype=np.float64)
     phi = np.asarray(profile.p_trunc[:n], dtype=np.float64)
-    keep = phi >= phi_min
-    r, log_r = r[keep], np.log10(r[keep])
+    r = r[phi >= phi_min]
+    log_r = np.log10(r)
     targets = np.arange(np.ceil(2.0 * log_r[0]) / 2.0, log_r[-1] + 1e-12, 0.5)
-    i = np.clip(np.searchsorted(log_r, targets), 1, r.size - 1)
-    i = np.where(np.abs(log_r[i - 1] - targets) <= np.abs(log_r[i] - targets), i - 1, i)
-    return r[np.unique(i)]
+    i = _nearest(log_r, targets)
+    return r[np.unique(np.r_[i, np.arange(int(np.max(i)), r.size)])]
 
 
 def round_trip(
@@ -130,16 +156,17 @@ def round_trip(
 ) -> Check:
     """Return the largest relative difference between the density the
     model's DF gives (its table and its forms, through the lookup) and the
-    profile's, at the rows nearest each half-decade of radius."""
+    profile's, at the rows `_check_radii` names."""
     radii = _check_radii(profile, 0.0)
     phi = np.asarray(profile.potential(radii), dtype=np.float64)
-    # the rows' own depths, where the profile keeps them exact and its P_0 is
-    # the form's [3-206]
+    # the rows' own depths from the column (by the depth, the center keeps the
+    # digits Phi loses); without the column, P_0 - Phi
     depth = None
-    u_rows = np.asarray(profile.u_trunc, dtype=np.float64)
-    if u_rows.size and float(profile.p_trunc[0]) + u_rows[0] == float(form.p_0):
-        rows = np.asarray(profile.r[: u_rows.size], dtype=np.float64)
-        i = np.clip(np.searchsorted(rows, radii), 0, rows.size - 1)
+    n = _interior(profile)
+    u_rows = _row_depths(profile, n)
+    if u_rows is not None:
+        rows = np.asarray(profile.r[:n], dtype=np.float64)
+        i = np.clip(np.searchsorted(rows, radii), 0, n - 1)
         depth = np.where(rows[i] == radii, u_rows[i], np.nan)
     log_df = _log_density_from_df(radii, phi, table, form, anisotropy, depth)
     rho = np.sum(np.atleast_2d(profile.density(radii)), axis=0)
@@ -147,7 +174,8 @@ def round_trip(
     # DF's integral would leave float64 on the way
     e = np.abs(np.expm1(log_df - np.log(rho)))
     j = int(np.nanargmax(e))
-    return Check(error=float(e[j]), where=float(radii[j]))
+    source = DEPTH_FALLBACK if u_rows is None else None
+    return Check(error=float(e[j]), where=float(radii[j]), source=source)
 
 
 _PANEL_X, _PANEL_W = np.polynomial.legendre.leggauss(64)
@@ -160,59 +188,109 @@ def _gauss(lo: Array, hi: Array) -> tuple[Array, Array]:
     return x, half[..., None] * _PANEL_W
 
 
+# the radii read together, a chunk at a time: some 4e6 nodes of the panels
+_AUX_CHUNK = 2048
+
+
 def _log_aux(
-    phi: float,
+    phi: Array,
     first: float,
     arrays: Any,
     kinds: Any,
     n: float,
-    depth: float = np.nan,
-) -> float:
-    """ln rho_aux(Phi), rho_aux = INT_0^Phi F(Q) (2 (Phi - Q))^n dQ through the
-    lookup: below Q_lo = 1e-20 Phi the below-floor form's mass in closed form;
-    to 0.9 Phi panels of a decade in ln Q; above, Q = Phi - u^k (k = 2 where
-    n >= 0, 1 / (1 + n) otherwise) on panels geometric in u to the end. The
-    terms are summed in logarithms with the largest factored out.
+    depth: Array,
+) -> Array:
+    """ln rho_aux(Phi) at each Phi, rho_aux = INT_0^Phi F(Q) (2 (Phi - Q))^n dQ
+    through the lookup: below ``Q_lo = 1e-20 Phi`` the below-floor form's mass
+    in closed form; to 0.9 Phi panels of a decade in ln Q; above, Q = Phi - u^k
+    (k = 2 where ``n >= 0``, 1 / (1 + n) otherwise) on panels geometric in u to
+    the end. The terms are summed in logarithms with the largest factored out.
 
-    Where `depth`, P_0 - Phi, is given (finite), the DF above 0.9 Phi is read
-    by its depth, depth + u^k, not by Q, whose difference from P_0 keeps one
-    ulp of P_0 only [3-206]."""
-    ln10 = np.log(10.0)
+    Where `depth`, ``P_0 - Phi``, is held (finite; NaN where not), the DF
+    above 0.9 Phi is read by its depth, depth + u^k, not by Q, whose
+    difference from :math:`P_0` keeps one ulp of :math:`P_0` only.
+
+    The radii are read together, those of one panel count at a time, in
+    chunks of `_AUX_CHUNK`: one lookup call a chunk."""
+    phi = np.asarray(phi, dtype=np.float64).ravel()
+    depth = np.asarray(depth, dtype=np.float64).ravel()
+    out = np.full(phi.size, -np.inf)
     q_lo, split = 1e-20 * phi, 0.9 * phi
-    below = q_lo if q_lo < first else first
-    mass = float(below_floor_mass(arrays, kinds, below)[0]) if below > 0.0 else 0.0
-    terms = [np.log(mass) + n * np.log(2.0 * phi)] if mass > 0.0 else []
-    edges = np.linspace(
-        np.log(below), np.log(split), int(np.ceil(np.log10(split / below))) + 1
-    )
-    x, w = _gauss(edges[:-1], edges[1:])
-    q = np.exp(x)
-    log_f = ln10 * np.asarray(evaluate_lookup(arrays, kinds, q, np), dtype=np.float64)
-    terms.append((np.log(w) + log_f + x + n * np.log(2.0 * (phi - q))).ravel())
-    k = 2.0 if n >= 0.0 else 1.0 / (1.0 + n)
-    u_max = (phi - split) ** (1.0 / k)
-    u_edges = np.concatenate([[0.0], u_max * np.logspace(-12.0, 0.0, 13)])
-    x, w = _gauss(u_edges[:-1], u_edges[1:])
-    q = phi - x**k
-    by_depth = depth + x**k if np.isfinite(depth) else None
-    log_f = ln10 * np.asarray(
-        evaluate_lookup(arrays, kinds, q, np, u=by_depth), dtype=np.float64
-    )
-    terms.append(
-        (
+    below = np.where(q_lo < first, q_lo, first)
+    count = np.ceil(np.log10(split / below)).astype(int)
+    for c in np.unique(count):
+        rows = np.flatnonzero(count == c)
+        for start in range(0, rows.size, _AUX_CHUNK):
+            i = rows[start : start + _AUX_CHUNK]
+            out[i] = _log_aux_rows(
+                phi[i], below[i], split[i], depth[i], int(c), arrays, kinds, n
+            )
+    return out
+
+
+def _log_aux_rows(
+    phi: Array,
+    below: Array,
+    split: Array,
+    depth: Array,
+    count: int,
+    arrays: Any,
+    kinds: Any,
+    n: float,
+) -> Array:
+    """`_log_aux` on rows of one panel count `count` below 0.9 Phi."""
+    ln10 = np.log(10.0)
+    p = phi[:, None, None]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        mass = np.where(
+            below > 0.0,
+            below_floor_mass(arrays, kinds, np.where(below > 0.0, below, 1.0)),
+            0.0,
+        )
+        t_mass = np.where(mass > 0.0, np.log(mass) + n * np.log(2.0 * phi), -np.inf)
+        edges = np.linspace(np.log(below), np.log(split), count + 1, axis=1)
+        x, w = _gauss(edges[:, :-1], edges[:, 1:])
+        q = np.exp(x)
+        log_f = ln10 * np.asarray(
+            evaluate_lookup(arrays, kinds, q.ravel(), np), dtype=np.float64
+        ).reshape(q.shape)
+        t_lo = np.log(w) + log_f + x + n * np.log(2.0 * (p - q))
+        k = 2.0 if n >= 0.0 else 1.0 / (1.0 + n)
+        u_max = (phi - split) ** (1.0 / k)
+        u_edges = np.concatenate(
+            [np.zeros((phi.size, 1)), u_max[:, None] * np.logspace(-12.0, 0.0, 13)],
+            axis=1,
+        )
+        x, w = _gauss(u_edges[:, :-1], u_edges[:, 1:])
+        q = p - x**k
+        by_depth = np.where(
+            np.isfinite(depth)[:, None, None], depth[:, None, None] + x**k, np.nan
+        )
+        log_f = ln10 * np.asarray(
+            evaluate_lookup(arrays, kinds, q.ravel(), np, u=by_depth.ravel()),
+            dtype=np.float64,
+        ).reshape(q.shape)
+        t_hi = (
             np.log(w)
             + log_f
             + np.log(k)
             + (k - 1.0) * np.log(x)
             + n * np.log(2.0 * x**k)
-        ).ravel()
-    )
-    t = np.concatenate([np.atleast_1d(v) for v in terms])
-    t = t[np.isfinite(t)]
-    if not t.size:
-        return -np.inf
-    top = float(np.max(t))
-    return top + float(np.log(np.sum(np.exp(t - top))))
+        )
+        t = np.concatenate(
+            [
+                t_mass[:, None],
+                t_lo.reshape(phi.size, -1),
+                t_hi.reshape(phi.size, -1),
+            ],
+            axis=1,
+        )
+        t = np.where(np.isfinite(t), t, -np.inf)
+        top = np.max(t, axis=1)
+        held = np.isfinite(top)
+        top_s = np.where(held, top, 0.0)
+        total = top_s + np.log(np.sum(np.exp(t - top_s[:, None]), axis=1))
+    return np.where(held, total, -np.inf)
 
 
 def _log_density_from_df(
@@ -227,9 +305,10 @@ def _log_density_from_df(
     ln rho_aux through the lookup (`_log_aux`) plus the logarithm of the
     anisotropy's factor g(R).
 
-    The DF near the top is read by the depth P_0 - Phi [3-206]: `depth` where
-    the caller holds it exactly (NaN where not), else P_0 - Phi, exact where
-    Phi >= P_0 / 2; below, by the energy, as nothing there nears P_0."""
+    The DF near the top is read by the depth ``P_0 - Phi``: `depth` where
+    the caller holds it exactly (NaN where not), else ``P_0 - Phi``, exact
+    where ``Phi >= P_0 / 2``; below, by the energy, as nothing there nears
+    :math:`P_0`."""
     radii = np.asarray(radii, dtype=np.float64)
     phi = np.asarray(phi, dtype=np.float64)
     p_0 = float(form.p_0)
@@ -242,12 +321,7 @@ def _log_density_from_df(
     n = 0.5 if model_type in ("OM_I", "OM_II") else 0.5 - bc
     arrays, kinds = prepare_lookup(table, form, 0)
     first = float(table.k[0, 0])
-    log_aux = np.array(
-        [
-            _log_aux(float(p), first, arrays, kinds, n, float(u))
-            for p, u in zip(phi.ravel(), held.ravel(), strict=True)
-        ]
-    ).reshape(phi.shape)
+    log_aux = _log_aux(phi, first, arrays, kinds, n, held).reshape(phi.shape)
     # the one definition of g(R): rho_aug = g rho_aux
     log_g = np.log(anisotropy.factor(radii))
     if model_type in ("OM_I", "OM_II"):
@@ -265,10 +339,10 @@ def density_from_df(
 ) -> Array:
     """Return the density a model's DF gives at the radii and potentials:
     rho_aux through the lookup times the anisotropy's factor g(R), formed in
-    logarithms (`_log_density_from_df`). `depth`, P_0 - Phi where the caller
-    holds it exactly (NaN where not), keeps the center's digits that Phi has
-    lost; given Phi only, the density is read to one ulp of P_0 in the
-    depth [3-206]."""
+    logarithms (`_log_density_from_df`). `depth`, ``P_0 - Phi`` where the
+    caller holds it exactly (NaN where not), keeps the center's digits that
+    Phi has lost; given Phi only, the density is read to one ulp of
+    :math:`P_0` in the depth."""
     return np.exp(_log_density_from_df(radii, phi, table, form, anisotropy, depth))
 
 
@@ -283,36 +357,43 @@ def row_density(profile: TruncatedProfile, settings: Mapping[str, Any]) -> Check
     counted: in the potential from its lowest row (a spatially non-finite
     model's potential stays above the floor), in the depth from its first
     row's. Only whole bins are judged: a depth bin reaching beyond
-    ROW_BINS_DEPTH_TOP, the deepest depth counted, is not."""
+    ROW_BINS_TOP times :math:`P_0`, the deepest depth counted, is not."""
     n = _interior(profile)
     phi = np.asarray(profile.p_trunc[:n], dtype=np.float64)
-    phi = phi[np.isfinite(phi) & (phi >= K_FLOOR)]
+    kept = np.isfinite(phi) & (phi >= K_FLOOR)
+    phi = phi[kept]
     p_0 = _p_0(profile)
-    u = p_0 - phi
-    u = u[(u > 0) & (u <= ROW_BINS_DEPTH_TOP)]
+    # the depths from the column, without it P_0 - Phi
+    u_rows = _row_depths(profile, n)
+    u = u_rows[kept] if u_rows is not None else p_0 - phi
+    source = DEPTH_FALLBACK if u_rows is None else None
+    u = u[(u > 0) & (u <= ROW_BINS_TOP * p_0)]
     bins = row_bin_edges(p_0, settings, float(np.max(u)) if u.size else 0.0)
     need, edges = bins.min_per_bin, bins.psi_edges
     count, _ = np.histogram(phi, bins=edges)
     inside = edges[:-1] >= (float(np.min(phi)) if phi.size else np.inf)
     short = np.flatnonzero(inside & (count < need))
     if short.size:
-        return Check(error=float("inf"), where=float(edges[short[-1] + 1]))
+        return Check(
+            error=float("inf"), where=float(edges[short[-1] + 1]), source=source
+        )
     u_first = max(K_FLOOR, float(profile.u_trunc[0]) if profile.u_trunc.size else 0.0)
     if bins.u_edges is not None and bins.u_top > u_first:
         edges_u = bins.u_edges
         count_u, _ = np.histogram(u, bins=edges_u)
         # whole bins only: a bin reaching beyond the depths counted is not judged
-        whole = edges_u[1:] <= ROW_BINS_DEPTH_TOP * (1.0 + 1e-12)
+        whole = edges_u[1:] <= ROW_BINS_TOP * p_0 * (1.0 + 1e-12)
         inside_u = (edges_u[:-1] >= u_first) & whole
         short = np.flatnonzero(inside_u & (count_u < need))
         if short.size:
-            return Check(error=float("inf"), where=p_0 - float(edges_u[short[-1] + 1]))
-    return Check(error=0.0, where=None)
+            where = p_0 - float(edges_u[short[-1] + 1])
+            return Check(error=float("inf"), where=where, source=source)
+    return Check(error=0.0, where=None, source=source)
 
 
 def _model_type(anisotropy: Anisotropy) -> str:
     """The kernel's family: isotropic or constant (the same branch), or
-    Osipkov-Merritt / Cuddeford of the anisotropy's kind."""
+    Osipkov-Merritt or Cuddeford-Osipkov-Merritt of the anisotropy's kind."""
     if not np.isfinite(anisotropy.r_a):
         return "constant"
     family = "OM" if anisotropy.beta_c == 0.0 else "COM"

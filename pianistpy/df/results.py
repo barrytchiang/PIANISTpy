@@ -9,7 +9,7 @@ __all__ = ["DistributionFunction", "Model"]
 
 import dataclasses
 import os
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 import numpy as np
@@ -20,7 +20,7 @@ from ..io import StoredResult, load_result, register_reader, write_result, write
 from ..numerics.pytrees import register_result
 from ..profiles import DoublePowerLaw, TruncatedProfile
 from ..settings import Settings
-from ..typing import Array
+from ..typing import Array, ArrayLike
 from ..units import Units
 from ..validation import ValidationReport
 from .inputs import Component, Truncation
@@ -38,7 +38,7 @@ MODEL_KIND = "model"
 
 @dataclasses.dataclass(frozen=True, eq=False)
 class DistributionFunction:
-    """Untruncated distribution functions of the components of a model.
+    r"""Untruncated distribution functions of the components of a model.
 
     Returned by `compute_df`. It is a mathematical object: it may be negative or
     non-monotonic, and states where. Only a `Model` can be sampled or
@@ -60,7 +60,11 @@ class DistributionFunction:
         The analytic form of each DF beyond the ends of its table.
     k_t_min : float
         Lowest admissible truncation energy; zero where every DF is
-        non-negative and non-decreasing.
+        non-negative and non-decreasing. For a Type II model whose bound is
+        its domain edge, the next float above :math:`P(R_{\rm a})`, the
+        smallest :math:`\mathcal{K}_{\rm t}` the gates admit; the truncated
+        model's edge must also lie inside :math:`R_{\rm a}`, which the
+        truncation's solve judges (TYPE II EDGE).
     validation : ValidationReport
         The report of the inversion.
     timing : dict of str to float
@@ -71,6 +75,12 @@ class DistributionFunction:
     rows : InversionRows or None
         The inversion's rows as made on its whole grid, which the truncation
         reads; None where the table was not made by an inversion.
+    source : str
+        Where the table's values come from: ``"inversion"`` (`compute_df`)
+        or ``"function"`` (`from_function`).
+    function_name : str or None
+        The ``__name__`` of the function the table was taken from; None for
+        an inversion.
     """
 
     components: tuple[Component, ...]
@@ -85,6 +95,58 @@ class DistributionFunction:
     inversion: InversionRecord | None
     units: Units = Units()
     rows: InversionRows | None = None
+    source: str = "inversion"
+    function_name: str | None = None
+
+    @classmethod
+    def from_function(
+        cls,
+        component: Component,
+        f: Callable[[Array, Array], ArrayLike],
+        settings: Settings | None = None,
+    ) -> "DistributionFunction":
+        """Return the distribution function a function of the energy gives.
+
+        A user brings a DF (a fitting function, another code's output) and
+        the package validates it against the density by its own integration.
+        The function is tabulated on the energy grid `compute_df` places for
+        the same component and settings, in place of the inversion's values,
+        and everything after runs as for the inversion: the forms beyond the
+        table, the slope column, the sign report, the validation, the
+        identity, and the file. The table is stored, the function is not.
+
+        Parameters
+        ----------
+        component : Component
+            The component the DF belongs to, on an analytic profile.
+        f : callable
+            ``f(k, depth)``: takes the array of the energies K (the table's,
+            in internal units) and the array of their depths ``P_0 - K``, and
+            returns the DF at each, F and not its logarithm. The depth is
+            the grid's own ``P_0 - K`` of each node, exact, so a fit written in
+            the depth near the center reads it directly; a function of K
+            alone may ignore it.
+        settings : Settings, optional
+            Numerical settings. The default tier if omitted.
+
+        Returns
+        -------
+        df : DistributionFunction
+            Its `source` is ``"function"`` and its `function_name` the
+            function's ``__name__``. The table has no derivative column, and
+            the report's ``slope_column`` states that it is not judged. It
+            has no inversion record and no rows, so `truncate` refuses it.
+
+        Raises
+        ------
+        InputError
+            If the function is not finite somewhere on the grid (the first
+            such K is stated), returns another shape, or the component is
+            built on a tabulated profile.
+        """
+        from .core import df_from_function
+
+        return df_from_function(component, f, settings)
 
     @property
     def is_physical(self) -> bool:
@@ -444,6 +506,8 @@ def _write_df(
     arrays: dict[str, np.ndarray] = {}
     record = _common_record(df)
     record["k_t_min"] = df.k_t_min
+    record["source"] = df.source
+    record["function_name"] = df.function_name
     _pack_components(df.components, arrays, record)
     _pack(df.grid, "grid", arrays, record)
     _pack(df.table, "table", arrays, record)
@@ -577,6 +641,44 @@ def _check_kind(stored: StoredResult, kind: str) -> None:
         raise ResultError(f"The result is of kind {stored.kind!r}, not {kind!r}.")
 
 
+# Key sets of reports made outside the package's stages (results assembled
+# from the earlier pipeline's records), registered by what makes them.
+_REGISTERED_KEY_SETS: dict[str, list[tuple[str, ...]]] = {"df": [], "model": []}
+
+
+def register_report_keys(kind: str, keys: Sequence[str]) -> None:
+    """Admit one more key set for the reports of a kind of result read back.
+
+    Parameters
+    ----------
+    kind : {"df", "model"}
+        The kind of result.
+    keys : sequence of str
+        The checks of the report, in order.
+    """
+    if kind not in _REGISTERED_KEY_SETS:
+        raise InputError(f"kind is 'df' or 'model'; got {kind!r}.")
+    if tuple(keys) not in _REGISTERED_KEY_SETS[kind]:
+        _REGISTERED_KEY_SETS[kind].append(tuple(keys))
+
+
+def _df_key_sets() -> tuple[tuple[str, ...], ...]:
+    """The key sets of a DF's report (imported here: those modules read this one)."""
+    from .report import DF_REPORT_KEYS
+
+    return (*DF_REPORT_KEYS.values(), *_REGISTERED_KEY_SETS["df"])
+
+
+def _model_key_sets() -> tuple[tuple[str, ...], ...]:
+    """The key sets of a model's report: truncated (Method I), untruncated, on a
+    tabulated pair (Method II), and none (an analytic model)."""
+    from .tabulated import _MODEL_KEYS as method_ii
+    from .truncated import _MODEL_KEYS as method_i
+    from .truncated import _UNTRUNCATED_KEYS as untruncated
+
+    return (method_i, untruncated, method_ii, (), *_REGISTERED_KEY_SETS["model"])
+
+
 def _read_df(source: StoredResult | str | os.PathLike) -> DistributionFunction:
     """Return a distribution function from a file or a stored result.
 
@@ -600,7 +702,7 @@ def _read_df(source: StoredResult | str | os.PathLike) -> DistributionFunction:
         table=_unpack(DfTable, "table", stored),
         form=_unpack(AsymptoticForm, "form", stored),
         k_t_min=float(record["k_t_min"]),
-        validation=ValidationReport.from_dict(record["validation"]),
+        validation=ValidationReport.from_dict(record["validation"], _df_key_sets()),
         timing=dict(record["timing"]),
         units=Units.from_dict(record.get("units")),
         inversion=_unpack_inversion(stored),
@@ -609,6 +711,9 @@ def _read_df(source: StoredResult | str | os.PathLike) -> DistributionFunction:
             if record.get("rows") is None
             else _unpack(InversionRows, "rows", stored)
         ),
+        # a file written before the source was recorded holds an inversion
+        source=str(record.get("source", "inversion")),
+        function_name=record.get("function_name"),
     )
 
 
@@ -637,7 +742,7 @@ def _read_model(source: StoredResult | str | os.PathLike) -> Model:
         table=_unpack(DfTable, "table", stored),
         form=_unpack(AsymptoticForm, "form", stored),
         profile=_unpack(TruncatedProfile, "profile", stored),
-        validation=ValidationReport.from_dict(record["validation"]),
+        validation=ValidationReport.from_dict(record["validation"], _model_key_sets()),
         timing=dict(record["timing"]),
         units=Units.from_dict(record.get("units")),
         r_trust=dict(record["r_trust"]),

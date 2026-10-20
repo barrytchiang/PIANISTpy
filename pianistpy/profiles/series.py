@@ -73,7 +73,7 @@ def inner_density(
 
     References
     ----------
-    Paper I, label ``eqn:inner_density_expansion``.
+    Chiang+(2026d), label ``eqn:inner_density_expansion``.
     """
     r = np.asarray(r, dtype=np.float64)
     amplitude = profile.rho_norm if rho_norm is None else rho_norm
@@ -102,7 +102,7 @@ def inner_mass(
 
     References
     ----------
-    Paper I, label ``eqn:inner_mass_expansion``.
+    Chiang+(2026d), label ``eqn:inner_mass_expansion``.
     """
     r = np.asarray(r, dtype=np.float64)
     amplitude = profile.rho_norm if rho_norm is None else rho_norm
@@ -133,7 +133,7 @@ def inner_depth(
 
     References
     ----------
-    Paper I, label ``eqn:inner_potential_expansion``.
+    Chiang+(2026d), label ``eqn:inner_potential_expansion``.
     """
     r = np.asarray(r, dtype=np.float64)
     amplitude = profile.rho_norm if rho_norm is None else rho_norm

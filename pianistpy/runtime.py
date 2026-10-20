@@ -1,4 +1,4 @@
-"""Switches of the session: verbosity, timing and workers.
+"""Runtime options of the session: verbosity, timing and the number of cores.
 
 None of these changes a number, and none is part of the identity of a
 result. Each is set once for the session, by a call or by an environment
@@ -6,7 +6,6 @@ variable, and no function of the package takes it as an argument.
 """
 
 __all__ = [
-    "COMPILATION_CACHE_MAX_SIZE",
     "Timing",
     "allowed_cores",
     "card_memory",
@@ -179,8 +178,8 @@ if sys.platform == "win32":
 def peak_memory() -> int | None:
     """Return the largest resident memory this process has held, in bytes.
 
-    This is the memory of the host process. Memory held on a graphics card
-    is not part of it.
+    This is the memory of the host process. Memory held on a GPU is not
+    part of it.
 
     Returns
     -------
@@ -341,7 +340,7 @@ def set_workers(value: str | int) -> None:
 
     Notes
     -----
-    The number of workers never changes a number: a result is the same, to
+    The number of cores never changes a number: a result is the same, to
     the bit, for any value. The environment variable ``PIANISTPY_WORKERS``
     sets the value at import.
     """
@@ -352,14 +351,14 @@ def set_workers(value: str | int) -> None:
         value in ("auto", "full", "half") or (isinstance(value, int) and value >= 1)
     ):
         raise InputError(
-            "The workers are 'auto', 'full', 'half' or a positive integer; "
+            "The number of cores is 'auto', 'full', 'half' or a positive integer; "
             f"got {value!r}."
         )
     _workers = value
 
 
 def workers_explicit() -> bool:
-    """Whether the workers were set to an exact number (`set_workers`)."""
+    """Whether the number of cores was set exactly (`set_workers`)."""
     return isinstance(_workers, int)
 
 
@@ -369,8 +368,8 @@ def card_memory() -> tuple[int, int] | None:
 
     The driver is asked in the device's primary context, the one JAX uses,
     so asking makes no context of its own. Its free memory counts what
-    every process holds on the card, a CUDA context included, which the
-    allocator's own statistics do not [3-182].
+    every process holds on the GPU, a CUDA context included, which the
+    allocator's own statistics do not.
     """
     import ctypes
 
@@ -397,7 +396,7 @@ def card_memory() -> tuple[int, int] | None:
 
 
 def get_workers() -> int:
-    """Return the number of workers the current setting resolves to."""
+    """Return the number of cores the current setting resolves to."""
     if isinstance(_workers, int):
         return _workers
     cores = allowed_cores()
@@ -407,21 +406,44 @@ def get_workers() -> int:
 
 
 # A worker process of a pool is the parallelism, so its BLAS and OpenMP run
-# one thread [3-181]. The variables are read when a worker imports numpy, so
-# they are set in the environment for the spawn and restored after it.
-WORKER_THREAD_VARIABLES = (
-    "OPENBLAS_NUM_THREADS",
-    "OMP_NUM_THREADS",
-    "MKL_NUM_THREADS",
+# one thread (with every BLAS thread, each worker commits gigabytes of memory
+# at import). A worker runs on the CPU whatever the main process's platform:
+# the pools serve the observables, where a GPU is faster nowhere (the device
+# table on the install page), and a GPU in Exclusive_Process mode takes a
+# second process only through an MPS server. The variables are read when a
+# worker imports numpy and the package, so they are set in the environment
+# for the spawn and restored after it.
+WORKER_VARIABLES = {
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu",
+    PLATFORM_VARIABLE: "cpu",
+}
+
+
+# XLA's CPU threads in a worker: its flags are read once, when the worker's
+# JAX starts, so they are set for the spawn too; added to the flags the
+# process already has, which they do not otherwise change
+WORKER_XLA_FLAGS = (
+    "--xla_cpu_multi_thread_eigen=false",
+    "intra_op_parallelism_threads=1",
 )
 
 
+def _worker_xla_flags(flags: str | None) -> str:
+    """The XLA flags of a worker: `flags` with the one-thread flags added."""
+    present = (flags or "").split()
+    return " ".join(present + [f for f in WORKER_XLA_FLAGS if f not in present])
+
+
 @contextlib.contextmanager
-def single_threaded_workers() -> Iterator[None]:
-    """Hold the thread variables at one while a pool's workers are spawned,
-    then restore them."""
-    saved = {k: os.environ.get(k) for k in WORKER_THREAD_VARIABLES}
-    os.environ.update(dict.fromkeys(WORKER_THREAD_VARIABLES, "1"))
+def worker_environment() -> Iterator[None]:
+    """Hold the workers' variables (one thread, the CPU, and one XLA thread)
+    while a pool's workers are spawned, then restore them."""
+    saved = {k: os.environ.get(k) for k in (*WORKER_VARIABLES, "XLA_FLAGS")}
+    os.environ.update(WORKER_VARIABLES)
+    os.environ["XLA_FLAGS"] = _worker_xla_flags(saved["XLA_FLAGS"])
     try:
         yield
     finally:
@@ -432,49 +454,87 @@ def single_threaded_workers() -> Iterator[None]:
                 os.environ[k] = v
 
 
-set_verbosity(os.environ.get(VERBOSITY_VARIABLE, "quiet"))
-set_timing(os.environ.get(TIMING_VARIABLE, "") not in ("", "0"))
-set_workers(os.environ.get(WORKERS_VARIABLE, "auto"))
+# The words a switch in the environment reads, in any case; unset is off.
+_ON = ("1", "true", "yes", "on")
+_OFF = ("0", "false", "no", "off")
+
+
+def _env_flag(name: str) -> bool:
+    """Read the switch the environment variable `name` sets."""
+    value = os.environ.get(name, "").strip().lower()
+    if value in _ON:
+        return True
+    if value in ("", *_OFF):
+        return False
+    raise InputError(
+        f"{name} is one of {list(_ON + _OFF)}, in any case; got {os.environ[name]!r}."
+    )
+
+
+def _env_word(name: str, default: str) -> str:
+    """Read the value the environment variable `name` names, in lower case."""
+    return os.environ.get(name, "").strip().lower() or default
+
+
+set_verbosity(_env_word(VERBOSITY_VARIABLE, "quiet"))
+set_timing(_env_flag(TIMING_VARIABLE))
+set_workers(_env_word(WORKERS_VARIABLE, "auto"))
 
 
 COMPILATION_CACHE_VARIABLE = "PIANISTPY_COMPILATION_CACHE"
-# The cache folder is bounded: JAX evicts the oldest entries above this size.
-# One entry per kernel and shape bucket (the kernels take their tables as
-# arguments), so a bounded folder holds many models; a home directory of a
-# gigabyte is not filled by it.
-COMPILATION_CACHE_MAX_SIZE = 512 * 2**20
 
 
-def default_compilation_cache() -> str:
+def _cache_off() -> bool:
+    """Whether ``PIANISTPY_COMPILATION_CACHE`` turns the cache off."""
+    return os.environ.get(COMPILATION_CACHE_VARIABLE, "").strip().lower() in _OFF
+
+
+def _package_cache_folder() -> str:
+    """The package's own folder of the compilation cache."""
+    return os.path.join(os.path.expanduser("~"), ".cache", "pianistpy", "jax")
+
+
+def default_compilation_cache() -> str | None:
     """Return the default folder of the compilation cache.
 
     The environment variable ``PIANISTPY_COMPILATION_CACHE`` if it is set,
-    otherwise ``~/.cache/pianistpy/jax``.
+    None if it is set to ``off`` (the cache is off), otherwise
+    ``~/.cache/pianistpy/jax``.
     """
+    if _cache_off():
+        return None
     given = os.environ.get(COMPILATION_CACHE_VARIABLE)
     if given:
         return given
-    return os.path.join(os.path.expanduser("~"), ".cache", "pianistpy", "jax")
+    return _package_cache_folder()
 
 
 def set_compilation_cache(
     cache: bool | str | os.PathLike = True,
-    max_size: int | None = COMPILATION_CACHE_MAX_SIZE,
+    max_size: int | None = None,
 ) -> str | None:
     """Turn the persistent compilation cache of JAX on or off.
 
     With the cache on, the code compiled in one run is reused by the next,
     which shortens every run after the first. It changes no number. The
-    cache is on by default, in a folder bounded in size.
+    cache is on by default, its folder unbounded in size, as JAX's own is.
+
+    A bound costs time: JAX then takes a lock on the folder at every read
+    and write, and scans every entry at every write. Measured on a folder of
+    22,000 entries on a network file system, a test that takes 5.6 minutes
+    with no bound (4.3 to 5.2 minutes with eight runs at once on the folder,
+    as with the cache off) took 2 hours 8 minutes alone with a bound of
+    512 MiB.
 
     Parameters
     ----------
     cache : bool or path, optional
-        True for the default folder (`default_compilation_cache`), a path for
-        another folder, False to turn the cache off.
+        True for the default folder (`default_compilation_cache`, or the
+        package's own folder where the environment variable turns the cache
+        off), a path for another folder, False to turn the cache off.
     max_size : int or None, optional
         Bound on the folder in bytes, above which JAX evicts the oldest
-        entries; 512 MiB by default. None leaves the folder unbounded.
+        entries; None, the default, leaves the folder unbounded.
 
     Returns
     -------
@@ -486,7 +546,7 @@ def set_compilation_cache(
     if cache is False:
         folder = None
     elif cache is True:
-        folder = default_compilation_cache()
+        folder = default_compilation_cache() or _package_cache_folder()
     else:
         folder = os.fspath(cache)
     jax.config.update("jax_compilation_cache_dir", folder)
@@ -504,9 +564,10 @@ def set_compilation_cache(
 def _cache_file(kind: str, name: str) -> str | None:
     """The file of one cached text: in the folder ``kind`` beside the
     compilation cache's, or None where that cache is off."""
-    if os.environ.get(COMPILATION_CACHE_VARIABLE, "").lower() in ("off", "0", "false"):
+    folder = default_compilation_cache()
+    if folder is None:
         return None
-    root = os.path.dirname(default_compilation_cache())
+    root = os.path.dirname(folder)
     return os.path.join(root, kind, name)
 
 
@@ -618,12 +679,7 @@ def configure_jax() -> None:
     import jax
 
     jax.config.update("jax_enable_x64", True)
-    wanted = os.environ.get(PLATFORM_VARIABLE, "").strip()
+    wanted = _env_word(PLATFORM_VARIABLE, "")
     if wanted:
         set_platform(wanted)
-    off = os.environ.get(COMPILATION_CACHE_VARIABLE, "").lower() in (
-        "off",
-        "0",
-        "false",
-    )
-    set_compilation_cache(not off)
+    set_compilation_cache(not _cache_off())

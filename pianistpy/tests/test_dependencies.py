@@ -3,10 +3,9 @@
 import ast
 import pathlib
 import sys
+import tomllib
 
 import pytest
-
-tomllib = pytest.importorskip("tomllib")  # Python 3.11 and later
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PACKAGE = ROOT / "pianistpy"
@@ -35,7 +34,10 @@ def _third_party_imports() -> set[str]:
 
 
 def test_every_third_party_import_is_a_declared_dependency():
-    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    pyproject = ROOT / "pyproject.toml"
+    if not pyproject.is_file():
+        pytest.skip("reads pyproject.toml, which an installed package does not carry")
+    project = tomllib.loads(pyproject.read_text(encoding="utf-8"))
     declared = set()
     for requirement in project["project"]["dependencies"]:
         name = (

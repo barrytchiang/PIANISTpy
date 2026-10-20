@@ -7,8 +7,11 @@ model, a valid equilibrium, from it. `solve` runs both.
 
 __all__ = ["compute_df", "model_identity", "model_record", "solve", "truncate"]
 
-from collections.abc import Sequence
+import hashlib
+from collections.abc import Callable, Sequence
 from typing import Any
+
+import numpy as np
 
 from .._version import __version__
 from ..exceptions import InputError
@@ -23,10 +26,6 @@ from .results import DistributionFunction, Model
 # contracts and the files hold several; the calls open to them in a later
 # release.
 N_COMPONENTS_MAX = 1
-
-# The solver behind the stages until the rework: None, or a module with compute_df
-# and truncate of the same signatures, installed from outside the package.
-_BACKEND: Any = None
 
 
 def model_record(
@@ -136,24 +135,67 @@ def compute_df(
         isotropic, constant beta and Osipkov-Merritt Type I).
     """
     found = _as_components(components)
-    if _BACKEND is not None:
-        return _BACKEND.compute_df(components, settings)
-    from ..validation import announce
     from .invert import inversion_df
 
     settings = Settings() if settings is None else settings
     # the stages run under the timing record, so the DF carries their times
     with timing_record() as times:
+        stages: tuple[Any, ...]
         if isinstance(found[0].profile, TruncatedProfile):
             from .tabulated import tabulated_df
 
-            grid, table, form, k_t_min, report, inversion, rows = tabulated_df(
-                found[0], settings
-            )
+            stages = tabulated_df(found[0], settings)
         else:
-            grid, table, form, k_t_min, report, inversion, rows = inversion_df(
-                found[0], settings
-            )
+            stages = inversion_df(found[0], settings)
+    return _df_result(found, settings, stages, times.stages)
+
+
+def df_from_function(
+    component: Component,
+    function: Callable[[np.ndarray, np.ndarray], Any],
+    settings: Settings | None = None,
+) -> DistributionFunction:
+    """Return the untruncated distribution function a function of K gives.
+
+    See `DistributionFunction.from_function`.
+    """
+    from .invert import inversion_df
+
+    found = _as_components(component)
+    if isinstance(found[0].profile, TruncatedProfile):
+        raise InputError(
+            "A DF from a function is tabulated on the grid of an analytic "
+            "profile; the component is built on a tabulated profile."
+        )
+    if not callable(function):
+        raise InputError("The DF must be a callable of K; got a non-callable.")
+    settings = Settings() if settings is None else settings
+    with timing_record() as times:
+        stages = inversion_df(found[0], settings, function=function)
+    name = str(getattr(function, "__name__", type(function).__name__))
+    # the identity takes the function by its values on the grid and below the
+    # written floor: the table is stored and the function is not
+    log_df = np.ascontiguousarray(stages[1].log_df, dtype=np.float64)
+    values = hashlib.sha256(log_df.tobytes())
+    values.update(np.ascontiguousarray(stages[1].log_df_below, np.float64).tobytes())
+    record = model_record(found, None, settings)
+    record["inputs"]["function"] = {"name": name, "values": values.hexdigest()}
+    identity = identity_string(record["inputs"], record["settings"], __version__)
+    return _df_result(found, settings, stages, times.stages, identity, name)
+
+
+def _df_result(
+    found: tuple[Component, ...],
+    settings: Settings,
+    stages: tuple[Any, ...],
+    times: dict[str, float],
+    identity: str | None = None,
+    function_name: str | None = None,
+) -> DistributionFunction:
+    """The DF from its stages: the report announced, the result built."""
+    from ..validation import announce
+
+    grid, table, form, k_t_min, report, inversion, rows = stages
     if table.sign.size == 0:  # a signed DF's flagged report is not measured
         detail = "; ".join(
             f"{key} {check.error:.2e}"
@@ -165,15 +207,19 @@ def compute_df(
     return DistributionFunction(
         components=found,
         settings=settings,
-        identity=model_identity(found, None, settings),
+        identity=model_identity(found, None, settings)
+        if identity is None
+        else identity,
         grid=grid,
         table=table,
         form=form,
         k_t_min=k_t_min,
         validation=report,
-        timing=dict(times.stages),
+        timing=dict(times),
         inversion=inversion,
         rows=rows,
+        source="inversion" if function_name is None else "function",
+        function_name=function_name,
     )
 
 
@@ -200,11 +246,16 @@ def truncate(
     UnphysicalModelError
         If no valid equilibrium exists for the request. The exception carries
         `df` as its ``result``.
+    InputError
+        If the DF comes from a function (`DistributionFunction.from_function`):
+        it carries no inversion rows, which truncation needs.
     """
-    if _BACKEND is not None:
-        model = _BACKEND.truncate(df, truncation)
-        _warn_of_divergence(model)
-        return model
+    if df.source == "function":
+        raise InputError(
+            f"The distribution function of {df.components[0].name!r} comes from a "
+            f"function ({df.function_name}): it carries no inversion rows, and "
+            "truncation needs them, so it is not truncated."
+        )
     if truncation is None:
         if isinstance(df.components[0].profile, TruncatedProfile):
             # a DF on a tabulated pair: the model at the edge of the profile

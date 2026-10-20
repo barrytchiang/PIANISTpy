@@ -29,30 +29,31 @@ from ..profiles import DoublePowerLaw, TruncatedProfile
 from ..profiles.series import inner_depth, series_join
 from ..validation import GOAL, HARD_LIMIT, Check, ValidationReport, announce
 from .center import center_amplitude
-from .central import center_form
+from .central import center_form, top_limit
 from .checks import table_checks
 from .core import model_identity
-from .derivatives import ExactDerivs
+from .derivatives import ExactDerivs, host_reachable_radius
 from .edge import density_edge_exponent
 from .fill import fill_profile, profile_rows
 from .form import tail_exponent_analytic
 from .gates import truncation_gates
 from .inputs import Truncation
-from .poisson import profile_density, run_poisson_ode, source_slopes
+from .inversion import order_pair
+from .poisson import density_cut, profile_density, run_poisson_ode, source_slopes
 from .profile_checks import PROFILE_CHECK_KEYS, _model_type, profile_checks
 from .results import DistributionFunction, Model
 from .stages import AsymptoticForm, DfTable
 from .truncation import (
     CEILING_GAP,
-    INNER_DEPTH,
     K_FLOOR,
+    inner_zone_depth,
     row_bin_edges,
     truncated_source,
 )
 from .validate import validate_rows
 
 # the lowered center's nodes per decade
-_CENTRE_NODES_PER_DECADE = 200
+_CENTER_NODES_PER_DECADE = 200
 # the outer end of the radial grid: the bisection's upper bound in log10 R,
 # its steps, and the potential it reaches, a half of the floor
 _R_MAX_BOUND = 60.0
@@ -93,18 +94,23 @@ def _extend(
     kappa: float,
     b: float,
     d: float,
+    floor: float = K_FLOOR,
+    *,
+    ode_rtol: float,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return the table continued by its top patch's form from its last row to
     p_0 less the floor: at least 500 energies spaced in log(p_0 - K), those
-    strictly between the last row and that ceiling."""
-    ceiling = p_0 - K_FLOOR
+    strictly between the last row and that ceiling, from at least the depth
+    where the solve's inner zone ends (`inner_zone_depth`). The floor is K_FLOOR, or
+    the depth where the DF leaves float64 where that lies above it."""
+    ceiling = p_0 - floor
     q_last = float(q[-1])
     if not ceiling > q_last + K_FLOOR:
         return q, f
     step = max(float(np.diff(q[-min(10, len(q) - 1) :])[0]), 1e-15)
     n = min(max(_EXTENSION_MIN, int((ceiling - q_last) / step)), _EXTENSION_MAX)
-    u_lo = max(p_0 - ceiling, K_FLOOR)
-    u_hi = max(p_0 - q_last, INNER_DEPTH)
+    u_lo = max(p_0 - ceiling, floor)
+    u_hi = max(p_0 - q_last, inner_zone_depth(p_0, ode_rtol))
     q_ext = p_0 - np.logspace(np.log10(u_lo), np.log10(u_hi), n)[::-1]
     q_ext = q_ext[(q_ext > q_last) & (q_ext < ceiling)]
     if q_ext.size == 0:
@@ -114,14 +120,23 @@ def _extend(
         + b
         + d * np.maximum(p_0 - q_ext, 0.0)
     )
-    f_ext = np.where(np.isfinite(f_ext), f_ext, 0.0)
+    # a value beyond the range of a double is +inf, the table's own top band
+    # (`truncated_source` reads it as such); NaN or -inf is refused
+    bad = np.isnan(f_ext) | np.isneginf(f_ext)
+    if bad.any():
+        err = AccuracyError(
+            f"{int(bad.sum())} values of the center's form above the table are NaN "
+            f"or -inf, the first at K = {float(q_ext[bad][0]):.6e}: refused"
+        )
+        err.result = dict(k=q_ext, f=f_ext)
+        raise err
     return np.concatenate([q, q_ext]), np.concatenate([f, f_ext])
 
 
 def base_table(df: DistributionFunction) -> tuple[np.ndarray, np.ndarray]:
-    """Return the table the truncation reads: the rows as made up to the
-    anchor, the center's form above it, and at beta_c = +-1/2 the exact DF
-    wherever it is positive."""
+    r"""Return the table the truncation reads: the rows as made up to the
+    anchor, the center's form above it, and at :math:`\beta_{\rm c} = \pm 1/2`
+    the exact DF wherever it is positive."""
     rows = df.rows
     if rows is None:
         raise InputError("The DF carries no rows as made; it was not inverted.")
@@ -141,11 +156,13 @@ def base_table(df: DistributionFunction) -> tuple[np.ndarray, np.ndarray]:
             float(df.form.central_exponent[0]),
             float(b),
             float(d),
+            max(K_FLOOR, _table_top(df.components[0])),
+            ode_rtol=float(df.settings.truncation["ode_rtol"]),
         )
     component = df.components[0]
     aniso = component.anisotropy
-    if not math.isfinite(aniso.r_a) and abs(abs(float(aniso.beta_c)) - 0.5) < 1e-9:
-        order = 1 if float(aniso.beta_c) > 0.0 else 2
+    order = _half_integer_order(aniso)
+    if order is not None:
         derivs = ExactDerivs(
             component.unit_profile,
             beta_c=float(aniso.beta_c),
@@ -153,7 +170,9 @@ def base_table(df: DistributionFunction) -> tuple[np.ndarray, np.ndarray]:
             max_order=order + 1,
         )
         exact = np.zeros_like(q)
-        inside = (q > 0.0) & (q < 1.0)
+        # the exact DF where its derivatives are finite in float64
+        u_min = _top_limit(component, (0, 1, order))
+        inside = (q > 0.0) & (q < 1.0) & (1.0 - q > u_min)
         exact[inside] = np.asarray(
             derivs.derivs_at_p(q[inside], order)[order], dtype=np.float64
         ) / (2.0 * np.pi**2)
@@ -161,18 +180,61 @@ def base_table(df: DistributionFunction) -> tuple[np.ndarray, np.ndarray]:
     return q, f
 
 
-def refusals(df: DistributionFunction, k_t: float) -> None:
-    """Refuse a truncation no model can carry, before any stage runs.
+def central_series_refusal(df: DistributionFunction) -> None:
+    """Refuse an analytic model whose table the host floor alone would cut,
+    before any other condition: no model is built on such a table (its DF
+    takes a spurious global minimum near the center, which the untruncated
+    model's check would name instead).
 
-    - CENTRAL VALIDITY: gamma < 2 beta_c(0), with beta_c(0) = 0 for the
-      isotropic and Osipkov-Merritt models: the DF is negative at the center
-      (the cusp-slope-central-anisotropy theorem, An & Evans 2006); no K_t
-      removes it.
+    The table's top is the shallower of `top_limit` and the depth at
+    `host_reachable_radius`, the center's closed form above it. Where the
+    leading exponent of the center's series vanishes (``gamma = 2 beta_c(0)``),
+    `top_limit` is 0: there is no ask, and where the floor's depth lies
+    below the table's top (CEILING_GAP, gamma near 2) it alone cuts the
+    table, with no closed form to join above it.
+
+    Raises
+    ------
+    UnphysicalModelError
+        CENTRAL SERIES, naming the inputs and the floor's depth; it carries
+        the DF as its result.
+    """
+    component = df.components[0]
+    profile, aniso = component.unit_profile, component.anisotropy
+    if not isinstance(profile, DoublePowerLaw) or top_limit(profile, aniso) > 0.0:
+        return
+    r_floor = host_reachable_radius()
+    u_floor = float(profile.depth_inner(np.array([r_floor]), terms=8)[0][0])
+    if not u_floor > CEILING_GAP:
+        return
+    beta_0 = 0.0 if _model_type(aniso).startswith("OM") else float(aniso.beta_c)
+    raise UnphysicalModelError(
+        f"CENTRAL SERIES: gamma = {float(profile.rho_gamma):g} = 2 beta_c(0) = "
+        f"{2.0 * beta_0:g}: the leading exponent of the center's series vanishes "
+        "(a degenerate central series), and the depth u = "
+        f"{u_floor:.6e} at R = {r_floor:.6e}, the smallest radius whose square "
+        "host float64 holds, alone would end the table, with no closed form of "
+        "the center to join above it. Use a smaller central beta_c or a "
+        "shallower cusp.",
+        result=df,
+    )
+
+
+def refusals(df: DistributionFunction, k_t: float) -> None:
+    r"""Refuse a truncation no model can carry, before any stage runs.
+
+    - CENTRAL VALIDITY: ``gamma < 2 beta_c(0)``, with
+      :math:`\beta_{\rm c}(0) = 0` for the isotropic and Osipkov-Merritt
+      models: the DF is negative at the center (the
+      cusp-slope-central-anisotropy theorem, An & Evans 2006); no
+      :math:`\mathcal{K}_{\rm t}` removes it.
+    - CENTRAL SERIES: `central_series_refusal`.
     - CENTRAL SIGN: the central DF tends to minus infinity or to zero from
       below (a negative closed-form coefficient of a divergent center), or to
       a negative constant (F0 = F - A u^kappa' at the row nearest the top).
 
-    A Type II model's bound, K_t above P(R_a), is the truncation gates'
+    A Type II model's bound, :math:`\mathcal{K}_{\rm t}` above
+    :math:`P(R_{\rm a})`, is the truncation gates'
     DOMAIN (the anisotropy's domain edge), not a refusal of its own.
 
     Raises
@@ -192,6 +254,7 @@ def refusals(df: DistributionFunction, k_t: float) -> None:
             "this. Use a steeper cusp or a smaller central beta_c.",
             result=df,
         )
+    central_series_refusal(df)
     center = center_form(profile, aniso)
     if float(center["sign"]) < 0.0:
         coefficient = (
@@ -222,8 +285,8 @@ def refusals(df: DistributionFunction, k_t: float) -> None:
 
 
 def _domain_edge_potential(profile: Any, aniso: Any) -> float:
-    """The untruncated potential at the anisotropy's domain edge: P(R_a) for
-    a Type II model, 0 where the domain has no edge."""
+    r"""The untruncated potential at the anisotropy's domain edge:
+    :math:`P(R_{\rm a})` for a Type II model, 0 where the domain has no edge."""
     edge = aniso.domain_edge
     if not math.isfinite(edge):
         return 0.0
@@ -232,7 +295,7 @@ def _domain_edge_potential(profile: Any, aniso: Any) -> float:
 
 def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
     """Return every stage of the truncated model at the truncation energy
-    k_t, with the inputs each stage was given.
+    ``k_t``, with the inputs each stage was given.
 
     Raises
     ------
@@ -323,20 +386,25 @@ def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
         p_s=p_s,
         sentinel_q=source.sentinel_q,
     )
-    solve = run_poisson_ode(
-        ode_in["q"],
-        ode_in["p_rhs"],
-        p_0,
-        ra,
-        beta_c,
-        model_type,
-        float(gamma),
-        potential,
-        trunc_settings,
-        p_s=p_s,
-        sentinel_q=source.sentinel_q,
-        edge_continuation=float(k_t) > 0.0,
-    )
+    try:
+        solve = run_poisson_ode(
+            ode_in["q"],
+            ode_in["p_rhs"],
+            p_0,
+            ra,
+            beta_c,
+            model_type,
+            float(gamma),
+            potential,
+            trunc_settings,
+            p_s=p_s,
+            sentinel_q=source.sentinel_q,
+            edge_continuation=float(k_t) > 0.0,
+        )
+    except UnphysicalModelError as exc:
+        raise UnphysicalModelError(
+            f"The truncation at K_t = {k_t!r} is refused: {exc}.", result=df
+        ) from exc
 
     # the density on the solve's rows and the center
     m = source_slopes(ode_in["q"], ode_in["p_rhs"], p_0, p_s, "cubic")
@@ -351,6 +419,7 @@ def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
         p_0=p_0,
         m=m,
         order="cubic",
+        r_cut=density_cut(float(profile.rho_norm), float(gamma)),
     )
     kind = aniso.kind if math.isfinite(aniso.r_a) else None
     center_in: dict[str, Any] = dict(
@@ -363,7 +432,7 @@ def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
         bc=beta_c,
         profile=(float(profile.rho_norm), float(alpha), float(beta), float(gamma)),
         factor=(kind, ra),
-        n_per_decade=_CENTRE_NODES_PER_DECADE,
+        n_per_decade=_CENTER_NODES_PER_DECADE,
         goal=GOAL,
     )
     center = center_amplitude(
@@ -379,7 +448,7 @@ def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
         beta_c,
         center_in["profile"],
         center_in["factor"],
-        n_per_decade=_CENTRE_NODES_PER_DECADE,
+        n_per_decade=_CENTER_NODES_PER_DECADE,
     )
 
     # the fills, the rows and their validation
@@ -437,17 +506,38 @@ def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
 
 
 def _half_integer_order(aniso: Any) -> int | None:
-    """The derivative order of the closed-form DF at beta_c = +-1/2 (1 for
-    +1/2, 2 for -1/2); None for any other anisotropy."""
-    if math.isfinite(aniso.r_a) or abs(abs(float(aniso.beta_c)) - 0.5) >= 1e-9:
+    r"""The derivative order of the closed-form DF at a half-integer constant
+    :math:`\beta_{\rm c}` (1 at +1/2, 2 at -1/2), where the inversion's kernel
+    exponent is zero (`order_pair`, the one test of the package); None for any
+    other anisotropy."""
+    pair = order_pair(float(aniso.beta_c))
+    if math.isfinite(aniso.r_a) or pair.kernel_exponent != 0.0:
         return None
-    return 1 if float(aniso.beta_c) > 0.0 else 2
+    return pair.order_m
+
+
+def _top_limit(component: Any, orders: tuple[int, ...]) -> float:
+    """`top_limit` of an analytic component's exact derivatives; 0 for any
+    other profile."""
+    profile = component.unit_profile
+    if not isinstance(profile, DoublePowerLaw):
+        return 0.0
+    return top_limit(profile, component.anisotropy, orders)
+
+
+def _table_top(component: Any) -> float:
+    r"""The depth below which the exact DF at :math:`\beta_{\rm c} = \pm 1/2`
+    leaves float64 (`_top_limit` of its orders); 0 for any other anisotropy. A
+    table's top lies above it, the center's form beyond."""
+    order = _half_integer_order(component.anisotropy)
+    return 0.0 if order is None else _top_limit(component, (0, 1, order))
 
 
 def _exact(component: Any, q: np.ndarray, order: int, derivative: bool) -> np.ndarray:
-    """The closed-form DF at beta_c = +-1/2, rho_aux^(m) / (2 pi^2), or its
-    K derivative, rho_aux^(m+1) / (2 pi^2); 0 (the DF) or NaN (the derivative)
-    outside 0 < q < 1 and where it is not finite."""
+    r"""The closed-form DF at :math:`\beta_{\rm c} = \pm 1/2`,
+    ``rho_aux^(m) / (2 pi^2)``, or its K derivative, ``rho_aux^(m+1) / (2 pi^2)``;
+    0 (the DF) or NaN (the derivative) outside 0 < q < 1 and where it is not
+    finite."""
     aniso = component.anisotropy
     n = order + 1 if derivative else order
     derivs = ExactDerivs(
@@ -457,7 +547,9 @@ def _exact(component: Any, q: np.ndarray, order: int, derivative: bool) -> np.nd
         max_order=order + 1,
     )
     out = np.full(q.size, np.nan) if derivative else np.zeros_like(q)
-    inside = (q > 0.0) & (q < 1.0)
+    # where the derivatives are finite in float64
+    u_min = _top_limit(component, (0, 1, n))
+    inside = (q > 0.0) & (q < 1.0) & (1.0 - q > u_min)
     with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
         values = np.asarray(derivs.derivs_at_p(q[inside], n)[2 if derivative else n])
     values = values.astype(np.float64) / (2.0 * np.pi**2)
@@ -467,21 +559,47 @@ def _exact(component: Any, q: np.ndarray, order: int, derivative: bool) -> np.nd
     return out
 
 
+def _exact_taylor(component: Any, k_t: float, k: np.ndarray, order: int) -> np.ndarray:
+    r"""The closed-form DF at :math:`\beta_{\rm c} = \pm 1/2`, shifted,
+    ``F_u(K + K_t) - F_u(K_t)``, as its Taylor sum at
+    :math:`\mathcal{K}_{\rm t}` to the cubic: ``SUM_j F_u^(j)(K_t) K^j / j!``,
+    ``F_u^(j) = rho_aux^(m+j) / (2 pi^2)``, every term positive, nothing
+    canceling (the rows below the Taylor form's switch, where the neglected
+    cubic of the form is below :math:`10^{-9}` of F)."""
+    aniso = component.anisotropy
+    derivs = ExactDerivs(
+        component.unit_profile,
+        beta_c=float(aniso.beta_c),
+        model="constant",
+        max_order=order + 3,
+    )
+    at = np.array([k_t])
+    out = np.zeros_like(k)
+    for j in (3, 2, 1):
+        d_j = float(np.asarray(derivs.derivs_at_p(at, order + j)[2])[0])
+        out = (out + d_j / (2.0 * np.pi**2) / math.factorial(j)) * k
+    return out
+
+
 def truncated_table(
     df: DistributionFunction, k_t: float, chain: dict[str, Any]
 ) -> dict[str, Any]:
-    """Return the truncated DF's own table: K, F, log10 F and dF/dK on the
+    r"""Return the truncated DF's own table: K, F, log10 F and dF/dK on the
     source's grid, with the top patch the table carries above its anchor.
 
-    F is the truncated source's, F(K + K_t) - F(K_t). Above the anchor the
-    center's form fitted to it at P_0 = 1 - K_t replaces it, where the
-    untruncated rows took a form; at beta_c = +-1/2 the exact shifted closed
-    form replaces every row. dF/dK is the untruncated rows' derivative read at
-    K + K_t: d ln F / d ln K by not-a-knot splines on each unbroken run of the
-    rows (split at the interior point) times F from the source's own lookup;
+    F is the truncated source's, ``F(K + K_t) - F(K_t)``. Above the anchor the
+    center's form fitted to it at ``P_0 = 1 - K_t`` replaces it, where the
+    untruncated rows took a form; at :math:`\beta_{\rm c} = \pm 1/2` the exact
+    shifted closed form replaces every row, below the Taylor form's switch as
+    its own Taylor sum at :math:`\mathcal{K}_{\rm t}` (`_exact_taylor`), where
+    the difference cancels. dF/dK is the untruncated rows' derivative read at
+    ``K + K_t``: d ln F / d ln K by
+    not-a-knot splines on each unbroken run of the rows (split at the interior
+    point) times F from the source's own lookup;
     the edge's Lagrange interpolation at or below the splice; a four-node
     Lagrange within a factor 3 of a zero of F'; the closed form at
-    beta_c = +-1/2; the patch's own derivative at and above its anchor.
+    :math:`\beta_{\rm c} = \pm 1/2`; the patch's own derivative at and above
+    its anchor.
     """
     from scipy.interpolate import CubicSpline, PchipInterpolator
 
@@ -497,6 +615,9 @@ def truncated_table(
     f = np.asarray(source.df, dtype=np.float64).copy()
     p_0 = 1.0 - float(k_t)
     keep = k <= p_0
+    u_top = _table_top(component)
+    if u_top > K_FLOOR:
+        keep &= p_0 - k > u_top
     k, f = k[keep], f[keep]
 
     # the top patch at P_0 = 1 - K_t, where the untruncated rows took a form
@@ -527,7 +648,16 @@ def truncated_table(
                 ratio = np.maximum(u / max(patch.u_anchor, 1e-300), 1e-300)
                 f[~below] = patch.a_anchor * ratio**kappa + patch.b + patch.d * u
                 k, f = _extend(
-                    k, f, p_0, patch.a_anchor, patch.u_anchor, kappa, patch.b, patch.d
+                    k,
+                    f,
+                    p_0,
+                    patch.a_anchor,
+                    patch.u_anchor,
+                    kappa,
+                    patch.b,
+                    patch.d,
+                    max(K_FLOOR, u_top),
+                    ode_rtol=float(df.settings.truncation["ode_rtol"]),
                 )
                 two_terms = math.isfinite(patch.fit_window)
                 override = dict(
@@ -546,6 +676,11 @@ def truncated_table(
         shifted = _exact(component, k + float(k_t), order, False) - f_kt
         ok = (shifted > 0.0) & (k + float(k_t) < 1.0)
         f = np.where(ok, shifted, f)
+        if source.taylor is not None:
+            # below the switch the difference cancels (F_u(K_t) against F(K)):
+            # the closed form's own Taylor sum at K_t there
+            low = k <= float(source.taylor[2])
+            f = np.where(low, _exact_taylor(component, float(k_t), k, order), f)
     with np.errstate(divide="ignore"):
         log_f = np.where(f > 0.0, np.log10(np.maximum(f, 1e-320)), -np.inf)
 
@@ -669,15 +804,17 @@ _TOP_KEYS = (
     ("top_next_rho_power", "next_s"),
 )
 # the checks of a truncated Method I model's report
-_MODEL_KEYS = ("top_form", "slope_column", "edge_join", *PROFILE_CHECK_KEYS)
+_MODEL_KEYS = ("top_form", "slope_column", "edge_join", "df_clip", *PROFILE_CHECK_KEYS)
 
 
 def _edge_exponent_of(gates: Any, k_t: float, beta_c: float) -> tuple[float, ...]:
-    """The exponent of the density at the edge: F ~ K^p below K_t's Taylor
-    form, p = 1 above the lowest admissible truncation energy; at it, 2 where
-    the last minimum sets it, 1 where the last zero crossing does."""
+    r"""The exponent of the density at the edge: F ~ K^p below
+    :math:`\mathcal{K}_{\rm t}`'s Taylor form, p = 1 above the lowest
+    admissible truncation energy; at it, 2 where the last minimum sets it, 1
+    where the last zero crossing or the domain edge does
+    (:math:`\mathcal{K}_{\rm t}` is then above the edge's potential)."""
     gate = float(gates.k_t_min)
-    if k_t > gate:
+    if k_t > gate or (k_t == gate and gates.set_by == "domain_edge"):
         p = 1.0
     elif k_t == gate and gates.set_by in ("K_0", "Q_min"):
         p = 2.0 if gates.set_by == "Q_min" else 1.0
@@ -697,7 +834,7 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
     df : DistributionFunction
         Result of `compute_df`, with its rows as made.
     truncation : Truncation
-        The truncation: its energy k_t, or a target mass or radius, whose
+        The truncation: its energy ``k_t``, or a target mass or radius, whose
         energy is solved for (`target.solve_target`).
 
     Returns
@@ -707,7 +844,9 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
     Raises
     ------
     UnphysicalModelError
-        If a gate fires; it carries the DF as its result.
+        If a gate fires; it carries the DF as its result. NO EDGE where the
+        solve reaches its outer radius above the floor; it carries the model
+        as its result.
     TargetRefusal
         If no admissible model reaches a target mass or radius.
     """
@@ -799,9 +938,7 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
         if finite_model
         else (),
         u_trunc=u,
-        central_deficit=()
-        if deficit is None
-        else ((float(deficit[0]), float(deficit[1])),),
+        central_deficit=() if deficit is None else (tuple(float(v) for v in deficit),),
         origin=origin,
         df_k=np.asarray(table.k, dtype=np.float64),
         df_log_f=np.asarray(table.log_df, dtype=np.float64),
@@ -830,39 +967,18 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
         ),
         where=None,
     )
+    # the largest negative of the truncated DF's difference set to zero, over
+    # F(K_t): its rounding (`truncated_source`)
+    clip_error, clip_at = source.clip
+    common["df_clip"] = Check(
+        error=float(clip_error), where=None if math.isnan(clip_at) else float(clip_at)
+    )
     trunc_settings = dict(df.settings.truncation, log10_r_max=chain["log10_r_max"])
     common.update(profile_checks(truncated, table, form, aniso, trunc_settings))
     parents_level = df.validation.level if df.table.sign.size == 0 else 0
     report = ValidationReport(
         _MODEL_KEYS, {key: common[key] for key in _MODEL_KEYS}, parents_level
     )
-    # the model's own DF against its own density: refused beyond the hard limit,
-    # unless the settings ask for the model anyway, in which case the report
-    # carries the verdict and the one channel says so
-    round_trip = common["round_trip"]
-    if round_trip.error > HARD_LIMIT and not df.settings.write_anyway:
-        raise AccuracyError(
-            f"The truncated model's DF does not rebuild its density: the round trip "
-            f"misses it by {round_trip.error:.3e} at R = {round_trip.where}, beyond "
-            f"the hard limit {HARD_LIMIT:g}."
-        )
-    announce(
-        f"The truncated model of {df.components[0].name!r}",
-        report,
-        "; ".join(
-            f"{key} {check.error:.2e}"
-            + ("" if check.where is None else f" at {check.where:.6g}")
-            for key, check in report.checks.items()
-            if check.level > 0
-        )
-        + (
-            f" (returned on request, write_anyway: beyond the hard limit "
-            f"{HARD_LIMIT:g})"
-            if round_trip.error > HARD_LIMIT
-            else ""
-        ),
-    )
-
     # the inversion record: the top patch of the truncated table
     over = made["override"]
     if over is not None:
@@ -884,8 +1000,9 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
             high_k_override_rule=(high[3],),
             low_k_override_k=(0.0,),
             low_k_override_r=(r_t,),
+            deficit_degree=(int(chain["center"].deficit_degree),),
         )
-    return Model(
+    model = Model(
         components=df.components,
         truncation=truncation,
         settings=df.settings,
@@ -893,18 +1010,65 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
         parent=df.identity,
         table=table,
         form=form,
-        profile=truncated,
+        profile=dataclasses.replace(truncated, model_level=report.level),
         validation=report,
         timing={},
         r_trust={},
         inversion=inversion,
     )
+    # the model's own DF against its own density: refused beyond the hard limit,
+    # unless the settings ask for the model anyway, in which case the report
+    # carries the verdict and the one channel says so
+    round_trip = common["round_trip"]
+    if round_trip.error > HARD_LIMIT and not df.settings.write_anyway:
+        raise AccuracyError(
+            f"The truncated model's DF does not rebuild its density: the round trip "
+            f"misses it by {round_trip.error:.3e} at R = {round_trip.where}, beyond "
+            f"the hard limit {HARD_LIMIT:g}.",
+            result=model,
+        )
+    announce(
+        f"The truncated model of {df.components[0].name!r}",
+        report,
+        "; ".join(
+            f"{key} {check.error:.2e}"
+            + ("" if check.where is None else f" at {check.where:.6g}")
+            for key, check in report.checks.items()
+            if check.level > 0
+        )
+        + (
+            f" (returned on request, write_anyway: beyond the hard limit "
+            f"{HARD_LIMIT:g})"
+            if round_trip.error > HARD_LIMIT
+            else ""
+        ),
+    )
+    if not finite_model:
+        # the solve reached its outer radius above the floor: no edge, so not a
+        # truncated model; the slope is the last row's, -M / (r Phi)
+        r_end, phi_end = float(r[-1]), float(phi[-1])
+        slope_end = -float(mass[-1]) / (4.0 * np.pi) / (r_end * phi_end)
+        raise UnphysicalModelError(
+            f"NO EDGE: the solve reaches R = {r_end:.6e} with Phi = {phi_end:.6e} "
+            f"and d ln Phi / d ln r = {slope_end:.4g}, above the floor: the "
+            f"truncation at K_t = {k_t!r} has no edge within the solve's radius, so "
+            "it is not a truncated model.",
+            result=model,
+        )
+    return model
 
 
 # the checks of an untruncated model: the join of its outer rows and the
-# offset of its potential at large radii (both zero on the closed form its
-# profile is), and the profile's own checks; its DF's report is the parent's
+# offset of its potential at large radii, not judged (its profile is the closed
+# form, which has neither), and the profile's own checks; its DF's report is the
+# parent's
 _UNTRUNCATED_KEYS = ("outer_join", "eps", *PROFILE_CHECK_KEYS)
+_CLOSED_FORM_OUTER_JOIN = (
+    "the profile is the closed form on every row: no rows of a solve join it"
+)
+_CLOSED_FORM_EPS = (
+    "the potential is the closed form: it has no offset at large radii to measure"
+)
 
 
 def untruncated_model(df: DistributionFunction) -> Model:
@@ -914,7 +1078,7 @@ def untruncated_model(df: DistributionFunction) -> Model:
     The model is the DF's own: its profile is the analytic pair it was
     inverted from (the closed-form density, potential and mass on rows of
     the settings' radial grid, the central depth from its series where that
-    holds), its table and forms the DF's. It is the case K_t = 0 of the
+    holds), its table and forms the DF's. It is the case ``K_t = 0`` of the
     truncation's lower limit, so it exists where the DF admits no truncation
     energy above zero (`DistributionFunction.is_physical`: no zero crossing,
     no global minimum above zero, no domain edge) and the total mass is
@@ -925,10 +1089,11 @@ def untruncated_model(df: DistributionFunction) -> Model:
     UnphysicalModelError
         Naming the condition (the feature that sets the DF's lowest
         admissible truncation energy, and that energy; or the mass), with
-        the DF as its result.
+        the DF as its result; CENTRAL SERIES (`central_series_refusal`) first.
     """
     component = df.components[0]
     profile, aniso = component.unit_profile, component.anisotropy
+    central_series_refusal(df)
     if not df.is_physical:
         from .pair import potential_density_pair
         from .report import validate_df
@@ -1007,8 +1172,8 @@ def untruncated_model(df: DistributionFunction) -> Model:
         df_slope=np.asarray(df.table.log_df_slope, dtype=np.float64),
     )
     checks = {
-        "outer_join": Check(0.0),
-        "eps": Check(0.0),
+        "outer_join": Check(math.nan, reason=_CLOSED_FORM_OUTER_JOIN),
+        "eps": Check(math.nan, reason=_CLOSED_FORM_EPS),
         **profile_checks(
             model_profile, df.table, df.form, aniso, dict(settings, log10_r_max=hi)
         ),
@@ -1018,6 +1183,20 @@ def untruncated_model(df: DistributionFunction) -> Model:
         {key: checks[key] for key in _UNTRUNCATED_KEYS},
         df.validation.level,
     )
+    model = Model(
+        components=df.components,
+        truncation=None,
+        settings=df.settings,
+        identity=identity,
+        parent=df.identity,
+        table=df.table,
+        form=df.form,
+        profile=dataclasses.replace(model_profile, model_level=report.level),
+        validation=report,
+        timing={},
+        r_trust={"goal": math.inf, "ceiling": math.inf},
+        inversion=df.inversion,
+    )
     # the model's own DF against its own density: refused beyond the hard limit,
     # unless the settings ask for the model anyway
     round_trip = checks["round_trip"]
@@ -1025,7 +1204,8 @@ def untruncated_model(df: DistributionFunction) -> Model:
         raise AccuracyError(
             f"The untruncated model's DF does not rebuild its density: the round trip "
             f"misses it by {round_trip.error:.3e} at R = {round_trip.where}, beyond "
-            f"the hard limit {HARD_LIMIT:g}."
+            f"the hard limit {HARD_LIMIT:g}.",
+            result=model,
         )
     announce(
         f"The untruncated model of {component.name!r}",
@@ -1043,17 +1223,4 @@ def untruncated_model(df: DistributionFunction) -> Model:
             else ""
         ),
     )
-    return Model(
-        components=df.components,
-        truncation=None,
-        settings=df.settings,
-        identity=identity,
-        parent=df.identity,
-        table=df.table,
-        form=df.form,
-        profile=model_profile,
-        validation=report,
-        timing={},
-        r_trust={"goal": math.inf, "ceiling": math.inf},
-        inversion=df.inversion,
-    )
+    return model

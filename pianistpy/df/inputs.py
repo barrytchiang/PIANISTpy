@@ -11,6 +11,7 @@ import jax.tree_util
 from ..anisotropy import Anisotropy
 from ..exceptions import InputError
 from ..profiles import DoublePowerLaw, TruncatedProfile
+from ..profiles.core import RHO_BETA_FINITE_MASS, RHO_BETA_MIN
 from .edge import check_edge_existence
 
 
@@ -22,10 +23,14 @@ class Component:
     single component is a sequence of length one.
 
     Given the truncated profile of another model (``parent.profile``) in
-    place of an analytic profile, the component is Method II of the paper:
+    place of an analytic profile, the component is Method II of Chiang+(2026d):
     the density of the parent in the parent's potential, with a new
     anisotropy. It is refused here where no distribution function exists
     for that anisotropy at the edge of the density.
+
+    A profile with an outer slope between 2 and 3 is refused here (OUTER
+    SLOPE): the outer end of the inversion and its tail exponent assume
+    Psi ~ 1/R, which that regime does not have.
 
     Parameters
     ----------
@@ -48,6 +53,15 @@ class Component:
     def __post_init__(self) -> None:
         if not self.mass > 0.0:
             raise InputError(f"mass must be positive; got {self.mass}.")
+        beta = float(self.unit_profile.rho_beta)
+        if RHO_BETA_MIN < beta < RHO_BETA_FINITE_MASS:
+            raise InputError(
+                f"OUTER SLOPE: rho_beta = {beta:g} lies between {RHO_BETA_MIN:g} and "
+                f"{RHO_BETA_FINITE_MASS:g}, where the DF is not available in this "
+                "version: the outer end of the inversion and the tail exponent "
+                "assume Psi ~ 1/R, which holds for rho_beta >= 3 only. Use rho_beta "
+                ">= 3."
+            )
         profile = self.profile
         if isinstance(profile, TruncatedProfile):
             n_components = profile.rho_trunc.shape[0]
@@ -111,7 +125,7 @@ class Component:
 class Truncation:
     r"""How the distribution function of a model is truncated.
 
-    This is Method I of the paper. Method II needs no truncation: it is a
+    This is Method I of Chiang+(2026d). Method II needs no truncation: it is a
     component whose profile is the truncated profile of another model, given
     a new anisotropy.
 

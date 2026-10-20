@@ -2,7 +2,7 @@
 
 From the table the inversion leaves (the energies, the DF, its exact
 derivative and whether the DF changes sign), the truncation energy and the
-run's settings: the truncated DF F(K + K_t) - F(K_t) on the source grid, its
+run's settings: the truncated DF ``F(K + K_t) - F(K_t)`` on the source grid, its
 Taylor form at the edge with the edge integral that joins it to the table,
 and the auxiliary density rho_aux(P) = INT_0^P F(Q) (2 (P - Q))^n dQ that
 the Poisson solve takes as its source. The density of a component is rho_aux
@@ -17,13 +17,14 @@ __all__ = [
     "CEILING_GAP",
     "INNER_CEILING",
     "INNER_DEPTH",
+    "OUTER_ANCHOR",
     "K_FLOOR",
     "LOG_FLOOR",
     "ORIGINS",
-    "ROW_BINS_DEPTH_TOP",
     "ROW_BINS_TOP",
     "RowBins",
     "TruncatedSource",
+    "inner_zone_depth",
     "q_fast_grid",
     "row_bin_edges",
     "truncated_source",
@@ -38,9 +39,9 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 from jax.scipy.special import betainc as _jbetainc
-from jax.scipy.special import gamma
+from jax.scipy.special import gammaln, gammasgn
 
-from ..exceptions import AccuracyError, InputError, ResultError
+from ..exceptions import AccuracyError, InputError, ResultError, UnphysicalModelError
 from ..numerics.pchip import interp1d, pchip_slopes
 from ..typing import Array
 from ..validation import HARD_LIMIT
@@ -50,11 +51,17 @@ K_FLOOR = (
     1e-10  # the potential's floor: the source grid's first node and the solve's edge
 )
 CEILING_GAP = 1e-9  # the source grid's top lies this far below the central potential
-# the solve's inner zone ends this fraction of P_0 below P_0
+# the rounding of the truncated DF's difference F(K + K_t) - F(K_t), in units
+# of F(K_t): the lookup's operations (the logarithm of K, the cubic's ten, the
+# exponential and the difference), each within one unit in the last place
+CLIP_ULPS = 16
+# the validated records' inner zone's end (float32's epsilon), a fraction of P_0:
+# the value such a record carries; the package's own solves follow inner_zone_depth
 INNER_DEPTH = 1.2040138130942069e-07
+# the outer fill's slope anchor, a fraction of P_0
+OUTER_ANCHOR = 3.0 * INNER_DEPTH
 LOG_FLOOR = 1e-30  # the clamp before a logarithm in the source quadrature
-ROW_BINS_TOP = 0.1  # the potential's row-count bins end at this fraction of P_0
-ROW_BINS_DEPTH_TOP = 1e-1  # the depth's row-count bins end at this depth
+ROW_BINS_TOP = 0.1  # both sides' row-count bins end at this fraction of P_0
 INNER_CEILING = 1e-4  # the depth of the solve's rows the center's amplitude is read at
 # where each row of a profile comes from, one small integer per row
 ORIGINS = {
@@ -79,15 +86,16 @@ class RowBins(NamedTuple):
 
 
 def row_bin_edges(
-    p_0: float, settings: Mapping[str, Any], u_max: float = ROW_BINS_DEPTH_TOP
+    p_0: float, settings: Mapping[str, Any], u_max: float = np.inf
 ) -> RowBins:
     """Return the row-count bins of a profile's rows: the one definition the
     fill (`fill.fill_profile`) and the check (`profile_checks.row_density`) read.
 
     The bins are decades of ``profile_bin_decades`` from K_FLOOR, on two
-    sides: the potential Psi up to ROW_BINS_TOP times P_0, and the depth
-    u = P_0 - Psi up to the smaller of ROW_BINS_DEPTH_TOP and the rows'
-    deepest depth `u_max`. The last bin of a side may reach beyond its top.
+    sides: the potential Psi up to ROW_BINS_TOP times :math:`P_0`, and the
+    depth ``u = P_0 - Psi`` up to the smaller of ROW_BINS_TOP times
+    :math:`P_0` and the rows' deepest depth `u_max`. The last bin of a side may
+    reach beyond its top.
 
     Parameters
     ----------
@@ -96,7 +104,8 @@ def row_bin_edges(
     settings : mapping
         The truncation's settings (`Settings.truncation`).
     u_max : float, optional
-        The deepest depth among the rows counted, at most ROW_BINS_DEPTH_TOP.
+        The deepest depth among the rows counted, at most ROW_BINS_TOP times
+        :math:`P_0`.
 
     Returns
     -------
@@ -108,7 +117,7 @@ def row_bin_edges(
     min_per_bin = max(1, int(np.rint(int(settings["profile_rows_per_decade"]) * dlog)))
     psi_top = ROW_BINS_TOP * float(p_0)
     psi_edges = 10.0 ** np.arange(np.log10(K_FLOOR), np.log10(psi_top) + dlog, dlog)
-    u_top = min(ROW_BINS_DEPTH_TOP, float(u_max))
+    u_top = min(psi_top, float(u_max))
     u_edges = None
     if u_top > K_FLOOR:
         u_edges = 10.0 ** np.arange(np.log10(K_FLOOR), np.log10(u_top) + dlog, dlog)
@@ -117,19 +126,20 @@ def row_bin_edges(
 
 @dataclass(frozen=True)
 class TruncatedSource:
-    """The truncated DF and the Poisson source on the source grid.
+    r"""The truncated DF and the Poisson source on the source grid.
 
     Parameters
     ----------
     q : array, shape (n,)
         The source grid in the truncated relative potential, from the grid
-        floor to P_0 - K_t less the ceiling gap.
+        floor to ``P_0 - K_t`` less the ceiling gap.
     df : array, shape (n,)
         The truncated DF on `q`.
     rho_aux : array, shape (n,)
         The auxiliary density on `q`.
     df_at_k_t : float
-        The untruncated DF at K_t, the constant the truncation subtracts.
+        The untruncated DF at :math:`\mathcal{K}_{\rm t}`, the constant the
+        truncation subtracts.
     taylor : tuple of float or None
         (F_1, F_2, K_switch): the DF is F_1 K + F_2 K^2 / 2 below K_switch.
         None for an untruncated DF or where the derivative table is unusable.
@@ -149,6 +159,10 @@ class TruncatedSource:
     edge_nodes : tuple of array or None
         The nodes (Q, dF/dQ) of the edge's Lagrange interpolation; None where
         the edge has none.
+    clip : tuple of float
+        The largest negative of the difference set to zero, over ``F(K_t)``,
+        and the energy K where it lies (0 and NaN where none was): the rounding
+        of the difference, within `CLIP_ULPS` of ``F(K_t)``.
     """
 
     q: Array
@@ -160,6 +174,7 @@ class TruncatedSource:
     sentinel_q: float | None
     lookup: dict[str, Any] | None = None
     edge_nodes: tuple[Array, Array] | None = None
+    clip: tuple[float, float] = (0.0, float("nan"))
 
 
 def q_fast_grid(q_max: float, settings: Mapping[str, Any]) -> Array:
@@ -212,6 +227,15 @@ def _lagrange4(xq: Array, yq: Array, x: Any, deriv: bool = False) -> Array:
             num = np.prod([x - xs[:, m] for m in oth], axis=0)
         out += ys[:, k] * num / den
     return out
+
+
+def _gamma_quotient(a, b, c):
+    """Gamma(a) Gamma(b) / Gamma(c), from the log of each Gamma with its sign:
+    never the quotient of the Gammas, whose factors overflow past an argument
+    of 171.6 (here 1 + n, with ``n = 1/2 - beta_c``) although the quotient itself
+    is an ordinary number; 0 at a pole of Gamma(c), as the quotient gave."""
+    sign = gammasgn(a) * gammasgn(b) * gammasgn(c)
+    return sign * jnp.exp(gammaln(a) + gammaln(b) - gammaln(c))
 
 
 @lru_cache(maxsize=8)
@@ -288,7 +312,7 @@ def _p_rhs_kernel(abel_n: int, split_frac: float, underflow: float):
                 0.0,
                 1.0,
             )
-            _Bab = gamma(1.0 - _a) * gamma(1.0 + n) / gamma(2.0 + n - _a)
+            _Bab = _gamma_quotient(1.0 - _a, 1.0 + n, 2.0 + n - _a)
             _ftail1 = tail_A * jnp.maximum(Q1, underflow) ** (-_a)
             _f1s = jnp.where(
                 Q1 >= Q_grid[0],
@@ -328,12 +352,12 @@ def _p_rhs_kernel(abel_n: int, split_frac: float, underflow: float):
                         jnp.clip((Q_grid[0] - n9["Pmin"]) / _dPm, 0.0, 1.0),
                     )
                 )
-                _Bk = gamma(1.0 - _nk) * gamma(1.0 + n) / gamma(2.0 + n - _nk)
+                _Bk = _gamma_quotient(1.0 - _nk, 1.0 + n, 2.0 + n - _nk)
                 if "wr" in n9:
                     # the piece integrated by parts once more, where
                     # rho_aux's derivative is unbounded at P = 0
                     _dq = n9["d"] + (Q_grid[0] - n9["q0"])
-                    _G1 = gamma(1.0 - _nk) * gamma(1.0 + n) / gamma(1.0 + n - _nk)
+                    _G1 = _gamma_quotient(1.0 - _nk, 1.0 + n, 1.0 + n - _nk)
                     _t1 = (
                         jnp.maximum(_dq, underflow) ** (-_nk)
                         * (2.0 * jnp.maximum(Psi - Q_grid[0], 0.0)) ** n
@@ -380,7 +404,7 @@ def truncated_source(
     tail: tuple[Any, Any] | None = None,
     below_floor: Mapping[str, Any] | None = None,
 ) -> TruncatedSource:
-    """Return the truncated DF and the auxiliary density of one component.
+    r"""Return the truncated DF and the auxiliary density of one component.
 
     Parameters
     ----------
@@ -397,7 +421,7 @@ def truncated_source(
     p_center : float
         Central relative potential of the untruncated model.
     beta_c : float
-        Central anisotropy; the kernel exponent is 1/2 - beta_c (1/2 for
+        Central anisotropy; the kernel exponent is ``1/2 - beta_c`` (1/2 for
         Osipkov-Merritt).
     model_type : str
         The anisotropy's family, as the pipeline names it.
@@ -416,7 +440,7 @@ def truncated_source(
     Raises
     ------
     InputError
-        Where the table ends below K_t.
+        Where the table ends below :math:`\mathcal{K}_{\rm t}`.
     ResultError
         Where the DF table is corrupt.
     AccuracyError
@@ -499,8 +523,9 @@ def truncated_source(
         q_fast_grid(float(p_center - zt_val), settings), dtype=jnp.float64
     )
 
-    # F(K + K_t) - F(K_t), the lookup kept inside the table, capped at the
-    # table's largest value and at 0
+    # F(K + K_t) - F(K_t), the lookup kept inside the table: a negative within
+    # the rounding of the difference is zero, and the largest is reported; one
+    # beyond it is refused (the lowered DF would be negative there)
     _Q_MAX_SAFE = min(float(q_sampling[-1]), float(p_center) - CEILING_GAP)
     _q_lookup = jnp.minimum(q_trunc + zt_val, _Q_MAX_SAFE)
     _df_trunc_raw = (
@@ -517,11 +542,29 @@ def truncated_source(
         )
         - df_at_zt
     )
-    _df_raw_np_cap = np.asarray(df_raw, dtype=np.float64)
-    df_trunc = jnp.minimum(
-        _df_trunc_raw, float(np.max(_df_raw_np_cap[np.isfinite(_df_raw_np_cap)]))
+    _raw_np = np.asarray(_df_trunc_raw, dtype=np.float64)
+    _q_np = np.asarray(q_trunc, dtype=np.float64)
+    _rounding = CLIP_ULPS * float(np.finfo(np.float64).eps) * abs(float(df_at_zt))
+    if not np.all(np.isfinite(_raw_np)):
+        _bad = np.flatnonzero(~np.isfinite(_raw_np))
+        raise AccuracyError(
+            f"{_bad.size} non-finite values of the truncated DF F(K + K_t) - F(K_t), "
+            f"the first at K = {_q_np[_bad[0]]:.6e}: refused"
+        )
+    _j = int(np.argmin(_raw_np))
+    if _raw_np[_j] < -_rounding:
+        raise UnphysicalModelError(
+            f"NEGATIVE TRUNCATED DF: F(K + K_t) - F(K_t) = {_raw_np[_j]:.6e} at "
+            f"K = {_q_np[_j]:.6e}, beyond the rounding of the difference "
+            f"({CLIP_ULPS} ulps of F(K_t) = {float(df_at_zt):.6e}): the lowered DF "
+            "is negative there"
+        )
+    clip = (
+        (float(-_raw_np[_j] / abs(float(df_at_zt))), float(_q_np[_j]))
+        if _raw_np[_j] < 0.0
+        else (0.0, float("nan"))
     )
-    df_trunc = jnp.maximum(df_trunc, 0.0)
+    df_trunc = jnp.maximum(_df_trunc_raw, 0.0)
 
     # the edge: the integral of F' from K_t up to where the difference is
     # reliable, the Taylor form below K_switch
@@ -666,4 +709,18 @@ def truncated_source(
             logf=not df_has_neg,
         ),
         edge_nodes=(_xq, _yq) if _d10_ok else None,
+        clip=clip,
     )
+
+
+def inner_zone_depth(p_0: float, ode_rtol: float) -> float:
+    """The depth where the solve's inner zone ends: ``P_0 eps_64 / ode_rtol``.
+
+    Phi's rounding, ``eps_64 P_0``, is a relative error ``eps_64 P_0 / u`` in a
+    depth formed as ``P_0 - Phi``; it reaches the solve's relative tolerance at
+    this depth, below which the depth is the solve's u alone.
+
+    >>> inner_zone_depth(1.0, 1e-11)
+    2.220446049250313e-05
+    """
+    return float(p_0) * float(np.finfo(np.float64).eps) / float(ode_rtol)

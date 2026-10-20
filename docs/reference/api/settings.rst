@@ -1,5 +1,7 @@
-Settings (``pianistpy.settings``)
-=================================
+Settings
+========
+
+Module ``pianistpy.settings``
 
 .. automodule:: pianistpy.settings
    :members:

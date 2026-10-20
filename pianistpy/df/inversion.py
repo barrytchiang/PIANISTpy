@@ -66,7 +66,7 @@ def order_pair(beta_c: float) -> OrderPair:
 
     References
     ----------
-    Notes Eq. (I.1) [order], Notes Eq. (II.2) [unified-pair].
+    Eq. (T:0.1) [order], Eq. (T:2.16) [unified-pair].
 
     Examples
     --------
@@ -112,7 +112,7 @@ def inversion_prefactor(kernel_exponent: float, beta_c: float) -> float:
 
     References
     ----------
-    Paper I, label ``eqn:COM_DF_gen``; Notes Eq. (I.6) [local].
+    Chiang+(2026d), label ``eqn:COM_DF_gen``; Eq. (T:2.2) [local].
     """
     if kernel_exponent == 0.0:
         k_half = int(round(0.5 - float(beta_c)))
@@ -144,7 +144,7 @@ def forward_prefactor(beta_c: float) -> float:
 
     References
     ----------
-    Notes Eq. (I.21) [volterra].
+    Eq. (T:2.3) [volterra].
     """
     return float(
         2.0 * np.pi**1.5 * gamma_function(1.0 - beta_c) / gamma_function(1.5 - beta_c)
@@ -192,7 +192,7 @@ def interior_point(
 
     References
     ----------
-    Notes Eq. (I.15) [Ra-exponent], Notes Eq. (I.20) [continuation].
+    Eq. (T:2.15) [Ra-exponent], Eq. (T:3.1) [continuation].
     """
     is_com_type_2 = anisotropy.model == "com" and anisotropy.kind == "II"
     if not (full_domain and is_com_type_2):

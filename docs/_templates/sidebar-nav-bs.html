@@ -1,8 +1,10 @@
-{# The theme's sidebar-nav-bs with the heading "In this section" (the pages of the current tab). #}
+{# The theme's sidebar-nav-bs, headed by the current tab's name (the pages of that tab): the top parent's title, or the
+   page's own on a tab's index page. #}
 {% set show_nav_level = meta['html_theme.show_nav_level'] if (meta is defined and meta is not none and 'html_theme.show_nav_level' in meta) else theme_show_nav_level %}
+{% set tab_name = (parents[0].title if parents else title) | striptags %}
 <nav class="bd-docs-nav bd-links"
-     aria-label="In this section">
-  <p class="bd-links__title" role="heading" aria-level="1">In this section</p>
+     aria-label="{{ tab_name }}">
+  <p class="bd-links__title" role="heading" aria-level="1">{{ tab_name }}</p>
   <div class="bd-toc-item navbar-nav">
     {{- generate_toctree_html(
       "sidebar",

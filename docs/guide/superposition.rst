@@ -3,6 +3,8 @@ Superposition and inference
 
 :func:`pianistpy.superpose`, :mod:`pianistpy.inference`
 
+.. _guide-superposition:
+
 Superposition
 -------------
 
@@ -19,6 +21,8 @@ positive weights that sum to one, are one equilibrium model in that density. ``s
 The shared density is enforced: members on different truncated profiles are refused. The weights are normalized;
 a sum away from one is normalized with a warning.
 
+.. _guide-inference:
+
 Inference
 ---------
 
@@ -31,9 +35,11 @@ gradient with respect to the weights is exact and cheap.
    from pianistpy.inference import Data, likelihood
 
    data = Data("sigma_los", values=sigma_obs, r_2d=radii, errors=sigma_err, unit_system="physical")
-   loglike = likelihood(composite.to("physical", mass_0=..., r_0=...), data)
+   loglike = likelihood(composite.to("physical", concentration=..., mass_0=..., r_0=...), data)
    loglike(weights)                       # a JAX scalar; jax.grad(loglike)(weights) is its gradient
 
 The members' observables are computed once, in ``likelihood``; each call of the returned function costs a
 fraction of a millisecond. A refused input inside the traced function (negative weights, a radius outside the
 table) gives minus infinity, never an exception, so a sampler over the weights sees a value.
+
+What the likelihood is differentiable in, through which observables, and at what accuracy: :doc:`gradient`.

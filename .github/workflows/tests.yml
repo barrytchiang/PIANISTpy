@@ -20,16 +20,25 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    # Python 3.11 with the standard environment of the install page, exactly;
+    # 3.12 and 3.13 with the newest versions pyproject admits. The coverage is
+    # uploaded from the 3.11 leg.
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+        include:
+          - python-version: "3.11"
+            pins: "numpy==2.4.3 scipy==1.17.1 h5py==3.15.1 astropy==7.2.0 mpmath==1.3.0 sympy==1.14.0 jax==0.9.2 diffrax==0.7.2 optimistix==0.1.0"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      # The dependencies come from pyproject (an install of the package), not a
-      # list of their own. JAX is held at 0.10.1 until the one test that 0.10.2
-      # fails is resolved.
+          python-version: ${{ matrix.python-version }}
+      # The dependencies come from pyproject (an install of the package), held at
+      # the versions of each leg.
       - name: Install
-        run: python -m pip install -e . "jax==0.10.1" pytest pytest-cov ruff mypy
+        run: python -m pip install -e . ${{ matrix.pins }} pytest pytest-cov ruff mypy
       - name: Style
         run: |
           python -m ruff check pianistpy
@@ -39,7 +48,7 @@ jobs:
       - name: Tests
         run: python -m pytest -q --cov=pianistpy --cov-report=xml --cov-report=term
       - name: Coverage report
-        if: github.repository == 'barrytchiang/PIANISTpy'
+        if: github.repository == 'barrytchiang/PIANISTpy' && matrix.python-version == '3.11'
         uses: codecov/codecov-action@v5
         with:
           files: coverage.xml

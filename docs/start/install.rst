@@ -5,13 +5,21 @@ Install
 
    pip install pianistpy
 
-PIANISTpy needs Python 3.10 or later and runs on Linux, macOS and Windows.
+PIANISTpy needs Python 3.11 or later and runs on Linux, macOS and Windows.
 
-Requirements
+The test suite is installed with the package. To run it on an installation:
+
+.. code-block:: bash
+
+   pip install "pianistpy[test]"
+   pytest --pyargs pianistpy
+
+Dependencies
 ------------
 
 The dependencies are installed by pip with the package. Two lists are kept with every release: the versions the
-release was developed and tested with, and the oldest versions that pass the full test suite.
+release was developed and tested with, and the oldest versions of the listed dependencies that pass the full test
+suite together.
 
 .. list-table::
    :header-rows: 1
@@ -22,47 +30,46 @@ release was developed and tested with, and the oldest versions that pass the ful
      - Minimum (oldest that passes the suite)
    * - Python
      - 3.11
-     - 3.10 (3.12 and 3.13 pass)
+     - 3.11 (the oldest NumPy 2.3 supports)
    * - NumPy
      - 2.4
-     - 2.0.0
+     - 2.3.0
    * - SciPy
      - 1.17
-     - 1.14.0
+     - 1.15.0
    * - h5py
      - 3.15
      - 3.11.0
    * - Astropy
      - 7.2
-     - 7.2.0
+     - 6.1.0
    * - mpmath
-     - 1.4
-     - 0.17
+     - 1.3
+     - 1.1.0
    * - SymPy
      - 1.14
      - 1.2
    * - JAX
      - 0.9.2
-     - 0.6.1 (on Python 3.10, JAX 0.6.2 is the newest available)
+     - 0.6.0
    * - Diffrax
      - 0.7.2
-     - 0.7.0
+     - 0.7.1
    * - Optimistix
      - 0.1.0
-     - 0.0.11
-   * - filelock
-     - 4.0
-     - any
+     - 0.1.0
 
-JAX, Diffrax and Optimistix are bound together: the three minimum versions pass as one environment, and older
-pairs do not. The minimum list is measured one package at a time with the others at their newest; the standard
-list is the environment of the release.
+This standard list is the systematically tested environment, which can differ from the default package versions
+that pip installs by taking the newest version of each dependency that PIANISTpy allows. To reproduce the tested
+environment, manual specifications of each dependent package version during installation may be required. JAX
+0.10.2 and later are not allowed by PIANISTpy, because one test of the suite fails on 0.10.2.
 
-JAX and the GPU
----------------
+CPU and GPU
+-----------
 
-The package runs on the CPU everywhere and takes a GPU where the installed JAX supports one; nothing is set by
-the user. JAX's CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux
-(or a Linux virtual machine) with the Linux wheels, and a native Windows Python runs the CPU-only mode. A GPU and
-a CPU give results that differ at rounding on the kernels; the accuracy goal holds on both, and each file
-records the backend that made it. To force one or the other, see :doc:`../guide/switches`.
+PIANISTpy runs on the CPU with the default installation. With a CUDA build of JAX installed, it automatically
+becomes GPU-enabled for the GPU-implemented features, with no manual setting needed in PIANISTpy. JAX's CUDA builds
+are for Linux only, so macOS runs the CPU-only mode. A native Windows Python also runs the CPU-only mode; on
+Windows the GPU is reached through the Windows Subsystem for Linux (or a Linux virtual machine). Results on the
+GPU and the CPU agree to better than :math:`10^{-10}` in relative terms, and the accuracy goal holds on both. To
+choose the CPU or the GPU explicitly, see :doc:`Runtime options <../guide/switches>`.

@@ -43,8 +43,9 @@ def _core_rule(
 
 def _edge_split(surface: Any) -> float | None:
     """Return the radius above which a panel is integrated in
-    v = (R_t^2 - R^2)^(1/2): R_t / 2^(1/2), where the factors R and v of the
-    measure R dR = -v dv are equal; None where the reading has no edge."""
+    ``v = (R_t^2 - R^2)^(1/2)``: ``R_t / 2^(1/2)``, where the factors R and v
+    of the measure R dR = -v dv are equal; None where the reading has no
+    edge."""
     r_t = surface.r_t
     return None if r_t is None else r_t / np.sqrt(2.0)
 
@@ -52,9 +53,10 @@ def _edge_split(surface: Any) -> float | None:
 def _v_panel(
     lo: float, hi: float, r_t: float, t: Array, w: Array
 ) -> tuple[Array, Array]:
-    """Return the nodes and weights of the integral of f(R) R dR over [lo, hi]
-    taken in v = (R_t^2 - R^2)^(1/2), under the endpoint map of the R panels:
-    smooth up to R_t for f = Sigma g, which carries the factor v."""
+    r"""Return the nodes and weights of the integral of f(R) R dR over [lo, hi]
+    taken in ``v = (R_t^2 - R^2)^(1/2)``, under the endpoint map of the R
+    panels: smooth up to :math:`R_{\rm t}` for f = Sigma g, which carries the
+    factor v."""
     v_lo = float(np.sqrt(max(r_t * r_t - lo * lo, 0.0)))
     v_hi = float(np.sqrt(max(r_t * r_t - hi * hi, 0.0)))
     th = np.pi * t
@@ -104,7 +106,7 @@ def general_aperture_nodes(
     ----------
     surface : callable
         The reading of the surface density, with its ``r_min``, ``r_max``,
-        ``r_t`` and ``inner_disc``.
+        ``r_t`` and ``inner_disk``.
     arc : callable
         The angular measure of the circle of each radius inside the aperture.
     breaks : sequence of float
@@ -129,7 +131,7 @@ def general_aperture_nodes(
     the first row, and runs under the map R = lo + (hi - lo)(1 - cos pi t)/2,
     which clusters nodes at both ends and removes the square-root endpoint
     of `arc` where a circle becomes tangent to the aperture. Beyond
-    R_t / 2^(1/2) a panel is taken in v = (R_t^2 - R^2)^(1/2).
+    ``R_t / 2^(1/2)`` a panel is taken in ``v = (R_t^2 - R^2)^(1/2)``.
     """
     r_min = surface.r_min
     r_edge = float(
@@ -159,25 +161,29 @@ def general_aperture_nodes(
         raise outside_table(r_min, r_edge)
     r_nodes, w_nodes = np.concatenate(r_list), np.concatenate(w_list)
     sigma_nodes = surface(r_nodes)
-    disc = float(arc(np.array([r_min]))[0]) * surface.inner_disc
+    disk = float(arc(np.array([r_min]))[0]) * surface.inner_disk
     total = float(np.dot(w_nodes, sigma_nodes))
-    if not (disc + total) > 0.0:
+    if not (disk + total) > 0.0:
         raise outside_table(r_min, r_edge)
-    _refuse_inner_disc(disc / (disc + total), r_min, inner_tolerance)
+    _refuse_inner_disk(
+        disk / (disk + total), r_min, inner_tolerance, surface.inner_note
+    )
     return r_nodes, w_nodes, sigma_nodes
 
 
-def _refuse_inner_disc(share: float, r_min: float, inner_tolerance: float) -> None:
+def _refuse_inner_disk(
+    share: float, r_min: float, inner_tolerance: float, note: str = ""
+) -> None:
     if share > inner_tolerance:
         raise InputError(
-            f"The disc inside the innermost tabulated projected radius "
+            f"The disk inside the innermost tabulated projected radius "
             f"{r_min:.4e} carries an estimated {share:.2e} of the aperture's "
             f"weight, more than {inner_tolerance:g}; the table is not "
-            f"extrapolated inward."
+            f"extrapolated inward." + (f" {note}" if note else "")
         )
 
 
-def _centerd_nodes(
+def _centered_nodes(
     surface: Any,
     r_ape: float,
     t: Array,
@@ -185,7 +191,7 @@ def _centerd_nodes(
     nodes_per_decade: int,
     inner_tolerance: float,
 ) -> tuple[Array, Array, Array]:
-    """The nodes of a centerd circle: uniform in ln R from the first row, in v
+    """The nodes of a centered circle: uniform in ln R from the first row, in v
     beyond the edge split."""
     r_min = surface.r_min
     if not (r_ape > r_min):
@@ -210,10 +216,10 @@ def _centerd_nodes(
             np.concatenate([w_nodes, w_v]),
         )
     sigma_nodes = surface(r_nodes)
-    share = surface.inner_disc / (
-        surface.inner_disc + float(np.dot(w_nodes, sigma_nodes))
+    share = surface.inner_disk / (
+        surface.inner_disk + float(np.dot(w_nodes, sigma_nodes))
     )
-    _refuse_inner_disc(share, r_min, inner_tolerance)
+    _refuse_inner_disk(share, r_min, inner_tolerance, surface.inner_note)
     return r_nodes, w_nodes, sigma_nodes
 
 
@@ -275,9 +281,9 @@ def _offset_nodes(
     r_nodes, w_nodes = np.concatenate(r_list), np.concatenate(w_list)
     sigma_nodes = surface(r_nodes)
     if r_off - r_ape < r_min:
-        disc = 2.0 * np.pi * surface.inner_disc
-        share = disc / (disc + float(np.dot(w_nodes, sigma_nodes)))
-        _refuse_inner_disc(share, r_min, inner_tolerance)
+        disk = 2.0 * np.pi * surface.inner_disk
+        share = disk / (disk + float(np.dot(w_nodes, sigma_nodes)))
+        _refuse_inner_disk(share, r_min, inner_tolerance, surface.inner_note)
     return r_nodes, w_nodes, sigma_nodes
 
 
@@ -293,10 +299,10 @@ def aperture_nodes(
     aperture for an axisymmetric `f`, and the surface density at the nodes.
 
     The integral is one-dimensional, :math:`\int f(R)\,{\rm arc}(R)\,R\,{\rm
-    d}R`: a centerd circle is uniform in ln R from the table's first row, an
+    d}R`: a centered circle is uniform in ln R from the table's first row, an
     offset circle has a core and a band of its own, and a rectangle takes
     the panels between its breaks (`general_aperture_nodes`). The weights of
-    a centerd circle leave out the factor :math:`2\pi` common to its nodes
+    a centered circle leave out the factor :math:`2\pi` common to its nodes
     (they are those of :math:`\int f R\,{\rm d}R`), as the working code's
     do; a ratio of two integrals is the same either way.
 
@@ -304,7 +310,7 @@ def aperture_nodes(
     ----------
     surface : callable
         The reading of the surface density, with its ``r_min``, ``r_max``,
-        ``r_t`` and ``inner_disc``.
+        ``r_t`` and ``inner_disk``.
     aperture : Aperture
         The aperture.
     n_nodes : int
@@ -324,7 +330,7 @@ def aperture_nodes(
     """
     t, w = unit_rule(n_nodes)
     if aperture.shape == "circle" and aperture.r_off == 0.0:
-        return _centerd_nodes(
+        return _centered_nodes(
             surface,
             float(cast(float, aperture.r_ape)),
             t,

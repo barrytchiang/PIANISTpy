@@ -72,7 +72,7 @@ class TruncatedProfile:
 
     It is the profile of a model, and it can be the profile of a component
     of another model: a component given the truncated profile of a parent
-    model and a new anisotropy is Method II of the paper.
+    model and a new anisotropy is Method II of Chiang+(2026d).
 
     Two profiles are equal where they belong to the same model: the identity
     of a model determines its profile.
@@ -126,6 +126,12 @@ class TruncatedProfile:
         its parent was.
     model : str
         Identity string of the model the profile belongs to.
+    model_level : int or None
+        The tier level of that model's report (`ValidationReport.level`),
+        written by `truncate`, so that a component built on this profile
+        (Method II) takes it as its parents' tier. None where it was not
+        recorded (a profile made otherwise, or read from a file written
+        before it was): read as level 0.
     edge_exponent : tuple of float
         Exponent :math:`q` of each component's density at the edge of the
         model, :math:`\rho \propto \mathcal{P}^q`; empty where the model
@@ -136,9 +142,11 @@ class TruncatedProfile:
         center p_trunc alone has lost the digits of the difference that the
         DF's singular center is read in. Empty where not computed.
     central_deficit : tuple of tuple of float
-        For each component, (D_0, D_1): the central auxiliary density of
-        the orbits the truncation removed and its slope, D_0 - D_1 u. Empty
-        where not recorded.
+        For each component, (D_0, D_1, ...): the central auxiliary density
+        of the orbits the truncation removed as its Taylor series in the
+        depth u, D_0 - D_1 u + D_2 u^2 - ... (D_0 to D_4 as made; a record
+        of D_0 and D_1 alone reads as the linear deficit). Empty where not
+        recorded.
     override_r, override_r_end : float
         Radii between which the closed-form profile replaced the rows of
         the solve; NaN where no row was replaced.
@@ -176,7 +184,7 @@ class TruncatedProfile:
     model: str
     edge_exponent: tuple[float, ...]
     u_trunc: Array = field(default_factory=lambda: np.zeros(0))
-    central_deficit: tuple[tuple[float, float], ...] = ()
+    central_deficit: tuple[tuple[float, ...], ...] = ()
     override_r: float = float("nan")
     override_r_end: float = float("nan")
     override_rows: int = 0
@@ -186,6 +194,7 @@ class TruncatedProfile:
     df_log_f: Array = field(default_factory=lambda: np.zeros((0, 0)))
     df_slope: Array = field(default_factory=lambda: np.zeros((0, 0)))
     df_taylor: tuple[tuple[float, float, float], ...] = ()
+    model_level: int | None = None
 
     def __post_init__(self) -> None:
         r = np.asarray(self.r, dtype=np.float64)
@@ -436,7 +445,8 @@ class TruncatedProfile:
 
 
 # The profile as a pytree: its rows and the numbers of its edge are the data;
-# the source, the labels and the override record are static (R-47 item 9).
+# the source, the labels and the override record are static (the gradient
+# contract).
 register_result(
     TruncatedProfile,
     (

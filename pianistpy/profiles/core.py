@@ -67,7 +67,7 @@ class DoublePowerLaw:
         \varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha} .
 
     The lower bound on :math:`\gamma` excludes a density that decreases
-    towards the center; the upper bound keeps the central potential finite.
+    toward the center; the upper bound keeps the central potential finite.
     The bound on :math:`\beta` keeps the potential finite at large radii.
 
     The named profiles are parameter sets of this one profile, built by the
@@ -78,7 +78,7 @@ class DoublePowerLaw:
 
     References
     ----------
-    Paper I, Appendix A (labels ``eqn:double_power_law_MT``,
+    Chiang+(2026d), Appendix A (labels ``eqn:double_power_law_MT``,
     ``eqn:double_power_law_mass``, ``app:P_beta``).
 
     Examples
@@ -142,7 +142,7 @@ class DoublePowerLaw:
 
     @property
     def rho_norm(self) -> float:
-        r"""Normalisation :math:`C` of the density, for a central potential of 1.
+        r"""Normalization :math:`C` of the density, for a central potential of 1.
 
         Notes
         -----
@@ -280,6 +280,10 @@ class DoublePowerLaw:
         r = np.asarray(r, dtype=np.float64)
         g, a = self.rho_gamma, self.rho_alpha
         e = (g - self.rho_beta) / a
+        # the series in R^alpha converges for R < 1 only: it is not formed
+        # beyond, where the depth is infinite to it and its bound infinite
+        inside = r < 1.0
+        r = np.where(inside, r, 0.5)
         acc = np.zeros_like(r)
         bk = 1.0
         for k in range(terms):
@@ -294,8 +298,8 @@ class DoublePowerLaw:
             * r ** (2.0 - g + terms * a)
             / ((2.0 - g + terms * a) * (3.0 - g + terms * a))
         )
-        u = self.rho_norm * acc
-        return u, np.where(u > 0.0, nxt / np.maximum(acc, 1e-300), np.inf)
+        u = np.where(inside, self.rho_norm * acc, np.inf)
+        return u, np.where(inside & (u > 0.0), nxt / np.maximum(acc, 1e-300), np.inf)
 
     def to_dict(self) -> dict[str, Any]:
         """Return the profile as a plain dictionary."""
@@ -467,14 +471,15 @@ def _p_closed(profile: DoublePowerLaw, r: Array) -> Array | None:
     """Return the closed-form potential of a named profile, or None."""
     alpha, beta, gamma = key = profile._key
     small = r < SERIES_R_MAX
+    rs = np.where(small, r, 0.0)  # the series are formed where they serve
     with np.errstate(divide="ignore", invalid="ignore"):
         if key == (1.0, 3.0, 1.0):
-            series = sum((-1.0) ** k * r**k / (k + 1.0) for k in range(18))
+            series = sum((-1.0) ** k * rs**k / (k + 1.0) for k in range(18))
             return np.where(small, series, np.log1p(r) / r)
         if key == (1.0, 3.0, 0.0):
             series = 2.0 * sum(
-                (-1.0) ** k * r**k / (k + 1.0) for k in range(18)
-            ) - 1.0 / (1.0 + r)
+                (-1.0) ** k * rs**k / (k + 1.0) for k in range(18)
+            ) - 1.0 / (1.0 + rs)
             return np.where(small, series, 2.0 * np.log1p(r) / r - 1.0 / (1.0 + r))
         if key in ((1.0, 3.0, 0.5), (1.0, 3.0, 1.5)):
             # These closed forms cancel at both ends; arbitrary precision there.
@@ -493,10 +498,10 @@ def _p_closed(profile: DoublePowerLaw, r: Array) -> Array | None:
         if key == (2.0, 3.0, 0.0):
             series = (
                 1.0
-                - r**2 / 6.0
-                + 3.0 * r**4 / 40.0
-                - 5.0 * r**6 / 112.0
-                + 35.0 * r**8 / 1152.0
+                - rs**2 / 6.0
+                + 3.0 * rs**4 / 40.0
+                - 5.0 * rs**6 / 112.0
+                + 35.0 * rs**8 / 1152.0
             )
             return np.where(small, series, np.arcsinh(r) / r)
         if key == (2.0, 3.0, 1.0):
@@ -515,14 +520,16 @@ def _mass_closed(profile: DoublePowerLaw, r: Array) -> Array | None:
     small = r < SERIES_R_MAX
     with np.errstate(divide="ignore", invalid="ignore"):
         if key == (1.0, 3.0, 1.0):
-            series = sum((-1.0) ** k * (k - 1.0) * r**k / k for k in range(2, 22))
+            rs = np.where(small, r, 0.0)  # the series is formed where it serves
+            series = sum((-1.0) ** k * (k - 1.0) * rs**k / k for k in range(2, 22))
             return np.where(small, series, np.log1p(r) - r / (1.0 + r))
         if key == (1.0, 3.0, 0.0):
             # fmt: off
             coefficients = [0, 0, 0, 2/3, -3/2, 12/5, -10/3, 30/7, -21/4, 56/9,
                             -36/5, 90/11, -55/6, 132/13]
             # fmt: on
-            series = sum(c * r**k for k, c in enumerate(coefficients))
+            rs = np.where(r < 0.02, r, 0.0)
+            series = sum(c * rs**k for k, c in enumerate(coefficients))
             closed = 2.0 * (np.log1p(r) + 2.0 / (1.0 + r) - 0.5 / (1.0 + r) ** 2 - 1.5)
             return np.where(r < 0.02, series, closed)
         if key == (2.0, 3.0, 0.0):
@@ -530,7 +537,8 @@ def _mass_closed(profile: DoublePowerLaw, r: Array) -> Array | None:
             coefficients = [0, 0, 0, 1/3, 0, -3/10, 0, 15/56, 0, -35/144, 0,
                             315/1408, 0, -693/3328]
             # fmt: on
-            series = sum(c * r**k for k, c in enumerate(coefficients))
+            rs = np.where(r < 0.05, r, 0.0)
+            series = sum(c * rs**k for k, c in enumerate(coefficients))
             return np.where(r < 0.05, series, np.arcsinh(r) - r / np.sqrt(1.0 + r * r))
         if key in ((1.0, 3.0, 0.5), (1.0, 3.0, 1.5)):
             if gamma == 0.5:
@@ -559,7 +567,7 @@ def _mass_closed(profile: DoublePowerLaw, r: Array) -> Array | None:
 def _flatten_profile(p: DoublePowerLaw):
     # The exponents are configuration, not fit parameters, in the first
     # release: the profile is a pytree node with no leaves, so that a model
-    # holding it can be traced in its other parameters (R-47 item 9).
+    # holding it can be traced in its other parameters.
     return (), (p.rho_alpha, p.rho_beta, p.rho_gamma)
 
 

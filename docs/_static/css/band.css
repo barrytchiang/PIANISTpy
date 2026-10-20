@@ -1,0 +1,51 @@
+/* The site band: the header of every page of pianistpy.com, the landing page and the manual alike (one template,
+   docs/_templates/site-band.html; the landing page gets a copy at assembly). Sizes are in px and the band sets its own
+   font, line height and resets, so it renders the same under the landing page's styles and under the theme's. */
+/* The scrollbar's width is reserved on every page, so a page short enough to have no scrollbar centers its content
+   where a long page does, and nothing moves between them. */
+html { scrollbar-gutter: stable; }
+.site { background: #00356B; color: #FFFFFF; font-family: "Libre Franklin", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 17px; line-height: 1.55; -webkit-font-smoothing: auto; }
+.site *, .site *::before, .site *::after { box-sizing: border-box; }
+.site-in { max-width: 1400px; margin: 0 auto; padding: 18px 20px 0; }
+.site-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; }
+.site .site-title { font-family: "Libre Baskerville", Georgia, "Times New Roman", serif; font-size: 53px; font-weight: 400;
+  line-height: 1.55; margin: 6px 0 4px; color: #FFFFFF; text-decoration: none; }
+.site .site-title:hover, .site .site-title:focus { color: #FFFFFF; text-decoration: none; }
+.site-meta { font-size: 18px; opacity: .85; margin: 0 0 14px; }
+.site-nav { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 28px;
+  border-top: 1px solid rgba(255, 255, 255, .25); padding: 12px 0 14px; }
+.site-nav ul { display: flex; flex-wrap: wrap; gap: 4px 28px; list-style: none; margin: 0; padding: 0; }
+.site-nav li { margin: 0; padding: 0; }
+.site-nav li::before { display: none; }
+.site-nav ul a { display: inline-block; color: #FFFFFF; opacity: .88; text-decoration: none; font-size: 18px; font-weight: 500;
+  line-height: 1.55; padding: 4px 0; border-bottom: 2px solid transparent; }
+.site-nav ul a:hover, .site-nav ul a:focus { color: #FFFFFF; opacity: 1; border-bottom-color: #FFFFFF; text-decoration: none; }
+.site-nav li.current > a, .site-nav li.active > a { opacity: 1; border-bottom-color: #FFFFFF; }
+/* Each tab's menu: its pages, shown on hover or keyboard focus on wide screens; on narrow screens the tab goes to
+   its page, and the pages are in the sidebar. */
+.site-nav > ul > li { position: relative; }
+.site-nav > ul > li > ul { display: none; position: absolute; left: -14px; top: 100%; z-index: 1050; min-width: 260px;
+  flex-direction: column; gap: 0; padding: 8px 0; background: #FFFFFF; border: 1px solid #DDDDDD; border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .15); }
+.site-nav > ul > li > ul ul { display: none; }
+.site-nav > ul > li > ul a { display: block; color: #00356B; opacity: 1; font-size: 16px; font-weight: 500; white-space: nowrap;
+  padding: 6px 16px; border: 0; }
+.site-nav > ul > li > ul a:hover, .site-nav > ul > li > ul a:focus { color: #286DC0; background: #E6EDF6; border: 0; }
+.site-nav > ul > li > ul li.current > a { border: 0; background: #E6EDF6; }
+@media (min-width: 960px) {
+  .site-nav > ul > li:hover > ul, .site-nav > ul > li:focus-within > ul { display: flex; }
+}
+.site-icons { display: flex; align-items: center; gap: 22px; }
+.site-icons a, .site-icons button { display: inline-flex; color: #FFFFFF; opacity: .88; background: none; border: 0; padding: 4px 0;
+  cursor: pointer; }
+.site-icons a:hover, .site-icons a:focus, .site-icons button:hover, .site-icons button:focus { opacity: 1; color: #FFFFFF; }
+.site-icons svg { width: 20px; height: 20px; fill: currentColor; }
+/* The pages of the current tab sit in the left sidebar; on narrow screens the theme hides it, and this button opens it. */
+.site-toggle { display: none !important; }
+@media (max-width: 959.98px) { .site-toggle { display: inline-flex !important; } }
+/* The pre-release banner, under the band. */
+.site, .site-banner { width: 100%; box-sizing: border-box; }
+.site-banner { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.site-banner .banner { border-left: 4px solid #6E5316; background: #F3F0E8; color: #222222; padding: 10px 14px; margin: 18px 0 0;
+  font-family: "Libre Franklin", "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.55; }

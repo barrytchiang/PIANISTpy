@@ -1,5 +1,5 @@
 r"""The inversion's sources on a tabulated pair: a component on the
-truncated profile of another model (Method II of the paper), with its own
+truncated profile of another model (Method II of Chiang+(2026d)), with its own
 anisotropy.
 
 The component's auxiliary density is the profile's density times its
@@ -21,7 +21,9 @@ inversion and the pilot that places the grid follow (`child_rows`,
 __all__ = [
     "child_model",
     "child_rows",
+    "factor_sources",
     "floor_record",
+    "parent_density",
     "parent_sources",
     "pilot_feature",
     "refusals",
@@ -35,14 +37,14 @@ from typing import Any
 
 import jax.numpy as jnp
 import numpy as np
-import sympy
 from scipy.interpolate import PchipInterpolator
 
-from ..exceptions import InputError, ResultError, UnphysicalModelError
+from ..anisotropy.factor import inverse_factor
+from ..exceptions import AccuracyError, InputError, ResultError, UnphysicalModelError
 from ..profiles import DoublePowerLaw
 from ..runtime import timed
 from ..settings import Settings
-from ..validation import Check, ValidationReport
+from ..validation import HARD_LIMIT, Check, ValidationReport, announce
 from .central import center_form
 from .checks import measure_table
 from .derivatives import aux_derivatives
@@ -61,7 +63,12 @@ from .inputs import Component
 from .inversion import inversion_prefactor, order_pair
 from .pair import potential_density_pair
 from .profile_checks import PROFILE_CHECK_KEYS, profile_checks
-from .report import stated_forms, validate_df
+from .report import (
+    NO_SLOPE_COLUMN_CHILD,
+    slope_column_not_judged,
+    stated_forms,
+    validate_df,
+)
 from .rows import complete_rows, floor_source, inversion_kernel, kernel_rules
 from .stages import (
     AsymptoticForm,
@@ -83,22 +90,6 @@ _TINY = 1e-300
 # the branches of the center whose DF diverges at p_0: the only ones a top
 # band is judged against
 _PATCHED = ("regular", "critical_divergent")
-# the families whose factor is (1 - R^2 / r_a^2)^s (Type II) and the exponent
-# s of the factor's Osipkov-Merritt part
-_TYPE_II = ("OM_II", "COM_II")
-
-
-def _factor_exponents(family: str, beta_c: float) -> tuple[float, float]:
-    """The sign of R^2 / r_a^2 in the factor's u and its exponent s:
-    g = R^(2 beta_c) u^s, u = 1 +- R^2 / r_a^2."""
-    sign = -1.0 if family in _TYPE_II else 1.0
-    if family in ("OM_I", "OM_II"):
-        s = 1.0
-    elif family in ("COM_I", "COM_II"):
-        s = 1.0 - beta_c
-    else:
-        s = 0.0
-    return sign, s
 
 
 def parent_sources(
@@ -130,11 +121,11 @@ def parent_sources(
         ``taylor``, the edge's (F_1, F_2, K_switch) or None.
     parent_rows : dict
         The parent's rows: ``R``, ``Psi``, ``rho``, ``M`` (4 pi times the
-        enclosed mass), ``u`` (P_0 - Psi, exact near the center) and ``p_0``
+        enclosed mass), ``u`` (``P_0 - Psi``, exact near the center) and ``p_0``
         (the parent's central potential, 1 - Z_t).
     parent_r_a : float or None
-        The parent's r_a where it is Osipkov-Merritt Type I; None where it is
-        isotropic.
+        The parent's :math:`R_{\rm a}` where it is Osipkov-Merritt Type I;
+        None where it is isotropic.
     family : str
         The child's anisotropy family.
     beta_c, r_a : float
@@ -153,8 +144,26 @@ def parent_sources(
     ------
     InputError
         If the order is above 3; if the order is 3 and the parent states no
-        Taylor edge; if the parent's u is not P_0 - Psi to the rounding of
+        Taylor edge; if the parent's u is not ``P_0 - Psi`` to the rounding of
         Psi.
+    """
+    density = parent_density(q, p_top, order, parent_df, parent_rows, parent_r_a)
+    return factor_sources(density, family, beta_c, r_a)
+
+
+def parent_density(
+    q: np.ndarray,
+    p_top: float,
+    order: int,
+    parent_df: dict[str, Any],
+    parent_rows: dict[str, Any],
+    parent_r_a: float | None,
+) -> dict[str, Any]:
+    r"""Return the parent's part of `parent_sources` on the energies q: the
+    density's derivatives rho_hat^(k) (an OM I parent's divided by its h),
+    R(P) and its derivatives, and the window; none depends on the child.
+
+    Parameters and Raises as `parent_sources`.
     """
     if not 1 <= order <= 3:
         raise InputError(
@@ -323,9 +332,9 @@ def parent_sources(
         # an OM I parent: the integrals are its augmented density h rho_hat,
         # h = 1 + R^2 / r_a^2; rho_hat^(k) by Leibniz with h's derivatives in P
         ra_p = float(parent_r_a)  # type: ignore[arg-type]
-        h = 1.0 + (rr / ra_p) ** 2
-        h_1 = 2.0 * rr * rp / ra_p**2
-        h_2 = 2.0 * (rp**2 + rr * rpp) / ra_p**2
+        h, h_r, h_rr, *h_rrr = inverse_factor(rr, "OM_I", 0.0, ra_p, max(order, 2))
+        h_1 = h_r * rp
+        h_2 = h_rr * rp**2 + h_r * rpp
         rho1 = (rho1 - h_1 * rho0) / h
         rho2 = (rho2 - 2.0 * h_1 * rho1 - h_2 * rho0) / h
         if order == 3:
@@ -342,42 +351,49 @@ def parent_sources(
                     - 2.0 * (2.0 * rr * rp * mm - rr**2 * mp) * mp / mm**3
                 )
             )
-            h_3 = 2.0 * (3.0 * rp * rpp + rr * rppp_h) / ra_p**2
+            h_3 = h_rrr[0] * rp**3 + 3.0 * h_rr * rp * rpp + h_r * rppp_h
             rho3 = (rho3 - 3.0 * h_1 * rho2 - 3.0 * h_2 * rho1 - h_3 * rho0) / h
+    return dict(
+        order=order,
+        window=ok,
+        rho=(rho0, rho1, rho2, rho3),
+        r=rr,
+        r_p=rp,
+        r_pp=rpp,
+        m=mm,
+        m_p=mp,
+        h=h,
+        h_1=h_1,
+        p0_hat=p0h,
+        taylor=None if taylor is None else (f_1, f_2, k_sw),
+    )
 
-    # the child's factor g = R^(2 beta_c) u^s, u = 1 +- R^2 / r_a^2
+
+def factor_sources(
+    density: dict[str, Any],
+    family: str,
+    beta_c: float,
+    r_a: float,
+    factor: tuple[Any, ...] | None = None,
+) -> dict[str, Any]:
+    r"""Return `parent_sources` from the parent's part (`parent_density`) and
+    the child's factor ``g = R^(2 beta_c) u^s``, ``u = 1 +- R^2 / r_a^2``. The
+    sources are linear in g: with ``factor`` (g and its R-derivatives to the
+    density's order, on its R) they are made with it in place of g."""
+    order = density["order"]
+    rho0, rho1, rho2, rho3 = density["rho"]
+    rr, rp, rpp = density["r"], density["r_p"], density["r_pp"]
+    mm, mp = density["m"], density["m_p"]
     b, ra = float(beta_c), float(r_a)
-    sgn, s_om = _factor_exponents(family, b)
-    u = 1.0 + sgn * (rr / ra) ** 2
-    du = sgn * 2.0 * rr / ra**2
-    ddu = sgn * 2.0 / ra**2
-    g = rr ** (2 * b) * u**s_om
-    g_r = (
-        2 * b * rr ** (2 * b - 1) * u**s_om
-        + rr ** (2 * b) * s_om * u ** (s_om - 1) * du
-    )
-    g_rr = (
-        2 * b * (2 * b - 1) * rr ** (2 * b - 2) * u**s_om
-        + 2 * (2 * b * rr ** (2 * b - 1)) * s_om * u ** (s_om - 1) * du
-        + rr ** (2 * b)
-        * (s_om * (s_om - 1) * u ** (s_om - 2) * du**2 + s_om * u ** (s_om - 1) * ddu)
-    )
+    if factor is None:
+        factor = inverse_factor(rr, family, b, ra, max(order, 2))
+    g, g_r, g_rr = factor[:3]
     aux = {
         1: rho1 * g + rho0 * g_r * rp,
         2: rho2 * g + 2.0 * rho1 * g_r * rp + rho0 * (g_rr * rp**2 + g_r * rpp),
     }
     if order == 3:
-        r_sym = sympy.symbols("R", positive=True)
-        g_rrr = np.asarray(
-            sympy.lambdify(
-                r_sym,
-                sympy.diff(
-                    r_sym ** (2 * b) * (1 + sgn * r_sym**2 / ra**2) ** s_om, r_sym, 3
-                ),
-                "numpy",
-            )(rr),
-            dtype=np.float64,
-        )
+        g_rrr = factor[3]
         a1 = 2.0 * rr * rp
         a2 = 2.0 * rp**2 + 2.0 * rr * rpp
         mpp = (
@@ -398,17 +414,17 @@ def parent_sources(
         g3 = g_rrr * rp**3 + 3.0 * g_rr * rp * rpp + g_r * rppp
         aux[3] = rho3 * g + 3.0 * rho2 * g1 + 3.0 * rho1 * g2 + rho0 * g3
     return dict(
-        window=ok,
+        window=density["window"],
         rho=rho0,
         aux=aux,
         g=g,
         g_p=g_r * rp,
         r=rr,
         r_p=rp,
-        h=h,
-        h_1=h_1,
-        p0_hat=p0h,
-        taylor=None if taylor is None else (f_1, f_2, k_sw),
+        h=density["h"],
+        h_1=density["h_1"],
+        p0_hat=density["p0_hat"],
+        taylor=density["taylor"],
     )
 
 
@@ -460,8 +476,9 @@ def floor_record(
 
 
 def _pair(anisotropy: Any) -> tuple[Any, float, int, int, bool, bool]:
-    """The child's pair: (pair, beta_c of the kernel, j, the source's order,
-    half-integer, switched); Osipkov-Merritt inverts with the isotropic pair."""
+    r"""The child's pair: (pair, :math:`\beta_{\rm c}` of the kernel, j, the
+    source's order, half-integer, switched); Osipkov-Merritt inverts with the
+    isotropic pair."""
     bc = 0.0 if anisotropy.family.startswith("OM") else float(anisotropy.beta_c)
     pair = order_pair(bc)
     j = int(pair.order_j)
@@ -478,6 +495,7 @@ def child_rows(
     anisotropy: Any,
     settings: Settings,
     unit_profile: DoublePowerLaw | None = None,
+    sources: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     r"""Return the child's inversion rows on the energies q.
 
@@ -490,7 +508,9 @@ def child_rows(
     makes them, the boundary terms are then the untruncated analytic
     profile's rho_aux^(j) and rho_aux^(j-1) at the floor, and the rows from
     ten floors up take the derivative-outside form where rho_aux^(j) is
-    unbounded at P = 0.
+    unbounded at P = 0. With ``sources`` (`parent_sources`' on q) they are
+    read in place of the parent's, the anisotropy giving the kernel and the
+    floor's order.
 
     Returns
     -------
@@ -508,17 +528,19 @@ def child_rows(
     """
     pair, bc, j, order, half, switched = _pair(anisotropy)
     p_top = float(np.asarray(parent_rows["Psi"], dtype=np.float64)[0])
-    s = parent_sources(
-        q,
-        p_top,
-        order,
-        parent_df,
-        parent_rows,
-        parent_r_a,
-        anisotropy.family,
-        float(anisotropy.beta_c),
-        float(anisotropy.r_a),
-    )
+    s = sources
+    if s is None:
+        s = parent_sources(
+            q,
+            p_top,
+            order,
+            parent_df,
+            parent_rows,
+            parent_r_a,
+            anisotropy.family,
+            float(anisotropy.beta_c),
+            float(anisotropy.r_a),
+        )
     if not np.all(s["window"]):
         raise InputError(
             f"{int(np.sum(~s['window']))} of the child's energies lie outside the "
@@ -603,17 +625,21 @@ def pilot_feature(
     settings: Settings,
     unit_profile: DoublePowerLaw,
 ) -> dict[str, Any]:
-    """Return the feature an OM Type II or Cuddeford child's grid is placed
+    """Return the feature an OM Type II or COM child's grid is placed
     around: the pilot's rows on the coarse grid scaled to the parent's first
-    potential P_0, and the minimum of the DF below the midpoint of the
-    preflight zones' B/BC and BC/C boundaries (on P_0 = 1), refined by a
+    potential :math:`P_0`, and the minimum of the DF below the midpoint of the
+    preflight zones' B/BC and BC/C boundaries (on :math:`P_0 = 1`), refined by a
     parabola through its neighbors (`invert.pilot_feature`'s rule)."""
     p0 = float(np.asarray(parent_rows["Psi"], dtype=np.float64)[0])
     extent = float(settings.inversion["grid_tail_extent"])
     low = np.logspace(np.log10(K_FLOOR), np.log10(0.05 * p0), 200)
-    q = np.unique(
-        np.concatenate([low, np.linspace(0.05 * p0, 0.95 * p0, 600), p0 - low[::-1]])
-    )
+    # the log parts may meet the linear part an ulp off its ends; each seam is
+    # the linear part's end node exactly, so the two are one node
+    low[-1] = 0.05 * p0
+    mid = np.linspace(0.05 * p0, 0.95 * p0, 600)
+    high = p0 - low[::-1]
+    high[0] = mid[-1]
+    q = np.unique(np.concatenate([low, mid, high]))
     f = child_rows(
         q, parent_df, parent_rows, parent_r_a, anisotropy, settings, unit_profile
     )["f"]
@@ -637,8 +663,7 @@ def pilot_feature(
             q_feature = qb
         if q_feature < K_FLOOR * 1e3 or q_feature >= cutoff:
             q_feature = 0.0
-    kappa_low = -0.5 if anisotropy.family in ("OM_I", "COM_I") else float("nan")
-    return dict(q_feature=q_feature, case=1, kappa_low=kappa_low)
+    return dict(q_feature=q_feature)
 
 
 def tabulated_grid(
@@ -648,12 +673,13 @@ def tabulated_grid(
     unit_profile: DoublePowerLaw,
     feature: dict[str, Any] | None = None,
 ) -> tuple[np.ndarray, GridZones]:
-    """Return the energies a component on a tabulated pair is inverted on,
-    and the zones: the hybrid grid on P_0 = the profile's first potential,
-    from the larger of the floor and its last potential, compact (no table
-    extension below, no interior-point nodes). An OM Type I model's zones
-    are placed around Psi(r_a) of the untruncated analytic potential, an OM
-    Type II or Cuddeford model's around its pilot's feature."""
+    r"""Return the energies a component on a tabulated pair is inverted on,
+    and the zones: the hybrid grid on :math:`P_0` = the profile's first
+    potential, from the larger of the floor and its last potential, compact
+    (no table extension below, no interior-point nodes). An OM Type I
+    model's zones are placed around :math:`\Psi(R_{\rm a})` of the
+    untruncated analytic potential, an OM Type II or COM model's around
+    its pilot's feature."""
     psi = np.asarray(parent_rows["Psi"], dtype=np.float64)
     p0 = float(psi[0])
     group = settings.inversion
@@ -661,18 +687,11 @@ def tabulated_grid(
     family = anisotropy.family
     if family == "OM_I":
         psi_ra = float(unit_profile.p(np.array([float(anisotropy.r_a)]))[0])
-        zones = feature_zones(p0, extent, K_FLOOR, psi_ra, 1, -0.5)
+        zones = feature_zones(p0, extent, K_FLOOR, psi_ra)
     elif family in ("OM_II", "COM_I", "COM_II"):
         if feature is None:
             raise ValueError(f"An {family} model's grid needs its pilot's feature.")
-        zones = feature_zones(
-            p0,
-            extent,
-            K_FLOOR,
-            float(feature["q_feature"]),
-            int(feature["case"]),
-            float(feature["kappa_low"]),
-        )
+        zones = feature_zones(p0, extent, K_FLOOR, float(feature["q_feature"]))
     else:
         zones = standard_zones(p0, extent, K_FLOOR)
     q = hybrid_grid(
@@ -695,24 +714,28 @@ def critical_band_series(
     d_1: float,
     order: int = 5,
     r_a: float = math.inf,
+    higher: tuple[float, ...] = (),
 ) -> np.ndarray:
     r"""Return the coefficients :math:`a_0 .. a_{\rm order}` of
     :math:`d\varrho_{\rm aux}/d\hat\Psi = \sum a_k u^k` near the center of a
     gamma = 1, alpha = 1 profile :math:`\rho = C R^{-1} (1 + R)^{1 - \beta_r}`
     truncated in phase space, the inversion of the critical branch
-    beta_c = 1/2: :math:`\varrho_{\rm aux} = R\hat\varrho` (constant beta),
-    or :math:`R\hat\varrho\,(1 + R^2/R_{\rm a}^2)^{1/2}` (COM Type I, finite
-    `r_a`: :math:`\varrho/g` with g of Eq. B43 at beta_c = 1/2) [3-216].
+    :math:`\beta_{\rm c} = 1/2`: :math:`\varrho_{\rm aux} = R\hat\varrho`
+    (constant beta), or :math:`R\hat\varrho\,(1 + R^2/R_{\rm a}^2)^{1/2}`
+    (COM Type I, finite `r_a`: :math:`\varrho/g` with g of Eq. B43 at
+    :math:`\beta_{\rm c} = 1/2`), the center that describes the table at
+    :math:`\beta_{\rm c} = +1/2`.
 
     Plain power-series arithmetic in R, then the reversion R(u). The
     truncation enters as the deficit at a given depth, :math:`\hat\varrho(u)
-    = g(u) - \Delta_0 + \Delta_1 u` with g the untruncated density against
-    depth, and the lowered model's own radius at that depth by a fixed point
-    (at :math:`\Delta = 0`: NFW 4, -10/3, 14/3; Hernquist 6, -4, 4). The COM
-    factor is the binomial series in :math:`R^2/R_{\rm a}^2`; it multiplies
-    the auxiliary density only (the mass and the depth are the profile's),
-    and is 1 at infinite `r_a`, where the constant series is returned as
-    before.
+    = g(u) - \Delta_0 + \Delta_1 u - \Delta_2 u^2 + \dots` with g the
+    untruncated density against depth (`higher` holds :math:`\Delta_2,
+    \Delta_3, \dots`; none, the deficit is linear), and the lowered model's
+    own radius at that depth by a fixed point (at :math:`\Delta = 0`: NFW 4,
+    -10/3, 14/3; Hernquist 6, -4, 4). The COM factor is the binomial series
+    in :math:`R^2/R_{\rm a}^2`; it multiplies the auxiliary density only
+    (the mass and the depth are the profile's), and is 1 at infinite `r_a`,
+    where the constant series is returned as before.
     """
     n = int(order) + 4
 
@@ -768,6 +791,10 @@ def critical_band_series(
         rrh = (
             divide(compose(g, uh), s) - float(d_0) * r_ser + float(d_1) * mul(r_ser, uh)
         )
+        pw = mul(r_ser, uh)
+        for k, d_k in enumerate(higher, start=2):
+            pw = mul(pw, uh)
+            rrh = rrh - (-1.0) ** k * float(d_k) * pw
         mh = integ(mul(rrh, r_ser))
         uh = integ(np.concatenate([mh[2:], [0.0, 0.0]]))
     aux = rrh
@@ -791,47 +818,62 @@ def critical_band(
     p_0: float,
     extent: float,
     unit_profile: DoublePowerLaw,
-    deficit: tuple[float, float],
+    deficit: tuple[float, ...],
     r_a: float = math.inf,
 ) -> tuple[np.ndarray, dict[str, Any]]:
     r"""Return the rows with the critical branch's closed-form top band, and
     its record.
 
-    At beta_c = 1/2 on a gamma = 1, alpha = 1 parent the inversion is a
+    At :math:`\beta_{\rm c} = 1/2` on a gamma = 1, alpha = 1 parent the inversion is a
     derivative whose terms are both of order 1/u: the rows carry the parent's
     accuracy times 1/(4u) toward the center. Above an anchor the rows are the
     closed form :math:`F = A \sum_{k \le 4} a_k u^k`,
     :math:`A = 1/(2\pi^2)`, exact in the truncation through the parent's
-    central deficit (`critical_band_series`). The anchor is analytic: the
-    smaller of the series' own range at the goal tier (from the first two
-    neglected coefficients) and the grid's top zone, ``extent`` P_0. The
+    central deficit to its cubic term, :math:`\Delta_0` to :math:`\Delta_3`
+    of `deficit` (`critical_band_series`). The anchor is analytic: the
+    smaller of the series' own range at the goal tier and the grid's top
+    zone, ``extent`` :math:`P_0`; the range reads the first two neglected
+    coefficients and the deficit's own truncation, the move of the series
+    under its next term :math:`\Delta_4` (zero where `deficit` holds only
+    the linear pair, which then reads as linear). The
     rows validate it: the median signed deviation of the computed rows from
     the closed form over the outermost decade inside the anchor must be
     within the goal tier, on at least 10 rows. Where it is not, the anchor
-    steps inward one decade at a time to the outermost decade that is
-    [3-216]; where none is, no band is applied and the record says so. The
+    steps inward one decade at a time to the outermost decade that is;
+    where none is, no band is applied and the record says so. The
     record's ``u`` and ``K`` are the anchor, its ``validation_*`` that
     decade's. A finite `r_a` is COM Type I's (`critical_band_series`).
     """
     from ..validation import GOAL
 
-    d_0, d_1 = (float(v) for v in deficit)
+    d_k = [float(v) for v in deficit] + [0.0] * max(0, 5 - len(deficit))
+    d_0, d_1 = d_k[0], d_k[1]
     big_a = 1.0 / (2.0 * np.pi**2)
-    ak = critical_band_series(
-        float(unit_profile.rho_norm),
-        float(unit_profile.rho_beta),
-        d_0,
-        d_1,
-        order=6,
-        r_a=r_a,
-    )
+
+    def series_with(higher: tuple[float, ...]) -> np.ndarray:
+        return critical_band_series(
+            float(unit_profile.rho_norm),
+            float(unit_profile.rho_beta),
+            d_0,
+            d_1,
+            order=6,
+            r_a=r_a,
+            higher=higher,
+        )
+
+    ak = series_with((d_k[2], d_k[3]))
+    # the deficit's own truncation: the series' move under its next term
+    d_ak = series_with((d_k[2], d_k[3], d_k[4])) - ak
     a0, c1, c2 = float(ak[0]), float(ak[1] / ak[0]), float(ak[2] / ak[0])
 
     def band(uu: Any) -> Any:
         return big_a * (ak[0] + uu * (ak[1] + uu * (ak[2] + uu * (ak[3] + uu * ak[4]))))
 
     def rem(uu: float) -> float:
-        return float((abs(ak[5]) * uu**5 + abs(ak[6]) * uu**6) / abs(ak[0]))
+        trunc = abs(ak[5]) * uu**5 + abs(ak[6]) * uu**6
+        return float(
+            (trunc + abs(np.polynomial.polynomial.polyval(uu, d_ak))) / abs(ak[0])
+        )
 
     cap = float(extent) * float(p_0)
     if rem(cap) <= GOAL:
@@ -849,7 +891,7 @@ def critical_band(
     ff = np.asarray(f, dtype=np.float64)
     uu = float(p_0) - kk
     # the outermost decade on which the rows meet the closed form at the goal,
-    # stepping inward from the series' anchor one decade at a time [3-216]
+    # stepping inward from the series' anchor one decade at a time
     while True:
         val = (uu <= u_a) & (uu >= 0.1 * u_a) & np.isfinite(ff) & (ff > 0.0)
         with np.errstate(divide="ignore", invalid="ignore"):
@@ -873,6 +915,9 @@ def critical_band(
         a4=float(ak[4]),
         D0=d_0,
         D1=d_1,
+        D2=d_k[2],
+        D3=d_k[3],
+        D4=d_k[4],
         validation_rows=int(sd.size),
         validation_median=med,
         validation_scatter=(
@@ -893,7 +938,7 @@ def critical_band(
 
 # the parents whose DF integral is a known density: an isotropic parent's is
 # its density, an OM Type I parent's its augmented density (1 + R^2 / r_a^2)
-# rho_hat; a constant-beta or Cuddeford parent's F = L^(-2 beta_c) f(Q)
+# rho_hat; a constant-beta or COM parent's F = L^(-2 beta_c) f(Q)
 # needs its own identity
 _PARENTS = ("isotropic", "OM_I")
 # the highest order of the sources (the derivatives of the factor are taken
@@ -906,16 +951,34 @@ def refusals(
     parent_anisotropy: Any,
     r_t: float,
     anisotropy: Any,
+    gamma: float | None = None,
 ) -> None:
-    """Refuse a component on a tabulated pair that has no DF here, by name.
+    r"""Refuse a component on a tabulated pair that has no DF here, by name.
+
+    The central validity is checked here, before any stage runs, as
+    `truncate` checks it for a Method I model: the profile's inner slope
+    ``gamma`` (its source's) below :math:`2\beta_{\rm c}(0)`, with
+    :math:`\beta_{\rm c}(0) = 0` for the Osipkov-Merritt models.
 
     Raises
     ------
+    UnphysicalModelError
+        CENTRAL VALIDITY: :math:`\gamma < 2\beta_{\rm c}(0)`; the DF is negative at the
+        center (An & Evans 2006).
     InputError
         If the parent's anisotropy is neither isotropic nor Osipkov-Merritt
         Type I; if the child needs sources of an order above 3; if a Type II
-        child's r_a does not lie beyond the parent's edge.
+        child's :math:`R_{\rm a}` does not lie beyond the parent's edge.
     """
+    beta_0 = 0.0 if anisotropy.family.startswith("OM") else float(anisotropy.beta_c)
+    if gamma is not None and gamma < 2.0 * beta_0 - 1e-12:
+        raise UnphysicalModelError(
+            f"CENTRAL VALIDITY: gamma = {gamma:.2f} < 2 beta_c(0) = "
+            f"{2.0 * beta_0:.2f}: "
+            "the DF is negative at the center (An & Evans 2006); no truncation "
+            "of the parent removes this. Use a steeper cusp or a smaller central "
+            "beta_c."
+        )
     family = parent_anisotropy.family
     if family not in _PARENTS:
         raise InputError(
@@ -1037,7 +1100,24 @@ def tabulated_df(
     unit = profile.source
     with timed("potential_density_pair"):
         parent_df, parent_rows, parent_r_a = _parent_inputs(profile)
-        refusals(parent_rows, profile.source_anisotropy, float(profile.r_t), aniso)
+        # a truncation with no edge is not a truncated model: its rows end at
+        # the solve's outer radius above the floor, and the child's grid would
+        # end there with nothing below it
+        if float(profile.k_t) > 0.0 and not profile.spatially_finite:
+            raise UnphysicalModelError(
+                "PARENT NOT SPATIALLY FINITE: the parent's truncation at K_t = "
+                f"{float(profile.k_t)!r} has no edge; its rows end at R = "
+                f"{float(profile.r[-1]):.6e} with Phi = "
+                f"{float(profile.p_trunc[-1]):.6e}, above the floor, so it is not a "
+                "truncated model and no component is built on it."
+            )
+        refusals(
+            parent_rows,
+            profile.source_anisotropy,
+            float(profile.r_t),
+            aniso,
+            gamma=float(unit.rho_gamma),
+        )
     with timed("energy_grid"):
         feature = None
         if aniso.family in ("OM_II", "COM_I", "COM_II"):
@@ -1049,17 +1129,24 @@ def tabulated_df(
         made = child_rows(q, parent_df, parent_rows, parent_r_a, aniso, settings)
     with timed("asymptotic_form"):
         f_all = np.asarray(made["f"], dtype=np.float64)
-        keep = np.isfinite(f_all)
-        k, f = q[keep], f_all[keep]
+        if not np.all(np.isfinite(f_all)):
+            bad = ~np.isfinite(f_all)
+            err = AccuracyError(
+                f"{int(bad.sum())} rows of the child's inversion are not finite, "
+                f"the first at K = {float(q[bad][0]):.6e}: refused"
+            )
+            err.result = made
+            raise err
+        k, f = q, f_all
         p0_hat = float(parent_rows["p_0"])
 
         # the critical branch's closed-form band
         critical: dict[str, Any] = {}
         deficit = profile.central_deficit
-        # COM Type I's center is on the same branch, beta(0) = beta_c [3-216]
+        # COM Type I's center is on the same branch, beta(0) = beta_c
         if (
             aniso.family in ("constant", "COM_I")
-            and abs(float(aniso.beta_c) - 0.5) < 1e-12
+            and order_pair(float(aniso.beta_c)) == order_pair(0.5)
             and float(unit.rho_gamma) == 1.0
             and float(unit.rho_alpha) == 1.0
             and deficit
@@ -1146,6 +1233,8 @@ def tabulated_df(
         k_t_min, report, _ = validate_df(
             potential_density_pair((component,)), table, form
         )
+    # the table has no slope column: its slope check is not judged, and says so
+    report = slope_column_not_judged(report, table, NO_SLOPE_COLUMN_CHILD)
 
     # r(K) from the profile's rows, and the record
     order = np.argsort(parent_rows["Psi"])
@@ -1173,16 +1262,18 @@ def tabulated_df(
         order_n=(float(frec.kernel_exponent),),
         floor_m=(int(frec.order_m),),
         floor_n=(float(frec.order_n),),
-        k_interior=(0.0,),
-        interior_exponent=(0.0,),
+        # the documented conventions: NaN where there is no interior point,
+        # (P_0, 0) and (0, R_outer) where no row was replaced
+        k_interior=(math.nan,),
+        interior_exponent=(math.nan,),
         outer_power=(float(frec.outer_power),),
         outer_end=(str(frec.outer_end),),
-        high_k_override_k=(math.nan,),
-        high_k_override_r=(math.nan,),
+        high_k_override_k=(p0_hat,),
+        high_k_override_r=(0.0,),
         high_k_override_rows=(0,),
         high_k_override_rule=("method2_bands",),
-        low_k_override_k=(math.nan,),
-        low_k_override_r=(math.nan,),
+        low_k_override_k=(0.0,),
+        low_k_override_r=(float(profile.r_t),),
         method2_bands=(bands,),
         critical_band=(critical,) if critical else (),
     )
@@ -1213,6 +1304,9 @@ def child_model(df: Any) -> Any:
     UnphysicalModelError
         Where the DF is negative inside its support: the anisotropy cannot be
         supported by this truncated density. The exception carries `df`.
+    AccuracyError
+        Where one of the model's checks lies beyond the hard limit, unless the
+        settings ask for the model anyway (``write_anyway``).
     """
     from .core import model_identity
     from .results import Model
@@ -1265,8 +1359,20 @@ def child_model(df: Any) -> Any:
             profile, table, form, component.anisotropy, df.settings.truncation
         ),
     }
-    report = ValidationReport(_MODEL_KEYS, {key: checks[key] for key in _MODEL_KEYS})
-    return Model(
+    # the parent's tier is the DF's, as an untruncated model's is
+    report = ValidationReport(
+        _MODEL_KEYS, {key: checks[key] for key in _MODEL_KEYS}, df.validation.level
+    )
+    # the model's own checks, judged as truncate judges its own: refused beyond
+    # the hard limit, unless the settings ask for the model anyway, in which
+    # case the report carries the verdict and the one channel says so
+    beyond = "; ".join(
+        f"the {key} misses it by {check.error:.3e}"
+        + ("" if check.where is None else f" at {check.where:.6g}")
+        for key, check in report.checks.items()
+        if check.level >= 3
+    )
+    model = Model(
         components=df.components,
         truncation=None,
         settings=df.settings,
@@ -1274,9 +1380,32 @@ def child_model(df: Any) -> Any:
         parent=df.identity,
         table=table,
         form=form,
-        profile=profile,
+        profile=dataclasses.replace(profile, model_level=report.level),
         validation=report,
         timing={},
         r_trust={},
         inversion=df.inversion,
     )
+    if beyond and not df.settings.write_anyway:
+        raise AccuracyError(
+            f"The truncated model's DF does not meet its own checks: {beyond}, "
+            f"beyond the hard limit {HARD_LIMIT:g}.",
+            result=model,
+        )
+    announce(
+        f"The truncated model of {component.name!r}",
+        report,
+        "; ".join(
+            f"{key} {check.error:.2e}"
+            + ("" if check.where is None else f" at {check.where:.6g}")
+            for key, check in report.checks.items()
+            if check.level > 0
+        )
+        + (
+            f" (returned on request, write_anyway: beyond the hard limit "
+            f"{HARD_LIMIT:g})"
+            if beyond
+            else ""
+        ),
+    )
+    return model

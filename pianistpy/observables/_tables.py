@@ -2,7 +2,6 @@
 
 __all__ = [
     "boundary_term",
-    "dispersion_tables",
     "edge_limit",
     "projected_table",
     "radial_table",
@@ -44,8 +43,8 @@ _RULE_DOUBLINGS = 6
 
 
 def _kernel_beta(model: Model) -> float:
-    """The L-factor exponent b of the auxiliary density: beta_c for the
-    constant and COM classes, 0 for the isotropic and OM classes."""
+    r"""The L-factor exponent b of the auxiliary density: :math:`\beta_{\rm c}`
+    for the constant and COM classes, 0 for the isotropic and OM classes."""
     anisotropy = model.components[0].anisotropy
     return float(anisotropy.beta_c) if anisotropy.model in ("constant", "com") else 0.0
 
@@ -120,7 +119,7 @@ def edge_limit(model: Model) -> float:
 
 
 def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
-    """Return the radial dispersion of a model on its rows, with what it read.
+    r"""Return the radial dispersion of a model on its rows, with what it read.
 
     Returns
     -------
@@ -140,14 +139,15 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
     -----
     The rule (`radial_dispersion` with ``knots``) integrates once over panels
     between the profile's own table potentials, summed from ``p_outer``, and
-    each row adds its part panel to the next one (3-193), so a row's value does
-    not depend on the radii asked for with it. Its nodes a panel come first: from
-    eight, doubled until sigma_r at the worst of the start's midpoints moves by
-    less than ``profile_tolerance`` between n and 2n, at most six times; a rule
-    that has not converged is logged and stated on the certificate. The rows
-    start on ``n_profile_start`` logarithmic radii. At every
+    each row adds its part panel to the next one, so a row's value does
+    not depend on the radii asked for with it. Its nodes a panel come first:
+    from eight, doubled until :math:`\sigma_r` at the worst of the start's
+    midpoints moves by less than ``profile_tolerance`` between n and 2n, at
+    most six times; a rule that has not converged is logged and stated in the
+    ``certificate`` record. The rows start on ``n_profile_start`` logarithmic
+    radii. At every
     interval's midpoint in ln r, the reading (`radial_integral_reader`) is
-    compared with the rule (`radial_dispersion`) in sigma_r; where it misses
+    compared with the rule (`radial_dispersion`) in :math:`\sigma_r`; where it misses
     ``profile_tolerance`` the rule's value there becomes a row. Round by round
     until none misses, or three rounds running neither halve the worst, nor
     leave fewer intervals missing, nor halve the last interval's error (the
@@ -306,7 +306,7 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
 def projected_table(
     model: Model, read_sigma_r2: Any, settings: Settings, tolerance: float
 ) -> dict[str, Any]:
-    r"""Return the certified projected table of a model.
+    r"""Return the projected table of a model, checked between rows.
 
     Parameters
     ----------
@@ -317,7 +317,7 @@ def projected_table(
     settings : Settings
         Numerical settings.
     tolerance : float
-        The certificate's relative tolerance between rows.
+        The check's relative tolerance between rows.
 
     Returns
     -------
@@ -357,41 +357,3 @@ def projected_table(
         sigma_los2=sigma_los2,
         certificate=certificate,
     )
-
-
-def dispersion_tables(model: Model, settings: Settings) -> dict[str, Any]:
-    r"""Return the radial dispersion and the certified projected table of a model.
-
-    Parameters
-    ----------
-    model : Model
-        The model, of one component.
-    settings : Settings
-        Numerical settings; the ``observables`` group gives the counts.
-
-    Returns
-    -------
-    tables : dict
-        The fields of `radial_table` and of `projected_table`, and
-        ``read_sigma_r2`` (the reading of the radial dispersion at any radius).
-
-    Notes
-    -----
-    The profile is read through `TruncatedProfile.potential`, `density` and
-    `radius`; the boundary term through the model's DF (`boundary_term`).
-    """
-    # The stages hold the method's constants and import this module.
-    from .stages import CERTIFICATE_TOLERANCE
-
-    radial = radial_table(model, settings)
-    anisotropy = model.components[0].anisotropy
-    read = radial_integral_reader(
-        radial["r"],
-        radial["sigma_r2"],
-        model.profile.potential,
-        lambda r: model.profile.density(r)[0] / anisotropy.factor(r),
-        model.spatially_finite,
-        radial["edge_limit"],
-    )
-    projected = projected_table(model, read, settings, CERTIFICATE_TOLERANCE)
-    return dict(**radial, **projected, read_sigma_r2=read)

@@ -122,13 +122,16 @@ def test_the_value_matches_numpy(case):
         assert abs(value / expected - 1.0) < 1e-12
 
 
-def test_the_gradient_in_the_scales_matches_central_differences(case):
+@pytest.mark.parametrize("length", [1.0, 0.8])
+def test_the_gradient_in_the_scales_matches_central_differences(case, length):
     # the gradient of the traced function against central differences of the
-    # NumPy log-likelihood, whose apertures are laid anew at each scale
+    # NumPy log-likelihood, whose apertures are laid anew at each scale; at a
+    # length scale below the model's own the apertures' outermost nodes are
+    # stretched beyond the table's edge, where they read zero
     base, model, points, in_apertures = case
     data = [points, in_apertures]
     function = likelihood(model, data, SETTINGS)
-    scale = np.array([MASS_0, R_0])
+    scale = np.array([MASS_0, length * R_0])
     gradient = np.asarray(jax.grad(lambda s: function(scale=s))(scale))
     for i in range(2):
         h = 1e-5 * scale[i]
@@ -155,7 +158,7 @@ def test_refusals_are_minus_infinity_inside_the_function(case):
     assert np.all(np.isfinite(gradient))
     jitted = jax.jit(lambda s: function(scale=s))
     # at rounding: XLA's fused arithmetic orders the operations otherwise than
-    # the eager path, which can move the last bit (3-197)
+    # the eager path, which can move the last bit (measured: one ulp)
     assert np.isclose(
         float(jitted(np.array([MASS_0, R_0]))), float(function()), rtol=1e-14, atol=0.0
     )

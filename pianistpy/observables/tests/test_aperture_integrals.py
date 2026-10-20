@@ -19,8 +19,9 @@ class _Reading:
     def __init__(self, function, r_min, r_max, r_t=None):
         self._function = function
         self.r_min, self.r_max, self.r_t = r_min, r_max, r_t
-        # The disc inside the first row, for a profile flat there.
-        self.inner_disc = float(function(np.array([r_min]))[0]) * r_min**2 / 2.0
+        # The disk inside the first row, for a profile flat there.
+        self.inner_disk = float(function(np.array([r_min]))[0]) * r_min**2 / 2.0
+        self.inner_note = ""
 
     def __call__(self, r):
         r = np.asarray(r, dtype=np.float64)
@@ -46,7 +47,7 @@ def _flat(r):
 def test_nodes_integrate_the_area(aperture, area):
     # The radial integral of arc(R) R dR is the aperture's area, wherever the
     # aperture lies against the center (a flat surface density to R = 10); a
-    # centerd circle's weights leave out the common 2 pi.
+    # centered circle's weights leave out the common 2 pi.
     reading = _Reading(_flat, 1e-9, 10.0)
     _, weights, sigma = aperture_nodes(reading, aperture, **RULE)
     if aperture.shape == "circle" and aperture.r_off == 0.0:
@@ -54,9 +55,9 @@ def test_nodes_integrate_the_area(aperture, area):
     assert abs(float(np.dot(weights, sigma)) / area - 1.0) < 1e-13
 
 
-def test_plummer_centerd_aperture():
+def test_plummer_centered_aperture():
     # Sigma = 4 (1 + R^2)^-2 and sigma_los^2 = (3 pi / 64) (1 + R^2)^(-1/2) give
-    # over a centerd circle of radius A the mean square
+    # over a centered circle of radius A the mean square
     # (pi / 32) [1 - (1 + A^2)^(-3/2)] / [1 - (1 + A^2)^-1].
     reading = _Reading(lambda r: 4.0 / (1.0 + r**2) ** 2, 1e-6, 1e3)
 
@@ -74,7 +75,7 @@ def test_plummer_centerd_aperture():
 def test_edge_panels_in_v():
     # On a reading with an edge R_t the panels beyond R_t / 2^(1/2) run in v; a
     # surface density (R_t^2 - R^2)^(1/2) integrates over the whole table to
-    # 2 pi R_t^3 / 3 (the centerd weights leave out the 2 pi).
+    # 2 pi R_t^3 / 3 (the centered weights leave out the 2 pi).
     r_t = 2.0
     reading = _Reading(
         lambda r: np.sqrt(np.maximum(r_t**2 - r**2, 0.0)), 1e-9, r_t, r_t
@@ -85,7 +86,7 @@ def test_edge_panels_in_v():
 
 def test_refusals():
     reading = _Reading(lambda r: r**-1.5, 1e-3, 10.0)
-    # A cusp whose disc inside the first row is not negligible in the aperture.
+    # A cusp whose disk inside the first row is not negligible in the aperture.
     with pytest.raises(InputError, match="innermost"):
         aperture_mean_square(reading, _flat, Aperture.circle(2e-3), **RULE)
     # An aperture beyond the table.

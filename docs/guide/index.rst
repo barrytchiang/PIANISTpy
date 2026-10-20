@@ -1,21 +1,17 @@
-Guide
-=====
+User guide
+==========
 
-One page per keyword, each with the classes and functions it uses; every name links to its entry in the
+One page per topic, each with the classes and functions it uses; every name links to its entry in the
 :doc:`API reference <../reference/api/index>`.
 
 .. toctree::
    :maxdepth: 1
 
-   profiles
-   anisotropy
-   df
-   truncation
-   particles
+   models
+   Particles (Sampler) <particles>
    observables
    superposition
    units
    accuracy
-   switches
-   files
-   results
+   Input and output (write, read) <files>
+   Runtime options <switches>

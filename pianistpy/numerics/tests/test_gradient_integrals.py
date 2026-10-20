@@ -1,6 +1,7 @@
-"""The gradient contract on the forward integrals: a moment of the DF over the
+r"""The gradient contract on the forward integrals: a moment of the DF over the
 anisotropy's kernel, on the package's Gauss-Legendre rule with the endpoint
-map of the auxiliary density's quadrature, differentiated in beta_c and R_a."""
+map of the auxiliary density's quadrature, differentiated in
+:math:`\beta_{\rm c}` and :math:`R_{\rm a}`."""
 
 import jax
 import jax.numpy as jnp

@@ -25,6 +25,7 @@ from ..validation import ValidationReport
 from .inputs import Component
 from .results import Model
 from .stages import AsymptoticForm, DfTable
+from .truncation import K_FLOOR
 
 # Prefactor of the density integral of an isotropic DF:
 # rho(P) = 4 pi sqrt(2) INT_0^P F(K) (P - K)^(1/2) dK.
@@ -37,8 +38,8 @@ PLUMMER_AMPLITUDE = 3.0 / (ISOTROPIC_DENSITY_PREFACTOR * beta_function(4.5, 1.5)
 
 ANALYTIC_MODELS = ("hernquist", "plummer")
 # Ends of the tables of an analytic model: the energies and the depths below
-# the center that the DF table reaches, and the radii of the profile.
-K_FLOOR = 1e-10
+# the center that the DF table reaches (from the floor every solve shares,
+# K_FLOOR), and the radii of the profile.
 U_TOP = 1e-9
 R_MIN, R_MAX = 1e-6, 1e6
 # The rest of the form of a one-component DF that is a pure power-law tail
@@ -85,9 +86,9 @@ def hernquist_df(k: ArrayLike) -> tuple[Array, Array]:
         F(\mathcal{K}) = \frac{3}{4\sqrt{2}\,\pi}\,
             \frac{I_\mathcal{K}(5/2, 5/2)}{(1-\mathcal{K})^{5/2}} ,
 
-    with :math:`I` the regularised incomplete Beta function. Every term of
+    with :math:`I` the regularized incomplete Beta function. Every term of
     this form and of its derivative is positive, so neither loses precision
-    towards :math:`\mathcal{K} = 0`, where the textbook form cancels.
+    toward :math:`\mathcal{K} = 0`, where the textbook form cancels.
 
     Examples
     --------

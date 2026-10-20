@@ -1,0 +1,23 @@
+{# The theme's breadcrumbs, with the home icon on the site's landing page (the manual's own home
+   is a redirect to it, written by docs/tools/assemble_site.py). #}
+{%- block breadcrumbs %}
+{% if title and pagename != root_doc %}
+<nav aria-label="{{ _('Breadcrumb') }}" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="{{ pathto('', 1) }}../" class="nav-link" aria-label="{{ _('Home') }}">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    {%- for doc in parents %}
+    {% if doc.link %}
+    <li class="breadcrumb-item"><a href="{{ doc.link|e }}" class="nav-link">{{ doc.title }}</a></li>
+    {% else %}
+    <li class="breadcrumb-item">{{ doc.title }}</li>
+    {% endif %}
+    {%- endfor %}
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">{{ title }}</span></li>
+  </ul>
+</nav>
+{% endif %}
+{%- endblock %}

@@ -5,37 +5,38 @@ PIANISTpy
 conditions and observables of spherical systems with anisotropic velocities, truncated self-consistently in
 phase space.
 
-PIANISTpy builds equilibrium models of spherical systems (dark matter halos and subhalos, star clusters, dwarf
-galaxies) with a velocity anisotropy you choose. The outer boundary of a model is set in phase space, so the
-truncated model is itself an equilibrium and needs no relaxation run before it is used.
+PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in
+phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides
+distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with
+JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.
 
 .. grid:: 1 2 2 4
    :gutter: 3
 
-   .. grid-item-card:: Start
+   .. grid-item-card:: Get started
       :link: start/index
       :link-type: doc
 
-      Install, the requirements, the quick start.
+      Install, the dependencies, the quick start, the representative computing time.
 
-   .. grid-item-card:: Guide
+   .. grid-item-card:: User guide
       :link: guide/index
       :link-type: doc
 
-      One page per keyword: profiles, anisotropy, distribution functions, truncation, particles, observables,
-      superposition and inference, units, accuracy.
+      One page per topic, with short examples: models, particles, observables, superposition and inference,
+      units, accuracy.
 
-   .. grid-item-card:: Notebook tutorials
+   .. grid-item-card:: Examples
       :link: notebooks/index
       :link-type: doc
 
-      One notebook per workflow, and one per figure of the paper, run against this release.
+      Notebooks that run a whole job, and notebooks that reproduce the result figures of |paper|, run against this release.
 
-   .. grid-item-card:: Reference
+   .. grid-item-card:: API reference
       :link: reference/index
       :link-type: doc
 
-      The API by subpackage, the technical notes, the settings tables, the symbols.
+      Every function by subpackage, the settings tables, the names and paper symbols, the technical notes.
 
 .. toctree::
    :hidden:
@@ -45,3 +46,4 @@ truncated model is itself an equilibrium and needs no relaxation run before it i
    notebooks/index
    reference/index
    project/index
+   citation/index

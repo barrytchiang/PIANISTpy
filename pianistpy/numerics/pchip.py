@@ -35,7 +35,7 @@ def pchip_slopes(xp, fp):
     Parameters
     ----------
     xp, fp : array, shape (n,)
-        Increasing nodes and their values, n >= 3.
+        Increasing nodes and their values, ``n >= 3``.
 
     Returns
     -------

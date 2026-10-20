@@ -8,8 +8,10 @@ from pianistpy.df.stages import PotentialDensityPair
 def test_the_closed_form_hernquist_df_is_within_the_goal():
     # The closed-form table and its forms: every check of the DF's report
     # within the goal, no eps among them, and a non-negative, non-decreasing
-    # DF admits every truncation energy.
-    model = analytic_model("hernquist", n_nodes=400)
+    # DF admits every truncation energy. 4000 nodes: the density round trip
+    # reads the lookup's interpolation of the table, 6e-6 at 400 nodes (tier
+    # ceiling), 7e-10 at 4000.
+    model = analytic_model("hernquist", n_nodes=4000)
     pair = PotentialDensityPair(
         components=model.components,
         is_analytic=True,

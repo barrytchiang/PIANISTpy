@@ -254,6 +254,51 @@ def tail_exponent(rho_beta: float, beta_c: float) -> float:
     return 3.5 - beta_c - rho_beta
 ```
 
+### 5a. Manual pages (docs/)
+
+- Symbols, relations and equations are math, in the initial release paper's notation (its macros; the
+  "Names and paper symbols" page maps each name to its symbol): :math:`G = M_0 = r_0 = 1`,
+  :math:`\mathcal{K}_{\rm t}`, :math:`R_{\rm a}`, :math:`P(R_{\rm a})`, :math:`\beta_{\rm c}`,
+  :math:`\sigma_{\rm r}`, :math:`\gamma \ge 2\beta_{\rm c}`; subscripts that are labels are upright. Names a
+  user types (`k_t`, `mass_t`, `pp.truncate`, `beta_c=0.25`) are literals, and a code object's name is shown
+  exactly as the code spells it, never as math, in titles and menu labels too ("Radial velocity dispersion
+  (sigma_r)"). No symbol in plain text with an
+  underscore, no `>=` or `|x - 1|` in prose. The same holds in docstrings (the API pages and `help()` show
+  them) and in generated text (the accuracy and settings tables). README is read on GitHub and on PyPI, and
+  PyPI renders no `$...$` math: there a symbol is HTML (`<i>M</i><sub>0</sub>`), and every link and image is
+  absolute.
+- Numbers in prose are math: an accuracy level or a measured error reads :math:`10^{-6}`,
+  :math:`6.7 \times 10^{-6}`, never `1e-6`. A value typed into Python stays a literal in Python's form
+  (settings' defaults, code, a call's argument).
+- A symbol is defined in words at its first use on a page. The density roundtrip is
+  :math:`|(\varrho_{\rm inv} - \varrho)/\varrho|`: :math:`\varrho` the input profile,
+  :math:`\varrho_{\rm inv}` the density computed back from the inverted distribution function. One symbol,
+  one meaning: :math:`\theta` is the parameter vector, `theta` the argument that passes it.
+- The release paper is "Chiang+(2026d)", with no space (Barry, 2026-10-19; the letter stays even where no
+  other 2026 paper is cited), always as a link to `PAPER_URL` in `docs/conf.py`, the one target. The landing
+  page (at its first mention), the citing page and the README's status line give the full form once,
+  "Chiang, van den Bosch and Schive (2026d), MNRAS, submitted (henceforth Chiang+(2026d))"; every other
+  mention is the short form. Pages write `|paper|`, `|paper-full|` or `|paper-name|` (plain, for headings),
+  defined from `PAPER`, `PAPER_FULL` and `PAPER_STATUS` in `docs/conf.py`. Docstrings write the short form
+  as plain text, an equation as "Chiang+(2026d), Eq. (B42)". Never "Chiang et al. (2026d)", "Paper I", "C26",
+  "C26d" or "Chiang+26d", and "the paper" alone does not stand for it. "Chiang+(2026d)" is a protected string
+  for the release paper only (Barry, 2026-10-19): every other paper keeps its usual form ("Chiang et al. 2025",
+  "2026a"), and no other citation is rewritten to the "+" form.
+- An external package is linked at its first mention on a page (intersphinx where it has an
+  inventory, else its home page: Astropy, JAX, NumPy, galpy, AGAMA).
+- A page's title is its menu label; a renamed page is renamed in its toctree in the same commit.
+- Every number on a page (a cost, a timing, a tier count) is read from a product of the
+  version's tip and says what it was measured on; none is copied from a draft.
+- A statement about devices, the Python floor or the public set matches README and the
+  install page in substance.
+- American spelling; one name per thing, as in section 3.5. The device is "the GPU" (or "a GPU"), never "card"
+  or "accelerator", in the docs, README, messages and docstrings alike.
+- No "you" or "your" in any public text (docs, README, CONTRIBUTING, docstrings, messages, GitHub text): the
+  package or the call is the subject ("PIANISTpy builds ...", "the call returns ..."), or the imperative ("Please
+  cite ..."); where a person must be named, "user-specified" or "the user(s)".
+- The landing page states nothing a later release could make untrue (no per-version stage lists, counts or
+  timings); those live on the pages that are checked at each release.
+
 ## 6. Type hints
 
 - Every public function, method and class attribute carries type hints, and so does every field of the settings
@@ -338,15 +383,15 @@ def enclosed_mass(r: ArrayLike, settings: Settings) -> Array:
   an f-string built in advance).
 - No message inside a function that JAX compiles.
 - Bulk diagnostic data goes to a file, and only on request; never to the screen.
-- **Verbosity never changes what is computed.** A message reports a number the calculation already has. Extra
-  work belongs to the validation depth (Section 10.3).
+- **Verbosity never changes what is computed.** A message reports a number the calculation already has; no
+  work is done for a message.
 - The verbosity is set once for the session (one call, or an environment variable for batch jobs); functions do
   not take a `verbose` argument. A log file is available on request.
 
 ### 10.2 Timing
 
 - Every stage of a computation runs inside the package's timing helper, permanently: the checkpoints are part of
-  the code, not something added for an optimization campaign and removed after it.
+  the code, not something added for one optimization and removed after it.
 - Timing has its own switch, independent of the verbosity, so that a run can be timed with nothing else turned
   on. The switch controls printing only; the times are always measured.
 - The stages are a fixed, short list per computation (five to ten), nested one level at most. Compilation time is
@@ -354,17 +399,17 @@ def enclosed_mass(r: ArrayLike, settings: Settings) -> Array:
 - The times of a result are an attribute of the result (`result.timing`) and are stored in the provenance of
   its file with the processor model. They are not part of the identity or of the data digest.
 
-### 10.3 Checks and validation depth
+### 10.3 Checks
 
 - **The essential checks always run and cannot be switched off:** those that decide a tier or a refusal. They
   are kept to the minimum that the guarantee of a result needs, and their cost is part of the cost of the result.
-- **Every other check is opt-in**, through the validation depth. The default asks for none of them. A result
-  records which checks ran.
+- **No other check runs with a result.** A check beyond the essential ones belongs to the test suite (Section
+  10.4). A result records which checks ran.
 - The report of a result is compact and fixed: a documented set of keys per kind of result, one record per key
   (the measured error, its tier, where), nothing appended over time. A derived result holds its own checks and
   the worst tier of its parents.
-- Verbosity, timing, validation depth and the worker count (Section 11.3) are independent switches of the session,
-  and none is part of the identity.
+- Verbosity, timing and the worker count (Section 11.3) are independent switches of the session, and none is
+  part of the identity.
 
 ### 10.4 Where verification code lives
 

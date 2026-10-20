@@ -1,5 +1,7 @@
-Validation (``pianistpy.validation``)
-=====================================
+Validation
+==========
+
+Module ``pianistpy.validation``
 
 .. automodule:: pianistpy.validation
    :members:

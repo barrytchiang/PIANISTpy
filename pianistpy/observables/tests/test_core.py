@@ -11,6 +11,8 @@ import pytest
 from pianistpy import AccuracyWarning, InputError, Settings
 from pianistpy.df.analytic import analytic_model
 from pianistpy.observables import Aperture, LosTable, sigma_los, sigma_los_aperture
+from pianistpy.observables._ellipse_rules import EllipseRules, layer_counts
+from pianistpy.observables.stages import validate_table
 from pianistpy.validation import GOAL, ValidationReport
 
 # Smaller grids than the default tier, as the tests of the stages take them.
@@ -41,7 +43,7 @@ def test_sigma_los_from_a_model_and_from_its_table(plummer):
 
 
 def test_sigma_los_aperture_by_its_two_routes(plummer):
-    # over a centerd circle of radius A the mean square is
+    # over a centered circle of radius A the mean square is
     # (pi / 32) [1 - (1 + A^2)^(-3/2)] / [1 - (1 + A^2)^-1]
     model, table = plummer
     for a in (0.5, 3.0):
@@ -77,6 +79,66 @@ def test_the_model_unit_system_is_read_and_returned(plummer):
     )
 
 
+def test_lengths_given_as_quantities_are_the_floats_in_parsecs(plummer):
+    import astropy.units as u
+
+    model, _ = plummer
+    physical = model.to("physical", concentration=CONCENTRATION, mass_0=MASS_0, r_0=R_0)
+    r_2d = np.array([0.1, 1.0, 10.0]) * R_0
+    np.testing.assert_array_equal(
+        sigma_los(physical, r_2d * u.pc).value, sigma_los(physical, r_2d).value
+    )
+    np.testing.assert_array_equal(
+        sigma_los(physical, (r_2d * u.pc).to(u.kpc)).value,
+        sigma_los(physical, r_2d).value,
+    )
+
+
+def test_an_aperture_rule_finer_than_the_default_agrees(plummer):
+    # more nodes per decade than the panel's minimum: the core rule is built
+    model, _ = plummer
+    finer = dataclasses.replace(
+        model,
+        settings=Settings(
+            observables={
+                "n_radii": 400,
+                "n_jeans_nodes": 200,
+                "n_projection_nodes": 200,
+                "aperture_nodes_per_decade": 200,
+            }
+        ),
+    )
+    for aperture in (Aperture.circle(0.5), Aperture.circle(3.0)):
+        assert sigma_los_aperture(finer, aperture) == pytest.approx(
+            sigma_los_aperture(model, aperture), rel=GOAL
+        )
+
+
+def test_the_numpy_rows_route_gives_the_kernels_table(plummer):
+    # the reference route of the rows' angle rule, through the public table
+    from pianistpy.observables import losvd
+
+    model, table = plummer
+    numpy_route = dataclasses.replace(
+        model,
+        settings=Settings(
+            observables={
+                "n_radii": 400,
+                "n_jeans_nodes": 200,
+                "n_projection_nodes": 200,
+                "rows_route": "numpy",
+            }
+        ),
+    )
+    reference = LosTable(numpy_route)
+    v = np.linspace(-1.0, 1.0, 41)
+    for r_2d in (0.1, 1.0, 5.0):
+        want = losvd(table, r_2d, v)
+        np.testing.assert_allclose(
+            losvd(reference, r_2d, v), want, rtol=GOAL, atol=GOAL * float(np.max(want))
+        )
+
+
 def test_a_model_of_two_components_is_refused(plummer):
     model, _ = plummer
     two = dataclasses.replace(model, components=model.components * 2)
@@ -102,10 +164,32 @@ def test_the_projected_tables_traced_reader_gives_the_same_numbers(plummer):
     assert float(beyond[0][0, 0]) == 0.0 and float(beyond[1][0, 0]) == 0.0
 
 
+def test_a_table_reports_the_floor_of_its_layers(plummer):
+    # above beta_c = 1/2 the layers toward L = 0 stop at the rule's floor
+    # (2.86e-8 at 3/4); the table's report carries it, at the goal
+    _, table = plummer
+    floor = layer_counts(0.75, EllipseRules())[1]
+    certificate = dict(table.table.certificate, layer_floor=floor)
+    report = validate_table(
+        dataclasses.replace(table.table, certificate=certificate), table.projected
+    )
+    assert report.checks["layer_floor"].error == floor
+    assert report.checks["layer_floor"].tier == "goal"
+
+
 def test_a_table_carries_its_report_and_its_models_tier(plummer, caplog):
     model, table = plummer
-    assert table.validation.keys == ("norm", "second_moment", "unjudged", "certificate")
+    assert table.validation.keys == (
+        "norm",
+        "second_moment",
+        "unjudged",
+        "t_converged",
+        "certificate",
+        "layer_floor",
+    )
     assert table.validation.tier == "goal"
+    # the layers toward L = 0 converge on an isotropic model: no floor
+    assert table.validation.checks["layer_floor"].error == 0.0
     # a model above the goal: the table says so, and its report keeps the tier
     flagged = dataclasses.replace(
         model,
@@ -139,3 +223,35 @@ def test_a_table_carries_its_report_and_its_models_tier(plummer, caplog):
         "aperture distribution" in r.getMessage() and "'ceiling'" in r.getMessage()
         for r in caplog.records
     )
+
+
+def test_losvd_on_a_model_says_once_that_its_table_is_worth_keeping(
+    plummer, caplog, monkeypatch
+):
+    # losvd and aperture_losvd build a Model's table at every call; the first
+    # such call in the process says so, the later ones do not
+    from pianistpy.observables import aperture_losvd, core, losvd
+
+    class Built(Exception):
+        pass
+
+    class Unbuilt:
+        def __init__(self, model):
+            raise Built
+
+    model, _ = plummer
+    monkeypatch.setitem(core._TABLE_HINT, "given", False)
+    monkeypatch.setattr(core, "LosTable", Unbuilt)
+    with caplog.at_level("WARNING", logger="pianistpy"):
+        for _ in range(2):
+            with pytest.raises(Built):
+                losvd(model, 0.5, 0.1)
+            with pytest.raises(Built):
+                aperture_losvd(model, Aperture.circle(0.5), 0.1)
+    said = [
+        r.getMessage() for r in caplog.records if "pp.LosTable(model)" in r.getMessage()
+    ]
+    assert said == [
+        "losvd on a Model: building the LosTable of this model; keep it with "
+        "pp.LosTable(model) for more calls."
+    ]

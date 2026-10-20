@@ -11,9 +11,9 @@ from pianistpy.observables._angle_rule import angle_rule, power_kind
 
 
 def _nodes(seed, n_nodes, near):
-    """Node arrays as the rows form them, from c1, c2 >= 0 and c3 > c2^2 (in
-    the rows c3 - c2^2 = 2 s / (q A) > 0); `near` of them with c1 within 1e-3
-    of c2, where the width lam is small."""
+    r"""Node arrays as the rows form them, from ``c1, c2 >= 0`` and c3 > c2^2 (in
+    the rows c3 - c2^2 = 2 s / (q A) > 0); `near` of them with c1 within
+    :math:`10^{-3}` of c2, where the width lam is small."""
     g = np.random.default_rng(seed)
     c1 = g.uniform(0.0, 2.0, n_nodes)
     c2 = g.uniform(0.0, 2.0, n_nodes)
@@ -85,8 +85,9 @@ def _adaptive(beta_c, c1, c2, c3, lam, lpi):
     ids=["COM_I_b-0.25", "COM_I_b+0.25", "constant_b-0.40", "COM_II_b+0.30"],
 )
 def test_rule_against_quadrature_and_numpy(beta_c, seed):
-    """The kernel on the canonical forms of the power and a Type II case: the
-    adaptive quadrature to 1e-12, the numpy rule at rounding at every count."""
+    r"""The kernel on the canonical forms of the power and a Type II case: the
+    adaptive quadrature to :math:`10^{-12}`, the numpy rule at rounding at
+    every count."""
     nodes = _nodes(seed, 300, 60)
     lam_32 = angle_rule(beta_c, *nodes, 32)
     ref = np.array(
@@ -102,7 +103,8 @@ def test_rule_against_quadrature_and_numpy(beta_c, seed):
 
 
 def test_closed_rule_control_at_one_half():
-    r"""At beta_c = 1/2 the kernel is the closed form's control: 2 K(m) / sqrt(T)."""
+    r"""At :math:`\beta_{\rm c} = 1/2` the kernel is the closed form's control:
+    2 K(m) / sqrt(T)."""
     c1, c2, c3, kap, d2, e2, lam, lpi = _nodes(5, 200, 40)
     e = c3 - c2 * c2
     t = c1 * c1 + c3 + e + 2.0 * np.sqrt(c3 * (c1 * c1 + e))
@@ -113,8 +115,9 @@ def test_closed_rule_control_at_one_half():
 
 
 def test_isotropic_limit_and_shape():
-    r"""At beta_c = 0 the integrand is 1 and Lambda is pi; the shape is the
-    input's and a call shorter than the padding returns only its nodes."""
+    r"""At :math:`\beta_{\rm c} = 0` the integrand is 1 and Lambda is pi; the
+    shape is the input's and a call shorter than the padding returns only its
+    nodes."""
     nodes = _nodes(6, 12, 3)
     got = angle_rule(0.0, *(a.reshape(3, 4) for a in nodes), 16)
     assert got.shape == (3, 4)

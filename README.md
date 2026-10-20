@@ -7,7 +7,9 @@
 [![Tests](https://github.com/barrytchiang/PIANISTpy/actions/workflows/tests.yml/badge.svg)](https://github.com/barrytchiang/PIANISTpy/actions/workflows/tests.yml)
 [![Coverage](https://codecov.io/gh/barrytchiang/PIANISTpy/branch/main/graph/badge.svg)](https://codecov.io/gh/barrytchiang/PIANISTpy)
 [![Documentation](https://img.shields.io/badge/docs-pianistpy.com-00356B)](https://pianistpy.com)
-[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](https://github.com/barrytchiang/PIANISTpy/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/pianistpy)](https://pypi.org/project/pianistpy/)
+[![Python](https://img.shields.io/pypi/pyversions/pianistpy)](https://pypi.org/project/pianistpy/)
 
 **P**article **I**nitial conditions with **ANIS**o**T**ropy.
 
@@ -16,28 +18,33 @@ phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and s
 distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with
 JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.
 
-> Status: version 0.9.0, a pre-release. Version 1.0.0, released with the paper that describes the method,
-> adds the certified accuracy tiers on both backends, the remaining capabilities and the citation.
+> Status: ver. 0.9.9, the code of the paper that describes the method,
+> [Chiang, van den Bosch and Schive (2026d), MNRAS](https://pianistpy.com/docs/project/citing), submitted (henceforth [Chiang+(2026d)](https://pianistpy.com/docs/project/citing)). Ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.
 
 ## What PIANISTpy does
 
-- **Density profiles.** Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
-  Plummer profiles as named presets.
-- **Velocity anisotropy.** Isotropic, constant, Osipkov-Merritt, and the generalized Osipkov-Merritt (Cuddeford)
-  models, radially biased (Type I) or tangentially biased (Type II).
-- **Distribution functions.** The distribution function (DF) of each model, from the analytic inversion of its
-  density, returned whether or not it is physical, with a statement of where it is not.
-- **Truncation in phase space.** Method I truncates a model's own DF at a user-specified energy, or at the energy
-  that yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
-  truncated.
-- **Particles.** Positions and velocities drawn by inversion, with no rejection step, and reproducible particle
-  by particle.
-- **Observables.** Intrinsic and line-of-sight velocity dispersions, line-of-sight velocity distributions, and
-  their averages over apertures.
-- **Superposition.** Distribution functions inverted from one truncated density (Method II children of one
-  parent), combined with positive weights that sum to one into one equilibrium model.
-- **Inference.** The log-likelihood of a model against data, as a JAX function of the components' weights and
-  the scales of the units.
+- **Density profiles.** Analytical double-power-law density profiles with a finite central potential, including
+  the commonly used Navarro-Frenk-White, Hernquist and Plummer profiles.
+- **Velocity anisotropy.** Isotropic, constant-anisotropy, Osipkov-Merritt and Cuddeford-Osipkov-Merritt models,
+  the latter two radially (Type I) or tangentially (Type II) biased.
+- **Distribution functions.** Each anisotropy model's distribution function, inverted from the input density
+  with exact symbolic expressions up to the final numerical integration, with
+  [extensively validated numerical accuracy](https://pianistpy.com/docs/reference/accuracy) and checks that it
+  is non-negative (physical) and monotonic (dynamically stable).
+- **Truncation in phase space.** Model truncation performed in phase space, such that the truncation boundary is
+  fully self-consistent and in dynamical equilibrium, by two methods: one preserves the model's anisotropy
+  profile (Method I), the other gives different anisotropy models an identical truncated density (Method II).
+- **Particles.** Particle initial conditions with a finite, dynamically stable truncation boundary, drawn from
+  the truncated distribution function, in internal, model or physical units.
+- **Observables.** Radial, tangential and line-of-sight velocity dispersions, line-of-sight velocity
+  distributions and their Gauss-Hermite moments, and the local 3D velocity distribution at any radius; projected
+  quantities averaged over centered or offset circular and rectangular apertures.
+- **Superposition.** Distribution functions of different anisotropy models on one truncated density, linearly
+  superposed into one equilibrium model whose anisotropy profile lies beyond the analytical families, such as
+  one fitted to simulated halos.
+- **Inference.** End-to-end differentiable in JAX: the likelihood of a model against kinematic data, and every
+  observable, with gradients in the superposition weights, the unit scales and the anisotropy parameters, for
+  gradient-based Monte Carlo inference.
 
 ## Installation
 
@@ -45,19 +52,19 @@ JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo infe
 pip install pianistpy
 ```
 
-PIANISTpy needs Python 3.10 or later, [NumPy](https://numpy.org), [SciPy](https://scipy.org),
+PIANISTpy needs Python 3.11 or later, [NumPy](https://numpy.org), [SciPy](https://scipy.org),
 [h5py](https://www.h5py.org), [Astropy](https://www.astropy.org), [mpmath](https://mpmath.org),
-[SymPy](https://www.sympy.org), [JAX](https://docs.jax.dev), [Diffrax](https://docs.kidger.site/diffrax/),
-[Optimistix](https://docs.kidger.site/optimistix/) and [filelock](https://py-filelock.readthedocs.io).
-The oldest versions the test suite passes with are NumPy 2.0.0, SciPy 1.14.0, h5py 3.11.0, Astropy 7.2.0,
-mpmath 0.17, SymPy 1.2, and together JAX 0.6.1, Diffrax 0.7.0 and Optimistix 0.0.11 (these three are bound as
-one set; older Diffrax or Optimistix releases pass only with a newer JAX); `pip` enforces them. It runs on Linux,
-macOS and Windows.
+[SymPy](https://www.sympy.org), [JAX](https://docs.jax.dev), [Diffrax](https://docs.kidger.site/diffrax/) and
+[Optimistix](https://docs.kidger.site/optimistix/).
+The oldest versions the test suite passes with, measured one at a time and then all together as one environment,
+are NumPy 2.3.0, SciPy 1.15.0, h5py 3.11.0, Astropy 6.1.0, mpmath 1.1.0, SymPy 1.2, JAX 0.6.0, Diffrax 0.7.1 and
+Optimistix 0.1.0; `pip` enforces them. It runs on Linux, macOS and Windows.
 
 ## Quick start
 
-The example of the paper's first figure: an NFW halo with a constant velocity anisotropy of 0.25, truncated in
-phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
+The example of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Fig. 3: an NFW halo with a concentration
+of 10 and a constant velocity anisotropy of 0.25, truncated in phase space such that the total final mass equals the
+untruncated virial mass, scaled physically to the Milky Way mass.
 
 ```python
 import pianistpy as pp
@@ -93,9 +100,9 @@ The user guide, the notebook tutorials, the technical notes and the API referenc
 
 ## Example notebooks
 
-Tutorials for each workflow, and notebooks that reproduce the paper's figures, are in
-[PIANISTpy-notebooks](https://github.com/barrytchiang/PIANISTpy-notebooks); each notebook is stored with its
-outputs.
+Tutorials for each workflow, and notebooks that reproduce the result figures of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), are in
+[PIANISTpy-notebooks](https://github.com/barrytchiang/PIANISTpy-notebooks), tagged with the package version
+they were run with.
 
 ## Results and files
 
@@ -111,18 +118,18 @@ exception carries the distribution function for inspection.
 
 Everything is computed and returned in internal units, the dimensionless normalization of Widrow (2000) in which
 the scale radius and the central potential of the untruncated profile are 1. A result's `to` method presents it
-in model units ($G = M_0 = r_0 = 1$) or, through Astropy, in physical units, without recomputing it, and what is
+in model units (<i>G</i> = <i>M</i><sub>0</sub> = <i>r</i><sub>0</sub> = 1) or, through Astropy, in physical units, without recomputing it, and what is
 computed from it is returned in that system.
 
 Three inputs of a truncation are given in the units that are natural for them, as their documentation states: the
 truncation energy `k_t` in internal units, a target radius `r_t` in units of the scale radius, and a target mass
-`mass_t` in units of $M_0$, together with the concentration that defines $M_0$.
+`mass_t` in units of <i>M</i><sub>0</sub>, together with the concentration that defines <i>M</i><sub>0</sub>.
 
 ## Accuracy
 
 Every result carries a validation report, a short and fixed summary of the checks it passed, with its tier: a
-check within the accuracy goal (a relative error of 1e-6) is silent; above the goal, within the ceiling (1e-4) or
-within the hard limit (1e-2), the result is returned with a warning in the package's log and as an
+check within the accuracy goal (a relative error of 10<sup>&minus;6</sup>) is silent; above the goal, within the ceiling (10<sup>&minus;4</sup>) or
+within the hard limit (10<sup>&minus;2</sup>), the result is returned with a warning in the package's log and as an
 `AccuracyWarning` (Python's standard filter silences or escalates it), and the flag stays with the result and with
 everything computed from it; beyond the hard limit the result is refused.
 
@@ -135,12 +142,13 @@ pp.Settings(quick=True)  # a faster tier for exploration
 
 ## Runtime options
 
-None of these changes a number, except the platform: a GPU and a CPU give results that differ at rounding, and
-each file records which made it.
+These runtime options change only how the PIANISTpy numerical executions are carried out, while keeping results
+bit-for-bit identical, except for the platform switch, where the CPU-only and GPU-enabled results can differ, but by
+less than 10<sup>&minus;10</sup> in relative terms.
 
 ```python
 pp.set_verbosity("info")   # "quiet" (the default), "info" or "debug"
-pp.set_timing(True)        # print the wall time of each stage
+pp.set_timing(True)        # print the wall-clock time of each stage
 pp.set_workers("half")     # "auto" (the default), "full", "half" or a number of cores
 pp.set_compilation_cache(False)  # the compilation cache is on by default; a path moves it
 pp.set_platform("cpu")     # "auto" (the default), "cpu" (the CPU-only mode) or "gpu"; before the first computation
@@ -149,22 +157,25 @@ pp.set_platform("cpu")     # "auto" (the default), "cpu" (the CPU-only mode) or 
 The CPU-only mode gives the same numbers on every machine; the environment variable `PIANISTPY_PLATFORM=cpu`
 sets it before the package is imported. Each file records the backend that made it.
 
-Hardware notes. The workers' switch sets how many cores the package's parallel work uses; `"auto"` uses every
-allowed core inside a batch job and half of them anywhere else, and no value changes a number. A GPU accelerates the
-two batched table builds, the speed table (2.7 to 7 times an 8-core CPU on an RTX 3080 Ti) and the line-of-sight
-velocity table (1.0 to 1.4 times a 32-core node). The distribution function and the potential solve gain nothing
-from a GPU: in this version the solve runs where the package runs, and a model is solved fastest in the CPU-only
-mode. The CPU-only install is complete and is the right one for a laptop. JAX's
-CUDA builds are for Linux: on Windows the GPU is reached through the Windows Subsystem for Linux with the Linux
-wheels, which pays only for large table builds; a native Windows Python runs the CPU-only mode. A GPU and a CPU give
-results that differ at rounding on the kernels; the accuracy goal holds on both, and the file's provenance says which
-made it. The compilation cache lives in the home folder by default (`~/.cache/pianistpy/jax`) and can fill a small
-one; `set_compilation_cache` with a path moves it.
+`set_workers` sets how many cores the package's parallel work uses; `"auto"` uses every allowed core inside a batch
+job and half of them anywhere else, and no value changes a number.
+
+PIANISTpy runs on the CPU with the default installation. With a CUDA build of JAX installed, it automatically
+becomes GPU-enabled for the GPU-implemented features, with no manual setting needed in PIANISTpy. JAX's CUDA builds
+are for Linux only, so macOS runs the CPU-only mode. A native Windows Python also runs the CPU-only mode; on
+Windows the GPU is reached through the Windows Subsystem for Linux (or a Linux virtual machine). Results on the GPU
+and the CPU agree to better than 10<sup>&minus;10</sup> in relative terms, and the accuracy goal holds on both.
+On shared clusters, a GPU in the Exclusive_Process compute mode serves one process at a time; if another process
+holds it, JAX stops with `Unable to initialize backend 'cuda'`. Free the GPU, share it through an MPS daemon
+(`nvidia-cuda-mps-control -d`), or use the CPU-only mode.
+
+The compilation cache lives in the home folder by default (`~/.cache/pianistpy/jax`) and can fill a small one;
+`set_compilation_cache` with a path moves it.
 
 ## Citing
 
-Please cite the initial release paper, Chiang, van den Bosch and Schive (2026), in work that uses PIANISTpy. The
-citation entry is added with the 1.0.0 release.
+Please cite the initial release paper, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), in work that uses PIANISTpy. The
+citation entry is added with ver. 1.0.0.
 
 ## License
 

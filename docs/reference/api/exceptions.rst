@@ -1,5 +1,7 @@
-Exceptions (``pianistpy.exceptions``)
-=====================================
+Exceptions
+==========
+
+Module ``pianistpy.exceptions``
 
 .. automodule:: pianistpy.exceptions
    :members:

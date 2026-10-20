@@ -209,3 +209,45 @@ def test_the_intrinsic_moments_are_the_superpositions(superposed):
     np.testing.assert_allclose(
         mixture(np.array(WEIGHTS), sigma_r2), expected, rtol=GOAL
     )
+
+
+def test_the_public_intrinsic_moments_of_a_superposition(superposed):
+    # sigma_r and sigma_t of the superposition: the components' second moments
+    # mixed by their density at each radius (the members share the parent's
+    # density, so the mixture is the one `moments` makes)
+    from pianistpy.observables import sigma_r, sigma_t
+
+    model = superposed
+    r = np.geomspace(1e-2, 0.9 * float(model.profile.r_t), 20)
+    expected = moments(model, r, n_nodes=3200)["sigma_r2"]
+    np.testing.assert_allclose(sigma_r(model, r) ** 2, expected, rtol=GOAL)
+    views = [_component_view(model, k) for k in range(2)]
+    reads = [dispersion_profile(v, SETTINGS).read(r)[1][0] ** 2 for v in views]
+    np.testing.assert_allclose(
+        sigma_t(model, r) ** 2, mixture(np.array(WEIGHTS), np.array(reads)), rtol=1e-12
+    )
+
+
+def test_the_aperture_losvd_of_a_superposition_integrates_to_one(tabled):
+    from pianistpy.observables import aperture_losvd
+
+    _, table, _ = tabled
+    half = np.linspace(0.0, 1.5, 3001)
+    v = np.concatenate([-half[:0:-1], half])
+    d = aperture_losvd(table, Aperture.circle(0.2), v)
+    assert np.all(d >= 0.0)
+    assert np.trapezoid(d, v) == pytest.approx(1.0, rel=1e-4)
+    assert math.sqrt(np.trapezoid(v**2 * d, v)) == pytest.approx(
+        float(sigma_los_aperture(table, Aperture.circle(0.2))), rel=1e-4
+    )
+
+
+def test_the_public_losvd_of_a_superposition_integrates_to_one(tabled):
+    from pianistpy.observables import losvd
+
+    _, table, _ = tabled
+    half = np.linspace(0.0, 1.5, 3001)  # past the escape speed at R 0.1
+    v = np.concatenate([-half[:0:-1], half])
+    d = losvd(table, 0.1, v)
+    assert np.all(d >= 0.0)
+    assert np.trapezoid(d, v) == pytest.approx(1.0, rel=1e-4)

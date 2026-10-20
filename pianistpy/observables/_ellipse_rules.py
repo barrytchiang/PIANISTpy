@@ -5,10 +5,12 @@ __all__ = [
     "ANGLE_TOL",
     "BIRTH_SPAN",
     "BIRTH_TOL",
+    "BREAK_PAST_END",
     "BREAK_TOL",
     "CUSP_FRAC",
     "DEEP_K",
     "L_BELOW",
+    "PANEL_REFUSAL",
     "RB_FILL",
     "RB_MIN_GAP",
     "RB_SAME",
@@ -65,6 +67,13 @@ CUSP_FRAC = 1e-3
 L_BELOW = 1e-6
 # The code offset of a layout whose kept V_k lies inside the zero grading.
 DEEP_K = 100
+
+# The markers of two refusals, written in their messages and matched by name
+# where a refusal is caught.
+# A row whose decided layout puts a break on or past its own V_end.
+BREAK_PAST_END = "[BREAK PAST V_END]"
+# The panel table refuses a row, a stretch or a target it cannot read.
+PANEL_REFUSAL = "[PANEL TABLE REFUSAL]"
 
 
 @dataclass(frozen=True)
@@ -123,8 +132,8 @@ class EllipseRules:
     s_ratio: float = 0.2
     angle_counts: tuple[int, ...] = (4, 6, 8, 12, 16, 24, 32)
     n_bisect: int = 60
-    chunk: int = 250_000
-    t_nodes: int = 16
+    chunk: int = 25_000
+    t_nodes: int = 12
     t_panels: int = 8
     t_levels: int = 6
     t_ratio: float = 0.3

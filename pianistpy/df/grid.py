@@ -3,9 +3,9 @@ model's interior point.
 
 The grid runs from the floor to the ceiling gap below the central potential
 in five zones (A log-spaced in Q, AB a geometric buffer, B linear, BC a
-geometric buffer, C log-spaced in P_0 - Q), extended below the floor to the
+geometric buffer, C log-spaced in ``P_0 - Q``), extended below the floor to the
 DF table's own floor. No node lies above the ceiling: the gap states where
-float64 energies are separable from P_0, and the center's form carries the DF
+float64 energies are separable from :math:`P_0`, and the center's form carries the DF
 above the last node. OM Type I models place zones A and AB around the potential of the
 anisotropy radius; OM Type II and COM models around the feature their pilot
 inversion finds (given here).
@@ -48,7 +48,7 @@ BAND_HALFWIDTH = 0.5  # and its half-width, as a fraction of the point's energy
 
 @dataclass(frozen=True)
 class GridZones:
-    """The five zones' boundaries.
+    r"""The five zones' boundaries.
 
     Parameters
     ----------
@@ -58,13 +58,9 @@ class GridZones:
         Zone A's lower bound, the A/AB, AB/B, B/BC and BC/C boundaries, and
         zone C's upper bound.
     q_feature : float
-        The feature the OM and COM zones are placed around (Psi(R_a) for OM
-        Type I, the pilot inversion's for the others); zero for the standard
-        zones.
-    case : int
-        0 standard, 1 (a minimum) or 2 (a zero crossing) for a feature.
-    kappa_low : float
-        The analytic low-Q exponent; NaN where not applicable.
+        The feature the OM and COM zones are placed around
+        (:math:`\Psi(R_{\rm a})` for OM Type I, the pilot inversion's for the
+        others); zero for the standard zones.
     """
 
     p0: float
@@ -75,8 +71,6 @@ class GridZones:
     c_lo: float
     c_hi: float
     q_feature: float
-    case: int
-    kappa_low: float
 
 
 def standard_zones(p0: float, psi_extent: float, psi_anchor_low: float) -> GridZones:
@@ -90,8 +84,6 @@ def standard_zones(p0: float, psi_extent: float, psi_anchor_low: float) -> GridZ
         c_lo=float(p0) * (1.0 - float(psi_extent)),
         c_hi=float(p0) - float(psi_anchor_low),
         q_feature=0.0,
-        case=0,
-        kappa_low=float("nan"),
     )
 
 
@@ -100,11 +92,9 @@ def feature_zones(
     psi_extent: float,
     psi_anchor_low: float,
     q_feature: float,
-    case: int,
-    kappa_low: float,
 ) -> GridZones:
     """Return the zones of an OM or COM model placed around its feature:
-    A to 0.7 q_feature, AB to min(1.5 q_feature, 3/8 P_0); the standard
+    A to 0.7 q_feature, AB to ``min(1.5 q_feature, 3/8 P_0)``; the standard
     boundaries where the feature is absent or the placement invalid. The
     high-Q end is never moved."""
     if q_feature > 0.0:
@@ -127,8 +117,6 @@ def feature_zones(
         c_lo=p0 * (1.0 - psi_extent),
         c_hi=p0 - float(psi_anchor_low),
         q_feature=q_feature,
-        case=int(case),
-        kappa_low=kappa_low,
     )
 
 
@@ -185,7 +173,7 @@ def hybrid_grid(
     g_table_nodes_per_decade: int,
     q_ceil_gap: float,
 ) -> Array:
-    """Return the five-zone grid on [q_lo, P_0 - ceiling gap], extended below
+    """Return the five-zone grid on [q_lo, :math:`P_0` - ceiling gap], extended below
     to the table's own floor where that lies below the anchor."""
     P0 = float(zones.p0)
     psi_a_outer = float(zones.a_hi)
@@ -261,7 +249,7 @@ def inversion_grid(
     Parameters
     ----------
     profile : DoublePowerLaw
-        The component's profile (its potential, in units of P_0 = 1).
+        The component's profile (its potential, in units of :math:`P_0 = 1`).
     anisotropy : Anisotropy
         Its anisotropy.
     settings : Settings
@@ -270,7 +258,7 @@ def inversion_grid(
         ``table_nodes_per_decade``.
     feature : mapping, optional
         The pilot inversion's feature of an OM Type II or COM model:
-        ``q_feature``, ``case`` and ``kappa_low``.
+        ``q_feature``.
 
     Raises
     ------
@@ -287,20 +275,13 @@ def inversion_grid(
     family = anisotropy.family
     if family == "OM_I":
         psi_ra = float(profile.p(np.array([float(anisotropy.r_a)]))[0])
-        zones = feature_zones(p0, extent, anchor, psi_ra, 1, -0.5)
+        zones = feature_zones(p0, extent, anchor, psi_ra)
     elif family in ("OM_II", "COM_I", "COM_II"):
         if feature is None:
             raise ValueError(
                 f"An {family} model's grid needs its pilot inversion's feature."
             )
-        zones = feature_zones(
-            p0,
-            extent,
-            anchor,
-            float(feature["q_feature"]),
-            int(feature["case"]),
-            float(feature["kappa_low"]),
-        )
+        zones = feature_zones(p0, extent, anchor, float(feature["q_feature"]))
     else:
         zones = standard_zones(p0, extent, anchor)
     q = hybrid_grid(

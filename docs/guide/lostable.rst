@@ -1,0 +1,104 @@
+The prepared table
+==================
+
+:class:`pianistpy.LosTable`, :func:`pianistpy.losvd`, :func:`pianistpy.sigma_los`,
+:func:`pianistpy.sigma_los_aperture`, :func:`pianistpy.sigma_r`, :func:`pianistpy.sigma_t`, :func:`pianistpy.pdf_v`
+
+``LosTable(model)`` computes once what the observables of a model read: the intrinsic dispersion profile
+(:doc:`sigma_r`), the surface density :math:`\Sigma(R_{\rm 2D})` and the line-of-sight dispersion
+:math:`\sigma_{\rm los}(R_{\rm 2D})` over projected radius, and the table of line-of-sight velocity distributions
+:math:`D(R_{\rm 2D}, V_{\rm los})` (:doc:`losvd`) on rows of projected radius from the center outward (where the
+rows run, below).
+Every observable then takes the table in place of the model and reads from it, so a table is the object to build
+when a model is asked for more than one observable, or for one observable many times (a fit, a grid of apertures).
+
+As in |paper|, the dispersion inside an aperture is the surface-density weighted average of
+:math:`\sigma_{\rm los}^2`; a centered circle of radius :math:`R_{\rm ape}` gives
+
+.. math::
+
+   \overline{\sigma}_{\rm los}^2(R_{\rm ape}) =
+   \frac{\int_0^{R_{\rm ape}} \Sigma(R_{\rm 2D})\,\sigma_{\rm los}^2(R_{\rm 2D})\,R_{\rm 2D}\,{\rm d}R_{\rm 2D}}
+   {\int_0^{R_{\rm ape}} \Sigma(R_{\rm 2D})\,R_{\rm 2D}\,{\rm d}R_{\rm 2D}},
+
+and an offset circle or a rectangle the same average over its own area. Given the model,
+:func:`~pianistpy.sigma_los_aperture` takes this average and reads no velocity distribution; given the table, it
+takes the second moment of the aperture's velocity distribution, the rows of the table averaged over the aperture
+with the same weight. The two routes are independent and agree to the accuracy goal. The table's route costs
+more than the model's (the example below gives the times).
+
+Arguments and units
+-------------------
+
+``LosTable(model)`` takes a :class:`~pianistpy.Model` of one component or a superposition; a superposition holds
+one table per component (``parts``), each read with its weight. The table is computed in internal units at the
+model's own settings and is not recomputed for another unit system: ``table.to("physical", ...)`` returns the
+same tables presented in the units of ``model.to("physical", ...)``, and the observables read from it take and
+return quantities in those units.
+
+The rows are computed by a pool of parallel processes, which Python starts by spawning a fresh interpreter. In a
+script, build the table (or call :func:`~pianistpy.losvd` on a model, which builds one) under
+``if __name__ == "__main__":``, as Python's ``multiprocessing`` requires; in a notebook or an interactive session
+nothing is needed.
+
+What it holds: ``model``; ``profile``, ``projected``, ``kept`` and ``table``, the results of its four stages;
+``validation``, its report; ``parts``, one table per component.
+
+Where the rows run
+------------------
+
+The rows end at the first row beyond which less than ``losvd.outer_mass_share`` of the model's total projected
+mass lies (the accuracy goal, :math:`10^{-6}`, by default). Inside, they start at the profile's innermost row, unless
+``losvd.innermost_read_radius`` names the smallest projected radius the table will be read at: the rows then start at
+the last row inside the radius whose disk holds the goal times the projected mass inside ``innermost_read_radius``,
+and an aperture's integral starts at that first row. Each row kept is the row the full table holds at its radius. A
+read beyond the last row or inside the first, at a point or over an aperture, is refused by name with that row's
+radius and the setting that moves it; an aperture whose disk inside the first row carries more than the goal of its
+weight is refused with the smallest centered circle the table serves at the goal. ``Settings(losvd={"outer_mass_share":
+0})`` keeps the rows to the model's edge.
+
+Tiers
+-----
+
+The rows of the table are added until the table reads itself between rows within the tolerance of its settings,
+and every row is checked against two quantities computed without it. The report ``table.validation`` holds six
+checks, each with its relative error and the radius where it is worst: ``norm``, each row's integral against the
+surface density; ``second_moment``, each row's second moment against the projected dispersion; ``unjudged``, a row
+with surface density that could not be checked (beyond the hard limit if any); ``t_converged``, a row whose rule
+along the line of sight ran out of doublings before its tests passed (beyond the hard limit if any); ``certificate``,
+the table's estimate of its reading between rows; and ``layer_floor``, the error at which the quadrature's layers
+toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
+center (below the goal: a floor above it is refused). The report's tier is the worst of these and of the model's own; a table
+above the goal says so in a warning when it is built (:doc:`accuracy`), and a table beyond the hard limit (tier "refused")
+is refused unless its settings ask for it (``Settings(write_anyway=True)``), as an aperture's distribution is. Intervals of projected radius where the
+table could not meet its tolerance are recorded in ``table.table.r_uncertified``, and a request inside one is refused by name.
+
+Example
+-------
+
+.. code-block:: python
+
+   import numpy as np
+   import pianistpy as pp
+
+   model = pp.solve(
+       pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(beta_c=0.25)),
+       pp.Truncation(k_t=0.05),
+       settings=pp.Settings(quick=True),
+   )
+   table = pp.LosTable(model)                     # built once
+   table.validation.tier                          # "goal", "ceiling", "warning" or "refused"
+   {key: check.error for key, check in table.validation.checks.items()}
+
+   circle = pp.Aperture.circle(1.0)
+   pp.sigma_los_aperture(model, circle), pp.sigma_los_aperture(table, circle)   # the two routes
+   pp.sigma_los(table, [0.1, 1.0, 10.0])
+   pp.losvd(table, 1.0, [0.0, 0.5, 1.0])
+
+   physical = table.to("physical", concentration=10.0, mass_0=1e9, r_0=500.0)
+   pp.sigma_los_aperture(physical, pp.Aperture.circle(500.0))                   # km/s, 500 pc circle
+
+On this example (one 32-core node, CPU), building the table takes about 4 minutes on the node's 32 cores (43
+minutes with one). With the table built, the circle of radius 1 takes about 30 s by the table's route with 32
+cores (6 s with one), against about 3.5 s for the model's route, and a second aperture over the same table (the
+circle of radius 0.5) about as long again.

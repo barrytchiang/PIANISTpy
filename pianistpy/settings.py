@@ -191,9 +191,9 @@ FIELDS: dict[str, dict[str, Field]] = {
         "draw_block": Field(
             262144,
             "Particles drawn at once: a draw runs over blocks of this many, so "
-            "its working memory is one block's (about 0.75 kB a particle, 2**18 "
-            "particles about 0.2 GB) above its outputs, whatever the count; the "
-            "particles are the same at any block size.",
+            "its working memory is one block's (about 0.75 kB a particle, "
+            ":math:`2^{18}` particles about 0.2 GB) above its outputs, whatever "
+            "the count; the particles are the same at any block size.",
         ),
         "row_error_goal": Field(
             GOAL,
@@ -205,14 +205,14 @@ FIELDS: dict[str, dict[str, Field]] = {
         "tail_mass_min": Field(
             1e-18,
             "Smallest tabulated cumulative probability at either end of a table: a "
-            "uniform double reaches 2**-53, so a draw never reads beyond it.",
+            "uniform double reaches :math:`2^{-53}`, so a draw never reads beyond it.",
         ),
     },
     "observables": {
         "n_radii": Field(
             10000,
-            "Projected radii of the projection table before its certificate adds "
-            "rows, logarithmic from the innermost row to the edge.",
+            "Projected radii of the projection table before its check between rows "
+            "adds rows, logarithmic from the innermost row to the edge.",
             quick=500,
         ),
         "profile_tolerance": Field(
@@ -254,6 +254,25 @@ FIELDS: dict[str, dict[str, Field]] = {
             "The angle rule of the line-of-sight velocity distributions' rows: "
             '"kernel", the JAX kernel, or "numpy", the reference route.',
         ),
+        "n_speed_angle_nodes": Field(
+            16,
+            "Gauss-Legendre nodes of each panel of the angle integral of the "
+            "local speed distribution (pdf_v), in t = cos(eta).",
+        ),
+        "n_speed_angle_panels": Field(
+            16,
+            "Panels of that angle integral graded toward each end of each of its "
+            "intervals, and of the speed integral of its norm and second moment "
+            "toward each of their breaks.",
+            quick=8,
+        ),
+        "speed_tolerance": Field(
+            GOAL,
+            "Bound on the local speed distribution's change when its angle rule's "
+            "nodes double: they double, at most three times, until the change "
+            "is under it.",
+            quick=CEILING,
+        ),
     },
     "losvd": {
         "rows_per_decade": Field(
@@ -279,7 +298,7 @@ FIELDS: dict[str, dict[str, Field]] = {
             "node takes.",
         ),
         "n_sightline_nodes": Field(
-            16,
+            12,
             "Gauss-Legendre nodes of each panel of the line-of-sight integral.",
             quick=8,
         ),
@@ -342,15 +361,35 @@ FIELDS: dict[str, dict[str, Field]] = {
             8, "Rows of the stencil that reads the table between its rows."
         ),
         "n_stencil_test_rows": Field(
-            8, "Rows of the stencil whose estimate certifies the table."
+            8, "Rows of the stencil whose estimate checks the table."
         ),
         "n_block_elements": Field(
-            250000,
+            25000,
             "Elements of one block of node pairs, energy nodes and angle nodes, which "
             "bounds the memory of a row.",
         ),
+        "innermost_read_radius": Field(
+            0.0,
+            "The smallest projected radius the table will be read at, in the "
+            "model's internal length unit: the rows start at the last base row "
+            "inside the radius whose disk holds the accuracy goal times the "
+            "projected mass inside this one, and a read inside the first row is "
+            "refused. 0 keeps the rows from the profile's innermost row, the "
+            "full-depth table.",
+        ),
+        "outer_mass_share": Field(
+            GOAL,
+            "Share of the total projected mass that may lie beyond the table's "
+            "last row: the rows end at the first base row beyond the radius "
+            "outside which this share lies, and a read beyond the last row is "
+            "refused. 0 keeps the rows to the model's edge.",
+        ),
     },
 }
+
+
+# The fields that 0 turns off (the table's full depth, the rows to the edge).
+OFF_AT_ZERO = ("innermost_read_radius", "outer_mass_share")
 
 
 def _checked(group: str, name: str, value: Any) -> Any:
@@ -368,7 +407,12 @@ def _checked(group: str, name: str, value: Any) -> Any:
         raise InputError(
             f"{group}.{name} takes a value of type {kind.__name__}; got {value!r}."
         )
-    if kind in (int, float) and not name.startswith("log10_") and not value > 0:
+    zero = name in OFF_AT_ZERO and value == 0
+    if (
+        kind in (int, float)
+        and not name.startswith("log10_")
+        and not (value > 0 or zero)
+    ):
         raise InputError(f"{group}.{name} must be positive; got {value!r}.")
     return value
 
@@ -394,7 +438,7 @@ class Settings:
         is refused regardless.
     **overrides : mapping
         One mapping per group (``inversion``, ``truncation``, ``sampling``,
-        ``observables``) of the fields to change within that group.
+        ``observables``, ``losvd``) of the fields to change within that group.
 
     Attributes
     ----------
@@ -477,8 +521,8 @@ class Settings:
         Parameters
         ----------
         name : str
-            One of the groups ``inversion``, ``truncation``, ``sampling`` and
-            ``observables``.
+            One of the groups ``inversion``, ``truncation``, ``sampling``,
+            ``observables`` and ``losvd``.
 
         Returns
         -------

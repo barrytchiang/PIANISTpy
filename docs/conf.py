@@ -5,17 +5,24 @@ import sys
 
 # The package is documented from this tree, not from an installed copy.
 sys.path.insert(0, os.path.abspath(".."))
-# Importing the package for its docstrings needs no accelerator.
+# Importing the package for its docstrings needs no GPU.
 os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
 from pianistpy import __version__  # noqa: E402
 
-# The settings tables of the Reference tab are written from the package's
+# The settings tables of the API reference tab are written from the package's
 # declared fields before each build (docs/tools/settings_tables.py).
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "tools"))
 import settings_tables  # noqa: E402
 
-settings_tables.write(os.path.join(os.path.dirname(__file__), "reference", "_settings_tables.rst"))
+settings_tables.write(
+    os.path.join(os.path.dirname(__file__), "reference", "_settings_tables.rst")
+)
+# The accuracy tables, from each release's accuracy grid
+# (docs/tools/accuracy_tables.py).
+import accuracy_tables  # noqa: E402
+
+accuracy_tables.write(os.path.dirname(__file__))
 
 project = "PIANISTpy"
 author = "Barry T. Chiang"
@@ -35,6 +42,11 @@ extensions = [
     "sphinx_design",
     "myst_nb",
 ]
+# The preview of the next release, built from the development tree before that
+# tree is public: PIANISTPY_DOCS_PREVIEW=1 leaves out the pages of the source code
+# (viewcode's _modules), so the preview publishes the manual and not the package.
+if os.environ.get("PIANISTPY_DOCS_PREVIEW") == "1":
+    extensions.remove("sphinx.ext.viewcode")
 
 # The package's docstrings are in the numpydoc format.
 napoleon_google_docstring = False
@@ -44,6 +56,9 @@ napoleon_numpy_docstring = True
 napoleon_use_ivar = True
 autodoc_member_order = "bysource"
 autodoc_typehints = "description"
+# Defaults as written in the source (``xp=np``), not their repr, which for a module
+# would print the path of the machine that built the manual.
+autodoc_preserve_defaults = True
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
@@ -65,6 +80,10 @@ exclude_patterns = [
     "requirements.txt",
     # Included by reference/settings.rst, not a page of its own.
     "reference/_settings_tables.rst",
+    # Written by docs/tools/accuracy_tables.py and included, like the settings tables.
+    "reference/_accuracy_tables.rst",
+    "project/_accuracy_releases.rst",
+    "_extra",
 ]
 templates_path = ["_templates"]
 
@@ -75,19 +94,28 @@ html_theme = "pydata_sphinx_theme"
 html_logo = None
 html_favicon = "_static/logo.png"
 html_static_path = ["_static"]
-html_css_files = ["css/fonts.css", "css/custom.css"]
-html_title = f"PIANISTpy {release}"
+html_css_files = ["css/fonts.css", "css/custom.css", "css/band.css"]
+# A displayed equation wider than the column scrolls sideways (MathJax 4 would otherwise
+# break or shrink it); on a phone the technical notes' equations need it.
+mathjax4_config = {"output": {"displayOverflow": "scroll"}}
+html_title = f"PIANISTpy ver. {release}"
 html_short_title = "PIANISTpy"
 html_show_sourcelink = False
+# Links between pages carry no ".html": GitHub Pages serves page.html at /page, and
+# the files keep their names, so an address with ".html" still works.
+html_link_suffix = ""
 html_context = {"pre_release": PRE_RELEASE, "default_mode": "light"}
 
 html_theme_options = {
     "logo": {"text": "PIANISTpy", "alt_text": "PIANISTpy"},
     "header_links_before_dropdown": 6,
-    "navbar_start": ["navbar-logo"],
-    "navbar_center": ["navbar-nav"],
-    "navbar_end": ["navbar-icon-links"],
-    "navbar_persistent": ["search-button"],
+    # The header is the site band (_templates/site-band.html), which replaces the
+    # theme's navbar; empty here so the narrow screen's sidebar does not repeat the
+    # tabs.
+    "navbar_start": [],
+    "navbar_center": [],
+    "navbar_end": [],
+    "navbar_persistent": [],
     "secondary_sidebar_items": ["page-toc"],
     "show_prev_next": False,
     "show_toc_level": 2,
@@ -108,10 +136,27 @@ html_theme_options = {
         },
     ],
 }
+# The release paper, cited the same way on every page, always as a link to PAPER_URL.
+# The citation page and the landing page give the full form once, "PAPER_FULL, PAPER_STATUS
+# (henceforth PAPER)"; every other mention is the short form. Pages write |paper| (the
+# linked short form), |paper-full| (the linked full form and its status) or |paper-name|
+# (the short form as plain text, for headings); the landing page's @PAPER...@ fields are
+# set by assemble_site from these lines. Until the arXiv entry exists the link is the
+# citation page.
+PAPER = "Chiang+(2026d)"
+PAPER_FULL = "Chiang, van den Bosch and Schive (2026d), MNRAS"
+PAPER_STATUS = "submitted"
+PAPER_URL = "https://pianistpy.com/docs/project/citing"
+rst_epilog = (
+    f".. |paper| replace:: `{PAPER} <{PAPER_URL}>`__\n"
+    f".. |paper-full| replace:: `{PAPER_FULL} <{PAPER_URL}>`__, {PAPER_STATUS}\n"
+    f".. |paper-name| replace:: {PAPER}\n"
+)
+
 if PRE_RELEASE:
     html_theme_options["announcement"] = (
-        "Pre-release: version 0.9.0 is a preview of the package and of this manual; "
-        "version 1.0.0 is released with the paper that describes the method."
+        "Pre-release: ver. 0.9.9 is the code of "
+        f'<a href="{PAPER_URL}">{PAPER}</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.'
     )
 
 # The manual's home has no section sidebar; every other page keeps its tab's,

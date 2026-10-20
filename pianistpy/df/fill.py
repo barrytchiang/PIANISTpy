@@ -28,12 +28,13 @@ from scipy.integrate import cumulative_simpson
 from scipy.interpolate import CubicSpline
 from scipy.special import beta as _sbeta
 
+from ..anisotropy.factor import inverse_factor
 from ..exceptions import AccuracyError, InputError
 from ..typing import Array
 from ..validation import GOAL
 from .center import (
     CenterAmplitude,
-    anisotropy_factor,
+    anisotropy_g,
     ceiling_depth,
     central_deficit,
     inner_density_series,
@@ -41,8 +42,14 @@ from .center import (
     inner_mass_series,
     join_depth,
 )
-from .poisson import PoissonSolve, cuddeford_prefactor, profile_density, source_slopes
-from .truncation import INNER_DEPTH, K_FLOOR, ROW_BINS_DEPTH_TOP, row_bin_edges
+from .poisson import (
+    PoissonSolve,
+    cuddeford_prefactor,
+    density_cut,
+    profile_density,
+    source_slopes,
+)
+from .truncation import K_FLOOR, OUTER_ANCHOR, ROW_BINS_TOP, row_bin_edges
 
 
 @dataclass(frozen=True)
@@ -54,7 +61,7 @@ class FilledProfile:
     r, phi, rho : array, shape (n,)
         Radius, potential and density of the rows, increasing in r.
     u_fill_r, u_fill : array or None
-        The inner fill's rows and their central coordinate u = P_0 - Phi,
+        The inner fill's rows and their central coordinate ``u = P_0 - Phi``,
         without a subtraction; None where the inner fill did not run.
     join : float
         The depth of the series / solve join.
@@ -91,8 +98,10 @@ def _low_psi_fill(
     dlog,
     valid,
     edge,
+    p_0,
 ):
-    """The outer end's fill below the outermost underdense bin."""
+    """The outer end's fill below the outermost underdense bin; its slope is
+    anchored at ``Psi = OUTER_ANCHOR P_0``."""
     floor = K_FLOOR
     if psi_lo_threshold is None:
         return r_save, p_save, rho_save
@@ -119,7 +128,7 @@ def _low_psi_fill(
     log_r_fill = np.interp(tgt, log_p, log_r, left=log_r[0], right=log_r[-1])
     if len(log_p) >= 2:
         i_a = min(
-            int(np.searchsorted(log_p, np.log(3.0 * INNER_DEPTH), side="right")),
+            int(np.searchsorted(log_p, np.log(OUTER_ANCHOR * p_0), side="right")),
             len(log_p) - 2,
         )
         slope = (log_rho[i_a + 1] - log_rho[i_a]) / (
@@ -149,15 +158,8 @@ def _low_psi_fill(
                 f1 * _sbeta(2.0, n_e + 1.0) * pf ** (n_e + 2.0)
                 + 0.5 * f2 * _sbeta(3.0, n_e + 1.0) * pf ** (n_e + 3.0)
             )
-            gf = rf ** (2.0 * b_e)
-            if mt_e == "OM_I" or mt_e == "COM_I":
-                gf = gf * (1.0 + (rf / ra_e) ** 2) ** (
-                    1.0 - b_e if mt_e == "COM_I" else 1.0
-                )
-            if mt_e == "OM_II" or mt_e == "COM_II":
-                gf = gf * (1.0 - (rf / ra_e) ** 2) ** (
-                    1.0 - b_e if mt_e == "COM_II" else 1.0
-                )
+            # the factor's one form, with its Type II refusal
+            gf = inverse_factor(rf, mt_e, b_e, ra_e)[0]
             rho_cl = cuddeford_prefactor(b_e) * pcl / gf
             rho_fill = np.array(rho_fill, dtype=np.float64)
             rho_fill[mf] = rho_cl
@@ -249,8 +251,7 @@ def _high_psi_fill(
     psi_sr1 = _potential(r_sr1, c_t, g_p, a_p, b_p, p_0)
     du_sr1 = None
     if delta > 0.0:
-        omf = anisotropy_factor(r_sr1, bc, factor[0], factor[1])
-        dr_sr1 = delta * r_sr1 ** (-2.0 * float(bc)) / omf
+        dr_sr1 = delta * anisotropy_g(r_sr1, bc, factor[0], factor[1])
         du_sr1 = (
             delta
             * r_sr1 ** (2.0 - 2.0 * float(bc))
@@ -264,11 +265,7 @@ def _high_psi_fill(
             )
         if lc is not None:
             d56, du56, _ = lc["at"](r_sr1)
-            dr_sr1 = (
-                d56
-                * r_sr1 ** (-2.0 * float(bc))
-                / anisotropy_factor(r_sr1, bc, factor[0], factor[1])
-            )
+            dr_sr1 = d56 * anisotropy_g(r_sr1, bc, factor[0], factor[1])
             du_sr1 = du56
         rho_sr1 = rho_sr1 - dr_sr1
         psi_sr1 = psi_sr1 + du_sr1
@@ -323,6 +320,7 @@ def _high_psi_fill(
                         source["q"], source["p_rhs"], float(p_0), source["p_s"], order
                     ),
                     order=order,
+                    r_cut=density_cut(float(profile[0]), float(g_p)),
                 ),
                 dtype=np.float64,
             )
@@ -357,7 +355,7 @@ def fill_profile(
     source: Mapping[str, Any],
     settings: Mapping[str, Any],
 ) -> FilledProfile:
-    """Return the profile's rows after the outer and the inner fill.
+    r"""Return the profile's rows after the outer and the inner fill.
 
     Parameters
     ----------
@@ -372,10 +370,11 @@ def fill_profile(
     profile : tuple
         (C, alpha, beta, gamma) of the source density.
     bc, factor
-        The anisotropy's beta_c, its factor's kind and R_a.
+        The anisotropy's :math:`\beta_{\rm c}`, its factor's kind and
+        :math:`R_{\rm a}`.
     edge : tuple or None
-        The Taylor edge (F_1, F_2, K_switch, beta_c, model type, R_a); None
-        on an untruncated model.
+        The Taylor edge (F_1, F_2, K_switch, :math:`\beta_{\rm c}`, model type,
+        :math:`R_{\rm a}`); None on an untruncated model.
     source : mapping
         The solve's source table: ``q``, ``p_rhs``, ``p_0``, ``p_s``, ``ra``,
         ``bc``, ``model_type``.
@@ -399,7 +398,7 @@ def fill_profile(
     psi_saved = p_save[saved]
     psi_saved = psi_saved[np.isfinite(psi_saved)]
     u_vals = p_0 - psi_saved
-    u_vals = u_vals[(u_vals > 0) & (u_vals <= ROW_BINS_DEPTH_TOP)]
+    u_vals = u_vals[(u_vals > 0) & (u_vals <= ROW_BINS_TOP * p_0)]
     # the row-count bins, the check's (profile_checks.row_density) by construction
     row_bins = row_bin_edges(
         p_0, settings, float(np.max(u_vals)) if len(u_vals) else 0.0
@@ -450,9 +449,9 @@ def fill_profile(
             ords = np.argsort(uo[sel])[::-1]
             rs_, us_, rhos_ = ro[sel][ords], uo[sel][ords], rho_o[sel][ords]
             ds, dus, _ = lc["at"](rs_)
-            rho_a = inner_density_series(rs_, c_t, g_p, a_p, b_p) - ds * rs_ ** (
-                -2.0 * float(bc)
-            ) / anisotropy_factor(rs_, bc, factor[0], factor[1])
+            rho_a = inner_density_series(rs_, c_t, g_p, a_p, b_p) - ds * anisotropy_g(
+                rs_, bc, factor[0], factor[1]
+            )
             u_a = (float(p_0) - _potential(rs_, c_t, g_p, a_p, b_p, p_0)) - dus
             ok = (np.abs(rho_a / rhos_ - 1.0) <= tol) & (np.abs(u_a / us_ - 1.0) <= tol)
             bin_ = np.floor(2.0 * np.log10(us_)).astype(int)
@@ -496,6 +495,7 @@ def fill_profile(
         dlog,
         valid,
         edge,
+        float(p_0),
     )
     r_save, p_save, rho_save, fill = _high_psi_fill(
         r_save,
@@ -546,17 +546,17 @@ class ProfileRows:
         step halved until the mass at every row moves by less than a tenth
         of the goal.
     u : array, shape (n,)
-        The central coordinate u = P_0 - Phi, with no subtraction on the
+        The central coordinate ``u = P_0 - Phi``, with no subtraction on the
         solve's node rows and the inner fill's rows.
     central_deficit : tuple of float or None
-        (D0, D1) of `central_deficit` on a truncated model; None otherwise or
-        where it is not available.
+        (D0, D1, D2, D3, D4) of `central_deficit` on a truncated model;
+        None otherwise or where it is not available.
     ceiling : dict
         The mass's zone boundary: the depth where the mass series' next term
-        reaches a tenth of the goal (``u_rule``, its fraction of P_0 and the
-        bound), the depth used (``u_ceil``, ``r_ceil``) and which of the three
-        set it (``set_by``): ``"rule"``, or a structural bound, where series
-        rows end (``"fill_threshold"``) or the lowered center's reach
+        reaches a tenth of the goal (``u_rule``, its fraction of :math:`P_0`
+        and the bound), the depth used (``u_ceil``, ``r_ceil``) and which of
+        the three set it (``set_by``): ``"rule"``, or a structural bound, where
+        series rows end (``"fill_threshold"``) or the lowered center's reach
         (``"center_reach"``).
     zone : dict
         The outer zone's convergence: the halvings of the step (``levels``),
@@ -569,7 +569,7 @@ class ProfileRows:
     rho: Array
     mass: Array
     u: Array
-    central_deficit: tuple[float, float] | None
+    central_deficit: tuple[float, ...] | None
     ceiling: dict[str, Any] = field(default_factory=dict)
     zone: dict[str, Any] = field(default_factory=dict)
 
@@ -699,7 +699,7 @@ def profile_rows(
     solve : PoissonSolve
         The Poisson solve (its rows place the mass's inner zone; its u at
         its nodes is the column's there).
-    k_t, pot_center, q, df, f_at_k_t
+    k_t, pot_center, q, df, f_at_k_t : float or array
         The truncation and the untruncated DF, for the central deficit.
     """
     phi_raw = np.array(solve.phi)

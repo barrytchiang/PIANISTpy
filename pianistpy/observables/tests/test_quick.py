@@ -30,7 +30,7 @@ def test_the_quick_tier_holds_the_ceiling_against_the_default(plummer):
     model, table = plummer
     assert model.settings.tier == "quick" and model.settings.is_tested_tier
     assert table.validation.level <= 1
-    # sigma_r^2 = P / 6 (paper Eq. B42)
+    # sigma_r^2 = P / 6 (Chiang+(2026d), Eq. B42)
     r = np.logspace(-3, 2, 11)
     p = (1.0 + r**2) ** -0.5
     np.testing.assert_allclose(table.profile.read(r)[0][0] ** 2, p / 6.0, rtol=CEILING)
@@ -38,7 +38,7 @@ def test_the_quick_tier_holds_the_ceiling_against_the_default(plummer):
     exact = np.sqrt(3.0 * math.pi / 64.0 / np.sqrt(1.0 + r**2))
     np.testing.assert_allclose(sigma_los(model, r), exact, rtol=CEILING)
     np.testing.assert_allclose(sigma_los(table, r), exact, rtol=CEILING)
-    # a centerd circle of radius A by both routes: the second route reads the
+    # a centered circle of radius A by both routes: the second route reads the
     # aperture's velocity distribution from the table
     for a in (0.5, 3.0):
         aperture = Aperture.circle(a)

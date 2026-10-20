@@ -2,7 +2,7 @@
 
 Inside the table the base-10 logarithm of the DF is the cubic Hermite in
 ln K through the nodes. Above the table's last energy it continues by the
-center's form, in u = P_0 - K; below its first energy by the rule of
+center's form, in ``u = P_0 - K``; below its first energy by the rule of
 `AsymptoticForm.below_floor`.
 
 The lookup is two functions. `prepare_lookup` runs once per table on the host
@@ -275,7 +275,7 @@ def evaluate_lookup(
     :math:`P_0 - u`, the cell position is formed from :math:`u_i - u` with
     :math:`u_i = P_0 - \mathcal{K}_i` (exact where
     :math:`\mathcal{K}_i \ge P_0/2`) and the form above the table is read at
-    `u` itself, also where :math:`P_0 - u` rounds to :math:`P_0` [3-206];
+    `u` itself, also where :math:`P_0 - u` rounds to :math:`P_0`;
     where it is NaN, or not given, by `k`, unchanged.
     """
     k = xp.asarray(k, dtype=xp.float64)
@@ -289,12 +289,16 @@ def evaluate_lookup(
             held = xp.isfinite(u)
             k = xp.where(held, p_0 - u, k)
             depth = xp.where(held, u, p_0 - k)
+        if xp is np:
+            # each part on its own points only, the same arithmetic on each:
+            # the forms beyond the table are not formed for the points inside
+            return _by_part(arrays, kinds, k, depth, u)
         inside = _cells(arrays, k, xp, u)
         above = _above(arrays, kinds, depth, xp)
         below = _below(arrays, kinds, k, xp)
         # above the table by the depth: p_0 - k > 0 is k < p_0 where the depth
         # is formed from k, and a held depth below half an ulp of p_0 stays
-        # above the table although its energy rounds to p_0 [3-206]
+        # above the table although its energy rounds to p_0
         return xp.where(
             (k >= k_0) & (k <= k_top),
             inside,
@@ -304,6 +308,32 @@ def evaluate_lookup(
                 xp.where((k > 0.0) & (k < k_0), below, -xp.inf),
             ),
         )
+
+
+def _by_part(
+    arrays: LookupArrays,
+    kinds: LookupKinds,
+    k: Array,
+    depth: Array,
+    u: Array | None,
+) -> Array:
+    """`evaluate_lookup` in NumPy, each part on the points it is read at:
+    inside the table, above it by the depth, below it; minus infinity
+    elsewhere. Each point is formed as the selecting form forms it."""
+    params = arrays.params
+    k, depth = np.broadcast_arrays(k, depth)
+    if u is not None:
+        u = np.broadcast_to(u, k.shape)
+    out = np.full(k.shape, -np.inf)
+    inside = (k >= params[K_0]) & (k <= params[K_TOP])
+    out[inside] = _cells(arrays, k[inside], np, None if u is None else u[inside])
+    above = ~inside & (k > params[K_TOP]) & (depth > 0.0)
+    if above.any():
+        out[above] = _above(arrays, kinds, depth[above], np)
+    below = ~inside & ~above & (k > 0.0) & (k < params[K_0])
+    if below.any():
+        out[below] = _below(arrays, kinds, k[below], np)
+    return out
 
 
 def log10_df(
@@ -399,8 +429,8 @@ def _nodes(table: DfTable, component: int) -> dict:
 
 def _cells(arrays: LookupArrays, k: Array, xp, u: Array | None = None) -> Array:
     """The cubic Hermite in ln K, the position from the nodes; the end values
-    beyond. Where the depth `u` is finite and the cell's K_i >= P_0 / 2 the
-    offset K - K_i is u_i - u."""
+    beyond. Where the depth `u` is finite and the cell's ``K_i >= P_0 / 2``
+    the offset K - K_i is u_i - u."""
     k_nodes, y, m, width = arrays.k, arrays.log_df, arrays.slope, arrays.width
     n = arrays.n
     k = xp.clip(k, k_nodes[0], k_nodes[n - 1])

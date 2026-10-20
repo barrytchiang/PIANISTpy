@@ -158,3 +158,43 @@ def test_the_workers_are_explicit_only_when_set_to_a_number():
     assert runtime.workers_explicit()
     runtime.set_workers("half")
     assert not runtime.workers_explicit()
+
+
+def test_the_environment_switches_read_one_set_of_words_in_any_case(monkeypatch):
+    for value, expected in (
+        ("", False),
+        ("false", False),
+        ("OFF", False),
+        (" 0 ", False),
+        ("1", True),
+        ("True", True),
+        ("yes", True),
+    ):
+        monkeypatch.setenv(runtime.TIMING_VARIABLE, value)
+        assert runtime._env_flag(runtime.TIMING_VARIABLE) is expected, value
+    monkeypatch.setenv(runtime.TIMING_VARIABLE, "sometimes")
+    with pytest.raises(InputError, match=runtime.TIMING_VARIABLE):
+        runtime._env_flag(runtime.TIMING_VARIABLE)
+    monkeypatch.setenv(runtime.VERBOSITY_VARIABLE, " INFO ")
+    runtime.set_verbosity(runtime._env_word(runtime.VERBOSITY_VARIABLE, "quiet"))
+    monkeypatch.delenv(runtime.VERBOSITY_VARIABLE)
+    assert runtime._env_word(runtime.VERBOSITY_VARIABLE, "quiet") == "quiet"
+
+
+def test_the_workers_run_xla_on_one_thread(monkeypatch):
+    # a worker's XLA flags carry the one-thread flags beside
+    # the process's own, for the spawn only
+    import os
+
+    from pianistpy import runtime
+
+    monkeypatch.setenv("XLA_FLAGS", "--xla_dump_to=/nowhere")
+    with runtime.worker_environment():
+        flags = os.environ["XLA_FLAGS"].split()
+        assert flags[0] == "--xla_dump_to=/nowhere"
+        assert set(runtime.WORKER_XLA_FLAGS) <= set(flags)
+    assert os.environ["XLA_FLAGS"] == "--xla_dump_to=/nowhere"
+    monkeypatch.delenv("XLA_FLAGS")
+    with runtime.worker_environment():
+        assert os.environ["XLA_FLAGS"].split() == list(runtime.WORKER_XLA_FLAGS)
+    assert "XLA_FLAGS" not in os.environ

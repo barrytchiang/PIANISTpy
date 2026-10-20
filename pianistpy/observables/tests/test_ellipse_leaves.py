@@ -9,6 +9,7 @@ from pianistpy.observables._ellipse_df import EllipseDF
 from pianistpy.observables._ellipse_rules import (
     EllipseModel,
     EllipseRules,
+    gl01,
     layer_counts,
 )
 from pianistpy.observables._layout import LAYOUT_SEQ, Lattice
@@ -65,6 +66,30 @@ def test_closed_forms_against_the_rule(beta_c):
     dm = c1 * c1 - c2 * c2
     closed = lam_half(c1, c3, e, dm) if beta_c > 0 else lam_mhalf(c1, c2, e, dm)
     np.testing.assert_allclose(closed, rule, rtol=1e-12)
+
+
+def test_cel_against_the_complete_integrals():
+    # E, K and k_c^2 (Pi - K) by Bulirsch's cel against scipy's ellipe, ellipk
+    # and Carlson's R_J, k_c^2 (Pi - K) = k_c^2 (n/3) R_J(0, k_c^2, 1, 1 - n)
+    from scipy.special import ellipe, ellipk, elliprj
+
+    from pianistpy.observables._angle import cel
+
+    rng = np.random.default_rng(3)
+    m = rng.uniform(1e-12, 1.0 - 1e-12, 2000)
+    n = rng.uniform(1e-9, 1.0 - 1e-9, 2000)
+    kc = np.sqrt(1.0 - m)
+    np.testing.assert_allclose(cel(kc, 1.0, 1.0, kc**2), ellipe(m), rtol=4e-15)
+    np.testing.assert_allclose(cel(kc, 1.0, 1.0, 1.0), ellipk(m), rtol=4e-15)
+    rj = kc**2 * (n / 3.0) * elliprj(0.0, kc**2, 1.0, 1.0 - n)
+    np.testing.assert_allclose(cel(kc, 1.0 - n, 0.0, kc**2 * n), rj, rtol=8e-15)
+    # an element's value does not depend on the others in the call, nor on
+    # the call's shape (the rows pass 2-D blocks, broadcast between arguments)
+    alone = np.array([cel(k, 1.0, 1.0, k * k) for k in kc[:20]])
+    assert alone.tobytes() == cel(kc[:20], 1.0, 1.0, kc[:20] ** 2).tobytes()
+    block = cel(kc[:20].reshape(4, 5), (1.0 - n[:5])[None, :], 0.0, 0.5)
+    assert block.shape == (4, 5)
+    assert block[0].tobytes() == cel(kc[:5], 1.0 - n[:5], 0.0, 0.5).tobytes()
 
 
 def test_rule_at_isotropy_is_pi():
@@ -128,6 +153,59 @@ def test_layout_codes():
     assert int(lat.layout_code(1.0 - 1e-12, 1.0, nan)) == 0
     # a kept V_k inside the zero grading's first sub-panel takes the deep code
     assert int(lat.layout_code(1e-9, 1.0, nan)) == 101
+
+
+def _least_gaps_at_once(lat, br, units):
+    # the whole lattice's nodes and steps at once, each gap given to its panel
+    # (across a break, to the narrower one): the reference of the blocks
+    xg = gl01(lat.rules.vp_nodes)[0]
+    w = np.diff(br, axis=1)
+    nodes, steps, owner, last = [], [], [], None
+    for i in range(br.shape[1] - 1):
+        u = units[i]
+        un = (u[:-1, None] + np.diff(u)[:, None] * xg[None, :]).ravel()
+        nodes.append(br[:, i : i + 1] + w[:, i : i + 1] * un[None, :])
+        if last is not None:
+            steps.append((w[:, i - 1] * (1.0 - last) + w[:, i] * un[0])[:, None])
+        steps.append(w[:, i : i + 1] * np.diff(un)[None, :])
+        owner.append(np.full(un.size, i))
+        last = un[-1]
+    gap = np.concatenate(steps, axis=1) / np.concatenate(nodes, axis=1)[:, 1:]
+    owner = np.concatenate(owner)
+    o0, o1 = owner[:-1], owner[1:]
+    gmin = np.full(w.shape, np.inf)
+    for i in range(w.shape[1]):
+        inside = (o0 == i) & (o1 == i)
+        gmin[:, i] = np.minimum(gmin[:, i], gap[:, inside].min(axis=1))
+    for j in np.flatnonzero(o0 != o1):
+        a, b = int(o0[j]), int(o1[j])
+        to_a = w[:, a] <= w[:, b]
+        gmin[to_a, a] = np.minimum(gmin[to_a, a], gap[to_a, j])
+        gmin[~to_a, b] = np.minimum(gmin[~to_a, b], gap[~to_a, j])
+    return gmin
+
+
+@pytest.mark.parametrize("chunk", [1, 7, RULES.chunk])
+def test_least_gaps_are_those_of_the_whole_lattice(chunk):
+    # each gap from its own step over its own node, a block of nodes at a
+    # time: the least gap of each panel equals, by its bytes, the one taken
+    # over the whole lattice at once, with breaks close together, panels of
+    # equal width and a break at the rows' end among them
+    import dataclasses
+
+    lat = _lattice()
+    lat = Lattice(dataclasses.replace(RULES, chunk=chunk), lat.model)
+    rng = np.random.default_rng(300)
+    m = 40
+    a = np.sort(rng.uniform(0.0, 1.0, (m, 2)), axis=1)
+    a[0] = (0.5, 0.5 + 1e-15)
+    a[1] = (1.0 / 3.0, 2.0 / 3.0)
+    a[2] = (0.25, 1.0 - 1e-13)
+    br = np.concatenate([np.zeros((m, 1)), a, np.ones((m, 1))], axis=1)
+    for code in (3, 4):
+        units = lat.panel_units(code)
+        got = lat.lattice_min_gaps(br, units)
+        assert got.tobytes() == _least_gaps_at_once(lat, br, units).tobytes()
 
 
 def test_panel_units_grade_toward_their_breaks():

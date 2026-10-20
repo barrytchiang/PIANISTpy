@@ -188,26 +188,44 @@ class Lattice:
             for i in range(len(seq) + 1)
         ]
 
-    def lattice_gaps(self, br: Array, units: list[Array]) -> tuple[Array, Array]:
-        """Return (gap, owner): the gap between each pair of neighboring
-        nodes of rows with breaks `br` (m, panels + 1), from the unit offsets
-        times the panel's width, over the upper node's value, and the panel of
-        each node."""
+    def lattice_min_gaps(self, br: Array, units: list[Array]) -> Array:
+        """Return the least gap of each panel of rows with breaks `br`
+        (m, panels + 1), shape (m, panels).
+
+        The gap between two neighboring nodes is their step, from the unit
+        offsets times the panel's width, over the upper node's value. A gap
+        inside a panel is its panel's; the gap across a break is the narrower
+        panel's (the lower one where they are as wide). Each gap is formed from
+        its own step and node, a block of nodes at a time of at most
+        ``rules.chunk`` elements, never the whole lattice at once.
+        """
         xg = gl01(self.rules.vp_nodes)[0]
         w = np.diff(br, axis=1)
-        nodes, steps, owner, last = [], [], [], None
-        for i in range(br.shape[1] - 1):
-            u = units[i]
-            un = (u[:-1, None] + np.diff(u)[:, None] * xg[None, :]).ravel()
-            nodes.append(br[:, i : i + 1] + w[:, i : i + 1] * un[None, :])
-            if last is not None:
-                steps.append((w[:, i - 1] * (1.0 - last) + w[:, i] * un[0])[:, None])
-            steps.append(w[:, i : i + 1] * np.diff(un)[None, :])
-            owner.append(np.full(un.size, i))
-            last = un[-1]
+        m, npan = w.shape
+        gmin = np.full((m, npan), np.inf)
+        cols = max(1, int(self.rules.chunk) // max(m, 1))
+        last = None
         with np.errstate(divide="ignore", invalid="ignore"):
-            gap = np.concatenate(steps, axis=1) / np.concatenate(nodes, axis=1)[:, 1:]
-        return gap, np.concatenate(owner)
+            for i in range(npan):
+                u = units[i]
+                un = (u[:-1, None] + np.diff(u)[:, None] * xg[None, :]).ravel()
+                if last is not None:
+                    cross = (w[:, i - 1] * (1.0 - last) + w[:, i] * un[0]) / (
+                        br[:, i] + w[:, i] * un[0]
+                    )
+                    to_a = w[:, i - 1] <= w[:, i]
+                    gmin[to_a, i - 1] = np.minimum(gmin[to_a, i - 1], cross[to_a])
+                    gmin[~to_a, i] = np.minimum(gmin[~to_a, i], cross[~to_a])
+                du = np.diff(un)
+                for a in range(0, du.size, cols):
+                    step = w[:, i : i + 1] * du[None, a : a + cols]
+                    node = (
+                        br[:, i : i + 1]
+                        + w[:, i : i + 1] * un[None, a + 1 : a + 1 + cols]
+                    )
+                    gmin[:, i] = np.minimum(gmin[:, i], (step / node).min(axis=1))
+                last = un[-1]
+        return gmin
 
     def resolved_breaks(
         self,
@@ -255,18 +273,7 @@ class Lattice:
                 layers = self.panel_layers(int(c))
                 npan = len(seq) + 1
                 fail = np.zeros((len(idx), npan), dtype=bool)
-                gmin = np.full((len(idx), npan), np.inf)
-                gap, owner = self.lattice_gaps(br, units)
-                o0, o1 = owner[:-1], owner[1:]
-                for i in range(npan):
-                    inside = (o0 == i) & (o1 == i)
-                    if inside.any():
-                        gmin[:, i] = np.minimum(gmin[:, i], gap[:, inside].min(axis=1))
-                for j in np.flatnonzero(o0 != o1):
-                    a_, b_ = int(o0[j]), int(o1[j])
-                    to_a = w[:, a_] <= w[:, b_]
-                    gmin[to_a, a_] = np.minimum(gmin[to_a, a_], gap[to_a, j])
-                    gmin[~to_a, b_] = np.minimum(gmin[~to_a, b_], gap[~to_a, j])
+                gmin = self.lattice_min_gaps(br, units)
                 fail |= ~(gmin >= RB_MIN_GAP)
                 for i, (lo, hi) in enumerate(layers):
                     for v, need in ((br[:, i], lo), (br[:, i + 1], hi)):

@@ -1,6 +1,6 @@
 """Conversion factors from internal units to model and physical units.
 
-Every computation runs in the internal units of the paper, in which the
+Every computation runs in the internal units of Chiang+(2026d), in which the
 central potential of the untruncated profile is 1. This module holds the one
 place where results leave those units.
 """
@@ -28,7 +28,7 @@ class UnitFactors:
     Parameters
     ----------
     rho_norm : float
-        Normalisation :math:`C` of the density profile.
+        Normalization :math:`C` of the density profile.
     mass_q : float
         :math:`q = \mathcal{M}(c)/C`, the mass inside the concentration
         radius in units of :math:`4\pi\rho_0 r_0^3`.
@@ -36,10 +36,10 @@ class UnitFactors:
         Factors to the model units, for a speed, a mass, a density and a
         potential.
     physical_r_pc, physical_v_kms, physical_mass_msun : float or None
-        Factors to parsecs, kilometres per second and solar masses.
+        Factors to parsecs, kilometers per second and solar masses.
     physical_rho_msun_pc3, physical_p_kms2 : float or None
         Factors to solar masses per cubic parsec, and to the square of
-        kilometres per second.
+        kilometers per second.
     physical_rho_0_msun_pc3 : float or None
         The scale density :math:`\rho_0` in solar masses per cubic parsec.
 
@@ -100,7 +100,7 @@ def unit_factors(
 
     References
     ----------
-    Paper I, Section on units (labels ``ssec:Units``, ``eqn:M_nor_1``).
+    Chiang+(2026d), Section on units (labels ``ssec:Units``, ``eqn:M_nor_1``).
 
     Examples
     --------

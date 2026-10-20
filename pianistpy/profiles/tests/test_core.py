@@ -101,7 +101,7 @@ def test_closed_forms_agree_with_the_general_path(key):
 
 @pytest.mark.parametrize("key", [(1.0, 3.0, 1.0), (1.0, 4.0, 1.0), (1.5, 4.5, 0.5)])
 def test_poisson_equation(key):
-    # dP/dR = -M / R**2, by a centerd difference of the potential.
+    # dP/dR = -M / R**2, by a centered difference of the potential.
     profile = DoublePowerLaw(*key)
     r = np.logspace(-2, 2, 41)
     step = 1e-5 * r

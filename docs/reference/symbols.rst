@@ -1,10 +1,10 @@
-Symbols
-=======
+Names and paper symbols
+=======================
 
-The package's names follow the paper's notation: a quantity that has a symbol in the paper or the technical notes
-is named ``<family>_<symbol>``, the family saying what kind of quantity it is and the rest being the paper's symbol
-or subscript in lower case. A truncated quantity (hatted in the paper) takes the suffix ``_trunc``, the
-untruncated one the bare name. Every docstring gives the paper's symbol beside the name the first time it
+The package's names follow the notation of |paper|: a quantity that has a symbol there or in the technical notes
+is named ``<family>_<symbol>``, the family saying what kind of quantity it is and the rest being that symbol
+or subscript in lower case. A truncated quantity (hatted in |paper|) takes the suffix ``_trunc``, the
+untruncated one the bare name. Every docstring gives that symbol beside the name the first time it
 describes it.
 
 .. list-table::
@@ -50,13 +50,13 @@ describes it.
    * - velocities and dispersions
      - ``v_``, ``sigma_``
      - ``v_r``, ``v_t``, ``v_los``, ``v_esc``, ``sigma_r``, ``sigma_t``, ``sigma_los``
-     - :math:`V_r`, :math:`V_t`, :math:`V_{\rm los}`, :math:`V_{\rm esc}`, :math:`\sigma_r`, :math:`\sigma_t`, :math:`\sigma_{\rm los}`
+     - :math:`V_{\rm r}`, :math:`V_{\rm t}`, :math:`V_{\rm los}`, :math:`V_{\rm esc}`, :math:`\sigma_{\rm r}`, :math:`\sigma_{\rm t}`, :math:`\sigma_{\rm los}`
    * - probability densities
      - ``pdf_``
      - ``pdf_x``, ``pdf_phi``
      - :math:`p_x`, :math:`p_\varphi`
 
-Where the paper's letter cannot be used, a word is fixed: the normalization :math:`C` of the density is
+Where the letter of |paper| cannot be used, a word is fixed: the normalization :math:`C` of the density is
 ``rho_norm`` (``rho_c`` would read as a central density), and the concentration :math:`c` is ``concentration``.
 The letter ``c`` alone is never a name; as a subscript it means central (``beta_c``). The quantities of the
 truncated model carry the suffix: ``p_trunc``, ``df_trunc``, ``rho_trunc``, ``mass_trunc``.
@@ -94,5 +94,5 @@ Derived names
      - ``is_truncated``, ``has_tail``
 
 The three unit systems are named ``internal`` (the dimensionless normalization of Widrow 2000, in which the
-scale radius and the central potential of the untruncated profile are 1), ``model`` (:math:`G = M_0 = r_0 = 1`)
+scale radius and the central potential of the untruncated profile are 1), ``model`` :math:`(G = M_0 = r_0 = 1)`
 and ``physical`` (through Astropy); see :doc:`../guide/units`.

@@ -22,7 +22,7 @@ def test_a_negative_zone_sets_the_bound_by_its_last_zero_crossing():
     k_0 = float(Q[np.flatnonzero(f < 0)[-1]])
     g = _gates(f, 0.5 * k_0)
     assert g.k_0 == k_0 and g.set_by == "K_0" and g.k_t_min == k_0
-    assert g.fired == ("D13", "Z GATE")
+    assert g.fired == ("0 < K_t < K_0", "Z GATE")
     assert _gates(f, 2.0 * k_0).fired == ()
 
 
@@ -47,7 +47,10 @@ def test_the_domain_edge_bounds_the_truncation_and_the_gates_read_the_support():
     q = np.linspace(0.01, 0.99, 99)
     f = np.where(q < 0.3, -1.0, q)
     g = truncation_gates(q, f, q, f, 0.0, -1.0, k_edge=0.3)
-    assert g.k_0 == 0.0 and g.k_t_min == 0.3 and g.set_by == "domain_edge"
+    assert g.k_0 == 0.0 and g.set_by == "domain_edge"
+    # DOMAIN is strict: k_t_min is the smallest K_t it admits, the next float
+    assert g.k_t_min == np.nextafter(0.3, np.inf)
+    assert truncation_gates(q, f, q, f, g.k_t_min, -1.0, k_edge=0.3).fired == ()
     assert g.fired == ("DOMAIN",)
     assert truncation_gates(q, f, q, f, 0.31, -1.0, k_edge=0.3).fired == ()
     assert "DOMAIN" in truncation_gates(q, f, q, f, 0.3, -1.0, k_edge=0.3).fired

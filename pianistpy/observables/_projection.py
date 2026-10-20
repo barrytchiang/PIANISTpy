@@ -9,6 +9,7 @@ __all__ = [
     "edge_variable",
     "edge_variable_inverse",
     "project",
+    "project_tangent",
     "surface_density_reader",
 ]
 
@@ -23,7 +24,7 @@ from ..anisotropy import Anisotropy
 from ..exceptions import InputError, ResultError
 from ..runtime import log
 from ..typing import Array, ArrayLike
-from ._dispersion import beta_sigma
+from ._dispersion import beta_sigma, beta_sigma_tangent
 
 # The smallest value taken a logarithm of, against an underflow to zero.
 TINY = 1e-300
@@ -51,6 +52,24 @@ def _line_of_sight_nodes(n_nodes: int) -> tuple[Array, Array, Array, Array]:
     x_a, w_a = np.polynomial.legendre.leggauss(n_a)
     x_b, w_b = np.polynomial.legendre.leggauss(n_b)
     return 0.5 * (x_a + 1.0), 0.5 * w_a, 0.5 * (x_b + 1.0), 0.5 * w_b
+
+
+def _line_of_sight_rule(
+    r_2d_rows: Array, r_t: float, nodes: tuple[Array, Array, Array, Array]
+) -> tuple[Array, Array]:
+    """Return the radii of the line-of-sight nodes of a chunk of projected
+    radii, shape (rows, nodes), and their weights in u (``du = R dt``)."""
+    t_a, w_a, t_b, w_b = nodes
+    u_max = np.sqrt(np.maximum(r_t**2 - r_2d_rows**2, 0.0))
+    t_max = np.arcsinh(u_max / r_2d_rows)
+    t_h = np.maximum(
+        np.arccosh(np.maximum(r_2d_rows * np.cosh(t_max) / (2.0 * r_2d_rows), 1.0)),
+        0.5 * t_max,
+    )
+    t = np.concatenate([t_h * t_a, t_h + (t_max - t_h) * t_b], axis=1)
+    w = np.concatenate([t_h * w_a, (t_max - t_h) * w_b], axis=1)
+    r = r_2d_rows * np.cosh(t)
+    return r, w * r
 
 
 def project(
@@ -95,38 +114,29 @@ def project(
     .. math::
 
         \Sigma = 2\int_0^{u_{\max}}\varrho\,{\rm d}u, \qquad
-        \Sigma\sigma_{\rm los}^2 = 2\int_0^{u_{\max}}\sigma_r^2\varrho
+        \Sigma\sigma_{\rm los}^2 = 2\int_0^{u_{\max}}\sigma_{r}^2\varrho
         \Big(1 - \beta_\sigma\frac{R_{\rm 2D}^2}{R^2}\Big)\,{\rm d}u,
 
     with :math:`u_{\max} = (R_t^2 - R_{\rm 2D}^2)^{1/2}`, in
     ``t = asinh(u / R_2D)`` (``R = R_2D cosh t``, ``du = R dt``) on two panels
-    of half the nodes each, split at ``t_h = max(acosh(R_hi / (2 R_2D)),
-    t_max / 2)`` with ``R_hi = R_2D cosh t_max``: a density cusp of width
-    ``R_2D`` is smooth in ``t``, and the outer half of the radius range keeps
-    its own panel.
+    of half the nodes each, split at
+    ``t_h = max(acosh(R_hi / (2 R_2D)), t_max / 2)`` with ``R_hi = R_2D cosh t_max``:
+    a density cusp of width ``R_2D`` is smooth in ``t``, and the outer half of the
+    radius range keeps its own panel.
 
     References
     ----------
-    Paper Eqs. (B45), (B46) [eqn:los_sigma_1].
+    Chiang+(2026d), Eqs. (B45), (B46) [eqn:los_sigma_1].
     """
     if not n_nodes >= 20:
         raise InputError(f"n_nodes must be at least 20; got {n_nodes}.")
-    t_a, w_a, t_b, w_b = _line_of_sight_nodes(n_nodes)
+    nodes = _line_of_sight_nodes(n_nodes)
     r_2d = np.asarray(r_2d, dtype=np.float64)
     surface_density = np.empty(r_2d.size)
     sigma_los2 = np.empty(r_2d.size)
     for i0 in range(0, r_2d.size, chunk):
         r_2d_rows = r_2d[i0 : i0 + chunk, None]
-        u_max = np.sqrt(np.maximum(r_t**2 - r_2d_rows**2, 0.0))
-        t_max = np.arcsinh(u_max / r_2d_rows)
-        t_h = np.maximum(
-            np.arccosh(np.maximum(r_2d_rows * np.cosh(t_max) / (2.0 * r_2d_rows), 1.0)),
-            0.5 * t_max,
-        )
-        t = np.concatenate([t_h * t_a, t_h + (t_max - t_h) * t_b], axis=1)
-        w = np.concatenate([t_h * w_a, (t_max - t_h) * w_b], axis=1)
-        r = r_2d_rows * np.cosh(t)
-        weights = w * r
+        r, weights = _line_of_sight_rule(r_2d_rows, r_t, nodes)
         rho = density(r.ravel()).reshape(r.shape)
         sr2rho = sigma_r2(r.ravel()).reshape(r.shape) * rho
         beta = beta_sigma(r, anisotropy)
@@ -154,6 +164,85 @@ def project(
         int(np.sum(sigma_los2 < 0.0)),
     )
     return surface_density, sigma_los2
+
+
+def project_tangent(
+    r_2d: ArrayLike,
+    density: Callable[[Array], Array],
+    sigma_r2: Callable[[Array], Array],
+    tangent: Callable[[Array], Array],
+    r_t: float,
+    anisotropy: Anisotropy,
+    n_nodes: int,
+    parameter: str,
+    chunk: int = 256,
+) -> Array:
+    r"""Return the derivative of the squared line-of-sight dispersion in one
+    anisotropy parameter, on a fixed profile, at the nodes of `project`.
+
+    Parameters
+    ----------
+    r_2d : array-like, shape (n,)
+        Projected radius, in internal units.
+    density, sigma_r2 : callable
+        The density and :math:`\sigma_r^2` at radii, as given to `project`.
+    tangent : callable
+        :math:`\partial\sigma_r^2/\partial\theta` at radii
+        (`radial_integral_tangent_reader`).
+    r_t : float
+        The radius where every line of sight ends.
+    anisotropy : Anisotropy
+        The anisotropy of the component.
+    n_nodes : int
+        Gauss-Legendre nodes of each line-of-sight integral, as for `project`.
+    parameter : {"beta_c", "r_a"}
+        The parameter, one of the family's `TANGENT_PARAMETERS`.
+    chunk : int, optional
+        Projected radii computed together.
+
+    Returns
+    -------
+    tangent : array, shape (n,)
+        :math:`\partial\sigma_{\rm los}^2/\partial\theta`, in internal
+        units; zero where :math:`\Sigma` is.
+
+    Notes
+    -----
+    :math:`\Sigma` does not move, so
+
+    .. math::
+
+        \Sigma\frac{\partial\sigma_{\rm los}^2}{\partial\theta} = 2\int_0^{u_{\max}}
+        \varrho\Big[\frac{\partial\sigma_{r}^2}{\partial\theta}\Big(1 -
+        \beta_\sigma\frac{R_{\rm 2D}^2}{R^2}\Big) - \sigma_{r}^2
+        \frac{\partial\beta_\sigma}{\partial\theta}\frac{R_{\rm 2D}^2}{R^2}
+        \Big]\,{\rm d}u
+
+    on the nodes of `project` at the same projected radii.
+    """
+    nodes = _line_of_sight_nodes(n_nodes)
+    r_2d = np.asarray(r_2d, dtype=np.float64)
+    out = np.empty(r_2d.size)
+    for i0 in range(0, r_2d.size, chunk):
+        r_2d_rows = r_2d[i0 : i0 + chunk, None]
+        r, weights = _line_of_sight_rule(r_2d_rows, r_t, nodes)
+        rho = density(r.ravel()).reshape(r.shape)
+        sr2rho = sigma_r2(r.ravel()).reshape(r.shape) * rho
+        d_sr2rho = tangent(r.ravel()).reshape(r.shape) * rho
+        beta = beta_sigma(r, anisotropy)
+        d_beta = beta_sigma_tangent(r, anisotropy, parameter)
+        sigma_rows = 2.0 * np.sum(weights * rho, axis=1)
+        d_term1 = 2.0 * np.sum(weights * d_sr2rho, axis=1)
+        d_term2 = (
+            2.0
+            * r_2d_rows[:, 0] ** 2
+            * np.sum(weights * (beta * d_sr2rho + d_beta * sr2rho) / r**2, axis=1)
+        )
+        with np.errstate(divide="ignore", invalid="ignore"):
+            out[i0 : i0 + chunk] = np.where(
+                sigma_rows > 0.0, (d_term1 - d_term2) / sigma_rows, 0.0
+            )
+    return out
 
 
 def edge_variable(r: ArrayLike, r_t: float) -> Array:
@@ -194,11 +283,11 @@ class SurfaceDensityReading:
         ``"x"`` or ``"lnR"``, the variable it interpolates in.
     r_min, r_max : float
         The first and last rows.
-    outer_annulus : float
-        The part of the integral of Sigma R dR beyond the last row, relative
-        to the table's own.
-    inner_disc : float
+    inner_disk : float
         The estimated integral of Sigma R dR inside the first row.
+    inner_note : str
+        A sentence a refusal inside the first row adds; empty unless the
+        caller cut the rows there.
     """
 
     def __init__(
@@ -239,15 +328,9 @@ class SurfaceDensityReading:
         )
         self.r_min = r_min
         self.r_max = r_max
-        total = float(np.trapezoid(sigma_rows * r_rows, r_rows))
-        v_max = float(np.sqrt(max(float(r_t) ** 2 - r_max**2, 0.0)))
-        annulus = (
-            (float(sigma_rows[-1]) / v_max * v_max**3 / 3.0)
-            if (has_edge and v_max > 0.0)
-            else float(sigma_rows[-1]) * v_max**2 / 2.0
-        )
-        self.outer_annulus = annulus / max(total, TINY)
-        self.inner_disc = float(np.exp(log_sigma[0])) * r_min**2 / (2.0 - slope)
+        self.inner_disk = float(np.exp(log_sigma[0])) * r_min**2 / (2.0 - slope)
+        # what a refusal inside the first row adds: the setting that placed it
+        self.inner_note = ""
 
     def _edge_factor(self, r: Array) -> Array:
         if self._has_edge:
@@ -308,8 +391,8 @@ def surface_density_reader(
         :math:`\Sigma` at projected radii: zero beyond the last row, refused
         inside the first. Its attributes: ``r_t`` (where the edge factor
         vanishes, None where the table reaches it), ``var`` (``"x"`` or
-        ``"lnR"``, the variable it interpolates in), ``r_min``, ``r_max``,
-        ``outer_annulus`` and ``inner_disc``.
+        ``"lnR"``, the variable it interpolates in), ``r_min``, ``r_max`` and
+        ``inner_disk``.
 
     Notes
     -----
@@ -317,9 +400,7 @@ def surface_density_reader(
     the last row, and puts the factor back at evaluation. ln h is a
     not-a-knot cubic in ``x = ln(R / (1 - R / R_t))`` on a spatially finite
     model, where ``h`` goes as a power of ``R_t - R``, and in ln R otherwise.
-    ``outer_annulus`` is the part of :math:`\int\Sigma R\,{\rm d}R` beyond
-    the last row with ``h`` frozen there, relative to the table's own;
-    ``inner_disc`` estimates the part inside the first row from the
+    ``inner_disk`` estimates the part inside the first row from the
     innermost slope.
     """
     return SurfaceDensityReading(r_2d, surface_density, r_t, spatially_finite)
@@ -388,7 +469,7 @@ def dispersion_table_reader(
 
     Notes
     -----
-    A not-a-knot cubic in ln R, the interpolant the table certifies its rows
+    A not-a-knot cubic in ln R, the interpolant the table checks its rows
     for (`certify_projection`).
     """
     return DispersionReading(r_2d, sigma_los2)
@@ -423,7 +504,7 @@ def certify_projection(
     Returns
     -------
     r_2d, surface_density, sigma_los2 : array
-        The rows, with those the certification added.
+        The rows, with those the check added.
     record : dict
         ``end`` (``"tolerance"`` or ``"stalled"``), ``rounds``,
         ``rows_added``, ``worst_first`` (the surface density's and the
@@ -512,7 +593,7 @@ def certify_projection(
         var=sigma_read.var,
     )
     log.debug(
-        "The projected table certified itself: %s after %d rounds, %d rows added, "
+        "The projected table checked itself: %s after %d rounds, %d rows added, "
         "worst %.3e.",
         end,
         rounds,

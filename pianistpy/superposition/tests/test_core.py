@@ -107,7 +107,7 @@ def test_superpose_refuses_by_name(parent):
 
 
 def test_a_mixture_is_differentiable_in_its_weights():
-    # the gradient contract (R-47, R-48): a quantity of the mixture is linear
+    # the gradient contract: a quantity of the mixture is linear
     # in the members' values and, through the normalization, smooth in the
     # weights; reverse mode against the closed form and central differences
     values = jnp.array([[1.0, 2.0, 3.0], [4.0, 1.0, 0.5], [2.0, 2.0, 7.0]])

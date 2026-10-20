@@ -178,7 +178,7 @@
    * - ``draw_block``
      - 262144
      - same
-     - Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block's (about 0.75 kB a particle, 2**18 particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
+     - Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block's (about 0.75 kB a particle, :math:`2^{18}` particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
    * - ``row_error_goal``
      - 1e-06
      - 0.0001
@@ -186,7 +186,7 @@
    * - ``tail_mass_min``
      - 1e-18
      - same
-     - Smallest tabulated cumulative probability at either end of a table: a uniform double reaches 2**-53, so a draw never reads beyond it.
+     - Smallest tabulated cumulative probability at either end of a table: a uniform double reaches :math:`2^{-53}`, so a draw never reads beyond it.
 
 ``observables``
 ---------------
@@ -202,11 +202,19 @@
    * - ``n_radii``
      - 10000
      - 500
-     - Projected radii of the dispersion and projection tables, logarithmic from the innermost row to the edge.
+     - Projected radii of the projection table before its check between rows adds rows, logarithmic from the innermost row to the edge.
+   * - ``profile_tolerance``
+     - 1e-07
+     - 1e-06
+     - Relative error of sigma_r at which the radial dispersion's rows stop being added: every interval's midpoint reads within it. A tenth of the goal, the profile's share of the error of what is projected from it.
+   * - ``n_profile_start``
+     - 100
+     - same
+     - Logarithmic radii the radial dispersion starts from, from the innermost row to the edge, before rows are added to its tolerance.
    * - ``n_jeans_nodes``
      - 500
      - same
-     - Gauss-Legendre nodes of the Jeans integral of the radial dispersion on each panel.
+     - Gauss-Legendre nodes of a row's own Jeans integral of the radial dispersion (the superposition's); the observables' profile sums panels between its rows instead, their nodes doubled until sigma_r moves by less than profile_tolerance.
    * - ``n_projection_nodes``
      - 500
      - same
@@ -223,6 +231,18 @@
      - kernel
      - same
      - The angle rule of the line-of-sight velocity distributions' rows: "kernel", the JAX kernel, or "numpy", the reference route.
+   * - ``n_speed_angle_nodes``
+     - 16
+     - same
+     - Gauss-Legendre nodes of each panel of the angle integral of the local speed distribution (pdf_v), in t = cos(eta).
+   * - ``n_speed_angle_panels``
+     - 16
+     - 8
+     - Panels of that angle integral graded toward each end of each of its intervals, and of the speed integral of its norm and second moment toward each of their breaks.
+   * - ``speed_tolerance``
+     - 1e-06
+     - 0.0001
+     - Bound on the local speed distribution's change when its angle rule's nodes double: they double, at most three times, until the change is under it.
 
 ``losvd``
 ---------
@@ -256,7 +276,7 @@
      - same
      - Gauss-Legendre nodes of the angle integral of an L factor, the most a node takes.
    * - ``n_sightline_nodes``
-     - 16
+     - 12
      - 8
      - Gauss-Legendre nodes of each panel of the line-of-sight integral.
    * - ``n_sightline_panels``
@@ -338,10 +358,18 @@
    * - ``n_stencil_test_rows``
      - 8
      - same
-     - Rows of the stencil whose estimate certifies the table.
+     - Rows of the stencil whose estimate checks the table.
    * - ``n_block_elements``
-     - 250000
+     - 25000
      - same
      - Elements of one block of node pairs, energy nodes and angle nodes, which bounds the memory of a row.
+   * - ``innermost_read_radius``
+     - 0
+     - same
+     - The smallest projected radius the table will be read at, in the model's internal length unit: the rows start at the last base row inside the radius whose disk holds the accuracy goal times the projected mass inside this one, and a read inside the first row is refused. 0 keeps the rows from the profile's innermost row, the full-depth table.
+   * - ``outer_mass_share``
+     - 1e-06
+     - same
+     - Share of the total projected mass that may lie beyond the table's last row: the rows end at the first base row beyond the radius outside which this share lies, and a read beyond the last row is refused. 0 keeps the rows to the model's edge.
 
 Tiers: ``default``, ``quick``. A field is overridden one at a time, ``pp.Settings(inversion={'n_nodes': 800})``; the result then records that it was made with custom settings and names the fields that differ.

@@ -107,7 +107,7 @@ def test_the_log_potential_slopes_are_the_hermites_own():
     [(0.0, math.inf), (1.0, 3.0), (1.0, 0.3), (-1.0, 1e3), (-1.0, 10.0)],
 )
 def test_the_extrema_bounds_drop_only_dead_intervals(sgn, r_a):
-    # f_extrema with its knot-interval bounds (3-194) against the same route
+    # f_extrema with its knot-interval bounds against the same route
     # with every knot interval kept, which is the bisection alone: the extrema
     # and V_end to the bit, isotropic, OM I and OM II (the route reads only
     # the sign and r_a of the anisotropy here)
@@ -213,7 +213,7 @@ def test_gauss_hermite_moments_of_a_gaussian_and_of_a_perturbed_one():
     assert abs(g["mean"]) < 1e-14 and g["sigma"] == pytest.approx(1.0, rel=1e-13)
     assert abs(g["h3"]) < 1e-14 and abs(g["h4"]) < 1e-13
     assert g["s4"] == pytest.approx(3.0, rel=1e-13)
-    # the paper's relations hold to first order in h: off by a part in 1e4 of
+    # the relations of Chiang+(2026d) hold to first order in h: off by a part in 1e4 of
     # themselves at h = 1e-5 (2 percent at h4 = 1e-3, a second-order term)
     for h3, h4 in ((1e-5, 0.0), (0.0, 1e-5), (-2e-5, 1.5e-5)):
         g = gauss_hermite_moments(v, w, _hermite_d(v, h3, h4))
@@ -267,6 +267,61 @@ def test_a_row_states_its_norm_through_the_dfs_own_factor(plummer, monkeypatch):
     assert np.allclose(rows[1].losvd, rows[0].losvd, rtol=1e-12, atol=0.0)
 
 
+def _floor_at(monkeypatch, k_0):
+    """The lookups of the ellipse route prepared with the floor K_0 = `k_0`
+    and the rule "zero" below it."""
+    real = _ellipse_model.prepare_lookup
+
+    def prepare(table, form, component):
+        arrays, kinds = real(table, form, component)
+        params = np.array(arrays.params, dtype=np.float64)
+        params[_ellipse_model.K_0] = k_0
+        return arrays._replace(params=params), kinds._replace(below_floor="zero")
+
+    monkeypatch.setattr(_ellipse_model, "prepare_lookup", prepare)
+
+
+def test_the_rows_end_where_the_potential_reaches_the_dfs_floor(plummer, monkeypatch):
+    """Where the DF is zero below a floor K_0 the potential reaches inside
+    the profile, the rows end at the radius where P = K_0, read before any
+    row is built: no row and no line of sight beyond it."""
+    model, _ = plummer
+    profile = model.profile
+    r_f = 5.0
+    k_0 = float(profile.potential(np.array([r_f]))[0])
+    assert _ellipse_model.floor_radius(model) == float(profile.r_table_max)
+    _floor_at(monkeypatch, k_0)
+    end = _ellipse_model.floor_radius(model)
+    assert end == pytest.approx(r_f, rel=1e-12)
+    rules = ellipse_rules(SETTINGS)
+    route = ellipse_route(model, rules, with_df=False)
+    assert route.R_t == end
+    base = _losvd_stages.base_rows(model, SETTINGS)
+    assert base[-1] == pytest.approx(end * _losvd_stages.EDGE_FRACTION, rel=1e-12)
+    r_rows, _ = route.rows_with_r_breaks(base)
+    assert r_rows[-1] < end
+    assert float(profile.potential(r_rows[-1:])[0]) > k_0
+
+
+def test_a_floor_inside_the_first_row_is_refused_by_name(plummer, monkeypatch):
+    """Where the potential reaches the DF's floor at or inside the profile's
+    first row, the model is refused naming the floor and that row."""
+    from pianistpy.exceptions import ResultError
+
+    model, _ = plummer
+    profile = model.profile
+    k_0 = float(profile.potential(profile.r[:1])[0]) * (1.0 + 1e-9)
+    _floor_at(monkeypatch, k_0)
+    message = (
+        f"floor K_0 = {k_0:.6e} (the rule 'zero'), which the potential reaches "
+        f"at or inside the profile's first row r = {float(profile.r[0]):.6e}"
+    )
+    with pytest.raises(ResultError, match=re.escape(message)):
+        _ellipse_model.floor_radius(model)
+    with pytest.raises(ResultError, match=re.escape(message)):
+        _losvd_stages.base_rows(model, SETTINGS)
+
+
 def test_table_and_aperture_of_plummer(plummer, plummer_table):
     model, projected = plummer
     table = plummer_table
@@ -281,6 +336,27 @@ def test_table_and_aperture_of_plummer(plummer, plummer_table):
     # the projected mass inside R of Plummer, 4 pi R^2 / (1 + R^2) in
     # internal units (Sigma = 4 (1 + R^2)^-2)
     assert result.mass[0] == pytest.approx(2.0 * math.pi, rel=GOAL)
+
+
+def test_a_row_whose_t_rule_did_not_converge_refuses_the_table(plummer, plummer_table):
+    # the same table with one row's rule along the line of sight marked as
+    # having run out of doublings: the report is refused by that check, at
+    # that row, whatever the other checks read
+    import dataclasses
+
+    _, projected = plummer
+    rows = list(plummer_table.rows)
+    k = len(rows) // 2
+    rows[k] = dataclasses.replace(
+        rows[k], record={**rows[k].record, "t_converged": False}
+    )
+    report = validate_table(
+        dataclasses.replace(plummer_table, rows=tuple(rows)), projected
+    )
+    assert report.tier == "refused"
+    check = report.checks["t_converged"]
+    assert check.error == float("inf") and check.where == rows[k].r_2d
+    assert validate_table(plummer_table, projected).checks["t_converged"].error == 0
 
 
 def test_an_aperture_beyond_the_table_is_refused_in_one_statement(
@@ -334,7 +410,7 @@ def test_the_gauss_hermite_moments_read_across_the_table(plummer, plummer_table)
     r = gh.r_2d
     # at the rows, the rows' own moments: to the bit on the host; traced, to
     # the bit on the CPU and elsewhere at rounding, the platform's own
-    # arithmetic (3-191: the mean and h3 one value of 711 apart on a GPU, at
+    # arithmetic (measured: the mean and h3 one value of 711 apart on a GPU, at
     # 4.4e-16 relative, two epsilon, which is up to 4 ulp of the value)
     host = gh.read(r)
     traced = jax.jit(lambda x: gh.read_traced(x, jnp))(jnp.asarray(r))
@@ -368,38 +444,103 @@ def test_the_gauss_hermite_moments_read_across_the_table(plummer, plummer_table)
         gh.read(np.array([0.5 * r[0]]))
 
 
-def test_the_gpu_pool_takes_what_the_card_holds():
-    mb = 2**20
-    size = _losvd_stages.gpu_pool_size
-    margin = _losvd_stages.GPU_FOOTPRINT_MARGIN
-    # the 3080 Ti of 2026-10-10: 11.6 GB free after a 400 MB probe worker
-    room = 11600 * mb - _losvd_stages.GPU_RESERVE * 11910 * mb
-    expect = 1 + math.floor(room / (margin * 400 * mb))
-    assert size(11600 * mb, 11910 * mb, 400 * mb, 32) == expect
-    assert size(11600 * mb, 11910 * mb, 400 * mb, 4) == 4
-    assert size(100 * mb, 11910 * mb, 400 * mb, 32) == 1
+def test_a_pools_workers_run_on_the_cpu(monkeypatch):
+    # the main process's platform names the GPU; its workers take the CPU at
+    # spawn, and the main process's variables are as they were after it
+    import os
+
+    from pianistpy import platform
+    from pianistpy.observables._losvd_table import new_pool
+
+    monkeypatch.setenv("JAX_PLATFORMS", "cuda,cpu")
+    monkeypatch.setenv("PIANISTPY_PLATFORM", "gpu")
+    with new_pool(1, None) as pool:
+        assert pool.apply(platform) == "cpu"
+    assert os.environ["JAX_PLATFORMS"] == "cuda,cpu"
+    assert os.environ["PIANISTPY_PLATFORM"] == "gpu"
 
 
-def test_a_probe_that_cannot_reach_the_card_is_refused(monkeypatch):
-    from pianistpy.exceptions import ResultError
+def test_a_second_aperture_on_a_table_forms_no_extrema(
+    plummer, plummer_table, monkeypatch
+):
+    # the extrema of the line of sight are kept on the table: one
+    # worker forms them in the main process, more form them in the pool, and
+    # a second call on the same table and radii forms none; the same bytes
+    import dataclasses
 
-    class Unreachable:
-        # the worker's error on an Exclusive_Process card, measured 2026-10-12
-        def __enter__(self):
-            return self
+    from pianistpy import runtime
+    from pianistpy.observables import stages
+    from pianistpy.observables._ellipse import EllipseRoute
 
-        def __exit__(self, *exc):
-            return False
+    model, projected = plummer
+    aperture = Aperture.circle(1.0)
+    fields = ("v_nodes", "v_weights", "v_breaks", "losvd", "mass")
+    saved = runtime._workers
+    try:
+        runtime.set_workers(1)
+        alone = aperture_losvd(
+            model,
+            dataclasses.replace(plummer_table, extrema={}),
+            projected,
+            aperture,
+            SETTINGS,
+        )
+        runtime.set_workers(2)
+        table = dataclasses.replace(plummer_table, extrema={})
+        pooled = aperture_losvd(model, table, projected, aperture, SETTINGS)
+        assert table.extrema
+        # the table keeps the one pool the aperture started
+        assert len(table.pools) == 1
+        kept_pool = next(iter(table.pools.values()))
+        formed, started = [], []
+        chunk = EllipseRoute._f_extrema_chunk
+        monkeypatch.setattr(
+            EllipseRoute,
+            "_f_extrema_chunk",
+            lambda self, *a: formed.append(1) or chunk(self, *a),
+        )
+        start = stages.new_pool
+        monkeypatch.setattr(
+            stages, "new_pool", lambda *a, **k: started.append(1) or start(*a, **k)
+        )
+        again = aperture_losvd(model, table, projected, aperture, SETTINGS)
+        assert next(iter(table.pools.values())) is kept_pool
+        table.close_pools()
+        assert not table.pools
+    finally:
+        runtime.set_workers(saved)
+    assert not formed and not started
+    for result in (pooled, again):
+        for name in fields:
+            a, b = np.asarray(getattr(alone, name)), np.asarray(getattr(result, name))
+            assert a.tobytes() == b.tobytes(), name
+        assert result.record == alone.record
 
-        def apply(self, *args):
-            raise RuntimeError(
-                "Unable to initialize backend 'cuda': INTERNAL: no supported "
-                "devices found for platform CUDA"
-            )
 
-    monkeypatch.setattr(_losvd_stages, "get_workers", lambda: 32)
-    monkeypatch.setattr(_losvd_stages, "workers_explicit", lambda: False)
-    monkeypatch.setattr(_losvd_stages, "card_memory", lambda: (11604, 11902))
-    monkeypatch.setattr(_losvd_stages, "new_pool", lambda n, route: Unreachable())
-    with pytest.raises(ResultError, match="could not reach the card"):
-        _losvd_stages._workers_for(None, 1.0)
+def test_a_layout_that_returns_between_two_samples_is_found():
+    # near the edge of this member the layout runs 3, 2, 4, 2 between
+    # the samples at R_2D 22.70 and 23.36; each change is an R-break, so the
+    # rows of every stretch share their layout (the panel table's rule)
+    from pianistpy import Component, Truncation, compute_df, solve, truncate
+    from pianistpy.observables._losvd_stages import base_rows
+
+    quick = Settings(quick=True)
+    parent = solve(Component(DoublePowerLaw.hernquist()), Truncation(k_t=0.05), quick)
+    model = truncate(
+        compute_df(
+            Component(
+                profile=parent.profile, anisotropy=Anisotropy(beta_c=-0.2, r_a=1.5)
+            ),
+            quick,
+        )
+    )
+    projected = projected_dispersion(model, dispersion_profile(model, quick), quick)
+    kept = kept_ranges(model, projected, quick)
+    route = ellipse_route(model, ellipse_rules(quick), with_df=False)
+    route.vrad_kept, route.vk_kept = kept.v_rad, kept.v_k
+    rows, breaks = route.rows_with_r_breaks(base_rows(model, quick))
+    # the lattice merges V_k into V_end between 23.31699 and 23.31700
+    assert np.any((breaks > 23.31699) & (breaks < 23.31700))
+    code, stretch = route.layout_many(rows), np.searchsorted(breaks, rows)
+    for st in np.unique(stretch):
+        assert np.unique(code[stretch == st]).size == 1, st

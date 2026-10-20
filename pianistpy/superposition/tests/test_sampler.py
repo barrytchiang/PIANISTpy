@@ -60,3 +60,15 @@ def test_a_truncated_model_is_drawn_in_model_units():
     np.testing.assert_allclose(
         in_model.velocity, internal.velocity * factors.model_v, rtol=1e-15
     )
+
+
+def test_a_speed_window_on_a_superposition_is_its_components_by_their_shares(members):
+    # the window's fraction is the weighted sum of the components' own; each
+    # speed is one of its component's windowed speeds
+    a, b = members
+    r = np.geomspace(0.05, 5.0, 300)
+    window = (0.2, 0.6)
+    v, fraction = Sampler(superpose({a: 0.3, b: 0.7})).speeds(r, seed=9, v_range=window)
+    own = [Sampler(m).speeds(r, seed=9, v_range=window) for m in (a, b)]
+    np.testing.assert_allclose(fraction, 0.3 * own[0][1] + 0.7 * own[1][1], rtol=1e-14)
+    assert np.all((v == own[0][0]) | (v == own[1][0]))

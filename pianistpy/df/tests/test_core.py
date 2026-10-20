@@ -69,7 +69,7 @@ def test_this_release_computes_one_component():
             call((halo, stars))
 
 
-def test_truncate_says_so_where_the_df_diverges(monkeypatch, caplog):
+def test_truncate_says_so_where_the_df_diverges(caplog):
     # the log, not the recent messages: those are a bounded queue, full after
     # the tests before this one, so that their length does not grow
     import dataclasses
@@ -86,19 +86,25 @@ def test_truncate_says_so_where_the_df_diverges(monkeypatch, caplog):
             below_floor_coefficients=((-0.5, 1.0, 0.0),),
         ),
     )
-
-    class Backend:
-        result = model
-
-        @classmethod
-        def truncate(cls, df, truncation):
-            return cls.result
-
-    monkeypatch.setattr(core, "_BACKEND", Backend)
+    assert divergent.diverges_at_zero == (True,)
     with caplog.at_level("DEBUG", logger="pianistpy"):
-        assert pp_df.truncate(None) is model
+        core._warn_of_divergence(model)
     assert not caplog.records
-    Backend.result = divergent
     with caplog.at_level("WARNING", logger="pianistpy"):
-        assert pp_df.truncate(None).diverges_at_zero == (True,)
+        core._warn_of_divergence(divergent)
     assert any("K^-0.5" in r.getMessage() for r in caplog.records)
+
+
+def test_an_untruncated_models_closed_form_checks_are_not_judged():
+    # its profile is the closed form: no outer join and no offset to measure,
+    # so the two checks say why they were not judged, never a measured zero
+    import math
+
+    from pianistpy.df import core
+
+    hernquist = Component(DoublePowerLaw.hernquist(), Anisotropy())
+    model = core.truncate(core.compute_df((hernquist,), Settings(quick=True)), None)
+    for key in ("outer_join", "eps"):
+        check = model.validation.checks[key]
+        assert check.tier == "not judged", key
+        assert math.isnan(check.error) and check.reason, key

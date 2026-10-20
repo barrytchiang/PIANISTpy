@@ -16,7 +16,7 @@ from pianistpy.observables._projection import (
 )
 from pianistpy.observables.aperture import Aperture
 from pianistpy.observables.stages import (
-    INNER_DISC_TOLERANCE,
+    INNER_DISK_TOLERANCE,
     dispersion_profile,
     projected_dispersion,
 )
@@ -78,7 +78,7 @@ def sums(members):
             Aperture.from_dict(record),
             int(obs["n_aperture_nodes"]),
             int(obs["aperture_nodes_per_decade"]),
-            INNER_DISC_TOLERANCE,
+            INNER_DISK_TOLERANCE,
         )
         nodes.append((r, w))
     a_points = np.array([s(RADII / R_0) * d(RADII / R_0) for s, d in readers])

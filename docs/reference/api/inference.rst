@@ -1,5 +1,7 @@
-Inference (``pianistpy.inference``)
-===================================
+Inference
+=========
+
+Module ``pianistpy.inference``
 
 .. automodule:: pianistpy.inference
    :members:

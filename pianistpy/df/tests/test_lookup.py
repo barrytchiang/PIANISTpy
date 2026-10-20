@@ -191,8 +191,8 @@ def test_the_kernel_is_the_host_function():
 
 
 def _steep_top_table():
-    """F = u^-2 in the depth u = P_0 - K, tabulated up to u = 1e-7 below the
-    top; each node's depth is formed from its K (exact there), so the table's
+    """``F = u^-2`` in the depth ``u = P_0 - K``, tabulated up to ``u = 1e-7``
+    below the top; each node's depth is formed from its K (exact there), so the table's
     values and slopes are the closed form's at the nodes themselves."""
     k = np.unique(P_0 - np.geomspace(0.5, 1e-7, 4000))
     u = P_0 - k
@@ -234,7 +234,7 @@ def test_by_the_depth_the_top_cells_read_the_depth_itself():
 
 
 def test_by_the_depth_a_depth_below_half_an_ulp_of_p_0_reads_the_center_form():
-    # [3-206] P_0 - u rounds to P_0 below u = 5.55e-17; by the depth the form
+    # P_0 - u rounds to P_0 below u = 5.55e-17; by the depth the form
     # is still read there, by the energy P_0 itself is where F ends
     form = _form(
         central_form=("power",), central_exponent=(-2.5,), central_amplitude=(1e-3,)

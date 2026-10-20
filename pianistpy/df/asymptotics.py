@@ -19,7 +19,7 @@ from scipy.special import gamma as gamma_function
 from ..typing import Array, ArrayLike
 
 # Above this argument the scaled incomplete gamma function is evaluated by
-# its asymptotic series, below it by the regularised function.
+# its asymptotic series, below it by the regularized function.
 SERIES_ARGUMENT_MIN = 30.0
 SERIES_TERMS_MAX = 80
 # For an order -1 < s < 0, the continued fraction from this argument up and
@@ -89,11 +89,11 @@ def tail_log10_df(
     .. math::
 
         F(\mathcal{K}) = A\,\mathcal{K}^{-a}\,
-            \left[\ln(P_0/\mathcal{K})\right]^{-b} .
+            \left[\ln(P_{0}/\mathcal{K})\right]^{-b} .
 
     References
     ----------
-    Notes Eq. (I.16) [tail-exponent].
+    Eq. (T:2.13) [tail-exponent].
     """
     k = np.asarray(k, dtype=np.float64)
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -119,7 +119,7 @@ def scaled_upper_gamma(s: float, x: ArrayLike) -> Array:
 
     Notes
     -----
-    Below an argument of 30 the regularised function is used, with the
+    Below an argument of 30 the regularized function is used, with the
     exponential integral at :math:`s = 0`. For :math:`-1 < s < 0` the
     function is evaluated at the order itself: the continued fraction
     :math:`e^{x}\Gamma(s, x) = x^{s}/(x+1-s-\,1(1-s)/(x+3-s-\cdots))` from
@@ -135,7 +135,7 @@ def scaled_upper_gamma(s: float, x: ArrayLike) -> Array:
     whose bracket is formed to its own precision before the division by
     `s`. The recurrence :math:`\Gamma(s, x) = [\Gamma(s+1, x) -
     x^{s}e^{-x}]/s` divided a rounded difference by `s` there and read
-    1e-11 relative at :math:`s \approx -0.01`; it remains for
+    :math:`10^{-11}` relative at :math:`s \approx -0.01`; it remains for
     :math:`s \le -1`, where `s` magnifies nothing. Above 30, except at
     :math:`-1 < s < 0`, the asymptotic series
     :math:`x^{s-1}\sum_n (s-1)\cdots(s-n)/x^{n}` is summed, each element

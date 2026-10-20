@@ -1,22 +1,22 @@
 """The inversion's rows: the Cuddeford operator on every energy of the grid.
 
-One operator for every model (Notes Eq. (II.2) [unified-pair]):
+One operator for every model (Eq. (T:2.16) [unified-pair]):
 
     F(Q) = C(n) d/dQ INT_0^Q rho_aux^(j)(P) (Q - P)^-n dP
            [+ C(n_f) rho_aux^(m_f)(0) Q^-n_f where j = m_f + 1],
 
-evaluated row by row in the form the model fixes (Notes Section II.3
+evaluated row by row in the form the model fixes (Section T:2.3
 [num-forms]): the local closed form at n = 0; the integrated-by-parts form;
 the derivative-outside split form (every row of a switched pair, the rows
 above an interior point, the rows of an unbounded outer end from
 ``outer_from``); and Gauss-Jacobi rules on either side of an interior point.
 The same operator one derivative up gives dF/dQ on the same rows.
 
-The quadrature (Notes Section II.3.4 [quadrature]): on [q_min, s] a log-GL
+The quadrature (Section T:2.3.4 [quadrature]): on [q_min, s] a log-GL
 rule, on [s, c] a linear one, on [c, Q] the composite map
-P = P_0 - (P_0 - Q) e^y, y = v^k, k = 1 / (1 - n), which resolves a source
-steep towards P_0 and removes (Q - P)^-n exactly; c = 0.9 Q, s = max(0.1 c,
-q_min (1 + 1e-9)).
+``P = P_0 - (P_0 - Q) e^y``, y = v^k, k = 1 / (1 - n), which resolves a
+source steep toward :math:`P_0` and removes (Q - P)^-n exactly; c = 0.9 Q,
+``s = max(0.1 c, q_min (1 + 1e-9))``.
 
 The arithmetic is the working pipeline's, operation for operation, so that
 its rows are equal to the bit on the same backend. The rows here are the
@@ -185,7 +185,7 @@ def inversion_kernel(
     Raises
     ------
     InputError
-        If the arguments do not fit the form (a switched pair with n >= 0, a
+        If the arguments do not fit the form (a switched pair with ``n >= 0``, a
         missing source table, an interior point outside the grid or with an
         exponent outside (-1, 0]).
     """
@@ -283,7 +283,13 @@ def inversion_kernel(
                 x, f = np.append(qn_s[ml_s], ps), np.append(h, t2s_end(dl_s, h))
             else:
                 x, f = np.insert(qn_s[mr_s], 0, ps), np.insert(h, 0, t2s_end(dr_s, h))
-            m = CubicSpline(np.log(x), f).derivative()(np.log(x))
+            # the slopes are linear in the column: formed on the column scaled
+            # by the power of 2 nearest below its largest magnitude, so a column
+            # near the double's largest value keeps finite secants, and one
+            # that fits is scaled exactly (bit for bit the same slopes)
+            top = float(np.max(np.abs(f)))
+            scale = float(2.0 ** np.floor(np.log2(top))) if top > 0.0 else 1.0
+            m = CubicSpline(np.log(x), f / scale).derivative()(np.log(x)) * scale
             return tuple(jnp.array(a, dtype=jnp.float64) for a in (x, f, m))
 
         xl0, fl0, ml0 = h_side(g0, 0, True)
@@ -553,7 +559,7 @@ def floor_source(
     n_nodes: int,
 ) -> dict[str, Any] | None:
     """Return the rule and the exact source of the completion below the
-    table's floor q0, as `floor_completion` reads them (Notes Section II.3.2
+    table's floor q0, as `floor_completion` reads them (Section T:2.3.2
     [floor]); None where the model has none.
 
     The nodes are Gauss-Legendre in ln P on [P_min, q0/10] and in w = (q0 -
@@ -645,11 +651,87 @@ def floor_source(
     }
 
 
+def _below_nodes(
+    qs: Array, p_lo: float, n: float
+) -> tuple[Array, Array, Array, list[int], Array]:
+    """The nodes of `below_integral`: for each Q, Gauss-Legendre in ln P on
+    [p_lo, Q/10] and in w = (Q - P)^(1-n) on [Q/10, Q]; the weights, the
+    exact Q - P, each Q's node count and the weights times the kernel."""
+    xa, wa = np.polynomial.legendre.leggauss(BELOW_LOG_NODES)
+    xb, wb = np.polynomial.legendre.leggauss(BELOW_END_NODES)
+    om = 1.0 - n
+    p_all, w_all, d_all, seg, k_all = [], [], [], [], []
+    for qq in qs:
+        ya, yb = np.log(float(p_lo)), np.log(qq / 10.0)
+        p_a = np.exp(0.5 * (yb - ya) * xa + 0.5 * (yb + ya))
+        w_a = 0.5 * (yb - ya) * wa * p_a
+        wmx = (qq - qq / 10.0) ** om
+        wn = 0.5 * wmx * (xb + 1.0)
+        dq_b = wn ** (1.0 / om)
+        w_b = 0.5 * wmx * wb * (1.0 / om) * wn ** (1.0 / om - 1.0)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            kw_b = w_b * dq_b ** (-n)
+        # where (Q - P) = w^(1/(1-n)) underflows to 0 (n near 1), the weight
+        # times the kernel is its exact value in w, wmx w_i / (2 (1 - n))
+        under = dq_b == 0.0
+        kw_b[under] = 0.5 * wmx * wb[under] / om
+        p_all.append(np.concatenate([p_a, qq - dq_b]))
+        w_all.append(np.concatenate([w_a, w_b]))
+        d_all.append(np.concatenate([qq - p_a, dq_b]))
+        seg.append(p_a.size + dq_b.size)
+        k_all.append(np.concatenate([w_a * (qq - p_a) ** (-n), kw_b]))
+    return (
+        np.concatenate(p_all),
+        np.concatenate(w_all),
+        np.concatenate(d_all),
+        seg,
+        np.concatenate(k_all),
+    )
+
+
+def below_integral(
+    qs: Array,
+    p_lo: float,
+    dm_lo: float,
+    n: float,
+    pref: float,
+    g_i: Any,
+    r_i: Any = None,
+) -> Array:
+    """Return F below the written floor, the identity truncated at p_lo
+    (`below_floor`): pref [INT_{p_lo}^{Q} g (Q - P)^-n dP + dm_lo (Q -
+    p_lo)^-n], or with ``r_i`` (rho_aux^(m), an unbounded outer end) its log
+    part integrated by parts once more. Linear in ``g_i``, ``r_i`` and
+    ``dm_lo`` (functions of P, and rho_aux^(m)(p_lo)) at fixed n and pref."""
+    qs = np.atleast_1d(np.asarray(qs, dtype=np.float64))
+    n_a = BELOW_LOG_NODES
+    pc, wc, dc, seg, wk = _below_nodes(qs, p_lo, n)
+    gc = g_i(pc)
+    out = np.empty(qs.size)
+    o = 0
+    for iq, qq in enumerate(qs):
+        sl = slice(o, o + seg[iq])
+        o += seg[iq]
+        if r_i is None:
+            out[iq] = pref * (
+                float(np.dot(wk[sl], gc[sl])) + dm_lo * (qq - float(p_lo)) ** (-n)
+            )
+        else:
+            la = slice(sl.start, sl.start + n_a)
+            lb = slice(sl.start + n_a, sl.stop)
+            out[iq] = pref * (
+                float(r_i(np.array([0.1 * qq]))[0]) * (0.9 * qq) ** (-n)
+                - n * float(np.dot(wc[la] * dc[la] ** (-n - 1.0), r_i(pc[la])))
+                + float(np.dot(wk[lb], gc[lb]))
+            )
+    return out
+
+
 def below_floor(
     aux: AuxDerivatives, floor: Mapping[str, Any], k_written: float
 ) -> dict[str, Any]:
     """Return the DF below the written floor from the exact source of the
-    completion (Notes Section II.3.2 [floor]): the identity truncated at P_min,
+    completion (Section T:2.3.2 [floor]): the identity truncated at P_min,
     F(Q) = pref [INT_{P_min}^{Q} g (Q - P)^-n dP + rho_aux^(m)(P_min)
     (Q - P_min)^-n], read as the whole of F, on a log grid ending on the first
     written node.
@@ -693,39 +775,6 @@ def below_floor(
     k0w = float(k_written)
     n_c = int(round(BELOW_PER_DECADE * np.log10(k0w / (BELOW_FROM * p_min)))) + 1
     q_c = np.exp(np.linspace(np.log(BELOW_FROM * p_min), np.log(k0w), n_c))
-    xa, wa = np.polynomial.legendre.leggauss(BELOW_LOG_NODES)
-    xb, wb = np.polynomial.legendre.leggauss(BELOW_END_NODES)
-    om = 1.0 - n
-
-    def nodes(qs: Array, p_lo: float) -> tuple[Array, Array, Array, list[int], Array]:
-        p_all, w_all, d_all, seg, k_all = [], [], [], [], []
-        for qq in qs:
-            ya, yb = np.log(float(p_lo)), np.log(qq / 10.0)
-            p_a = np.exp(0.5 * (yb - ya) * xa + 0.5 * (yb + ya))
-            w_a = 0.5 * (yb - ya) * wa * p_a
-            wmx = (qq - qq / 10.0) ** om
-            wn = 0.5 * wmx * (xb + 1.0)
-            dq_b = wn ** (1.0 / om)
-            w_b = 0.5 * wmx * wb * (1.0 / om) * wn ** (1.0 / om - 1.0)
-            with np.errstate(divide="ignore", invalid="ignore"):
-                kw_b = w_b * dq_b ** (-n)
-            # where (Q - P) = w^(1/(1-n)) underflows to 0 (n near 1), the weight
-            # times the kernel is its exact value in w, wmx w_i / (2 (1 - n))
-            under = dq_b == 0.0
-            kw_b[under] = 0.5 * wmx * wb[under] / om
-            p_all.append(np.concatenate([p_a, qq - dq_b]))
-            w_all.append(np.concatenate([w_a, w_b]))
-            d_all.append(np.concatenate([qq - p_a, dq_b]))
-            seg.append(p_a.size + dq_b.size)
-            k_all.append(np.concatenate([w_a * (qq - p_a) ** (-n), kw_b]))
-        return (
-            np.concatenate(p_all),
-            np.concatenate(w_all),
-            np.concatenate(d_all),
-            seg,
-            np.concatenate(k_all),
-        )
-
     n_d = int(round(BELOW_SOURCE_PER_DECADE * np.log10(k0w / p_min))) + 1
     p_d = np.exp(np.linspace(np.log(p_min), np.log(k0w), n_d))
     g_d = np.asarray(aux.at(p_d, m + 1), dtype=np.float64)
@@ -769,30 +818,9 @@ def below_floor(
             f"The source cubic misses the exact source by {interp_err:.2e} below "
             f"the floor (goal {GOAL:g}): the exact source is not smooth on its grid."
         )
-    n_a = int(xa.size)
 
     def f_of(qs: Array, p_lo: float = p_min, dm_lo: float = dmm) -> Array:
-        qs = np.atleast_1d(np.asarray(qs, dtype=np.float64))
-        pc, wc, dc, seg, wk = nodes(qs, p_lo)
-        gc = g_i(pc)
-        out = np.empty(qs.size)
-        o = 0
-        for iq, qq in enumerate(qs):
-            sl = slice(o, o + seg[iq])
-            o += seg[iq]
-            if r_i is None:
-                out[iq] = pref * (
-                    float(np.dot(wk[sl], gc[sl])) + dm_lo * (qq - float(p_lo)) ** (-n)
-                )
-            else:
-                la = slice(sl.start, sl.start + n_a)
-                lb = slice(sl.start + n_a, sl.stop)
-                out[iq] = pref * (
-                    float(r_i(np.array([0.1 * qq]))[0]) * (0.9 * qq) ** (-n)
-                    - n * float(np.dot(wc[la] * dc[la] ** (-n - 1.0), r_i(pc[la])))
-                    + float(np.dot(wk[lb], gc[lb]))
-                )
-        return out
+        return below_integral(qs, p_lo, dm_lo, n, pref, g_i, r_i)
 
     p10 = BELOW_SECOND * p_min
     dm10 = float(aux.at(np.array([p10]), m)[0])
@@ -842,12 +870,15 @@ def below_floor(
         "source_interp_rel_err": interp_err,
         "bottom_discarded_decades": float(np.log10(q_b[0] / q_c[0])),
         "truncation_agreement_rel": float(np.max(trc[i0:])),
+        "p_source": p_d,
+        "g_i": g_i,
+        "r_i": r_i,
     }
 
 
 def floor_completion(q: Array, src: Mapping[str, Any]) -> tuple[Array, Array]:
     """Return the completion of the kernel's rows below the table's floor q0,
-    and its Q-derivative (Notes Section II.3.2 [floor]).
+    and its Q-derivative (Section T:2.3.2 [floor]).
 
     The kernel integrates from q0 and carries rho_aux^(m)(q0) Q^-n; the exact
     floor form from P_min adds INT_{P_min}^{q0} g (Q - P)^-n dP +

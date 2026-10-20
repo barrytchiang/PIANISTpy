@@ -37,7 +37,7 @@ class _Static:
 
 
 def register_result(cls: type, data_fields: tuple[str, ...]) -> type:
-    """Register a frozen dataclass as a pytree.
+    """Make a frozen dataclass a pytree.
 
     Parameters
     ----------

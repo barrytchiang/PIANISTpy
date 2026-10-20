@@ -31,6 +31,9 @@ from . import stages
 
 RESULT_KIND = "particles"
 UNIT_SYSTEMS = ("internal", "model", "physical")
+# The particles one draw may hold: their keys are drawn on int32 indices and the
+# Gadget writer's IDs are uint32.
+MAX_PARTICLES = 2**31 - 1
 
 
 @dataclass(frozen=True, eq=False)
@@ -125,8 +128,15 @@ ParticleWriter = Callable[..., None]
 PARTICLE_WRITERS: dict[str, ParticleWriter] = {}
 
 
+def _block_size(draw_block: int, n: int) -> int:
+    """The block a draw of n runs in: the draw block, or below it the next
+    power of two at or above n, so that the blocks' shapes, and the
+    compilations, are few whatever n is."""
+    return min(draw_block, 1 << max(int(n) - 1, 0).bit_length())
+
+
 def register_particle_writer(layout: str) -> Callable[[ParticleWriter], ParticleWriter]:
-    """Register a function that writes particles in a given file layout.
+    """Make a function the writer of particles in a given file layout.
 
     A writer takes the particles, the path and its own keyword options. The
     layouts of simulation codes are added this way, without a change to the
@@ -347,8 +357,70 @@ def component_view(model: Model, k: int) -> Model:
     return _component_view(model, k)
 
 
+def _radius_range(r_range: Any) -> tuple[float, float]:
+    """The range (r_lo, r_hi) as two floats, ``0 <= r_lo < r_hi``, or refused."""
+    try:
+        r_lo, r_hi = (float(r) for r in r_range)
+    except (TypeError, ValueError):
+        raise InputError(
+            f"r_range is two radii (r_lo, r_hi); got {r_range!r}."
+        ) from None
+    if not (np.isfinite(r_lo) and np.isfinite(r_hi) and 0.0 <= r_lo < r_hi):
+        raise InputError(
+            f"r_range must satisfy 0 <= r_lo < r_hi, both finite; got {r_range!r}."
+        )
+    return r_lo, r_hi
+
+
+def _speed_range(v_range: Any) -> tuple[float, float]:
+    """The window (v_lo, v_hi) as two floats, ``0 <= v_lo < v_hi``, or refused;
+    v_hi may be infinite."""
+    try:
+        v_lo, v_hi = (float(v) for v in v_range)
+    except (TypeError, ValueError):
+        raise InputError(
+            f"v_range is two speeds (v_lo, v_hi); got {v_range!r}."
+        ) from None
+    if not (np.isfinite(v_lo) and not np.isnan(v_hi) and 0.0 <= v_lo < v_hi):
+        raise InputError(
+            f"v_range must satisfy 0 <= v_lo < v_hi, v_lo finite; got {v_range!r}."
+        )
+    return v_lo, v_hi
+
+
+def _speed_windows(v_range: Any, r: Array) -> tuple[Any, Any]:
+    """The window (v_lo, v_hi) at each radius of `r`: two floats, as
+    `_speed_range` gives them, where both bounds are scalars; else both bounds
+    broadcast against `r`, ``0 <= v_lo < v_hi`` at every radius, or refused."""
+    try:
+        v_lo, v_hi = v_range
+    except (TypeError, ValueError):
+        raise InputError(
+            f"v_range is two speeds (v_lo, v_hi); got {v_range!r}."
+        ) from None
+    if np.ndim(v_lo) == 0 and np.ndim(v_hi) == 0:
+        return _speed_range(v_range)
+    try:
+        lo = np.broadcast_to(np.asarray(v_lo, dtype=np.float64), r.shape)
+        hi = np.broadcast_to(np.asarray(v_hi, dtype=np.float64), r.shape)
+    except ValueError:
+        raise InputError(
+            f"v_range's bounds must broadcast against r, of shape {r.shape}; got "
+            f"v_lo of shape {np.shape(v_lo)} and v_hi of shape {np.shape(v_hi)}."
+        ) from None
+    if not (
+        np.all(np.isfinite(lo))
+        and not np.any(np.isnan(hi))
+        and np.all((lo >= 0.0) & (lo < hi))
+    ):
+        raise InputError(
+            "v_range must satisfy 0 <= v_lo < v_hi at every radius, v_lo finite."
+        )
+    return lo, hi
+
+
 class Sampler:
-    """Everything needed to draw particles from a model, built once.
+    r"""Everything needed to draw particles from a model, built once.
 
     The sampler holds the tables that sampling needs. They are built when the
     sampler is created and reused by every call of `sample`, so a user keeps
@@ -362,6 +434,13 @@ class Sampler:
         Outer radius of the sampling, in internal units: the radius table
         depends on it. Required for a model that is not spatially finite;
         the truncation radius of one that is.
+    r_range : tuple of float, optional
+        Radii (r_lo, r_hi), in internal units, between which every particle
+        is drawn: ``0 <= r_lo < r_hi``, ``r_hi`` at most the outer radius of the
+        sampling. The draw is the model's own conditioned on the range, not a
+        selection: each particle's radius number is taken in the mass fractions
+        of the range (`stages.radius_bounds`), and the particles carry the
+        range's mass. Its other numbers are those of the draw without the range.
 
     Attributes
     ----------
@@ -374,33 +453,38 @@ class Sampler:
     ------
     InputError
         If `model` is not a Model, or has more components than this release
-        samples.
+        samples, or `r_range` is not a range of radii inside the sampling.
     AccuracyError
         If the model's report reads ``"refused"`` and its settings do not ask
-        for results from it anyway (`Settings`, ``write_anyway``).
-    ResultError
-        If a speed table lies beyond the hard limit and the settings do not ask
-        for it anyway.
+        for results from it anyway (`Settings`, ``write_anyway``), or if a
+        speed table lies beyond the hard limit and the settings do not ask for
+        it anyway.
 
     Notes
     -----
     A physical model is not thereby samplable at every tier. The speed
     table's rows are refined until the error across them is under the goal
     or their count reaches ``n_rows_max``; close to the smallest anisotropy
-    radius at which an Osipkov-Merritt or Cuddeford Type I DF is non-negative,
-    the rows reach ``n_rows_max`` first and the error grows steeply as r_a
-    falls toward that radius. Measured on a truncated NFW density of
-    concentration 10 at the default tier, the error crosses the hard limit at
-    1.02 to 1.2 times that radius and the ceiling at 1.09 to 1.84 times it
-    (up to beta_c = 0.4), the widest for the most negative beta_c; at
-    beta_c = 1/2, whose DF is non-negative at every r_a, the table is beyond
-    the hard limit at every r_a up to 0.32. A constant-anisotropy model is
-    within the ceiling up to beta_c = 0.4. The bound is measured, not
+    radius at which an Osipkov-Merritt or COM Type I DF is non-negative,
+    the rows reach ``n_rows_max`` first and the error grows steeply as
+    :math:`R_{\rm a}` falls toward that radius. Measured on a truncated NFW
+    density of concentration 10 at the default tier, the error crosses the hard
+    limit at 1.02 to 1.2 times that radius and the ceiling at 1.09 to 1.84
+    times it (up to :math:`\beta_{\rm c} = 0.4`), the widest for the most
+    negative :math:`\beta_{\rm c}`; at :math:`\beta_{\rm c} = 1/2`, whose DF is
+    non-negative at every :math:`R_{\rm a}`, the table is beyond the hard limit
+    at every :math:`R_{\rm a}` up to 0.32. A constant-anisotropy model is within
+    the ceiling up to :math:`\beta_{\rm c} = 0.4`. The bound is measured, not
     imposed: the report of each table is the verdict (the user guide,
     Particles, gives the table per family).
     """
 
-    def __init__(self, model: Model, r_sample: float | None = None) -> None:
+    def __init__(
+        self,
+        model: Model,
+        r_sample: float | None = None,
+        r_range: tuple[float, float] | None = None,
+    ) -> None:
         if not isinstance(model, Model):
             raise InputError("A Sampler is built from a Model.")
         superposed = len(model.components) > 1 and _is_superposition(model)
@@ -433,6 +517,21 @@ class Sampler:
             for view in views
         ]
         self.radius_table = self.parts[0].radius_table
+        self.r_range = None if r_range is None else _radius_range(r_range)
+        r_edge = self.radius_table.r_sample[0]
+        if self.r_range is not None and self.r_range[1] > r_edge:
+            raise InputError(
+                f"r_range reaches {self.r_range[1]!r}, beyond the outer radius of "
+                f"the sampling, {r_edge!r}."
+            )
+        # the mass fractions of the range, per part: the components of a
+        # superposition share the density, so their fractions are one
+        self.bounds = [
+            (0.0, 1.0)
+            if self.r_range is None
+            else stages.radius_bounds(part.radius_table, 0, self.r_range)
+            for part in self.parts
+        ]
         self.speed_table = self.parts[0].speed_table
         self.angle_table = self.parts[0].angle_table
         masses = np.array([c.mass for c in model.components])
@@ -441,13 +540,17 @@ class Sampler:
             (part.speed_table.validation for part in self.parts),
             key=lambda report: report.level,
         )
+        owners = {
+            key: max(
+                self.parts,
+                key=lambda p: p.speed_table.validation.checks[key].error,
+            )
+            for key in worst.checks
+        }
         table_checks = ValidationReport(
             keys=worst.keys,
             checks={
-                key: max(
-                    (p.speed_table.validation.checks[key] for p in self.parts),
-                    key=lambda check: check.error,
-                )
+                key: owners[key].speed_table.validation.checks[key]
                 for key in worst.checks
             },
         )
@@ -462,13 +565,21 @@ class Sampler:
                 self.validation,
                 ", ".join(
                     f"{key} {check.error:.2e} at Psi = {check.where:.6e}"
+                    + (
+                        f" ({owners[key].speed_table.row_cap})"
+                        if key == "row_error" and owners[key].speed_table.row_cap
+                        else ""
+                    )
                     for key, check in table_checks.checks.items()
                     if check.level > 0
                 )
                 or "the tier of its model",
             )
+        record: dict[str, Any] = {"model": model.identity, "r_sample": r_sample}
+        if self.r_range is not None:
+            record["r_range"] = list(self.r_range)
         self.identity = identity_string(
-            {"model": model.identity, "r_sample": r_sample},
+            record,
             settings.to_dict(),
             __version__,
         )
@@ -491,15 +602,23 @@ class Sampler:
 
         Raises
         ------
-        ResultError
+        InputError
+            If n is not a positive integer below 2^31.
+        AccuracyError
             If a particle lies beyond the phase-space bound of its component.
         """
         if not (isinstance(n, int) and n > 0):
             raise InputError(f"n must be a positive integer; got {n!r}.")
+        if n > MAX_PARTICLES:
+            raise InputError(
+                f"n = {n} reaches 2^31: a draw holds at most 2^31 - 1 particles "
+                "(their keys are drawn on int32 indices and the Gadget writer's "
+                "IDs are uint32); draw them in parts with distinct seeds."
+            )
         component = 0
         # blocks of one size (the last padded and cut), so the working memory is
         # one block's and one compilation serves every block
-        block = min(int(self.model.settings.sampling["draw_block"]), n)
+        block = _block_size(int(self.model.settings.sampling["draw_block"]), n)
         units = self.model.units
         # the analytic profile that fixes the units (a truncated model's source)
         profile = self.model.components[component].unit_profile
@@ -529,7 +648,9 @@ class Sampler:
                 mine = chosen[:size] == k
                 if len(self.parts) > 1 and not mine.any():
                     continue
-                r = stages.draw_radius(part.radius_table, component, numbers)
+                r = stages.draw_radius(
+                    part.radius_table, component, numbers, self.bounds[k]
+                )
                 cos_phi, sin_phi, factor = stages.draw_angle(
                     part.angle_table, part.model, component, r, numbers
                 )
@@ -564,9 +685,9 @@ class Sampler:
                 arrays[name][start : start + size] = getattr(
                     converted, "value", converted
                 )
-        converted = units.convert(
-            "mass", np.full(n, self.radius_table.mass_sample[component] / n), profile
-        )
+        u_lo, u_hi = self.bounds[0]
+        mass_drawn = self.radius_table.mass_sample[component] * (u_hi - u_lo)
+        converted = units.convert("mass", np.full(n, mass_drawn / n), profile)
         unit_text["mass"] = str(getattr(converted, "unit", units.system))
         arrays["mass"] = np.asarray(getattr(converted, "value", converted))
         return Particles(
@@ -582,3 +703,122 @@ class Sampler:
             ),
             parent=self.identity,
         )
+
+    def speeds(
+        self, r: Any, seed: int = 0, v_range: tuple[Any, Any] | None = None
+    ) -> tuple[Array, Array]:
+        """Draw one speed at each given radius, within a window of speeds.
+
+        Parameters
+        ----------
+        r : array-like, shape (n,)
+            Radii, in internal units, inside the sampling: positive and at most
+            its outer radius.
+        seed : int, optional
+            Seed of the random streams. The speed at the i-th radius takes the
+            speed number of particle i of `sample` at the same seed, mapped into
+            the window's numbers (and, for a superposition, its component by
+            the window's share of each component).
+        v_range : tuple of float or of array-like, optional
+            The speeds (v_lo, v_hi), in internal units, ``0 <= v_lo < v_hi``. Each
+            bound is a float, the same window at every radius, or an array that
+            broadcasts against `r`, a window at each radius (as a grid in units
+            of each radius's escape speed needs). Without it, the whole speed
+            distribution.
+
+        Returns
+        -------
+        v : array, shape (n,)
+            The speed at each radius, drawn from the model's speed distribution
+            at that radius conditioned on the window, in internal units; NaN at
+            a radius where the window holds none of the distribution.
+        fraction : array, shape (n,)
+            The fraction of the speed distribution at each radius in the window
+            (the weighted sum of the components' fractions for a
+            superposition).
+
+        Raises
+        ------
+        InputError
+            For a model with a finite anisotropy radius (Osipkov-Merritt or
+            Cuddeford-Osipkov-Merritt): there the speed is the scaled speed
+            times a factor of the drawn angle, so the window couples to the
+            angle, and no table holds the speed's distribution at a radius
+            with the angle integrated out. Also for radii outside the
+            sampling, an invalid window, or bounds that do not broadcast
+            against `r`.
+        """
+        coupled = [
+            c.name for c in self.model.components if np.isfinite(c.anisotropy.r_a)
+        ]
+        if coupled:
+            raise InputError(
+                f"A window of speeds is drawn for a constant anisotropy only; "
+                f"{coupled!r} have a finite anisotropy radius, where the speed is "
+                "the scaled speed times a factor of the drawn angle: the window "
+                "couples to the angle, and no table holds the speed's "
+                "distribution at a radius with the angle integrated out."
+            )
+        r = np.atleast_1d(np.asarray(r, dtype=np.float64))
+        r_edge = float(self.radius_table.r_sample[0])
+        if (
+            r.ndim != 1
+            or not np.all(np.isfinite(r))
+            or np.any(r <= 0.0)
+            or np.any(r > r_edge)
+        ):
+            raise InputError(
+                f"r must be finite radii with 0 < r <= {r_edge!r}, the outer "
+                "radius of the sampling."
+            )
+        v_lo, v_hi = (0.0, np.inf) if v_range is None else _speed_windows(v_range, r)
+        n = r.size
+        # in blocks of the draw's size, the last padded with its last radius and
+        # cut, as `sample` draws: one compilation serves every block
+        block = _block_size(int(self.model.settings.sampling["draw_block"]), n)
+        prepared = [
+            stages.speed_draw_tables(part.speed_table, part.model, 0)
+            for part in self.parts
+        ]
+        v = np.empty(n)
+        fraction = np.empty(n)
+        for start in range(0, n, block):
+            size = min(block, n - start)
+
+            def padded(x: Any, start: int = start, size: int = size) -> Any:
+                if np.ndim(x) == 0:
+                    return x
+                x = np.broadcast_to(x, r.shape)[start : start + size]
+                return np.concatenate([x, np.full(block - size, x[-1])])
+
+            r_b = padded(r)
+            v_lo_b, v_hi_b = padded(v_lo), padded(v_hi)
+            numbers = stages.random_numbers_block(seed, 0, start, block)
+            bounds, draws = [], []
+            for part, prep in zip(self.parts, prepared, strict=True):
+                u_lo, u_hi = stages.speed_bounds(
+                    part.speed_table, part.model, 0, r_b, (v_lo_b, v_hi_b), prep
+                )
+                mapped = dataclasses.replace(
+                    numbers, speed=u_lo + (u_hi - u_lo) * np.asarray(numbers.speed)
+                )
+                v_k = stages.draw_speed(
+                    part.speed_table, part.model, 0, r_b, np.ones(block), mapped, prep
+                )[0]
+                bounds.append(u_hi - u_lo)
+                draws.append(v_k)
+            weights = self.weights if len(self.parts) > 1 else np.ones(1)
+            shares = np.asarray(weights)[:, None] * np.array(bounds)
+            fraction_b = shares.sum(axis=0)
+            chosen = np.zeros(block, dtype=np.int64)
+            if len(self.parts) > 1:
+                # the component by the window's share of each, from the component
+                # channel of the particle's key
+                u = stages.component_numbers(seed, start, block)
+                with np.errstate(invalid="ignore", divide="ignore"):
+                    edges = np.cumsum(shares, axis=0)[:-1] / fraction_b
+                chosen = np.sum(u[None, :] >= edges, axis=0)
+            v_b = np.choose(chosen, np.array(draws))
+            v[start : start + size] = np.where(fraction_b > 0.0, v_b, np.nan)[:size]
+            fraction[start : start + size] = fraction_b[:size]
+        return v, fraction

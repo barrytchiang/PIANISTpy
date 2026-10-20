@@ -1,5 +1,5 @@
-Notebook tutorials
-==================
+Examples
+========
 
 Every notebook is stored with its outputs and run on a compute node against the release it is pinned to; the
 manual renders them and runs nothing. The notebooks live in their own repository,
@@ -12,23 +12,27 @@ Tutorials
 .. toctree::
    :maxdepth: 1
 
-   tutorials/particles
-   tutorials/observables
+   Generate particle initial conditions <tutorials/particles>
+   Compute observables from a model <tutorials/observables>
 
-Planned for 1.0.0: a truncated model (profile to distribution function to model, Method I and Method II);
-superposition and inference; an aperture of arbitrary geometry.
+Planned for ver. 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
+fit a superposition to data; observables in an aperture of any shape.
 
-Reproducing the paper
----------------------
+.. _notebooks-paper:
 
-One notebook per figure of the paper, from the released package, with the tables and measured numbers the
+Reproducing |paper-name|
+------------------------
+
+Notebooks that reproduce the result figures of |paper|, from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
-anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Added with the
-1.0.0 release.
+anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Released with
+ver. 0.9.9.
 
-N-body tests with GAMER
------------------------
+:math:`N`-body tests with GAMER
+-------------------------------
 
-The test problem used for the paper's isolation runs (and in Chiang et al. 2025, 2026a) is being prepared as a
-test problem of the GAMER code, with its analysis and plotting scripts inside it. A link follows once it is
-merged there.
+*Under construction.* The test problem used for the isolation runs of |paper| (and in `Chiang et al. 2025
+<https://academic.oup.com/mnras/article/544/1/36/8266513>`_, `2026a
+<https://astro.theoj.org/article/155367-universal-numerical-convergence-criteria-for-subhalo-tidal-evolution>`_) is
+being prepared as a test problem of the `GAMER <https://academic.oup.com/mnras/article/481/4/4815/5106358>`_ code,
+with its analysis and plotting scripts inside it. A link follows once it is merged there.

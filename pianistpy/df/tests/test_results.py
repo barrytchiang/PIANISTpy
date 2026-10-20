@@ -10,7 +10,7 @@ from pianistpy import (
     Anisotropy,
     Component,
     DoublePowerLaw,
-    ResultError,
+    InputError,
     Settings,
     Truncation,
     read,
@@ -96,8 +96,8 @@ def _inversion():
 
 def _report():
     return ValidationReport(
-        ("density", "potential"),
-        {"density": Check(3e-7, where=1.5), "potential": Check(2e-8)},
+        ("top_form", "slope_column"),
+        {"top_form": Check(3e-7, where=1.5), "slope_column": Check(2e-8)},
     )
 
 
@@ -165,9 +165,9 @@ def test_distribution_function_round_trip(tmp_path):
     for name in ("grid", "table", "form"):
         _same(getattr(df, name), getattr(back, name))
     _same_inversion(df.inversion, back.inversion)
-    assert back.validation.to_dict()["checks"]["density"]["error"] == 3e-7
-    assert back.validation.checks["potential"].where is None
-    with pytest.raises(ResultError):
+    assert back.validation.to_dict()["checks"]["top_form"]["error"] == 3e-7
+    assert back.validation.checks["slope_column"].where is None
+    with pytest.raises(InputError, match="exists"):
         df.write(path)
 
 
@@ -215,7 +215,7 @@ def test_model_round_trip(tmp_path):
     # the table's end is its last row
     assert (back.profile.r_table_max, back.profile.mass_at_r_table_max) == (10.0, 2.0)
     assert back.r_trust == {}  # spatially finite: valid to its edge
-    with pytest.raises(ResultError):
+    with pytest.raises(InputError, match="exists"):
         model.write(path)
 
 

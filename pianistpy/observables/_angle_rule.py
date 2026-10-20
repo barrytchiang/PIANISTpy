@@ -25,8 +25,8 @@ there too, as the rule's control.
 The kernel holds the numpy rule's operations in the same order on each
 (node, angle node) element; the sum over the angle nodes is ``jnp.sum`` where
 the numpy rule has ``einsum``, so the two agree at rounding, not to the bit
-(measured over the battery: the rows' D within 9.1e-16 of the numpy rows).
-What the two share is written once: the Gauss-Legendre nodes
+(measured over the battery: the rows' D within :math:`9.1 \times 10^{-16}` of
+the numpy rows). What the two share is written once: the Gauss-Legendre nodes
 (`gauss_legendre_unit`) and the power's closed forms (`power_kind`). Fixed
 shapes: the node arrays are padded to a power of two, at least `BUCKET_MIN`,
 with values that keep :math:`P` positive, and cut off on return;

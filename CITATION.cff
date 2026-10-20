@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "Please cite the initial release paper, Chiang, van den Bosch and Schive (2026d), in work that uses PIANISTpy."
+title: PIANISTpy
+type: software
+authors:
+  - family-names: Chiang
+    given-names: Barry T.
+license: BSD-3-Clause
+url: "https://pianistpy.com"
+repository-code: "https://github.com/barrytchiang/PIANISTpy"
+preferred-citation:
+  type: article
+  title: "PIANISTpy: A JAX-based Python package for velocity-anisotropic astrophysical equilibrium models"
+  authors:
+    - family-names: Chiang
+      given-names: Barry T.
+    - family-names: Bosch
+      given-names: Frank C.
+      name-particle: van den
+    - family-names: Schive
+      given-names: Hsi-Yu
+  journal: Monthly Notices of the Royal Astronomical Society
+  year: 2026
+  status: submitted

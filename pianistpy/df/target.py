@@ -1,28 +1,30 @@
-"""The truncation energy of a target mass or a target radius, Method I.
+r"""The truncation energy of a target mass or a target radius, Method I.
 
 Under Method I the untruncated DF does not depend on the truncation, so it is
 inverted once and every evaluation is one truncated solve
-(`truncate.truncation_chain`). The search runs on x = ln K_t for v = M_t or
-R_t:
+(`truncate.truncation_chain`). The search runs on
+:math:`x = \ln \mathcal{K}_{\rm t}` for v = M_t or :math:`R_{\rm t}`:
 
 1. from the probe, deeper truncation until the model is admissible;
-2. a bracket: secant steps in (ln K_t, ln v) toward the target, at most a
+2. a bracket: secant steps in ``(ln K_t, ln v)`` toward the target, at most a
    factor of 16 per step, until one admissible model lies on each side;
-3. where a step lands outside the admissible set, its boundary: the K_t where
-   R_t reaches its limit (the cap, or r_a), by regula falsi on 1 / R_t, with a
-   bisection step where a probe has no finite model;
-4. the Illinois form of regula falsi on (ln K_t, ln(v / target)) until
+3. where a step lands outside the admissible set, its boundary: the
+   :math:`\mathcal{K}_{\rm t}` where :math:`R_{\rm t}` reaches its limit (the
+   cap, or :math:`R_{\rm a}`), by regula falsi on :math:`1 / R_{\rm t}`, with
+   a bisection step where a probe has no finite model;
+4. the Illinois form of regula falsi on ``(ln K_t, ln(v / target))`` until
    |v / target - 1| is within the precision.
 
-A K_t is admissible where its truncated solve succeeds, the model is
-spatially finite (the solve's edge event fires), R_t is within the cap and,
-for Type II, inside r_a; and K_t lies at or above the gate and the DF's last
-zero, and at or below 0.9 of the central potential. On the admissible set
-K_t -> M_t and K_t -> R_t decrease. No admissible model at the target is
-refused by name, with the value reached at the limit that binds. A model
-inside the bracket that a stage refuses (the lowered center's fixed point not
-converging) refuses the target, with its cause and the
-bracket: the solve takes no fallback.
+A :math:`\mathcal{K}_{\rm t}` is admissible where its truncated solve
+succeeds, the model is spatially finite (the solve's edge event fires),
+:math:`R_{\rm t}` is within the cap and, for Type II, inside
+:math:`R_{\rm a}`; and :math:`\mathcal{K}_{\rm t}` lies at or above the gate
+and the DF's last zero, and at or below 0.9 of the central potential. On the
+admissible set ``K_t -> M_t`` and ``K_t -> R_t`` decrease. No admissible
+model at the target is refused by name, with the value reached at the limit
+that binds. A model inside the bracket that a stage refuses (the lowered
+center's fixed point not converging) refuses the target, with its cause and
+the bracket: the solve takes no fallback.
 """
 
 __all__ = ["TargetRefusal", "solve_target"]
@@ -33,7 +35,7 @@ from typing import Any
 
 import numpy as np
 
-from ..exceptions import InputError, UnphysicalModelError
+from ..exceptions import InputError, PianistpyError, UnphysicalModelError
 from .results import DistributionFunction
 from .truncated import truncation_chain
 
@@ -76,7 +78,7 @@ def solve_target(
     precision: float = TARGET_GOAL,
     rt_cap: float = RT_CAP,
 ) -> tuple[float, dict[str, Any]]:
-    """Return the truncation energy whose model has the target mass or radius.
+    r"""Return the truncation energy whose model has the target mass or radius.
 
     Parameters
     ----------
@@ -90,15 +92,15 @@ def solve_target(
     concentration : float, optional
         The concentration that defines the mass unit; required for a mass.
     probe : float, optional
-        The first K_t tried; 0.3 by default.
+        The first :math:`\mathcal{K}_{\rm t}` tried; 0.3 by default.
     precision : float, optional
         |v / target - 1| at the root.
     rt_cap : float, optional
-        The largest admissible R_t.
+        The largest admissible :math:`R_{\rm t}`.
 
     Returns
     -------
-    k_t, record
+    k_t, record : float, dict
         The truncation energy, and the search's record: every evaluation, the
         value reached and its residual.
 
@@ -186,17 +188,20 @@ def solve_target(
     cache: dict[float, dict[str, Any]] = {}
 
     def ev(z: float) -> dict[str, Any]:
-        """One truncated solve at z: whether it ran, is finite, R_t, M_t, the
-        value, whether it is admissible and why not."""
+        r"""One truncated solve at z: whether it ran, is finite,
+        :math:`R_{\rm t}`, M_t, the value, whether it is admissible and why not."""
         z = float(z)
         if z in cache:
             return cache[z]
         t0 = time.perf_counter()
         why = ""
+        # the solve's own failure raises the package's errors (the ODE's own
+        # stop too, `run_poisson_ode`); any other error is a fault, not an
+        # inadmissible K_t
         try:
             chain = truncation_chain(df, z)
             ok = True
-        except Exception as ex:  # noqa: BLE001 - the solve's own failure
+        except PianistpyError as ex:
             chain, ok = None, False
             why = f"{type(ex).__name__}: {' '.join(str(ex).split())[:160]}"
         wall = time.perf_counter() - t0

@@ -1,24 +1,22 @@
-"""Stages of the distribution-function computation and their results.
+"""The results of the distribution function's stages.
 
-`compute_df` and `truncate` compose the stages of this module. Each stage is a
-pure function of its arguments and returns a frozen result. A stage reads no
-module state, and nothing passes between stages except their results.
+`compute_df` and `truncate` compose the stages; each stage returns one of the
+frozen results of this module. A stage is a pure function of its arguments,
+reads no module state, and nothing passes between stages except their
+results.
 
-The stages of the inversion, in order::
+The inversion: the potential-density pair (`pair.potential_density_pair`),
+the form of the inversion (`form.inversion_form`) and the exact derivatives it
+needs (`derivatives.aux_derivatives`); the energy grid, the rows, the table and
+the forms beyond the table (`invert.inversion_df`); the validation report
+(`report.validate_df`).
 
-    potential_density_pair -> energy_grid -> inversion_form
-        -> aux_derivatives -> invert_rows -> asymptotic_form -> validate_df
+The truncation: the truncated density and its edge
+(`truncation.truncated_source`), the Poisson solve (`poisson.run_poisson_ode`),
+the model and its report (`truncated.truncate_model`).
 
-(`aux_derivatives` takes the `InversionForm`: the form fixes the orders it
-needs.)
-
-The stages of the truncation, in order::
-
-    resolve_truncation -> truncated_density -> solve_poisson
-        -> validate_model
-
-Method II runs the inversion stages a second time, on the tabulated pair of
-a truncated parent model.
+Method II runs the inversion a second time, on the tabulated pair of a
+truncated parent model.
 """
 
 __all__ = [
@@ -31,16 +29,8 @@ __all__ = [
     "InversionRows",
     "PotentialDensityPair",
     "TruncatedProfile",
-    "aux_derivatives",
-    "asymptotic_form",
-    "energy_grid",
-    "validate_df",
-    "inversion_form",
-    "invert_rows",
-    "potential_density_pair",
 ]
 
-from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -49,9 +39,7 @@ import numpy as np
 from ..exceptions import InputError
 from ..numerics.pytrees import register_result
 from ..profiles import TruncatedProfile
-from ..settings import Settings
 from ..typing import Array
-from ..validation import ValidationReport
 from .inputs import Component
 
 
@@ -162,9 +150,10 @@ class InversionForm:
 
     Parameters
     ----------
-    order_m, order_n : tuple of int, tuple of float
-        Order pair in use for each component, after the replacement that
-        keeps the kernel exponent within one half.
+    order_j, kernel_exponent : tuple of int, tuple of float
+        The order and the kernel's exponent the inversion uses for each
+        component, after the replacement that keeps the kernel exponent
+        within one half (`inversion.order_pair`).
     form : array of int, shape (n_components, n)
         Form of the inversion on each row: the local form, the form with
         the surface term, or the general form on a split.
@@ -172,8 +161,8 @@ class InversionForm:
         Energy of the interior point of each component, where one exists.
     """
 
-    order_m: tuple[int, ...]
-    order_n: tuple[float, ...]
+    order_j: tuple[int, ...]
+    kernel_exponent: tuple[float, ...]
     form: Array
     k_interior: tuple[float | None, ...]
 
@@ -389,7 +378,7 @@ class AsymptoticForm:
 
 @dataclass(frozen=True)
 class InversionRecord:
-    """How the table of each DF was made: the inversion and the rows replaced.
+    r"""How the table of each DF was made: the inversion and the rows replaced.
 
     One entry per component in every field.
 
@@ -414,14 +403,14 @@ class InversionRecord:
         general form for that reason, else ``"bounded"``.
     high_k_override_k, high_k_override_r : tuple of float
         Energy from which an analytic form replaced the rows of the table
-        towards the center, and the radius where the potential equals it;
+        toward the center, and the radius where the potential equals it;
         the central potential and zero where no row was replaced.
     high_k_override_rows : tuple of int
         Number of rows replaced there.
     high_k_override_rule : tuple of str
         The rule that replaced them, ``"none"`` where none did.
     low_k_override_k, low_k_override_r : tuple of float
-        Energy below which an analytic form replaced the rows towards the
+        Energy below which an analytic form replaced the rows toward the
         floor, zero where none did, and the outer radius of the model.
     method2_bands : tuple of dict
         The band record of a Method II child: the anchor of the top band,
@@ -433,9 +422,13 @@ class InversionRecord:
         or its refusal; empty where there is none.
     continuation : tuple of str
         For each component, the auxiliary density the inversion integrated
-        beyond the anisotropy's domain edge (a Type II model beyond R_a: the
-        DF above P(R_a) is non-local in it), ``"none"`` where the domain has
-        no edge. Empty where not recorded.
+        beyond the anisotropy's domain edge (a Type II model beyond
+        :math:`R_{\rm a}`: the DF above :math:`P(R_{\rm a})` is non-local in
+        it), ``"none"`` where the domain has no edge. Empty where not recorded.
+    deficit_degree : tuple of int
+        For each component of a truncated model, the degree of the central
+        deficit's interpolant, 0 where no deficit was fit. Empty for any
+        other result.
     """
 
     form: tuple[str, ...]
@@ -456,6 +449,7 @@ class InversionRecord:
     method2_bands: tuple[dict, ...] = ()
     critical_band: tuple[dict, ...] = ()
     continuation: tuple[str, ...] = ()
+    deficit_degree: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -480,191 +474,8 @@ class InversionRows:
     data_top: tuple[float, ...]
 
 
-def potential_density_pair(
-    components: Sequence[Component],
-    parent: TruncatedProfile | None = None,
-) -> PotentialDensityPair:
-    """Return the total potential and the component densities.
-
-    Parameters
-    ----------
-    components : sequence of Component
-        The components of the model.
-    parent : TruncatedProfile, optional
-        The truncated profile to invert, for Method II. If omitted, the pair
-        is the analytic one of the untruncated components.
-
-    Returns
-    -------
-    pair : PotentialDensityPair
-    """
-    raise NotImplementedError
-
-
-def energy_grid(pair: PotentialDensityPair, settings: Settings) -> EnergyGrid:
-    """Return the energies of the DF table and their radii.
-
-    The grid runs from a floor above zero to a ceiling below the central
-    potential, with the spacing the settings ask for towards both ends.
-
-    Parameters
-    ----------
-    pair : PotentialDensityPair
-        The potential that maps energies to radii.
-    settings : Settings
-        Numerical settings.
-
-    Returns
-    -------
-    grid : EnergyGrid
-    """
-    raise NotImplementedError
-
-
-def aux_derivatives(
-    pair: PotentialDensityPair,
-    grid: EnergyGrid,
-    form: InversionForm,
-    settings: Settings,
-) -> AuxDerivatives:
-    """Return the derivatives of each auxiliary density on the grid.
-
-    For an analytic pair the derivatives are exact. For a tabulated pair they
-    follow from a spline of the logarithm of the auxiliary density.
-
-    Parameters
-    ----------
-    pair : PotentialDensityPair
-        The potential and the densities.
-    grid : EnergyGrid
-        The energies at which the derivatives are needed.
-    form : InversionForm
-        The form, which fixes the orders needed.
-    settings : Settings
-        Numerical settings.
-
-    Returns
-    -------
-    derivatives : AuxDerivatives
-
-    References
-    ----------
-    Notes Section II.2 [num-pair], Notes Eq. (II.1) [dp-operator].
-    """
-    raise NotImplementedError
-
-
-def inversion_form(pair: PotentialDensityPair, grid: EnergyGrid) -> InversionForm:
-    """Return the form of the inversion on every row.
-
-    The choice is made from the model parameters alone: the order pair, the
-    local form for half-integer central anisotropy, the interior point of a
-    Type II model, and the behavior of the auxiliary density at the outer
-    end. No computed number is inspected.
-
-    Parameters
-    ----------
-    pair : PotentialDensityPair
-        The potential and the densities.
-    grid : EnergyGrid
-        The energies of the table.
-
-    Returns
-    -------
-    form : InversionForm
-
-    References
-    ----------
-    Notes Section II.3 [num-forms], Notes Eq. (II.2) [unified-pair].
-    """
-    raise NotImplementedError
-
-
-def invert_rows(
-    grid: EnergyGrid,
-    derivatives: AuxDerivatives,
-    form: InversionForm,
-    settings: Settings,
-) -> DfTable:
-    """Return the DF of each component on the energy grid.
-
-    Parameters
-    ----------
-    grid : EnergyGrid
-        The energies of the table.
-    derivatives : AuxDerivatives
-        The derivatives of the auxiliary densities.
-    form : InversionForm
-        The form of the inversion on every row.
-    settings : Settings
-        Numerical settings.
-
-    Returns
-    -------
-    table : DfTable
-
-    References
-    ----------
-    Notes Eq. (II.3) [floor], Notes Eq. (II.4) [split],
-    Notes Eq. (II.5) [composite-map].
-    """
-    raise NotImplementedError
-
-
-def asymptotic_form(
-    pair: PotentialDensityPair, table: DfTable, settings: Settings
-) -> AsymptoticForm:
-    """Return the analytic form of each DF beyond the two ends of its table.
-
-    At the center the form follows from the classification of the model; at
-    the outer end from the tail of a (C)OM Type I model. The table itself is
-    not changed: outside its support it holds no value, and these forms say
-    how each DF continues.
-
-    Parameters
-    ----------
-    pair : PotentialDensityPair
-        The potential and the densities, which fix the forms.
-    table : DfTable
-        The table returned by `invert_rows`, whose last and first rows fix
-        the parts of the amplitudes that are not closed form.
-    settings : Settings
-        Numerical settings.
-
-    Returns
-    -------
-    form : AsymptoticForm
-
-    References
-    ----------
-    Notes Section I.4 [asymptotics], Notes Eq. (I.16) [tail-exponent].
-    """
-    raise NotImplementedError
-
-
-def validate_df(table: DfTable, form: AsymptoticForm) -> tuple[float, ValidationReport]:
-    """Return the lowest admissible truncation energy and the DF's report.
-
-    Parameters
-    ----------
-    table : DfTable
-        The DF table.
-    form : AsymptoticForm
-        The forms beyond its ends.
-
-    Returns
-    -------
-    k_t_min : float
-        The larger of the highest zero crossing and the last minimum of the
-        DFs; zero where every DF is non-negative and non-decreasing.
-    report : ValidationReport
-        The essential checks of the inversion.
-    """
-    raise NotImplementedError
-
-
 # The stage results as pytrees: the arrays and numbers are the data, the
-# labels and the bounds static (R-47 item 9). An InversionRecord is a record,
+# labels and the bounds static (the gradient contract). An InversionRecord is a record,
 # all static.
 register_result(
     DfTable,

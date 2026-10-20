@@ -24,7 +24,8 @@ class Aperture:
     r"""An aperture on the plane of the sky, circular or rectangular.
 
     Build one with `Aperture.circle` or `Aperture.rectangle`. Lengths are
-    in internal units.
+    in the unit system of the model (or table) it is used with, as the
+    observables' radii are.
 
     Parameters
     ----------

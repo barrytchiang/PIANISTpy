@@ -11,6 +11,7 @@ import jax.tree_util
 import numpy as np
 
 from ..exceptions import InputError
+from .factor import inverse_factor
 
 KINDS = ("I", "II")
 BETA_C_MAX = 1.0
@@ -33,7 +34,9 @@ class Anisotropy:
         Anisotropy radius :math:`R_{\rm a}` in internal units, positive. The
         default, infinity, gives an isotropic or a constant-anisotropy model.
     kind : {"I", "II"}, optional
-        Type of the OM or COM model. Ignored when `r_a` is infinite.
+        Type of the OM or COM model. Stored as ``"I"`` when `r_a` is
+        infinite, where the type does not enter the model, so that one model
+        has one identity.
 
     Notes
     -----
@@ -73,6 +76,7 @@ class Anisotropy:
         # r_a (a fit) never meets a Python branch (the gradient contract).
         if math.isinf(self.r_a):
             family = "isotropic" if self.beta_c == 0.0 else "constant"
+            object.__setattr__(self, "kind", "I")
         else:
             family = ("OM" if self.beta_c == 0.0 else "COM") + "_" + self.kind
         object.__setattr__(self, "family", family)
@@ -80,9 +84,9 @@ class Anisotropy:
     def factor(self, r: Any, xp: Any = np) -> Any:
         r"""Return the factor :math:`g(R)` of the augmented density.
 
-        The one definition of :math:`g` in the package: every consumer of
-        :math:`\varrho_{\rm aug} = g(R)\,\varrho_{\rm aux}` reads it here, in
-        this order of operations.
+        :math:`g = 1/h`, with :math:`h` from `inverse_factor`, the package's
+        one form of the factor, which the inversion, the edge law and the
+        Poisson solve read too.
 
         Parameters
         ----------
@@ -97,39 +101,34 @@ class Anisotropy:
             :math:`g(R)`: 1 (isotropic), :math:`R^{-2\beta_{\rm c}}`
             (constant), :math:`(1 \pm R^2/R_{\rm a}^2)^{-1}` (OM) and
             :math:`R^{-2\beta_{\rm c}} (1 \pm R^2/R_{\rm a}^2)^{-(1-\beta_{\rm c})}`
-            (COM), the upper sign for Type I. A Type II model is defined
-            inside :math:`R_{\rm a}` only; beyond it the value is not
-            clamped and not meaningful.
+            (COM), the upper sign for Type I.
+
+        Raises
+        ------
+        InputError
+            For a Type II model at a radius at or beyond :math:`R_{\rm a}`,
+            where it is not defined (a traced radius is not checked).
 
         References
         ----------
-        Paper Eq. (B43) [eqn:linearity_beta_1].
+        Chiang+(2026d), Eq. (B43) [eqn:linearity_beta_1].
         """
         r = xp.asarray(r, dtype=xp.float64)
-        family = self.family
-        if family == "isotropic":
+        if self.family == "isotropic":
             return xp.ones_like(r)
-        if family == "constant":
-            return r ** (-2.0 * self.beta_c)
-        base = (
-            1.0 + (r / self.r_a) ** 2
-            if family.endswith("_I")
-            else 1.0 - (r / self.r_a) ** 2
-        )
-        if family.startswith("OM"):
-            return 1.0 / base
-        return r ** (-2.0 * self.beta_c) * base ** (-(1.0 - self.beta_c))
+        (h,) = inverse_factor(r, self.family, self.beta_c, self.r_a)
+        return 1.0 / h
 
     @property
     def model(self) -> str:
-        """Label of the model in the paper: isotropic, constant, om or com."""
+        """Label of the model in Chiang+(2026d): isotropic, constant, om or com."""
         return self.family.split("_")[0].lower()
 
     @property
     def domain_edge(self) -> float:
-        """The outer edge of the radii where the anisotropy is defined: R_a
-        for a Type II model (its factor is real, finite and positive only
-        inside it), infinite otherwise."""
+        r"""The outer edge of the radii where the anisotropy is defined:
+        :math:`R_{\rm a}` for a Type II model (its factor is real, finite and
+        positive only inside it), infinite otherwise."""
         if self.kind == "II" and math.isfinite(self.r_a):
             return float(self.r_a)
         return math.inf
@@ -158,7 +157,7 @@ class Anisotropy:
 
 def _flatten_anisotropy(a: Anisotropy):
     # beta_c and r_a are the traced parameters; the kind and the family the
-    # static configuration (the gradient contract, R-47 item 9).
+    # static configuration (the gradient contract: a model is a pytree).
     return (a.beta_c, a.r_a), (a.kind, a.family)
 
 

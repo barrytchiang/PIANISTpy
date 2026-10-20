@@ -1,7 +1,7 @@
 """The DF's center in closed form, from the model alone.
 
-Near the central potential P_0 the auxiliary density is a series in
-u = P_0 - P; its least non-integer power s gives the inversion the DF's
+Near the central potential :math:`P_0` the auxiliary density is a series in
+``u = P_0 - P``; its least non-integer power s gives the inversion the DF's
 singular term at the center, and the next one the term after it. The branch
 (regular, critical, unphysical), the form (``"power"``, ``"log"``,
 ``"constant_plus_power"``, ``"analytic"``, ``"none"``), the exponent and the
@@ -12,22 +12,38 @@ its results are equal to the bit on the same backend.
 
 References
 ----------
-Notes Section I.4.2 [regular], Notes Section I.4.3 [critical].
+Section T:2.2.2 [regular], Section T:2.2.3 [critical].
 """
 
-__all__ = ["TOL_EXACT_BRANCH", "central_form", "center_form", "rho_aux_series"]
+__all__ = [
+    "TOL_EXACT_BRANCH",
+    "central_form",
+    "center_form",
+    "rho_aux_series",
+    "top_limit",
+]
 
 from math import factorial
 from typing import Any
 
 import numpy as np
 from scipy.special import gamma as gamma_function
+from scipy.special import gammaln, gammasgn
 
 from ..anisotropy import Anisotropy
 from ..profiles import DoublePowerLaw
 
 # the tolerance of the branch ladder: gamma against 2 beta_c, integer powers
 TOL_EXACT_BRANCH = 1e-10
+
+
+def _gamma_ratio(a, b):
+    """Gamma(a) / Gamma(b), from the log of each Gamma with its sign: never the
+    quotient of two Gammas, which is inf / inf past an argument of 171.6
+    although the ratio itself is an ordinary number."""
+    sign = gammasgn(a) * gammasgn(b)
+    return float(sign * np.exp(gammaln(a) - gammaln(b)))
+
 
 _MODEL_TYPES = {
     "isotropic": "constant",
@@ -40,8 +56,8 @@ _MODEL_TYPES = {
 
 
 def rho_aux_series(alpha, beta_r, gamma, bc, m_typ, Ra, C, x_max=None, tol=None):
-    """Return rho_aux near P_0 as its series in u = P_0 - P, [(s, C_s), ...]
-    sorted by s, equal powers merged.
+    """Return rho_aux near :math:`P_0` as its series in ``u = P_0 - P``,
+    [(s, C_s), ...] sorted by s, equal powers merged.
 
     With rho = C R^-gamma (1 + R^alpha)^e, e = (gamma - beta)/alpha, the depth
     u = c_u R^(2-gamma) (1 + D(R)) is inverted for R = t (1 + S(t)),
@@ -134,8 +150,8 @@ def central_form(alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
 
 
 def center_form(profile: DoublePowerLaw, anisotropy: Anisotropy) -> dict[str, Any]:
-    """Return `central_form` of a component: the profile's own amplitude, the
-    anisotropy's model type, OM entering with beta_c = 0."""
+    r"""Return `central_form` of a component: the profile's own amplitude, the
+    anisotropy's model type, OM entering with :math:`\beta_{\rm c} = 0`."""
     m_typ = _MODEL_TYPES[anisotropy.family]
     bc = 0.0 if m_typ in ("OM_I", "OM_II") else float(anisotropy.beta_c)
     return central_form(
@@ -147,6 +163,50 @@ def center_form(profile: DoublePowerLaw, anisotropy: Anisotropy) -> dict[str, An
         float(anisotropy.r_a),
         float(profile.rho_norm),
     )
+
+
+def top_limit(
+    profile: DoublePowerLaw,
+    anisotropy: Anisotropy,
+    orders: tuple[int, ...] | None = None,
+) -> float:
+    """Return the least depth ``u = P_0 - P`` at which the exact derivatives of
+    the given orders of rho_aux are finite in float64, from the model alone.
+
+    Each term C_s u^s of `rho_aux_series` gives d^N rho_aux/dP^N =
+    (-1)^N C_s s (s-1) ... (s-N+1) u^(s-N), which exceeds the largest float64
+    below u = (|C_s s ... (s-N+1)| / DBL_MAX)^(1/(N-s)) where s < N; the limit
+    is the largest over the terms and the orders, 0 where none grows. By
+    default the orders are the inversion's, j - 1 to j + 2
+    (`aux_derivatives`).
+    """
+    if orders is None:
+        from .inversion import order_pair
+
+        beta = 0.0 if anisotropy.model == "om" else float(anisotropy.beta_c)
+        j = order_pair(beta).order_j
+        orders = tuple(range(max(j - 1, 0), j + 3))
+    m_typ = _MODEL_TYPES[anisotropy.family]
+    bc = 0.0 if m_typ in ("OM_I", "OM_II") else float(anisotropy.beta_c)
+    series = rho_aux_series(
+        float(profile.rho_alpha),
+        float(profile.rho_beta),
+        float(profile.rho_gamma),
+        bc,
+        m_typ,
+        float(anisotropy.r_a),
+        float(profile.rho_norm),
+    )
+    log_max = np.log(np.finfo(np.float64).max)
+    u_min = 0.0
+    for s, c in series:
+        for n in orders:
+            falling = float(np.prod([s - i for i in range(n)])) if n > 0 else 1.0
+            if not (s < n and falling != 0.0 and c != 0.0):
+                continue
+            log_u = (np.log(abs(c * falling)) - log_max) / (n - s)
+            u_min = max(u_min, float(np.exp(log_u)))
+    return u_min
 
 
 def _central_next_term(res, alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
@@ -208,7 +268,7 @@ def _central_next_term(res, alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
             next_coef_rho=c2,
             next_line=f"next: s2 = {s2:.6f} = nu + {kk}, L2 = {L2:.10e}",
         )
-    A2 = float(Np * c2 * gamma_function(nu - s2) / gamma_function(-s2))
+    A2 = float(Np * c2 * _gamma_ratio(nu - s2, -s2))
     return dict(
         next_form="power",
         next_s=s2,
@@ -239,7 +299,7 @@ def _central_form_leading(alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
         return abs(x - round(x)) <= tol
 
     def _amp(Cs, s):
-        return float(Np * Cs * gamma_function(nu - s) / gamma_function(-s))
+        return float(Np * Cs * _gamma_ratio(nu - s, -s))
 
     if g > 2.0 * bce + tol and g < 2.0:
         s0 = (2.0 * bce - g) / (2.0 - g)

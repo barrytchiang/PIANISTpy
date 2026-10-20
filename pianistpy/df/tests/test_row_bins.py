@@ -1,8 +1,8 @@
 """Tests of the row-count bins: the fill and the check read one definition.
 
 The README's quick start once truncated at tier "refused": the check counted
-the depth's top bin only up to a tenth of P_0, while the fill filled it up to
-a depth of 1e-1.
+the depth's top bin only up to a tenth of :math:`P_0`, while the fill filled it
+up to a depth of :math:`10^{-1}`.
 """
 
 import numpy as np
@@ -54,6 +54,9 @@ def test_the_check_reads_the_fills_bins(quick_start):
     assert fills and checks
     fill, check = fills[-1], checks[-1]
     assert check.min_per_bin == fill.min_per_bin
-    assert check.u_top == fill.u_top
+    # u_top is each side's deepest row below the cap: the fill's from the solve's
+    # rows, the check's from the profile's, so the two may differ; their bins may not
+    for side in (fill, check):
+        assert side.u_top <= side.psi_top  # psi_top is the cap, ROW_BINS_TOP P_0
     np.testing.assert_allclose(check.psi_edges, fill.psi_edges, rtol=1e-12, atol=0)
     np.testing.assert_array_equal(check.u_edges, fill.u_edges)

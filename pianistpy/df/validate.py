@@ -4,11 +4,12 @@ The rows the profile keeps are those the Poisson solve reached reliably:
 from the innermost radius the solve was asked for to the last row where the
 potential is at or above the floor. On an untruncated model the solve's
 potential carries a constant outer offset eps (its integration constant),
-measured against the source profile's own potential beyond r = 1e3; it sets
-the radius out to which a relative accuracy holds (R_trust). The outer rows
-of an untruncated model, where the depth u = P_0 - Phi is well conditioned
-(Phi < P_0 / 2), are then the source profile's closed forms on a fixed
-logarithmic grid, from R(Phi = P_0 / 2) to R(Phi = floor), so that the
+measured against the source profile's own potential beyond
+:math:`r = 10^{3}`; it sets the radius out to which a relative accuracy holds
+(R_trust). The outer rows of an untruncated model, where the depth
+``u = P_0 - Phi`` is well conditioned (``Phi < P_0 / 2``), are then the source
+profile's closed forms on a fixed logarithmic grid, from
+``R(Phi = P_0 / 2)`` to ``R(Phi = floor)``, so that the
 table's end does not move with the solve's offset.
 
 The arithmetic is the working pipeline's, operation for operation, so that
@@ -41,15 +42,15 @@ class ValidatedRows:
     r, phi, rho, mass : array, shape (n,)
         The rows the profile keeps, increasing in r.
     u_r, u : array
-        The central coordinate u = P_0 - Phi on the solve's rows and the
+        The central coordinate ``u = P_0 - Phi`` on the solve's rows and the
         fill's, and on the closed-form outer rows; matched to the profile's
         rows by radius.
     eps : float
         The untruncated solve's outer potential offset; NaN on a truncated
         model.
     r_trust : dict
-        R_trust at the relative accuracies 1e-4, 1e-5 and 1e-6 (NaN on a
-        truncated model).
+        R_trust at the relative accuracies :math:`10^{-4}`, :math:`10^{-5}`
+        and :math:`10^{-6}` (NaN on a truncated model).
     inner_rows : dict
         The rows inside the solve's requested inner radius (the inner fill's
         series rows), which the profile keeps: their count and their radius
@@ -57,7 +58,7 @@ class ValidatedRows:
     r_t : float
         The edge of a spatially finite model, where the profile's last row
         is: the radius where the Kepler exterior of the last row of the solve,
-        Phi = M (1/r - 1/r_t) / (4 pi), reaches zero; infinite where the solve
+        ``Phi = M (1/r - 1/r_t) / (4 pi)``, reaches zero; infinite where the solve
         found no edge.
     exact_outer : dict
         The closed-form outer rows' join, end, row count and the solve's
@@ -126,7 +127,8 @@ def validate_rows(
     Raises
     ------
     AccuracyError
-        Where an untruncated model's solve ends without reaching r = 1e3: the
+        Where an untruncated model's solve ends without reaching
+        :math:`r = 10^{3}`: the
         DF does not rebuild the model's density.
     """
     r_out, psi_out = np.array(solve.r), np.array(solve.phi)

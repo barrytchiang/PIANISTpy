@@ -1,4 +1,4 @@
-"""The checks a DF table states about itself, and the validity certificate.
+"""The checks a DF table states about itself, and the validity check.
 
 The checks are the working reader's (``pianistpy_io.df_lookup``), made on the
 table as it is written: the stated slope column against the table's own F,
@@ -10,7 +10,7 @@ The same checks are measured on the inversion's own table by `measure_table`,
 which refuses nothing: each value is judged on the tiers by the report that
 holds it.
 
-The certificate is closed form: from the model and the exponent of the DF at
+The validity check is closed form: from the model and the exponent of the DF at
 the center, whether the table's columns are representable in float64.
 """
 
@@ -88,7 +88,7 @@ def slope_column_excess(
     neighbors by at most dm h 4/27, h the longer adjacent interval.
 
     Where the nodes change their spacing at ``split`` (the first node of the
-    table above the nodes below its floor), a node whose centerd stencils
+    table above the nodes below its floor), a node whose centered stencils
     would cross the change takes stencils on its own side, one-sided, and h
     is the interval on that side: an exact difference on the nodes' own
     spacing, no node moved.
@@ -302,7 +302,7 @@ def table_checks(
     ddf_dk : array, shape (n,) or None
         The written dF/dK column, if any.
     p_0 : float
-        Central potential of the table, 1 - k_t.
+        Central potential of the table, ``1 - k_t``.
     top : mapping
         The stated center: ``top_kappa``, ``top_form``, its exponent,
         amplitude or logarithm's coefficient, and its next term.
@@ -385,8 +385,9 @@ def measure_table(
     tail: Mapping[str, float] | None = None,
     edge_taylor: tuple[float, float, float] | None = None,
     edge_law: tuple[float, float, float] | None = None,
+    edge_first: bool = False,
 ) -> TableChecks:
-    """Return the checks of a DF table, refusing none of them.
+    r"""Return the checks of a DF table, refusing none of them.
 
     The checks of `table_checks`, measured on a table and its slopes as the
     inversion states them: a value beyond a limit is returned, for the
@@ -408,6 +409,10 @@ def measure_table(
         where not exact); the last may lie on the table's first row.
     tail, edge_taylor, edge_law : optional
         The forms below the floor, as for `table_checks`.
+    edge_first : bool, optional
+        Whether the support's first node lies on an edge whose known law the
+        polynomial stencils cannot read (a Type II DF at
+        :math:`P(R_{\rm a})`); the slope column is not judged there.
 
     Returns
     -------
@@ -433,20 +438,43 @@ def measure_table(
             )
             slope = None if (slope is None or sb is None) else np.r_[sb[keep], slope]
     checks = _measure(
-        k, log_df, slope, p_0, top, tail, edge_taylor, edge_law, False, split
+        k,
+        log_df,
+        slope,
+        p_0,
+        top,
+        tail,
+        edge_taylor,
+        edge_law,
+        False,
+        split,
+        edge_first,
     )
     return dataclasses.replace(checks, below_join=join)
 
 
 def _measure(
-    k, log_df, slope, p_0, top, tail, edge_taylor, edge_law, refuse, split=None
+    k,
+    log_df,
+    slope,
+    p_0,
+    top,
+    tail,
+    edge_taylor,
+    edge_law,
+    refuse,
+    split=None,
+    edge_first=False,
 ):
     """The checks on a table joined to its nodes below; the reader's refusals
-    where ``refuse``."""
+    where ``refuse``; the slope column not judged at the support's first node
+    where ``edge_first``."""
     x = np.log(k)
     excess = 0.0
     if slope is not None:
         per_node = slope_column_excess(x, log_df, slope, split)
+        if edge_first:
+            per_node = np.delete(per_node, split or 0)
         excess = float(np.max(per_node)) if per_node.size else 0.0
         if refuse and np.any(per_node > HARD_LIMIT):
             raise ResultError(

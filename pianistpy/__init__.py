@@ -6,21 +6,29 @@ __all__ = [
     "Anisotropy",
     "Aperture",
     "Component",
+    "Data",
+    "Differentiable",
     "DistributionFunction",
     "DoublePowerLaw",
     "InputError",
     "LosTable",
     "Model",
+    "Particles",
     "PianistpyError",
     "PianistpyWarning",
+    "ProjectedSampler",
     "ResultError",
     "Sampler",
     "Settings",
     "Truncation",
     "UnphysicalModelError",
     "__version__",
+    "aperture_losvd",
     "compute_df",
+    "likelihood",
     "log",
+    "losvd",
+    "pdf_v",
     "platform",
     "read",
     "set_compilation_cache",
@@ -30,6 +38,8 @@ __all__ = [
     "set_workers",
     "sigma_los",
     "sigma_los_aperture",
+    "sigma_r",
+    "sigma_t",
     "solve",
     "superpose",
     "truncate",
@@ -57,9 +67,22 @@ from .exceptions import (
     ResultError,
     UnphysicalModelError,
 )
+from .inference import Data, likelihood
 from .io import read
-from .observables import Aperture, LosTable, sigma_los, sigma_los_aperture
-from .particles import Sampler
+from .observables import (
+    Aperture,
+    Differentiable,
+    LosTable,
+    ProjectedSampler,
+    aperture_losvd,
+    losvd,
+    pdf_v,
+    sigma_los,
+    sigma_los_aperture,
+    sigma_r,
+    sigma_t,
+)
+from .particles import Particles, Sampler
 from .profiles import DoublePowerLaw
 from .runtime import (
     configure_jax,

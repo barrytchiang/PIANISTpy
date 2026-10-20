@@ -9,6 +9,7 @@ __all__ = [
     "cumulative_df",
     "ellipse_model",
     "ellipse_route",
+    "floor_radius",
 ]
 
 import math
@@ -24,7 +25,8 @@ from ..df.lookup import (
     evaluate_lookup,
     prepare_lookup,
 )
-from ..exceptions import InputError
+from ..exceptions import InputError, ResultError
+from ..numerics import hermite
 from ..profiles import TruncatedProfile
 from ..typing import Array, ArrayLike
 from ..validation import GOAL
@@ -149,20 +151,24 @@ class LogPotentialSlopes:
 
 
 class PotentialReading:
-    """The potential of a profile at radii, as the ellipse route reads it.
+    r"""The potential of a profile at radii, as the ellipse route reads it.
 
     The rows' one reading of the potential: its values are
     the profile's own (`TruncatedProfile.potential`), its derivatives those of
     the same Hermite (`LogPotentialSlopes`, from the profile's interpolation
     tables), and nothing else in the rows holds a potential. The one clip left
     is `EllipseRoute.f_extrema`'s of ln R to the knots, behind its refusal of a
-    line of sight outside them: it takes the end's rounding (R_2D cosh(arccosh(
-    R_t / R_2D)) can exceed R_t by one unit in the last place) to R_t.
+    line of sight outside them: it takes the end's rounding
+    (``R_2D cosh(arccosh(R_t / R_2D))`` can exceed :math:`R_{\rm t}` by one
+    unit in the last place) to :math:`R_{\rm t}`.
 
     Parameters
     ----------
     profile : TruncatedProfile
         The profile.
+    p_0 : float, optional
+        The model's central potential, which `depth` is read below; NaN
+        reads every depth as the difference.
 
     Attributes
     ----------
@@ -172,13 +178,44 @@ class PotentialReading:
         The first row and the end of the lines of sight.
     """
 
-    def __init__(self, profile: TruncatedProfile) -> None:
+    def __init__(self, profile: TruncatedProfile, p_0: float = math.nan) -> None:
         self.profile = profile
         self.spline = LogPotentialSlopes(profile)
         self.R_knots = (float(profile.r[0]), float(profile.r_table_max))
+        self.p_0 = float(p_0)
+        # the solve's depths on the rows where P_0 - Phi has lost digits (the
+        # depth below P_0 / 2), with the exact slope d ln u / d ln r = M / (r u)
+        n = profile._n_interior
+        u = np.asarray(profile.u_trunc, dtype=np.float64)
+        self._deep = None
+        if np.isfinite(self.p_0) and u.size >= n:
+            r = np.asarray(profile.r[:n], dtype=np.float64)
+            mass = np.asarray(profile.mass_trunc[:n], dtype=np.float64)
+            deep = np.flatnonzero((u[:n] > 0.0) & (u[:n] < 0.5 * self.p_0))
+            if deep.size >= 2 and deep[-1] == deep.size - 1:
+                u, r, mass = u[deep], r[deep], mass[deep]
+                self._deep = (np.log(r), np.log(u), mass / (r * u), float(r[-1]))
 
     def __call__(self, r: ArrayLike) -> Array:
         return self.profile.potential(np.atleast_1d(np.asarray(r, dtype=np.float64)))
+
+    def depth(self, r: ArrayLike) -> Array:
+        r"""Return :math:`P_0 - \Phi` at radii: inside the rows whose depth is
+        below :math:`P_0/2`, the cubic Hermite in ln r of ln u through the
+        solve's own column `u_trunc` with its exact slopes :math:`M/(r u)`,
+        which keeps the digits :math:`P_0 - \Phi` loses near the center;
+        elsewhere, or where the column does not cover the rows, the
+        difference itself."""
+        r = np.atleast_1d(np.asarray(r, dtype=np.float64))
+        out = self.p_0 - self(r)
+        if self._deep is None:
+            return out
+        log_r, log_u, slope, r_end = self._deep
+        inside = r <= r_end
+        if np.any(inside):
+            log_d, _ = hermite(np.log(r[inside]), log_r, log_u, slope)
+            out[inside] = np.exp(log_d)
+        return out
 
 
 class DfReading:
@@ -196,8 +233,10 @@ class DfReading:
     def __init__(self, arrays: LookupArrays, kinds: LookupKinds, shift: float) -> None:
         self.arrays, self.kinds, self.shift = arrays, kinds, float(shift)
 
-    def __call__(self, q: ArrayLike) -> Array:
-        log_f = evaluate_lookup(self.arrays, self.kinds, q)
+    def __call__(self, q: ArrayLike, u: ArrayLike | None = None) -> Array:
+        """F at the energies `q`, or by the depths ``u = P_0 - q`` where they are
+        given and finite (the lookup's depth entry)."""
+        log_f = evaluate_lookup(self.arrays, self.kinds, q, u=u)
         return np.where(np.isfinite(log_f), 10.0 ** (log_f - self.shift), 0.0)
 
     def log10(self, q: ArrayLike) -> Array:
@@ -389,6 +428,45 @@ def ellipse_model(
     )
 
 
+def floor_radius(model: Model) -> float:
+    r"""Return where the rows of a model end: the profile's last row, or,
+    where the DF is zero below its lookup's first energy :math:`K_0` (the
+    rule ``"zero"``, the nodes below the table included) and the potential
+    falls below :math:`K_0` inside the profile, the radius where
+    :math:`\mathcal{P} = K_0`, beyond which the DF is zero along every line
+    of sight.
+
+    Raises
+    ------
+    ResultError
+        Where that radius is at or inside the profile's first row.
+    """
+    profile = model.profile
+    r_last = float(profile.r_table_max)
+    arrays, kinds = prepare_lookup(model.table, model.form, 0)
+    k_0 = float(arrays.params[K_0])
+
+    def p(log_r: float) -> float:
+        return float(np.asarray(profile.potential(np.array([math.exp(log_r)])))[0])
+
+    if kinds.below_floor != "zero" or p(math.log(r_last)) >= k_0:
+        return r_last
+    lo, hi = math.log(float(profile.r[0])), math.log(r_last)
+    if p(lo) <= k_0:
+        raise ResultError(
+            f"The DF is zero below its floor K_0 = {k_0:.6e} (the rule 'zero'), "
+            f"which the potential reaches at or inside the profile's first row "
+            f"r = {math.exp(lo):.6e}: the model has no line of sight to tabulate."
+        )
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        if p(mid) > k_0:
+            lo = mid
+        else:
+            hi = mid
+    return math.exp(0.5 * (lo + hi))
+
+
 def ellipse_route(
     model: Model, rules: EllipseRules, with_df: bool = True
 ) -> EllipseRoute:
@@ -408,6 +486,9 @@ def ellipse_route(
     ------
     InputError
         For a model of more than one component.
+    ResultError
+        Where the DF's floor ends the rows inside the profile's first row
+        (`floor_radius`).
     """
     if len(model.components) != 1:
         raise InputError(
@@ -448,8 +529,8 @@ def ellipse_route(
             rules,
         )
     return EllipseRoute(
-        PotentialReading(model.profile),
-        float(model.profile.r_table_max),
+        PotentialReading(model.profile, float(model.form.p_0)),
+        floor_radius(model),
         constants,
         df,
         rules,

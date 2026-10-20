@@ -2,10 +2,10 @@
 
 The density of the scaled speed x on the row of potential Psi is
 
-    p(x | Psi) ~ x^(2 - 2 beta_c) F(Psi (1 - x^2)),
+    ``p(x | Psi) ~ x^(2 - 2 beta_c) F(Psi (1 - x^2))``,
 
-a function of Psi alone, so one table serves every radius (Notes Section
-II.6.1 [speed-table]). Its rows are uniform in lambda_p = ln(Psi / (p_0 -
+a function of Psi alone, so one table serves every radius (Section T:5.2.1
+[speed-table]). Its rows are uniform in lambda_p = ln(Psi / (p_0 -
 Psi)) over the profile's range of Psi, with one guard row beyond each end;
 on each row the inverse s(lambda_u), s = ln(x / (x_e - x)) and lambda_u =
 ln(u / (1 - u)), is tabulated at nodes uniform in lambda_u with its exact
@@ -24,6 +24,7 @@ safeguarded Newton on the true residual.
 __all__ = ["SPEED_TABLE_KEYS", "build_speed_table"]
 
 import functools
+import logging
 import math
 from typing import NamedTuple
 
@@ -42,11 +43,12 @@ from ..df.lookup import (
     K_0,
     LookupArrays,
     LookupKinds,
+    _below,
     below_floor_mass,
     evaluate_lookup,
     prepare_lookup,
 )
-from ..exceptions import ResultError
+from ..exceptions import AccuracyError, ResultError, UnphysicalModelError
 from ..numerics import hermite, hermite_inverse
 from ..typing import Array
 from ..validation import GOAL, HARD_LIMIT, Check, ValidationReport
@@ -55,7 +57,7 @@ from ..validation import GOAL, HARD_LIMIT, Check, ValidationReport
 # its step is below the spacing of doubles, or two passes fail to improve it.
 NODE_TOLERANCE = 1e-13
 # Most passes of the polish of a row: a guard. With the lookup asked by the
-# depth near the top, the 33 members of the assembly subset take at most 5.
+# depth near the top, the 33 test models take at most 5.
 POLISH_PASSES_MAX = 60
 # Most iterations, and the tolerance, of the Newton that places a node beyond
 # the last construction node on a tail with a logarithmic factor. On the two
@@ -81,6 +83,8 @@ LOG_ARGUMENT_MIN = 1e-300
 # probability.
 SPEED_TABLE_KEYS = ("row_error", "polish_residual")
 
+_log = logging.getLogger("pianistpy")
+
 
 # ---- the kernels: module functions, the tables and the model's numbers traced,
 # so that every model of the same shapes and kinds shares one compilation ----
@@ -93,15 +97,35 @@ def _log10_df_kernel(e, u, arrays, kinds):
     return evaluate_lookup(arrays, kinds, e, xp=jnp, u=u)
 
 
-@functools.partial(jax.jit, static_argnums=(2,))
-def _kappa_kernel(e, arrays, kinds):
-    """d ln F / d ln K at energies of shape (n,)."""
+@functools.partial(jax.jit, static_argnums=(3,))
+def _kappa_kernel(e, u, arrays, kinds):
+    """d ln F / d ln K at energies of shape (n,), by the depth `u` where it
+    is finite (`_kappa_at`)."""
+    return _kappa_at(e, u, arrays, kinds)
 
-    def one(z):
-        slope = jax.grad(lambda q: evaluate_lookup(arrays, kinds, q, xp=jnp))(z)
-        return slope * z * jnp.log(10.0)
 
-    return jax.vmap(one)(e)
+def _kappa_at(e, u, arrays, kinds):
+    """d ln F / d ln K at energies of shape (n,): where the depth u = p_0 - K
+    is held (finite), -K d ln F / d u through the lookup's depth entry, since
+    K formed near p_0 moves in steps of its last bit; elsewhere by K. At the
+    table's first energy K_0 itself, where the DF continues below it, the
+    rule below the table's: the lookup reads K_0 from the table, whose
+    derivative there is one-sided, while the rule's is exact (the bottom row
+    of a table whose lowest potential is K_0 reads it at every node)."""
+    k_0 = arrays.params[K_0]
+
+    def one(z, d):
+        held = jnp.isfinite(d)
+        by_k = jax.grad(lambda q: evaluate_lookup(arrays, kinds, q, xp=jnp))(z) * z
+        if kinds.below_floor != "zero":
+            at_k_0 = jax.grad(lambda q: _below(arrays, kinds, q, jnp))(z) * z
+            by_k = jnp.where(z == k_0, at_k_0, by_k)
+        by_u = -z * jax.grad(lambda v: evaluate_lookup(arrays, kinds, z, xp=jnp, u=v))(
+            jnp.where(held, d, 1.0)
+        )
+        return jnp.where(held, by_u, by_k) * jnp.log(10.0)
+
+    return jax.vmap(one)(e, u)
 
 
 def _on_bucket(kernel, e, arrays, kinds, u=None):
@@ -159,37 +183,33 @@ class _RowNumbers(NamedTuple):
     lam_t: Array
 
 
-def _k_logpdf(psi, xe, x, d, arrays, cfg, nums):
+def _k_logpdf(psi, w, xe, x, d, arrays, cfg, nums):
     """`_Rows.logpdf` in a kernel: E from d where d is finite, F asked by the
-    depth on the side formed from x near the top."""
+    depth on the side formed from x near the top, w the row's depth p_0 - Psi."""
     e = jnp.maximum(psi * (1.0 - x * x), 0.0)
     fd = jnp.isfinite(d)
     dd = jnp.where(fd, d, 0.0)
     e = jnp.where(fd, nums.e_edge + psi * dd * (2.0 * xe - dd), e)
-    u = jnp.where(~fd & (e >= 0.5 * nums.p_0), (nums.p_0 - psi) + psi * x * x, jnp.nan)
+    u = jnp.where(~fd & (e >= 0.5 * nums.p_0), w + psi * x * x, jnp.nan)
     return evaluate_lookup(arrays, cfg.kinds, e, xp=jnp, u=u) + nums.velocity_power * (
         jnp.log10(jnp.maximum(x, LOG_ARGUMENT_MIN))
     )
 
 
-def _k_kappa(e, arrays, cfg):
-    """d ln F / d ln K of the lookup at energies of any shape."""
-
-    def one(z):
-        slope = jax.grad(lambda q: evaluate_lookup(arrays, cfg.kinds, q, xp=jnp))(z)
-        return slope * z * jnp.log(10.0)
-
-    return jax.vmap(one)(e.ravel()).reshape(e.shape)
+def _k_kappa(e, u, arrays, cfg):
+    """d ln F / d ln K of the lookup at energies of any shape, by the depth u
+    where it is finite."""
+    return _kappa_at(e.ravel(), u.ravel(), arrays, cfg.kinds).reshape(e.shape)
 
 
-def _k_gl_mass(psi, xe, s0, s1, valid, by_d, arrays, cfg, nums):
+def _k_gl_mass(psi, w, xe, s0, s1, valid, by_d, arrays, cfg, nums):
     """GL masses of panels between s0 and s1 in ln x, or in ln d = ln(x_e - x)
     with by_d; the group shifted by its own largest term, as one host call."""
     mid, half = 0.5 * (s0 + s1), 0.5 * (s1 - s0)
     e = jnp.exp(mid[:, None] + half[:, None] * nums.gl_x[None, :])
     x = xe - e if by_d else e
     d = e if by_d else jnp.full(e.shape, jnp.nan)
-    levels = _k_logpdf(psi, xe, x, d, arrays, cfg, nums)
+    levels = _k_logpdf(psi, w, xe, x, d, arrays, cfg, nums)
     fin = jnp.isfinite(levels) & valid[:, None]
     peak = jnp.max(jnp.where(fin, levels, -jnp.inf))
     peak = jnp.where(jnp.isfinite(peak), peak, 0.0)
@@ -267,7 +287,7 @@ def _k_hermite_inverse(xn, fn, mn, n, target):
     return xq
 
 
-def _k_pair_masses(psi, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=False):
+def _k_pair_masses(psi, w, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=False):
     """`_Rows.pair_masses` in a kernel: each pair's panel shifted by its own
     largest term (the polish), or the row's (the slopes, with the weight
     kappa(E))."""
@@ -278,7 +298,7 @@ def _k_pair_masses(psi, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=Fals
     e = jnp.exp(mid[:, None] + half[:, None] * nums.gl_x[None, :])
     xp = jnp.where(up[:, None], xe - e, e)
     d_up = jnp.where(up[:, None], e, jnp.nan)
-    levels = _k_logpdf(psi, xe, xp, d_up, arrays, cfg, nums)
+    levels = _k_logpdf(psi, w, xe, xp, d_up, arrays, cfg, nums)
     fin = jnp.isfinite(levels)
     if kappa_weight:
         peak = jnp.max(jnp.where(fin, levels, -jnp.inf))
@@ -290,7 +310,10 @@ def _k_pair_masses(psi, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=Fals
             nums.e_edge + psi * dd * (2.0 * xe - dd),
             jnp.maximum(psi * (1.0 - xp * xp), 0.0),
         )
-        weight = e * _k_kappa(energies, arrays, cfg)
+        depths = jnp.where(
+            ~fd & (energies >= 0.5 * nums.p_0), w + psi * xp * xp, jnp.nan
+        )
+        weight = e * _k_kappa(energies, depths, arrays, cfg)
         values = jnp.where(fin, 10.0 ** (levels - peak), 0.0) * weight
         integral = half * (values @ nums.gl_w) * 10.0**peak
     else:
@@ -339,7 +362,7 @@ def _k_place_beyond(psi, xe, tot, d1, c_above, s_t, s_last, q_t, nums):
 
 
 def _k_construct_row(
-    psi, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid, arrays,
+    psi, w, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid, arrays,
     cfg, nums,
 ):  # fmt: skip
     """`_Rows.row` up to the polish, on one row of the layout: the construction
@@ -349,17 +372,19 @@ def _k_construct_row(
     n_x = x_nodes.size
     args = (arrays, cfg, nums)
     s_lo = jnp.log(sub_lo)
-    m_lo = _k_gl_mass(psi, xe, s_lo[:-1], s_lo[1:], s_lo[1:] > -jnp.inf, False, *args)
+    m_lo = _k_gl_mass(
+        psi, w, xe, s_lo[:-1], s_lo[1:], s_lo[1:] > -jnp.inf, False, *args
+    )
     n_hi = d_hi.size
     s_hi = jnp.log(d_hi)
     m_hi = _k_gl_mass(
-        psi, xe, s_hi[:-1], s_hi[1:], jnp.arange(n_hi - 1) < n_h - 1, True, *args
+        psi, w, xe, s_hi[:-1], s_hi[1:], jnp.arange(n_hi - 1) < n_h - 1, True, *args
     )
     up = i_kind == 1
     s0 = jnp.where(up, jnp.log(xe - i_lo), jnp.log(i_lo))
     s1 = jnp.where(up, jnp.log(xe - i_hi), jnp.log(i_hi))
-    m_int = _k_gl_mass(psi, xe, s0, s1, i_valid & ~up, False, *args) + _k_gl_mass(
-        psi, xe, s0, s1, i_valid & up, True, *args
+    m_int = _k_gl_mass(psi, w, xe, s0, s1, i_valid & ~up, False, *args) + _k_gl_mass(
+        psi, w, xe, s0, s1, i_valid & up, True, *args
     )
     inc = jnp.zeros(n_x - 1).at[i_own].add(jnp.where(i_valid, m_int, 0.0))
     k = jnp.arange(n_x - 1)
@@ -367,7 +392,7 @@ def _k_construct_row(
     x0 = sub_lo[0]
     c_below = (
         x0
-        * 10.0 ** _k_logpdf(psi, xe, x0[None], jnp.full(1, jnp.nan), *args)[0]
+        * 10.0 ** _k_logpdf(psi, w, xe, x0[None], jnp.full(1, jnp.nan), *args)[0]
         / (nums.velocity_power + 1.0)
     )
     if not cfg.continues:
@@ -375,12 +400,12 @@ def _k_construct_row(
         c_above = (
             0.5
             * d1
-            * jnp.sum(nums.gl_w * 10.0 ** _k_logpdf(psi, xe, xe - dg, dg, *args))
+            * jnp.sum(nums.gl_w * 10.0 ** _k_logpdf(psi, w, xe, xe - dg, dg, *args))
         )
     elif cfg.rule != "tail":
         c_above = _k_floor_mass(psi * d1 * (2.0 * xe - d1), arrays, cfg) / (2.0 * psi)
     else:
-        edge = 10.0 ** _k_logpdf(psi, xe, (xe - d1)[None], d1[None], *args)[0]
+        edge = 10.0 ** _k_logpdf(psi, w, xe, (xe - d1)[None], d1[None], *args)[0]
         c_above = edge * d1 / (1.0 - nums.a_eff) * ratio
     c_lo = c_below + jnp.cumsum(m_lo)
     up_inc = jnp.cumsum(inc)
@@ -419,7 +444,7 @@ def _k_construct_row(
     ) & (idx < n_1)
     n_2, (x_all, d_all, u, q) = _k_compact(prog, x_all, d_all, u, q)
     d_or_nan = jnp.where(x_all >= 0.5 * xe, d_all, jnp.nan)
-    p_n = 10.0 ** (_k_logpdf(psi, xe, x_all, d_or_nan, *args) - jnp.log10(tot))
+    p_n = 10.0 ** (_k_logpdf(psi, w, xe, x_all, d_or_nan, *args) - jnp.log10(tot))
     s_n = jnp.log(x_all) - jnp.log(d_all)
     lam_n = jnp.log(u) - jnp.log(q)
     m_n = p_n * x_all * d_all / (xe * u * q)
@@ -462,7 +487,7 @@ def _k_polish_start(psi, xe, tot, nodes, nums):
     return state, inside
 
 
-def _k_polish_pass(state, psi, xe, tot, nodes, arrays, cfg, nums):
+def _k_polish_pass(state, psi, w, xe, tot, nodes, arrays, cfg, nums):
     """One pass of `_Rows.row`'s safeguarded Newton on one row: every node
     evaluated, the live ones updated."""
     s_n, _, _, xk, dk, uk, qk, n = nodes
@@ -474,11 +499,11 @@ def _k_polish_pass(state, psi, xe, tot, nodes, arrays, cfg, nums):
     x_q, d_q = xe / (1.0 + jnp.exp(-s_t)), xe / (1.0 + jnp.exp(s_t))
     i0 = jnp.clip(jnp.searchsorted(s_n, s_t, side="right") - 1, 0, n - 2)
     kn = jnp.where((s_t - s_n[i0]) <= (s_n[i0 + 1] - s_t), i0, i0 + 1)
-    m = _k_pair_masses(psi, xe, xk[kn], dk[kn], x_q, d_q, arrays, cfg, nums) / tot
+    m = _k_pair_masses(psi, w, xe, xk[kn], dk[kn], x_q, d_q, arrays, cfg, nums) / tot
     r = lam_t - (jnp.log(uk[kn] + m) - jnp.log(qk[kn] - m))
     d_q_or_nan = jnp.where(x_q >= 0.5 * xe, d_q, jnp.nan)
     p_q = 10.0 ** (
-        _k_logpdf(psi, xe, x_q, d_q_or_nan, arrays, cfg, nums) - jnp.log10(tot)
+        _k_logpdf(psi, w, xe, x_q, d_q_or_nan, arrays, cfg, nums) - jnp.log10(tot)
     )
     ms_q = xe * u_t * q_t / (p_q * x_q * d_q)
     bad = jnp.maximum(bad, jnp.sum(live & ~jnp.isfinite(r)).astype(jnp.int32))
@@ -522,16 +547,16 @@ def _k_polish_pass(state, psi, xe, tot, nodes, arrays, cfg, nums):
     )
 
 
-@functools.partial(jax.jit, static_argnums=(13,))
+@functools.partial(jax.jit, static_argnums=(14,))
 def _rows_construct_polish(
-    psi, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid, arrays,
+    psi, w, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid, arrays,
     cfg, nums,
 ):  # fmt: skip
     """A chunk's rows: the construction of each and the polish of all of them,
     the passes running while any node of the chunk moves."""
     nodes, tot, c_above, n_2, not_monotone = jax.vmap(
         functools.partial(_k_construct_row, arrays=arrays, cfg=cfg, nums=nums)
-    )(psi, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid)
+    )(psi, w, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid)
     start, inside = jax.vmap(functools.partial(_k_polish_start, nums=nums))(
         psi, xe, tot, nodes
     )
@@ -542,7 +567,7 @@ def _rows_construct_polish(
     def one_pass(state):
         return jax.vmap(
             functools.partial(_k_polish_pass, arrays=arrays, cfg=cfg, nums=nums)
-        )(state, psi, xe, tot, nodes)
+        )(state, psi, w, xe, tot, nodes)
 
     state = jax.lax.while_loop(more, one_pass, start)
     s_t = jnp.where(inside, state[5], state[0])
@@ -552,7 +577,7 @@ def _rows_construct_polish(
     )  # fmt: skip
 
 
-def _k_finish_row(psi, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
+def _k_finish_row(psi, w, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
     """`_Rows.row` after the polish on one row: the nodes beyond the last
     construction node on a logarithmic tail, the slope along the row and the
     across-row slope. -> (stack[s, ms, rs], the count of finite slopes)."""
@@ -564,7 +589,7 @@ def _k_finish_row(psi, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
     args = (arrays, cfg, nums)
     x_t, d_t = xe / (1.0 + jnp.exp(-s_t)), xe / (1.0 + jnp.exp(s_t))
     d_t_or_nan = jnp.where(x_t >= 0.5 * xe, d_t, jnp.nan)
-    p_t = 10.0 ** (_k_logpdf(psi, xe, x_t, d_t_or_nan, *args) - jnp.log10(tot))
+    p_t = 10.0 ** (_k_logpdf(psi, w, xe, x_t, d_t_or_nan, *args) - jnp.log10(tot))
     ms_t = xe * u_t * q_t / (p_t * x_t * d_t)
     der_t = _k_hermite(s_t, s_n, lam_n, m_n, n)[1]
     ms_t = jnp.where(
@@ -575,18 +600,24 @@ def _k_finish_row(psi, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
     okp = jnp.isfinite(pdf_t) & (pdf_t > 0.0)
     dxe = nums.e_edge / (2.0 * psi * psi * xe)
     g_k = _k_pair_masses(
-        psi, xe, x_t[:-1], d_t[:-1], x_t[1:], d_t[1:], *args, kappa_weight=True
+        psi, w, xe, x_t[:-1], d_t[:-1], x_t[1:], d_t[1:], *args, kappa_weight=True
     )
     g_k = jnp.where(jnp.isfinite(g_k), g_k, 0.0)
     e_ends = jnp.stack(
         [psi * (1.0 - x_t[0] ** 2), nums.e_edge + psi * d_t[-1] * (2.0 * xe - d_t[-1])]
     )
-    k_end = _k_kappa(e_ends, arrays, cfg)
+    u_ends = jnp.stack(
+        [
+            jnp.where(e_ends[0] >= 0.5 * nums.p_0, w + psi * x_t[0] ** 2, jnp.nan),
+            jnp.nan,
+        ]
+    )
+    k_end = _k_kappa(e_ends, u_ends, arrays, cfg)
     pe: Array | float
     if cfg.continues:
         pe = 0.0
     else:
-        pdf_e = 10.0 ** _k_logpdf(psi, xe, xe[None], jnp.zeros(1), *args)[0]
+        pdf_e = 10.0 ** _k_logpdf(psi, w, xe, xe[None], jnp.zeros(1), *args)[0]
         pe = jnp.where(jnp.isfinite(pdf_e), pdf_e, 0.0)
     k_b = jnp.where(okp[0], k_end[0] * pdf_t[0] * x_t[0] / (vp + 1.0), 0.0) + (
         jnp.concatenate([jnp.zeros(1), jnp.cumsum(g_k)])
@@ -601,9 +632,7 @@ def _k_finish_row(psi, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
         (k_b - u_t * k_total) / psi - u_t * pe * dxe,
         -((k_a - q_t * k_total) / psi + u_t * pe * dxe),
     )
-    rs_t = (psi * (nums.p_0 - psi) / nums.p_0) * (
-        -(t_du / pdf_t) * xe / (x_t * d_t) - dxe / d_t
-    )
+    rs_t = (psi * w / nums.p_0) * (-(t_du / pdf_t) * xe / (x_t * d_t) - dxe / d_t)
     good = okp & jnp.isfinite(rs_t)
     n_good, (where_good, values) = _k_compact(
         good, jnp.arange(rs_t.size).astype(jnp.float64), rs_t
@@ -617,12 +646,12 @@ def _k_finish_row(psi, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
     return jnp.stack([s_t, ms_t, rs_t]), n_good
 
 
-@functools.partial(jax.jit, static_argnums=(8,))
-def _rows_finish(psi, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
+@functools.partial(jax.jit, static_argnums=(9,))
+def _rows_finish(psi, w, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
     """A chunk's rows after the polish (`_k_finish_row` on each)."""
     return jax.vmap(
         functools.partial(_k_finish_row, arrays=arrays, cfg=cfg, nums=nums)
-    )(psi, xe, tot, d1, c_above, s_t, nodes)
+    )(psi, w, xe, tot, d1, c_above, s_t, nodes)
 
 
 class _Rows:
@@ -661,7 +690,7 @@ class _Rows:
         self.floor_s = floor_s
         self.continues = rule != "zero"
         if self.continues and not floor_s > -1.0:
-            raise ResultError(
+            raise UnphysicalModelError(
                 f"Below its table the DF goes as K^{floor_s:g} ({rule!r}): its "
                 "mass is not finite at K = 0."
             )
@@ -696,9 +725,11 @@ class _Rows:
             u = np.full(np.shape(e), np.nan)
         return _on_bucket(_log10_df_kernel, e, self.arrays, self.kinds, u)
 
-    def kappa(self, e):
-        """d ln F / d ln K at host energies."""
-        return _on_bucket(_kappa_kernel, e, self.arrays, self.kinds)
+    def kappa(self, e, u=None):
+        """d ln F / d ln K at host energies, by the depth `u` where it is finite."""
+        if u is None:
+            u = np.full(np.shape(e), np.nan)
+        return _on_bucket(_kappa_kernel, e, self.arrays, self.kinds, u)
 
     # ---- the density on the host ----
 
@@ -732,12 +763,13 @@ class _Rows:
             e = np.where(fin, e_edge + psi * dd * (2.0 * xe - dd), e)
         return e
 
-    def depth(self, psi, x, d, e):
-        """The depth u = p_0 - E where it is held exactly, NaN elsewhere: on the
-        side formed from x (no finite d) with E >= p_0 / 2, u = (p_0 - Psi) +
-        Psi x^2, both terms exact (Psi >= E >= p_0 / 2). E formed as
-        Psi (1 - x^2) loses it there: on the top rows its last bit is 1e-10 of
-        u, so F would move in steps of E rather than with x, and the polish's
+    def depth(self, psi, w, x, d, e):
+        r"""The depth u = p_0 - E where it is held exactly, NaN elsewhere: on the
+        side formed from x (no finite d) with ``E >= p_0 / 2``, u = w + Psi x^2,
+        both terms exact (``Psi >= E >= p_0 / 2``), w = p_0 - Psi the row's depth
+        as `build_speed_table` gives it. E formed as
+        Psi (1 - x^2) loses it there: on the top rows its last bit is :math:`10^{-10}`
+        of u, so F would move in steps of E rather than with x, and the polish's
         Newton slope would be off by a factor near 2."""
         x = np.asarray(x, dtype=np.float64)
         by_x = (
@@ -746,32 +778,32 @@ class _Rows:
             else ~np.isfinite(np.asarray(d, dtype=np.float64))
         )
         with np.errstate(invalid="ignore"):
-            return np.where(
-                by_x & (e >= 0.5 * self.p_0), (self.p_0 - psi) + psi * x * x, np.nan
-            )
+            return np.where(by_x & (e >= 0.5 * self.p_0), w + psi * x * x, np.nan)
 
-    def logpdf(self, psi, x, d=None, xe=None):
-        """log10 of x^(2 - 2 beta_c) F(E) at host points, F asked by the depth
+    def logpdf(self, psi, w, x, d=None, xe=None):
+        """log10 of ``x^(2 - 2 beta_c) F(E)`` at host points, F asked by the depth
         where it is held."""
         e = self.energy(psi, x, d, xe)
-        return self.log10_df(e, self.depth(psi, x, d, e)) + self.velocity_power * (
+        return self.log10_df(e, self.depth(psi, w, x, d, e)) + self.velocity_power * (
             np.log10(np.maximum(x, 1e-300))
         )
 
-    def panel_masses_d(self, psi, d_edges, xe):
+    def panel_masses_d(self, psi, w, d_edges, xe):
         """Mass on each panel between edges given as distances from the edge."""
         s0, s1 = np.log(d_edges[:-1]), np.log(d_edges[1:])
         mid, half = 0.5 * (s0 + s1), 0.5 * (s1 - s0)
         sp = mid[:, None] + half[:, None] * self.gl_x[None, :]
         dp = np.exp(sp)
-        levels = self.logpdf(psi, (xe - dp).ravel(), dp.ravel(), xe).reshape(dp.shape)
+        levels = self.logpdf(psi, w, (xe - dp).ravel(), dp.ravel(), xe).reshape(
+            dp.shape
+        )
         peak = (
             np.max(levels[np.isfinite(levels)]) if np.any(np.isfinite(levels)) else 0.0
         )
         vals = np.where(np.isfinite(levels), 10.0 ** (levels - peak), 0.0) * dp
         return np.abs(half) * (vals @ self.gl_w) * 10.0**peak
 
-    def panel_masses(self, psi, edges, xe=None):
+    def panel_masses(self, psi, w, edges, xe=None):
         """Mass on each panel between edges: GL in ln x, or in ln(x_e - x) with xe."""
         if xe is not None:
             s0, s1 = np.log(xe - edges[:-1]), np.log(xe - edges[1:])
@@ -781,7 +813,7 @@ class _Rows:
         sp = mid[:, None] + half[:, None] * self.gl_x[None, :]
         xp = (xe - np.exp(sp)) if xe is not None else np.exp(sp)
         levels = self.logpdf(
-            psi, xp.ravel(), np.exp(sp).ravel() if xe is not None else None, xe
+            psi, w, xp.ravel(), np.exp(sp).ravel() if xe is not None else None, xe
         ).reshape(xp.shape)
         jac = np.exp(sp) if xe is not None else xp
         peak = (
@@ -790,7 +822,7 @@ class _Rows:
         vals = np.where(np.isfinite(levels), 10.0 ** (levels - peak), 0.0) * jac
         return np.abs(half) * (vals @ self.gl_w) * 10.0**peak
 
-    def interior_masses(self, psi, k_hi, xe):
+    def interior_masses(self, psi, w, k_hi, xe):
         """Mass on each interior interval of the velocity grid, in sub-panels."""
         xn = self.x_nodes[1 : k_hi + 1]
         up = xn[:-1] >= 0.5 * xe
@@ -813,12 +845,12 @@ class _Rows:
             e[np.cumsum(nsub) - 1] = b
             edges = np.concatenate([[a[0]], e])
             m = self.panel_masses(
-                psi, (xe - edges) if kind else edges, xe if kind else None
+                psi, w, (xe - edges) if kind else edges, xe if kind else None
             )
             np.add.at(out, idx[owner], m)
         return out
 
-    def pair_masses(self, psi, xa, xq, dq, xe, da=None, xshift=0.0, kappa_w=None):
+    def pair_masses(self, psi, w, xa, xq, dq, xe, da=None, xshift=0.0, kappa_w=None):
         """Signed mass from xa to xq, one GL panel per pair; with kappa_w = c the
         integrand carries the weight c + kappa(E)."""
         up = xq >= 0.5 * xe
@@ -828,14 +860,15 @@ class _Rows:
         e = np.exp(mid[:, None] + half[:, None] * self.gl_x[None, :])
         xp = np.where(up[:, None], xe - e, e)
         d_up = np.where(up[:, None], e, np.nan).ravel()
-        levels = self.logpdf(psi, xp.ravel(), d_up, xe).reshape(xp.shape)
+        levels = self.logpdf(psi, w, xp.ravel(), d_up, xe).reshape(xp.shape)
         peak = (
             np.max(levels[np.isfinite(levels)]) if np.any(np.isfinite(levels)) else 0.0
         )
         weight = e if xshift == 0.0 else e * xp**xshift
         if kappa_w is not None:
             energies = self.energy(psi, xp.ravel(), d_up, xe)
-            kappa = self.kappa(energies).reshape(xp.shape)
+            depths = self.depth(psi, w, xp.ravel(), d_up, energies)
+            kappa = self.kappa(energies, depths).reshape(xp.shape)
             weight = weight * (float(kappa_w) + kappa)
         values = np.where(np.isfinite(levels), 10.0 ** (levels - peak), 0.0) * weight
         integral = half * (values @ self.gl_w) * 10.0**peak
@@ -847,15 +880,16 @@ class _Rows:
 
     # ---- one row ----
 
-    def row(self, psi):
-        """One row: (s, d s / d lambda_u, d s / d lambda_p) at the nodes, the
-        residual of the polish, the row's total, x_e."""
+    def row(self, psi, w):
+        """One row, at Psi and its depth w = p_0 - Psi: (s, d s / d lambda_u,
+        d s / d lambda_p) at the nodes, the residual of the polish, the row's
+        total, x_e."""
         vp = self.velocity_power
         x_nodes = self.x_nodes
         xe0 = self.support_edge(psi)
         below_edge = np.flatnonzero(x_nodes < xe0 * (1.0 - EDGE_MARGIN))
         if below_edge.size < 2:
-            raise ResultError(
+            raise AccuracyError(
                 f"The row at Psi = {psi:.6e}: its support ends at x_e = {xe0:.3e}, "
                 "inside the velocity grid's first interval, where the lower "
                 "refinement ends."
@@ -864,11 +898,11 @@ class _Rows:
         k_hi = min(k_hi, x_nodes.size - 2)
         sub_hi_d, xe = self.hi_edges(psi, x_nodes[k_hi])
         # the masses of the grid's interior intervals, x_nodes[1] to x_nodes[k_hi]
-        inc = self.interior_masses(psi, k_hi, xe) if k_hi > 1 else np.zeros(0)
-        m_lo = self.panel_masses(psi, self.sub_lo_edges)
-        m_hi = self.panel_masses_d(psi, sub_hi_d, xe)
+        inc = self.interior_masses(psi, w, k_hi, xe) if k_hi > 1 else np.zeros(0)
+        m_lo = self.panel_masses(psi, w, self.sub_lo_edges)
+        m_hi = self.panel_masses_d(psi, w, sub_hi_d, xe)
         x0 = self.sub_lo_edges[0]
-        c_below = x0 * 10.0 ** self.logpdf(psi, np.array([x0]))[0] / (vp + 1.0)
+        c_below = x0 * 10.0 ** self.logpdf(psi, w, np.array([x0]))[0] / (vp + 1.0)
         a_eff = -self.floor_s if self.continues else 0.0
         d1 = float(sub_hi_d[-1])
         if not self.continues:
@@ -876,7 +910,9 @@ class _Rows:
             c_above = (
                 0.5
                 * d1
-                * float(np.sum(self.gl_w * 10.0 ** self.logpdf(psi, xe - dg, dg, xe)))
+                * float(
+                    np.sum(self.gl_w * 10.0 ** self.logpdf(psi, w, xe - dg, dg, xe))
+                )
             )
         elif self.rule != "tail":
             e_1 = psi * d1 * (2.0 * xe - d1)
@@ -898,7 +934,7 @@ class _Rows:
                 else 1.0
             )
             c_above = (
-                10.0 ** self.logpdf(psi, np.array([xe - d1]), np.array([d1]), xe)[0]
+                10.0 ** self.logpdf(psi, w, np.array([xe - d1]), np.array([d1]), xe)[0]
                 * d1
                 / (1.0 - a_eff)
                 * ratio
@@ -927,12 +963,12 @@ class _Rows:
         )
         x_all, d_all, u, q = x_all[prog], d_all[prog], u[prog], q[prog]
         if x_all.size < ROW_NODES_MIN:
-            raise ResultError(
+            raise AccuracyError(
                 f"The row at Psi = {psi:.6e} carries no resolvable mass "
                 f"({x_all.size} nodes)."
             )
         d_or_nan = np.where(x_all >= 0.5 * xe, d_all, np.nan)
-        p_n = 10.0 ** (self.logpdf(psi, x_all, d_or_nan, xe) - np.log10(tot))
+        p_n = 10.0 ** (self.logpdf(psi, w, x_all, d_or_nan, xe) - np.log10(tot))
         s_n = np.log(x_all) - np.log(d_all)
         lam_n = np.log(u) - np.log(q)
         m_n = p_n * x_all * d_all / (xe * u * q)
@@ -965,10 +1001,10 @@ class _Rows:
             i0 = np.clip(np.searchsorted(s_n, sa, side="right") - 1, 0, s_n.size - 2)
             kn = np.where((sa - s_n[i0]) <= (s_n[i0 + 1] - sa), i0, i0 + 1)
             with np.errstate(all="ignore"):
-                m = self.pair_masses(psi, xk[kn], x_q, d_q, xe, da=dk[kn]) / tot
+                m = self.pair_masses(psi, w, xk[kn], x_q, d_q, xe, da=dk[kn]) / tot
                 r = lam_t[ix] - (np.log(uk[kn] + m) - np.log(qk[kn] - m))
                 d_q_or_nan = np.where(x_q >= 0.5 * xe, d_q, np.nan)
-                p_q = 10.0 ** (self.logpdf(psi, x_q, d_q_or_nan, xe) - np.log10(tot))
+                p_q = 10.0 ** (self.logpdf(psi, w, x_q, d_q_or_nan, xe) - np.log10(tot))
                 ms_q = xe * u_t[ix] * q_t[ix] / (p_q * x_q * d_q)
             r, sa, i0, ms_q = (
                 r[: act.size],
@@ -1018,13 +1054,13 @@ class _Rows:
         u_t, q_t = 1.0 / (1.0 + np.exp(-lam_t)), 1.0 / (1.0 + np.exp(lam_t))
         x_t, d_t = xe / (1.0 + np.exp(-s_t)), xe / (1.0 + np.exp(s_t))
         d_t_or_nan = np.where(x_t >= 0.5 * xe, d_t, np.nan)
-        p_t = 10.0 ** (self.logpdf(psi, x_t, d_t_or_nan, xe) - np.log10(tot))
+        p_t = 10.0 ** (self.logpdf(psi, w, x_t, d_t_or_nan, xe) - np.log10(tot))
         ms_t = xe * u_t * q_t / (p_t * x_t * d_t)
         _, der_t = hermite(s_t, s_n, lam_n, m_n)
         ms_t = np.where(
             np.isfinite(ms_t) & (ms_t > 0.0), ms_t, 1.0 / np.maximum(der_t, 1e-300)
         )
-        rs_t = self._across_rows(psi, x_t, d_t, p_t, tot, xe, u_t, q_t, lam_t)
+        rs_t = self._across_rows(psi, w, x_t, d_t, p_t, tot, xe, u_t, q_t, lam_t)
         return np.stack([s_t, ms_t, rs_t]), res, tot, xe
 
     def _place_beyond(self, psi, s_t, beyond, q_t, tot, c_above, d1, xe, a_eff):
@@ -1057,7 +1093,7 @@ class _Rows:
         put = ok & (d > 0.0) & (d < xe)
         s_t[beyond[put]] = np.log((xe - d[put]) / d[put])
 
-    def _across_rows(self, psi, x_t, d_t, p_t, tot, xe, u_t, q_t, lam_t):
+    def _across_rows(self, psi, w, x_t, d_t, p_t, tot, xe, u_t, q_t, lam_t):
         """d s / d lambda_p at fixed u, from the density's own derivative in Psi."""
         vp = self.velocity_power
         pdf_t = p_t * tot
@@ -1065,17 +1101,28 @@ class _Rows:
         dxe = (0.0 if self.continues else float(self.q_min)) / (2.0 * psi * psi * xe)
         with np.errstate(all="ignore"):
             g_k = self.pair_masses(
-                psi, x_t[:-1], x_t[1:], d_t[1:], xe, da=d_t[:-1], kappa_w=0.0
+                psi, w, x_t[:-1], x_t[1:], d_t[1:], xe, da=d_t[:-1], kappa_w=0.0
             )
-            e_ends = [
-                psi * (1.0 - x_t[0] ** 2),
-                float(
-                    self.energy(psi, np.array([x_t[-1]]), np.array([d_t[-1]]), xe)[0]
-                ),
-            ]
-            k_end = self.kappa(np.asarray(e_ends))
+            e_ends = np.array(
+                [
+                    psi * (1.0 - x_t[0] ** 2),
+                    float(
+                        self.energy(psi, np.array([x_t[-1]]), np.array([d_t[-1]]), xe)[
+                            0
+                        ]
+                    ),
+                ]
+            )
+            u_ends = np.array(
+                [
+                    float(self.depth(psi, w, np.array([x_t[0]]), None, e_ends[:1])[0]),
+                    np.nan,
+                ]
+            )
+            k_end = self.kappa(e_ends, u_ends)
             pdf_e = (
-                10.0 ** float(self.logpdf(psi, np.array([xe]), np.array([0.0]), xe)[0])
+                10.0
+                ** float(self.logpdf(psi, w, np.array([xe]), np.array([0.0]), xe)[0])
                 if dxe != 0.0
                 else 0.0
             )
@@ -1095,7 +1142,7 @@ class _Rows:
                 (k_b - u_t * k_total) / psi - u_t * pe * dxe,
                 -((k_a - q_t * k_total) / psi + u_t * pe * dxe),
             )
-            rs_t = (psi * (self.p_0 - psi) / self.p_0) * (
+            rs_t = (psi * w / self.p_0) * (
                 -(t_du / pdf_t) * xe / (x_t * d_t) - dxe / d_t
             )
         good = okp & np.isfinite(rs_t)
@@ -1155,7 +1202,7 @@ class _Rows:
             xe0 = self.support_edge(psi)
             below_edge = np.flatnonzero(self.x_nodes < xe0 * (1.0 - EDGE_MARGIN))
             if below_edge.size < 2:
-                raise ResultError(
+                raise AccuracyError(
                     f"The row at Psi = {psi:.6e}: its support ends at x_e = {xe0:.3e}, "
                     "inside the velocity grid's first interval, where the lower "
                     "refinement ends."
@@ -1229,7 +1276,7 @@ class _Rows:
             owners.append(idx[owner] + 1)
         return tuple(np.concatenate(v) for v in (lo, hi, kinds, owners))
 
-    def build_kernels(self, psis):
+    def build_kernels(self, psis, ws):
         """`build` in the row kernels, ROWS_PER_CHUNK rows at a time."""
         n = int(psis.size)
         table = np.zeros((n, 3, self.n_nodes))
@@ -1243,9 +1290,13 @@ class _Rows:
             block = psis[c0 : c0 + ROWS_PER_CHUNK]
             real = block.size
             pad = np.concatenate([block, np.full(ROWS_PER_CHUNK - real, block[-1])])
+            w_block = ws[c0 : c0 + ROWS_PER_CHUNK]
+            w_pad = np.concatenate(
+                [w_block, np.full(ROWS_PER_CHUNK - real, w_block[-1])]
+            )
             lay = self.layout(pad)
             got = _rows_construct_polish(
-                jnp.asarray(pad),
+                jnp.asarray(pad), jnp.asarray(w_pad),
                 *(jnp.asarray(lay[k]) for k in (
                     "xe", "k_hi", "d1", "n_h", "d_hi", "ratio", "i_lo", "i_hi",
                     "i_kind", "i_own", "i_valid",
@@ -1268,7 +1319,7 @@ class _Rows:
                 j = int(np.argmax(failed))
                 psi = float(pad[j])
                 if few[j]:
-                    raise ResultError(
+                    raise AccuracyError(
                         f"The row at Psi = {psi:.6e} carries no resolvable mass "
                         f"({int(host['n_2'][j])} nodes)."
                     )
@@ -1295,8 +1346,9 @@ class _Rows:
                             float(lay["d1"][j]), float(lay["xe"][j]), a_eff,
                         )  # fmt: skip
             rows, n_good = _rows_finish(
-                jnp.asarray(pad), jnp.asarray(lay["xe"]), got["tot"],
-                jnp.asarray(lay["d1"]), got["c_above"], jnp.asarray(s_t), nodes,
+                jnp.asarray(pad), jnp.asarray(w_pad), jnp.asarray(lay["xe"]),
+                got["tot"], jnp.asarray(lay["d1"]), got["c_above"], jnp.asarray(s_t),
+                nodes,
                 self.arrays, cfg, nums,
             )  # fmt: skip
             rows, n_good = np.asarray(rows)[:real], np.asarray(n_good)[:real]
@@ -1329,20 +1381,20 @@ class _Rows:
 
     # ---- the rows ----
 
-    def build(self, psis):
-        """The rows at the given Psi: the table (n, 3, nodes), the totals, the
-        edges, and the largest residual of the polish with its row's Psi. By the
-        row kernels where KERNEL_ROWS (the default), else row by row on the
-        host, the reference."""
+    def build(self, psis, ws):
+        """The rows at the given Psi and depths w = p_0 - Psi: the table (n, 3,
+        nodes), the totals, the edges, and the largest residual of the polish
+        with its row's Psi. By the row kernels where KERNEL_ROWS (the default),
+        else row by row on the host, the reference."""
         if KERNEL_ROWS:
-            return self.build_kernels(psis)
+            return self.build_kernels(psis, ws)
         n = int(psis.size)
         table = np.zeros((n, 3, self.n_nodes))
         totals, edges = np.zeros(n), np.ones(n)
         residual, residual_psi = 0.0, float(psis[0])
         for j in range(n):
             psi = float(psis[j])
-            row, res, tot, xe = self.row(psi)
+            row, res, tot, xe = self.row(psi, float(ws[j]))
             if not (
                 np.all(np.isfinite(row))
                 and np.all(np.diff(row[0]) > 0.0)
@@ -1402,7 +1454,7 @@ def build_speed_table(model, settings):
 
     Raises
     ------
-    ResultError
+    AccuracyError
         If either check lies beyond the hard limit.
     """
     sampling = settings.sampling
@@ -1426,18 +1478,31 @@ def build_speed_table(model, settings):
         - (np.min(mass[below_rows]) if below_rows.any() else mass.max()) / mass.max()
     )
     if mass_beyond > GOAL:
-        raise ResultError(
+        raise AccuracyError(
             f"{mass_beyond:.3e} of the model's mass lies where Psi is below the "
             f"lowest row ({psi_lo:.4e}), above the goal {GOAL:g}."
         )
     psi_hi = float(np.max(psi_pos))
+    # the top row at the depth of its potential in the solve's own column
+    # u_trunc, exact where p_0 - Psi has lost its digits (on a cored model the
+    # largest potential below p_0 is an ulp under it); p_0 - Psi where the
+    # column does not cover the row
+    u_col = np.asarray(model.profile.u_trunc, dtype=np.float64)
+    i_hi = int(np.flatnonzero(psi_profile == psi_hi)[0])
+    u_hi = (
+        float(u_col[i_hi]) if i_hi < u_col.size and u_col[i_hi] > 0.0 else p_0 - psi_hi
+    )
     lam_lo = float(np.log(psi_lo / (p_0 - psi_lo)))
-    lam_hi = float(np.log(psi_hi / (p_0 - psi_hi)))
+    lam_hi = float(np.log(psi_hi / u_hi))
     n_rows = int(sampling["n_rows"])
     dlam = float((lam_hi - lam_lo) / (n_rows - 3))
     lam_rows = (lam_lo - dlam) + dlam * np.arange(n_rows)
+    # each row's Psi and its depth p_0 - Psi, both from lambda_p: the depth is
+    # not formed by subtraction, which near the top leaves only its last bits
     psi_rows = p_0 / (1.0 + np.exp(-lam_rows))
-    table, totals, edges, residual = rows.build(psi_rows)
+    w_rows = p_0 / (1.0 + np.exp(lam_rows))
+    table, totals, edges, residual = rows.build(psi_rows, w_rows)
+    previous = math.nan
     while True:
         row_error = max(
             _odd_row_error(table, dlam, rows.lnu0),
@@ -1446,13 +1511,15 @@ def build_speed_table(model, settings):
         goal = float(sampling["row_error_goal"])
         if row_error[0] <= goal or 2 * n_rows - 3 > int(sampling["n_rows_max"]):
             break
+        previous = row_error[0]
         n_new = 2 * n_rows - 3
         dlam = float((lam_hi - lam_lo) / (n_new - 3))
         lam_new = (lam_lo - dlam) + dlam * np.arange(n_new)
         psi_new = p_0 / (1.0 + np.exp(-lam_new))
+        w_new = p_0 / (1.0 + np.exp(lam_new))
         keep = 2 * np.arange(1, n_rows - 1) - 1
         fresh = np.setdiff1d(np.arange(n_new), keep)
-        t_f, tot_f, xe_f, res_f = rows.build(psi_new[fresh])
+        t_f, tot_f, xe_f, res_f = rows.build(psi_new[fresh], w_new[fresh])
         table_new = np.zeros((n_new, 3, rows.n_nodes))
         totals_new, edges_new = np.zeros(n_new), np.ones(n_new)
         table_new[keep], totals_new[keep], edges_new[keep] = (
@@ -1473,20 +1540,44 @@ def build_speed_table(model, settings):
         # for it anyway: then its report carries the verdict (tier "refused")
         # and the sampler announces it
         if check.level == 3 and not settings.write_anyway:
-            # the measured condition: an anisotropic model this close to the
-            # smallest r_a at which its DF is non-negative (the Sampler's notes)
+            # what was observed, and for an Osipkov-Merritt or COM Type I
+            # model its inputs (the family whose rows the Sampler's notes find
+            # reaching the cap)
             capped = key == "row_error" and 2 * n_rows - 3 > int(sampling["n_rows_max"])
-            raise ResultError(
+            anisotropy = model.components[0].anisotropy
+            raise AccuracyError(
                 f"The speed table's {key.replace('_', ' ')} is {check.error:.2e} at "
                 f"Psi = {check.where:.6e}, beyond the hard limit {HARD_LIMIT:g}"
                 + (
-                    f", with its rows at n_rows_max ({n_rows}). This happens to an "
-                    "anisotropic model close to the smallest anisotropy radius at "
-                    "which its distribution function is non-negative (see Sampler)."
+                    f", with its rows at n_rows_max ({n_rows}) before the error "
+                    "across them reached the goal"
                     if capped
+                    else ""
+                )
+                + (
+                    f", for this {anisotropy.family.replace('_', ' Type ')} model "
+                    f"(beta_c = {anisotropy.beta_c:g}, r_a = {anisotropy.r_a:g}; see "
+                    "Sampler)."
+                    if capped and anisotropy.family in ("OM_I", "COM_I")
                     else "."
                 )
             )
+    # the cause where the rows stopped at the cap above the goal: not a check
+    # (the record holds the judgments), the table's log line and the
+    # sampler's announcement say it
+    row_cap = (
+        f"its rows reached n_rows_max ({n_rows})"
+        + (
+            f" with the error across them still falling, "
+            f"{previous / row_error[0]:.1f} times over the last doubling of the rows"
+            if math.isfinite(previous)
+            else ""
+        )
+        if row_error[0] > goal
+        else ""
+    )
+    if row_cap:
+        _log.info("The speed table's row error is %.2e: %s.", row_error[0], row_cap)
     return dict(
         lambda_p=lam_rows,
         dlambda_p=dlam,
@@ -1498,4 +1589,5 @@ def build_speed_table(model, settings):
         p_0=p_0,
         e_edge=(0.0 if rows.continues else rows.q_min,),
         validation=ValidationReport(keys=SPEED_TABLE_KEYS, checks=checks),
+        row_cap=row_cap,
     )

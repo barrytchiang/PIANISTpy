@@ -8,17 +8,38 @@ from typing import Any
 
 import numpy as np
 
-from ..exceptions import ResultError
+from ..exceptions import InputError, ResultError
 from ..typing import Array, ArrayLike
 from ._ellipse import EllipseRoute
-from ._ellipse_rules import gl01
+from ._ellipse_rules import PANEL_REFUSAL, gl01
 from ._layout import BREAK_LABELS, LAYOUT_SEQ, Lattice
+from ._projection import END_TOLERANCE
+
+
+def refuse_outside_rows(r2: Array, first: float, last: float) -> None:
+    """Refuse a projected radius inside a table's first row or beyond its
+    last, naming the row and the setting that moves it."""
+    r2 = np.asarray(r2, dtype=np.float64)
+    inside = r2 < first * (1.0 - END_TOLERANCE)
+    if np.any(inside):
+        raise InputError(
+            f"R_2D = {float(np.min(r2[inside])):.6e} lies inside the table's first "
+            f"row {first:.6e}, which losvd.innermost_read_radius sets; the table "
+            f"is not extrapolated."
+        )
+    beyond = r2 > last * (1.0 + END_TOLERANCE)
+    if np.any(beyond):
+        raise InputError(
+            f"R_2D = {float(np.max(r2[beyond])):.6e} lies beyond the table's last "
+            f"row {last:.6e}, which losvd.outer_mass_share sets; the table is not "
+            f"extrapolated."
+        )
 
 
 class PanelTable:
-    """The ragged table of rows, each on its own mirrored V panels.
+    r"""The ragged table of rows, each on its own mirrored V panels.
 
-    `V`, `w`, `D` are flat, row i is ``[off[i], off[i + 1])``, its V >= 0 half
+    `V`, `w`, `D` are flat, row i is ``[off[i], off[i + 1])``, its ``V >= 0`` half
     ordered (panel, sub-panel, node). Rows of one stretch between R-breaks
     share a layout, and the stencil reads between them in theta =
     arccos(1 - 2 xi) of ln R across the stretch (a square root only at a true
@@ -39,9 +60,9 @@ class PanelTable:
     vedge, vc : array-like, optional
         Each row's V_edge and V_c, NaN where absent.
     r_edge : float
-        The parent's end: R_t, or an infinite table's own edge.
+        The parent's end: :math:`R_{\rm t}`, or an infinite table's own edge.
     uncert, uncert_why : optional
-        The intervals the certificate left uncertified, (n, 2), and why.
+        The intervals left above the tolerance, (n, 2), and why.
 
     Raises
     ------
@@ -111,6 +132,8 @@ class PanelTable:
         self.R_breaks = np.asarray(r_breaks, dtype=np.float64)
         self.stretch = np.searchsorted(self.R_breaks, self.R_2D)
         self.R_edge = float(r_edge)
+        # the last radius it reads: the edge where the last stretch reaches it
+        self.R_end = self.R_edge if np.isfinite(self.R_edge) else self.R_max
         self.uncert = (
             np.zeros((0, 2))
             if uncert is None
@@ -157,13 +180,12 @@ class PanelTable:
             if len(sel) > 1 and not np.all(self._layout[sel] == self._layout[sel[0]]):
                 bad = sel[np.flatnonzero(self._layout[sel] != self._layout[sel[0]])[0]]
                 raise ResultError(
-                    f"[PANEL TABLE REFUSAL] Rows of one stretch do not share a panel "
+                    f"{PANEL_REFUSAL} Rows of one stretch do not share a panel "
                     f"layout: stretch "
                     f"{int(st)} holds row {int(sel[0])} "
                     f"(R_2D = {self.R_2D[sel[0]]:.6e}, "
                     f"layout code {int(self._layout[sel[0]])}) and row {int(bad)} "
-                    f"(R_2D = {self.R_2D[bad]:.6e}, code {int(self._layout[bad])}) "
-                    f"[3-56]."
+                    f"(R_2D = {self.R_2D[bad]:.6e}, code {int(self._layout[bad])})."
                 )
 
     def _coord(self, r: ArrayLike, st: ArrayLike) -> Array:
@@ -205,8 +227,9 @@ class PanelTable:
         r_breaks: ArrayLike = (),
         r_edge: float = float("inf"),
     ) -> "PanelTable":
-        """Return the table of rows ``(V, w, D, vesc, V_k, V_end, V_rad,
-        npan[, code[, V_edge[, V_c]]])`` on V >= 0, stored mirrored."""
+        """Return the table of rows
+        ``(V, w, D, vesc, V_k, V_end, V_rad, npan[, code[, V_edge[, V_c]]])`` on
+        ``V >= 0``, stored mirrored."""
         n = np.array([2 * len(r[0]) for r in rows])
         off = np.concatenate([[0], np.cumsum(n)])
         v = np.concatenate([np.concatenate([-r[0][::-1], r[0]]) for r in rows])
@@ -268,7 +291,7 @@ class PanelTable:
         )
         if len(br) - 1 != int(self.npan[i]):
             raise ResultError(
-                f"[PANEL TABLE REFUSAL] Row {i}: its break list gives {len(br) - 1} "
+                f"{PANEL_REFUSAL} Row {i}: its break list gives {len(br) - 1} "
                 f"panels but the table "
                 f"stores n_panels = {int(self.npan[i])}."
             )
@@ -285,7 +308,7 @@ class PanelTable:
         nsub = np.concatenate([[0], np.cumsum([len(u) - 1 for u in units])])
         if int(self.off[i + 1]) - int(self.off[i]) != 2 * m * int(nsub[-1]):
             raise ResultError(
-                f"[PANEL TABLE REFUSAL] Row {i}: "
+                f"{PANEL_REFUSAL} Row {i}: "
                 f"{int(self.off[i + 1]) - int(self.off[i])} nodes where its "
                 f"layout's {int(nsub[-1])} sub-panels at {m} nodes give "
                 f"{2 * m * int(nsub[-1])}."
@@ -319,25 +342,33 @@ class PanelTable:
     ) -> tuple[Array, Array, Array, Array, Array, Array]:
         """Return the stencil's setup at radii r2: each radius's breaks and
         layout, checked against its stretch, its rows and Lagrange weights at
-        `k` rows (`order` where None).
+        `k` rows (`order` where None). Each distinct radius is set up once and
+        the break scan runs in blocks of radii (`_breaks`), so pairs that
+        repeat a radius cost nothing more.
 
         Raises
         ------
+        InputError
+            Where a radius lies inside the first row or beyond the last
+            (beyond the edge where the last stretch reaches it).
         ResultError
             Where a stretch holds no row, a radius's layout is not its
-            stretch's, or a radius lies where the certificate left the table
-            uncertified.
+            stretch's, or a radius lies where the check left the table
+            above the tolerance.
         """
+        refuse_outside_rows(r2, float(self.R_2D[0]), self.R_end)
+        r_all = np.asarray(r2, dtype=np.float64)
+        r2, first_of, inv = np.unique(r_all, return_index=True, return_inverse=True)
         lat = self.lattice
         if curves is None:
-            vk, vend, vr = route.breaks_many(r2)
+            vk, vend, vr = self._breaks(route, r2)
             vk = route.vk_break(r2, vk)
             vr = route.vrad_break(r2, vr)
             ve = route.v_edge_many(r2)
             vc = route.v_c_many(r2)
         else:
             vk, vend, vr, ve, vc = (
-                np.asarray(curves[x], dtype=np.float64)
+                np.asarray(curves[x], dtype=np.float64)[first_of]
                 for x in ("V_k", "V_end", "V_rad", "V_edge", "V_c")
             )
         vk, vr, ve, vc = lat.resolved_breaks(vk, vend, vr, ve, vc)
@@ -364,7 +395,7 @@ class PanelTable:
             j = int(np.flatnonzero(last < first)[0])
             raise ResultError(
                 f"The stretch between R-breaks that contains R_2D = {float(r2[j]):.6e} "
-                f"holds no stored row (stretch {int(st[j])}) [PANEL TABLE REFUSAL]."
+                f"holds no stored row (stretch {int(st[j])}) {PANEL_REFUSAL}."
             )
         tcode = lat.layout_code(vk, vend, vr, ve, vc)
         scode = self._layout[np.clip(first, 0, len(self._layout) - 1)]
@@ -375,27 +406,27 @@ class PanelTable:
                 f"The target R_2D = {float(r2[j]):.6e} has panel layout code "
                 f"{int(tcode[j])} while the stretch it falls in (index {int(st[j])}, "
                 f"rows {int(first[j])} to {int(last[j])}) was stored with code "
-                f"{int(scode[j])} [PANEL TABLE REFUSAL] [3-56]."
+                f"{int(scode[j])} {PANEL_REFUSAL}."
             )
         for (ua, ub), why in zip(self.uncert, self.uncert_why, strict=True):
             inside = np.flatnonzero((r2 > ua) & (r2 < ub))
             if inside.size:
                 raise ResultError(
                     f"The target R_2D = {float(r2[inside[0]]):.9e} lies in "
-                    f"[{ua:.9e}, {ub:.9e}], which the table's certificate left "
-                    f"uncertified: "
+                    f"[{ua:.9e}, {ub:.9e}], which the table's check left "
+                    f"above the tolerance: "
                     + (
                         why
                         if why
                         else "an end gap, between a true end of its stretch and the "
                         "nearest row, where the stencil reads beyond its rows"
                     )
-                    + " [PANEL TABLE REFUSAL]."
+                    + f" {PANEL_REFUSAL}."
                 )
         kk = int(self.order if k is None else k)
         n = np.minimum(kk, last - first + 1)
-        self.n_query += len(r2)
-        self.n_short += int(np.sum(n < kk))
+        self.n_query += len(r_all)
+        self.n_short += int(np.sum((n < kk)[inv]))
         self.min_pop = min(self.min_pop, int((last - first + 1).min()))
         i1 = np.searchsorted(self.R_2D, r2, side="right")
         start = np.clip(i1 - n // 2, first, last - n + 1)
@@ -413,7 +444,18 @@ class PanelTable:
             ok = live & live[:, b][:, None]
             ok[:, b] = False
             lag *= np.where(ok, f, 1.0)
-        return (r2, brk, npan, vend, rows, lag)
+        return (r_all, brk[inv], npan[inv], vend[inv], rows[inv], lag[inv])
+
+    @staticmethod
+    def _breaks(route: EllipseRoute, r2: Array) -> tuple[Array, Array, Array]:
+        """`EllipseRoute.breaks_many` at radii r2 in blocks of radii, its
+        (radii, scan) temporaries bounded by n_block_elements."""
+        step = max(1, int(route.rules.chunk) // int(route.rules.brk_scan))
+        parts = [route.breaks_many(r2[i : i + step]) for i in range(0, len(r2), step)]
+        if not parts:
+            return route.breaks_many(r2)
+        vk, vend, vr = (np.concatenate([p[j] for p in parts]) for j in range(3))
+        return vk, vend, vr
 
     def predict(
         self,
@@ -423,7 +465,7 @@ class PanelTable:
         curves: dict[str, Any] | None = None,
     ) -> tuple[Array, Array, Array]:
         """Return the row the stencil at k rows gives at radius r2 on the
-        stretch's own lattice: (V nodes, weights, D) on V >= 0."""
+        stretch's own lattice: (V nodes, weights, D) on ``V >= 0``."""
         rr, brk, npan, vend, rows, lag = self._prepare(
             route, np.array([float(r2)]), curves=curves, k=k
         )
@@ -493,7 +535,7 @@ class PanelTable:
             vm, wm, dk = self.predict(route, rm, k, curves=cv)
             _, _, dl = self.predict(route, rm, k - 2, curves=cv)
         except ResultError as e:
-            if "[PANEL TABLE REFUSAL]" not in str(e):
+            if PANEL_REFUSAL not in str(e):
                 raise
             return None
         m2k, m2l = float(np.dot(wm, vm * vm * dk)), float(np.dot(wm, vm * vm * dl))

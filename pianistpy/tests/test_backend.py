@@ -1,5 +1,6 @@
 """Tests of how the package sets JAX."""
 
+import os
 import subprocess
 import sys
 
@@ -9,7 +10,7 @@ import pytest
 
 import pianistpy as pp
 from pianistpy import InputError
-from pianistpy.runtime import COMPILATION_CACHE_MAX_SIZE, default_compilation_cache
+from pianistpy.runtime import default_compilation_cache
 
 
 def test_jax_runs_in_64_bits_once_the_package_is_imported():
@@ -17,21 +18,49 @@ def test_jax_runs_in_64_bits_once_the_package_is_imported():
     assert jnp.asarray(1.0).dtype == jnp.float64
 
 
+def _cache_setting():
+    return (
+        jax.config.jax_compilation_cache_dir,
+        jax.config.jax_compilation_cache_max_size,
+    )
+
+
+def _restore(setting):
+    jax.config.update("jax_compilation_cache_dir", setting[0])
+    jax.config.update("jax_compilation_cache_max_size", setting[1])
+
+
 def test_the_compilation_cache_is_on_by_default_and_can_be_moved_or_turned_off(
     tmp_path,
 ):
     assert jax.config.jax_compilation_cache_dir == default_compilation_cache()
+    before = _cache_setting()
     try:
         assert pp.set_compilation_cache(tmp_path) == str(tmp_path)
         assert jax.config.jax_compilation_cache_dir == str(tmp_path)
-        assert jax.config.jax_compilation_cache_max_size == COMPILATION_CACHE_MAX_SIZE
-        pp.set_compilation_cache(tmp_path, max_size=None)
+        # unbounded by default, as JAX's own folder
         assert jax.config.jax_compilation_cache_max_size == -1
+        pp.set_compilation_cache(tmp_path, max_size=2**20)
+        assert jax.config.jax_compilation_cache_max_size == 2**20
         assert pp.set_compilation_cache(False) is None
         assert jax.config.jax_compilation_cache_dir is None
     finally:
-        pp.set_compilation_cache(True)
-    assert jax.config.jax_compilation_cache_dir == default_compilation_cache()
+        _restore(before)
+
+
+def test_with_the_cache_off_there_is_no_default_folder(monkeypatch, tmp_path):
+    # the variable set to off: no default folder, and the cache turned on
+    # again takes the package's own folder, never one named off
+    monkeypatch.setenv("PIANISTPY_COMPILATION_CACHE", "off")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    assert default_compilation_cache() is None
+    before = _cache_setting()
+    try:
+        folder = pp.set_compilation_cache(True)
+        assert folder == os.path.join(str(tmp_path), ".cache", "pianistpy", "jax")
+        assert jax.config.jax_compilation_cache_dir == folder
+    finally:
+        _restore(before)
 
 
 def test_the_platform_switch_names_the_cpu_only_mode(monkeypatch):

@@ -1,20 +1,31 @@
-What it does
-============
+What PIANISTpy does
+===================
 
-- **Density profiles.** Any double power law in its three slopes, with the Navarro-Frenk-White, Hernquist and
-  Plummer profiles as named presets.
-- **Velocity anisotropy.** Isotropic, constant, Osipkov-Merritt, and the generalized Osipkov-Merritt (Cuddeford)
-  models, radially biased (Type I) or tangentially biased (Type II).
-- **Distribution functions.** The distribution function (DF) of each model, from the analytic inversion of its
-  density, returned whether or not it is physical, with a statement of where it is not.
-- **Truncation in phase space.** Method I truncates a model's own DF at an energy you give, or at the energy that
-  yields a target mass or a target radius. Method II gives a new anisotropy to a density that is already
-  truncated.
-- **Particles.** Positions and velocities drawn by inversion, with no rejection step, and reproducible particle
-  by particle.
-- **Observables.** Intrinsic and line-of-sight velocity dispersions, line-of-sight velocity distributions, and
-  their averages over apertures.
-- **Superposition.** Distribution functions inverted from one truncated density (Method II children of one
-  parent), combined with positive weights that sum to one into one equilibrium model.
-- **Inference.** The log-likelihood of a model against data, as a JAX function of the components' weights and
-  the scales of the units.
+.. The landing page shows this list as written here: docs/tools/assemble_site.py copies it from the built page,
+   links and all. Edit the list here only.
+
+.. rst-class:: features
+
+- :doc:`Density profiles. <../guide/profiles>` Analytical double-power-law density profiles with a finite central
+  potential, including the commonly used Navarro-Frenk-White, Hernquist and Plummer profiles.
+- :doc:`Velocity anisotropy. <../guide/anisotropy>` Isotropic, constant-anisotropy, Osipkov-Merritt and
+  Cuddeford-Osipkov-Merritt models, the latter two radially (Type I) or tangentially (Type II) biased.
+- :doc:`Distribution functions. <../guide/df>` Each anisotropy model's distribution function, inverted from the
+  input density with exact symbolic expressions up to the final numerical integration, with
+  :doc:`extensively validated numerical accuracy <../reference/accuracy>` and checks that it is non-negative
+  (physical) and monotonic (dynamically stable).
+- :doc:`Truncation in phase space. <../guide/truncation>` Model truncation performed in phase space, such that the
+  truncation boundary is fully self-consistent and in dynamical equilibrium, by two methods: one preserves the
+  model's anisotropy profile (Method I), the other gives different anisotropy models an identical truncated
+  density (Method II).
+- :doc:`Particles. <../guide/particles>` Particle initial conditions with a finite, dynamically stable truncation
+  boundary, drawn from the truncated distribution function, in internal, model or physical units.
+- :doc:`Observables. <../guide/observables>` Radial, tangential and line-of-sight velocity dispersions,
+  line-of-sight velocity distributions and their Gauss-Hermite moments, and the local 3D velocity distribution at
+  any radius; projected quantities averaged over centered or offset circular and rectangular apertures.
+- :ref:`Superposition. <guide-superposition>` Distribution functions of different anisotropy models on one
+  truncated density, linearly superposed into one equilibrium model whose anisotropy profile lies beyond the
+  analytical families, such as one fitted to simulated halos.
+- :ref:`Inference. <guide-inference>` End-to-end differentiable in JAX: the likelihood of a model against
+  kinematic data, and every observable, with gradients in the superposition weights, the unit scales and the
+  anisotropy parameters, for gradient-based Monte Carlo inference.

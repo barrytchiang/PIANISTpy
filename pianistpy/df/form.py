@@ -75,11 +75,11 @@ class InversionFormRecord:
 
 
 def outer_end_power(profile: DoublePowerLaw, anisotropy: Anisotropy) -> float:
-    """Return the power s of rho_aux ~ P^s at the outer end (P -> 0).
+    r"""Return the power s of rho_aux ~ P^s at the outer end (P -> 0).
 
-    rho_aux ~ R^(2 - beta) for OM and COM (the beta_c powers cancel), and
-    R^(2 beta_c - beta) for a constant (or isotropic) anisotropy, with
-    Psi ~ 1/R (at beta = 3, Psi ~ ln R / R and s = 1 with a logarithm).
+    rho_aux ~ R^(2 - beta) for OM and COM (the :math:`\beta_{\rm c}` powers
+    cancel), and ``R^(2 beta_c - beta)`` for a constant (or isotropic)
+    anisotropy, with Psi ~ 1/R (at beta = 3, Psi ~ ln R / R and s = 1 with a logarithm).
     """
     if anisotropy.model in ("om", "com"):
         return float(profile.rho_beta) - 2.0
@@ -89,10 +89,10 @@ def outer_end_power(profile: DoublePowerLaw, anisotropy: Anisotropy) -> float:
 def tail_exponent_analytic(profile: DoublePowerLaw, anisotropy: Anisotropy) -> float:
     """Return the exponent a of the DF's tail F ~ A K^-a as K -> 0.
 
-    a = 3/2 - beta_c - s with s the power of rho_aux ~ P^s at the outer end
-    (`outer_end_power`): 7/2 - beta_c - beta for OM and COM, 3/2 + beta_c -
-    beta for a constant (or isotropic) anisotropy. A negative a is a DF that
-    vanishes at K -> 0.
+    ``a = 3/2 - beta_c - s`` with s the power of rho_aux ~ P^s at the outer
+    end (`outer_end_power`): ``7/2 - beta_c - beta`` for OM and COM,
+    ``3/2 + beta_c - beta`` for a constant (or isotropic) anisotropy. A
+    negative a is a DF that vanishes at K -> 0.
     """
     if anisotropy.model in ("om", "com"):
         return 3.5 - float(anisotropy.beta_c) - float(profile.rho_beta)
@@ -180,7 +180,7 @@ def inversion_form(
 
     References
     ----------
-    Notes Section II.3 [num-forms], Notes Eq. (II.2) [unified-pair].
+    Section T:2.3 [num-forms], Eq. (T:2.16) [unified-pair].
     """
     rows, records = [], []
     for i, component in enumerate(pair.components):
@@ -189,8 +189,8 @@ def inversion_form(
         rows.append(r)
         records.append(record)
     form = InversionForm(
-        order_m=tuple(rec.order_j for rec in records),
-        order_n=tuple(rec.kernel_exponent for rec in records),
+        order_j=tuple(rec.order_j for rec in records),
+        kernel_exponent=tuple(rec.kernel_exponent for rec in records),
         form=np.stack(rows),
         k_interior=tuple(
             None if np.isnan(rec.k_interior) else rec.k_interior for rec in records
