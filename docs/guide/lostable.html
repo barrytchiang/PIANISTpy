@@ -332,7 +332,7 @@ one table per component (<code class="docutils literal notranslate"><span class=
 model’s own settings and is not recomputed for another unit system: <code class="docutils literal notranslate"><span class="pre">table.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code> returns the
 same tables presented in the units of <code class="docutils literal notranslate"><span class="pre">model.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code>, and the observables read from it take and
 return quantities in those units.</p>
-<p>The rows are computed by a pool of worker processes, which Python starts by spawning a fresh interpreter. In a
+<p>The rows are computed by a pool of parallel processes, which Python starts by spawning a fresh interpreter. In a
 script, build the table (or call <code class="xref py py-func docutils literal notranslate"><span class="pre">losvd()</span></code> on a model, which builds one) under
 <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>, as Python’s <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> requires; in a notebook or an interactive session
 nothing is needed.</p>
@@ -389,9 +389,9 @@ table could not meet its tolerance are recorded in <code class="docutils literal
 <span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">physical</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">500.0</span><span class="p">))</span>                   <span class="c1"># km/s, 500 pc circle</span>
 </pre></div>
 </div>
-<p>On this example (one 32-core node, CPU), building the table takes about 4 minutes with the node’s 32 workers (43
+<p>On this example (one 32-core node, CPU), building the table takes about 4 minutes on the node’s 32 cores (43
 minutes with one). With the table built, the circle of radius 1 takes about 30 s by the table’s route with 32
-workers (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
+cores (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
 circle of radius 0.5) about as long again.</p>
 </section>
 </section>

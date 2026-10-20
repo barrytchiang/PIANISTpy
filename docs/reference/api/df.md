@@ -115,7 +115,7 @@ classmethod from_function(component, f, settings=None)
 Return the distribution function a function of the energy gives.
 
 A user brings a DF (a fitting function, another code’s output) and
-the package certifies it against the density by its own integration.
+the package validates it against the density by its own integration.
 The function is tabulated on the energy grid compute_df places for
 the same component and settings, in place of the inversion’s values,
 and everything after runs as for the inversion: the forms beyond the
@@ -561,9 +561,9 @@ on the grid held at theta, and the leaves are log10 |F| on the table’s nodes,
 the edge law (p, C_0, C_1) and the center the form states, each closed form
 with its derivative written out.
 
-Served: constant beta and Cuddeford Type I (\(\beta_{\rm c}\),
+Served: constant beta and Cuddeford-Osipkov-Merritt (COM) Type I (\(\beta_{\rm c}\),
 \(R_{\rm a}\)), Osipkov-Merritt Type I and II (\(R_{\rm a}\)).
-Refused: Cuddeford Type II, whose interior point at \(P(R_{\rm a})\) moves
+Refused: COM Type II, whose interior point at \(P(R_{\rm a})\) moves
 with \(R_{\rm a}\) (and its exponent with \(\beta_{\rm c}\)), so the
 rows of the mixed derivative are not integrable there; and a table whose
 center is not on its regular branch (the critical band, where the branch
@@ -660,7 +660,7 @@ steps.
 
 Raises:
 
-InputError – Where the component is not analytic, or a Cuddeford Type II, or its
+InputError – Where the component is not analytic, or a COM Type II, or its
     family has no parameter.
 
 Return type:

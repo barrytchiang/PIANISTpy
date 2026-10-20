@@ -4,8 +4,9 @@ Source: https://pianistpy.com/docs/start/quickstart
 
 # Quick start
 
-The example of the first figure of Chiang+(2026d): an NFW halo with a constant velocity anisotropy of 0.25, truncated in
-phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
+The example of Chiang+(2026d), Fig. 3: an NFW halo with a concentration of 10 and a constant velocity anisotropy of 0.25,
+truncated in phase space such that the total final mass equals the untruncated virial mass, scaled physically to
+the Milky Way mass.
 
 ```
 import pianistpy as pp
@@ -35,5 +36,5 @@ sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
 
 pp.solve(halo, truncation) runs the two steps at once.
 
-Every result carries a validation report with its accuracy tier, and a model is always a valid equilibrium; what
-the package returns, flags and refuses is on one page, Flags and refusals.
+See Examples for self-contained Jupyter notebooks to reproduce the result figures shown in
+Chiang+(2026d).

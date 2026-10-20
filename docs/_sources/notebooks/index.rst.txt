@@ -18,10 +18,12 @@ Tutorials
 Planned for ver. 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
 fit a superposition to data; observables in an aperture of any shape.
 
+.. _notebooks-paper:
+
 Reproducing |paper-name|
 ------------------------
 
-One notebook per figure of |paper|, from the released package, with the tables and measured numbers the
+Notebooks that reproduce the result figures of |paper|, from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
 anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Released with
 ver. 0.9.9.

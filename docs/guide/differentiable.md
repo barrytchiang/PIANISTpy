@@ -58,9 +58,10 @@ That is the cost of the likelihood’s own rebuild of a free component, about th
 The derivative of losvd and aperture_losvd costs far more: it goes back through the rows of the line-of-sight
 table, whose transpose recomputes each row and differentiates it in \(\theta\), one row after another in the
 calling process. On a CPU node of 32 cores (AMD Ryzen Threadripper PRO 5975WX), the derivative of losvd in
-\(\beta_{\rm c}\) at one projected radius and 21 velocities, with the quick settings and a smaller table, did not
-finish in 2 h of wall-clock time, with 6 to 7 cores in use on average; the derivative of the example below takes 65 s
-there. The values of these methods are not affected.
+\(\beta_{\rm c}\) at one projected radius and 21 velocities takes 41 minutes with the quick settings (2474 s) and
+22 minutes with a smaller table; the derivative of the example below takes 65 s there. The rows of the table the
+read does not touch are not visited; the cost of the rows it touches is reduced in ver. 1.0.0. The values of these
+methods are not affected.
 
 ## Example
 

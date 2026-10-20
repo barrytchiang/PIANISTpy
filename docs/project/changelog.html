@@ -335,19 +335,19 @@ the function diverges as <span class="math notranslate nohighlight">\((\mathcal{
 states the node left out. Seven models of the accuracy ledger move from warning to goal; no tolerance changes.</p></li>
 <li><p>The density round trip of a truncated model is read on every row of the edge approach, where a sampling of
 radii could miss a peak a few rows wide.</p></li>
-<li><p>The observables’ worker processes run on the CPU whatever the platform of the calling process.</p></li>
+<li><p>The observables’ parallel processes run on the CPU whatever the platform of the calling process.</p></li>
 <li><p>The minimum versions of the dependencies are found by test, one package at a time and then as one environment,
 and listed on <a class="reference internal" href="../start/install"><span class="doc">Install</span></a> (NumPy 2.3, SciPy 1.15, h5py 3.11, Astropy 6.1, JAX 0.6, Python 3.11);
 Astropy below 7.2 needs NumPy below 2.4. <code class="docutils literal notranslate"><span class="pre">filelock</span></code> is no longer a dependency.</p></li>
 <li><p>The examples of the observables’ guide pages use a Hernquist model with a constant anisotropy of 0.25, and
 <a class="reference internal" href="../guide/lostable"><span class="doc">The prepared table</span></a> states the cost of its example.</p></li>
 <li><p>The rows of the line-of-sight table are computed in blocks sized to the per-core cache (<code class="docutils literal notranslate"><span class="pre">n_block_elements</span></code>
-25000, was 250000): the rows are the same to the bit, and the table builds in about half the wall time.</p></li>
+25000, was 250000): the rows are the same to the bit, and the table builds in about half the wall-clock time.</p></li>
 <li><p>The rows of the line-of-sight table take 12 sightline nodes a panel (<code class="docutils literal notranslate"><span class="pre">n_sightline_nodes</span></code>, was 16): a row
 moves by at most <span class="math notranslate nohighlight">\(3.7 \times 10^{-9}\)</span> of its peak (<span class="math notranslate nohighlight">\(4.2 \times 10^{-7}\)</span> at the innermost rows of the
 <span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.5\)</span> model of Fig. 15, where 16 and 24 nodes differ by as much), the central and aperture
 distributions by at most <span class="math notranslate nohighlight">\(3.7 \times 10^{-10}\)</span>, <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code> and
-<code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> not at all; the anisotropic tables of Fig. 15 build in 14 to 18 percent less wall time.</p></li>
+<code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> not at all; the anisotropic tables of Fig. 15 build in 14 to 18 percent less wall-clock time.</p></li>
 <li><p>Python 3.11 is the oldest supported (NumPy 2.3, the oldest NumPy that passes the suite, needs it); JAX is
 capped below 0.10.2, on which one test of the suite fails.</p></li>
 <li><p>One exception class per kind of refusal: <code class="docutils literal notranslate"><span class="pre">AccuracyError</span></code> carries the refused model (<code class="docutils literal notranslate"><span class="pre">result</span></code>), as

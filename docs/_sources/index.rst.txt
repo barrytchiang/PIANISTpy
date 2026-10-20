@@ -30,7 +30,7 @@ JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo infe
       :link: notebooks/index
       :link-type: doc
 
-      Notebooks that run a whole job, and one per figure of |paper|, run against this release.
+      Notebooks that run a whole job, and notebooks that reproduce the result figures of |paper|, run against this release.
 
    .. grid-item-card:: API reference
       :link: reference/index

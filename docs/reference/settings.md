@@ -325,7 +325,7 @@ draw_block
 
 same
 
-Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block’s (about 0.75 kB a particle, 2**18 particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
+Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block’s (about 0.75 kB a particle, \(2^{18}\) particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
 
 row_error_goal
 
@@ -341,7 +341,7 @@ tail_mass_min
 
 same
 
-Smallest tabulated cumulative probability at either end of a table: a uniform double reaches 2**-53, so a draw never reads beyond it.
+Smallest tabulated cumulative probability at either end of a table: a uniform double reaches \(2^{-53}\), so a draw never reads beyond it.
 
 ## observables
 
@@ -359,7 +359,7 @@ n_radii
 
 500
 
-Projected radii of the projection table before its certificate adds rows, logarithmic from the innermost row to the edge.
+Projected radii of the projection table before its check between rows adds rows, logarithmic from the innermost row to the edge.
 
 profile_tolerance
 
@@ -657,7 +657,7 @@ n_stencil_test_rows
 
 same
 
-Rows of the stencil whose estimate certifies the table.
+Rows of the stencil whose estimate checks the table.
 
 n_block_elements
 

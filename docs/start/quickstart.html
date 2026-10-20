@@ -277,8 +277,9 @@
                   
   <section id="quick-start">
 <h1>Quick start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h1>
-<p>The example of the first figure of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>: an NFW halo with a constant velocity anisotropy of 0.25, truncated in
-phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.</p>
+<p>The example of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Fig. 3: an NFW halo with a concentration of 10 and a constant velocity anisotropy of 0.25,
+truncated in phase space such that the total final mass equals the untruncated virial mass, scaled physically to
+the Milky Way mass.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
 
@@ -304,8 +305,8 @@ phase space at the virial mass of a concentration-10 halo, presented as a Milky 
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">pp.solve(halo,</span> <span class="pre">truncation)</span></code> runs the two steps at once.</p>
-<p>Every result carries a validation report with its accuracy tier, and a model is always a valid equilibrium; what
-the package returns, flags and refuses is on one page, <a class="reference internal" href="../guide/results"><span class="doc">Flags and refusals</span></a>.</p>
+<p>See <a class="reference internal" href="../notebooks/index#notebooks-paper"><span class="std std-ref">Examples</span></a> for self-contained Jupyter notebooks to reproduce the result figures shown in
+<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</p>
 </section>
 
 

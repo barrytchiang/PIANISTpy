@@ -39,7 +39,7 @@ Rules for pull requests
   number replaces the first rather than sitting beside it.
 - **No silent changes to results.** A change that moves a result beyond rounding states the size of the move and
   its reason.
-- **Runtime options leave results unchanged.** Verbosity, timing and the number of workers never alter what is
+- **Runtime options leave results unchanged.** Verbosity, timing and the number of cores never alter what is
   computed.
 - **Accuracy is verified, not assumed.** A numerical setting joins a tested tier only after passing that tier's
   checks.

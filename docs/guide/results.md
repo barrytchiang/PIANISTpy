@@ -53,6 +53,6 @@ components in one potential, and tracers in a fixed potential, are the planned n
 
 validation (the report and its tier), spatially_finite, r_t and mass_t (the truncation radius
 and the total mass), identity (what the result was computed from), units (the system it is presented in),
-timing (the wall time of each stage) and, on a file, the backend that made it.
+timing (the wall-clock time of each stage) and, on a file, the backend that made it.
 
      On this page

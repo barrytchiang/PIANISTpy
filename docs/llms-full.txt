@@ -265,9 +265,10 @@ That is the cost of the likelihood’s own rebuild of a free component, about th
 The derivative of losvd and aperture_losvd costs far more: it goes back through the rows of the line-of-sight
 table, whose transpose recomputes each row and differentiates it in \(\theta\), one row after another in the
 calling process. On a CPU node of 32 cores (AMD Ryzen Threadripper PRO 5975WX), the derivative of losvd in
-\(\beta_{\rm c}\) at one projected radius and 21 velocities, with the quick settings and a smaller table, did not
-finish in 2 h of wall-clock time, with 6 to 7 cores in use on average; the derivative of the example below takes 65 s
-there. The values of these methods are not affected.
+\(\beta_{\rm c}\) at one projected radius and 21 velocities takes 41 minutes with the quick settings (2474 s) and
+22 minutes with a smaller table; the derivative of the example below takes 65 s there. The rows of the table the
+read does not touch are not visited; the cost of the rows it touches is reduced in ver. 1.0.0. The values of these
+methods are not affected.
 
 ## Example
 
@@ -535,7 +536,7 @@ model’s own settings and is not recomputed for another unit system: table.to("
 same tables presented in the units of model.to("physical", ...), and the observables read from it take and
 return quantities in those units.
 
-The rows are computed by a pool of worker processes, which Python starts by spawning a fresh interpreter. In a
+The rows are computed by a pool of parallel processes, which Python starts by spawning a fresh interpreter. In a
 script, build the table (or call losvd() on a model, which builds one) under
 if __name__ == "__main__":, as Python’s multiprocessing requires; in a notebook or an interactive session
 nothing is needed.
@@ -595,9 +596,9 @@ pp.sigma_los_aperture(physical, pp.Aperture.circle(500.0))                   # k
 
 ```
 
-On this example (one 32-core node, CPU), building the table takes about 4 minutes with the node’s 32 workers (43
+On this example (one 32-core node, CPU), building the table takes about 4 minutes on the node’s 32 cores (43
 minutes with one). With the table built, the circle of radius 1 takes about 30 s by the table’s route with 32
-workers (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
+cores (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
 circle of radius 0.5) about as long again.
 
      On this page
@@ -1066,7 +1067,7 @@ components in one potential, and tracers in a fixed potential, are the planned n
 
 validation (the report and its tier), spatially_finite, r_t and mass_t (the truncation radius
 and the total mass), identity (what the result was computed from), units (the system it is presented in),
-timing (the wall time of each stage) and, on a file, the backend that made it.
+timing (the wall-clock time of each stage) and, on a file, the backend that made it.
 
      On this page
 
@@ -1252,7 +1253,7 @@ None of these changes a number, except the platform: results on a GPU and a CPU 
 
 ```
 pp.set_verbosity("info")   # "quiet" (the default), "info" or "debug"
-pp.set_timing(True)        # print the wall time of each stage
+pp.set_timing(True)        # print the wall-clock time of each stage
 pp.set_workers("half")     # "auto" (the default), "full", "half" or a number of cores
 pp.set_compilation_cache(False)  # the compilation cache is on by default; a path moves it
 pp.set_platform("cpu")     # "auto" (the default), "cpu" (the CPU-only mode) or "gpu"; before the first computation
@@ -1266,9 +1267,9 @@ On shared clusters, a GPU in the Exclusive_Process compute mode serves one proce
 holds it, JAX stops with Unable to initialize backend 'cuda'. Free the GPU, share it through an MPS daemon
 (nvidia-cuda-mps-control -d), or use the CPU-only mode.
 
-The workers’ switch sets how many cores the package’s parallel work uses; "auto" uses every allowed core
+set_workers sets how many cores the package’s parallel work uses; "auto" uses every allowed core
 inside a batch job and half of them anywhere else, and no value changes a number. The verbosity, the timing and
-the workers can also be set by the environment variables PIANISTPY_VERBOSITY, PIANISTPY_TIMING and
+the number of cores can also be set by the environment variables PIANISTPY_VERBOSITY, PIANISTPY_TIMING and
 PIANISTPY_WORKERS, in any case; PIANISTPY_TIMING reads 1, true, yes or on and 0,
 false, no or off, and any other value is refused by name.
 
@@ -1393,7 +1394,7 @@ fit a superposition to data; observables in an aperture of any shape.
 
 ## Reproducing Chiang+(2026d)
 
-One notebook per figure of Chiang+(2026d), from the released package, with the tables and measured numbers the
+Notebooks that reproduce the result figures of Chiang+(2026d), from the released package, with the tables and measured numbers the
 technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
 anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Released with
 ver. 0.9.9.
@@ -1704,7 +1705,7 @@ states the node left out. Seven models of the accuracy ledger move from warning 
 The density round trip of a truncated model is read on every row of the edge approach, where a sampling of
 radii could miss a peak a few rows wide.
 
-The observables’ worker processes run on the CPU whatever the platform of the calling process.
+The observables’ parallel processes run on the CPU whatever the platform of the calling process.
 
 The minimum versions of the dependencies are found by test, one package at a time and then as one environment,
 and listed on Install (NumPy 2.3, SciPy 1.15, h5py 3.11, Astropy 6.1, JAX 0.6, Python 3.11);
@@ -1714,13 +1715,13 @@ The examples of the observables’ guide pages use a Hernquist model with a cons
 The prepared table states the cost of its example.
 
 The rows of the line-of-sight table are computed in blocks sized to the per-core cache (n_block_elements
-25000, was 250000): the rows are the same to the bit, and the table builds in about half the wall time.
+25000, was 250000): the rows are the same to the bit, and the table builds in about half the wall-clock time.
 
 The rows of the line-of-sight table take 12 sightline nodes a panel (n_sightline_nodes, was 16): a row
 moves by at most \(3.7 \times 10^{-9}\) of its peak (\(4.2 \times 10^{-7}\) at the innermost rows of the
 \(\beta_{\rm c} = -0.5\) model of Fig. 15, where 16 and 24 nodes differ by as much), the central and aperture
 distributions by at most \(3.7 \times 10^{-10}\), pdf_v and
-sigma_los not at all; the anisotropic tables of Fig. 15 build in 14 to 18 percent less wall time.
+sigma_los not at all; the anisotropic tables of Fig. 15 build in 14 to 18 percent less wall-clock time.
 
 Python 3.11 is the oldest supported (NumPy 2.3, the oldest NumPy that passes the suite, needs it); JAX is
 capped below 0.10.2, on which one test of the suite fails.
@@ -1894,7 +1895,7 @@ number replaces the first rather than sitting beside it.
 No silent changes to results. A change that moves a result beyond rounding states the size of the move and
 its reason.
 
-Runtime options leave results unchanged. Verbosity, timing and the number of workers never alter what is
+Runtime options leave results unchanged. Verbosity, timing and the number of cores never alter what is
 computed.
 
 Accuracy is verified, not assumed. A numerical setting joins a tested tier only after passing that tier’s
@@ -3034,7 +3035,7 @@ classmethod from_function(component, f, settings=None)
 Return the distribution function a function of the energy gives.
 
 A user brings a DF (a fitting function, another code’s output) and
-the package certifies it against the density by its own integration.
+the package validates it against the density by its own integration.
 The function is tabulated on the energy grid compute_df places for
 the same component and settings, in place of the inversion’s values,
 and everything after runs as for the inversion: the forms beyond the
@@ -3480,9 +3481,9 @@ on the grid held at theta, and the leaves are log10 |F| on the table’s nodes,
 the edge law (p, C_0, C_1) and the center the form states, each closed form
 with its derivative written out.
 
-Served: constant beta and Cuddeford Type I (\(\beta_{\rm c}\),
+Served: constant beta and Cuddeford-Osipkov-Merritt (COM) Type I (\(\beta_{\rm c}\),
 \(R_{\rm a}\)), Osipkov-Merritt Type I and II (\(R_{\rm a}\)).
-Refused: Cuddeford Type II, whose interior point at \(P(R_{\rm a})\) moves
+Refused: COM Type II, whose interior point at \(P(R_{\rm a})\) moves
 with \(R_{\rm a}\) (and its exponent with \(\beta_{\rm c}\)), so the
 rows of the mixed derivative are not integrable there; and a table whose
 center is not on its regular branch (the critical band, where the branch
@@ -3579,7 +3580,7 @@ steps.
 
 Raises:
 
-InputError – Where the component is not analytic, or a Cuddeford Type II, or its
+InputError – Where the component is not analytic, or a COM Type II, or its
     family has no parameter.
 
 Return type:
@@ -4535,8 +4536,8 @@ model (Model) – A model of one component on a truncated profile, spatially fin
 whose family has \(\beta_{\rm c}\) or \(R_{\rm a}\): constant
 anisotropy (\(\beta_{\rm c}\); an isotropic or constant
 component’s \(R_{\rm a}\) is held at its own, infinite, value with
-a zero gradient), Cuddeford Type I (both), Osipkov-Merritt Type I and
-Type II (\(R_{\rm a}\)).
+a zero gradient), Cuddeford-Osipkov-Merritt (COM) Type I (both),
+Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)).
 
 settings (Settings, optional) – Numerical settings of the observables; the model’s by default.
 
@@ -4551,7 +4552,7 @@ Raises:
 InputError – For a superposition or a model of several components, a component not
     spatially finite or not on a truncated profile that carries its
     parent’s DF, and a family whose observables are not differentiable
-    (Cuddeford Type II), each named.
+    (COM Type II), each named.
 
 Notes
 
@@ -4718,7 +4719,7 @@ Notes
 The derivative is the DF path’s: at each radius the speed
 distribution’s transpose (speed_distribution_vjp) at the speeds
 asked, the distribution there computed by the rule its record
-certified, as SpeedDistribution.read computes it, with its explicit
+checked, as SpeedDistribution.read computes it, with its explicit
 part in the anisotropy, and the DF table’s derivative in theta. Not
 differentiable in r or v.
 
@@ -4802,9 +4803,9 @@ LosTable
 
 close()
 
-Close the worker processes the table’s aperture calls keep.
+Close the parallel processes the table’s aperture calls keep.
 
-The first aperture read from a table that needs workers starts a pool
+The first aperture read from a table that needs them starts a pool
 of them, and the table’s later apertures reuse it; the pool closes
 here, or when the table is gone. A table presented in another unit
 system (to) shares the pool. An aperture read after close starts
@@ -4994,8 +4995,8 @@ array
 Notes
 
 Between the rows of the table the distribution is read through the
-table’s own stencil, the reading the table certified its rows for; a
-projected radius inside an uncertified interval is refused by name.
+table’s own stencil, the reading the table checked its rows for; a
+projected radius inside an unchecked interval is refused by name.
 
 Of a superposition, each component’s distribution is read from its own
 table and the components are summed with their weights times their
@@ -5041,10 +5042,10 @@ AccuracyError – Where the distribution at a radius is beyond the hard limit, u
 
 Notes
 
-Each radius is the stage speed_distribution, certified by its norm
+Each radius is the stage speed_distribution, checked by its norm
 against the density, its second moment against the Jeans dispersion
 and the change of its angle rule; the distribution at the speeds asked
-is read by the rule it certified. Of a superposition, the components are
+is read by the rule it checked. Of a superposition, the components are
 mixed by their density at the radius: \(p = \sum_k w_k \varrho_k
 p_k / \sum_k w_k \varrho_k\).
 
@@ -5350,7 +5351,7 @@ Notes
 A physical model is not thereby samplable at every tier. The speed
 table’s rows are refined until the error across them is under the goal
 or their count reaches n_rows_max; close to the smallest anisotropy
-radius at which an Osipkov-Merritt or Cuddeford Type I DF is non-negative,
+radius at which an Osipkov-Merritt or COM Type I DF is non-negative,
 the rows reach n_rows_max first and the error grows steeply as
 \(R_{\rm a}\) falls toward that radius. Measured on a truncated NFW
 density of concentration 10 at the default tier, the error crosses the hard
@@ -5421,11 +5422,12 @@ superposition).
 Raises:
 
 InputError – For a model with a finite anisotropy radius (Osipkov-Merritt or
-    Cuddeford): there the speed is the scaled speed times a factor of
-    the drawn angle, so the window couples to the angle, and no table
-    holds the speed’s distribution at a radius with the angle
-    integrated out. Also for radii outside the sampling, an invalid
-    window, or bounds that do not broadcast against r.
+    Cuddeford-Osipkov-Merritt): there the speed is the scaled speed
+    times a factor of the drawn angle, so the window couples to the
+    angle, and no table holds the speed’s distribution at a radius
+    with the angle integrated out. Also for radii outside the
+    sampling, an invalid window, or bounds that do not broadcast
+    against r.
 
 Return type:
 
@@ -6049,7 +6051,7 @@ Source: https://pianistpy.com/docs/reference/api/runtime
 
 Module pianistpy.runtime
 
-Runtime options of the session: verbosity, timing and workers.
+Runtime options of the session: verbosity, timing and the number of cores.
 
 None of these changes a number, and none is part of the identity of a
 result. Each is set once for the session, by a call or by an environment
@@ -6133,7 +6135,7 @@ str | None
 
 pianistpy.runtime.get_workers()
 
-Return the number of workers the current setting resolves to.
+Return the number of cores the current setting resolves to.
 
 Return type:
 
@@ -6301,7 +6303,7 @@ None
 
 Notes
 
-The number of workers never changes a number: a result is the same, to
+The number of cores never changes a number: a result is the same, to
 the bit, for any value. The environment variable PIANISTPY_WORKERS
 sets the value at import.
 
@@ -6339,7 +6341,7 @@ Iterator[Timing]
 
 pianistpy.runtime.workers_explicit()
 
-Whether the workers were set to an exact number (set_workers).
+Whether the number of cores was set exactly (set_workers).
 
 Return type:
 
@@ -7495,7 +7497,7 @@ draw_block
 
 same
 
-Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block’s (about 0.75 kB a particle, 2**18 particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
+Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block’s (about 0.75 kB a particle, \(2^{18}\) particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
 
 row_error_goal
 
@@ -7511,7 +7513,7 @@ tail_mass_min
 
 same
 
-Smallest tabulated cumulative probability at either end of a table: a uniform double reaches 2**-53, so a draw never reads beyond it.
+Smallest tabulated cumulative probability at either end of a table: a uniform double reaches \(2^{-53}\), so a draw never reads beyond it.
 
 ## observables
 
@@ -7529,7 +7531,7 @@ n_radii
 
 500
 
-Projected radii of the projection table before its certificate adds rows, logarithmic from the innermost row to the edge.
+Projected radii of the projection table before its check between rows adds rows, logarithmic from the innermost row to the edge.
 
 profile_tolerance
 
@@ -7827,7 +7829,7 @@ n_stencil_test_rows
 
 same
 
-Rows of the stencil whose estimate certifies the table.
+Rows of the stencil whose estimate checks the table.
 
 n_block_elements
 
@@ -8968,8 +8970,6 @@ Optimistix
 
 0.1.0
 
-Astropy below 7.2 needs NumPy below 2.4 (older Astropy calls a function NumPy 2.4 removed).
-
 This standard list is the systematically tested environment, which can differ from the default package versions
 that pip installs by taking the newest version of each dependency that PIANISTpy allows. To reproduce the tested
 environment, manual specifications of each dependent package version during installation may be required. JAX
@@ -9037,8 +9037,9 @@ Source: https://pianistpy.com/docs/start/quickstart
 
 # Quick start
 
-The example of the first figure of Chiang+(2026d): an NFW halo with a constant velocity anisotropy of 0.25, truncated in
-phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
+The example of Chiang+(2026d), Fig. 3: an NFW halo with a concentration of 10 and a constant velocity anisotropy of 0.25,
+truncated in phase space such that the total final mass equals the untruncated virial mass, scaled physically to
+the Milky Way mass.
 
 ```
 import pianistpy as pp
@@ -9068,8 +9069,8 @@ sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
 
 pp.solve(halo, truncation) runs the two steps at once.
 
-Every result carries a validation report with its accuracy tier, and a model is always a valid equilibrium; what
-the package returns, flags and refuses is on one page, Flags and refusals.
+See Examples for self-contained Jupyter notebooks to reproduce the result figures shown in
+Chiang+(2026d).
 
 
 ---
@@ -9080,177 +9081,180 @@ Source: https://pianistpy.com/docs/start/timing
 
 # Representative computing time
 
-The table below times one chain of calls, from a density profile to the observables, built as in Chiang+(2026d): an isotropic NFW parent truncated by Method I, and a child at constant \(\beta_{\rm c} = 0.2\) built
-from it by Method II. Each row is the median of three calls after one warm call, except row 6, the table’s
-first build. The inputs are in internal units and every setting is at its default. The first two columns are one AMD Ryzen
-Threadripper PRO 5975WX (64 threads, 256 GB, Linux), on its CPU alone and then with its NVIDIA GeForce RTX 3080 Ti;
-the third is an Intel Core Ultra 9 185H (22 threads, 32 GB, Windows 11), CPU only. These are trial runs on the
-development tree; ver. 1.0.0 replaces them with runs on its own code.
+The table below provides representative computing time for each step of one complete PIANISTpy workflow, from a
+density profile to the observables. The fiducial example here starts with an isotropic NFW halo truncated by Method I,
+and a model with a constant velocity anisotropy of 0.2 built from it by Method II. Each time quoted below is that of a
+repeated call, after the first call of a session, which takes longer due to JAX compilation. These tests were
+conducted under the PIANISTpy default settings on the
+spock GPU cluster of
+CALab (PI: Hsi-Yu Schive),
+featuring a workstation-grade AMD Ryzen Threadripper PRO 5975WX CPU (32 cores, Linux) and an NVIDIA GeForce RTX 3080
+Ti GPU, and separately on a laptop with an Intel Core Ultra 9 185H (16 cores, Windows 11). The table shows CPU-only on
+spock (first column), GPU-enabled on spock (second column), and CPU-only on the laptop (third column). The parallel
+stages run 28 processes on spock and 12 on the laptop.
 
 Stage
 
-Threadripper PRO 5975WX, CPU (28 workers)
+spock, CPU
 
-Threadripper PRO 5975WX + RTX 3080 Ti (28 workers)
+spock, CPU + GPU
 
-Core Ultra 9 185H, CPU (16 workers)
+Laptop, CPU
 
 1. Parent DF: compute_df (NFW, isotropic)
 
-6.21 s
+6.45 s
 
-5.48 s
+5.58 s
 
-12.2 s
+13.1 s
 
 2. Method I truncation (\(\mathcal{K}_{\rm t} = 0.05\))
 
-4.58 s
+4.64 s
 
-4.30 s
+4.42 s
 
-9.9 s
+10.5 s
 
-3. Child at constant \(\beta_{\rm c} = 0.2\), Method II (compute_df, truncate)
+3. Child at constant \(\beta_{\rm c} = 0.2\),
 
-3.48 s
+Method II (compute_df, truncate)
 
-3.36 s
+3.55 s
 
-9.1 s
+3.41 s
+
+9.30 s
 
 4. Sampler: the speed table
 
-6.59 s
+6.52 s
 
-0.914 s
+0.903 s
 
-14.5 s
+7.10 s
 
 5. Drawing \(10^7\) particles
 
-7.08 s
+6.89 s
 
-1.79 s
+1.81 s
 
-13.0 s
+10.2 s
 
 6. LosTable: the first build
 
-1050 s
+800 s
 
-1050 s
+801 s
 
-5335 s
+3300 s
 
 On the model
 
 sigma_r at 50 radii
 
-3.71 s
+4.11 s
 
-3.52 s
+3.58 s
 
-24.9 s
+17.0 s
 
 sigma_t at 50 radii
 
-3.68 s
+4.10 s
 
-3.52 s
+3.58 s
 
-33.7 s
+17.2 s
 
 sigma_los at 50 projected radii
 
-8.75 s
+9.08 s
 
-8.20 s
+8.22 s
 
-53.4 s
+23.3 s
 
 sigma_los_aperture over a circle of radius 1
 
-8.74 s
+9.10 s
 
-8.18 s
+8.07 s
 
-31.9 s
+26.5 s
 
 From row 6’s table
 
 losvd at \(R = 1\), 201 velocities
 
-0.0209 s
+20.5 ms
 
-0.0190 s
+17.6 ms
 
-0.043 s
+27.8 ms
 
-aperture_losvd over a circle of radius 1, 201 velocities
+aperture_losvd over a circle
 
-12.2 s
+of radius 1, 201 velocities
 
-12.5 s
+12.9 s
 
-36.9 s
+12.0 s
+
+24.1 s
 
 sigma_los_aperture over a circle of radius 1
 
-12.6 s
+12.8 s
 
-12.5 s
+12.1 s
 
-38.1 s
+28.2 s
 
 Gauss-Hermite moments at 10 radii
 
-0.0615 s
+57.0 ms
 
-0.0619 s
+57.2 ms
 
-0.095 s
+82.6 ms
 
 pdf_v at 10 radii, \(V = 0.3\)
 
-5.18 s
+5.46 s
 
-5.09 s
+4.99 s
 
-27.5 s
+20.3 s
 
 Speed distribution at \(r = 1\)
 
-3.87 s
+4.09 s
 
-3.77 s
+3.76 s
 
-25.3 s
+18.6 s
 
 jax.grad of sigma_los at \(R = 1\)
 
-0.00433 s
+4.50 ms
 
-0.00520 s
+5.24 ms
 
-0.018 s
+5.82 ms
 
-Peak memory (main process, largest worker)
+Peak memory
 
-3.84 / 0.94 GiB
+(main process, largest parallel process)
 
-3.42 / 0.94 GiB
+3.78 / 0.92 GiB
 
-2.59 / 0.49 GiB
+3.42 / 0.93 GiB
 
-Gray cells: the stage’s core runs on the CPU on every platform (the Poisson solve in rows 2 and 3, the table’s rows
-in the worker pool in row 6), and the number is the stage’s wall-clock time with the GPU present. On the model, sigma_r and sigma_t each run the model’s
-moments solve, and sigma_los and sigma_los_aperture each run that solve and the projection; nothing is kept
-on the model between calls, so each row is the cost of one call. The aperture rows from the
-table time a later call on the same aperture. The first call on a new aperture also finds the distribution
-function’s extrema at the radii the table has not met, once per aperture, and the first aperture call on a table
-starts its worker pool: on the Threadripper’s CPU the first call took 31.0 s.
+2.46 / 0.51 GiB
 
-On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall-clock time. The rows
-on the model run the moments solve serially on one core, and there the wall-clock time of identical calls differs by up to half
-from one call to the next, so no ratio between the machines is given for them.
+Each row on the model is the cost of one call, since nothing is kept on the model between calls. The aperture
+rows from the table time a later call on the same aperture; the first aperture call on a table takes longer
+(32.0 s on spock’s CPU), since it starts the parallel processes.

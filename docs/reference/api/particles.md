@@ -98,7 +98,7 @@ Notes
 A physical model is not thereby samplable at every tier. The speed
 table’s rows are refined until the error across them is under the goal
 or their count reaches n_rows_max; close to the smallest anisotropy
-radius at which an Osipkov-Merritt or Cuddeford Type I DF is non-negative,
+radius at which an Osipkov-Merritt or COM Type I DF is non-negative,
 the rows reach n_rows_max first and the error grows steeply as
 \(R_{\rm a}\) falls toward that radius. Measured on a truncated NFW
 density of concentration 10 at the default tier, the error crosses the hard
@@ -169,11 +169,12 @@ superposition).
 Raises:
 
 InputError – For a model with a finite anisotropy radius (Osipkov-Merritt or
-    Cuddeford): there the speed is the scaled speed times a factor of
-    the drawn angle, so the window couples to the angle, and no table
-    holds the speed’s distribution at a radius with the angle
-    integrated out. Also for radii outside the sampling, an invalid
-    window, or bounds that do not broadcast against r.
+    Cuddeford-Osipkov-Merritt): there the speed is the scaled speed
+    times a factor of the drawn angle, so the window couples to the
+    angle, and no table holds the speed’s distribution at a radius
+    with the angle integrated out. Also for radii outside the
+    sampling, an invalid window, or bounds that do not broadcast
+    against r.
 
 Return type:
 

@@ -469,8 +469,8 @@ first, and is a JAX function of it, traceable and differentiable.</p>
 whose family has <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> or <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>: constant
 anisotropy (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>; an isotropic or constant
 component’s <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is held at its own, infinite, value with
-a zero gradient), Cuddeford Type I (both), Osipkov-Merritt Type I and
-Type II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>).</p></li>
+a zero gradient), Cuddeford-Osipkov-Merritt (COM) Type I (both),
+Osipkov-Merritt Type I and Type II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>).</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings of the observables; the model’s by default.</p></li>
 </ul>
 </dd>
@@ -484,7 +484,7 @@ Type II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>).</p></
 <dd class="field-odd"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – For a superposition or a model of several components, a component not
     spatially finite or not on a truncated profile that carries its
     parent’s DF, and a family whose observables are not differentiable
-    (Cuddeford Type II), each named.</p>
+    (COM Type II), each named.</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
@@ -652,7 +652,7 @@ shape; NaN where the model at theta is refused.</p>
 <p>The derivative is the DF path’s: at each radius the speed
 distribution’s transpose (<cite>speed_distribution_vjp</cite>) at the speeds
 asked, the distribution there computed by the rule its record
-certified, as <cite>SpeedDistribution.read</cite> computes it, with its explicit
+checked, as <cite>SpeedDistribution.read</cite> computes it, with its explicit
 part in the anisotropy, and the DF table’s derivative in theta. Not
 differentiable in r or v.</p>
 </dd></dl>
@@ -739,8 +739,8 @@ observables read from the returned object are given in the units of
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.observables.LosTable.close">
 <span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.observables.LosTable.close" title="Link to this definition">#</a></dt>
-<dd><p>Close the worker processes the table’s aperture calls keep.</p>
-<p>The first aperture read from a table that needs workers starts a pool
+<dd><p>Close the parallel processes the table’s aperture calls keep.</p>
+<p>The first aperture read from a table that needs them starts a pool
 of them, and the table’s later apertures reuse it; the pool closes
 here, or when the table is gone. A table presented in another unit
 system (<cite>to</cite>) shares the pool. An aperture read after <cite>close</cite> starts
@@ -928,8 +928,8 @@ along the line of sight.</p>
 </dl>
 <p class="rubric">Notes</p>
 <p>Between the rows of the table the distribution is read through the
-table’s own stencil, the reading the table certified its rows for; a
-projected radius inside an uncertified interval is refused by name.</p>
+table’s own stencil, the reading the table checked its rows for; a
+projected radius inside an unchecked interval is refused by name.</p>
 <p>Of a superposition, each component’s distribution is read from its own
 table and the components are summed with their weights times their
 surface densities: <span class="math notranslate nohighlight">\(D = \sum_k w_k \Sigma_k D_k / \sum_k w_k
@@ -972,10 +972,10 @@ the escape speed but for a Type II model, whose speeds reach
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Each radius is the stage <cite>speed_distribution</cite>, certified by its norm
+<p>Each radius is the stage <cite>speed_distribution</cite>, checked by its norm
 against the density, its second moment against the Jeans dispersion
 and the change of its angle rule; the distribution at the speeds asked
-is read by the rule it certified. Of a superposition, the components are
+is read by the rule it checked. Of a superposition, the components are
 mixed by their density at the radius: <span class="math notranslate nohighlight">\(p = \sum_k w_k \varrho_k
 p_k / \sum_k w_k \varrho_k\)</span>.</p>
 <p class="rubric">References</p>

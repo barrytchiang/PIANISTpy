@@ -6,7 +6,7 @@ Source: https://pianistpy.com/docs/reference/api/runtime
 
 Module pianistpy.runtime
 
-Runtime options of the session: verbosity, timing and workers.
+Runtime options of the session: verbosity, timing and the number of cores.
 
 None of these changes a number, and none is part of the identity of a
 result. Each is set once for the session, by a call or by an environment
@@ -90,7 +90,7 @@ str | None
 
 pianistpy.runtime.get_workers()
 
-Return the number of workers the current setting resolves to.
+Return the number of cores the current setting resolves to.
 
 Return type:
 
@@ -258,7 +258,7 @@ None
 
 Notes
 
-The number of workers never changes a number: a result is the same, to
+The number of cores never changes a number: a result is the same, to
 the bit, for any value. The environment variable PIANISTPY_WORKERS
 sets the value at import.
 
@@ -296,7 +296,7 @@ Iterator[Timing]
 
 pianistpy.runtime.workers_explicit()
 
-Whether the workers were set to an exact number (set_workers).
+Whether the number of cores was set exactly (set_workers).
 
 Return type:
 

@@ -1,8 +1,9 @@
 Quick start
 ===========
 
-The example of the first figure of |paper|: an NFW halo with a constant velocity anisotropy of 0.25, truncated in
-phase space at the virial mass of a concentration-10 halo, presented as a Milky Way-mass halo.
+The example of |paper|, Fig. 3: an NFW halo with a concentration of 10 and a constant velocity anisotropy of 0.25,
+truncated in phase space such that the total final mass equals the untruncated virial mass, scaled physically to
+the Milky Way mass.
 
 .. code-block:: python
 
@@ -31,5 +32,5 @@ phase space at the virial mass of a concentration-10 halo, presented as a Milky 
 
 ``pp.solve(halo, truncation)`` runs the two steps at once.
 
-Every result carries a validation report with its accuracy tier, and a model is always a valid equilibrium; what
-the package returns, flags and refuses is on one page, :doc:`../guide/results`.
+See :ref:`Examples <notebooks-paper>` for self-contained Jupyter notebooks to reproduce the result figures shown in
+|paper|.

@@ -417,7 +417,7 @@ an inversion.</p></li>
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.DistributionFunction.from_function" title="Link to this definition">#</a></dt>
 <dd><p>Return the distribution function a function of the energy gives.</p>
 <p>A user brings a DF (a fitting function, another code’s output) and
-the package certifies it against the density by its own integration.
+the package validates it against the density by its own integration.
 The function is tabulated on the energy grid <cite>compute_df</cite> places for
 the same component and settings, in place of the inversion’s values,
 and everything after runs as for the inversion: the forms beyond the
@@ -873,9 +873,9 @@ is the same sum with d g / d theta in closed form; the rows follow as above
 on the grid held at theta, and the leaves are log10 <code class="docutils literal notranslate"><span class="pre">|F|</span></code> on the table’s nodes,
 the edge law (p, C_0, C_1) and the center the form states, each closed form
 with its derivative written out.</p>
-<p>Served: constant beta and Cuddeford Type I (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,
+<p>Served: constant beta and Cuddeford-Osipkov-Merritt (COM) Type I (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,
 <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>), Osipkov-Merritt Type I and II (<span class="math notranslate nohighlight">\(R_{\rm a}\)</span>).
-Refused: Cuddeford Type II, whose interior point at <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span> moves
+Refused: COM Type II, whose interior point at <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span> moves
 with <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> (and its exponent with <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>), so the
 rows of the mixed derivative are not integrable there; and a table whose
 center is not on its regular branch (the critical band, where the branch
@@ -976,7 +976,7 @@ steps.</p></li>
 </p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – Where the component is not analytic, or a Cuddeford Type II, or its
+<dd class="field-odd"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – Where the component is not analytic, or a COM Type II, or its
     family has no parameter.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

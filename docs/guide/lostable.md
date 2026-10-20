@@ -36,7 +36,7 @@ model’s own settings and is not recomputed for another unit system: table.to("
 same tables presented in the units of model.to("physical", ...), and the observables read from it take and
 return quantities in those units.
 
-The rows are computed by a pool of worker processes, which Python starts by spawning a fresh interpreter. In a
+The rows are computed by a pool of parallel processes, which Python starts by spawning a fresh interpreter. In a
 script, build the table (or call losvd() on a model, which builds one) under
 if __name__ == "__main__":, as Python’s multiprocessing requires; in a notebook or an interactive session
 nothing is needed.
@@ -96,9 +96,9 @@ pp.sigma_los_aperture(physical, pp.Aperture.circle(500.0))                   # k
 
 ```
 
-On this example (one 32-core node, CPU), building the table takes about 4 minutes with the node’s 32 workers (43
+On this example (one 32-core node, CPU), building the table takes about 4 minutes on the node’s 32 cores (43
 minutes with one). With the table built, the circle of radius 1 takes about 30 s by the table’s route with 32
-workers (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
+cores (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
 circle of radius 0.5) about as long again.
 
      On this page

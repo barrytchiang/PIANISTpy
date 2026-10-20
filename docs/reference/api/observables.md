@@ -157,8 +157,8 @@ model (Model) – A model of one component on a truncated profile, spatially fin
 whose family has \(\beta_{\rm c}\) or \(R_{\rm a}\): constant
 anisotropy (\(\beta_{\rm c}\); an isotropic or constant
 component’s \(R_{\rm a}\) is held at its own, infinite, value with
-a zero gradient), Cuddeford Type I (both), Osipkov-Merritt Type I and
-Type II (\(R_{\rm a}\)).
+a zero gradient), Cuddeford-Osipkov-Merritt (COM) Type I (both),
+Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)).
 
 settings (Settings, optional) – Numerical settings of the observables; the model’s by default.
 
@@ -173,7 +173,7 @@ Raises:
 InputError – For a superposition or a model of several components, a component not
     spatially finite or not on a truncated profile that carries its
     parent’s DF, and a family whose observables are not differentiable
-    (Cuddeford Type II), each named.
+    (COM Type II), each named.
 
 Notes
 
@@ -340,7 +340,7 @@ Notes
 The derivative is the DF path’s: at each radius the speed
 distribution’s transpose (speed_distribution_vjp) at the speeds
 asked, the distribution there computed by the rule its record
-certified, as SpeedDistribution.read computes it, with its explicit
+checked, as SpeedDistribution.read computes it, with its explicit
 part in the anisotropy, and the DF table’s derivative in theta. Not
 differentiable in r or v.
 
@@ -424,9 +424,9 @@ LosTable
 
 close()
 
-Close the worker processes the table’s aperture calls keep.
+Close the parallel processes the table’s aperture calls keep.
 
-The first aperture read from a table that needs workers starts a pool
+The first aperture read from a table that needs them starts a pool
 of them, and the table’s later apertures reuse it; the pool closes
 here, or when the table is gone. A table presented in another unit
 system (to) shares the pool. An aperture read after close starts
@@ -616,8 +616,8 @@ array
 Notes
 
 Between the rows of the table the distribution is read through the
-table’s own stencil, the reading the table certified its rows for; a
-projected radius inside an uncertified interval is refused by name.
+table’s own stencil, the reading the table checked its rows for; a
+projected radius inside an unchecked interval is refused by name.
 
 Of a superposition, each component’s distribution is read from its own
 table and the components are summed with their weights times their
@@ -663,10 +663,10 @@ AccuracyError – Where the distribution at a radius is beyond the hard limit, u
 
 Notes
 
-Each radius is the stage speed_distribution, certified by its norm
+Each radius is the stage speed_distribution, checked by its norm
 against the density, its second moment against the Jeans dispersion
 and the change of its angle rule; the distribution at the speeds asked
-is read by the rule it certified. Of a superposition, the components are
+is read by the rule it checked. Of a superposition, the components are
 mixed by their density at the radius: \(p = \sum_k w_k \varrho_k
 p_k / \sum_k w_k \varrho_k\).
 

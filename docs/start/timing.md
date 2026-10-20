@@ -4,177 +4,180 @@ Source: https://pianistpy.com/docs/start/timing
 
 # Representative computing time
 
-The table below times one chain of calls, from a density profile to the observables, built as in Chiang+(2026d): an isotropic NFW parent truncated by Method I, and a child at constant \(\beta_{\rm c} = 0.2\) built
-from it by Method II. Each row is the median of three calls after one warm call, except row 6, the table’s
-first build. The inputs are in internal units and every setting is at its default. The first two columns are one AMD Ryzen
-Threadripper PRO 5975WX (64 threads, 256 GB, Linux), on its CPU alone and then with its NVIDIA GeForce RTX 3080 Ti;
-the third is an Intel Core Ultra 9 185H (22 threads, 32 GB, Windows 11), CPU only. These are trial runs on the
-development tree; ver. 1.0.0 replaces them with runs on its own code.
+The table below provides representative computing time for each step of one complete PIANISTpy workflow, from a
+density profile to the observables. The fiducial example here starts with an isotropic NFW halo truncated by Method I,
+and a model with a constant velocity anisotropy of 0.2 built from it by Method II. Each time quoted below is that of a
+repeated call, after the first call of a session, which takes longer due to JAX compilation. These tests were
+conducted under the PIANISTpy default settings on the
+spock GPU cluster of
+CALab (PI: Hsi-Yu Schive),
+featuring a workstation-grade AMD Ryzen Threadripper PRO 5975WX CPU (32 cores, Linux) and an NVIDIA GeForce RTX 3080
+Ti GPU, and separately on a laptop with an Intel Core Ultra 9 185H (16 cores, Windows 11). The table shows CPU-only on
+spock (first column), GPU-enabled on spock (second column), and CPU-only on the laptop (third column). The parallel
+stages run 28 processes on spock and 12 on the laptop.
 
 Stage
 
-Threadripper PRO 5975WX, CPU (28 workers)
+spock, CPU
 
-Threadripper PRO 5975WX + RTX 3080 Ti (28 workers)
+spock, CPU + GPU
 
-Core Ultra 9 185H, CPU (16 workers)
+Laptop, CPU
 
 1. Parent DF: compute_df (NFW, isotropic)
 
-6.21 s
+6.45 s
 
-5.48 s
+5.58 s
 
-12.2 s
+13.1 s
 
 2. Method I truncation (\(\mathcal{K}_{\rm t} = 0.05\))
 
-4.58 s
+4.64 s
 
-4.30 s
+4.42 s
 
-9.9 s
+10.5 s
 
-3. Child at constant \(\beta_{\rm c} = 0.2\), Method II (compute_df, truncate)
+3. Child at constant \(\beta_{\rm c} = 0.2\),
 
-3.48 s
+Method II (compute_df, truncate)
 
-3.36 s
+3.55 s
 
-9.1 s
+3.41 s
+
+9.30 s
 
 4. Sampler: the speed table
 
-6.59 s
+6.52 s
 
-0.914 s
+0.903 s
 
-14.5 s
+7.10 s
 
 5. Drawing \(10^7\) particles
 
-7.08 s
+6.89 s
 
-1.79 s
+1.81 s
 
-13.0 s
+10.2 s
 
 6. LosTable: the first build
 
-1050 s
+800 s
 
-1050 s
+801 s
 
-5335 s
+3300 s
 
 On the model
 
 sigma_r at 50 radii
 
-3.71 s
+4.11 s
 
-3.52 s
+3.58 s
 
-24.9 s
+17.0 s
 
 sigma_t at 50 radii
 
-3.68 s
+4.10 s
 
-3.52 s
+3.58 s
 
-33.7 s
+17.2 s
 
 sigma_los at 50 projected radii
 
-8.75 s
+9.08 s
 
-8.20 s
+8.22 s
 
-53.4 s
+23.3 s
 
 sigma_los_aperture over a circle of radius 1
 
-8.74 s
+9.10 s
 
-8.18 s
+8.07 s
 
-31.9 s
+26.5 s
 
 From row 6’s table
 
 losvd at \(R = 1\), 201 velocities
 
-0.0209 s
+20.5 ms
 
-0.0190 s
+17.6 ms
 
-0.043 s
+27.8 ms
 
-aperture_losvd over a circle of radius 1, 201 velocities
+aperture_losvd over a circle
 
-12.2 s
+of radius 1, 201 velocities
 
-12.5 s
+12.9 s
 
-36.9 s
+12.0 s
+
+24.1 s
 
 sigma_los_aperture over a circle of radius 1
 
-12.6 s
+12.8 s
 
-12.5 s
+12.1 s
 
-38.1 s
+28.2 s
 
 Gauss-Hermite moments at 10 radii
 
-0.0615 s
+57.0 ms
 
-0.0619 s
+57.2 ms
 
-0.095 s
+82.6 ms
 
 pdf_v at 10 radii, \(V = 0.3\)
 
-5.18 s
+5.46 s
 
-5.09 s
+4.99 s
 
-27.5 s
+20.3 s
 
 Speed distribution at \(r = 1\)
 
-3.87 s
+4.09 s
 
-3.77 s
+3.76 s
 
-25.3 s
+18.6 s
 
 jax.grad of sigma_los at \(R = 1\)
 
-0.00433 s
+4.50 ms
 
-0.00520 s
+5.24 ms
 
-0.018 s
+5.82 ms
 
-Peak memory (main process, largest worker)
+Peak memory
 
-3.84 / 0.94 GiB
+(main process, largest parallel process)
 
-3.42 / 0.94 GiB
+3.78 / 0.92 GiB
 
-2.59 / 0.49 GiB
+3.42 / 0.93 GiB
 
-Gray cells: the stage’s core runs on the CPU on every platform (the Poisson solve in rows 2 and 3, the table’s rows
-in the worker pool in row 6), and the number is the stage’s wall-clock time with the GPU present. On the model, sigma_r and sigma_t each run the model’s
-moments solve, and sigma_los and sigma_los_aperture each run that solve and the projection; nothing is kept
-on the model between calls, so each row is the cost of one call. The aperture rows from the
-table time a later call on the same aperture. The first call on a new aperture also finds the distribution
-function’s extrema at the radii the table has not met, once per aperture, and the first aperture call on a table
-starts its worker pool: on the Threadripper’s CPU the first call took 31.0 s.
+2.46 / 0.51 GiB
 
-On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall-clock time. The rows
-on the model run the moments solve serially on one core, and there the wall-clock time of identical calls differs by up to half
-from one call to the next, so no ratio between the machines is given for them.
+Each row on the model is the cost of one call, since nothing is kept on the model between calls. The aperture
+rows from the table time a later call on the same aperture; the first aperture call on a table takes longer
+(32.0 s on spock’s CPU), since it starts the parallel processes.

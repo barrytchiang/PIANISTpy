@@ -279,12 +279,17 @@
                   
   <section id="representative-computing-time">
 <h1>Representative computing time<a class="headerlink" href="#representative-computing-time" title="Link to this heading">#</a></h1>
-<p>The table below times one chain of calls, from a density profile to the observables, built as in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>: an isotropic NFW parent truncated by Method I, and a child at constant <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.2\)</span> built
-from it by Method II. Each row is the median of three calls after one warm call, except row 6, the table’s
-first build. The inputs are in internal units and every setting is at its default. The first two columns are one AMD Ryzen
-Threadripper PRO 5975WX (64 threads, 256 GB, Linux), on its CPU alone and then with its NVIDIA GeForce RTX 3080 Ti;
-the third is an Intel Core Ultra 9 185H (22 threads, 32 GB, Windows 11), CPU only. These are trial runs on the
-development tree; ver. 1.0.0 replaces them with runs on its own code.</p>
+<p>The table below provides representative computing time for each step of one complete PIANISTpy workflow, from a
+density profile to the observables. The fiducial example here starts with an isotropic NFW halo truncated by Method I,
+and a model with a constant velocity anisotropy of 0.2 built from it by Method II. Each time quoted below is that of a
+repeated call, after the first call of a session, which takes longer due to JAX compilation. These tests were
+conducted under the PIANISTpy default settings on the
+<a class="reference external" href="https://github.com/calab-ntu/gpu-cluster/wiki/System-Overview#spock" rel="noopener" target="_blank">spock GPU cluster</a> of
+<a class="reference external" href="https://calab-ntu.github.io/" rel="noopener" target="_blank">CALab</a> (PI: <a class="reference external" href="https://www.phys.ntu.edu.tw/enphysics/hyschive.html" rel="noopener" target="_blank">Hsi-Yu Schive</a>),
+featuring a workstation-grade AMD Ryzen Threadripper PRO 5975WX CPU (32 cores, Linux) and an NVIDIA GeForce RTX 3080
+Ti GPU, and separately on a laptop with an Intel Core Ultra 9 185H (16 cores, Windows 11). The table shows CPU-only on
+spock (first column), GPU-enabled on spock (second column), and CPU-only on the laptop (third column). The parallel
+stages run 28 processes on spock and 12 on the laptop.</p>
 <div class="pst-scrollable-table-container"><table class="chain-table table">
 <colgroup>
 <col style="width: 46.0%" />
@@ -294,41 +299,45 @@ development tree; ver. 1.0.0 replaces them with runs on its own code.</p>
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Stage</p></th>
-<th class="head"><p>Threadripper PRO 5975WX, CPU (28 workers)</p></th>
-<th class="head"><p>Threadripper PRO 5975WX + RTX 3080 Ti (28 workers)</p></th>
-<th class="head"><p>Core Ultra 9 185H, CPU (16 workers)</p></th>
+<th class="head"><p>spock, CPU</p></th>
+<th class="head"><p>spock, CPU + GPU</p></th>
+<th class="head"><p>Laptop, CPU</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>1. Parent DF: <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> (NFW, isotropic)</p></td>
-<td><p>6.21 s</p></td>
-<td><p>5.48 s</p></td>
-<td><p>12.2 s</p></td>
+<td><p>6.45 s</p></td>
+<td><p>5.58 s</p></td>
+<td><p>13.1 s</p></td>
 </tr>
 <tr class="row-odd"><td><p>2. Method I truncation (<span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.05\)</span>)</p></td>
-<td><p>4.58 s</p></td>
-<td><p><span class="pinned">4.30 s</span></p></td>
-<td><p>9.9 s</p></td>
+<td><p>4.64 s</p></td>
+<td><p>4.42 s</p></td>
+<td><p>10.5 s</p></td>
 </tr>
-<tr class="row-even"><td><p>3. Child at constant <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.2\)</span>, Method II (<code class="docutils literal notranslate"><span class="pre">compute_df</span></code>, <code class="docutils literal notranslate"><span class="pre">truncate</span></code>)</p></td>
-<td><p>3.48 s</p></td>
-<td><p><span class="pinned">3.36 s</span></p></td>
-<td><p>9.1 s</p></td>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">3. Child at constant <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.2\)</span>,</div>
+<div class="line">Method II (<code class="docutils literal notranslate"><span class="pre">compute_df</span></code>, <code class="docutils literal notranslate"><span class="pre">truncate</span></code>)</div>
+</div>
+</td>
+<td><p>3.55 s</p></td>
+<td><p>3.41 s</p></td>
+<td><p>9.30 s</p></td>
 </tr>
 <tr class="row-odd"><td><p>4. <code class="docutils literal notranslate"><span class="pre">Sampler</span></code>: the speed table</p></td>
-<td><p>6.59 s</p></td>
-<td><p>0.914 s</p></td>
-<td><p>14.5 s</p></td>
+<td><p>6.52 s</p></td>
+<td><p>0.903 s</p></td>
+<td><p>7.10 s</p></td>
 </tr>
 <tr class="row-even"><td><p>5. Drawing <span class="math notranslate nohighlight">\(10^7\)</span> particles</p></td>
-<td><p>7.08 s</p></td>
-<td><p>1.79 s</p></td>
-<td><p>13.0 s</p></td>
+<td><p>6.89 s</p></td>
+<td><p>1.81 s</p></td>
+<td><p>10.2 s</p></td>
 </tr>
 <tr class="row-odd"><td><p>6. <code class="docutils literal notranslate"><span class="pre">LosTable</span></code>: the first build</p></td>
-<td><p>1050 s</p></td>
-<td><p><span class="pinned">1050 s</span></p></td>
-<td><p>5335 s</p></td>
+<td><p>800 s</p></td>
+<td><p>801 s</p></td>
+<td><p>3300 s</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>On the model</strong></p></td>
 <td></td>
@@ -336,24 +345,24 @@ development tree; ver. 1.0.0 replaces them with runs on its own code.</p>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_r</span></code> at 50 radii</p></td>
-<td><p>3.71 s</p></td>
-<td><p>3.52 s</p></td>
-<td><p>24.9 s</p></td>
+<td><p>4.11 s</p></td>
+<td><p>3.58 s</p></td>
+<td><p>17.0 s</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_t</span></code> at 50 radii</p></td>
-<td><p>3.68 s</p></td>
-<td><p>3.52 s</p></td>
-<td><p>33.7 s</p></td>
+<td><p>4.10 s</p></td>
+<td><p>3.58 s</p></td>
+<td><p>17.2 s</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> at 50 projected radii</p></td>
-<td><p>8.75 s</p></td>
-<td><p>8.20 s</p></td>
-<td><p>53.4 s</p></td>
+<td><p>9.08 s</p></td>
+<td><p>8.22 s</p></td>
+<td><p>23.3 s</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> over a circle of radius 1</p></td>
-<td><p>8.74 s</p></td>
-<td><p>8.18 s</p></td>
-<td><p>31.9 s</p></td>
+<td><p>9.10 s</p></td>
+<td><p>8.07 s</p></td>
+<td><p>26.5 s</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>From row 6’s table</strong></p></td>
 <td></td>
@@ -361,58 +370,59 @@ development tree; ver. 1.0.0 replaces them with runs on its own code.</p>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">losvd</span></code> at <span class="math notranslate nohighlight">\(R = 1\)</span>, 201 velocities</p></td>
-<td><p>0.0209 s</p></td>
-<td><p>0.0190 s</p></td>
-<td><p>0.043 s</p></td>
+<td><p>20.5 ms</p></td>
+<td><p>17.6 ms</p></td>
+<td><p>27.8 ms</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> over a circle of radius 1, 201 velocities</p></td>
-<td><p>12.2 s</p></td>
-<td><p>12.5 s</p></td>
-<td><p>36.9 s</p></td>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> over a circle</div>
+<div class="line">of radius 1, 201 velocities</div>
+</div>
+</td>
+<td><p>12.9 s</p></td>
+<td><p>12.0 s</p></td>
+<td><p>24.1 s</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> over a circle of radius 1</p></td>
-<td><p>12.6 s</p></td>
-<td><p>12.5 s</p></td>
-<td><p>38.1 s</p></td>
+<td><p>12.8 s</p></td>
+<td><p>12.1 s</p></td>
+<td><p>28.2 s</p></td>
 </tr>
 <tr class="row-odd"><td><p>Gauss-Hermite moments at 10 radii</p></td>
-<td><p>0.0615 s</p></td>
-<td><p>0.0619 s</p></td>
-<td><p>0.095 s</p></td>
+<td><p>57.0 ms</p></td>
+<td><p>57.2 ms</p></td>
+<td><p>82.6 ms</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pdf_v</span></code> at 10 radii, <span class="math notranslate nohighlight">\(V = 0.3\)</span></p></td>
-<td><p>5.18 s</p></td>
-<td><p>5.09 s</p></td>
-<td><p>27.5 s</p></td>
+<td><p>5.46 s</p></td>
+<td><p>4.99 s</p></td>
+<td><p>20.3 s</p></td>
 </tr>
 <tr class="row-odd"><td><p>Speed distribution at <span class="math notranslate nohighlight">\(r = 1\)</span></p></td>
-<td><p>3.87 s</p></td>
-<td><p>3.77 s</p></td>
-<td><p>25.3 s</p></td>
+<td><p>4.09 s</p></td>
+<td><p>3.76 s</p></td>
+<td><p>18.6 s</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jax.grad</span></code> of <code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> at <span class="math notranslate nohighlight">\(R = 1\)</span></p></td>
-<td><p>0.00433 s</p></td>
-<td><p>0.00520 s</p></td>
-<td><p>0.018 s</p></td>
+<td><p>4.50 ms</p></td>
+<td><p>5.24 ms</p></td>
+<td><p>5.82 ms</p></td>
 </tr>
-<tr class="row-odd"><td><p>Peak memory (main process, largest worker)</p></td>
-<td><p>3.84 / 0.94 GiB</p></td>
-<td><p>3.42 / 0.94 GiB</p></td>
-<td><p>2.59 / 0.49 GiB</p></td>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">Peak memory</div>
+<div class="line">(main process, largest parallel process)</div>
+</div>
+</td>
+<td><p>3.78 / 0.92 GiB</p></td>
+<td><p>3.42 / 0.93 GiB</p></td>
+<td><p>2.46 / 0.51 GiB</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Gray cells: the stage’s core runs on the CPU on every platform (the Poisson solve in rows 2 and 3, the table’s rows
-in the worker pool in row 6), and the number is the stage’s wall-clock time with the GPU present. On the model, <code class="docutils literal notranslate"><span class="pre">sigma_r</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_t</span></code> each run the model’s
-moments solve, and <code class="docutils literal notranslate"><span class="pre">sigma_los</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> each run that solve and the projection; nothing is kept
-on the model between calls, so each row is the cost of one call. The aperture rows from the
-table time a later call on the same aperture. The first call on a new aperture also finds the distribution
-function’s extrema at the radii the table has not met, once per aperture, and the first aperture call on a table
-starts its worker pool: on the Threadripper’s CPU the first call took 31.0 s.</p>
-<p>On the Core Ultra 9 185H the table’s build (row 6) takes about five times the Threadripper’s wall-clock time. The rows
-on the model run the moments solve serially on one core, and there the wall-clock time of identical calls differs by up to half
-from one call to the next, so no ratio between the machines is given for them.</p>
+<p>Each row on the model is the cost of one call, since nothing is kept on the model between calls. The aperture
+rows from the table time a later call on the same aperture; the first aperture call on a table takes longer
+(32.0 s on spock’s CPU), since it starts the parallel processes.</p>
 </section>
 
 
