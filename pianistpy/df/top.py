@@ -1,16 +1,22 @@
-"""The center's form at the top of a table: the singular part and the regular one.
+r"""The form of the DF above the top of an untruncated table: anchor and top patch.
 
-Near the central potential the DF is F = A u^kappa + R(u), u = p_0 - k: the
-singular part from the cusp and the regular part from the rest of the well,
-R = B + D u + ... Where the inversion's rows end below the ceiling (at the
-data top), the form takes over from the last row, the anchor: A is the
-center's closed-form amplitude where it states one (else fitted), and B and D
-are fitted on the rows from the anchor down to W u_anchor, W doubling from 2
-until the amplitude of the three-term fit (A, B, D) and of the four-term fit
-(+ E u^2) agree to a tenth of the goal.
+The inversion calls `anchor` for the energy at which a closed form takes
+over from the table's rows, and `top_patch` for the closed form. Near the
+central potential p_0, the DF is F = A u^kappa + R(u) in the depth
+u = p_0 - k: the singular part A u^kappa comes from the cusp, and the
+regular part R = B + D u + ... comes from the rest of the potential well.
+Where the inversion's rows end below min(1, p_0) - K_FLOOR, the form takes
+over from the last row, the anchor. The amplitude A is the center's
+closed-form amplitude where `center_form` states one, and is fitted
+otherwise. B and D are fitted on the rows with depths from u_anchor to
+W u_anchor, where the window W doubles from 2 until the amplitude A_3 of the
+three-term fit (A, B, D) and the amplitude A_4 of the four-term fit (A, B, D,
+E u^2) satisfy abs(A_3 / A_4 - 1) at most :math:`10^{-7}`, one tenth of
+:math:`10^{-6}`, or until W u_anchor exceeds the largest depth of the rows.
 
-The arithmetic is the working pipeline's, operation for operation, so that
-its results are equal to the bit on the same backend.
+References
+----------
+Notes Section T:2.5.2.
 """
 
 __all__ = ["Anchor", "TopPatch", "anchor", "kappa_loc", "top_patch"]
@@ -21,32 +27,38 @@ from dataclasses import dataclass
 import numpy as np
 
 from ..typing import Array
-from ..validation import GOAL, HARD_LIMIT
+from ..validation import TIER_BOUNDS
 from .truncation import K_FLOOR
 
-# the spline stencil width at the data top (k = 5 spline support, k + 2 knots):
-# the band the one-term amplitude is fitted over
+# The number of rows nearest p_0 over which the one-term amplitude and the
+# local slope are fitted: the stencil width of the table's spline at the top
+# row, k + 2 = 7 knots for a spline of degree k = 5.
 _STENCIL = 7
-# the branches of the center whose DF diverges at p_0: the only ones patched
+# The central branches whose DF diverges at p_0. Only the listed branches get an
+# anchor under the rule "data top" (`anchor`).
 _PATCHED_BRANCHES = ("regular", "critical_divergent")
 
 
 @dataclass(frozen=True)
 class Anchor:
-    """Where the form takes over from a table's rows.
+    """The energy at which the central form takes over from a table's rows.
 
     Parameters
     ----------
     k_anchor : float
-        The anchor: the grid's last energy at or below the rule's target.
+        The anchor energy: the grid's last energy at or below the target
+        energy of the rule, in internal units.
     rule : str
-        "data top" (the rows end below the ceiling, at the pair's data top)
-        or "defect repair" (the row below a band of rows not positive at the
-        top, where the form holds there).
+        The rule that placed the anchor. "data top": the rows end at the pair's
+        data top, below min(1, p_0) - K_FLOOR. "defect repair": the
+        anchor lies below a band of top rows whose DF is not positive, and
+        the central form holds at the anchor.
     rows : int
-        The grid's energies above the anchor, which the form replaces.
+        The number of the grid's energies above the anchor, where the
+        central form replaces the rows.
     slope_mismatch : float
-        abs(kappa_loc - kappa) at the anchor; inf where kappa_loc is undefined.
+        abs(kappa_loc - kappa) at the anchor, with kappa_loc from
+        `kappa_loc`; inf where kappa_loc or kappa is not finite.
     """
 
     k_anchor: float
@@ -58,12 +70,15 @@ class Anchor:
 def kappa_loc(
     k: Array, f: Array, p_0: float, k_anchor: float, ddf: Array | None = None
 ) -> float:
-    """Return d ln F / d ln u at the anchor, u = p_0 - k, signed.
+    """Return the local slope d ln F / d ln u at the anchor, with u = p_0 - k.
 
-    With the exact dF/dk on the same rows, -u F'/F at the row at or below the
-    anchor nearest p_0; else the least-squares slope over the 7 positive rows
-    at and below the anchor nearest p_0 (the spline stencil width). NaN where
-    neither is defined.
+    Where ``ddf``, the exact dF/dk on the rows, is given with one value per
+    row, the slope is -u (dF/dk) / F at the row nearest p_0 among the rows
+    at or below ``k_anchor`` with a positive F and a finite dF/dk. Otherwise
+    the slope is the least-squares slope of ln F against ln u over the
+    `_STENCIL` (7) rows nearest p_0 among the rows at or below ``k_anchor``
+    with a positive F. The result is NaN where fewer than 5 such rows exist
+    or where the rows span no range of ln u.
     """
     q = np.asarray(k, dtype=np.float64)
     u = float(p_0) - q
@@ -88,6 +103,10 @@ def kappa_loc(
 def _slope_mismatch(
     k: Array, f: Array, p_0: float, kappa: float, k_anchor: float, ddf: Array | None
 ) -> float:
+    """Return abs(kappa_loc - kappa) at ``k_anchor``.
+
+    The result is inf where kappa_loc or kappa is not finite.
+    """
     kl = kappa_loc(k, f, p_0, k_anchor, ddf)
     if not (np.isfinite(kl) and np.isfinite(kappa)):
         return math.inf
@@ -104,39 +123,61 @@ def anchor(
     ddf: Array | None = None,
     below_ceiling: bool | None = None,
 ) -> Anchor | None:
-    """Return where the form takes over from an untruncated table's rows.
+    """Return the anchor where the central form takes over from a table's rows.
 
-    The rows end at the pair's data top where it lies below the ceiling
-    (min(1, p_0) less the table's floor): the form owns the energies above
-    it. Where a band of rows at the top (k above p_0 / 2) is not positive or
-    NaN with positive rows above it, the anchor moves below the band, but only
-    where the form holds there (abs(kappa_loc - kappa) within the hard limit),
-    and not on the critical branch of a center that is not analytic. The
-    anchor is snapped to the grid's last energy at or below the target.
+    The table is untruncated.
+
+    Two rules can place the anchor.
+
+    - "data top": the central branch is in `_PATCHED_BRANCHES` and the
+      rows end below min(1, p_0) - K_FLOOR.
+    - "defect repair": kappa is finite, and a band of rows with k above
+      p_0 / 2 holds a DF that is NaN or not positive, with a positive row
+      above the band. The rule applies only where the central form holds
+      below the band: for kappa equal to 0, only where the central form is
+      "analytic"; for other kappa, only where abs(kappa_loc - kappa) at the
+      largest double below the band's lowest energy is at most
+      :math:`10^{-2}`.
+
+    Where the rows end below min(1, p_0) - K_FLOOR, the target energy is
+    p_0 less the larger of p_0 - data_top and K_FLOOR; otherwise the target
+    energy is the largest double below the band's lowest energy. Under the
+    "defect repair" rule, the target energy is the lower of the two target
+    energies. The anchor is the highest grid energy at or below the target
+    energy, raised to the grid's first energy where the target energy lies
+    below the grid's first energy, and lowered to the grid's second-to-last
+    energy where the highest grid energy at or below the target energy is
+    the grid's last energy.
 
     Parameters
     ----------
-    k, f : array, shape (n,)
-        The grid, increasing, and the inversion's rows on it.
+    k : array, shape (n,)
+        The energy grid, increasing, in internal units.
+    f : array, shape (n,)
+        The inversion's DF on the grid.
     p_0 : float
-        The central potential.
+        The central potential, in internal units.
     kappa : float
         The singular exponent of the center.
     center : dict
-        The center's form (`center_form`): its branch and form.
+        The central form (`center_form`), read for its ``branch`` and
+        ``form``.
     data_top : float
-        The pair's highest potential (at its innermost radius).
-    ddf : array, optional
-        The exact dF/dk on the rows, for kappa_loc.
-    below_ceiling : bool, optional
-        Whether the rows end below the ceiling. By default the data top
-        decides it against min(1, p_0); a truncated table takes its
-        untruncated rows' answer, made at p_0 = 1.
+        The pair's highest potential, at the pair's innermost radius.
+    ddf : array or None, optional
+        The exact dF/dk on the grid, for `kappa_loc`. Default: ``None``,
+        which means `kappa_loc` fits the local slope to the rows.
+    below_ceiling : bool or None, optional
+        Whether the rows end below min(1, p_0) - K_FLOOR. Default: ``None``,
+        which means ``data_top`` is compared with min(1, p_0) - K_FLOOR. A
+        truncated table passes the value found for its untruncated rows at
+        p_0 = 1.
 
     Returns
     -------
     anchor : Anchor or None
-        None where no rule fires (the rows reach the ceiling and stand).
+        The anchor, or None where neither rule applies, in which case the
+        rows cover the grid up to the grid's last energy.
     """
     q = np.asarray(k, dtype=np.float64)
     df = np.asarray(f, dtype=np.float64)
@@ -155,10 +196,11 @@ def anchor(
         k_bad = float(q[defect].min())
         k_below = float(np.nextafter(k_bad, 0.0))
         if kappa == 0.0:
-            # the plateau holds only where the center is analytic
+            # With kappa = 0 the central form is a constant, and a constant
+            # continues the DF only where the center is analytic.
             repair = center["form"] == "analytic"
         else:
-            repair = _slope_mismatch(q, df, p_0, kappa, k_below, ddf) <= HARD_LIMIT
+            repair = _slope_mismatch(q, df, p_0, kappa, k_below, ddf) <= TIER_BOUNDS[2]
     if not ((patched and below_ceiling) or repair):
         return None
     gap = max(p_0 - float(data_top), K_FLOOR) if below_ceiling else p_0 - k_below
@@ -178,27 +220,36 @@ def anchor(
 
 @dataclass(frozen=True)
 class TopPatch:
-    """The form that continues a table above its anchor.
+    """The central form that continues a table above its anchor.
 
-    F = a_anchor (u / u_anchor)^kappa + b + d u, u = p_0 - k, as
-    `AsymptoticForm.central_df` evaluates it.
+    The form is F = a_anchor (u / u_anchor)^kappa + b + d u in the depth
+    u = p_0 - k, as `AsymptoticForm.central_df` evaluates the form.
 
     Parameters
     ----------
-    k_anchor, u_anchor : float
-        The anchor (the table's last energy) and p_0 less it.
+    k_anchor : float
+        The anchor energy, the table's last energy, in internal units.
+    u_anchor : float
+        The anchor depth p_0 - k_anchor, in internal units.
     kappa : float
         The singular exponent.
     a_anchor : float
         The singular part at the anchor, A u_anchor^kappa.
-    b, d : float
-        The regular part; zero where it was not fitted.
+    b : float
+        The constant term of the regular part.
+    d : float
+        The linear coefficient of the regular part; zero where no regular
+        part was fitted.
     closed_form : bool
         Whether A is the center's closed-form amplitude.
-    fit_window, fit_residual, fit_agreement : float
-        The fit's window W (in u_anchor), its worst relative residual on its
-        rows, and the three- against four-term amplitude agreement; NaN where
-        there was no fit.
+    fit_window : float
+        The fit's window W, in units of u_anchor; NaN where no fit was kept.
+    fit_residual : float
+        The largest relative residual of the fit on the fit's rows; NaN
+        where no fit was kept.
+    fit_agreement : float
+        The relative difference between the three-term and the four-term
+        amplitude, abs(A_3 / A_4 - 1); NaN where no fit was kept.
     """
 
     k_anchor: float
@@ -214,7 +265,7 @@ class TopPatch:
 
     @property
     def amplitude(self) -> float:
-        """A of A u^kappa."""
+        """The amplitude A of the singular part A u^kappa."""
         return self.a_anchor / self.u_anchor**self.kappa
 
 
@@ -227,32 +278,56 @@ def top_patch(
     k_above: Array,
     terms: int = 3,
 ) -> TopPatch | None:
-    """Return the form that continues a table above its last row.
+    """Return the central form that continues a table above its last row.
+
+    Where the DF at the anchor is positive, the value at the anchor is first
+    smoothed: among the rows with a positive DF, the `_STENCIL` (7) rows
+    nearest p_0 are selected, and where at least 5 rows are selected, the
+    anchor value is the one-term form A u_anchor^kappa, with ln A the mean
+    of ln F - kappa ln u over the selected rows.
+
+    With ``terms`` other than 1 and kappa not 0, the regular part B + D u is
+    fitted together with the singular amplitude on the rows with depths from
+    u_anchor to W u_anchor, with W = 2, 4, 8, ... The rows of the fit are
+    the rows with a finite, positive DF. The window W stops widening once
+    the three-term amplitude A_3 and the four-term amplitude A_4 satisfy
+    abs(A_3 / A_4 - 1) at most :math:`10^{-7}`, one tenth of
+    :math:`10^{-6}`, or once W u_anchor exceeds the largest depth of the
+    fit's rows. The last window with at least 8 rows is kept. The fit is
+    used only where the fitted amplitude is positive and the fitted form is
+    finite and positive at every energy of ``k_above``.
+
+    Where ``amplitude`` is a finite closed-form amplitude, A equals
+    ``amplitude``. B and D are then refitted with A fixed where a fit was
+    kept; where no fit was kept, B joins the form to the anchor value and
+    D = 0.
 
     Parameters
     ----------
-    k, f : array, shape (n,)
-        The inversion's rows, increasing in k, ending at the anchor (the
-        data top).
+    k : array, shape (n,)
+        The energies of the inversion's rows, increasing, ending at the
+        anchor, in internal units.
+    f : array, shape (n,)
+        The inversion's DF on the rows.
     p_0 : float
-        The central potential.
+        The central potential, in internal units.
     kappa : float
         The singular exponent of the center.
     amplitude : float or None
-        The center's closed-form amplitude A, where it states one for this
-        exponent.
+        The center's closed-form amplitude A for the exponent ``kappa``, or
+        None where the center states no closed-form amplitude.
     k_above : array
-        The grid's energies above the anchor, where the form is used: the
-        fitted form is kept only where it is positive on every one.
+        The grid's energies above the anchor, where the form is used.
     terms : int, optional
-        3 fits the regular part; 1 keeps the one-term form A u^kappa with A
-        joining the anchor.
+        The number of terms of the form. Default: ``3``, which means the
+        regular part B + D u is fitted. A value of 1 keeps the one-term form
+        A u^kappa joined to the anchor value.
 
     Returns
     -------
     patch : TopPatch or None
-        None where the DF at the anchor is not positive, or no energy of the
-        grid lies above the anchor (no form takes over).
+        The central form, or None where the anchor value is not positive or
+        no energy of the grid lies above the anchor.
     """
     q = np.asarray(k, dtype=np.float64)
     df = np.asarray(f, dtype=np.float64)
@@ -292,7 +367,7 @@ def top_patch(
                 agree = abs(c3[0] / c4[0] - 1.0) if c4[0] != 0.0 else float("inf")
                 res3 = float(np.max(np.abs(xr[:, :3] @ c3 - 1.0)))
                 prev = (w, c3, agree, res3)
-                if agree <= 0.1 * float(GOAL):
+                if agree <= 0.1 * float(TIER_BOUNDS[0]):
                     break
             w *= 2.0
         if prev is not None:

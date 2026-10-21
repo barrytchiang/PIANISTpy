@@ -178,7 +178,9 @@ class Notes:
         for name in sorted(self.math, key=len, reverse=True):
             math = re.sub(
                 r"(\\[A-Za-z]+\s*)?\\" + name + r"(?![A-Za-z])",
-                lambda m, b=self.math[name]: f"{m.group(1)}{{{b}}}" if m.group(1) else b,
+                lambda m, b=self.math[name]: (
+                    f"{m.group(1)}{{{b}}}" if m.group(1) else b
+                ),
                 math,
             )
         if re.search(r"\\(label|ref|eref|sref|tref|peq)\b", math):

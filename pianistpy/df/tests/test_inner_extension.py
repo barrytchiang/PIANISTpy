@@ -1,10 +1,15 @@
-"""Tests of the Poisson solve's inner extension.
+r"""Tests of the inward extension of the radial grid of the Poisson solve.
 
-Where the series' deficit at the solve's first radius exceeds the solver's
-tolerance, the grid is extended inward to the radius where the two meet,
-(sqrt(ode_atol) / A)^(1 / (2 - gamma)). At gamma 1.99 that radius lies far
-below the double's range, and the solve refuses by name instead of dividing by
-the 0 the power rounds to.
+Near the center, the central series gives the potential deficit
+:math:`u = P_0 - \Phi(R) = A R^{2 - \gamma}`, with :math:`P_0` the central
+potential, :math:`\Phi(R)` the potential at radius R and :math:`\gamma` the
+inner density slope. Let :math:`\epsilon` be the solver's absolute tolerance
+`ode_atol`. Where u at the solve's first radius exceeds
+:math:`\sqrt{\epsilon}`, the solve extends the radial grid inward to the
+radius :math:`R = (\sqrt{\epsilon} / A)^{1 / (2 - \gamma)}`, at which u
+equals :math:`\sqrt{\epsilon}`. At :math:`\gamma = 1.99` the extended radius
+lies below the smallest normal double, and the solve raises InputError,
+which states the extended radius as a power of ten.
 """
 
 import pytest

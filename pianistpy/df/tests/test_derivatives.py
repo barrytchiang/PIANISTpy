@@ -1,4 +1,8 @@
-"""The exact derivatives of the auxiliary density, held against mpmath."""
+"""Tests of `ExactDerivs`, the exact derivatives of the auxiliary density.
+
+The derivatives are compared with mpmath's numerical derivatives, and the
+cached construction of `ExactDerivs` is compared with a fresh construction.
+"""
 
 import mpmath as mp
 import numpy as np
@@ -6,16 +10,20 @@ import pytest
 
 from pianistpy.df.derivatives import ExactDerivs
 from pianistpy.profiles import DoublePowerLaw
-from pianistpy.validation import GOAL
+from pianistpy.validation import TIER_BOUNDS
 
-# Exponents off the small rationals: a rounded exponent is another model.
+# The exponents are not small rationals, so that a construction that rounds an
+# exponent to a small rational gives a different model and fails the test.
 ALPHA, BETA, GAMMA, BETA_C = 0.9, 3.0, 1.137, 0.3333
 
 
 def _mp_derivatives(profile, r, orders):
-    """rho_aux and its first two derivatives in P at r, from mpmath's own
-    derivatives in R: D = h d/dR with h = -R^2/M, M the integral of R^2 rho,
-    so D f = h f' and D^2 f = h (h' f' + h f'')."""
+    """Return rho_aux and its first two derivatives in P at radius r, by mpmath.
+
+    The derivative in P is D = h d/dR with h = -R^2 / M, where M is the
+    integral of R^2 rho from 0 to R. The first derivative is D f = h f', and
+    the second is D^2 f = h (h' f' + h f''), with ' the derivative in R.
+    """
     a, b, g, c = (mp.mpf(x) for x in (ALPHA, BETA, GAMMA, profile.rho_norm))
 
     def rho(s):
@@ -40,7 +48,7 @@ def test_the_derivatives_hold_against_mpmath_off_the_small_rationals(r):
     source = ExactDerivs(profile, beta_c=BETA_C, model="constant", max_order=2)
     want = _mp_derivatives(profile, r, (0, 1, 2))
     got = [float(source._eval(n, np.array([r]))[0]) for n in (0, 1, 2)]
-    np.testing.assert_allclose(got, want, rtol=GOAL)
+    np.testing.assert_allclose(got, want, rtol=TIER_BOUNDS[0])
 
 
 def test_the_cached_construction_is_the_same_to_the_bit(tmp_path, monkeypatch):
@@ -67,8 +75,9 @@ def test_no_cached_construction_where_the_cache_is_off(tmp_path, monkeypatch):
 
 
 def test_the_construction_cache_reads_the_factor_and_the_version(monkeypatch):
-    # an edit of the factor's expression or a new package version is another
-    # cache file, so a stale construction is never served (release audit 317 A6)
+    # The name of the construction's cache file changes when the package
+    # version changes and when the source of inverse_factor_expr changes, so
+    # that a cached construction from other code is never read.
     import inspect
 
     from pianistpy import _version

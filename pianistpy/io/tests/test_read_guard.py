@@ -1,9 +1,9 @@
-"""The read of a result recorded as unphysical never returns a Model.
+"""Tests that `read` never returns a Model for a file recorded as unphysical.
 
-A product of the pipeline (its record states ``physical`` False) is not a
-result of this package, and the read refuses it by name; a distribution
-function whose inversion was refused (signed, ``is_physical`` False) reads
-back as a DistributionFunction, never a Model.
+A file whose record states ``physical`` as False does not hold a result of the
+package, and `read` raises an error that names the reason. A distribution
+function with a signed table (``is_physical`` False) reads back as a
+DistributionFunction and never as a Model.
 """
 
 import h5py

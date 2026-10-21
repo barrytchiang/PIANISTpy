@@ -1,4 +1,6 @@
-"""The log-likelihood of one component against a NumPy reimplementation."""
+"""Tests of the log-likelihood of a model of one component against an
+independent computation in NumPy, of the gradient in the scales, and of the
+exceptions and the values of minus infinity."""
 
 import math
 
@@ -17,12 +19,14 @@ from pianistpy.observables.stages import (
 )
 from pianistpy.particles.tests.test_stages import _lowered_hernquist
 
-# Smaller grids than the default tier, as the tests of the stages take them.
+# The observables' grids are smaller than the grids of the default settings,
+# with the sizes the tests of the stages use, to keep each test short.
 SETTINGS = Settings(
     observables={"n_radii": 400, "n_jeans_nodes": 200, "n_projection_nodes": 200}
 )
-# The physical scales the models are presented at: M_0 in solar masses, r_0 in
-# parsecs, M_0 the mass inside ten scale radii.
+# The physical scales at which the models are presented: the mass scale M_0
+# in solar masses, the scale radius r_0 in parsecs, and the concentration 10,
+# which makes M_0 the mass inside ten scale radii.
 MASS_0, R_0, CONCENTRATION = 1e9, 500.0, 10.0
 
 
@@ -32,9 +36,10 @@ def _physical(model):
 
 @pytest.fixture(scope="module", params=["plummer", "lowered_hernquist"])
 def case(request):
-    """A model in physical units, its projected table, and data on it: radii and
-    apertures inside the table, the values the model's own moved by a few
-    percent, errors of five percent."""
+    """Return a model in internal units, the model presented in physical units,
+    and two `Data` on the model: dispersions at projected radii and in
+    apertures inside the model's table, each value the model's own value
+    moved by a few percent, with errors of five percent."""
     if request.param == "plummer":
         base = analytic_model("plummer")
     else:
@@ -73,7 +78,8 @@ def case(request):
 
 
 def _internal(aperture, length=R_0):
-    """An aperture in parsecs, in internal units."""
+    """Return `aperture`, given in parsecs, with every length divided by
+    `length`, which gives the aperture in internal units."""
     record = aperture.to_dict()
     for name in ("r_off", "r_ape", "side_x", "side_y"):
         if record[name] is not None:
@@ -82,9 +88,10 @@ def _internal(aperture, length=R_0):
 
 
 def _numpy_log_likelihood(base, data, mass_0=MASS_0, r_0=R_0):
-    """The log-likelihood from the stages' own readings and plain NumPy: the
-    model presented at the scales given, its table read at the data's radii
-    in internal units, or its aperture dispersion over each aperture."""
+    """Return the log-likelihood computed in NumPy from the stages' own
+    readings: the model presented at the given scales, the model's table
+    read at the projected radii of the data in internal units, or the
+    model's dispersion in each aperture."""
     model = base.to("physical", concentration=CONCENTRATION, mass_0=mass_0, r_0=r_0)
     v = model.units.factors(model.components[0].unit_profile).physical_v_kms
     projected = projected_dispersion(
@@ -124,10 +131,11 @@ def test_the_value_matches_numpy(case):
 
 @pytest.mark.parametrize("length", [1.0, 0.8])
 def test_the_gradient_in_the_scales_matches_central_differences(case, length):
-    # the gradient of the traced function against central differences of the
-    # NumPy log-likelihood, whose apertures are laid anew at each scale; at a
-    # length scale below the model's own the apertures' outermost nodes are
-    # stretched beyond the table's edge, where they read zero
+    # The NumPy log-likelihood lays the aperture nodes anew at each scale, so
+    # central differences of the NumPy log-likelihood are an independent
+    # reference for the JAX gradient. At a length scale below the model's own
+    # length scale, the outermost aperture nodes move beyond the edge of the
+    # table, where the readings are zero.
     base, model, points, in_apertures = case
     data = [points, in_apertures]
     function = likelihood(model, data, SETTINGS)
@@ -152,13 +160,15 @@ def test_refusals_are_minus_infinity_inside_the_function(case):
     assert function(weights=[-1.0]) == -np.inf
     assert function(weights=[0.0]) == -np.inf
     assert function(scale=[MASS_0, -R_0]) == -np.inf
-    # a length scale that puts the innermost radius inside the table's first row
+    # A length scale of 1e6 times r_0 moves the innermost projected radius of
+    # the data inside the innermost tabulated projected radius.
     assert function(scale=[MASS_0, 1e6 * R_0]) == -np.inf
     gradient = jax.grad(lambda s: function(scale=s))(np.array([MASS_0, R_0]))
     assert np.all(np.isfinite(gradient))
     jitted = jax.jit(lambda s: function(scale=s))
-    # at rounding: XLA's fused arithmetic orders the operations otherwise than
-    # the eager path, which can move the last bit (measured: one ulp)
+    # The compiled function orders the floating-point operations differently
+    # from the function run without compilation, which can change the last
+    # bit of the value, so the two values agree to a relative 1e-14.
     assert np.isclose(
         float(jitted(np.array([MASS_0, R_0]))), float(function()), rtol=1e-14, atol=0.0
     )
@@ -171,9 +181,9 @@ def test_refusals_at_the_boundary(case):
     far = Data(
         "sigma_los", [1.0], r_2d=[1e6 * R_0], errors=[1.0], unit_system="physical"
     )
-    with pytest.raises(InputError, match="beyond the last row"):
+    with pytest.raises(InputError, match="beyond the outermost projected radius"):
         likelihood(model, far, SETTINGS)
-    with pytest.raises(InputError, match="errors or covariance"):
+    with pytest.raises(InputError, match="exactly one of errors and covariance"):
         Data("sigma_los", [1.0], r_2d=[1.0])
     with pytest.raises(InputError, match="apertures"):
         Data("sigma_los_aperture", [1.0], r_2d=[1.0], errors=[1.0])

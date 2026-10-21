@@ -1,28 +1,42 @@
-"""The DF's center in closed form, from the model alone.
+r"""The central form of the DF in closed form, from the model's parameters alone.
 
-Near the central potential :math:`P_0` the auxiliary density is a series in
-``u = P_0 - P``; its least non-integer power s gives the inversion the DF's
-singular term at the center, and the next one the term after it. The branch
-(regular, critical, unphysical), the form (``"power"``, ``"log"``,
-``"constant_plus_power"``, ``"analytic"``, ``"none"``), the exponent and the
-closed-form amplitude follow; no number of the table is read.
-
-The arithmetic is the working pipeline's, operation for operation, so that
-its results are equal to the bit on the same backend.
+The inversion calls `center_form` for the singular behavior of the DF at
+the central potential :math:`P_0`, and `top_limit` and `ceiling_limit` for
+the depths at which the DF table ends. Near :math:`P_0`, the auxiliary
+density is a series :math:`\varrho_{\rm aux} = \sum_s C_s u^s` in the depth
+:math:`u = P_0 - P` (`rho_aux_series`). The least power :math:`s` of the
+series that is not a non-negative integer gives the leading singular term
+of the DF :math:`F` at the center, :math:`F \simeq A u^{\kappa}` with
+amplitude :math:`A`, :math:`\kappa = s - \nu` and
+:math:`\nu = 3/2 - \beta_{\rm c}`, or a term in :math:`\ln u` where
+:math:`s = \nu`. The next power of the series above :math:`s` that is not
+a non-negative integer gives the DF's next singular term. `center_form`
+returns the branch (regular, critical or unphysical), the form
+(``"power"``, ``"log"``, ``"constant_plus_power"``, ``"analytic"`` or
+``"none"``), the exponent and the closed-form amplitude. No value of the DF
+table is read. Two powers of the series are taken as equal where the two powers differ
+by at most `TOL_EXACT_BRANCH` (:math:`10^{-10}`), and :math:`\gamma` and
+:math:`2 \beta_{\rm c}` are taken as equal where :math:`\gamma` and
+:math:`2 \beta_{\rm c}` differ by at most `TOL_EXACT_BRANCH`.
 
 References
 ----------
-Section T:2.2.2 [regular], Section T:2.2.3 [critical].
+Notes Section T:2.2.1, Notes Section T:2.2.2, Notes Section T:2.2.3,
+Notes Section T:2.5.1.
 """
 
 __all__ = [
+    "LOG10_DF_CEILING",
+    "PATCHED_BRANCHES",
     "TOL_EXACT_BRANCH",
+    "ceiling_limit",
     "central_form",
     "center_form",
     "rho_aux_series",
     "top_limit",
 ]
 
+from functools import lru_cache
 from math import factorial
 from typing import Any
 
@@ -33,14 +47,29 @@ from scipy.special import gammaln, gammasgn
 from ..anisotropy import Anisotropy
 from ..profiles import DoublePowerLaw
 
-# the tolerance of the branch ladder: gamma against 2 beta_c, integer powers
+# The largest difference at which two numbers of the branch choice count as
+# equal: gamma against 2 beta_c, a power s against the nearest integer, and
+# two powers of the series against each other.
 TOL_EXACT_BRANCH = 1e-10
+# The base-10 logarithm of the largest DF value a table holds. The DF
+# values of a table stay at or below 10^LOG10_DF_CEILING (`ceiling_limit`),
+# 8 decades below the largest double (about 1.8e308), so that the
+# inversion's arithmetic on the DF stays within the range of doubles. The
+# inversion (`invert.py`) and the table checks (`checks.py`) also read
+# LOG10_DF_CEILING.
+LOG10_DF_CEILING = 300.0
+# The central branches whose closed form the inversion carries above the
+# table's last row, through the anchor and the top patch (`top.py`).
+PATCHED_BRANCHES = ("regular", "critical_divergent")
 
 
 def _gamma_ratio(a, b):
-    """Gamma(a) / Gamma(b), from the log of each Gamma with its sign: never the
-    quotient of two Gammas, which is inf / inf past an argument of 171.6
-    although the ratio itself is an ordinary number."""
+    r"""Return :math:`\Gamma(a) / \Gamma(b)` from the logarithms and signs.
+
+    The quotient of the two Gamma values is never formed: :math:`\Gamma(x)`
+    exceeds the largest double for :math:`x` above 171.6, while the ratio
+    :math:`\Gamma(a) / \Gamma(b)` can still be a finite double.
+    """
     sign = gammasgn(a) * gammasgn(b)
     return float(sign * np.exp(gammaln(a) - gammaln(b)))
 
@@ -56,15 +85,61 @@ _MODEL_TYPES = {
 
 
 def rho_aux_series(alpha, beta_r, gamma, bc, m_typ, Ra, C, x_max=None, tol=None):
-    """Return rho_aux near :math:`P_0` as its series in ``u = P_0 - P``,
-    [(s, C_s), ...] sorted by s, equal powers merged.
+    r"""Return the series of the auxiliary density in the depth :math:`u = P_0 - P`.
 
-    With rho = C R^-gamma (1 + R^alpha)^e, e = (gamma - beta)/alpha, the depth
-    u = c_u R^(2-gamma) (1 + D(R)) is inverted for R = t (1 + S(t)),
-    t = (u / c_u)^(1/(2-gamma)), and rho_aux = C R^q (1 + R^alpha)^e A(R),
-    q = 2 bc - gamma (constant, COM) or -gamma (isotropic, OM), A the
-    anisotropy's factor. Every term up to t^(q + x_max) is exact (by default
-    x_max is three times the larger of alpha and 2).
+    The density is :math:`\rho = C R^{-\gamma} (1 + R^{\alpha})^e` with
+    :math:`e = (\gamma - \beta_r) / \alpha`, where :math:`\beta_r` is the
+    outer slope ``beta_r``. The depth
+    :math:`u = c_u R^{2 - \gamma} (1 + D(R))`, with
+    :math:`c_u = C / ((2 - \gamma)(3 - \gamma))` and :math:`D` a power
+    series in :math:`R^{\alpha}`, is inverted for
+    :math:`R = t (1 + S(t))`, with :math:`t = (u / c_u)^{1 / (2 - \gamma)}`
+    and :math:`S` a power series in :math:`t`. The auxiliary density is
+    :math:`\varrho_{\rm aux} = C R^q (1 + R^{\alpha})^e A(R)`, with
+    :math:`q = 2 \beta_{\rm c} - \gamma` for ``m_typ`` "constant", "COM_I"
+    or "COM_II", :math:`q = -\gamma` for ``m_typ`` "OM_I" or "OM_II", and
+    :math:`A` the anisotropy factor of anisotropy radius ``Ra`` and model
+    type ``m_typ``. The coefficient of every power :math:`t^{q + x}` with
+    :math:`x` at most `x_max` is exact.
+
+    Parameters
+    ----------
+    x_max : float or None, optional
+        The highest power :math:`x` of :math:`t^{q + x}` that the series
+        keeps. Default: ``None``, which means three times the larger of
+        :math:`\alpha` and 2.
+    tol : float or None, optional
+        The largest difference at which two powers :math:`s` of the series
+        are merged. Default: ``None``, which means `TOL_EXACT_BRANCH`.
+
+    Returns
+    -------
+    series : list of tuple of float
+        The pairs :math:`(s, C_s)` of
+        :math:`\varrho_{\rm aux} = \sum_s C_s u^s`, sorted by :math:`s`,
+        with equal powers merged and zero coefficients dropped.
+    """
+    return list(
+        _rho_aux_series(
+            float(alpha),
+            float(beta_r),
+            float(gamma),
+            float(bc),
+            m_typ,
+            float(Ra),
+            float(C),
+            None if x_max is None else float(x_max),
+            None if tol is None else float(tol),
+        )
+    )
+
+
+@lru_cache(maxsize=256)
+def _rho_aux_series(alpha, beta_r, gamma, bc, m_typ, Ra, C, x_max, tol):
+    """Return `rho_aux_series` as a tuple, cached by its arguments.
+
+    The series depends on its arguments alone, so the cache forms the series
+    once per distinct set of arguments.
     """
     a, b, g = float(alpha), float(beta_r), float(gamma)
     tol = TOL_EXACT_BRANCH if tol is None else float(tol)
@@ -87,7 +162,8 @@ def rho_aux_series(alpha, beta_r, gamma, bc, m_typ, Ra, C, x_max=None, tol=None)
         return out
 
     def pow1p(S, p):
-        # (1 + S)^p for S a series of positive powers, the binomial series
+        # The binomial series of (1 + S)^p, for S a series of positive powers
+        # only, truncated at the power xm.
         out, term, coef = {0.0: 1.0}, {0.0: 1.0}, 1.0
         xmin = min((x for x, c in S.items() if c != 0.0), default=None)
         if xmin is None:
@@ -111,8 +187,9 @@ def rho_aux_series(alpha, beta_r, gamma, bc, m_typ, Ra, C, x_max=None, tol=None)
         for k in range(1, K + 1)
         if k * a <= xm + eps_x
     }
-    # R = t (1 + S): S = (1 + D(t (1 + S)))^(-1/(2-gamma)) - 1, one order of
-    # t^alpha a pass
+    # The inverse R = t (1 + S) satisfies
+    # S = (1 + D(t (1 + S)))^(-1 / (2 - gamma)) - 1. Each pass of the fixed
+    # point iteration makes S exact to one more order of t^alpha.
     S: dict[float, float] = {}
     for _ in range(K + 1):
         Dt: dict[float, float] = {}
@@ -134,15 +211,23 @@ def rho_aux_series(alpha, beta_r, gamma, bc, m_typ, Ra, C, x_max=None, tol=None)
         s = (q + x) / (2.0 - g)
         s_key = next((kk for kk in out if abs(kk - s) <= tol), s)
         out[s_key] = out.get(s_key, 0.0) + float(C) * cu ** (-s) * c
-    return sorted((s, c) for s, c in out.items() if c != 0.0)
+    return tuple(sorted((s, c) for s, c in out.items() if c != 0.0))
 
 
 def central_form(alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
-    """Return the center's form and its next singular term, in closed form.
+    """Return the leading and the next singular term of the DF at the center.
 
-    The keys: branch, form, s, kappa, kappa_sing, amplitude, log_coef, sign,
-    local, coef_rho, line, and next_form, next_s, next_kappa, next_coef,
-    next_coef_rho, next_line.
+    The leading term comes from `_central_form_leading`, the next term from
+    `_central_next_term`.
+
+    Returns
+    -------
+    form : dict
+        The leading term's keys ``branch``, ``form``, ``s``, ``kappa``,
+        ``kappa_sing``, ``amplitude``, ``log_coef``, ``sign``, ``local``,
+        ``coef_rho`` and ``line``, and the next term's keys ``next_form``,
+        ``next_s``, ``next_kappa``, ``next_coef``, ``next_coef_rho`` and
+        ``next_line``.
     """
     res = _central_form_leading(alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=tol)
     res.update(_central_next_term(res, alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=tol))
@@ -150,8 +235,13 @@ def central_form(alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
 
 
 def center_form(profile: DoublePowerLaw, anisotropy: Anisotropy) -> dict[str, Any]:
-    r"""Return `central_form` of a component: the profile's own amplitude, the
-    anisotropy's model type, OM entering with :math:`\beta_{\rm c} = 0`."""
+    r"""Return the central form of the DF (`central_form`) of one component.
+
+    The component has the profile ``profile`` and the anisotropy
+    ``anisotropy``. The density amplitude :math:`C` is the profile's own
+    ``rho_norm``. The model type follows from the anisotropy's family, and
+    an OM model enters with :math:`\beta_{\rm c} = 0`.
+    """
     m_typ = _MODEL_TYPES[anisotropy.family]
     bc = 0.0 if m_typ in ("OM_I", "OM_II") else float(anisotropy.beta_c)
     return central_form(
@@ -170,15 +260,26 @@ def top_limit(
     anisotropy: Anisotropy,
     orders: tuple[int, ...] | None = None,
 ) -> float:
-    """Return the least depth ``u = P_0 - P`` at which the exact derivatives of
-    the given orders of rho_aux are finite in float64, from the model alone.
+    r"""Return the least depth with finite derivatives of the auxiliary density.
 
-    Each term C_s u^s of `rho_aux_series` gives d^N rho_aux/dP^N =
-    (-1)^N C_s s (s-1) ... (s-N+1) u^(s-N), which exceeds the largest float64
-    below u = (|C_s s ... (s-N+1)| / DBL_MAX)^(1/(N-s)) where s < N; the limit
-    is the largest over the terms and the orders, 0 where none grows. By
-    default the orders are the inversion's, j - 1 to j + 2
-    (`aux_derivatives`).
+    The depth is :math:`u = P_0 - P`, in internal units, computed from the
+    model's parameters alone. Each term :math:`C_s u^s` of `rho_aux_series`
+    gives the derivative term
+    :math:`d^N \varrho_{\rm aux} / dP^N = (-1)^N C_s\, s (s - 1) \cdots
+    (s - N + 1)\, u^{s - N}`. For :math:`s < N`, the derivative term exceeds
+    the largest double :math:`D_{\rm max}` at depths below
+    :math:`u = (|C_s\, s \cdots (s - N + 1)| / D_{\rm max})^{1 / (N - s)}`.
+    The returned depth is the largest such depth over the terms and the
+    orders :math:`N`, and 0 where no derivative term grows toward the
+    center.
+
+    Parameters
+    ----------
+    orders : tuple of int or None, optional
+        The derivative orders :math:`N`. Default: ``None``, which means the
+        orders :math:`j - 1` to :math:`j + 2`, with :math:`j` the
+        inversion's derivative order (`order_pair`) and :math:`j - 1`
+        raised to 0 where :math:`j = 0`.
     """
     if orders is None:
         from .inversion import order_pair
@@ -209,7 +310,53 @@ def top_limit(
     return u_min
 
 
+def ceiling_limit(profile: DoublePowerLaw, anisotropy: Anisotropy) -> float:
+    r"""Return the least depth where the DF's central form is at most :math:`10^{300}`.
+
+    The central closed form is :math:`F = A u^{\kappa}` (`center_form`) in the
+    depth :math:`u = P_0 - P`. The returned depth is
+    :math:`u = (10^{L} / A)^{1 / \kappa}`, with :math:`L` the constant
+    `LOG10_DF_CEILING` (300), computed from the model's parameters alone.
+    The returned depth is 0 in four cases, in each of which the table
+    carries no closed form above its last row: the anisotropy is Type II;
+    the central branch is not in `PATCHED_BRANCHES`; the central form is
+    not ``"power"``; or not both :math:`\kappa < 0` and :math:`A > 0`.
+    """
+    form = center_form(profile, anisotropy)
+    kappa, amplitude = float(form["kappa"]), float(form["amplitude"])
+    if (
+        anisotropy.kind == "II"
+        or form["branch"] not in PATCHED_BRANCHES
+        or form["form"] != "power"
+        or not (kappa < 0.0 and amplitude > 0.0)
+    ):
+        return 0.0
+    return float(10.0 ** ((LOG10_DF_CEILING - np.log10(amplitude)) / kappa))
+
+
 def _central_next_term(res, alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
+    r"""Return the singular term of the central DF next after the leading term ``res``.
+
+    The next term comes from the least power :math:`s_2` of `rho_aux_series`
+    above the leading power :math:`s` that is not a non-negative integer.
+    Here :math:`\nu = 3/2 - \beta_{\rm c}`,
+    :math:`N' = 2^{\beta_{\rm c}} / ((2 \pi)^{3/2} \Gamma(1 - \beta_{\rm c}))`,
+    :math:`C_{s_2}` is the series' coefficient at :math:`s_2`, and
+    :math:`\beta_{\rm c}` is taken as 0 for an OM model. Where
+    :math:`s_2 - \nu` is a non-negative integer :math:`k`, the next term is
+    :math:`u^k` times a logarithm of :math:`u`, with coefficient
+    :math:`L_2 = N' C_{s_2} (-1)^k / (k!\, \Gamma(-s_2))` and ``next_form``
+    "log_power". Otherwise the next term is :math:`A_2 u^{s_2 - \nu}`, with
+    :math:`A_2 = N' C_{s_2} \Gamma(\nu - s_2) / \Gamma(-s_2)` and
+    ``next_form`` "power". The keys ``next_form``, ``next_s``,
+    ``next_kappa``, ``next_coef`` and ``next_coef_rho`` are "none" and NaN
+    where no next term exists, in three cases: the leading form is "none" or
+    "analytic"; the series has no power at :math:`s`, or the series'
+    coefficient at :math:`s` differs from the leading term's ``coef_rho`` by
+    more than :math:`10^{-9}` relative; or no power that is not a
+    non-negative integer lies between :math:`s` and the series' highest
+    exact power. ``next_line`` states the result in words.
+    """
     tol = TOL_EXACT_BRANCH if tol is None else float(tol)
     nan = float("nan")
     none = dict(
@@ -239,7 +386,8 @@ def _central_next_term(res, alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
                 f"leading form's {float(res['coef_rho']):.10e}"
             ),
         )
-    # a non-negative integer power is analytic; a negative integer one singular
+    # A non-negative integer power of u is analytic and has no singular part
+    # in the DF; a negative integer power is singular and stays a candidate.
     cand = [
         (s, c)
         for s, c in ser
@@ -280,11 +428,32 @@ def _central_next_term(res, alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
 
 
 def _central_form_leading(alpha, beta_r, gamma, bc, m_typ, Ra, C, tol=None):
-    """The center's leading form: the least non-integer power s of rho_aux
-    gives F ~ N' C_s Gamma(nu - s)/Gamma(-s) u^(s - nu), or N' C_s/Gamma(-nu)
-    (-ln u) at s = nu, N' = 2^bc / ((2 pi)^(3/2) Gamma(1 - bc)),
-    nu = 3/2 - bc; off the critical branch (gamma > 2 bc) rho_aux ~
-    C (u/c_u)^s0, s0 = (2 bc - gamma)/(2 - gamma)."""
+    r"""Return the leading singular term of the DF at the center.
+
+    The least power :math:`s` of :math:`\varrho_{\rm aux}` that is not a
+    non-negative integer, with coefficient :math:`C_s`, gives
+    :math:`F \simeq N' C_s \Gamma(\nu - s) / \Gamma(-s)\, u^{s - \nu}`, or
+    :math:`F \simeq N' C_s / \Gamma(-\nu)\, (-\ln u)` at :math:`s = \nu`,
+    with :math:`N' = 2^{\beta_{\rm c}} / ((2 \pi)^{3/2}
+    \Gamma(1 - \beta_{\rm c}))` and :math:`\nu = 3/2 - \beta_{\rm c}`, and
+    with :math:`\beta_{\rm c}` taken as 0 for an OM model. On the regular
+    branch, :math:`2 \beta_{\rm c} < \gamma < 2`, the leading term of
+    :math:`\varrho_{\rm aux}` is :math:`C (u / c_u)^{s_0}` with
+    :math:`s_0 = (2 \beta_{\rm c} - \gamma) / (2 - \gamma)` and
+    :math:`c_u = C / ((2 - \gamma)(3 - \gamma))`. Where
+    :math:`\gamma = 2 \beta_{\rm c}` (the critical branch), the leading
+    powers come from the terms in :math:`R^{\alpha}` and, for a COM model,
+    in :math:`R^2 / R_{\rm a}^2`. Where :math:`\gamma < 2 \beta_{\rm c}`, or
+    :math:`\gamma \ge 2`, the branch is "unphysical_center" with no form.
+
+    Returns
+    -------
+    form : dict
+        The keys ``branch``, ``form``, ``s``, ``kappa``, ``kappa_sing``,
+        ``amplitude``, ``log_coef``, ``sign``, ``local``, ``coef_rho`` and
+        ``line``. ``local`` is True where :math:`\nu` is an integer, so that
+        the inversion is local.
+    """
     tol = TOL_EXACT_BRANCH if tol is None else float(tol)
     a, br_, g = float(alpha), float(beta_r), float(gamma)
     bce = float(bc) if m_typ in ("constant", "COM_I", "COM_II") else 0.0

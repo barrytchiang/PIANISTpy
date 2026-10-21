@@ -5,7 +5,7 @@ API reference
    :maxdepth: 1
 
    Functions by subpackage <api/index>
-   settings
-   Names and paper symbols <symbols>
+   Numerical settings <settings>
+   Code and paper notations <symbols>
    Accuracy tables <accuracy>
    notes

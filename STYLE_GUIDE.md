@@ -277,7 +277,7 @@ def tail_exponent(rho_beta: float, beta_c: float) -> float:
 - The release paper is "Chiang+(2026d)", with no space (Barry, 2026-10-19; the letter stays even where no
   other 2026 paper is cited), always as a link to `PAPER_URL` in `docs/conf.py`, the one target. The landing
   page (at its first mention), the citing page and the README's status line give the full form once,
-  "Chiang, van den Bosch and Schive (2026d), MNRAS, submitted (henceforth Chiang+(2026d))"; every other
+  "Chiang, van den Bosch and Schive (2026d), MNRAS submitted, henceforth Chiang+(2026d)"; every other
   mention is the short form. Pages write `|paper|`, `|paper-full|` or `|paper-name|` (plain, for headings),
   defined from `PAPER`, `PAPER_FULL` and `PAPER_STATUS` in `docs/conf.py`. Docstrings write the short form
   as plain text, an equation as "Chiang+(2026d), Eq. (B42)". Never "Chiang et al. (2026d)", "Paper I", "C26",
@@ -330,7 +330,7 @@ def enclosed_mass(r: ArrayLike, settings: Settings) -> Array:
   sit above the code they describe, at its indentation; inline comments are rare and short.
 - No history in comments: no dates, initials, bracketed change tags, "was X before", or commented-out code. That
   record is in the version control history and the change log.
-- A constant that controls accuracy carries one comment naming what it is derived from and the tier it serves.
+- A constant that controls accuracy carries one comment naming what it is derived from and the bound (`1e-6`, `1e-4` or `1e-2`) it serves.
 - An unfinished point is marked `# TODO: <what and why>` and has an entry in the issue tracker.
 
 ## 8. Units
@@ -363,8 +363,8 @@ def enclosed_mass(r: ArrayLike, settings: Settings) -> Array:
   functions that need them. A function does not read a setting from a module-level variable.
 - Module-level upper-case names are for true constants only.
 - Every accuracy setting states, in its docstring line, what it is derived from. A threshold that was tuned by
-  trial has no place in the package; a tolerance follows from the accuracy tiers (goal `1e-6`, ceiling `1e-4`,
-  hard limit `1e-2`).
+  trial has no place in the package; a tolerance follows from the bounds of the report's tier (`1e-6`, `1e-4`,
+  `1e-2`; `validation.TIER_BOUNDS`).
 - No numerical literal appears twice. A repeated value is a named constant or a setting.
 
 ## 10. Output, warnings and errors
@@ -429,8 +429,9 @@ def enclosed_mass(r: ArrayLike, settings: Settings) -> Array:
 - Errors are raised with a built-in exception or a subclass of `PianistpyError`. Never raise or catch a bare
   `Exception`. A model that the code refuses is refused by a named exception whose message states the condition
   that failed and the values involved.
-- Warnings use `warnings.warn(message, PianistpyWarning)` or a subclass. A result between the goal and the
-  ceiling warns; a result beyond the hard limit raises unless the caller overrides the check explicitly.
+- Warnings use `warnings.warn(message, PianistpyWarning)` or a subclass. A result above `1e-6` and at most
+  `1e-4` is recorded (one INFO line in the log); one above `1e-4` warns; one beyond `1e-2` raises unless the
+  caller overrides the check explicitly.
 - What the user must act on is a warning or an exception, never only a log line.
 - Messages are complete sentences and name the quantities with their values, built with f-strings (observed).
 
@@ -482,8 +483,8 @@ raise UnphysicalModelError(
 ### 11.3 Workers
 
 - One mechanism for parallel work, never nested (no process pool on top of JAX's own threads).
-- One switch for the session, `set_workers`, also settable by an environment variable. No function takes a
-  worker count as an argument; the stages that have batched work read the switch through the one helper that
+- One switch for the session, `set_cores`, also settable by an environment variable. No function takes a
+  core count as an argument; the stages that have batched work read the switch through the one helper that
   runs it, and the others ignore it.
 
   | Value | Meaning |
@@ -530,7 +531,7 @@ raise UnphysicalModelError(
   - A closed form that exists for a special case is used in two places only: in the tests, as the reference, and
     inside the general path as a branch chosen by an analytic criterion, invisible to the user.
   - An alternative algorithm for the same quantity may exist only behind the same function, selected by an
-    analytic criterion or by the accuracy settings, and a test holds the two to the accuracy goal against each
+    analytic criterion or by the accuracy settings, and a test holds the two to `1e-6` against each
     other.
   - Methods of objects are thin calls to the functional layer, so the two cannot differ.
   - Accuracy modes are the same code at different settings.

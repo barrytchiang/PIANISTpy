@@ -1,4 +1,10 @@
-"""Observables: dispersions, line-of-sight velocity distributions and apertures."""
+"""Velocity dispersions and velocity distributions of a model.
+
+The functions of pianistpy.observables return the radial, tangential and
+line-of-sight velocity dispersions, the line-of-sight velocity distribution,
+and the local velocity distribution of a model, at user-specified radii or in a
+user-specified aperture on the plane of the sky.
+"""
 
 __all__ = [
     "Aperture",

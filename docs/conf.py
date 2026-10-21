@@ -31,7 +31,7 @@ version = __version__
 release = __version__
 
 # Until 1.0.0 the site says so on every page and asks search engines to skip it.
-PRE_RELEASE = True
+PRE_RELEASE = False
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -137,27 +137,68 @@ html_theme_options = {
     ],
 }
 # The release paper, cited the same way on every page, always as a link to PAPER_URL.
-# The citation page and the landing page give the full form once, "PAPER_FULL, PAPER_STATUS
-# (henceforth PAPER)"; every other mention is the short form. Pages write |paper| (the
-# linked short form), |paper-full| (the linked full form and its status) or |paper-name|
-# (the short form as plain text, for headings); the landing page's @PAPER...@ fields are
-# set by assemble_site from these lines. Until the arXiv entry exists the link is the
-# citation page.
+# The citation page and the landing page give the full form once, "PAPER_FULL
+# PAPER_STATUS, henceforth PAPER"; every other mention is the short form. Pages write
+# |paper| (the linked short form), |paper-full| (the linked full form and its status) or
+# |paper-name| (the short form as plain text, for headings); the landing page's
+# @PAPER...@ fields are set by assemble_site from these lines. Until the arXiv entry
+# exists the link is the citation page.
 PAPER = "Chiang+(2026d)"
 PAPER_FULL = "Chiang, van den Bosch and Schive (2026d), MNRAS"
 PAPER_STATUS = "submitted"
 PAPER_URL = "https://pianistpy.com/docs/project/citing"
 rst_epilog = (
     f".. |paper| replace:: `{PAPER} <{PAPER_URL}>`__\n"
-    f".. |paper-full| replace:: `{PAPER_FULL} <{PAPER_URL}>`__, {PAPER_STATUS}\n"
+    f".. |paper-full| replace:: `{PAPER_FULL} {PAPER_STATUS} <{PAPER_URL}>`__\n"
     f".. |paper-name| replace:: {PAPER}\n"
 )
 
-if PRE_RELEASE:
-    html_theme_options["announcement"] = (
-        "Pre-release: ver. 0.9.9 is the code of "
-        f'<a href="{PAPER_URL}">{PAPER}</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.'
+
+def _link_paper(app, doctree, docname):
+    # Docstrings write the release paper as plain text; on the API pages every
+    # mention becomes the same link as |paper|. The API index quotes the citation
+    # forms and keeps them as text; code, math, titles and existing links are left
+    # as they are.
+    if not docname.startswith("reference/api/") or docname == "reference/api/index":
+        return
+    from docutils import nodes
+
+    skip = (
+        nodes.reference,
+        nodes.literal,
+        nodes.literal_block,
+        nodes.math,
+        nodes.math_block,
+        nodes.title,
+        nodes.raw,
     )
+    for text in list(doctree.findall(nodes.Text)):
+        if PAPER not in text:
+            continue
+        parent, inside = text.parent, False
+        while parent is not None:
+            inside = inside or isinstance(parent, skip)
+            parent = parent.parent
+        if inside:
+            continue
+        parts = str(text).split(PAPER)
+        new = [nodes.Text(parts[0])]
+        for part in parts[1:]:
+            new += [nodes.reference(PAPER, PAPER, refuri=PAPER_URL), nodes.Text(part)]
+        text.parent.replace(text, new)
+
+
+def _drop_package_summary(app, what, name, obj, options, lines):
+    # The package docstring's summary line is for help(pianistpy); on the page
+    # titled "The package" it would repeat the landing page's tagline.
+    if what == "module" and name == "pianistpy" and "" in lines:
+        del lines[: lines.index("") + 1]
+
+
+def setup(app):
+    app.connect("doctree-resolved", _link_paper)
+    app.connect("autodoc-process-docstring", _drop_package_summary)
+
 
 # The manual's home has no section sidebar; every other page keeps its tab's,
 # with the logo at the sidebar's full width above it (it goes with the sidebar

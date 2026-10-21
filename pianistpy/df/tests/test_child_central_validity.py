@@ -1,8 +1,11 @@
-"""Tests of the central validity on a tabulated pair.
+r"""Tests of the central validity check on a Method II child of a tabulated pair.
 
-A Method II child whose central anisotropy the parent's inner slope cannot carry
-(``gamma < 2 beta_c(0)``) is refused by that name at its input, before any stage
-runs, as a Method I model is at `truncate`.
+A Method II child whose central anisotropy :math:`\beta_{\rm c}(0)` exceeds
+half the parent's inner slope :math:`\gamma` (:math:`\gamma < 2\beta_{\rm c}(0)`)
+has a DF that is negative at the center. `compute_df` raises
+UnphysicalModelError with a message that starts with "CENTRAL VALIDITY" for
+such a child, at the check of its inputs and before any stage runs, as
+`truncate` does for a Method I model.
 """
 
 import pytest

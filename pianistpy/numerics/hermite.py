@@ -1,4 +1,4 @@
-"""Cubic Hermite interpolation on increasing nodes, and its inverse."""
+"""Cubic Hermite interpolation (`hermite`) and its inverse (`hermite_inverse`)."""
 
 __all__ = ["hermite", "hermite_inverse"]
 
@@ -6,48 +6,80 @@ import numpy as np
 
 from ..typing import Array, ArrayLike
 
-# Halvings of the bracket before the Newton steps: enough to exhaust the
-# bits of a double on any bracket.
+# Number of bisections of a root's bracket in hermite_inverse. Sixty halvings
+# shrink the bracket's width by the factor 2^-60, about 8.7e-19, which is
+# below the relative spacing 2^-52 of doubles. The bisection thereby serves
+# the 1e-6 bound with a wide margin.
 BISECTIONS = 60
+# Number of Newton steps that refine the bisection's midpoint toward the root
+# of the interpolant.
 NEWTON_STEPS = 2
-# Guards of the Newton step: the slope it divides by, and the slack beyond
-# the final bracket within which a step is kept.
+# The Newton step divides by the interpolant's slope, which is clamped from
+# below at SLOPE_MIN so that a zero slope gives no division by zero.
 SLOPE_MIN = 1e-300
+# A Newton step is taken only when the step's size is below the width of the
+# final bracket plus BRACKET_SLACK, so that a Newton step never moves a root
+# out of the root's bracket by more than BRACKET_SLACK.
 BRACKET_SLACK = 1e-12
 
 
 def hermite(
     x: ArrayLike, x_nodes: Array, f_nodes: Array, df_dx_nodes: Array
 ) -> tuple[Array, Array]:
-    r"""Return the cubic Hermite interpolant and its derivative.
+    r"""Return the cubic Hermite interpolant and its derivative at given points.
 
-    Between two nodes the interpolant is the cubic that takes the values and
-    the slopes given at both. Outside the nodes it continues as the straight
-    line through the end node with the end slope.
+    Between two neighboring nodes, the interpolant is the cubic polynomial
+    that takes the given values and the given slopes at both nodes. Below
+    the first node and above the last node, the interpolant is the straight
+    line through the end node with the slope given at the end node. Between
+    the first and the last node, the interpolant reproduces every cubic
+    polynomial exactly.
 
     Parameters
     ----------
-    x : array-like
-        Points of evaluation.
+    x : float or array-like
+        Points :math:`x` at which the interpolant is evaluated, in the unit
+        of `x_nodes`.
     x_nodes : array, shape (n,)
-        Nodes, strictly increasing.
+        Nodes :math:`x_i`, strictly increasing, with :math:`n \ge 2`.
     f_nodes : array, shape (n,)
-        Values at the nodes.
+        Values :math:`f_i` of the interpolant at the nodes, in the unit of
+        :math:`f`.
     df_dx_nodes : array, shape (n,)
-        Slopes at the nodes.
+        Slopes :math:`f'_i` of the interpolant at the nodes, in the unit of
+        `f_nodes` per unit of `x_nodes`.
 
     Returns
     -------
     f : array
-        The interpolant at `x`.
+        The interpolant at `x`, with the shape of `x`.
     df_dx : array
-        Its derivative at `x`.
+        The derivative of the interpolant in :math:`x` at `x`, with the
+        shape of `x`.
+
+    See Also
+    --------
+    hermite_inverse : The points where an increasing interpolant takes
+        given values.
+
+    Notes
+    -----
+    On the interval :math:`x_i \le x \le x_{i+1}`, with
+    :math:`h = x_{i+1} - x_i` and :math:`t = (x - x_i)/h`, the interpolant
+    is
+
+    .. math::
+
+        f(x) = (2t^3 - 3t^2 + 1) f_i + (t^3 - 2t^2 + t)\,h f'_i
+        + (-2t^3 + 3t^2) f_{i+1} + (t^3 - t^2)\,h f'_{i+1}.
 
     Examples
     --------
-    A cubic is reproduced exactly from its values and slopes at two nodes:
+    The cubic :math:`x^3` is reproduced exactly from its values and slopes
+    at the two nodes 0 and 2:
 
     >>> import numpy as np
+    >>> from pianistpy.numerics import hermite
     >>> x_nodes = np.array([0.0, 2.0])
     >>> f, df_dx = hermite(1.0, x_nodes, x_nodes**3, 3.0 * x_nodes**2)
     >>> float(f), float(df_dx)
@@ -83,35 +115,51 @@ def hermite(
 def hermite_inverse(
     f: ArrayLike, x_nodes: Array, f_nodes: Array, df_dx_nodes: Array
 ) -> tuple[Array, float]:
-    """Return where an increasing cubic Hermite interpolant takes given values.
+    """Return the points where an increasing cubic Hermite interpolant takes values f.
 
-    The root is bracketed by the two nodes whose values enclose the target,
-    or by the straight continuation beyond the end nodes, and found by
-    bisection. Newton steps then refine it; a step that would leave the
-    bracket is not taken, so a locally steep interpolant cannot throw a root
-    out of its interval.
+    The interpolant is the cubic Hermite interpolant that `hermite`
+    evaluates. Each point is found between the two neighboring nodes whose
+    values enclose the given value, or on the straight line beyond an end
+    node for a value outside the values at the nodes. For a value between
+    the values at two neighboring nodes, the returned point lies between
+    the two nodes, or outside the two nodes by less than :math:`10^{-12}`
+    plus :math:`2^{-60}` times the distance between the two nodes, in the
+    unit of `x_nodes`.
 
     Parameters
     ----------
-    f : array-like
-        Values to invert for.
+    f : float or array-like
+        Values of the interpolant for which the points are sought, in the
+        unit of `f_nodes`.
     x_nodes : array, shape (n,)
-        Nodes, strictly increasing.
+        Nodes, strictly increasing, with n of 2 or more.
     f_nodes : array, shape (n,)
-        Values at the nodes, increasing.
+        Values of the interpolant at the nodes, increasing.
     df_dx_nodes : array, shape (n,)
-        Slopes at the nodes, positive at the two end nodes.
+        Slopes of the interpolant at the nodes, in the unit of `f_nodes`
+        per unit of `x_nodes`. The slopes at the first and the last node
+        must be positive.
 
     Returns
     -------
     x : array
-        Points at which the interpolant equals `f`.
+        Points at which the interpolant equals `f`, with the shape of `f`,
+        in the unit of `x_nodes`.
     residual : float
-        Largest absolute difference between the interpolant at `x` and `f`.
+        Largest absolute difference between the interpolant at `x` and `f`,
+        in the unit of `f_nodes`.
+
+    See Also
+    --------
+    hermite : The interpolant and its derivative.
 
     Examples
     --------
+    The interpolant of the line :math:`f = 2x` takes the value 1.5 at
+    :math:`x = 0.75`:
+
     >>> import numpy as np
+    >>> from pianistpy.numerics import hermite_inverse
     >>> x_nodes = np.array([0.0, 1.0, 2.0])
     >>> x, residual = hermite_inverse(1.5, x_nodes, 2.0 * x_nodes, np.full(3, 2.0))
     >>> float(x), residual

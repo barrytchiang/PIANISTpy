@@ -1,4 +1,4 @@
-"""A component built on the truncated profile of another model (Method II)."""
+"""Tests of a Method II component, built on the truncated profile of a parent."""
 
 import dataclasses
 import math
@@ -20,10 +20,13 @@ PARENT_BETA_C = 0.25
 
 
 def _parent_profile(n_components=1, spatially_finite=True, model="parent-identity"):
-    # a truncated DF with a positive slope at its edge, F ~ K, of a parent
-    # with central anisotropy PARENT_BETA_C: the density ends as P^(5/2 - 1/4)
+    """Return a small synthetic `TruncatedProfile` of a Hernquist parent."""
+    # The parent's truncated DF has a positive slope at the truncation edge,
+    # F ~ K, and the parent's central anisotropy is PARENT_BETA_C = 0.25, so
+    # the parent's density ends as rho ~ P^(1 + 3/2 - 1/4) = P^(9/4).
     q = density_edge_exponent(1.0, PARENT_BETA_C)
-    # the last row is the edge where the profile is finite: zero density there
+    # Where the profile is spatially finite, the last radius is the edge, and
+    # the density at the edge is zero.
     rho = np.ones((n_components, N))
     if spatially_finite:
         rho[:, -1] = 0.0
@@ -52,7 +55,9 @@ def test_a_component_takes_a_truncated_profile():
 
 
 def test_existence_at_the_edge_is_the_general_condition():
-    # beta_c - beta_p > -2 for a parent whose DF has a positive slope at its edge
+    # A child exists at the edge only if beta_c - beta_p > -2, with beta_c the
+    # child's central anisotropy and beta_p the parent's, for a parent whose
+    # DF has a positive slope at the edge.
     profile = _parent_profile()
     Component(profile, Anisotropy(beta_c=PARENT_BETA_C - 2.0 + 1e-9))
     for beta_c in (PARENT_BETA_C - 2.0, PARENT_BETA_C - 2.5):
@@ -122,7 +127,8 @@ def test_a_model_on_a_truncated_profile_is_its_file(tmp_path):
     assert back.components == model.components
     _same_fields(back.components[0].profile, parent)
     _same_fields(back.profile, model.profile)
-    # the units come from the analytic profile behind the truncated one
+    # The model's units come from the analytic source profile of the
+    # truncated profile.
     assert np.array_equal(back.radial_profiles()["r"], model.profile.r)
     assert float(back.r_t) == 10.0
 

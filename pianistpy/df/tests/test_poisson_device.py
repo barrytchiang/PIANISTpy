@@ -1,4 +1,11 @@
-"""The Poisson solve runs on the CPU on every platform."""
+"""Tests that the solution of the Poisson equation runs on the CPU when the
+package's platform is the GPU.
+
+The test runs a truncated Hernquist model in a separate Python process with
+the platform set to ``"gpu"``, records every output of
+``diffrax.diffeqsolve``, and prints the platforms of the arrays in those
+outputs. The test is skipped where no CUDA GPU is reachable.
+"""
 
 import os
 import subprocess
@@ -37,6 +44,9 @@ print("SOLVES", len(solves), "PLATFORMS", sorted(platforms))
 
 
 def test_the_solve_comes_back_on_the_cpu_under_the_gpu_platform():
+    """Every array that ``diffrax.diffeqsolve`` returns during `solve` of a
+    truncated Hernquist model lies on the CPU, and at least one such solve
+    runs."""
     env = {
         k: v
         for k, v in os.environ.items()

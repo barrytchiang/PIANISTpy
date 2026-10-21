@@ -2,26 +2,18 @@
    :header-rows: 1
 
    * - Release
-     - Goal
-     - Ceiling
-     - Warning
-     - Refused tier
-     - Refusals
-     - Excluded
-     - The grid
-   * - Ver. 0.9.9
-     - 376
+     - Silent
+     - Recorded
+     - Warned
+     - Refused (above :math:`10^{-2}`)
+     - Refused with an error
+     - Excluded (Cusp Slope-Central Anisotropy theorem)
+     - Files
+   * - Ver. 1.0.0
+     - 380
      - 59
-     - 22
-     - 19
-     - 82
-     - 19
-     - :download:`CSV <../_extra/accuracy/0.9.9/grid_default.csv>`, :download:`members <../_extra/accuracy/0.9.9/members.csv>`
-   * - Ver. 0.9.0
-     - 345
-     - 42
-     - 48
+     - 24
      - 12
-     - 111
+     - 83
      - 19
-     - :download:`CSV <../_extra/accuracy/0.9.0/grid_default.csv>`, :download:`members <../_extra/accuracy/0.9.0/members.csv>`
+     - :download:`default <../_extra/accuracy/1.0.0/grid_default.csv>`, :download:`quick <../_extra/accuracy/1.0.0/grid_quick.csv>`, :download:`models <../_extra/accuracy/1.0.0/members.csv>`

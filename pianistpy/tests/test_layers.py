@@ -17,10 +17,12 @@ import pytest
 
 PACKAGE = Path(__file__).parents[1]
 
-# Modules every layer may use: they hold no physics and open no file.
+# The modules that every layer may import: these modules hold no physics
+# and open no file.
 BASE = {"exceptions", "typing", "validation", "identity", "_version", "runtime"}
-# The session services (messages, timing, workers) serve every layer, and
-# write a log file only where the user asks for one.
+# The session's services (messages, stage times, the number of cores), which
+# every layer may use; the services write a log file only when the user calls
+# log_to_file.
 SERVICES = {"runtime"}
 
 LEAVES = {
@@ -58,7 +60,7 @@ SOLVERS = {
     "df.pair",
     "df.profile_checks",
     "particles.stages",
-    "particles.speed",
+    "particles.velocity",
     "observables.stages",
     "observables._dispersion",
     "observables._projection",
@@ -75,7 +77,7 @@ SOLVERS = {
     "observables._aperture_losvd",
     "observables._ellipse_model",
     "observables._losvd_stages",
-    "observables._speed",
+    "observables._velocity",
     "observables._table_vjp",
     "observables._rows_theta",
 }
@@ -107,7 +109,8 @@ DRIVERS = {
     "inference._binned",
 }
 
-# What may not be imported below the third layer: file access.
+# The modules of file access, which no module below the third layer may
+# import.
 FILE_MODULES = {"h5py", "os", "pathlib", "shutil", "io", "tempfile", "pickle"}
 
 
@@ -135,7 +138,8 @@ def _layer(name):
             ("driver", DRIVERS),
         ):
             if probe in members:
-                # a package entry in DRIVERS names its __init__ only
+                # A package listed in DRIVERS places only the package's
+                # __init__ in the driver layer.
                 if layer == "driver" and probe != name:
                     return None
                 return layer
@@ -192,7 +196,8 @@ def test_no_layer_imports_a_higher_one(name, path):
     }[layer]
     for target in inside:
         target_layer = _layer(target)
-        # a stage may name the result objects it takes and returns
+        # A solver module may import df for the result objects that the
+        # solver takes and returns.
         if layer == "solver" and target == "df":
             continue
         assert target_layer in allowed, (

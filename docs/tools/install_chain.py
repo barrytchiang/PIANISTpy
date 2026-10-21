@@ -7,14 +7,15 @@ truncate); 4. the child's Sampler tables; 5. 1e7 particles; 6. the child's LosTa
 the default settings (its row count stated); 7. the observables by route: on the model
 (the second-moment route, no table) sigma_r, sigma_t and sigma_los at 50 radii
 log-spaced over 0.01 to 10 and sigma_los_aperture on a circle of radius 1; from the
-table of row 6, losvd at R = 1 with 201 velocities over -1.5 to 1.5, aperture_losvd on
-the circle at those velocities, sigma_los_aperture again (the two routes side by side),
+table the chain builds, losvd at R = 1 with 201 velocities over -1.5 to 1.5,
+aperture_losvd on the circle at those velocities, sigma_los_aperture again (the two
+routes side by side),
 the Gauss-Hermite moments at 10 radii log-spaced over 0.05 to 5, pdf_v at the 10 radii
-at V = 0.3, the speed distribution at r = 1, and Differentiable's sigma_los gradient at
+at V = 0.3, the velocity distribution at r = 1, and Differentiable's sigma_los gradient at
 R = 1. No row times a table build. Lengths and velocities are in the model's internal
 units (the concentration sets only the physical units, so it does not change a wall
 time). Two of the rows use internal functions, which the package does not export: the
-speed distribution (`pianistpy.observables.stages.speed_distribution`) and the
+velocity distribution (`pianistpy.observables.stages.velocity_distribution`) and the
 Gauss-Hermite moments (`gauss_hermite_table`).
 
 Each stage is called once to warm (its compilation and caches), then three times, and
@@ -23,13 +24,13 @@ the LosTable is timed on its first build only. The leg's peak memory is that of 
 process and of its largest worker process, each its own figure (VmHWM on Linux,
 psutil's peak_wset on Windows), the reading named beside it. A column is labeled by its
 hardware: the CPU's model, its threads, the memory, the operating system, the GPU or
-"CPU only", and the workers.
+"CPU only", and the cores.
 
 Usage (one leg a run; two legs on one machine, one after the other):
 
-    python install_chain.py --platform cpu --workers 28 --out cpu.json
-    python install_chain.py --platform gpu --workers 28 --out gpu.json
-    python install_chain.py --platform cpu --workers 16 --out third.json
+    python install_chain.py --platform cpu --cores 28 --out cpu.json
+    python install_chain.py --platform gpu --cores 28 --out gpu.json
+    python install_chain.py --platform cpu --cores 12 --out third.json
     python install_chain.py --table cpu.json gpu.json third.json
 
 The last form prints the legs as one table. --profile adds one more call of rows 7a to
@@ -56,9 +57,10 @@ import sys
 import threading
 import time
 
-# the stages whose compute the code pins to the CPU (the Poisson solve inside rows 2 and
-# 3, the LosTable's rows), flagged "pinned" in a GPU leg's column beside their number
-PINNED_TO_CPU = (
+# the stages a GPU leg does not velocity up, flagged "no GPU acceleration" in its column
+# beside their number: rows 2 and 3 run their kernels on the GPU with no gain, and row
+# 6's rows run on the CPU by the package's rule
+NO_GPU_VELOCITYUP = (
     "2. Method I truncation (K_t 0.05)",
     "3. constant beta_c 0.2 child, Method II (compute_df, truncate)",
     "6. LosTable(child), first build",
@@ -183,13 +185,13 @@ def _label(leg: dict) -> str:
     """A leg's column header, from its hardware."""
     hw = leg.get("hardware")
     if hw is None:
-        return f"{leg['platform']} ({leg['workers']} workers)"
+        return f"{leg['platform']} ({leg['workers']} cores)"
     parts = [hw["cpu"], f"{hw['threads']} threads"]
     if hw["memory_gb"] is not None:
         parts.append(f"{hw['memory_gb']} GB")
     parts.append(hw["os"])
     parts.append(hw["gpu"] if hw["gpu"] else "CPU only")
-    parts.append(f"{leg['workers']} workers")
+    parts.append(f"{leg['workers']} cores")
     return ", ".join(parts)
 
 
@@ -279,10 +281,10 @@ def run(
     import numpy as np
 
     import pianistpy as pp
-    from pianistpy.observables.stages import gauss_hermite_table, speed_distribution
+    from pianistpy.observables.stages import gauss_hermite_table, velocity_distribution
 
     pp.set_platform(platform_name)
-    pp.set_workers(workers)
+    pp.set_cores(workers)
     stages: dict[str, float] = {}
     walls: dict[str, list[float]] = {}
     cores: dict[str, list] = {}
@@ -317,7 +319,10 @@ def run(
         lambda: pp.truncate(pp.compute_df(member)),
     )
     sampler = _timed(
-        stages, walls, "4. Sampler(child): the speed table", lambda: pp.Sampler(child)
+        stages,
+        walls,
+        "4. Sampler(child): the velocity table",
+        lambda: pp.Sampler(child),
     )
     _timed(stages, walls, "5. sample(1e7)", lambda: sampler.sample(10_000_000, seed=1))
     build = "6. LosTable(child), first build"
@@ -355,7 +360,7 @@ def run(
         lambda: pp.sigma_los_aperture(child, circle),
         **serial,
     )
-    # from the table of row 6: no row times a table build
+    # from the table the chain built: no row times a table build
     _timed(
         stages,
         walls,
@@ -393,8 +398,8 @@ def run(
     _timed(
         stages,
         walls,
-        "7j. speed distribution, r 1 (stage function)",
-        lambda: speed_distribution(child, 1.0, child.settings),
+        "7j. velocity distribution, r 1 (stage function)",
+        lambda: velocity_distribution(child, 1.0, child.settings),
     )
     d = pp.Differentiable(child)
     grad = jax.grad(lambda t: d.sigma_los(t, 1.0))
@@ -438,7 +443,7 @@ def run(
     nan = float("nan")
     largest = max([*reported.values(), *sampled.peaks.values()], default=nan)
     print(
-        f"main: {own:.3f} GiB ({own_source}); workers reporting: {len(reported)}"
+        f"main: {own:.3f} GiB ({own_source}); processes reporting: {len(reported)}"
         f" ({', '.join(sorted(how))}), largest"
         f" {max(reported.values(), default=nan):.3f} GiB; children read while alive:"
         f" {len(sampled.peaks)} ({', '.join(sorted(sampled.sources))}), largest"
@@ -479,34 +484,137 @@ def run(
     )
 
 
+# The rows' labels on the computing-time page (Barry's wording, 2026-10-20), keyed by
+# the stage names the legs' JSON records carry, which stay as they are so that legs of
+# different versions compare. R is a 3D radius and R_2D a projected one, as in the
+# paper; the page sets the symbols and the units in math.
+LABELS = {
+    "1. parent DF: compute_df (NFW, isotropic)": (
+        "1. Parent DF: compute_df (NFW, isotropic)"
+    ),
+    "2. Method I truncation (K_t 0.05)": "2. Method I truncation (K_t = 0.05)",
+    "3. constant beta_c 0.2 child, Method II (compute_df, truncate)": (
+        "3. Child at constant beta_c = 0.2, Method II (compute_df, truncate)"
+    ),
+    "4. Sampler(child): the velocity table": "4. Sampler: the velocity table",
+    "5. sample(1e7)": "5. Drawing 10^7 particles",
+    "6. LosTable(child), first build": "6. LosTable: the first build",
+    "7a. sigma_r on the model, 50 radii": "sigma_r evaluated at 50 3D radii",
+    "7b. sigma_t on the model, 50 radii": "sigma_t evaluated at 50 3D radii",
+    "7c. sigma_los on the model, 50 radii": (
+        "sigma_los evaluated at 50 projected radii"
+    ),
+    "7d. sigma_los_aperture on the model, circle 1": (
+        "sigma_los_aperture over a circle of radius 1"
+    ),
+    "7e. losvd from the table, R 1, 201 velocities": (
+        "losvd at R_2D = 1, evaluated at 201 line-of-sight velocities"
+    ),
+    "7f. aperture_losvd from the table, circle 1, 201 velocities": (
+        "aperture_losvd over a circle of radius 1, evaluated at 201 "
+        "line-of-sight velocities"
+    ),
+    "7g. sigma_los_aperture from the table, circle 1": (
+        "sigma_los_aperture over a circle of radius 1"
+    ),
+    "7h. Gauss-Hermite moments from the table, 10 radii (stage function)": (
+        "Gauss-Hermite moments evaluated at 10 projected radii"
+    ),
+    "7i. pdf_v, 10 radii, V 0.3": (
+        "pdf_v evaluated at 10 3D radii, at the velocity V = 0.3"
+    ),
+    "7k. Differentiable: jax.grad of sigma_los, R 1": (
+        "jax.grad of sigma_los at R_2D = 1"
+    ),
+}
+
+
+def _time(seconds: float) -> str:
+    """A time as the page writes it: under 0.1 s in ms, 10 min and above in whole
+    minutes."""
+    if seconds < 0.1:
+        return f"{seconds * 1e3:.3g} ms"
+    if seconds >= 600.0:
+        return f"{round(seconds / 60.0):d} min"
+    return f"{seconds:.3g} s"
+
+
+FIRST_APERTURE = "7f. aperture_losvd from the table, circle 1, 201 velocities"
+
+
+# The page's three tables (one per group of rows, each with its own heading; no row
+# is referred to by its number or position): building a model, the observables that
+# read the model, and the observables that read the line-of-sight table. The stage
+# 7j (an internal stage function a reader cannot call) is not on the page.
+GROUPS = (
+    (
+        "Building a model",
+        (
+            "1. parent DF: compute_df (NFW, isotropic)",
+            "2. Method I truncation (K_t 0.05)",
+            "3. constant beta_c 0.2 child, Method II (compute_df, truncate)",
+            "4. Sampler(child): the velocity table",
+            "5. sample(1e7)",
+            "6. LosTable(child), first build",
+        ),
+    ),
+    (
+        "Observables from the distribution function",
+        (
+            "7a. sigma_r on the model, 50 radii",
+            "7b. sigma_t on the model, 50 radii",
+            "7c. sigma_los on the model, 50 radii",
+            "7d. sigma_los_aperture on the model, circle 1",
+            "7i. pdf_v, 10 radii, V 0.3",
+            "7k. Differentiable: jax.grad of sigma_los, R 1",
+        ),
+    ),
+    (
+        "Observables from the line-of-sight table",
+        (
+            "7e. losvd from the table, R 1, 201 velocities",
+            "7f. aperture_losvd from the table, circle 1, 201 velocities",
+            "7g. sigma_los_aperture from the table, circle 1",
+            "7h. Gauss-Hermite moments from the table, 10 radii (stage function)",
+        ),
+    ),
+)
+
+
 def table(paths: list[str]) -> None:
     legs = [json.load(open(p)) for p in paths]
-    names = list(legs[0]["stages"])
     head = ["stage"] + [_label(leg) for leg in legs]
-    print("| " + " | ".join(head) + " |")
-    print("|" + "---|" * len(head))
-    for name in names:
-        cells = []
-        for leg in legs:
-            value = leg["stages"].get(name)
-            cell = "" if value is None else f"{value:.3g} s"
-            if leg["platform"] == "gpu" and name in PINNED_TO_CPU:
-                cell = f"{cell} (pinned)"
-            cells.append(cell)
-        print(f"| {name} | " + " | ".join(cells) + " |")
-    memory = []
-    for leg in legs:
-        peak = leg["peak_gib"]
-        read = ", ".join(leg.get("peak_read", ["not recorded"]))
-        memory.append(
-            f"{peak['main']:.2f} GiB, {peak['largest worker']:.2f} GiB ({read})"
-        )
-    print("| peak memory (main, largest worker) | " + " | ".join(memory) + " |")
-    print("| LosTable rows | " + " | ".join(str(leg["rows"]) for leg in legs) + " |")
+    for heading, names in GROUPS:
+        print(f"{heading}")
+        print("| " + " | ".join(head) + " |")
+        print("|" + "---|" * len(head))
+        for name in names:
+            cells = []
+            for leg in legs:
+                value = leg["stages"].get(name)
+                cell = "" if value is None else _time(value)
+                if leg["platform"] == "gpu" and name in NO_GPU_VELOCITYUP:
+                    cell = f"{cell} (no GPU acceleration)"
+                cells.append(cell)
+            print(f"| {LABELS.get(name, name)} | " + " | ".join(cells) + " |")
+        if heading == "Building a model":
+            memory = []
+            for leg in legs:
+                peak = leg["peak_gib"]
+                read = ", ".join(leg.get("peak_read", ["not recorded"]))
+                memory.append(
+                    f"{peak['main']:.2f} GiB, {peak['largest worker']:.2f} GiB ({read})"
+                )
+            print(
+                "| Peak memory (main process, largest process) | "
+                + " | ".join(memory)
+                + " |"
+            )
+        print()
+    print("LosTable rows: " + ", ".join(str(leg["rows"]) for leg in legs))
     print(
-        "| child tier (default settings) | "
-        + " | ".join(str(leg["tier"]) for leg in legs)
-        + " |"
+        "The child's report band under the default settings: "
+        + ", ".join(str(leg["tier"]) for leg in legs)
     )
     for leg in legs:
         print(
@@ -514,12 +622,21 @@ def table(paths: list[str]) -> None:
             f" numpy {leg['numpy']}, python {leg['python']}, {leg['machine']},"
             f" devices {leg['devices']}"
         )
+    # for the page's intro sentence, not a row of its table: the first aperture
+    # call on a table (the aperture stage's warm call), per leg
+    for leg in legs:
+        walls = leg.get("walls", {}).get(FIRST_APERTURE)
+        if walls:
+            print(
+                f"{leg['platform']}: the first aperture call on the table"
+                f" {walls[0]:.1f} s"
+            )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--platform", choices=("cpu", "gpu"))
-    parser.add_argument("--workers", type=int, default=28)
+    parser.add_argument("--cores", type=int, default=28, dest="workers")
     parser.add_argument("--out")
     parser.add_argument("--table", nargs="+")
     parser.add_argument(

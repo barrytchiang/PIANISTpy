@@ -1,19 +1,24 @@
-"""Particles in the layouts of simulation codes, and as text.
+"""The particle writers for the file layouts of simulation codes and for text.
 
-Each layout is one registered writer (`register_particle_writer`), reached
-through `Particles.write(path, layout=...)` or `write_particles`:
+Importing `pianistpy.particles` registers `write_gamer`, `write_gadget` and
+`write_text` with `register_particle_writer`. A user reaches each writer through
+`Particles.write` or `write_particles` with the layout's name:
 
-* ``"gamer"``: GAMER's particle file, read by its initialization from file
-  (``PAR_INIT 3``): a headerless stream of the attributes, as the working
-  reader's exporter writes it.
-* ``"gadget"``: a Gadget-derivative HDF5 initial condition (snapshot format
-  3), as the OpenGadget3 reference example lays it out.
-* ``"text"``: fixed-width text with the units in the file's own header.
+* ``"gamer"``: the particle file that GAMER reads at its initialization from
+  file (``PAR_INIT 3``), a stream of the particle attributes with no header.
+* ``"gadget"``: a Gadget-derivative HDF5 initial condition in snapshot
+  format 3, with the groups and attributes of the OpenGadget3 reference
+  example.
+* ``"text"``: fixed-width text with a header that states the unit of every
+  column.
 
-Every writer reads its file back and compares it with what it wrote, bit for
-bit after the cast to the file's type, and refuses the file otherwise. Both
-run over slices of the particles (`slice_size`, the sampling's draw block), so
-the working memory is one slice's above the particles, whatever the count.
+Every writer reads the file back and compares the values read with the
+values written, bit for bit after the cast to the file's number type, and
+raises `ResultError` when any value differs. Every writer handles the
+particles in slices of ``slice_size()`` particles, the setting
+``sampling["draw_block"]`` of the default settings, so the writer's working
+memory beyond the particles themselves is one slice's for any number of
+particles.
 """
 
 __all__ = [
@@ -34,12 +39,13 @@ from ..exceptions import InputError, ResultError
 from ..settings import Settings
 from .core import Particles, register_particle_writer
 
-# GAMER's attributes in the order of Par_Init_ByFile.cpp: the mass (where it
-# is in the file) and the Cartesian position and velocity.
+# GAMER's particle attributes in the order that GAMER's Par_Init_ByFile.cpp
+# reads them: the mass (when the file holds the mass), then the Cartesian
+# position and velocity.
 GAMER_ATTRIBUTES = ("mass", "x", "y", "z", "vx", "vy", "vz")
-# The thirteen float32 blocks of the build the runs of Chiang+(2026d) were made with:
-# the seven above, then the type, the tag, the energy, the angular momentum,
-# the energy backup and the identifier.
+# The 13 float32 attribute blocks of the GAMER build used for the runs of
+# Chiang+(2026d): the 7 attributes of GAMER_ATTRIBUTES, then the type, the tag,
+# the energy, the angular momentum, the energy backup and the identifier.
 GAMER_LEGACY_ATTRIBUTES = GAMER_ATTRIBUTES + (
     "type",
     "tag",
@@ -48,15 +54,16 @@ GAMER_LEGACY_ATTRIBUTES = GAMER_ATTRIBUTES + (
     "energy_backup",
     "id",
 )
-# The largest integer a float32 carries exactly: an identifier above it is
-# not representable in the legacy layout.
+# The largest integer up to which every integer is exact in float32, 2^24: an
+# identifier above 2^24 cannot be written exactly in the legacy layout.
 ID_LIMIT_FLOAT32 = 2**24
 TEXT_COLUMNS = ("mass", "x", "y", "z", "vx", "vy", "vz")
 TEXT_FIELD = "{:<25.14e}"
 
 
 def slice_size() -> int:
-    """The particles a writer holds at once: the sampling's draw block."""
+    """Return the number of particles a writer handles at once, the setting
+    ``sampling["draw_block"]`` of the default settings."""
     return int(Settings().sampling["draw_block"])
 
 
@@ -66,13 +73,15 @@ def _slices(n: int) -> list[slice]:
 
 
 def _refused(path: str) -> ResultError:
-    return ResultError(f"{path!r} does not read back as written; the file is refused.")
+    return ResultError(f"The file {path!r} does not read back as written.")
 
 
 def _target(path: str | os.PathLike, overwrite: bool) -> str:
     path = os.fspath(path)
     if os.path.exists(path) and not overwrite:
-        raise InputError(f"{path!r} exists; pass overwrite=True to replace it.")
+        raise InputError(
+            f"The file {path!r} exists; pass overwrite=True to replace the file."
+        )
     return path
 
 
@@ -81,7 +90,9 @@ def _offset(offset) -> np.ndarray | None:
         return None
     offset = np.asarray(offset, dtype=np.float64)
     if offset.shape != (3,):
-        raise InputError(f"offset must have the shape (3,); got {offset.shape}.")
+        raise InputError(
+            f"offset must have the shape (3,); the shape given is {offset.shape}."
+        )
     return offset.reshape(1, 3)
 
 
@@ -95,7 +106,8 @@ def _shifted(
 def _size_check(path: str, expected: int) -> None:
     if os.path.getsize(path) != expected:
         raise ResultError(
-            f"{path!r} has {os.path.getsize(path)} bytes, not the {expected} written."
+            f"The file {path!r} holds {os.path.getsize(path)} bytes; the writer "
+            f"wrote {expected} bytes."
         )
 
 
@@ -110,43 +122,73 @@ def write_gamer(
     attributes: str = "standard",
     overwrite: bool = False,
 ) -> None:
-    """Write GAMER's particle file: a headerless stream of the attributes.
+    """Write the particles as GAMER's particle file, a stream of the particle
+    attributes with no header.
 
     Parameters
     ----------
-    order : {"ATT_ID", "ID_ATT"}
-        Attribute-major blocks (every particle's mass, then every x, ...) or
-        particle-major rows, as GAMER's ``PAR_IC_FORMAT`` names them.
-    double_precision : bool
-        Doubles where GAMER runs with ``PAR_IC_FLOAT8``, floats otherwise.
-    include_mass : bool
-        False where GAMER sets the mass itself (``PAR_IC_MASS`` at or above
-        zero); the particle type is GAMER's ``PAR_IC_TYPE`` in either case.
-    offset : array-like of shape (3,), optional
-        Added to the positions: GAMER's box has its corner at the origin, the
-        sampler centers the model there.
-    attributes : {"standard", "legacy"}
+    particles : Particles
+        The particles to write.
+    path : str or path-like
+        Path of the file to write.
+    order : {"ATT_ID", "ID_ATT"}, optional
+        ``"ATT_ID"`` writes one block per attribute (every particle's mass,
+        then every particle's x, and so on). ``"ID_ATT"`` writes one record
+        per particle. GAMER's parameter ``PAR_IC_FORMAT`` takes the same
+        two values. Default: ``"ATT_ID"``.
+    double_precision : bool, optional
+        Write float64 values, for a GAMER build with ``PAR_IC_FLOAT8``, or
+        float32 values. Default: ``True``.
+    include_mass : bool, optional
+        Write the particle mass. False suits a GAMER run that sets the
+        particle mass itself (``PAR_IC_MASS`` at or above zero). GAMER's
+        parameter ``PAR_IC_TYPE`` sets the particle type for either value.
+        Default: ``True``.
+    offset : array-like, shape (3,), optional
+        A vector added to every position, because GAMER's simulation box has
+        its corner at the origin while the sampler centers the model at the
+        origin. Default: ``None``, which means no shift.
+    attributes : {"standard", "legacy"}, optional
         ``"standard"`` writes the mass, the position and the velocity.
-        ``"legacy"`` writes the thirteen float32 attribute-major blocks of the
-        build the runs of Chiang+(2026d) used (`GAMER_LEGACY_ATTRIBUTES`): the type and
-        the tag 1, the energies and the angular momentum 0, the identifiers
-        0 to n - 1, which a float32 carries exactly only below 2**24; more
-        particles are refused. The other options must be at their defaults.
+        ``"legacy"`` writes the 13 float32 blocks of
+        `GAMER_LEGACY_ATTRIBUTES`, the layout of the GAMER build used for the
+        runs of Chiang+(2026d): the type 1, the tag 1, the energy 0, the
+        angular momentum 0, the energy backup 0 and the identifiers 0 to
+        n - 1 after the mass, the position and the velocity. ``"legacy"``
+        requires `order`, `double_precision` and `include_mass` at their
+        defaults. Default: ``"standard"``.
+    overwrite : bool, optional
+        Replace an existing file at `path`. Default: ``False``, which means
+        an existing file raises `InputError`.
 
     Raises
     ------
     InputError
-        For an unknown order or attribute set, an option that the legacy
-        layout cannot take, or more particles than the legacy identifiers
-        can carry.
+        If `order` is not ``"ATT_ID"`` or ``"ID_ATT"``, or `attributes` is
+        not ``"standard"`` or ``"legacy"``.
+    InputError
+        If the file exists and `overwrite` is false.
+    InputError
+        If `offset` does not have the shape (3,).
+    InputError
+        If `attributes` is ``"legacy"`` and `order`, `double_precision` or
+        `include_mass` differs from its default.
+    InputError
+        If `attributes` is ``"legacy"`` and the number of particles exceeds
+        ``ID_LIMIT_FLOAT32`` (:math:`2^{24}`), above which a float32
+        identifier is not exact.
     ResultError
-        If the file does not read back as written.
+        If the file read back differs from the values written, or the file's
+        size differs from the number of bytes written.
     """
     if order not in ("ATT_ID", "ID_ATT"):
-        raise InputError(f"order must be 'ATT_ID' or 'ID_ATT'; got {order!r}.")
+        raise InputError(
+            f"order must be 'ATT_ID' or 'ID_ATT'; the value given is {order!r}."
+        )
     if attributes not in ("standard", "legacy"):
         raise InputError(
-            f"attributes must be 'standard' or 'legacy'; got {attributes!r}."
+            "attributes must be 'standard' or 'legacy'; the value given is "
+            f"{attributes!r}."
         )
     path = _target(path, overwrite)
     n = len(particles)
@@ -154,14 +196,15 @@ def write_gamer(
     if attributes == "legacy":
         if not (order == "ATT_ID" and double_precision and include_mass):
             raise InputError(
-                "the legacy layout is attribute-major float32 with the mass; "
+                "The legacy layout is attribute-major float32 with the mass, so "
                 "order, double_precision and include_mass must be left at their "
                 "defaults."
             )
         if n > ID_LIMIT_FLOAT32:
             raise InputError(
-                f"{n} particles exceed the {ID_LIMIT_FLOAT32} identifiers a "
-                "float32 carries exactly; the legacy layout is refused."
+                f"The legacy layout stores identifiers as float32, which carries "
+                f"integers exactly up to {ID_LIMIT_FLOAT32}; the {n} particles "
+                "need more identifiers than float32 carries exactly."
             )
         dtype: np.dtype[Any] = np.dtype(np.float32)
         n_columns = len(GAMER_LEGACY_ATTRIBUTES)
@@ -170,7 +213,8 @@ def write_gamer(
         n_columns = len(GAMER_ATTRIBUTES) - (0 if include_mass else 1)
 
     def columns(part: slice) -> np.ndarray:
-        # the attributes of the particles in `part`, one row each, in float64
+        # The attributes of the particles in the slice `part` as float64, one
+        # row per attribute.
         position = _shifted(particles, shift, part)
         velocity = np.asarray(particles.velocity[part], dtype=np.float64)
         mass = np.asarray(particles.mass[part], dtype=np.float64)
@@ -184,8 +228,10 @@ def write_gamer(
         return np.stack(rows)
 
     parts = _slices(n)
-    # each slice once: attribute-major, its stretch of every attribute's
-    # block; particle-major, its rows. The bytes are the whole array's, cast.
+    # Each slice is written once. In the order "ATT_ID", a slice fills the
+    # slice's stretch of every attribute's block; in the order "ID_ATT", a slice
+    # appends the slice's records. Either way the file's bytes equal the bytes
+    # of the whole array cast to the file's number type.
     item = dtype.itemsize
     with open(path, "wb") as file:
         for part in parts:
@@ -229,35 +275,55 @@ def write_gadget(
     offset=None,
     overwrite: bool = False,
 ) -> None:
-    """Write a Gadget-derivative HDF5 initial condition (snapshot format 3).
+    """Write the particles as a Gadget-derivative HDF5 initial condition in
+    snapshot format 3.
 
-    The layout is the OpenGadget3 reference's: ``/Header`` with the particle
-    counts, the mass table and the cosmology of an isolated model (zeros),
-    and ``/PartType<n>`` with ``Coordinates``, ``Velocities`` and
-    ``ParticleIDs`` from 1. Equal masses go into the mass table alone; unequal
-    masses are written per particle in ``Masses`` with the table's slot 0.
+    The file has the groups of the OpenGadget3 reference example. The group
+    ``/Header`` holds the particle counts, the mass table and cosmological
+    parameters set to zero for an isolated model. The group
+    ``/PartType<n>`` holds ``Coordinates``, ``Velocities`` and
+    ``ParticleIDs`` numbered from 1. When all particle masses are equal, the
+    mass is written to the header's mass table only. When the masses differ,
+    the masses are written per particle in ``Masses`` and the mass table's
+    entry for the particle type is 0.
 
     Parameters
     ----------
-    double_precision : bool
-        Float64 arrays and ``Flag_DoublePrecision`` 1; float32 otherwise.
-    part_type : int
-        The particle type slot, 0 to 5.
-    hubble_param : float
-        Written to the header, unused by an isolated model.
-    offset : array-like of shape (3,), optional
-        Added to the positions.
+    particles : Particles
+        The particles to write.
+    path : str or path-like
+        Path of the file to write.
+    double_precision : bool, optional
+        Write float64 arrays with the header flag ``Flag_DoublePrecision``
+        set to 1, or float32 arrays with the flag set to 0. Default:
+        ``False``.
+    part_type : int, optional
+        The particle type slot, an integer from 0 to 5. Default: ``1``.
+    hubble_param : float, optional
+        The value written to the header's ``HubbleParam``, which an isolated
+        model does not use. Default: ``0.7``.
+    offset : array-like, shape (3,), optional
+        A vector added to every position. Default: ``None``, which means no
+        shift.
+    overwrite : bool, optional
+        Replace an existing file at `path`. Default: ``False``, which means
+        an existing file raises `InputError`.
 
     Raises
     ------
     InputError
-        For a part_type outside 0 to 5.
+        If `part_type` is not an integer from 0 to 5.
+    InputError
+        If the file exists and `overwrite` is false.
+    InputError
+        If `offset` does not have the shape (3,).
     ResultError
-        If the file does not read back as written.
+        If the file read back differs from the values written.
     """
     if not 0 <= int(part_type) < 6 or int(part_type) != part_type:
         raise InputError(
-            f"part_type must be an integer from 0 to 5; got {part_type!r}."
+            "part_type must be an integer from 0 to 5; the value given is "
+            f"{part_type!r}."
         )
     path = _target(path, overwrite)
     n = len(particles)
@@ -314,8 +380,9 @@ def write_gadget(
         for name in ("Omega0", "OmegaLambda", "Redshift", "Time"):
             header.attrs[name] = np.float64(0.0)
         group = file.create_group(f"PartType{part_type}")
-        # each dataset made and filled in turn, as one write of the whole array
-        # would place it in the file
+        # Each dataset is created at its full shape and then filled slice by
+        # slice, so the file holds the dataset as one write of the whole array
+        # would hold the dataset.
         for name, (shape, kind) in shapes.items():
             dataset = group.create_dataset(name, shape=shape, dtype=kind)
             for part in parts:
@@ -346,16 +413,32 @@ def write_text(
 ) -> None:
     """Write the particles as fixed-width text with a header.
 
-    The header lines, each starting with ``#``, state the unit system, the
-    unit of every column, the identity of the realization and of its parent,
-    and the column names. Each row holds the mass, the position and the
-    velocity, every field in 25 characters with 14 digits after the point;
-    with more than one component the component's index follows them.
+    Each header line starts with ``#``. The header states the unit system,
+    the identity string of the realization, the identity string of the
+    realization's parent, the component names, the column names and the unit
+    of every column. Each following line holds the mass, the position and
+    the velocity of one particle, every value in a field 25 characters wide
+    with 14 digits after the decimal point. When the particles have more
+    than one component, the particle's component index follows the velocity.
+
+    Parameters
+    ----------
+    particles : Particles
+        The particles to write.
+    path : str or path-like
+        Path of the file to write.
+    overwrite : bool, optional
+        Replace an existing file at `path`. Default: ``False``, which means
+        an existing file raises `InputError`.
 
     Raises
     ------
+    InputError
+        If the file exists and `overwrite` is false.
     ResultError
-        If the file does not read back as written to the digits written.
+        If a value read back differs from the value written, rounded to the
+        14 digits after the decimal point, or if the file holds a different
+        number of lines from the number of particles.
     """
     path = _target(path, overwrite)
     n = len(particles)

@@ -1,15 +1,22 @@
-"""The form of the inversion, chosen from the model alone.
+r"""The form in which each row of the DF table is inverted.
 
-The order pair, the interior point of a Type II model, the behavior of the
-auxiliary density at the outer end and, from them, the form every row of the
-table is inverted in: the local closed form at half-integer central
-anisotropy, the form with the surface term (integrated by parts), or the
-general form (the derivative outside the integral). No computed number of the
-inversion is inspected; the grid enters only through its first energy, where
-the rows of an unbounded outer end change form.
+The inversion calls `inversion_form` before any integral is evaluated.
+`inversion_form` chooses the form of each row from the model's parameters
+and the smallest energy of the component's table; no computed value of the
+inversion is read. The choice follows from the order pair (`order_pair`),
+the interior point :math:`P_s` of a COM Type II model (`interior_point`)
+and the power of the auxiliary density at the outer end
+(`outer_end_power`). Each row takes one of three forms: the local closed
+form where the central anisotropy :math:`\beta_{\rm c}` is a half-integer,
+the form with the surface term (integrated by parts), or the general form
+(the derivative outside the integral). The rows at energies above
+:math:`P_s` take the general form. For an unbounded outer end, the rows at
+energies at or above `OUTER_FROM_FACTOR` times the table's smallest energy
+take the general form.
 
-The arithmetic is the working pipeline's, operation for operation, so that
-its results are equal to the bit on the same backend.
+References
+----------
+Notes Section T:2.3.1, Notes Eq. (T:2.16).
 """
 
 __all__ = [
@@ -29,37 +36,57 @@ from ..profiles import DoublePowerLaw
 from .inversion import interior_point, order_pair
 from .stages import EnergyGrid, InversionForm, PotentialDensityPair
 
-# the form of a row, `InversionForm.form`
+# The integer code of each row form in `InversionForm.form`.
 FORMS = {"local": 0, "surface": 1, "general": 2}
-# where an unbounded outer end leaves the rows' surface form: this many times
-# the first energy of the table
+# For an unbounded outer end, the rows with energies at or above
+# OUTER_FROM_FACTOR times the table's first energy leave the surface form for
+# the general form.
 OUTER_FROM_FACTOR = 10.0
 
 
 @dataclass(frozen=True)
 class InversionFormRecord:
-    """What the form states of one component, for the inversion's record.
+    r"""The inversion form of one component, for the inversion's record.
 
     Parameters
     ----------
     form : str
         The evaluation form: ``"closed_form_n0"``, ``"integrated_by_parts"``
-        or ``"derivative_outside"``, with the forms of the rows above the
-        interior point or below the floor after a ``+``.
-    order_m, order_n : int, float
-        The floor pair (m_f, n_f).
-    order_j, kernel_exponent : int, float
-        The unified pair in use (j, n).
-    k_interior, interior_exponent : float
-        The interior point P_s and its exponent s; NaN where there is none.
+        or ``"derivative_outside"``. Suffixes, each after a ``+``, identify the
+        form of the rows above the interior point and the form of the rows
+        of an unbounded outer end.
+    order_m : int
+        Integer part :math:`m = \lfloor 3/2 - \beta_{\rm c} \rfloor`, with
+        :math:`\beta_{\rm c}` the central anisotropy (`OrderPair.order_m`).
+    order_n : float
+        Remainder :math:`n = 3/2 - \beta_{\rm c} - m` (`OrderPair.order_n`).
+    order_j : int
+        Derivative order :math:`j` the inversion uses (`OrderPair.order_j`),
+        Notes Eq. (T:2.16).
+    kernel_exponent : float
+        Kernel exponent the inversion uses (`OrderPair.kernel_exponent`).
+    k_interior : float
+        Interior point :math:`P_s` of a COM Type II model, in internal units;
+        NaN where the model has no interior point.
+    interior_exponent : float
+        Exponent :math:`s` in :math:`|P - P_s|^s`, the behavior of the
+        auxiliary density's derivative of order :math:`j` near the interior
+        point :math:`P_s`; NaN where the model has no interior point.
     outer_power : float
-        The exponent s of rho_aux ~ P^s at the outer end where the floor
-        pair's derivative of rho_aux is unbounded there; NaN otherwise.
+        Power :math:`s` of :math:`\varrho_{\rm aux} \sim P^s` as the
+        potential :math:`P \to 0`, where the outer end is unbounded; NaN
+        otherwise.
     outer_end : str
-        ``"unbounded"`` or ``"bounded"``.
+        ``"unbounded"`` where the power :math:`s` of
+        :math:`\varrho_{\rm aux} \sim P^s` as :math:`P \to 0` is below the
+        integer part :math:`m` and :math:`\beta_{\rm c}` is not a
+        half-integer; ``"bounded"`` otherwise.
     outer_from : float
-        The energy from which the rows take the general form for an
-        unbounded outer end; zero where none do.
+        Energy, in internal units, at and above which the rows of an
+        unbounded outer end take the general form: `OUTER_FROM_FACTOR` times
+        the component's smallest energy. Zero for a bounded outer end, and
+        zero for the form ``"derivative_outside"``, in which every row
+        already takes the general form.
     """
 
     form: str
@@ -75,11 +102,22 @@ class InversionFormRecord:
 
 
 def outer_end_power(profile: DoublePowerLaw, anisotropy: Anisotropy) -> float:
-    r"""Return the power s of rho_aux ~ P^s at the outer end (P -> 0).
+    r"""Return the power of the auxiliary density at the outer end.
 
-    rho_aux ~ R^(2 - beta) for OM and COM (the :math:`\beta_{\rm c}` powers
-    cancel), and ``R^(2 beta_c - beta)`` for a constant (or isotropic)
-    anisotropy, with Psi ~ 1/R (at beta = 3, Psi ~ ln R / R and s = 1 with a logarithm).
+    The power :math:`s` is that of :math:`\varrho_{\rm aux} \sim P^s` as
+    :math:`P \to 0`, with :math:`\varrho_{\rm aux}` the auxiliary density,
+    :math:`P` the potential, :math:`R` the radius, :math:`\beta` the outer
+    slope of the density profile and :math:`\beta_{\rm c}` the central
+    anisotropy. For an OM or COM model,
+    :math:`\varrho_{\rm aux} \sim R^{2 - \beta}` at
+    large radius, because the powers of :math:`\beta_{\rm c}` in the
+    anisotropy factor cancel. For a constant or isotropic anisotropy,
+    :math:`\varrho_{\rm aux} \sim R^{2 \beta_{\rm c} - \beta}` at large
+    radius. With the potential :math:`P \sim 1/R` at large radius,
+    :math:`s = \beta - 2` for an OM or COM model and
+    :math:`s = \beta - 2 \beta_{\rm c}` otherwise. At :math:`\beta = 3`, the
+    potential is :math:`P \sim \ln R / R`, and
+    :math:`\varrho_{\rm aux} \sim P^s` carries a logarithmic factor.
     """
     if anisotropy.model in ("om", "com"):
         return float(profile.rho_beta) - 2.0
@@ -87,12 +125,21 @@ def outer_end_power(profile: DoublePowerLaw, anisotropy: Anisotropy) -> float:
 
 
 def tail_exponent_analytic(profile: DoublePowerLaw, anisotropy: Anisotropy) -> float:
-    """Return the exponent a of the DF's tail F ~ A K^-a as K -> 0.
+    r"""Return the exponent of the DF's tail at the outer end.
 
-    ``a = 3/2 - beta_c - s`` with s the power of rho_aux ~ P^s at the outer
-    end (`outer_end_power`): ``7/2 - beta_c - beta`` for OM and COM,
-    ``3/2 + beta_c - beta`` for a constant (or isotropic) anisotropy. A
-    negative a is a DF that vanishes at K -> 0.
+    The exponent :math:`a` is that of :math:`F \sim A K^{-a}` as
+    :math:`K \to 0`, with :math:`F` the DF, :math:`K` the energy, :math:`A` a
+    constant amplitude, :math:`\beta` the outer slope of the density profile and
+    :math:`\beta_{\rm c}` the central anisotropy. The exponent is
+    :math:`a = 3/2 - \beta_{\rm c} - s`, with :math:`s` the power of
+    :math:`\varrho_{\rm aux} \sim P^s` at the outer end (`outer_end_power`).
+    For an OM or COM model, :math:`a = 7/2 - \beta_{\rm c} - \beta`; for a
+    constant or isotropic anisotropy, :math:`a = 3/2 + \beta_{\rm c} - \beta`.
+    A negative exponent :math:`a` means a DF that vanishes as :math:`K \to 0`.
+
+    References
+    ----------
+    Notes Eq. (T:2.13).
     """
     if anisotropy.model in ("om", "com"):
         return 3.5 - float(anisotropy.beta_c) - float(profile.rho_beta)
@@ -102,7 +149,11 @@ def tail_exponent_analytic(profile: DoublePowerLaw, anisotropy: Anisotropy) -> f
 def _one(
     profile: DoublePowerLaw, anisotropy: Anisotropy, k: np.ndarray
 ) -> tuple[np.ndarray, InversionFormRecord]:
-    """The rows' forms and the record of one component on its energies ``k``."""
+    """Return the form code of each row and the form record of one component.
+
+    The rows are the component's energies ``k``, in internal units. The
+    form codes are the codes of `FORMS`.
+    """
     beta_c = 0.0 if anisotropy.model == "om" else float(anisotropy.beta_c)
     pair = order_pair(beta_c)
     is_half_integer = pair.kernel_exponent == 0.0
@@ -154,33 +205,37 @@ def _one(
 def inversion_form(
     pair: PotentialDensityPair, grid: EnergyGrid
 ) -> tuple[InversionForm, tuple[InversionFormRecord, ...]]:
-    """Return the form of the inversion on every row, and its record.
+    r"""Return the inversion form of every row of every component, and the form records.
 
     Parameters
     ----------
     pair : PotentialDensityPair
-        The components (their profile and anisotropy); an analytic pair, the
-        inversion of an untruncated model over its full domain.
+        The components, read for each component's profile and anisotropy.
+        `inversion_form` treats each component as an untruncated model
+        inverted over its full domain.
     grid : EnergyGrid
-        The energies of the table of each component.
+        The energies of each component's table, in internal units.
 
     Returns
     -------
     form : InversionForm
-        The pair in use, the form of every row and the interior point, per
-        component.
+        Per component: the derivative order :math:`j`, the kernel exponent,
+        the form code of every row (`FORMS`), and the interior point
+        :math:`P_s`, None where the component has no interior point.
     records : tuple of InversionFormRecord
-        What the form states of each component, for the inversion's record.
+        The form record of each component, for the inversion's record.
 
     Raises
     ------
     UnphysicalModelError
-        If a COM Type II derivative is not integrable at its interior point
+        If, for a COM Type II model, the derivative of order :math:`j` of the
+        auxiliary density is not integrable at the interior point
+        :math:`P_s` or carries a delta function at :math:`P_s`
         (`interior_point`).
 
     References
     ----------
-    Section T:2.3 [num-forms], Eq. (T:2.16) [unified-pair].
+    Notes Section T:2.3, Notes Eq. (T:2.16).
     """
     rows, records = [], []
     for i, component in enumerate(pair.components):

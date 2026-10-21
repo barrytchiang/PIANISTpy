@@ -1,4 +1,8 @@
-"""Tests of the file layer."""
+"""Tests of the HDF5 result files.
+
+The tests cover `write_result`, `read_result`, `load_result` and
+`data_digest`.
+"""
 
 import h5py
 import numpy as np
@@ -8,7 +12,7 @@ from pianistpy import InputError, ResultError
 from pianistpy.identity import identity_string
 from pianistpy.io import data_digest, load_result, read_result, write_result
 
-RECORD = {"inputs": {"beta_c": -0.25, "r_a": None}, "settings": {"tier": "default"}}
+RECORD = {"inputs": {"beta_c": -0.25, "r_a": None}, "settings": {"level": "default"}}
 IDENTITY = identity_string(RECORD["inputs"], RECORD["settings"], "1.0")
 
 
@@ -90,3 +94,21 @@ def test_a_file_that_does_not_read_back_as_written_is_refused(tmp_path, monkeypa
     monkeypatch.setattr(h5py.Group, "create_dataset", perturbed)
     with pytest.raises(ResultError, match="does not read back as written"):
         write_result(tmp_path / "result.h5", "model", IDENTITY, RECORD, _arrays())
+
+
+def test_each_dataset_is_read_once_to_write_and_once_to_read(tmp_path, monkeypatch):
+    read = h5py.Dataset.__getitem__
+    count = {"n": 0}
+
+    def counted(dataset, key):
+        count["n"] += 1
+        return read(dataset, key)
+
+    monkeypatch.setattr(h5py.Dataset, "__getitem__", counted)
+    path = tmp_path / "result.h5"
+    digest = write_result(path, "model", IDENTITY, RECORD, _arrays())
+    assert count["n"] == len(_arrays())
+    count["n"] = 0
+    stored = read_result(path)
+    assert count["n"] == len(_arrays())
+    assert stored.data_sha256 == digest == data_digest(path)

@@ -1,9 +1,34 @@
-"""The table of rows of the line-of-sight velocity distribution, computed in
-a pool and checked for its reading between rows."""
+r"""The rows of the line-of-sight velocity distribution, computed in a process
+pool, and the check of the table's interpolation between rows.
+
+The stage behind `pianistpy.losvd`, `pianistpy.aperture_losvd` and
+`pianistpy.LosTable` calls `losvd_rows` to build the table. Each row holds
+:math:`D(R_{\rm 2D}, V)`, the line-of-sight velocity distribution at one
+projected radius :math:`R_{\rm 2D}` on the row's velocity panels. Each row is
+normalized to unit integral over :math:`V`. The radii where the panel layout
+changes split the rows into stretches. A true end of a stretch is a radius
+where the layout changes, or the finite radius where the line of sight ends.
+
+The check estimates the interpolation error at the midpoint of each interval
+between neighboring rows, and in each gap between a true end of a stretch and
+the stretch's nearest row. With :math:`D_k` the row that interpolation over
+:math:`k` rows gives and :math:`D_{k-2}` the row that interpolation over
+:math:`k - 2` rows gives, the two estimates are
+
+.. math::
+
+    e_2 = \frac{|m_2[D_k] - m_2[D_{k-2}]|}{|m_2[D_k]|}, \qquad
+    e_\infty = \frac{\max |D_k - D_{k-2}|}{\max |D_k|},
+
+with :math:`m_2[D] = \int V^2 D\,{\rm d}V` and :math:`k` the setting
+``losvd.n_stencil_test_rows``. A midpoint fails where :math:`e_2` exceeds
+ROW_TOL_M2 (:math:`10^{-8}`) or :math:`e_\infty` exceeds ROW_TOL_PW
+(:math:`10^{-7}`). Notes Section T:6.5 treats the table of rows."""
 
 __all__ = [
     "START_METHOD",
     "init_worker",
+    "init_worker_from",
     "losvd_rows",
     "new_pool",
     "row_worker",
@@ -12,48 +37,271 @@ __all__ = [
 
 import contextlib
 import multiprocessing as mp
+import signal
 import time
+import weakref
 from collections.abc import Callable
+from multiprocessing import pool as mp_pool
+from multiprocessing import util as mp_util
 from typing import Any
 
 import numpy as np
 
-from ..exceptions import ResultError
-from ..runtime import get_workers, log, worker_environment
+from ..exceptions import ResultError, WorkerError
+from ..runtime import (
+    drop_spill,
+    get_cores,
+    log,
+    spill,
+    unspill,
+    worker_environment,
+)
 from ..typing import Array, ArrayLike
 from ._ellipse import T_SET_BY, EllipseRoute
 from ._ellipse_rules import BREAK_PAST_END, ROW_TOL_M2, ROW_TOL_PW
 from ._kept import WORKER
 from ._panel_table import PanelTable
 
-# The pool's start method: spawn, which every platform has and which JAX
-# allows after it initializes (fork does neither). Each worker imports the
-# package and takes a pickled copy of the route.
+# The pool's start method. Every platform offers "spawn", and JAX allows
+# "spawn" after JAX has initialized. The method "fork" meets neither
+# condition. Each spawned process imports the package and loads a pickled
+# copy of the route.
 START_METHOD = "spawn"
+# The interval, in seconds, at which a pool call checks for an ended process
+# while the call waits for results.
+WORKER_POLL = 0.1
+
+
+class _RoutePool(mp_pool.Pool):
+    """A `multiprocessing.pool.Pool` whose processes load the route from a
+    file, and whose calls raise `WorkerError` when a process ends.
+
+    `new_pool` writes the route to a file in a folder of its own. The
+    folder is removed when the pool is terminated or garbage-collected
+    (``remove_route``).
+
+    The methods `map` and `imap_unordered` check for an ended process every
+    WORKER_POLL seconds while waiting for results, and raise `WorkerError`
+    at the first check after a process of the pool has ended. The standard
+    pool replaces an ended process with a new process, but the task that the
+    ended process held is lost. The standard pool's wait for that task's
+    result would never return. Both methods wait on the standard pool's own
+    calls (`map_async`, and the iterator of the standard `imap_unordered`),
+    so the results and the result order are the standard pool's.
+
+    The pool records every process it starts, in ``workers_started``,
+    through the pool's ``Process`` hook, which the standard library does not
+    document. The record holds the first processes and each replacement
+    process. A process that starts and ends between two checks is therefore
+    also found.
+
+    The pool's termination does not wait forever on an ended process. A
+    process takes the lock of the pool's task pipe to read a task. A process
+    that ends while holding the lock never releases the lock. CPython
+    3.11's ``Pool._help_stuff_finish`` takes that lock with no time limit,
+    so the termination would wait forever. `_help_stuff_finish` replaces the
+    standard method with a bounded wait.
+    """
+
+    remove_route: Any = None
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.workers_started: list[Any] = []
+        self.workers_reported: set[Any] = set()
+        super().__init__(*args, **kwargs)
+
+    def _setup_queues(self) -> None:
+        super()._setup_queues()  # type: ignore[misc]
+        # The termination's helper `_help_stuff_finish` receives the task
+        # queue and no pool, so the record of the processes is attached to
+        # the task queue. A pickled queue carries only the queue's pipes and
+        # locks, so no process of the pool receives the record.
+        self._inqueue.workers_started = self.workers_started  # type: ignore[attr-defined]
+
+    def Process(self, ctx: Any, *args: Any, **kwds: Any) -> Any:  # type: ignore[override]  # noqa: N802
+        process = ctx.Process(*args, **kwds)
+        self.workers_started.append(process)
+        return process
+
+    def terminate(self) -> None:
+        super().terminate()
+        if self.remove_route is not None:
+            self.remove_route()
+
+    @staticmethod
+    def _help_stuff_finish(inqueue: Any, task_handler: Any, size: int) -> None:
+        """Replace CPython 3.11's ``Pool._help_stuff_finish`` with a bounded
+        acquire of the task pipe's read lock.
+
+        The standard method acquires the read lock with no time limit, then
+        drains the task pipe while the task handler is alive and the pipe
+        holds data. This method tries to acquire the read lock for
+        WORKER_POLL seconds at a time. After each failed try, three checks
+        run in order:
+
+        1. Where the task handler has ended, the method returns without
+           draining the pipe.
+        2. Where at least one recorded process has ended, the method kills
+           every recorded process that is still alive. An ended process may
+           hold the read lock forever. The pool starts no new processes
+           during termination.
+        3. Where every recorded process has ended, the method stops trying
+           for the lock.
+
+        The method then drains the task pipe as the standard method does,
+        with or without the read lock. Without the read lock, no process
+        that reads the pipe is left alive. The drain keeps the task handler
+        from blocking on a full pipe.
+        """
+        mp_util.debug("removing tasks from inqueue until task handler finished")
+        workers = getattr(inqueue, "workers_started", [])
+        while not inqueue._rlock.acquire(timeout=WORKER_POLL):
+            if not task_handler.is_alive():
+                return
+            started = list(workers)
+            if any(p.exitcode is not None for p in started):
+                for p in started:
+                    if p.exitcode is None:
+                        p.kill()
+                if all(p.exitcode is not None for p in started):
+                    break
+        while task_handler.is_alive() and inqueue._reader.poll():
+            inqueue._reader.recv()
+            time.sleep(0)
+
+    def raise_if_ended(self) -> None:
+        """Raise `WorkerError` where a process of the pool has ended and no
+        earlier call has reported that process.
+
+        The message identifies each newly ended process by its process id, with
+        its exit code or the signal that ended it. Each ended process is
+        reported once.
+
+        Raises
+        ------
+        WorkerError
+            If a process of the pool has ended and has not been reported.
+        """
+        # The pool's own thread appends to workers_started as the pool starts
+        # processes, so the check reads a copy of the list.
+        ended = [
+            p
+            for p in list(self.workers_started)
+            if p.exitcode is not None and p not in self.workers_reported
+        ]
+        if not ended:
+            return
+        self.workers_reported.update(ended)
+        codes = ", ".join(
+            f"process {p.pid}: "
+            + (
+                f"ended by {signal.Signals(-p.exitcode).name}"
+                if p.exitcode < 0
+                else f"exit code {p.exitcode}"
+            )
+            for p in ended
+        )
+        raise WorkerError(
+            f"A parallel process ended during the computation ({codes}), and the "
+            "task that the process held is lost, so the call stops instead of "
+            "waiting for the task. The usual cause is memory: the operating system "
+            "ends a process when the machine runs out of memory. Fewer cores lower "
+            f"the load: set_cores (now {get_cores()}), or the environment "
+            "variable PIANISTPY_CORES."
+        )
+
+    def map(self, func: Any, iterable: Any, chunksize: Any = None) -> list[Any]:
+        result = self.map_async(func, iterable, chunksize)
+        while not result.ready():
+            self.raise_if_ended()
+            result.wait(WORKER_POLL)
+        return result.get()
+
+    def imap_unordered(
+        self, func: Any, iterable: Any, chunksize: int | None = 1
+    ) -> Any:
+        return self._watched(super().imap_unordered(func, iterable, chunksize))
+
+    def _watched(self, results: Any) -> Any:
+        """Yield the results of the standard `imap_unordered` as they arrive,
+        and check for an ended process (`raise_if_ended`) before each wait of
+        at most WORKER_POLL seconds."""
+        while True:
+            self.raise_if_ended()
+            try:
+                item = results.next(WORKER_POLL)
+            except mp.TimeoutError:
+                continue
+            except StopIteration:
+                return
+            yield item
 
 
 def new_pool(n_workers: int, route: EllipseRoute) -> Any:
-    """A spawn pool of `n_workers` processes, each holding a copy of the
-    route (`init_worker`) and running its BLAS and OpenMP on one thread,
-    on the CPU: the pool is the parallelism and a worker is one process.
-    The workers' variables are the runtime service's
-    (`worker_environment`), held for the spawn."""
-    with worker_environment():
-        return mp.get_context(START_METHOD).Pool(
-            processes=n_workers, initializer=init_worker, initargs=(route,)
-        )
+    """Return a `_RoutePool` of `n_workers` spawned processes on the CPU,
+    each process holding a copy of `route`.
+
+    Each process runs OpenBLAS, MKL and OpenMP on one thread and runs JAX on
+    the CPU. The environment variables that set these choices are those of
+    `runtime.worker_environment`, set while the processes are spawned and
+    restored afterward.
+
+    The function pickles the route once, into a file in a folder of its own
+    under the temporary directory (`runtime.spill`). Each process loads the
+    route from the file (`init_worker_from`). The pool starts its processes
+    one after another. A spawn writes the initializer's arguments into the
+    new process's pipe. A write larger than the pipe's buffer completes only
+    once the new process has started and read the arguments. Passing the
+    route itself as the argument would therefore make the start time grow
+    with the number of processes. The folder is removed when the pool is
+    terminated or garbage-collected. A call of the pool raises `WorkerError`
+    where a process of the pool has ended (`_RoutePool`).
+    """
+    path, folder = spill(route, "route")
+    try:
+        with worker_environment():
+            pool = _RoutePool(
+                n_workers,
+                init_worker_from,
+                (path,),
+                context=mp.get_context(START_METHOD),
+            )
+    except BaseException:
+        drop_spill(folder)
+        raise
+    pool.remove_route = weakref.finalize(pool, drop_spill, folder)
+    return pool
 
 
 def init_worker(route: EllipseRoute) -> None:
-    """The pool's initializer: the route, once a process."""
+    """Store `route` as the route of the calling process (`_kept.WORKER`)."""
     WORKER["route"] = route
 
 
+def init_worker_from(path: str) -> None:
+    """Load the route from the file at `path`, which `new_pool` wrote, and
+    store the route as the route of the calling process (`init_worker`).
+    The pool's initializer."""
+    init_worker(unspill(path))
+
+
 def row_worker(args: tuple[Any, ...]) -> tuple[Any, ...]:
-    """One row: D on the row's V panels, INT D dV, INT V^2 D dV and the part
-    beyond the escape speed on the same nodes, its breaks and its t rule's
-    record. A fourth element of `args`, (vrad_kept, vk_kept), sets the kept
-    ranges on the worker's route."""
+    """Compute one row in a pool process.
+
+    The argument `args` is ``(index, R_2D)`` or
+    ``(index, R_2D, (vrad_kept, vk_kept))``. A third element sets the kept
+    ranges of V_rad and V_k on the process's route. The function returns the
+    tuple ``(index, V, w, D, norm, m2, beyond, cusp, breaks, seconds, record)``.
+    V, w and D are the row's nodes, weights and values of D on ``V >= 0``.
+    norm is the integral of D over V. m2 is the integral of V**2 D over V.
+    beyond is the integral of D over the velocities above the escape velocity. Each
+    integral covers both signs of V. cusp is true where the row is of the
+    cusp class. breaks is
+    ``(v_esc, V_k, V_end, V_rad, n_panels, code, V_edge, V_c)``. seconds is
+    the wall-clock time of the row. record is the dict that the route's row
+    computation fills, with the counts of the angle rules added under
+    "angle_counts".
+    """
     i_r2d, r2d = args[:2]
     route = WORKER["route"]
     if len(args) > 2:
@@ -86,8 +334,13 @@ def row_worker(args: tuple[Any, ...]) -> tuple[Any, ...]:
 
 
 def row_worker_or_none(args: tuple[Any, ...]) -> tuple[Any, ...]:
-    """A row the check between rows adds: `row_worker`, but a radius whose own scan
-    puts a decided break on or past its V_end returns (index, None)."""
+    """Compute one row that the check adds, as `row_worker` does.
+
+    Where the row's layout puts a break at or above the row's own V_end,
+    `row_worker` raises a ResultError that carries BREAK_PAST_END, and this
+    function returns ``(index, None)`` instead. Every other ResultError
+    propagates.
+    """
     try:
         return row_worker(args)
     except ResultError as e:
@@ -111,52 +364,108 @@ def losvd_rows(
     df_scale: float = 1.0,
     read_range: tuple[float, float] = (0.0, float("inf")),
 ) -> tuple[PanelTable, Array, Array, Array, dict[str, Any]]:
-    r"""Return the table of rows at radii `r_2d`, with its self-check.
+    r"""Return the table of rows at the projected radii `r_2d`, after the
+    check of the table's interpolation between rows.
 
-    Each row is computed in a pool (`row_worker`) and normalized to unit
-    integral over V. Where `certify`, the table is then read between its rows
-    as an aperture reads it, the stencil at row_order_test rows against two
-    fewer at every interval's midpoint and in every end gap, and a row is
-    added at each that fails ROW_TOL_M2 or ROW_TOL_PW, until none fails, a
-    round no longer halves the worst, or no failing interval can take a row;
-    what is left over is recorded, and the table refuses a reading there.
+    The pool computes each row (`row_worker`). The table normalizes each
+    row's D to unit integral over V where the row's integral is finite and
+    positive. Where `certify` is true, the check then runs in rounds. Each
+    round computes a failure ratio at the midpoint of every interval between
+    neighboring rows of one stretch, and in every end gap of a stretch whose
+    end lies inside `read_range`. The failure ratio is
+    ``max(e_2 / ROW_TOL_M2, e_inf / ROW_TOL_PW)``, with ``e_2`` and
+    ``e_inf`` the second-moment estimate and the pointwise estimate of
+    `PanelTable._estimate` over ``rules.row_order_test`` rows. A midpoint
+    fails where its failure ratio exceeds 1, and each failed midpoint gets a
+    new row. The rounds stop in one of three cases:
+
+    1. no midpoint fails (recorded as "tolerance");
+    2. the worst failure ratio of the intervals exceeds 1 and exceeds half
+       of the previous round's worst (recorded as "stalled");
+    3. no new row could be added and no end gap was closed in the round
+       (recorded as "no row could be added").
+
+    An end gap is closed where the gap's worst failure ratio exceeds 1 and
+    exceeds half of the gap's worst failure ratio in the previous round. The
+    rows that the previous round added to a closed end gap are removed. A
+    new row is not added in three cases: `EllipseRoute.row_test` rejects the
+    row; the row's layout puts a break at or above the row's V_end; or the
+    row's layout code differs from the code of the row's stretch. Where such
+    a row lies in an end gap, that end gap is closed. Every closed end gap,
+    and every interval still failing when the rounds stop in case 2 or 3,
+    is recorded in the table's ``uncert`` and ``uncert_why``. The table
+    raises ResultError for a radius inside a recorded interval
+    (`PanelTable._prepare`).
 
     Parameters
     ----------
     route : EllipseRoute
-        The route of the main process, which reads the table between rows;
-        the pool's workers take a copy (`init_worker`).
+        The route of the calling process, which reads the table between
+        rows. Each process of the pool holds a copy (`init_worker`).
     r_2d : array-like
-        The base rows.
-    sigma, sigma_los2 : array-like or None
-        The surface density and the squared dispersion at the base rows, the
-        references of the self-check.
-    r_breaks : array-like
-        Where the layout changes.
-    vrad_kept, vk_kept : array or None
-        The kept ranges of V_rad and V_k.
+        The projected radii of the base rows, in internal units.
+    sigma : array-like or None
+        The surface density at the base rows, the reference of each row's
+        norm.
+    sigma_los2 : array-like or None
+        The squared line-of-sight velocity dispersion at the base rows, the
+        reference of each row's second moment.
+    r_breaks : array-like, optional
+        The projected radii where the layout changes. Default: ``()``, which
+        means one stretch.
+    vrad_kept : array or None, optional
+        The kept ranges of V_rad, shape (n, 2). Default: None, which means
+        V_rad is kept wherever the lattice resolves V_rad.
+    vk_kept : array or None, optional
+        The kept ranges of V_k, shape (n, 2). Default: None, which means V_k
+        is kept wherever the lattice resolves V_k.
     sigma_at : callable, optional
-        (Sigma, :math:`\sigma_{\rm los}^2`) at added radii.
-    certify : bool
-        Whether to check the reading between rows.
-    r_edge : float
-        The parent's end, a true end of the last stretch where finite.
+        The function that returns (:math:`\Sigma`,
+        :math:`\sigma_{\rm los}^2`) at the radii of added rows. Default: None,
+        which means no function. A call that adds rows while `sigma` or
+        `sigma_los2` is given then raises ResultError.
+    certify : bool, optional
+        Whether to run the check. Default: ``True``.
+    r_edge : float, optional
+        The radius where the line of sight ends. A finite `r_edge` is a true
+        end of the last stretch. Default: infinity.
     pool : optional
-        A pool already started with `init_worker`; by default one of the
-        package's worker count (`pianistpy.set_workers`).
-    df_scale : float
-        The constant factor the rows' DF carries (`EllipseDF.scale`): a row
-        integrates to the surface density times it.
-    read_range : tuple of float
-        The radii the table is read over: an end gap whose end lies outside
-        it is not read (the rows of a table cut there end before it).
+        A pool whose processes hold the route (`new_pool`). Default: None,
+        which means a new pool of `get_cores` processes, terminated at the
+        end of the call.
+    df_scale : float, optional
+        The constant factor of the rows' DF (`EllipseDF.scale`). A row
+        integrates to the surface density times `df_scale`. Default: ``1.0``.
+    read_range : tuple of float, optional
+        The range of radii the table is read over. The check skips an end gap
+        whose end lies outside `read_range`. Default: ``(0.0, inf)``.
 
     Returns
     -------
-    table, norm_rel, m2_rel, beyond_rel, info
-        The table; each row's norm against Sigma and second moment against
-        :math:`\sigma_{\rm los}^2`, less one; its share beyond the escape
-        speed; and the record of the rows and of the check.
+    table : PanelTable
+        The table of normalized rows, sorted by radius.
+    norm_rel : array
+        Each row's integral over V divided by (`sigma` times `df_scale`),
+        less one. The value is NaN where `sigma` is None, where `sigma` is not
+        positive, or where the row's integral is not finite and positive.
+    m2_rel : array
+        Each row's normalized second moment in V divided by `sigma_los2`,
+        less one. The value is NaN where `sigma_los2` is None, where
+        `sigma_los2` is not positive, or where the row's integral is not
+        finite and positive.
+    beyond_rel : array
+        Each row's fraction of its integral above the escape velocity. The value
+        is 0 where the row's integral is not finite and positive.
+    info : dict
+        The record of the rows and of the check.
+
+    Raises
+    ------
+    WorkerError
+        If a process of the pool ends during the call.
+    ResultError
+        If rows are added while `sigma` or `sigma_los2` is given and
+        `sigma_at` is None.
     """
     rr = route.rules
     lat = route.lattice
@@ -193,7 +502,7 @@ def losvd_rows(
     )
     t0 = time.perf_counter()
     started = (
-        new_pool(get_workers(), route) if pool is None else contextlib.nullcontext(pool)
+        new_pool(get_cores(), route) if pool is None else contextlib.nullcontext(pool)
     )
     with started as pool_:
         for i, vp, wp, dp, nm, mm, bb, cc, brk, dt, trep in pool_.imap_unordered(
@@ -215,7 +524,8 @@ def losvd_rows(
             t_change_pw[i] = trep.get("change_pw", np.nan)
             t_set_by[i] = T_SET_BY.get(trep.get("set_by", ""), 0)
         log.debug(
-            "%d rows in %.1f s (%d cusp rows).",
+            "The table computed %d projected radii in %.1f s, %d of the projected "
+            "radii with a cusp.",
             n_r2d,
             time.perf_counter() - t0,
             int(cusp.sum()),
@@ -364,9 +674,10 @@ def losvd_rows(
                     if bad > 1.0 and key in gap_prev and bad > 0.5 * gap_prev[key]:
                         gap_shut[key] = rng
                         gap_why[key] = (
-                            f"stalled, {gap_prev[key]:.1e} to {bad:.1e} of the "
-                            f"tolerance, "
-                            f"{len(gap_last.get(key, []))} row(s) taken back"
+                            f"where the error estimate stalled from "
+                            f"{gap_prev[key]:.1e} to {bad:.1e} times the tolerance "
+                            f"and {len(gap_last.get(key, []))} added radii were "
+                            f"removed"
                         )
                         back += gap_last.pop(key, [])
                 if back:
@@ -435,13 +746,14 @@ def losvd_rows(
                     for key, rng in gap_now.values():
                         gap_shut[key], gap_why[key] = (
                             rng,
-                            "still failing when the rows ended",
+                            "where the error estimate was still above the "
+                            "tolerance when the table stopped adding radii",
                         )
                     for lo, hi, b in int_now.values():
                         gap_shut[("interval", lo)] = (lo, hi)
                         gap_why[("interval", lo)] = (
-                            f"still {b:.1e} of the tolerance when the rows ended "
-                            f"(stalled)"
+                            f"where the error estimate was still {b:.1e} times the "
+                            f"tolerance when the table stopped adding radii (stalled)"
                         )
                     break
                 prev = worst
@@ -452,7 +764,8 @@ def losvd_rows(
                     if r in gap_now:
                         gap_shut[gap_now[r][0]] = gap_now[r][1]
                         gap_why[gap_now[r][0]] = (
-                            f"the row test refuses its row ({route.row_test(r)[2]})"
+                            f"where the new radius cannot be stored, because the "
+                            f"new radius has {route.row_test(r)[2]}"
                         )
                 new = passing
                 got = 0
@@ -467,7 +780,9 @@ def losvd_rows(
                         if new[res[0]] in gap_now:
                             gap_shut[gap_now[new[res[0]]][0]] = gap_now[new[res[0]]][1]
                             gap_why[gap_now[new[res[0]]][0]] = (
-                                f"its row refused by its own breaks {BREAK_PAST_END}"
+                                f"where the new radius cannot be stored, because "
+                                f"the new radius has a velocity break on or above "
+                                f"V_end {BREAK_PAST_END}"
                             )
                         continue
                     _, vp, wp, dp, nm, mm, bb, cc, brk, dt, trep = res
@@ -479,7 +794,9 @@ def losvd_rows(
                         if new[res[0]] in gap_now:
                             gap_shut[gap_now[new[res[0]]][0]] = gap_now[new[res[0]]][1]
                             gap_why[gap_now[new[res[0]]][0]] = (
-                                "its row's layout is not the stretch's"
+                                "where the new radius cannot be stored, because "
+                                "the panel layout at the new radius differs from "
+                                "the stretch's panel layout"
                             )
                         continue
                     if new[res[0]] in gap_now:
@@ -511,15 +828,17 @@ def losvd_rows(
                     for lo, hi, b in int_now.values():
                         gap_shut[("interval", lo)] = (lo, hi)
                         gap_why[("interval", lo)] = (
-                            f"still {b:.1e} of the tolerance when the rows ended "
-                            f"(no row could be added)"
+                            f"where the error estimate was still {b:.1e} times the "
+                            f"tolerance when the table stopped adding radii (no "
+                            f"radius could be added)"
                         )
                     break
                 if sig_list is not None or sl2_list is not None:
                     if sigma_at is None:
                         raise ResultError(
-                            "Rows were added to the table and no sigma_at was given "
-                            "for their self-check references."
+                            "The table added projected radii, and no sigma_at was "
+                            "given to compute the reference dispersions at the "
+                            "added radii for the table's self-check."
                         )
                     sg, s2 = sigma_at(np.array(r_list[len(r_list) - got :]))
                     if sig_list is not None:
@@ -571,9 +890,9 @@ def losvd_rows(
             cert["gaps_uncert"] = [rng for _, rng in u_]
             cert["gaps_why"] = [
                 (
-                    "an interval between two rows, "
+                    "an interval between two tabulated radii, "
                     if k[0] == "interval"
-                    else "an end gap, "
+                    else "an end gap of a stretch of tabulated radii, "
                 )
                 + gap_why.get(k, "")
                 for k, _ in u_
@@ -592,10 +911,12 @@ def losvd_rows(
             sl2_arr = None if sl2_list is None else np.array(sl2_list)
             n_r2d = len(r_2d_arr)
             log.debug(
-                "The table read between its rows: the worst interval %.2e of the "
-                "tolerance before and %.2e after; %d row(s) added in %d round(s), %d "
-                "refused; ended: %s; %d rows; %d end gap(s) and %d interval(s) left "
-                "above the tolerance.",
+                "The table's check between tabulated radii gives the worst error "
+                "estimate %.2e times the tolerance before adding radii and %.2e "
+                "times the tolerance after. The table added %d radii in %d rounds "
+                "and could not store %d candidate radii; the rounds ended with the "
+                "status '%s'. The table has %d tabulated radii, and %d end gaps and "
+                "%d intervals remain above the tolerance.",
                 cert["est_first"],
                 cert["est_last"],
                 cert["rows_added"],

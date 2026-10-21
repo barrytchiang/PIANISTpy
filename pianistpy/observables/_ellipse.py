@@ -1,12 +1,44 @@
-r"""The ellipse route of the line-of-sight velocity distribution.
+r"""Compute rows of the line-of-sight velocity distribution by the ellipse route.
 
-On the plane :math:`v_{\rm los} = V` at :math:`(R_{\rm 2D}, 0, u)` the level
-sets of Q are ellipses centered on Q's maximum, so the velocity-plane integral
-is :math:`\int_0^{Q_c}{\rm d}s\,F(Q_c - s)\,\Lambda(s)` times
-:math:`(R/R_{\rm 2D})/\sqrt{Aq}`, with :math:`\Lambda(s)` the integral of
-:math:`(L^2)^{-\beta_c}` around the level set (:math:`2\pi` without an L
-factor, where the s integral is :math:`G(Q_c)`), and
-:math:`D(R_{\rm 2D}, V) = 2\int{\rm d}u` of that.
+`EllipseRoute` computes the line-of-sight velocity distribution
+:math:`D(R_{\rm 2D}, V)` (Chiang+(2026d), Eq. (B53)) row by row at projected
+radii :math:`R_{\rm 2D}`. The public calls `pianistpy.losvd`,
+`pianistpy.aperture_losvd` and `pianistpy.LosTable` read tables built from
+the rows of `EllipseRoute`.
+
+A point on the line of sight has depth u, radius
+:math:`R = (R_{\rm 2D}^2 + u^2)^{1/2}` and :math:`q = 1 + s_A (R/R_{\rm a})^2`,
+with :math:`R_{\rm a}` the anisotropy radius and :math:`s_A` = +1 for Type I,
+-1 for Type II and 0 without :math:`R_{\rm a}`. On the plane of fixed
+line-of-sight velocity V at the point, the level sets of the energy Q are
+ellipses centered on the maximum
+
+.. math::
+
+    Q_c = \mathcal{P}(R) - \frac{q V^2 R^2}{2(R_{\rm 2D}^2 + q u^2)},
+
+with :math:`\mathcal{P}` the relative potential. The integral of the DF F
+over the plane is (Notes Eq. (T:6.2))
+
+.. math::
+
+    I(u) = \frac{R/R_{\rm 2D}}{\sqrt{A q}}
+    \int_0^{Q_c} F(Q_c - s)\,\Lambda(s)\,{\rm d}s,
+    \qquad A = 1 + q\,(u/R_{\rm 2D})^2,
+
+with :math:`\Lambda(s)` the integral of :math:`(L^2)^{-\beta_{\rm c}}` around
+the level set :math:`Q = Q_c - s`. Where the DF carries no L factor,
+:math:`\Lambda = 2\pi`, and the s integral equals :math:`2\pi G(Q_c)`, with
+:math:`G(Q) = \int_0^Q F\,{\rm d}K`. The distribution is
+
+.. math::
+
+    D(R_{\rm 2D}, V) = 2\int_0^{u_{\rm max}} I(u)\,{\rm d}u,
+
+with :math:`u_{\rm max} = (R_{\rm t}^2 - R_{\rm 2D}^2)^{1/2}` and
+:math:`R_{\rm t}` the radius where the lines of sight end. The panels of the
+integral in u double until the row changes by at most :math:`10^{-6}`
+(`T_TOL`). Notes Section T:6.4 describes the method.
 """
 
 __all__ = ["EllipseRoute"]
@@ -19,7 +51,7 @@ import numpy as np
 from ..exceptions import ResultError
 from ..runtime import log
 from ..typing import Array, ArrayLike
-from ..validation import GOAL
+from ..validation import TIER_BOUNDS
 from ._angle import angle_count, angle_table, lam_half, lam_mhalf, lam_rule, power_of
 from ._angle_rule import angle_rule
 from ._ellipse_df import EllipseDF
@@ -41,7 +73,7 @@ from ._ellipse_rules import (
 )
 from ._layout import BREAK_LABELS, LAYOUT_SEQ, Lattice
 
-# The anisotropy's sign in q = 1 + SGN (R / R_a)^2, by family.
+# The sign SGN in q = 1 + SGN (R / R_a)^2 for each anisotropy family.
 _SGN = {
     "isotropic": 0.0,
     "constant": 0.0,
@@ -50,29 +82,88 @@ _SGN = {
     "OM_II": -1.0,
     "COM_II": -1.0,
 }
-# The codes of the test that set a row's t level; 0 is not converged.
+# The codes of the test that passed last when the panels in t of a row
+# converged (`EllipseRoute.row`). Code 1: both tests passed at the first
+# doubling. Code 2: the L1 test passed last. Code 3: the pointwise test passed
+# last. Code 4: both tests passed at the same doubling after both failed at
+# the doubling before. The readers of T_SET_BY write 0 for a row whose panels
+# in t did not converge.
 T_SET_BY = {"first": 1, "l1": 2, "pointwise": 3, "both": 4}
-# The starting intervals of one chunk of radii of f_extrema_many, which bounds
-# its memory.
+# The approximate number of starting intervals in one chunk of radii of
+# `EllipseRoute.f_extrema_many`. The chunk size bounds the memory of the call.
 _EXTREMA_CHUNK = 2_000_000
 _T_ZERO = np.zeros(1)
 
 
+def _velocities_kept(
+    level: list[tuple[Any, ...]], keep: Array
+) -> list[tuple[Any, ...]]:
+    """Return the reads of one level of a row restricted to the velocities in `keep`.
+
+    `level` holds the reads that `EllipseRoute._row_at` collects at one level.
+    `keep` is a boolean mask over the distinct velocities of the row. Each read
+    of F or G keeps the entries at the kept velocities. The read of the node
+    pairs (kind ``"P"``) keeps the kept pairs in their order and renumbers
+    the pairs' indices. The read of the node pairs also keeps the layer
+    groups and the angle counts of the kept pairs, and drops a group or a
+    count with no kept pair. Each read then equals the read that `_row_at`
+    collects on the kept velocities alone.
+    """
+    out: list[tuple[Any, ...]] = []
+    for kind, velocity, k, w in level:
+        rows = keep[velocity]
+        if not rows.any():
+            continue
+        if kind != "P":
+            out.append((kind, velocity[rows], k[rows], w[rows]))
+            continue
+        # The new index of each kept pair, in the order of the kept pairs.
+        new = np.cumsum(rows) - 1
+        groups = []
+        for at, layers in k["groups"]:
+            on = rows[at]
+            if on.any():
+                groups.append((new[at[on]], layers))
+        counts = []
+        for at, chosen in k["counts"]:
+            on = rows[at]
+            if on.any():
+                counts.append((new[at[on]], chosen[on]))
+        pairs = dict(
+            r2d=k["r2d"],
+            u=k["u"][rows],
+            v=k["v"][rows],
+            rule=k["rule"],
+            groups=groups,
+            counts=counts,
+        )
+        out.append((kind, velocity[rows], pairs, w[rows]))
+    return out
+
+
 class EllipseRoute:
-    r""":math:`D(R_{\rm 2D}, V)` by the ellipse route.
+    r"""Rows of the line-of-sight velocity distribution by the ellipse route.
+
+    A route places the velocity breaks of each row and the radii where the
+    layout of the rows changes. A route with a DF also computes rows of
+    :math:`D(R_{\rm 2D}, V)`.
 
     Parameters
     ----------
     psi : callable
-        The potential at radii. It carries ``spline``, the cubic spline of
-        ln P in ln R it is read from, and ``R_knots``, the first and last radius
-        of its table, outside which it is held constant.
+        The relative potential at radii (`_ellipse_model.PotentialReading`).
+        `psi` carries the attribute ``spline``, the derivatives of
+        :math:`\ln\mathcal{P}` in ln R (`_ellipse_model.LogPotentialSlopes`).
+        `psi` carries the attribute ``R_knots``, the first and the last radius
+        of the potential's table. `psi` may carry the method ``depth``, the
+        depth :math:`P_0 - \mathcal{P}` below the top energy.
     r_t : float
-        Where the lines of sight end.
+        The radius :math:`R_{\rm t}` where the lines of sight end
+        (`_ellipse_model.floor_radius`).
     model : EllipseModel
         The model's constants.
     df : EllipseDF or None
-        The DF; None for a route that only places breaks.
+        The DF. None builds a route that places velocity breaks only.
     rules : EllipseRules
         The route's rules.
     """
@@ -95,13 +186,16 @@ class EllipseRoute:
         )
         self.lfac = model.family in ("constant", "COM_I", "COM_II") and self.BC != 0.0
         self.powm = power_of(self.BC)
-        # beta_c = 1/2 and -1/2: the angle integral in closed form
+        # At beta_c = 1/2 and beta_c = -1/2 the angle integral has a closed
+        # form, a complete elliptic integral.
         self.lam_closed = self.lfac and self.BC in (0.5, -0.5)
         self.angle_counts = np.zeros(len(rules.angle_counts) + 1, dtype=np.int64)
         if self.lfac and not self.lam_closed:
             angle_table()
-        # the R_2D ranges where V_rad and V_k may be breaks, (n, 2); None
-        # where no bound ran, and then the floor alone decides
+        # The ranges of R_2D, shape (n, 2), where V_rad and V_k may be velocity
+        # breaks. None means that no range was computed. With None, only the
+        # tests of the lattice (Lattice.resolved_breaks) decide whether the
+        # break is kept.
         self.vrad_kept: Array | None = None
         self.vk_kept: Array | None = None
         self._fext: dict[float, Array] = {}
@@ -110,19 +204,37 @@ class EllipseRoute:
         self.crossings: tuple[Array, list[str]] = (np.zeros(0), [])
 
     def _df(self) -> EllipseDF:
+        """Return the route's DF.
+
+        Raises
+        ------
+        ResultError
+            If the route was built without a DF.
+        """
         if self.df is None:
             raise ResultError(
-                "This route was built without a DF: it places breaks only."
+                "The EllipseRoute was built without a DF, so the EllipseRoute "
+                "places velocity breaks only."
             )
         return self.df
 
     # The geometry of a line of sight.
 
     def q_of(self, r: Array) -> Array:
+        r"""Return :math:`q = 1 + s_A (r/R_{\rm a})^2` at the radii `r`.
+
+        The sign :math:`s_A` is ``SGN``.
+        """
         return 1.0 + self.SGN * (r / self.RA) ** 2 if self.SGN else np.ones_like(r)
 
     def rule(self, r2d: float) -> tuple[tuple[int, ...], bool]:
-        """Return the row's rule and whether it is of the cusp class."""
+        """Return the rule of the row at `r2d` and whether the row is a cusp row.
+
+        The row is of the cusp class where the table's top energy Q_top exceeds
+        the potential at `r2d` by less than CUSP_FRAC times Q_top. A row of
+        the cusp class takes ``rules.rule_cusp``. Any other row takes
+        ``rules.rule_regular``.
+        """
         df = self._df()
         cusp = df.Qtop - float(self.psi(np.array([r2d]))[0]) < CUSP_FRAC * df.Qtop
         return (self.rules.rule_cusp if cusp else self.rules.rule_regular), cusp
@@ -139,10 +251,23 @@ class EllipseRoute:
         m: int,
         floor: int,
     ) -> Array:
-        """Each node pair's layers toward s = 0: the least K whose innermost
-        panel there is no wider than the nearest singularity behind s = 0,
-        F's top (P0 - Q_c, times min(1, m / |kappa|)) or the angle integral's
-        pinch at s = -s_star."""
+        """Return the layer count toward s = 0 of piece a for each node pair.
+
+        Piece a covers [0, split] with ``h = split / 2``. Its innermost panel
+        at s = 0 has width ``h s_ratio^K`` with K layers. The count is the
+        least K whose innermost panel is no wider than the distance from
+        s = 0 to the nearer of two singularities at s < 0, and at least
+        `floor`. The first singularity is the top of F, at the distance
+        ``(Q_end - Q_c) min(1, m / |kappa|)``. Here Q_end is the end energy of
+        `EllipseDF`, and kappa is the exponent of F at the top. The second
+        singularity is the pinch of the angle integral at ``s = -s_star``,
+        with s_star the kinetic term ``q V^2 R^2 / (2 (R_2D^2 + q u^2))``.
+
+        Raises
+        ------
+        ResultError
+            If a node pair has no positive distance to a singularity at s < 0.
+        """
         df = self._df()
         k = abs(df.kappa_top)
         s_star = 0.5 * q * v * v * r * r / (r2d * r2d + q * u * u)
@@ -153,9 +278,10 @@ class EllipseRoute:
         if not np.all(x > 0.0):
             i = int(np.argmin(np.where(np.isfinite(x), x, -np.inf)))
             raise ResultError(
-                f"At R_2D {r2d:.6e}, u {float(u[i]):.6e}, V {float(v[i]):.6e} no "
-                f"singularity lies behind s = 0 (Q_c {float(qc[i]):.15e}, P0 "
-                f"{df.Qend:.15e}, s_star {float(s_star[i]):.6e})."
+                f"At R_2D = {r2d:.6e}, u = {float(u[i]):.6e} and V = "
+                f"{float(v[i]):.6e}, the distance from s = 0 to the nearest "
+                f"singularity at s < 0 is not positive (Q_c = {float(qc[i]):.15e}, "
+                f"P0 = {df.Qend:.15e}, s_star = {float(s_star[i]):.6e})."
             )
         kk = np.ceil(np.log(np.minimum(x, 1.0)) / np.log(self.rules.s_ratio) - 1e-12)
         return np.maximum(kk.astype(np.int64), int(floor))
@@ -173,11 +299,42 @@ class EllipseRoute:
         m: int,
         floor: int,
     ) -> tuple[Array, Array]:
-        r"""Each node pair's layers toward the split, one count a side: piece a
-        takes the L = 0 point's own count and the reach of the support's end at
-        Q_c; piece b first shrinks to s0, then takes that count (and the map's
-        where :math:`0 < \beta_{\rm c} < 1`), or reaches F's top and the pinch
-        behind the split."""
+        r"""Return the layer counts toward the split of pieces a and b, per node pair.
+
+        Piece a covers [0, split] and piece b covers [split, Q_c]. The split
+        is the L = 0 point s0 where s0 lies in [0, Q_c), and Q_c / 2
+        otherwise. A pair with s0 in [0, Q_c) is an L = 0 pair. An L = 0 pair
+        with a split that is not positive is a V = 0 pair. Both counts are at
+        least `floor`.
+
+        The count ka of piece a is 0 except at an L = 0 pair that is not a
+        V = 0 pair. At such a pair, ka is the larger of two counts. The first
+        count is ``model.k_end``. The second count is the least K whose
+        innermost panel of piece a at the split, of width
+        ``0.5 split s_ratio^K``, is no wider than Q_c - split, the distance from
+        the split to the end s = Q_c.
+
+        The count kb of piece b is the largest of three counts. The first
+        count is the least K whose innermost panel at the split, of width
+        ``hb s_ratio^K`` with ``hb = (Q_c - split) / 2``, is no wider than the
+        distance from the split to the nearest singularity below the split.
+        That distance is ``(split + Q_end - Q_c) min(1, m / |kappa|)`` from the
+        top of F, or ``split + s_star`` from the pinch of the angle integral
+        where nearer. At a V = 0 pair only the top of F counts. The second
+        count is 0 except at an L = 0 pair. At an L = 0 pair the second count
+        is a shrink count plus the larger of ``model.k_map`` and the L = 0
+        count. The shrink count is the least K whose innermost panel is no
+        wider than the split, and 0 at a V = 0 pair. The L = 0 count is
+        ``model.k_end_v0`` at a V = 0 pair and ``model.k_end`` otherwise. The
+        third count is ``model.k_map``, which the map of the first panel of
+        piece b needs where :math:`0 < \beta_{\rm c} < 1`.
+
+        Raises
+        ------
+        ResultError
+            If a node pair has no positive distance to a singularity below the
+            split.
+        """
         df = self._df()
         mdl = self.model
         rr = self.rules.s_ratio
@@ -196,10 +353,11 @@ class EllipseRoute:
         if not np.all(xd > 0.0):
             i = int(np.argmin(np.where(np.isfinite(xd), xd, -np.inf)))
             raise ResultError(
-                f"At R_2D {r2d:.6e}, u {float(u[i]):.6e}, V {float(v[i]):.6e} no "
-                f"singularity lies behind the split (Q_c {float(qc[i]):.15e}, split "
-                f"{float(split[i]):.6e}, P0 {df.Qend:.15e}, s_star "
-                f"{float(s_star[i]):.6e})."
+                f"At R_2D = {r2d:.6e}, u = {float(u[i]):.6e} and V = "
+                f"{float(v[i]):.6e}, the distance from the split to the nearest "
+                f"singularity beyond the split is not positive (Q_c = "
+                f"{float(qc[i]):.15e}, split = {float(split[i]):.6e}, P0 = "
+                f"{df.Qend:.15e}, s_star = {float(s_star[i]):.6e})."
             )
         kd = np.ceil(np.log(np.minimum(xd, 1.0)) / np.log(rr) - 1e-12).astype(np.int64)
         ksig = np.ceil(np.log(np.minimum(xs, 1.0)) / np.log(rr) - 1e-12).astype(
@@ -226,31 +384,55 @@ class EllipseRoute:
         )
 
     def _qc_t(self, r2d: float, v: Any, t: Any) -> Array:
+        """Return Q_c at velocity `v` at ``u = R_2D sinh t`` on the line of sight."""
         r, u = r2d * np.cosh(t), r2d * np.sinh(t)
         q = self.q_of(r)
         return self.psi(r) - 0.5 * q * v * v * r * r / (r2d * r2d + q * u * u)
 
     def f_extrema(self, r2d: float) -> Array:
-        r"""Return the interior local extrema in t of
-        ``f = 2 P (R_2D^2 + q u^2) / (q R^2)`` along the line of sight, each to
-        rounding, sorted.
+        r"""Return the interior local extrema in t of f along the line of sight.
 
-        With every interior extremum of f a point of the sign test, each step
-        holds at most one edge of the support at any V. The extrema are the
-        zeros of h = s'(y) + gamma(y), y = ln R, s = ln P a cubic spline: on
-        each knot interval s' is a quadratic whose range is exact and gamma is
-        monotone on each side of its turn, so an interval whose summed range
-        excludes 0 holds none; every other is halved n_bisect times. Cached
-        per :math:`R_{\rm 2D}`. An interval's right end is read from the interval itself
-        (the spline's ``left`` where it has one): the profile's Hermite has a
-        second derivative that jumps at the rows.
+        The function is ``f = 2 P (R_2D^2 + q u^2) / (q R^2)``, with P the
+        relative potential, ``u = R_2D sinh t`` and ``R = R_2D cosh t``. A
+        velocity V has :math:`Q_c > 0` at t exactly where :math:`V^2 < f(t)`.
+        The extrema are returned sorted, each located by bisection.
+        `supports` places the extrema among the points of its sign test.
+        Between two neighboring points of that test, f is monotone, so each
+        step of the sign test holds at most one edge of the support at any V.
+
+        The extrema of f are the zeros of ``h(y) = s'(y) + gamma(y)``, with
+        ``y = ln R``, ``s = ln P`` and gamma the derivative in y of the
+        remaining factors of ln f. On each knot interval of the potential, s'
+        is a quadratic in y whose range is exact, and gamma is monotone on
+        each side of its turning point. An interval whose range of h excludes
+        0 holds no extremum. Every other interval is halved up to
+        ``rules.n_bisect`` times. The upper end of an interval reads the
+        derivatives from the interval below the end (``spline.left``),
+        because the second derivative of the Hermite interpolant jumps at the
+        rows. The result is cached for each :math:`R_{\rm 2D}`.
+
+        Raises
+        ------
+        ResultError
+            If the potential has no ``spline``, or the line of sight leaves
+            the knots of the potential (`f_extrema_many`).
         """
         return self.f_extrema_many(np.array([float(r2d)]))[0]
 
     def f_extrema_many(self, r2d_arr: ArrayLike) -> list[Array]:
-        """Return `f_extrema` at each of the projected radii, the radii not
-        yet cached taken at once: each radius's intervals carry its index, and
-        every number is the one `f_extrema` forms at that radius alone.
+        r"""Return `f_extrema` at each of the projected radii `r2d_arr`.
+
+        The radii absent from the cache are computed together, in chunks of about
+        `_EXTREMA_CHUNK` starting intervals. Each interval carries the index
+        of its radius. Every value equals the value that `f_extrema` computes
+        for one radius at a time.
+
+        Raises
+        ------
+        ResultError
+            If the potential has no ``spline``. Also if a radius lies below
+            the first knot of the potential, or :math:`R_{\rm t}` lies above the last
+            knot.
         """
         r2 = np.asarray(r2d_arr, dtype=np.float64).ravel()
         out: list[Array] = [np.zeros(0)] * r2.size
@@ -266,27 +448,31 @@ class EllipseRoute:
         sp = getattr(self.psi, "spline", None)
         if sp is None:
             raise ResultError(
-                "The potential states no spline (psi.spline), which the extrema of "
-                "the line of sight are bounded on."
+                "The potential has no spline (psi.spline), and the bound on the "
+                "potential's extrema along the line of sight needs the potential's "
+                "spline."
             )
         r_lo, r_hi = self.psi.R_knots  # type: ignore[attr-defined]
         for r2d in todo:
             if r2d < r_lo or self.R_t > r_hi:
                 raise ResultError(
-                    f"At R_2D {r2d:.17g}, R_t {self.R_t:.17g} the line of sight "
-                    f"leaves the potential's knots [{r_lo:.17g}, {r_hi:.17g}], where "
-                    f"it is held constant and the range bound does not hold."
+                    f"At R_2D = {r2d:.17g} and R_t = {self.R_t:.17g}, the line of "
+                    f"sight leaves the range [{r_lo:.17g}, {r_hi:.17g}] of the "
+                    f"potential's knots. Outside the knots, the potential's spline is "
+                    f"held constant, so the bound on the potential's extrema along "
+                    f"the line of sight does not hold."
                 )
         vals = np.array(list(todo), dtype=np.float64)
         kn = np.exp(sp.x)
         lo = np.searchsorted(kn, vals, side="right")
         hi = np.maximum(np.searchsorted(kn, self.R_t, side="left"), lo)
-        # the knots a radius needs: those next to a knot interval that may be
-        # live, between R_2D and R_t
+        # A radius needs the knots between R_2D and R_t that border a knot
+        # interval that `_live_bound` keeps.
         needed = self._needed_knots(sp)
         i0 = np.searchsorted(needed, lo)
         n_kn = np.searchsorted(needed, hi) - i0
-        # radii a chunk, so that a chunk's intervals stay near _EXTREMA_CHUNK
+        # Each chunk takes radii until the chunk's starting intervals number
+        # about _EXTREMA_CHUNK.
         ends = np.cumsum(n_kn + 3)
         start = 0
         while start < vals.size:
@@ -316,20 +502,25 @@ class EllipseRoute:
         return out
 
     def _live_bound(self, sp: Any) -> Array:
-        r"""Return, per knot interval of the potential, whether any line of
-        sight can make an interval inside it live in `f_extrema`'s first bound
-        test.
+        r"""Return, per knot interval, whether an extremum of f may lie inside.
 
-        The test keeps an interval only if ``max s' + max gamma >= 0`` on it.
-        On a knot interval s' is the Hermite's quadratic, whose maximum is at
-        an end or at the zero of s'' inside, and
-        ``gamma <= G(x) = 2 x^2 / (a^2 (a^2 + SGN x))`` at any
-        :math:`R_{\rm 2D}` (gamma grows with ``R_2D^2 <= x = R^2``; 0 for
-        SGN = 0). The maximum of s' is taken over the interval and its two
-        neighbors and G at the right end of the next one, against the reads
-        that fall across a knot by rounding, and a margin of :math:`10^{-9}`;
-        a knot interval that fails holds no live interval at any radius, so
-        dropping it changes no number. Cached per route.
+        The first bound test of `f_extrema` keeps an interval only where
+        ``max s' + max gamma >= 0`` on the interval. On a knot interval, s' is
+        the quadratic of the Hermite interpolant, whose maximum lies at an end
+        or at the zero of s'' inside the interval. At any
+        :math:`R_{\rm 2D}`, gamma is at most
+        ``G(x) = 2 x^2 / (a^2 (a^2 + SGN x))``, with ``x = R^2`` and
+        ``a = R_a``, because gamma grows with ``R_2D^2`` up to
+        ``R_2D^2 = x``. G is 0 where SGN = 0.
+
+        A knot interval is kept unless the sum of two bounds is below
+        ``-1e-9 (1 + |max s'| + G)``. The first bound is the maximum of s'
+        over the interval and its two neighbors. The second bound is G at the
+        upper end of the next interval. The neighbors cover reads that fall
+        across a knot by rounding. A knot interval that fails the test holds
+        no interval that `f_extrema` keeps at any radius, so dropping the knot
+        interval changes no value. Every knot interval is kept where the
+        spline has no method ``both``. The result is cached on the route.
         """
         if self._live is not None:
             return self._live
@@ -366,7 +557,10 @@ class EllipseRoute:
         return self._live
 
     def _needed_knots(self, sp: Any) -> Array:
-        """Return the knots next to a knot interval `_live_bound` keeps."""
+        """Return the indices of the knots next to a knot interval that is kept.
+
+        A knot interval is kept where `_live_bound` is True.
+        """
         can = self._live_bound(sp)
         near = np.zeros(can.size + 1, dtype=bool)
         near[:-1] |= can
@@ -383,9 +577,10 @@ class EllipseRoute:
         i0: Array,
         n_kn: Array,
     ) -> list[Array]:
-        # `f_extrema` at the radii v, element by element as at one radius: the
-        # starting points, the bisection, the runs and their dedup carry the
-        # index of their radius; of the knots between, only those `needed`
+        # Compute `f_extrema` at the radii v together. Every element equals the
+        # element computed at its radius alone. The starting points, the
+        # bisection, the merged runs and the removal of duplicates carry the
+        # index of their radius. Only the knots in `needed` start intervals.
         tmax = np.arccosh(self.R_t / v)
         a2, sg = self.RA * self.RA, self.SGN
         sp_left = getattr(sp, "left", sp)
@@ -393,8 +588,10 @@ class EllipseRoute:
         def parts(
             t: Array, s: Array, end: bool = False
         ) -> tuple[Array, Array, Array, Array]:
-            # the end's rounding to the last knot (one reading of Psi); a line of
-            # sight outside the knots is refused above
+            # The clip to the knots takes the rounding of the end point to the
+            # last knot: R_2D cosh(arccosh(R_t / R_2D)) can exceed R_t by one
+            # unit in the last place. A line of sight that leaves the knots
+            # raises ResultError in `f_extrema_many`.
             r2d, r2s = v[s], v[s] * v[s]
             y = np.clip(
                 np.log(r2d) + np.log1p(2.0 * np.sinh(0.5 * t) ** 2), sp.x[0], sp.x[-1]
@@ -413,8 +610,9 @@ class EllipseRoute:
 
         m_r = v.size
         idx = np.arange(m_r)
-        # the starting points: 0, t_max, the knots between, and r_a's point,
-        # each with the knot interval it starts
+        # The starting points are t = 0, t_max, the needed knots between them,
+        # and the turning point of gamma where SGN > 0. Each starting point
+        # carries the index of the knot interval that the point starts.
         s_kn = np.repeat(idx, n_kn)
         pos = np.arange(s_kn.size) - np.repeat(np.cumsum(n_kn) - n_kn, n_kn)
         k_kn = needed[np.repeat(i0, n_kn) + pos]
@@ -439,17 +637,18 @@ class EllipseRoute:
         te, st, kt = te[keep], st[keep], kt[keep]
         pair = st[1:] == st[:-1]
         a, b, s = te[:-1][pair], te[1:][pair], st[:-1][pair]
-        # an interval whose knot interval no radius can make live is one the
-        # first bound test below drops: not formed
+        # An interval inside a knot interval that `_live_bound` drops would fail
+        # the first bound test below. Such an interval is not formed.
         can = self._live_bound(sp)
         ja = np.clip(kt[:-1][pair], 0, can.size - 1)
         alive = can[ja]
         a, b, s, ja = a[alive], b[alive], s[alive], ja[alive]
         if sg and a.size:
-            # gamma at this radius: monotone on each side of its turn x_t
-            # (r_a's point, SGN > 0) or increasing below a^2 (SGN < 0), so its
-            # largest on the knot interval and its neighbors is at an end or at
-            # x_t; an interval that holds a pole of gamma is kept
+            # At the interval's own radius, gamma is monotone on each side of
+            # its turning point x_t where SGN > 0, and increases below a^2
+            # where SGN < 0. The largest gamma over the knot interval and its
+            # neighbors therefore lies at an end or at x_t. An interval that
+            # holds a pole of gamma is kept.
             top_nb = self._top if self._top is not None else np.full(can.size, np.inf)
             r2s = v[s] * v[s]
             xl = kn[np.clip(ja - 1, 0, kn.size - 1)] ** 2
@@ -465,8 +664,9 @@ class EllipseRoute:
                 xt = np.sqrt(np.maximum((a2 - r2s) * a2, 0.0))
                 gmax = np.where(xh <= xt, gam(xh), np.where(xl >= xt, gam(xl), gam(xt)))
             else:
-                # increasing below a^2; poles at a^2 and a^2 + R_2D^2, past the
-                # second positive and decreasing (q <= 0 there)
+                # Where SGN < 0, gamma increases for x below a^2 and has poles at
+                # x = a^2 and x = a^2 + R_2D^2. Above a^2 + R_2D^2, gamma is
+                # positive and decreasing, and q <= 0.
                 gmax = np.where(
                     xh < a2,
                     gam(xh),
@@ -493,7 +693,7 @@ class EllipseRoute:
             if not a.size or lev == n_bisect:
                 break
             m = 0.5 * (a + b)
-            # an interval its midpoint no longer splits is at t's resolution
+            # An interval whose midpoint equals an end in doubles is final.
             ok = (m > a) & (m < b)
             fin_a = np.concatenate([fin_a, a[~ok]])
             fin_b = np.concatenate([fin_b, b[~ok]])
@@ -522,13 +722,16 @@ class EllipseRoute:
         return np.split(t, np.cumsum(np.bincount(ts, minlength=m_r))[:-1])
 
     def v_esc(self, r2d: float) -> float:
-        """Return the escape speed at the row's own radius,
-        ``(2 P(R_2D))^(1/2)``."""
+        """Return the escape velocity ``(2 P(R_2D))^(1/2)`` at the radius `r2d`."""
         return float(np.sqrt(2.0 * self.psi(np.array([r2d]))[0]))
 
     def v_edge_many(self, r2d_arr: ArrayLike) -> Array:
-        r"""Return V_edge at the line of sight's end :math:`R = R_{\rm t}`; NaN
-        where the end is dead."""
+        r"""Return the velocity V_edge at the end of each line of sight.
+
+        V_edge is :math:`f^{1/2}` at the end of the line of sight,
+        :math:`R = R_{\rm t}`, with f the function of `f_extrema`. Every value
+        is NaN where ``model.edge_alive`` is False.
+        """
         r2 = np.asarray(r2d_arr, dtype=np.float64)
         if not self.model.edge_alive:
             return np.full(r2.shape, np.nan)
@@ -538,8 +741,11 @@ class EllipseRoute:
         return np.sqrt(np.maximum(v2, 0.0))
 
     def v_c_many(self, r2d_arr: ArrayLike) -> Array:
-        """Return ``V_c = (2 (P0 - P(R_2D)))^(1/2)``; NaN where V_c is no
-        break."""
+        """Return the velocity ``V_c = (2 (P0 - P(R_2D)))^(1/2)`` at projected radii.
+
+        P0 is ``model.p0_top``. Every value is NaN where ``model.vc_alive`` is
+        False, which means that V_c is no velocity break.
+        """
         r2 = np.asarray(r2d_arr, dtype=np.float64)
         if not self.model.vc_alive:
             return np.full(r2.shape, np.nan)
@@ -548,13 +754,17 @@ class EllipseRoute:
     # The breaks and the layout of a row.
 
     def breaks(self, r2d: float) -> tuple[list[float], float, float, float, float, int]:
-        """Return (br, v_esc, V_k, V_end, V_rad, code): br the row's breaks
-        [0, interior breaks increasing, V_end] and code its layout.
+        """Return the velocity breaks and the layout of the row at `r2d`.
+
+        The result is the tuple (br, v_esc, V_k, V_end, V_rad, code). The list
+        br holds 0, the interior breaks of the layout in increasing order, and
+        V_end. The integer code is the row's layout code (`layout_many`).
 
         Raises
         ------
         ResultError
-            Where the decided breaks do not lie in order inside (0, V_end).
+            If the breaks of br do not increase strictly from 0 to V_end. The
+            message carries the marker BREAK_PAST_END.
         """
         vesc = self.v_esc(r2d)
         vk, vend, vr = (float(x[0]) for x in self.breaks_many(np.array([float(r2d)])))
@@ -568,18 +778,28 @@ class EllipseRoute:
         )
         if not np.all(np.diff(br) > 0.0):
             raise ResultError(
-                f"At R_2D = {r2d:.9e} layout code {code}, decided on the scan of "
-                f"the breaks, does not order this row's own breaks inside (0, "
-                f"V_end): {br} {BREAK_PAST_END}."
+                f"At R_2D = {r2d:.9e}, the layout code {code}, chosen on the scan of "
+                f"the breaks, does not put the velocity breaks at R_2D = {r2d:.9e} "
+                f"in increasing order inside (0, V_end); the breaks are {br} "
+                f"{BREAK_PAST_END}."
             )
         return br, vesc, vk, vend, vr, code
 
     def panels(
         self, r2d: float
     ) -> tuple[Array, Array, list[float], float, float, float, float, int]:
-        """Return the row's ``V >= 0`` nodes and weights, ordered (panel,
-        sub-panel, node), and its breaks: (V, w, br, v_esc, V_k, V_end, V_rad,
-        code). Each panel's end edges are the break values."""
+        r"""Return the velocity nodes and weights of the row at `r2d`, and its breaks.
+
+        The result is the tuple (V, w, br, v_esc, V_k, V_end, V_rad, code),
+        with br to code as in `breaks`. The nodes V cover :math:`V \ge 0` and are
+        ordered by panel, then sub-panel, then node. The outer edges of each
+        panel equal the break values exactly.
+
+        Raises
+        ------
+        ResultError
+            If `breaks` raises ResultError.
+        """
         br, vesc, vk, vend, vr, code = self.breaks(r2d)
         xg, wg = gl01(self.rules.vp_nodes)
         vn, wn = [], []
@@ -598,15 +818,25 @@ class EllipseRoute:
         with_t: bool = False,
         bracket: tuple[Array, Array, Array, Array] | None = None,
     ) -> tuple[Array, ...]:
-        """Return (V_k, V_end, V_rad) at projected radii; with `with_t` also
-        where the two maxima sit.
+        """Return the velocities (V_k, V_end, V_rad) at the projected radii `r2d_arr`.
 
-        V_end is the largest of ``f = 2 P (R_2D^2 + q u^2) / (q R^2)`` at t = 0,
-        at the interior extrema of `f_extrema` (each to rounding) and at the end
-        of the line of sight: one path at the rows and off them. V_rad is a
-        coarse scan in t and brk_zoom local zooms around its maximum, inside
-        `bracket` (lo_end, hi_end, lo_rad, hi_rad) where given (its first two
-        are not read)."""
+        With f the function of `f_extrema`, V_k is ``f^(1/2)`` at t = 0.
+        V_end is ``f^(1/2)`` at the largest of the values of f at t = 0, at the
+        interior extrema of `f_extrema` and at the end of the line of sight.
+        V_end is the largest velocity with Q_c > 0 somewhere on the line of
+        sight. V_end is NaN where one of the values of f is NaN.
+
+        V_rad is the largest value over t of ``(2 max(P, 0))^(1/2) u / R``.
+        V_rad is found by a scan in t followed by ``rules.brk_zoom`` zooms of
+        41 points around the largest value of the scan. Without `bracket`, the
+        scan covers [0, t_max] at ``rules.brk_scan`` points. With `bracket`,
+        given as (lo_end, hi_end, lo_rad, hi_rad), the scan covers
+        [lo_rad, hi_rad] at 41 points, and lo_end and hi_end are not read.
+        V_rad is NaN on a route whose DF has no L factor.
+
+        With `with_t` True, the result also holds t_end and t_rad, the values
+        of t where V_end and V_rad are attained.
+        """
         r2 = np.asarray(r2d_arr, dtype=np.float64)
         tmax = np.arccosh(np.maximum(self.R_t / r2, 1.0))
         rr = self.rules
@@ -622,7 +852,7 @@ class EllipseRoute:
             )
 
         def f_end_many(r2d: Array, t: Array) -> Array:
-            # f at each (R_2D, t) pair, as at one radius
+            # f at each pair (R_2D, t), equal to f computed for one radius alone.
             r, u = r2d * np.cosh(t), r2d * np.sinh(t)
             q = self.q_of(r)
             return 2.0 * self.psi(r) * (r2d * r2d + q * u * u) / (q * r * r)
@@ -656,8 +886,10 @@ class EllipseRoute:
             return np.sqrt(np.maximum(best, 0.0)), tb
 
         vk = np.sqrt(np.maximum(f_end(np.zeros((len(r2), 1)))[:, 0], 0.0))
-        # V_end: f at 0, at each radius's extrema and at its end, all radii at
-        # once; the first largest a radius, NaN first as np.argmax takes it
+        # V_end takes f at t = 0, at the extrema of each radius and at the end
+        # of each line of sight, for all radii together. Each radius takes the
+        # first largest value of f. A NaN value of f is taken first, as
+        # np.argmax takes a NaN.
         ext = self.f_extrema_many(r2)
         pieces: list[Array] = []
         for e, tm in zip(ext, tmax.tolist(), strict=True):
@@ -689,9 +921,13 @@ class EllipseRoute:
         return (vk, vend, vr, t_end, t_rad) if with_t else (vk, vend, vr)
 
     def layout_many(self, r2d_arr: ArrayLike) -> Array:
-        """Return the layout at projected radii: V_k and V_rad where their
-        bounds keep them, V_edge and V_c, each where the lattice resolves its
-        panel."""
+        """Return the layout code of the rows at the projected radii `r2d_arr`.
+
+        The candidate breaks are V_k and V_rad inside their kept ranges
+        (`vk_break`, `vrad_break`), V_edge and V_c. The lattice then drops each
+        candidate whose panel the lattice does not resolve (`Lattice.resolved_breaks`).
+        The code orders the remaining breaks (`Lattice.layout_code`).
+        """
         vk, vend, vr = self.breaks_many(r2d_arr)
         k_, r_, e_, c_ = self.lattice.resolved_breaks(
             self.vk_break(r2d_arr, vk),
@@ -703,14 +939,22 @@ class EllipseRoute:
         return self.lattice.layout_code(k_, vend, r_, e_, c_)
 
     def raw_layout_many(self, r2d_arr: ArrayLike) -> Array:
-        """Return the layout of the breaks themselves, with the floor only."""
+        """Return the raw layout code of the rows at the projected radii `r2d_arr`.
+
+        The raw layout orders V_k, V_rad, V_edge and V_c without the kept
+        ranges and without the resolution test of the lattice. Only the test
+        of `Lattice.layout_code` against V_end applies (BREAK_TOL).
+        """
         vk, vend, vr = self.breaks_many(r2d_arr)
         return self.lattice.layout_code(
             vk, vend, vr, self.v_edge_many(r2d_arr), self.v_c_many(r2d_arr)
         )
 
     def vrad_break(self, r2d_arr: ArrayLike, vr: Array) -> Array:
-        """Return V_rad inside the kept ranges, NaN elsewhere."""
+        """Return `vr` at the radii inside the kept ranges of V_rad, NaN elsewhere.
+
+        `vr` is returned unchanged where no kept ranges are set.
+        """
         if self.vrad_kept is None:
             return vr
         r2 = np.asarray(r2d_arr, dtype=np.float64)
@@ -720,7 +964,10 @@ class EllipseRoute:
         return np.where(inside, vr, np.nan)
 
     def vk_break(self, r2d_arr: ArrayLike, vk: Array) -> Array:
-        """Return V_k inside the kept ranges, NaN elsewhere."""
+        """Return `vk` at the radii inside the kept ranges of V_k, NaN elsewhere.
+
+        `vk` is returned unchanged where no kept ranges are set.
+        """
         if self.vk_kept is None:
             return vk
         r2 = np.asarray(r2d_arr, dtype=np.float64)
@@ -730,9 +977,22 @@ class EllipseRoute:
         return np.where(inside, vk, np.nan)
 
     def row_test(self, r2d: float) -> tuple[bool, float, str]:
-        """Return (stored, node gap, why not) for a row as it would be
-        stored: its nodes apart by RB_MIN_GAP of their own values, and no
-        graded side asking for more layers than doubles resolve."""
+        """Return whether the row at `r2d` can be stored, its node gap, and the reason.
+
+        The result is the tuple (stored, gap, reason). The gap is the least
+        gap between neighboring velocity nodes over the value of the upper
+        node. A row is stored where three conditions hold: `breaks` raises no
+        ResultError with the marker BREAK_PAST_END; the gap is at least
+        RB_MIN_GAP; and no graded side of a panel needs more layers than
+        `l_max` allows. The reason is empty for a stored row, and states the
+        failed condition otherwise.
+
+        Raises
+        ------
+        ResultError
+            If `panels` raises a ResultError without the marker
+            BREAK_PAST_END.
+        """
         try:
             _, _, br, _, _, _, _, code = self.panels(float(r2d))
         except ResultError as e:
@@ -741,7 +1001,7 @@ class EllipseRoute:
             return (
                 False,
                 0.0,
-                f"a decided break on or past its own V_end {BREAK_PAST_END}",
+                f"a velocity break on or above V_end {BREAK_PAST_END}",
             )
         gap = float(
             np.min(
@@ -752,7 +1012,11 @@ class EllipseRoute:
             )
         )
         if gap < RB_MIN_GAP:
-            return False, gap, f"node gap {gap:.3e} below RB_MIN_GAP"
+            return (
+                False,
+                gap,
+                f"a gap {gap:.3e} between velocity nodes, below RB_MIN_GAP",
+            )
         nm = (
             ["0"]
             + [
@@ -768,21 +1032,39 @@ class EllipseRoute:
                     return (
                         False,
                         gap,
-                        f"panel [{nm[i]}, {nm[i + 1]}] of width {w / v:.3e} of {side} "
-                        f"asks for {need} layers toward it, doubles resolve "
-                        f"{l_max(w / v, self.rules)}",
+                        f"the panel [{nm[i]}, {nm[i + 1]}], whose width over {side} "
+                        f"is {w / v:.3e} and which needs {need} layers toward "
+                        f"{side}, more than the {l_max(w / v, self.rules)} layers "
+                        f"that double precision resolves",
                     )
         return True, gap, ""
 
     def node_crossings(self, rs: Array, rb: Array) -> tuple[Array, list[str]]:
-        """Return (radii, labels): where a merged break crosses a node of its
-        row's lattice, each an R-break, bisected rb_bisect times between
-        samples of one layout.
+        r"""Return the radii where a merged break crosses a velocity node of its row.
 
-        A crossing splits where D's slope may be discontinuous there: a break
-        merged by the resolution. A break merged by its own bound (V_rad or
-        V_k outside its kept ranges, `vrad_break` and `vk_break`) has had its
-        kink measured below the tolerance, and its crossing is smooth."""
+        A merged break is a break that the row's layout does not carry. The
+        sample radii are the radii `rs`, the radii just below and above each
+        R-break of `rb`, and ``rules.rb_interior`` radii inside each interval
+        between neighboring points of the set formed by the first radius of
+        `rs`, the R-breaks and the last radius of `rs`. Two neighboring
+        samples are compared where both samples have one layout code and the
+        merged break lies in one panel at both samples. The merged break
+        crosses every velocity node of the panel that lies between the
+        break's positions at the two samples. Each crossing is bisected
+        ``rules.rb_bisect`` times in :math:`R_{\rm 2D}`. Each crossing radius becomes an
+        R-break, where the slope of D in :math:`R_{\rm 2D}` may jump.
+
+        A crossing of V_rad or V_k outside the break's kept ranges
+        (`vrad_break`, `vk_break`) is dropped. Outside the kept ranges of a
+        break, the share of the row next to the break is at most VRAD_KEEP.
+
+        Returns
+        -------
+        radii : array
+            The crossing radii in increasing order.
+        labels : list of str
+            The label of the crossing break at each radius (`BREAK_LABELS`).
+        """
         rr = self.rules
         lat = self.lattice
         xg = gl01(rr.vp_nodes)[0]
@@ -883,7 +1165,7 @@ class EllipseRoute:
             same = (xm < node_xi) == below
             lo, hi = np.where(same, mid, lo), np.where(same, hi, mid)
         rx = np.sqrt(lo * hi)
-        # the breaks merged by their own bound do not split
+        # A crossing of V_rad or V_k outside its kept ranges is no R-break.
         one = np.ones(len(rx))
         kept = {"r": self.vrad_break(rx, one), "k": self.vk_break(rx, one)}
         split = np.array(
@@ -895,17 +1177,42 @@ class EllipseRoute:
         return rx[o], [str(s) for s in lab[o]]
 
     def rows_with_r_breaks(self, r_base: ArrayLike) -> tuple[Array, Array]:
-        """Return (radii, R-breaks): the base radii plus up to rb_layers rows
-        approaching every R-break from each side, rt_layers toward the table's
-        end and rows filling a stretch the layers leave short, each passing
-        the row test.
+        r"""Return the radii of the rows and the R-breaks, from the base radii `r_base`.
 
-        The R-breaks are the changes of the layout and of the raw layout (V_k's
-        birth placed where V_end - V_k first exceeds BIRTH_TOL of V_end), and
-        the radii where a merged break crosses a node, each bisected; the
-        layout is also read between the raw changes and the kept ranges'
-        ends, so that where it returns to a code between two samples each
-        change is found.
+        An R-break is a radius where the layout of the rows changes. The
+        R-breaks are found on samples of :math:`R_{\rm 2D}`. The samples are
+        ``rules.rb_interior`` samples inside each interval between base radii,
+        the last base radius, and ``rules.rb_ext`` samples beyond the last base
+        radius toward :math:`R_{\rm t}`.
+
+        The R-breaks are of three kinds, each bisected in :math:`R_{\rm 2D}`.
+        The first kind is a change of `layout_many`. The second kind is a
+        change of `raw_layout_many`, except a change of V_rad alone. Where V_k
+        enters the raw layout, the R-break moves down to the radius where
+        V_end - V_k first exceeds BIRTH_TOL times V_end, searched within
+        BIRTH_SPAN in :math:`\ln R_{\rm 2D}`. The third kind is a crossing of a
+        merged break over a velocity node (`node_crossings`). R-breaks closer
+        than RB_SAME in :math:`\ln R_{\rm 2D}` are merged. The layout is also
+        read at midpoints near the raw changes and near the ends of the kept
+        ranges. A layout that leaves a code and returns to the code between
+        two samples is found at the midpoints.
+
+        The rows are the base radii and three sets of added radii. The first
+        set holds up to ``rules.rb_layers`` radii on each side of each
+        R-break, each between the R-break and its neighboring R-break. The
+        second set holds ``rules.rt_layers`` radii toward the top radius. The
+        top radius is the last R-break where the last R-break lies beyond the
+        last base radius, and :math:`R_{\rm t}` otherwise. The third set fills
+        each stretch between neighboring R-breaks that holds fewer than
+        RB_FILL radii with RB_FILL more radii. Only rows that pass `row_test`
+        are returned.
+
+        Returns
+        -------
+        radii : array
+            The radii of the rows that pass `row_test`, sorted and unique.
+        r_breaks : array
+            The R-breaks, sorted.
         """
         rr = self.rules
 
@@ -969,14 +1276,17 @@ class EllipseRoute:
         rb, _, rb_code = changes(self.layout_many, rs, lay)
         lr_ = self.raw_layout_many(rs)
         raw = changes(self.raw_layout_many, rs, lr_)
-        # Between two samples the layout can leave a code and come back to the
-        # far sample's (3, 2, 4, 2), where the bisection stops at the first
-        # change. The layout changes where a raw break does, where a kept
-        # range ends, or where the lattice merges a break near one of those:
-        # it is read at the midpoint of every interval the raw changes and the
-        # kept ranges' ends cut the samples into, against the code the changes
-        # found give there; the samples around a midpoint that differs are
-        # taken again with it among them.
+        # Between two samples the layout can leave a code and return to the code
+        # of the far sample, for example the codes 3, 2, 4, 2. The bisection
+        # finds only the first change of such a sequence. The layout changes
+        # where a raw break changes, where a kept range ends, or where the
+        # lattice merges a break near a raw change or a range end. The raw
+        # changes and the ends of the kept ranges cut the samples into
+        # intervals. The layout is read at the midpoint of each interval next
+        # to such a cut, and compared with the code that the changes found so
+        # far give at the midpoint. Where the two codes differ, the changes
+        # between the two samples around the midpoint are searched again with
+        # the midpoint added.
         ends = [
             x
             for ranges in (self.vk_kept, self.vrad_kept)
@@ -1069,23 +1379,29 @@ class EllipseRoute:
         return np.unique(cand[ok]), rb
 
     def _rows_resolved(self, cand: Array, base: Array) -> Array:
-        """Return which candidate rows pass the row test, naming the
-        dropped."""
+        """Return a mask of the candidate rows `cand` that pass `row_test`.
+
+        `base` marks the candidates that are base rows. The debug log lists
+        every dropped base row, and up to 12 dropped added rows, each with the
+        reason from `row_test`.
+        """
         res = [self.row_test(x) for x in cand]
         ok = np.array([t[0] for t in res], dtype=bool)
         if not np.all(ok):
             bad = np.flatnonzero(~ok)
             badb = bad[base[bad]]
             log.debug(
-                "%d row(s) dropped (%d base row(s)): nodes closer than RB_MIN_GAP or a "
-                "graded side asking for more layers than doubles resolve.",
+                "The table drops %d candidate projected radii, of which %d are base "
+                "radii. At each dropped radius, two velocity nodes are "
+                "closer than RB_MIN_GAP, or a graded side of a velocity panel needs "
+                "more layers than double precision resolves.",
                 len(bad),
                 len(badb),
             )
             for c in list(badb) + [c for c in bad if not base[c]][:12]:
                 log.debug(
-                    "%sR_2D = %.9e: %s",
-                    "base row " if base[c] else "",
+                    "The table drops the %sprojected radius R_2D = %.9e, which has %s.",
+                    "base " if base[c] else "",
                     float(cand[c]),
                     res[c][2],
                 )
@@ -1094,9 +1410,14 @@ class EllipseRoute:
     # The row.
 
     def supports(self, r2d: float, va: Array) -> tuple[Array, Array, Array]:
-        """Return flat arrays (jV, t_lo, t_hi) of the intervals in t where
-        Q_c > 0, for every V of `va`: the sign test on 0, f's interior extrema
-        and t_max, each edge bisected n_bisect times."""
+        """Return the intervals in t where Q_c > 0, for every velocity of `va`.
+
+        The result is three flat arrays (jv, t_lo, t_hi): the index into `va`
+        of each interval's velocity, and the interval's ends. The sign test reads
+        Q_c at t = 0, at the interior extrema of f (`f_extrema`) and at t_max.
+        Each change of sign is bisected ``rules.n_bisect`` times. An interval
+        between two edges is kept where Q_c > 0 at its midpoint.
+        """
         tmax = float(np.arccosh(self.R_t / r2d))
         tg = np.concatenate([[0.0], self.f_extrema(r2d), [tmax]])
         r, u = r2d * np.cosh(tg), r2d * np.sinh(tg)
@@ -1112,7 +1433,7 @@ class EllipseRoute:
             same = np.sign(self._qc_t(r2d, va[iv], mid)) == sl
             lo, hi = np.where(same, mid, lo), np.where(same, hi, mid)
         cnt = np.bincount(iv, minlength=len(va))
-        e = np.full((len(va), int(cnt.max(initial=0)) + 2), tmax)
+        e = np.full((len(va), int(np.max(cnt, initial=0)) + 2), tmax)
         e[:, 0] = 0.0
         e[iv, 1 + np.arange(len(iv)) - (np.cumsum(cnt) - cnt)[iv]] = 0.5 * (lo + hi)
         a, b = e[:, :-1], e[:, 1:]
@@ -1125,9 +1446,22 @@ class EllipseRoute:
     def l0_split(
         self, r2d: float, va: Array, jv: Array, tl: Array, th: Array
     ) -> tuple[Array, Array, Array, Array]:
-        """Return the support intervals split at every root of s0(t) = Q_c(t),
-        where the L = 0 point enters the s range, on the families with an L
-        factor, and which intervals a root divided."""
+        """Return the support intervals split at every L = 0 crossing.
+
+        The L = 0 point is ``s0 = V^2 R^2 / (2 A u^2)``. A crossing is a root
+        in t of ``s0(t) = Q_c(t)``, where s0 enters the range [0, Q_c] of s.
+        The roots are found as changes of sign of ``ln s0 - ln Q_c`` on
+        ``rules.l_scan`` points spaced evenly in ln t, then bisected
+        ``rules.n_bisect`` times. An interval that starts at t = 0 is scanned
+        from the lesser of ``t_hi / 2`` and
+        ``t_low = arcsinh(L_BELOW V_min / (2 P(R_2D))^(1/2))``, with V_min the
+        least positive velocity. Only velocities V > 0 are scanned. The intervals are
+        returned unchanged on a route whose DF has no L factor, and where no
+        root is found.
+
+        The result is (jv, t_lo, t_hi, cut). `cut` marks each piece of an
+        interval that a root divided.
+        """
         if not self.lfac or len(jv) == 0:
             return jv, tl, th, np.zeros(len(jv), dtype=bool)
         v = va[jv]
@@ -1196,12 +1530,20 @@ class EllipseRoute:
         cut: Array | None = None,
         collect: list[tuple[Any, ...]] | None = None,
     ) -> Array:
-        """Return D on the distinct |V| of `va` with `n_panels` composite
-        Gauss panels in xi a support interval, the first of them replaced by
-        `n_lay` layers graded toward the axis, under t = t_lo + (t_hi - t_lo)
-        sin^2(pi xi / 2). The pieces of a split interval take half the
-        count. With `collect`, each node's energy and its weight in D are
-        appended to it (`plane`), by the index into `va` of its speed."""
+        """Return D at the distinct velocities `va` at one level of the rule in t.
+
+        Each support interval maps to xi in [0, 1] by
+        ``t = t_lo + (t_hi - t_lo) sin^2(pi xi / 2)``. The rule in xi has
+        `n_panels` equal Gauss-Legendre panels of ``rules.t_nodes`` nodes.
+        Where `n_lay` is positive, `n_lay` panels graded toward xi = 0 at the
+        ratio ``rules.t_ratio`` replace the first panel. The pieces of an
+        interval that `cut` marks take ``max(n_panels // 2, 1)`` panels.
+
+        With `collect`, the function appends the reads of `plane` to
+        `collect`. Each read of F or G carries the index into `va` of its
+        velocity and its weight in D. A final read of kind ``"P"`` holds the node
+        pairs, the layer groups and the angle counts that `plane` chose.
+        """
         rr = self.rules
         if cut is not None and cut.any():
             d = self._row_at(
@@ -1247,11 +1589,11 @@ class EllipseRoute:
         u_pairs = (r2d * np.sinh(t)).ravel()
         vals = self.plane(r2d, u_pairs, vp, rule, collect=nodes)
         if collect is not None and nodes is not None:
-            speed, weight = np.repeat(jv, xs.size), 2.0 * wt.ravel()
+            velocity, weight = np.repeat(jv, xs.size), 2.0 * wt.ravel()
             for kind, at, k, w in nodes:
                 if kind in ("F", "G"):
-                    collect.append((kind, speed[at], k, weight[at][:, None] * w))
-            # the pairs themselves, with the plane's decisions on them
+                    collect.append((kind, velocity[at], k, weight[at][:, None] * w))
+            # The node pairs, with the layer groups and angle counts of `plane`.
             pairs = dict(
                 r2d=r2d,
                 u=u_pairs,
@@ -1260,7 +1602,7 @@ class EllipseRoute:
                 groups=[(at, w) for kind, at, _, w in nodes if kind == "S"],
                 counts=[(at, w) for kind, at, _, w in nodes if kind == "K"],
             )
-            collect.append(("P", speed, pairs, weight))
+            collect.append(("P", velocity, pairs, weight))
         return 2.0 * np.bincount(
             np.repeat(jv, xs.size), weights=wt.ravel() * vals, minlength=len(va)
         )
@@ -1273,17 +1615,36 @@ class EllipseRoute:
         report: dict[str, Any] | None = None,
         w: ArrayLike | None = None,
         trace: list[tuple[int, int, Array]] | None = None,
+        collect: list[tuple[Any, ...]] | None = None,
     ) -> Array:
-        r"""Return :math:`D(R_{\rm 2D}, V)` on `v` (any sign; evaluated on the
-        distinct |V|).
+        r"""Return :math:`D(R_{\rm 2D}, V)` at the velocities `v` of the row at `r2d`.
 
-        The row owns its rule: the panel count doubles, and the layers reach
-        further toward the axis, until the change is within T_TOL in the row's
-        own L1 norm and pointwise (with the row's weights `w`; else the largest
-        change over the largest D), each node doubling only while its own
-        change fails. `report` receives what the row needed; `trace`, each
-        level's panels, layers and the distinct speeds it computed, so that the
-        level each speed's value comes from can be read back.
+        The velocities `v` may have either sign. D is computed at the distinct
+        values of |V|. Each level of the rule in t doubles the panel count and
+        adds ``rules.t_layers`` graded panels toward the lower end of each
+        support interval, up to ``rules.t_levels`` doublings. The doubling
+        stops once the change of the row from the previous level is at most
+        T_TOL in two tests. With the row's weights `w`, the L1 test takes the
+        weighted sum of the changes over the weighted sum of |D|, and the
+        pointwise test takes the largest relative change at the nodes where
+        |D| exceeds :math:`10^{-12}` times the largest |D|. With `w`, a velocity
+        is recomputed at the next level only while its own relative change
+        exceeds T_TOL. Without `w`, both tests take the largest change over
+        the largest |D|.
+
+        On a Type I model, the first level adds graded panels until the outer
+        edge of the innermost graded panel lies at or below
+        ``t_a = arcsinh(R_a / R_2D)``. That edge is mapped to t on [0, t_m],
+        with t_m the largest upper end of the support intervals.
+
+        `report`, where given, receives the panel count, the node count, the
+        changes, the convergence flag, the test that passed last (`T_SET_BY`)
+        and the layer counts. `trace`, where given, receives at each level the
+        panel count, the layer count and the mask of the velocities computed at
+        that level. With `collect`, each level's reads (`_row_at`) are kept
+        for the velocities whose value comes from that level. Each kept read
+        equals the read that `_row_at` at the level collects on the kept velocities
+        alone.
         """
         rr = self.rules
         va, inv = np.unique(
@@ -1292,7 +1653,8 @@ class EllipseRoute:
         jv, tl, th = self.supports(r2d, va)
         jv, tl, th, cut = self.l0_split(r2d, va, jv, tl, th)
         tm = float(th.max()) if th.size else 0.0
-        # level 0's layers reach the knee t_a = arcsinh(R_a / R_2D) on Type I
+        # On a Type I model, the graded panels of level 0 reach t at or below
+        # t_a = arcsinh(R_a / R_2D), with at most 400 layers.
         n0 = 0
         if self.SGN > 0.0 and np.isfinite(self.RA) and tm > 0.0:
             t_a = float(np.arcsinh(self.RA / r2d))
@@ -1307,7 +1669,23 @@ class EllipseRoute:
             ):
                 n0 += 1
         n_p, n_lay = rr.t_panels, n0
-        d = self._row_at(r2d, va, jv, tl, th, rule, n_p, n_lay, cut)
+        # `level` holds the reads of the last level computed, and `computed`
+        # marks the velocities that the last level computed. The reads of a level
+        # are kept for the velocities of that level that no later level computes.
+        level: list[tuple[Any, ...]] = []
+        d = self._row_at(
+            r2d,
+            va,
+            jv,
+            tl,
+            th,
+            rule,
+            n_p,
+            n_lay,
+            cut,
+            None if collect is None else level,
+        )
+        computed = np.ones(len(va), dtype=bool)
         if trace is not None:
             trace.append((n_p, n_lay, np.ones(len(va), dtype=bool)))
         change, converged = float("inf"), False
@@ -1327,15 +1705,39 @@ class EllipseRoute:
                 trace.append(
                     (n_p, n_lay, act.copy() if per_node else np.ones(len(va), bool))
                 )
+            if collect is not None:
+                now = act.copy() if per_node else np.ones(len(va), bool)
+                collect += _velocities_kept(level, computed & ~now)
+                level, computed = [], now
             if per_node:
                 sel = act[jv]
                 d_new = d.copy()
                 if sel.any():
                     d_new[act] = self._row_at(
-                        r2d, va, jv[sel], tl[sel], th[sel], rule, n_p, n_lay, cut[sel]
+                        r2d,
+                        va,
+                        jv[sel],
+                        tl[sel],
+                        th[sel],
+                        rule,
+                        n_p,
+                        n_lay,
+                        cut[sel],
+                        None if collect is None else level,
                     )[act]
             else:
-                d_new = self._row_at(r2d, va, jv, tl, th, rule, n_p, n_lay, cut)
+                d_new = self._row_at(
+                    r2d,
+                    va,
+                    jv,
+                    tl,
+                    th,
+                    rule,
+                    n_p,
+                    n_lay,
+                    cut,
+                    None if collect is None else level,
+                )
             if wa is not None:
                 scale = float(np.dot(wa, np.abs(d_new)))
                 change = (
@@ -1373,6 +1775,8 @@ class EllipseRoute:
                 )
                 break
             l1_prev, pw_prev = l1_ok, pw_ok
+        if collect is not None:
+            collect += _velocities_kept(level, computed)
         if report is not None:
             xi_r = (
                 (1.0 / n_p) * rr.t_ratio ** max(n_lay - 1, 0)
@@ -1404,14 +1808,23 @@ class EllipseRoute:
         rule: tuple[int, ...],
         collect: list[tuple[Any, ...]] | None = None,
     ) -> Array:
-        """Return the integral of ``F (L^2)^(-beta_c)`` over the velocity plane
-        at the pairs (u, V). With `collect`, the energies the DF is read at and
-        each one's weight are appended to it: ``("F", pairs, K, W)`` where the
-        value is the sum over a pair's row of W F(K), ``("G", pairs, Q_c, W)``
-        where it is W G(Q_c); and the rule's decisions on the pairs, each
-        group's layers ``("S", pairs, None, (k0, ka, kb, kq, m, nphi))`` and
-        each node's angle count ``("K", pairs, None, index)``, -1 where the
-        node is not read."""
+        """Return the integral of ``F (L^2)^(-beta_c)`` over the velocity plane.
+
+        Each node pair is a depth u and a velocity V on the line of sight at
+        `r2d`. The integral is the plane integral I(u) of the module
+        docstring. Without an L factor, the integral is
+        ``2 pi G(Q_c)`` times the jacobian factor. With an L factor, the
+        pairs are grouped by their layer counts (`_s_layers`, `_ks_layers`),
+        and each group is integrated by `_plane_s`.
+
+        With `collect`, the function appends four kinds of reads to
+        `collect`. A read ``("F", pairs, K, W)`` gives the value at each pair
+        as the sum over the pair's row of W F(K). A read
+        ``("G", pairs, Q_c, W)`` gives the value at each pair as W G(Q_c). A
+        read ``("S", pairs, None, (k0, ka, kb, kq, m, nphi))`` gives the layer
+        counts of a group. A read ``("K", pairs, None, index)`` gives the
+        index of the angle count of each node, -1 where the node is not read.
+        """
         df = self._df()
         _, k0, ks, kq, m, nphi = rule
         r = np.sqrt(r2d * r2d + u * u)
@@ -1419,7 +1832,8 @@ class EllipseRoute:
         a = 1.0 + q * (u / r2d) ** 2
         kinetic = 0.5 * q * v * v * r * r / (r2d * r2d + q * u * u)
         qc = np.maximum(self.psi(r) - kinetic, 0.0)
-        # Q_c's depth below P0, from the solve's own depths near the center
+        # The depth of Q_c below P0, from the depth of the potential
+        # (`PotentialReading.depth`) plus the kinetic term.
         depth = getattr(self.psi, "depth", None)
         dqc = depth(r) + kinetic if depth is not None else np.full(len(u), np.nan)
         jac = (r / r2d) / np.sqrt(a * q)
@@ -1487,12 +1901,20 @@ class EllipseRoute:
         nphi: int,
         collect: list[tuple[Any, ...]] | None = None,
     ) -> Array:
-        r"""The (s, phi) quadrature of `plane` on pairs that share their
-        layers: piece a on [0, split], piece b on [split, Q_c], piece b's
-        first panel mapped where :math:`0 < \beta_{\rm c} < 1` and its last
-        where F's power at K = 0 asks (`EllipseDF.zero_map`). Piece a reads F
-        in the top half by the depth `dqc` + s, `dqc` Q_c's depth below P0
-        (NaN where not held). With `collect`, as `plane`."""
+        r"""Return the (s, phi) quadrature of `plane` on pairs that share layers.
+
+        Piece a covers s in [0, split] on the panels of
+        ``seg_unit(k0, ksa)``. Piece b covers s in [split, Q_c] on the panels
+        of ``seg_unit(ksb, kq)``. Where :math:`0 < \beta_{\rm c} < 1`, the
+        first panel of piece b is mapped by ``s - split = d w^p`` with
+        :math:`p = 1/(1 - \beta_{\rm c})`. Where `EllipseDF.zero_map` asks,
+        the last panel of piece b is mapped so that the map carries
+        :math:`F \sim K^p` at K = 0 exactly. Piece a reads F by the depth
+        ``dqc + s`` at the energies K = Q_c - s above half the end energy of
+        the DF. `dqc` is the depth of Q_c below P0, NaN where the potential
+        gives no depth. With `collect`, the function appends the reads of
+        `plane`.
+        """
         df = self._df()
         rr = self.rules
         sr = rr.s_ratio
@@ -1510,7 +1932,11 @@ class EllipseRoute:
         if df.zero_map(m, kq):
             p = 1.0 / (1.0 + df.p_zero)
             d = float(u2[-1] - u2[-2])
-            lw = int(np.ceil(np.log(GOAL) / np.log(sr))) if df.k_zero != 0.0 else 0
+            lw = (
+                int(np.ceil(np.log(TIER_BOUNDS[0]) / np.log(sr)))
+                if df.k_zero != 0.0
+                else 0
+            )
             ew = np.concatenate([[0.0], sr ** np.arange(lw, -1, -1)])
             wn = (ew[:-1, None] + np.diff(ew)[:, None] * xg).ravel()
             ww = (np.diff(ew)[:, None] * wg).ravel()
@@ -1542,8 +1968,10 @@ class EllipseRoute:
         c3a = 2.0 / q
         pre = jac * 2.0 * r ** (-2.0 * self.BC)
         out = np.empty(len(u))
-        # the numpy rule forms a (nodes, angle nodes) block; the kernel forms
-        # its own, so its route sizes a chunk by the s nodes alone
+        # The numpy rule forms a block of shape (s nodes, angle nodes) for each
+        # pair, so a chunk of pairs is sized by both counts. The JAX kernel and
+        # the closed form form no such block, so a chunk is sized by the s
+        # nodes alone.
         step = max(
             1, rr.chunk // (ns * (1 if (self.lam_closed or rr.kernel) else nphi))
         )

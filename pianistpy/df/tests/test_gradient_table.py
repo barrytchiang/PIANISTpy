@@ -1,10 +1,12 @@
-r"""Tests of the DF table's derivative in the anisotropy parameters.
+r"""Tests of `table_jacobian` and `make_inversion_table` on a Method I model.
 
-The table (`invert._table_pieces`) at fixed grid and discrete choices,
-against the forward's own central differences in :math:`\beta_{\rm c}`
-(Richardson over two steps), on a Hernquist member whose table has every
-piece but the tail: the rows, the nodes below the written floor and the form
-above the anchor.
+The model is the Hernquist profile with constant anisotropy
+:math:`\beta_{\rm c} = 0.25`. The model's DF table has every piece except
+the tail: the rows, the nodes below the written floor, and the central form
+above the anchor energy. The derivative of the table in
+:math:`\beta_{\rm c}` from `table_jacobian`, with the grid and the discrete
+choices held fixed, is compared with a Richardson extrapolation of two
+central differences of the table that `invert._table_pieces` builds.
 """
 
 import numpy as np
@@ -25,9 +27,12 @@ from pianistpy.exceptions import InputError
 from pianistpy.profiles import DoublePowerLaw
 from pianistpy.settings import Settings
 
+pytestmark = pytest.mark.slow
+
 HERNQUIST = DoublePowerLaw(1.0, 4.0, 1.0)
-# the transpose held to the bit is a property of a fixed reduction order,
-# which a GPU does not promise; there the accuracy grid judges
+# A transpose that is reproduced to the bit requires a fixed order of
+# floating-point reductions, which a GPU does not guarantee. On a GPU the
+# accuracy grid judges the derivative instead of this bitwise test.
 CPU_ONLY = pytest.mark.skipif(
     platform() != "cpu",
     reason="deterministic recomputation, a property of a fixed reduction order; "
@@ -60,10 +65,13 @@ def table():
 
 
 def test_the_table_against_the_forward_differences(table):
-    # the forward's differences at b +- h and +- h/2, Richardson, h = 2e-3, on
-    # the same grid; the rows compared where the differences resolve them
-    # (from 1e-6 to 0.99: at the floor the forward varies with beta_c by a few
-    # 1e-8 of F off any smooth curve, near the center its slopes by more)
+    # The reference is the Richardson extrapolation of two central
+    # differences of the table in beta_c, with steps h = 2e-3 and h/2, all on
+    # the grid of the model at beta_c = 0.25. The rows are compared only at
+    # energies from 1e-6 to 0.99, where the central differences resolve the
+    # derivative. Below 1e-6 the table at the floor does not vary smoothly
+    # with beta_c, and above 0.99 the table's slopes do not vary smoothly with
+    # beta_c.
     c, values, jac, _ = table
     q = inversion_nodes(c, Settings())
     h = 2e-3
@@ -78,12 +86,15 @@ def test_the_table_against_the_forward_differences(table):
     d = jac["beta_c"]
     k_t = values["k"]
     mid = (k_t >= 1e-6) & (k_t <= 0.99)
-    # (the log slope's derivative reaches 1e2 near 0.99: 1e-6 of it, or 1e-6)
+    # The derivative of the log slope is large near K = 0.99, so the
+    # tolerance is the relative 1e-6 there and the absolute 1e-6 where the
+    # derivative is small.
     for key in ("log_df", "log_df_slope"):
         np.testing.assert_allclose(d[key][mid], rich[key][mid], rtol=1e-6, atol=1e-6)
     for key in ("log_df_below", "log_df_slope_below"):
         np.testing.assert_allclose(d[key], rich[key], rtol=1e-6, atol=1e-6)
-    # the form above the anchor, as the DF it gives on the grid's nodes there
+    # The central form above the anchor is compared through the DF that the
+    # central form gives at the grid's nodes above the table's last energy.
     kap, a_a, bb, dd = values["central"]
     dk, da, db, ddd = d["central"]
     above = q[q > k_t[-1]]

@@ -1,10 +1,12 @@
-"""A fit to Gauss-Hermite moments carries the length scale in its gradient.
+"""Tests that a fit to Gauss-Hermite moments at projected radii carries the
+length scale in the gradient.
 
-The moments are read across a table's rows by `GaussHermiteTable.read_traced`,
-so a log-likelihood of point moments traced in the scales (sigma in the
-velocity unit sqrt(G M_0 / r_0), h3 and h4 dimensionless, each at R / r_0) has
-a gradient in r_0 as well as in M_0, which matches central differences of the
-same log-likelihood read on the host.
+`GaussHermiteTable.read_traced` reads the table of moments at any projected
+radius in JAX. A log-likelihood of the dispersion sigma (in the velocity unit
+sqrt(G M_0 / r_0)) and of the dimensionless moments h3 and h4, each read at
+R / r_0, therefore has a gradient in the scale radius r_0 as well as in the
+mass scale M_0. The tests compare the JAX gradient with central differences
+of the log-likelihood evaluated in NumPy.
 """
 
 import math
@@ -23,17 +25,19 @@ from pianistpy.observables.stages import (
     projected_dispersion,
 )
 from pianistpy.observables.tests.test_losvd_stages import SETTINGS
-from pianistpy.validation import GOAL
+from pianistpy.validation import TIER_BOUNDS
 
-# The scales the moments are read at, in the model's own units.
+# The mass scale and the length scale at which the moments are read, in the
+# model's own units.
 SCALE = np.array([1.0, 1.0])
 
 
 @pytest.fixture(scope="module")
 def moments():
-    """The Gauss-Hermite table of the isotropic Plummer model, and data on it:
-    seven radii inside the rows, the model's own moments moved by a few
-    percent, with their errors."""
+    """Return the Gauss-Hermite table of the isotropic Plummer model and data
+    on the model: seven projected radii inside the table, and the model's
+    own dispersion and moments at the seven radii moved by a few percent,
+    with errors."""
     model = analytic_model("plummer")
     projected = projected_dispersion(
         model, dispersion_profile(model, SETTINGS), SETTINGS
@@ -59,9 +63,9 @@ def moments():
 
 
 def _log_likelihood(scale, read, xp, r_2d, values, errors):
-    speed = xp.sqrt(scale[0] / scale[1])
+    velocity = xp.sqrt(scale[0] / scale[1])
     m = read(xp.asarray(r_2d) / scale[1])
-    predicted = {"sigma": speed * m["sigma"], "h3": m["h3"], "h4": m["h4"]}
+    predicted = {"sigma": velocity * m["sigma"], "h3": m["h3"], "h4": m["h4"]}
     total = 0.0
     for key, value in values.items():
         z = (value - predicted[key]) / errors[key]
@@ -80,7 +84,8 @@ def test_the_gradient_in_the_length_scale_matches_central_differences(moments):
     def host(s):
         return _log_likelihood(s, gh.read, np, r_2d, values, errors)
 
-    # the traced value is the host's
+    # The compiled JAX log-likelihood must equal the NumPy log-likelihood to a
+    # relative 1e-13 before the gradients are compared.
     assert abs(float(jax.jit(traced)(SCALE)) / host(SCALE) - 1.0) < 1e-13
     gradient = np.asarray(jax.jit(jax.grad(traced))(jnp.asarray(SCALE)))
     for i in range(2):
@@ -90,4 +95,4 @@ def test_the_gradient_in_the_length_scale_matches_central_differences(moments):
         down[i] -= h
         difference = (host(up) - host(down)) / (2.0 * h)
         assert difference != 0.0
-        assert abs(gradient[i] / difference - 1.0) < GOAL
+        assert abs(gradient[i] / difference - 1.0) < TIER_BOUNDS[0]

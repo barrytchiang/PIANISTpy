@@ -1,21 +1,31 @@
-"""Stages of the observables and their results.
+"""Stages that compute the velocity observables of a model of one component.
 
-Second moments follow from the density and the potential of a model::
+The public calls of `pianistpy.observables` use these stages: `LosTable`,
+`sigma_r`, `sigma_t`, `sigma_los`, `sigma_los_aperture`, `losvd`,
+`aperture_losvd` and `pdf_v`. The stage `velocity_distribution` is public itself.
+
+The second moments come from the model's density and potential, in three
+stages::
 
     dispersion_profile -> projected_dispersion -> aperture_dispersion
 
-Line-of-sight velocity distributions follow from its DF::
+The line-of-sight velocity distributions come from the model's distribution
+function (DF), in four stages::
 
     kept_ranges -> losvd_row -> losvd_table -> aperture_losvd
 
-The two routes share nothing but the model, so each checks the other: the
-norm of a row against the surface density, its second moment against the
-projected dispersion, and the second moment of an aperture distribution
-against the aperture dispersion.
+The second-moment stages and the distribution stages share only the model.
+The distributions are therefore checked against the second-moment stages, in
+three checks: a row's integral over velocity against the surface density; a
+row's second moment against the squared line-of-sight velocity dispersion;
+and an aperture distribution's second moment against the squared
+line-of-sight velocity dispersion averaged over the aperture. Each check's
+relative error is reported in a validation report, whose tier is split at
+:math:`10^{-6}`, :math:`10^{-4}` and :math:`10^{-2}`.
 
-A request for one observable computes only what it needs; the prepared
-`LosTable` of a model holds the tables and reads from them. The two ways
-are held to the accuracy goal against each other by the tests.
+The module also holds the Gauss-Hermite moments of the distributions and the
+local velocity distribution at a 3D radius (`velocity_distribution`). The technical
+notes describe every stage in Section T:6.
 """
 
 __all__ = [
@@ -28,7 +38,7 @@ __all__ = [
     "LosvdRow",
     "LosvdTable",
     "ProjectedDispersion",
-    "SpeedDistribution",
+    "VelocityDistribution",
     "aperture_dispersion",
     "aperture_losvd",
     "aperture_nodes",
@@ -39,7 +49,7 @@ __all__ = [
     "losvd_row",
     "losvd_table",
     "projected_dispersion",
-    "speed_distribution",
+    "velocity_distribution",
     "surface_density_reader",
     "validate_aperture",
     "validate_table",
@@ -54,11 +64,12 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 
 from ..df import Model
-from ..exceptions import InputError
-from ..runtime import get_workers, timed
+from ..df.truncation import K_FLOOR
+from ..exceptions import AccuracyError, InputError
+from ..runtime import get_cores, timed
 from ..settings import Settings
 from ..typing import Array, ArrayLike
-from ..validation import GOAL, Check, ValidationReport
+from ..validation import TIER_BOUNDS, Check, ValidationReport
 from ._aperture import aperture_mean_square, aperture_nodes
 from ._aperture_losvd import aperture_losvd_panels
 from ._dispersion import (
@@ -88,67 +99,95 @@ from ._projection import (
     END_TOLERANCE,
     TINY,
     _refuse_below,
+    _refuse_beyond,
     dispersion_table_reader,
     project_tangent,
     spline_value,
     surface_density_reader,
 )
-from ._speed import SpeedModel, angle_integral, graded_rule, speed_breaks, speed_model
 from ._tables import projected_table, radial_table
+from ._velocity import (
+    VelocityModel,
+    angle_integral,
+    graded_rule,
+    velocity_breaks,
+    velocity_model,
+)
 from .aperture import Aperture
 
-# The relative tolerance of a projected table's reading between rows: a hundredth
-# of the accuracy goal, so that the reading adds nothing measurable.
-CERTIFICATE_TOLERANCE = 0.01 * GOAL
-# The largest estimated share of an aperture's weight inside the first row of
-# the projected table: the accuracy goal, since that disk is not computed.
-INNER_DISK_TOLERANCE = GOAL
+# The largest relative difference allowed between the projected table read
+# between two rows and the projection computed there. The value is a hundredth
+# of the bound 1e-6: the interpolation adds at most 1e-8 at the midpoints.
+CERTIFICATE_TOLERANCE = 0.01 * TIER_BOUNDS[0]
+# The largest share of an aperture's weight allowed inside the projected
+# table's first row. The disk inside the first row is estimated, not computed,
+# so the share is held to the bound 1e-6.
+INNER_DISK_TOLERANCE = TIER_BOUNDS[0]
 
 
 @dataclass(frozen=True)
 class DispersionProfile:
-    r"""Intrinsic second moments of a model on a grid of radius.
+    r"""Intrinsic velocity dispersions of a model on rows of 3D radius.
+
+    `dispersion_profile` builds the object. The method `read` returns the
+    dispersions at any radius between the rows.
 
     Parameters
     ----------
     r : array, shape (n,)
-        Radius, in internal units.
+        3D radius :math:`R` of the rows, increasing, in internal units.
     sigma_r : array, shape (n_components, n)
-        Radial velocity dispersion.
+        Radial velocity dispersion :math:`\sigma_{\rm r}` at the rows, in
+        internal units.
     sigma_t : array, shape (n_components, n)
-        Tangential velocity dispersion, of both tangential components
-        together: :math:`\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2`, so that
-        :math:`\beta_\sigma = 1 - \sigma_{\rm t}^2 / (2 \sigma_r^2)`.
+        Tangential velocity dispersion :math:`\sigma_{\rm t}` at the rows, in
+        internal units. :math:`\sigma_{\rm t}` combines both tangential
+        components: :math:`\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2`.
+        The anisotropy is therefore
+        :math:`\beta_\sigma = 1 - \sigma_{\rm t}^2 / (2 \sigma_{\rm r}^2)`.
     beta_sigma : array, shape (n_components, n)
-        Anisotropy profile :math:`\beta_\sigma(R)`.
+        Velocity anisotropy :math:`\beta_\sigma(R)` at the rows.
     edge_limit : tuple of float
-        For a spatially finite model, the limit of
-        :math:`\sigma_r^2 / \Psi` at the edge of each component, which the
-        reading between grid points uses there; NaN otherwise.
+        One value per component. On a spatially finite model, the value is
+        the limit of :math:`\sigma_{\rm r}^2 / P` at the model's edge, with
+        :math:`P` the relative potential. `read` uses the limit between the
+        outermost row and the edge. The value is NaN on a model that is not
+        spatially finite, and NaN where the DF states no power law at the
+        edge.
     certificate : dict
-        How the rows were placed (`radial_table`): the tolerance, how they
-        ended, the rounds, the rows, the first and last worst reading at an
-        interval's midpoint and the intervals left above the tolerance.
+        The record of the row placement by `radial_table`: ``tolerance``,
+        ``n_jeans_nodes``, ``rule_end``, ``rule_change``, ``end``,
+        ``rounds``, ``rows``, ``worst_first``, ``worst_last`` and
+        ``uncertified`` (the intervals of radius whose midpoint error stayed
+        above ``tolerance``).
     model : Model
-        The model the profile belongs to: its potential is the variable of
-        the reading between grid points, and its anisotropies give
-        `beta_sigma` at any radius.
+        The model of the profile. `read` evaluates the model's potential and
+        the anisotropy of the model's components.
     tangents : dict of str to array, shape (n_components, n)
-        With ``tangents`` asked of `dispersion_profile`, the derivative of
-        :math:`\sigma_r^2` on the same rows in each anisotropy parameter
-        named, on the model's fixed profile, in internal units; empty
-        otherwise.
+        The derivative of :math:`\sigma_{\rm r}^2` at the rows in each
+        anisotropy parameter that `dispersion_profile` was given in its
+        argument ``tangents``, at fixed density profile, in internal units.
+        The dict is empty when `dispersion_profile` was given no parameter.
 
     Notes
     -----
-    The rule that reads :math:`\sigma_r^2` between grid points is part of
-    the result (`read`): every check of a velocity distribution reads the
-    second moment through it. It is the cubic Hermite in :math:`P` of the
-    Jeans integral :math:`\varrho_{\rm aux}\sigma_r^2` with its exact slopes
-    :math:`\varrho_{\rm aux}` (`radial_integral_reader`), held inside the
-    innermost row; on a spatially finite model it reads
-    :math:`h = \sigma_r^2 / P` from the outermost row to `edge_limit` at the
-    edge.
+    The rows hold the Jeans integral
+    :math:`I = \varrho_{\rm aux}\sigma_{\rm r}^2`, with
+    :math:`\varrho_{\rm aux}` the auxiliary density. The derivative of
+    :math:`I` in :math:`P` is :math:`\varrho_{\rm aux}`, exactly. `read`
+    interpolates :math:`I` by the cubic Hermite polynomial in :math:`P`
+    through the rows' values of :math:`I` and of :math:`\varrho_{\rm aux}`
+    (`radial_integral_reader`). Every check of a velocity distribution
+    against :math:`\sigma_{\rm r}` reads :math:`\sigma_{\rm r}` through the
+    cubic Hermite interpolation. The interpolation uses the rows with a
+    positive :math:`\sigma_{\rm r}^2` and a positive
+    :math:`\varrho_{\rm aux}`, except the last row of a spatially finite
+    model. `read` raises InputError at a radius inside the innermost used
+    row. On a spatially finite model with a finite `edge_limit`, `read`
+    interpolates :math:`h = \sigma_{\rm r}^2 / P` linearly in :math:`P`,
+    from the outermost used row to the value `edge_limit` at the edge, where
+    :math:`P = 0`. `read` raises InputError at a radius beyond the edge, or,
+    on any other model, beyond the outermost used row.
     """
 
     r: Array
@@ -161,7 +200,12 @@ class DispersionProfile:
     tangents: dict[str, Array] = field(default_factory=dict)
 
     def _rho_aux(self, component: int) -> Callable[[Array], Array]:
-        r""":math:`\varrho_{\rm aux} = \varrho / g` of one component."""
+        r"""Return the auxiliary density of one component as a function of radius.
+
+        The auxiliary density is :math:`\varrho_{\rm aux} = \varrho / g`, with
+        :math:`\varrho` the component's density and :math:`g` the factor of
+        the component's anisotropy.
+        """
         profile = self.model.profile
         anisotropy = self.model.components[component].anisotropy
 
@@ -173,8 +217,11 @@ class DispersionProfile:
     def _read_tangent(
         self, parameter: str, component: int = 0
     ) -> Callable[[ArrayLike], Array]:
-        r"""The derivative of the reading of :math:`\sigma_r^2` of one
-        component in one anisotropy parameter (`tangents`)."""
+        r"""Return the interpolated derivative of :math:`\sigma_{\rm r}^2` in
+        one anisotropy parameter, for one component.
+
+        The returned function interpolates the rows of `tangents` for the
+        parameter whose name is `parameter`."""
         return radial_integral_tangent_reader(
             self.r,
             np.asarray(self.sigma_r)[component] ** 2,
@@ -188,7 +235,8 @@ class DispersionProfile:
         )
 
     def _read_sigma_r2(self, component: int = 0) -> Callable[[ArrayLike], Array]:
-        r"""The reading of :math:`\sigma_r^2` of one component."""
+        r"""Return the interpolation of :math:`\sigma_{\rm r}^2` between the
+        rows, for one component."""
         return radial_integral_reader(
             self.r,
             np.asarray(self.sigma_r)[component] ** 2,
@@ -199,7 +247,12 @@ class DispersionProfile:
         )
 
     def read(self, r: ArrayLike) -> tuple[Array, Array, Array]:
-        """Return `sigma_r`, `sigma_t` and `beta_sigma` at any radius."""
+        """Return `sigma_r`, `sigma_t` and `beta_sigma` at 3D radii `r`.
+
+        Each of the three arrays has shape (n_components, len(r)). The
+        velocity dispersions are in internal units. `beta_sigma` is evaluated
+        from the anisotropy of each component, not interpolated.
+        """
         r = np.asarray(r, dtype=np.float64)
         n_components = np.shape(self.sigma_r)[0]
         sigma_r2 = np.stack([self._read_sigma_r2(i)(r) for i in range(n_components)])
@@ -214,39 +267,51 @@ class DispersionProfile:
 
 @dataclass(frozen=True)
 class ProjectedDispersion:
-    """Surface density and line-of-sight dispersion over projected radius.
+    """Surface density and line-of-sight dispersion on rows of projected radius.
 
-    Both come from one quadrature with one density, on rows added until the
-    table reads itself between rows within the tolerance of the settings.
+    `projected_dispersion` builds the object. One quadrature along the line
+    of sight, with one density, gives both quantities at each row. Rows are
+    added until the interpolation between rows agrees with the quadrature at
+    every interval's midpoint to `CERTIFICATE_TOLERANCE`.
 
     Parameters
     ----------
     r_2d : array, shape (n,)
-        Projected radius, in internal units.
+        Projected radius :math:`R_{\\rm 2D}` of the rows, increasing, in
+        internal units.
     surface_density : array, shape (n_components, n)
-        Surface density.
+        Surface density :math:`\\Sigma` at the rows, in internal units.
     sigma_los : array, shape (n_components, n)
-        Line-of-sight velocity dispersion.
+        Line-of-sight velocity dispersion :math:`\\sigma_{\\rm los}` at the
+        rows, in internal units.
     certificate : dict
-        How the rows ended: the reason, the rows added and the worst reading
-        between rows.
+        The record of the row placement by `certify_projection`: ``end``
+        (``"tolerance"`` or ``"stalled"``), ``rounds``, ``rows_added``,
+        ``worst_last``, ``rule_radii``, ``seconds``, ``var``,
+        ``worst_first_surface_density`` and ``worst_first_sigma_los2``.
     model : Model
-        The model: where its lines of sight end (the last row of its profile)
-        and whether it is spatially finite fix the reading between rows.
+        The model of the table. The interpolation between rows uses the
+        model's outermost tabulated radius :math:`R_{\\rm t}`, where every
+        line of sight ends, and whether the model is spatially finite.
     tangents : dict of str to array, shape (n_components, n)
-        With ``tangents`` asked of `projected_dispersion`, the derivative of
-        the squared line-of-sight dispersion on the same rows in each
-        anisotropy parameter named, on the model's fixed profile, in internal
-        units; empty otherwise. The surface density does not move.
+        The derivative of :math:`\\sigma_{\\rm los}^2` at the rows in each
+        anisotropy parameter that `projected_dispersion` was given in its
+        argument ``tangents``, at fixed density profile, in internal units.
+        The dict is empty when `projected_dispersion` was given no
+        parameter. The surface density has no derivative in an anisotropy
+        parameter.
 
     Notes
     -----
-    Between rows the surface density is read through
-    ``h = Sigma / (R_t^2 - R_2D^2)^(1/2)``, a not-a-knot cubic in
-    ``ln(R / (1 - R / R_t))`` on a spatially finite model and in ln R
-    otherwise, and the squared dispersion
-    by a not-a-knot cubic in ln R: the readings the table checks its rows
-    for. Both are zero beyond the last row and refused inside the first.
+    The surface density is interpolated through
+    ``h = Sigma / (R_t**2 - R_2D**2)**0.5``. The interpolant of ``ln h`` is a
+    not-a-knot cubic spline in ``x = ln(R_2D / (1 - R_2D / R_t))`` on a
+    spatially finite model, and in ``ln R_2D`` on any other model.
+    :math:`\\sigma_{\\rm los}^2` is interpolated by a not-a-knot cubic spline
+    in ``ln R_2D``. The row placement checks these two interpolations. Both
+    interpolations raise InputError at a projected radius inside the first
+    row or beyond the last row. The message of the error states what places
+    the first or the last row (`notes`).
     """
 
     r_2d: Array
@@ -256,35 +321,78 @@ class ProjectedDispersion:
     model: Model
     tangents: dict[str, Array] = field(default_factory=dict)
 
+    def notes(self) -> tuple[str, str]:
+        """Return the two sentences that state what places the first row and
+        the last row.
+
+        The interpolations of `read` append the first sentence to an
+        InputError at a radius inside the first row, and the second sentence
+        to an InputError at a radius beyond the last row. The first row is
+        set by the setting ``truncation.log10_r_min``, or by the method's
+        floor `K_FLOOR` when the first row differs from that setting's
+        radius. The last row lies inside the edge of a spatially finite
+        model, or inside the profile's outermost row on any other model.
+        """
+        r_t = float(self.model.profile.r_table_max)
+        r_0 = float(self.r_2d[0])
+        log10_r_min = float(self.model.settings.truncation["log10_r_min"])
+        inner = (
+            f"The table's innermost projected radius is the profile's innermost "
+            f"radius {r_0:.4e}, which the setting truncation.log10_r_min sets."
+            if r_0 == 10.0**log10_r_min
+            else f"The table's innermost projected radius is the profile's innermost "
+            f"radius {r_0:.4e}, at the method's floor, a depth {K_FLOOR:g} below the "
+            f"center that no setting moves."
+        )
+        outer = (
+            f"The table's outermost projected radius lies just inside the model's "
+            f"edge {r_t:.4e}, which the model's truncation sets."
+            if self.model.spatially_finite
+            else f"The table's outermost projected radius lies just inside the "
+            f"profile's outermost radius {r_t:.4e}, where the model's potential "
+            f"reaches the method's floor {K_FLOOR:g}; no setting moves the "
+            f"method's floor."
+        )
+        return inner, outer
+
     def read(self, r_2d: ArrayLike) -> tuple[Array, Array]:
-        """Return the surface density and `sigma_los` at any radius."""
+        """Return the surface density and `sigma_los` at projected radii.
+
+        Each of the two arrays has shape ``(n_components, len(r_2d))``, in
+        internal units. A projected radius inside the first row or beyond the
+        last row raises InputError. A negative interpolated value of the
+        squared dispersion raises AccuracyError.
+        """
         r_t = float(self.model.profile.r_table_max)
         finite = self.model.spatially_finite
+        inner, outer = self.notes()
         surface, sigma_los = [], []
         for i in range(np.shape(self.surface_density)[0]):
-            surface.append(
-                surface_density_reader(self.r_2d, self.surface_density[i], r_t, finite)(
-                    r_2d
-                )
+            read_surface = surface_density_reader(
+                self.r_2d, self.surface_density[i], r_t, finite
             )
-            sigma_los.append(
-                np.sqrt(
-                    dispersion_table_reader(
-                        self.r_2d, np.asarray(self.sigma_los[i]) ** 2
-                    )(r_2d)
-                )
+            read_los2 = dispersion_table_reader(
+                self.r_2d, np.asarray(self.sigma_los[i]) ** 2
             )
+            for reader in (read_surface, read_los2):
+                reader.inner_note, reader.outer_note = inner, outer
+            surface.append(read_surface(r_2d))
+            sigma_los.append(np.sqrt(read_los2(r_2d)))
         return np.stack(surface), np.stack(sigma_los)
 
     def read_traced(self, r_2d: Any, xp: Any = np) -> tuple[Any, Any]:
-        """Return the surface density and the squared `sigma_los` at radii,
-        with `r_2d` traceable under ``jax.numpy``.
+        """Return the surface density and the squared `sigma_los` at projected
+        radii, with `r_2d` traceable by JAX.
 
-        The same numbers as `read` (squared) inside the table, to rounding:
-        the readers' own cubics evaluated in the array module `xp`. Beyond
-        the last row both are zero. Inside the first row the first rows'
-        cubics continue; a caller refuses such radii before it traces, by
-        `END_TOLERANCE` as `read` does.
+        The method evaluates the cubic splines of `read` in the array module
+        `xp` (``numpy`` or ``jax.numpy``). Between the first and the last row
+        the values equal those of `read` to rounding, with `sigma_los`
+        squared. Beyond the last row both values are zero. Inside the first
+        row the cubic of the first interval is extended, and the values are
+        not checked. The caller must therefore raise InputError for a radius
+        inside the first row before it traces this method, with the relative
+        margin `END_TOLERANCE` that `read` applies. Where the squared
+        dispersion is negative, the returned squared dispersion is NaN.
         """
         r_t = float(self.model.profile.r_table_max)
         finite = self.model.spatially_finite
@@ -305,19 +413,24 @@ class ProjectedDispersion:
 
 @dataclass(frozen=True)
 class KeptRanges:
-    """Where two breaks of the velocity panels are kept, over projected radius.
+    """Ranges of projected radius in which two velocity breaks are kept.
 
-    Decided once for a model, on the base rows of its table. Every reader of
-    a row or of a table lays out its panels through them, so a row computed
-    alone agrees with the same row of the table.
+    A break is a velocity at which the line-of-sight velocity distribution of
+    a row is not smooth, and a velocity panel of the row ends there.
+    `kept_ranges` decides the ranges once for a model, on the base rows of
+    the model's table. Every computation of a row or of a table places its
+    velocity panels with the same ranges. A row computed alone therefore
+    agrees with the row at the same projected radius in the table.
 
     Parameters
     ----------
     v_rad : array, shape (n_ranges, 2)
-        Ranges of projected radius in which the break at the radial turning
-        velocity is kept.
+        The ranges of projected radius, as (start, end) pairs in internal
+        units, in which the break at the radial turning velocity V_rad is
+        kept.
     v_k : array, shape (n_ranges, 2)
-        Ranges in which the break at the kink velocity is kept.
+        The ranges of projected radius, as (start, end) pairs in internal
+        units, in which the break at the kink velocity V_k is kept.
     """
 
     v_rad: Array
@@ -326,43 +439,56 @@ class KeptRanges:
 
 @dataclass(frozen=True)
 class LosvdRow:
-    """The line-of-sight velocity distribution at one projected radius.
+    """The line-of-sight velocity distribution at one projected radius (a row).
 
     Parameters
     ----------
     r_2d : float
-        Projected radius, in internal units.
+        Projected radius of the row, in internal units.
     layout : str
-        Code of the sequence of panels of the row, the record of how the row
-        was made. Two rows are read together only where their layouts agree.
-        The code is a decimal integer naming the order of the row's interior
-        breaks: ``"0"`` none; ``"1"`` to ``"15"`` the orders of V_k, V_rad
-        and V_edge; ``"16"`` to ``"64"`` the orders that include V_c; and a
-        code with V_k plus 100 where a kept V_k lies inside the grading toward
-        zero velocity.
+        The layout code of the row: a decimal integer that identifies the order
+        of the row's interior velocity breaks. ``"0"`` means no interior
+        break. ``"1"`` to ``"15"`` are the orders of V_k, V_rad and V_edge.
+        ``"16"`` to ``"64"`` are the orders that include V_c. A code that
+        contains V_k is raised by 100 where a kept V_k lies inside the first
+        velocity panel graded toward zero velocity. The interpolation between
+        two rows requires the two rows to have the same layout code.
     v_breaks : dict of str to float
-        The break velocities of the row by name (``"v_k"``, ``"v_rad"``,
-        ``"v_edge"``, ``"v_c"``, ``"v_end"``), all five as the row computed
-        them, NaN where the row has none; the layout says which are breaks.
+        The five break velocities that the row computed, by name:
+        ``"v_k"``, ``"v_rad"``, ``"v_edge"``, ``"v_c"`` and ``"v_end"``, in
+        internal units. The layout code says which of the five are interior
+        breaks of the row. ``"v_end"`` is the largest velocity of the row.
     v_escape : float
-        Escape velocity at `r_2d` along the line of sight.
-    v_nodes, v_weights : array, shape (n,)
-        Velocity nodes of the panels, for non-negative velocity (the
-        distribution is even), and their quadrature weights.
+        Escape velocity of the line of sight at `r_2d`, in internal units.
+    v_nodes : array, shape (n,)
+        Velocity nodes of the row's panels, at non-negative velocity only,
+        in internal units. The distribution is even in velocity.
+    v_weights : array, shape (n,)
+        Quadrature weights of `v_nodes`.
     panel_edges : array
-        Edges of the sub-panels; between its nodes a row is read by the
-        polynomial of each sub-panel through its own nodes.
+        Edges of the row's velocity panels: 0, the interior breaks, and
+        V_end. Between nodes, the row is interpolated by the polynomial of
+        each panel through that panel's own nodes.
     losvd : array, shape (n_components, n)
-        The distribution at the nodes, divided by its own integral under
-        `v_weights`, so that a row integrates to exactly 1 with its own
-        weights. The surface density that weights a row in an aperture is
-        that of `ProjectedDispersion`, never the row's own integral; the
-        ratio of the two is the row's norm check in `record`.
+        The distribution at `v_nodes`, normalized so that its integral over
+        both signs of velocity is 1: twice its sum with `v_weights` is 1.
+        A row of a `LosvdTable` whose integral is not positive is stored
+        without normalization. An aperture weights a row by the surface density of
+        `ProjectedDispersion`, never by the row's integral before
+        normalization. The ratio of the two is the row's norm check in
+        `record`.
     record : dict
-        The row's own account: the levels of its inner quadrature, whether
-        it converged and by which test, its norm against the surface
-        density, its second moment against the projected dispersion, the
-        level of that check, and the fraction beyond the escape velocity.
+        The row's checks and the record of its quadrature along the line of
+        sight. ``norm_against_surface_density`` is the row's integral before
+        normalization over the surface density, less 1.
+        ``m2_against_projected_dispersion`` is the row's second moment over
+        :math:`\\sigma_{\\rm los}^2` of `ProjectedDispersion`, less 1.
+        ``beyond_escape`` is the share of the row beyond `v_escape`.
+        ``cusp`` says whether the row used the quadrature rule of a cusp.
+        ``t_panels``, ``t_change`` and ``t_converged`` are the panels of the
+        quadrature along the line of sight, the quadrature's last change and
+        whether the quadrature converged. A row of a `LosvdTable` also holds
+        ``seconds``, the wall-clock time of the row.
     """
 
     r_2d: float
@@ -380,51 +506,75 @@ class LosvdRow:
 class LosvdTable:
     """Rows of the line-of-sight velocity distribution over projected radius.
 
-    One table per component: components in one potential do not share their
-    breaks. An aperture sums the components with their surface densities.
+    `losvd_table` builds the object for a model of one component. Components
+    in one potential do not share their velocity breaks, so each component
+    has its own table. An aperture sums the components, each weighted by its
+    surface density.
 
     Parameters
     ----------
     rows : tuple of LosvdRow
         The rows, in increasing projected radius.
     r_base : array
-        Projected radii the layout rule placed, before any row was added.
+        The base rows (`base_rows`) that lie between the table's first and
+        last row, in internal units. The base rows are placed before any row
+        is added.
     r_breaks : array
-        Projected radii at which the layout of the rows changes; no row is
-        read across one.
+        Projected radii at which the layout code of the rows changes, in
+        internal units. The interpolation between rows never crosses one of
+        these radii.
     stretch_ends : array of bool, shape (n_stretches, 2)
-        Whether each end of each stretch between breaks is a true end (a
-        break, the edge of a finite model, or the last radius of the table),
-        which fixes the variable the rows are read in.
+        One pair per stretch between two neighboring entries of `r_breaks`.
+        Each flag says whether that end of the stretch is a true end: a
+        radius in `r_breaks`, the edge of a spatially finite model, or the
+        last radius of the table. The flags fix the variable in which the
+        rows of the stretch are interpolated.
     kept : KeptRanges
-        The kept ranges the rows were laid out with.
+        The kept ranges with which the rows placed their velocity panels.
     order : int
-        Order of the reading between rows at which the table was checked.
-        A reader at another order reads an unchecked table.
+        The number of rows in the interpolation stencil with which the
+        table was checked between rows. An interpolation with another number
+        of rows reads an unchecked table.
     r_uncertified : array, shape (n_gaps, 2)
-        Intervals of projected radius in which reading between rows is not
-        checked. A request inside one is refused by name.
+        Intervals of projected radius, in internal units, in which the
+        interpolation between rows is not checked. A request inside one of
+        these intervals raises an error that gives the interval.
     why_uncertified : tuple of str
-        The reason of each such interval, quoted by the refusal.
+        The reason for each interval of `r_uncertified`, quoted by that
+        error.
     certificate : dict
-        How the rows ended: the reason, the rows added, the rounds and the
-        tolerances.
+        The record of the row placement: how the placement ended, the rows
+        added, the rounds and the tolerances. The table's integer, float and
+        string entries of the placement record are kept, and
+        ``layer_floor`` is added (`validate_table`).
     identity : dict
-        The model the table belongs to (its digest, whether it is spatially
-        finite, its edge and the last radius of the table).
+        The model of the table: ``model`` (the model's identity digest),
+        ``spatially_finite``, ``r_edge`` (the model's edge),
+        ``r_end`` (the last row of a table cut inside the edge, else
+        infinity) and ``r_table_max`` (the profile's outermost radius).
     extrema : dict
-        The extrema of the line of sight (`EllipseRoute.f_extrema`) the
-        apertures read from this table computed, by the model's identity and
-        the rules, then by projected radius: a second aperture on the same
-        table reads them again instead of forming them. Each is the
-        one its radius forms alone, whatever else was asked with it.
-        Not part of the table's value.
-    pools : dict
-        The pools of processes the apertures read from this table keep open
-        between calls (`table_pool`), by the model's identity, the rules and
-        the number of cores: started at the first aperture that needs one,
-        closed by `close_pools` or when the table goes. Not part of the
+        The extrema along the line of sight (`EllipseRoute.f_extrema`) that
+        the apertures read from this table have computed, keyed by the
+        model's identity and the rules, then by projected radius. A second
+        aperture on the same table reads the stored extrema instead of
+        computing them again. Each stored extremum equals the value that its
+        radius gives when computed alone. The field is not part of the
         table's value.
+    pools : dict
+        The pools of processes that the apertures read from this table keep
+        open between calls (`table_pool`), keyed by the model's identity,
+        the rules and the number of cores. A pool starts at the first
+        aperture that needs a pool. A pool closes at `close_pools` or when the
+        table is garbage-collected. The field is not part of the table's
+        value.
+    readers : dict
+        The route without the DF and the stencil between rows with which
+        `losvd` and its transpose read this table
+        (`observables.core._reader_of`), keyed by the model's identity and
+        the rules. Each entry is made at the first read, and the route's
+        extrema are those of `extrema`. A table made from this table by
+        `dataclasses.replace` starts with an empty dict. The field is not
+        part of the table's value.
     """
 
     rows: tuple[LosvdRow, ...]
@@ -443,9 +593,12 @@ class LosvdTable:
     pools: dict[Any, Any] = field(
         default_factory=dict, init=False, repr=False, compare=False
     )
+    readers: dict[Any, Any] = field(
+        default_factory=dict, init=False, repr=False, compare=False
+    )
 
     def close_pools(self) -> None:
-        """Close the pools of processes the table's apertures keep open."""
+        """Terminate and join every pool of processes in `pools`."""
         while self.pools:
             _, pool = self.pools.popitem()
             pool.terminate()
@@ -453,17 +606,20 @@ class LosvdTable:
 
 
 def table_pool(table: LosvdTable, route: Any, key: Any) -> Any:
-    """Return the table's pool for `key`, starting it at the first call.
+    """Return the pool of processes stored on `table` under `key`.
 
-    The processes take a copy of the route without its extrema cache: a
-    process forms the extrema of the radii it is handed, each the one its
-    radius forms alone, and the cache stays with the caller. The pool is
-    terminated with the table if `LosvdTable.close_pools` was not called.
+    The first call for a key starts a pool of `get_cores` processes and
+    stores the pool in `LosvdTable.pools`. Each process receives a copy of
+    `route` with an empty extrema cache. The route's own extrema cache stays
+    with the caller. A process computes the extrema of each radius that the
+    process receives, and each value equals the value that the radius gives when
+    computed alone. When the table is garbage-collected before
+    `LosvdTable.close_pools` is called, a finalizer terminates the pool.
     """
     if key not in table.pools:
         cache, route._fext = route._fext, {}
         try:
-            pool = new_pool(get_workers(), route)
+            pool = new_pool(get_cores(), route)
         finally:
             route._fext = cache
         table.pools[key] = pool
@@ -475,26 +631,39 @@ def table_pool(table: LosvdTable, route: Any, key: Any) -> Any:
 class ApertureLosvd:
     """The line-of-sight velocity distribution inside an aperture.
 
+    `aperture_losvd` builds the object.
+
     Parameters
     ----------
     aperture : Aperture
-        The aperture.
-    v_nodes, v_weights : array, shape (n,)
-        Velocity nodes of the panels of the aperture distribution and their
-        quadrature weights, in internal units. Moments are taken with these
-        weights.
+        The aperture, in internal units.
+    v_nodes : array, shape (n,)
+        Velocity nodes of the distribution's panels, at non-negative velocity
+        only, in internal units.
+    v_weights : array, shape (n,)
+        Quadrature weights of `v_nodes`. The moments of the distribution are
+        sums with these weights.
     v_breaks : array
-        Edges of the panels.
+        Edges of the distribution's velocity panels, in internal units.
     losvd : array, shape (n_components, n)
-        The distribution at the nodes, weighted by the surface density over
-        the aperture and normalized to unit integral over velocity.
+        The distribution at `v_nodes`: the rows of the table averaged over
+        the aperture with the surface density as weight. The distribution's
+        integral over both signs of velocity is ``record["norm_file"]``,
+        which `validate_aperture` checks against 1.
     mass : tuple of float
-        Projected mass of each component inside the aperture.
+        Projected mass of each component inside the aperture, in internal
+        units.
     record : dict
-        The norm by its own weights, the second moment against the rows and
-        against the aperture dispersion, the estimate of the reading between
-        rows over the aperture, how the refinement ended, and the status:
-        the worse of its own and the table's.
+        The integer, float and string entries of the record of
+        `aperture_losvd_panels`, and ``table_level``. ``norm_file`` and
+        ``m2_file`` are the integral and the second moment over both signs of
+        velocity with the distribution's own weights. ``norm_rows`` and
+        ``m2_rows`` are the same moments by the rows' own quadrature rule.
+        ``stencil_est`` estimates the error of the interpolation between rows
+        over the aperture. ``refine_end``, ``refine_rounds``, ``gap_first``
+        and ``gap_last`` record how the refinement of the velocity panels
+        ended. ``table_level`` is the level of the tier of the table's report
+        (`validate_table`).
     """
 
     aperture: Aperture
@@ -509,8 +678,13 @@ class ApertureLosvd:
 def _surface_and_dispersion(
     projected: ProjectedDispersion,
 ) -> Callable[[ArrayLike], tuple[Array, Array]]:
-    """The surface density and the squared projected dispersion at radii, of
-    the first component, the references of a row's checks."""
+    """Return a function of projected radii that gives the first component's
+    surface density and squared line-of-sight dispersion.
+
+    The function reads `projected` with `ProjectedDispersion.read`. A row's
+    norm check and second-moment check compare the row against the two
+    returned values.
+    """
 
     def read(r_2d: ArrayLike) -> tuple[Array, Array]:
         surface, sigma_los = projected.read(np.atleast_1d(r_2d))
@@ -520,32 +694,46 @@ def _surface_and_dispersion(
 
 
 def _tangent_parameters(model: Model, tangents: Sequence[str]) -> tuple[str, ...]:
-    """The anisotropy parameters asked for, refused where the model's profile
-    is not fixed or the family does not vary in one."""
+    """Return the names in `tangents` as a tuple, after checking that the
+    derivatives in those anisotropy parameters can be taken.
+
+    An empty `tangents` returns an empty tuple without a check. Otherwise
+    the function raises InputError in three cases: the model is not
+    spatially finite; the model's DF below its table does not follow the
+    edge law (the model is not a Method II model); or a name is not an
+    anisotropy parameter of the model's anisotropy family
+    (`TANGENT_PARAMETERS`). On a model that is not spatially finite, the
+    radial dispersion's part below the table reads the DF, and the DF
+    changes with the anisotropy. On a truncated model that is not a Method II
+    model, the density profile follows the model's own DF, and the DF changes
+    with the anisotropy.
+    """
     names = tuple(tangents)
     if not names:
         return names
     component = model.components[0]
     if not model.spatially_finite:
         raise InputError(
-            f"The tangent rows of {component.name!r} are not taken: it is "
-            "untruncated, and its radial dispersion's part below the table "
-            "reads its DF, which moves with the anisotropy."
+            f"The tangents of {component.name!r} are not computed, because "
+            f"{component.name!r} is untruncated; the part of the radial dispersion "
+            "below the table depends on the DF, which moves with the anisotropy."
         )
     rule = model.form.below_floor[0]
     if rule != "edge_law":
         raise InputError(
-            f"The tangent rows of {component.name!r} are not taken: it is not "
-            f"a Method II model (its DF ends below its table by the rule "
-            f"{rule!r}, not the edge law), and a truncated model's profile "
-            "follows its own DF, so it moves with the anisotropy."
+            f"The tangents of {component.name!r} are not computed, because "
+            f"{component.name!r} is not a Method II model (the DF below the DF "
+            f"table follows the rule {rule!r}, not the edge law). The profile of a "
+            "truncated model that is not a Method II model follows the model's own "
+            "DF, so the profile moves with the anisotropy."
         )
     family = component.anisotropy.family
     for name in names:
         if name not in TANGENT_PARAMETERS[family]:
             raise InputError(
-                f"A {family} model's tangent rows are taken in "
-                f"{list(TANGENT_PARAMETERS[family])}; got {name!r}."
+                f"The tangents of a model of the anisotropy family {family} are "
+                f"taken in the parameters {list(TANGENT_PARAMETERS[family])}; the "
+                f"parameter given is {name!r}."
             )
     return names
 
@@ -553,50 +741,77 @@ def _tangent_parameters(model: Model, tangents: Sequence[str]) -> tuple[str, ...
 def dispersion_profile(
     model: Model, settings: Settings, tangents: Sequence[str] = ()
 ) -> DispersionProfile:
-    r"""Return the intrinsic second moments of a model.
+    r"""Return the intrinsic velocity dispersions of a model of one component.
 
     Parameters
     ----------
     model : Model
         The model.
     settings : Settings
-        Numerical settings.
+        The numerical settings. The stage reads ``observables.profile_tolerance``
+        and ``observables.n_profile_start``.
     tangents : sequence of {"beta_c", "r_a"}, optional
-        Anisotropy parameters to take the tangent rows in: the derivative of
-        :math:`\sigma_r^2` on the same rows, on the model's fixed profile
-        (`DispersionProfile.tangents`). The family's own
-        (`TANGENT_PARAMETERS`); none by default.
+        The anisotropy parameters in which the stage also takes the
+        derivative of :math:`\sigma_{\rm r}^2` at the rows, at fixed density
+        profile (`DispersionProfile.tangents`). Each name must be a parameter
+        of the model's anisotropy family (`TANGENT_PARAMETERS`). Default:
+        ``()``, which means no derivative is taken.
 
     Returns
     -------
     profile : DispersionProfile
+        The dispersions at the rows, with the interpolation between rows.
 
     Raises
     ------
     InputError
-        With `tangents`, where the model is not a Method II model on a
-        truncated profile (an untruncated model, or a truncated one whose
-        profile follows its own DF), or the family does not vary in a
-        parameter named.
+        If `tangents` lists a parameter and the model is not spatially
+        finite.
+    InputError
+        If `tangents` lists a parameter and the model's DF below its table
+        does not follow the edge law (the model is not a Method II model).
+    InputError
+        If `tangents` lists a parameter that the model's anisotropy family
+        does not have.
+    ResultError
+        If the integral of the auxiliary density below the table's lowest
+        potential is not finite, or if no row has a positive
+        :math:`\sigma_{\rm r}^2`.
 
     Notes
     -----
-    :math:`\varrho_{\rm aux}\sigma_r^2(R) = \int_0^{P(R)}\varrho_{\rm aux}\,{\rm d}K`
-    on rows from the profile's first row to its last, placed
-    until every interval reads within ``profile_tolerance`` at its midpoint
-    (`radial_table`), the part below the table's lowest potential over the
-    model's DF (zero on a spatially finite model);
-    :math:`\sigma_t^2 = 2(1 - \beta_\sigma)\sigma_r^2`.
+    The stage evaluates the Jeans integral
 
-    The tangent rows are the derivative of the same rule on the same rows
-    and nodes (`radial_dispersion_tangent`): the rows' placement is held, and
-    the edge reading's limit does not move, since a Method II model's edge
-    law moves with :math:`\beta_{\rm c}` as its class factor does. Without
-    `tangents` the result is the same, bit for bit.
+    .. math::
+
+        \varrho_{\rm aux}\sigma_{\rm r}^2(R) = \int_0^{P(R)}
+        \varrho_{\rm aux}\,{\rm d}K,
+
+    with :math:`R` the 3D radius, :math:`P` the relative potential,
+    :math:`K` the potential as the variable of integration and
+    :math:`\varrho_{\rm aux}` the auxiliary density. The part of the
+    integral below the lowest potential of the profile's table is computed
+    from the model's DF. That part is zero on a spatially finite model. The
+    tangential dispersion is
+    :math:`\sigma_{\rm t}^2 = 2(1 - \beta_\sigma)\sigma_{\rm r}^2`.
+
+    The rows run from the profile's first radius to the profile's last
+    radius. `radial_table` adds rows until the interpolation between rows
+    agrees with the integral at every interval's midpoint to
+    ``profile_tolerance`` in :math:`\sigma_{\rm r}`.
+
+    The derivative rows apply the derivative of the same quadrature rule on
+    the same rows and nodes (`radial_dispersion_tangent`). The rows are not
+    moved. The limit `DispersionProfile.edge_limit` does not change with the
+    anisotropy, because a Method II model's edge law changes with
+    :math:`\beta_{\rm c}` as the factor of the model's anisotropy class
+    does. The
+    result without `tangents` is bit for bit the result with `tangents`,
+    apart from `DispersionProfile.tangents`.
 
     References
     ----------
-    Eq. (T:6.1) [jeans]. Chiang+(2026d), Eq. (B42) [eqn:linearity_2].
+    Notes Eq. (T:6.1). Chiang+(2026d), Eq. (B43).
     """
     names = _tangent_parameters(model, tangents)
     with timed("dispersion_profile"):
@@ -642,59 +857,86 @@ def projected_dispersion(
     settings: Settings,
     tangents: Sequence[str] = (),
 ) -> ProjectedDispersion:
-    """Return the surface density and the line-of-sight dispersion.
+    """Return the surface density and the line-of-sight velocity dispersion.
 
     Parameters
     ----------
     model : Model
-        The model.
+        The model, of one component.
     profile : DispersionProfile
-        Its intrinsic second moments.
+        The intrinsic velocity dispersions of `model`.
     settings : Settings
-        Numerical settings.
+        The numerical settings. The stage reads ``observables.n_radii`` and
+        ``observables.n_projection_nodes``.
     tangents : sequence of {"beta_c", "r_a"}, optional
-        Anisotropy parameters to take the tangent rows in: the derivative of
-        the squared line-of-sight dispersion on the same rows
-        (`ProjectedDispersion.tangents`), from the profile's tangent rows in
-        the same parameters. None by default.
+        The anisotropy parameters in which the stage also takes the
+        derivative of the squared line-of-sight dispersion at the rows
+        (`ProjectedDispersion.tangents`). The stage computes each derivative
+        from the derivative rows of `profile` in the same parameter.
+        Default: ``()``, which means no derivative is taken.
 
     Returns
     -------
     projected : ProjectedDispersion
+        The surface density and the line-of-sight dispersion at the rows,
+        with the interpolation between rows.
 
     Raises
     ------
     InputError
-        With `tangents`, as `dispersion_profile`, or where the profile holds
-        no tangent rows in a parameter named.
+        If `tangents` lists a parameter, under the three conditions that
+        `dispersion_profile` lists for its argument ``tangents``.
+    InputError
+        If `profile` holds no derivative rows in a parameter that `tangents`
+        lists.
+    AccuracyError
+        If the quadrature gives a row a negative squared line-of-sight
+        dispersion.
 
     Notes
     -----
-    Both from one line-of-sight rule with one density (`project`), on
-    ``n_radii`` projected radii to 0.9999 of the last row, with rows added
-    until the table reads itself between rows to `CERTIFICATE_TOLERANCE`.
+    One quadrature along the line of sight (`project`), with one density,
+    gives the surface density and the squared dispersion at each row. The
+    first rows are ``n_radii`` projected radii, logarithmic from the
+    profile's first radius to 0.9999 of the profile's outermost radius.
+    `certify_projection` adds rows until the interpolation between rows
+    agrees with the quadrature at every interval's midpoint to
+    `CERTIFICATE_TOLERANCE`.
 
-    The tangent rows are the derivative of the same rule on the same rows
-    and nodes (`project_tangent`), through the derivative of the profile's
-    reading (`radial_integral_tangent_reader`); zero where the squared
-    dispersion is clipped to zero. Without `tangents` the result is the
-    same, bit for bit.
+    The derivative rows apply the derivative of the same quadrature rule on
+    the same rows and nodes (`project_tangent`). The derivative of
+    :math:`\\sigma_{\\rm r}^2` between the profile's rows comes from
+    `radial_integral_tangent_reader`. The result without `tangents` is bit
+    for bit the result with `tangents`, apart from
+    `ProjectedDispersion.tangents`.
 
     References
     ----------
-    Chiang+(2026d), Eqs. (B45), (B46) [eqn:los_sigma_1].
+    Chiang+(2026d), Eq. (B46).
     """
     names = _tangent_parameters(model, tangents)
     missing = [name for name in names if name not in profile.tangents]
     if missing:
         raise InputError(
-            f"The profile holds no tangent rows in {missing}: compute it with "
-            "dispersion_profile(..., tangents=...) in the same parameters."
+            f"The dispersion profile holds no tangents in {missing}; a dispersion "
+            "profile computed by dispersion_profile(..., tangents=...) in the same "
+            "parameters holds the tangents."
         )
     with timed("projected_dispersion"):
         table = projected_table(
             model, profile._read_sigma_r2(0), settings, CERTIFICATE_TOLERANCE
         )
+        negative = np.asarray(table["sigma_los2"]) < 0.0
+        if np.any(negative):
+            k = int(np.argmin(table["sigma_los2"]))
+            raise AccuracyError(
+                f"The projection integral gives the squared line-of-sight "
+                f"dispersion {float(table['sigma_los2'][k]):.3e}, which is below 0, "
+                f"at the projected radius R_2D = {float(table['r_2d'][k]):.4e}, so "
+                f"the table does not hold the negative variance. The setting "
+                f"observables.n_projection_nodes gives the projection integral's "
+                f"number of nodes."
+            )
         record = dict(table["certificate"])
         worst_sigma, worst_los = record.pop("worst_first")
         record["worst_first_surface_density"] = worst_sigma
@@ -715,13 +957,11 @@ def projected_dispersion(
                 int(settings.observables["n_projection_nodes"]),
                 name,
             )
-            tangent_rows[name] = np.where(table["sigma_los2"] > 0.0, rows, 0.0)[
-                np.newaxis, :
-            ]
+            tangent_rows[name] = rows[np.newaxis, :]
         return ProjectedDispersion(
             r_2d=table["r_2d"],
             surface_density=table["surface_density"][np.newaxis, :],
-            sigma_los=np.sqrt(np.maximum(table["sigma_los2"], 0.0))[np.newaxis, :],
+            sigma_los=np.sqrt(table["sigma_los2"])[np.newaxis, :],
             certificate=record,
             model=model,
             tangents=tangent_rows,
@@ -731,46 +971,60 @@ def projected_dispersion(
 def aperture_dispersion(
     projected: ProjectedDispersion, aperture: Aperture, settings: Settings
 ) -> Array:
-    """Return the line-of-sight dispersion averaged over an aperture.
+    """Return the line-of-sight velocity dispersion averaged over an aperture.
 
-    The average of the squared dispersion weighted by the surface density.
-    It reads no velocity distribution, and is the independent reference of
+    The result is the square root of the average of the squared
+    line-of-sight dispersion over the aperture, with the surface density as
+    weight. The stage reads no velocity distribution. The result is
+    therefore an independent reference for the second moment of
     `aperture_losvd`.
 
     Parameters
     ----------
     projected : ProjectedDispersion
-        Surface density and dispersion over projected radius.
+        The surface density and the line-of-sight dispersion over projected
+        radius.
     aperture : Aperture
-        The aperture.
+        The aperture, in internal units.
     settings : Settings
-        Numerical settings.
+        The numerical settings. The stage reads
+        ``observables.n_aperture_nodes`` and
+        ``observables.aperture_nodes_per_decade``.
 
     Returns
     -------
     sigma_los : array, shape (n_components,)
+        The averaged line-of-sight dispersion of each component, in internal
+        units. A negative average of the squared dispersion is returned as 0.
 
     Raises
     ------
     InputError
-        Where the aperture encloses no tabulated surface density, or where the
-        disk inside the table's first row carries more than
-        `INNER_DISK_TOLERANCE` of its weight.
+        If the aperture encloses no tabulated surface density.
+    InputError
+        If the disk inside the projected table's first row carries more than
+        `INNER_DISK_TOLERANCE` of the aperture's weight.
+    AccuracyError
+        If the disk inside the first row must be estimated and the slope
+        :math:`-{\\rm d}\\ln\\Sigma/{\\rm d}\\ln R_{\\rm 2D}` between the first
+        two rows is not below 2 (``_projection.INNER_SLOPE_MAX``), so that
+        the disk's estimate diverges.
 
     Notes
     -----
-    The integral over the aperture is one-dimensional in projected radius,
-    weighted by the angular measure of each circle inside the aperture
-    (`Aperture.arc`), on panels between the radii where that measure is not
-    smooth (`Aperture.breaks`); each panel has ``n_aperture_nodes``
-    Gauss-Legendre nodes, or ``aperture_nodes_per_decade`` a decade of its
-    span where that is more. The table is read as `ProjectedDispersion.read`
-    reads it.
+    The integral over the aperture is one-dimensional in projected radius.
+    The integrand is weighted by the angular measure of the circle of each
+    radius inside the aperture (`Aperture.arc`). The integral runs on
+    panels between the radii where that angular measure is not smooth
+    (`Aperture.breaks`). Each panel has ``n_aperture_nodes`` Gauss-Legendre
+    nodes, or ``aperture_nodes_per_decade`` nodes per decade of the panel's
+    span where that number is larger. The stage interpolates the table as
+    `ProjectedDispersion.read` interpolates the table.
 
     References
     ----------
-    Chiang+(2026d) [eqn:los_sigma_rect] (a rectangle), [eqn:los_sigma_2] (a centered
-    circle) and [eqn:los_sigma_3] (an offset circle).
+    Chiang+(2026d), Eq. (B48) (a rectangle). Chiang+(2026d), Eq. (B50) (a
+    centered circle). Chiang+(2026d), Eq. (B51) (an offset circle).
     """
     observables = settings.observables
     r_t = float(projected.model.profile.r_table_max)
@@ -797,32 +1051,42 @@ def aperture_dispersion(
 def kept_ranges(
     model: Model, projected: ProjectedDispersion, settings: Settings
 ) -> KeptRanges:
-    r"""Return where the breaks of the velocity panels are kept.
+    r"""Return the ranges of projected radius in which the velocity breaks
+    V_rad and V_k are kept.
 
-    A break is kept where each of the two panels next to it carries more
-    than a bound of the row's content.
+    A break is kept where the measure of the break, defined in the Notes,
+    is above `VRAD_KEEP` (:math:`10^{-8}`). The stage returns empty ranges
+    for a model whose route has no angular-momentum factor (``route.lfac``
+    false) and no anisotropy radius (``route.SGN`` zero). V_k is never kept
+    on a model without an anisotropy radius.
 
     Parameters
     ----------
     model : Model
-        The model.
+        The model, of one component.
     projected : ProjectedDispersion
-        Its surface density and projected dispersion.
+        The surface density and the line-of-sight dispersion of `model`.
     settings : Settings
-        Numerical settings.
+        The numerical settings. The stage reads the ``losvd`` group.
 
     Returns
     -------
     kept : KeptRanges
+        The ranges of projected radius in which each break is kept.
 
     Notes
     -----
-    The bound of V_rad is :math:`2D(V_{\rm rad})(V_{\rm end} - V_{\rm rad})`
-    over the surface density, or :math:`V_{\rm end}^2` times that over the
-    surface density times :math:`\sigma_{\rm los}^2` where larger, with
-    :math:`D(V_{\rm rad})` from one row at that velocity; that of V_k the
-    smaller of the same over its two panels. Each is taken on the base rows
-    and bisected in ln R where it crosses `VRAD_KEEP`.
+    The measure of V_rad at a projected radius is
+    :math:`B = 2D(V_{\rm rad})(V_{\rm end} - V_{\rm rad})/\Sigma`, with
+    :math:`D(V_{\rm rad})` the distribution at V_rad from one row computed
+    at that velocity alone, V_end the row's largest velocity and
+    :math:`\Sigma` the surface density. Where
+    :math:`V_{\rm end}^2 B/\sigma_{\rm los}^2` is larger than :math:`B`, the
+    measure is :math:`V_{\rm end}^2 B/\sigma_{\rm los}^2`. The measure of V_k
+    is the smaller of the same measure over the two panels next to V_k.
+    Each measure is evaluated on the base rows. Where a measure crosses
+    `VRAD_KEEP` between two base rows, the crossing is bisected in
+    :math:`\ln R_{\rm 2D}`.
     """
     rules = ellipse_rules(settings)
     with timed("kept_ranges"):
@@ -837,7 +1101,12 @@ def kept_ranges(
             )
             v_k = (
                 vk_kept_ranges(
-                    route, route_df, base, _surface_and_dispersion(projected), pool.map
+                    route,
+                    route_df,
+                    base,
+                    _surface_and_dispersion(projected),
+                    pool.map,
+                    float(projected.r_2d[-1]),
                 )[0]
                 if route.SGN != 0.0
                 else np.zeros((0, 2))
@@ -854,28 +1123,36 @@ def losvd_row(
 ) -> LosvdRow:
     """Return the line-of-sight velocity distribution at one projected radius.
 
+    The stage computes one row alone, with the same velocity panels as the
+    row at the same projected radius in `losvd_table`.
+
     Parameters
     ----------
     model : Model
-        The model.
+        The model, of one component.
     r_2d : float
-        Projected radius, in internal units.
+        Projected radius of the row, in internal units.
     kept : KeptRanges
-        The kept ranges of the model.
+        The kept ranges of `model`.
     projected : ProjectedDispersion
-        Surface density and projected dispersion, which the row is checked
-        against.
+        The surface density and the line-of-sight dispersion of `model`. The
+        row's norm and second moment are checked against these two values.
     settings : Settings
-        Numerical settings.
+        The numerical settings. The stage reads the ``losvd`` group.
 
     Returns
     -------
     row : LosvdRow
+        The row, normalized, with its checks in `LosvdRow.record`.
 
     Raises
     ------
     ResultError
-        Where the radius's own scan puts a break on or past its V_end.
+        If the layout code of the row does not place the row's interior
+        breaks in increasing order strictly between 0 and V_end.
+    InputError
+        If `r_2d` lies inside the first row or beyond the last row of
+        `projected`.
     """
     rules = ellipse_rules(settings)
     with timed("losvd_row"):
@@ -927,41 +1204,53 @@ def losvd_table(
     projected: ProjectedDispersion,
     settings: Settings,
 ) -> LosvdTable:
-    """Return the table of rows that checks its own reading between rows.
+    """Return the table of rows of the line-of-sight velocity distribution.
 
-    Rows are added until the distribution read between two neighboring
-    rows agrees with a row computed there, to the tolerance of the settings.
-    Intervals that cannot be closed are recorded with their reason, not
-    hidden.
+    Rows are added until the distribution interpolated between two
+    neighboring rows agrees with a row computed at the same projected
+    radius, to the tolerances of the ``losvd`` settings. An interval of
+    projected radius in which that agreement is not reached is recorded in
+    `LosvdTable.r_uncertified`, with the interval's reason in
+    `LosvdTable.why_uncertified`.
 
     Parameters
     ----------
     model : Model
-        The model.
+        The model, of one component.
     kept : KeptRanges
-        The kept ranges of the model.
+        The kept ranges of `model`.
     projected : ProjectedDispersion
-        Surface density and projected dispersion.
+        The surface density and the line-of-sight dispersion of `model`.
     settings : Settings
-        Numerical settings.
+        The numerical settings. The stage reads the ``losvd`` group.
+
     Returns
     -------
     table : LosvdTable
+        The rows, with the record of their placement and of their checks.
 
     Notes
     -----
-    The base rows are ``rows_per_decade`` a decade from the profile's first row
-    to 0.9999 of where the rows end: its last row, or the radius where the
-    potential reaches the DF's floor where the DF is zero below it
-    (`floor_radius`), read before any row is built; rows are added toward
-    each R-break, toward that end and where a stretch is short
-    (`rows_with_r_breaks`). The rows kept run from the last at or inside
-    `row_start` (``innermost_read_radius``) to the first at or beyond
-    `row_stop` (``outer_mass_share``), each the full grid's own; a table cut
-    inside its edge is read to its last row only, the gap beyond unread. Each row
-    is computed in a pool of `get_workers` processes started by spawn (each
-    process imports the package once), and checked against the surface
-    density and the projected dispersion of `projected`.
+    The base rows (`base_rows`) are ``rows_per_decade`` projected radii per
+    decade. The base rows run from the profile's first radius to 0.9999 of
+    the radius where the rows end (`floor_radius`). The rows end at the
+    profile's last radius, or, on a model whose DF is zero below a floor
+    energy, at the radius where the potential reaches that floor energy.
+    `rows_with_r_breaks` adds rows toward each radius in
+    `LosvdTable.r_breaks`, toward the end radius, and inside short stretches
+    between breaks.
+
+    The table keeps the rows from the last row at or inside `row_start` to
+    the first row at or beyond `row_stop`. Each kept row is the row of the
+    full grid at the same radius. `row_start` is set by the setting
+    ``losvd.innermost_read_radius``, and `row_stop` by the setting
+    ``losvd.outer_mass_share``. A table cut inside the model's edge is read
+    only up to its last row.
+
+    Each row is computed in a pool of `get_cores` processes, started by
+    spawn, so each process imports the package once. Each row is checked
+    against the surface density and the squared line-of-sight dispersion of
+    `projected`.
     """
     rules = ellipse_rules(settings)
     with timed("losvd_table"):
@@ -970,7 +1259,8 @@ def losvd_table(
         route_df = ellipse_route(model, rules)
         base = base_rows(model, settings)
         r_full, r_breaks = route.rows_with_r_breaks(base)
-        # the rows the inputs read: each the full grid's own
+        # The table keeps the rows of the full grid between row_start and
+        # row_stop, so each kept row equals the full grid's row at its radius.
         r_rows = cut_rows(
             r_full,
             row_start(model, projected, float(settings.losvd["innermost_read_radius"])),
@@ -980,8 +1270,9 @@ def losvd_table(
         read = _surface_and_dispersion(projected)
         surface, sigma_los2 = read(r_rows)
         r_edge = float(route.R_t)
-        # a table cut inside the edge is read to its last row only, one cut
-        # inside from its first; its R-breaks are the full table's
+        # A table cut inside the edge is read up to its last row only. A table
+        # cut at its inner end is read from its first row only. The radii of
+        # r_breaks are those of the full grid in both cases.
         cut = bool(r_rows[-1] < r_full[-1])
         read_range = (
             float(r_rows[0]) if r_rows[0] > r_full[0] else 0.0,
@@ -1048,36 +1339,54 @@ def aperture_losvd(
     projected: ProjectedDispersion,
     aperture: Aperture,
     settings: Settings,
+    record: list[tuple[Array, Array, dict[str, Array]]] | None = None,
 ) -> ApertureLosvd:
     """Return the line-of-sight velocity distribution inside an aperture.
 
-    The rows of the table are read at the radii of the aperture, with the
-    breaks at each radius computed from the model and the weights from the
-    surface density. No row is computed here.
+    The stage interpolates the rows of `table` at the projected radii of the
+    aperture's quadrature. The velocity breaks at each radius come from the
+    model, and the weights from the surface density. The stage computes no
+    new row.
 
     Parameters
     ----------
     model : Model
-        The model.
+        The model, of one component.
     table : LosvdTable
-        Its table of rows, covering the aperture.
+        The table of rows of `model`, covering the aperture.
     projected : ProjectedDispersion
-        Surface density and projected dispersion.
+        The surface density and the line-of-sight dispersion of `model`.
     aperture : Aperture
-        The aperture.
+        The aperture, in internal units.
     settings : Settings
-        Numerical settings.
+        The numerical settings. The stage reads ``observables.n_aperture_nodes``,
+        ``observables.aperture_nodes_per_decade`` and the ``losvd`` group.
+    record : list, optional
+        A list to which the stage appends, for each value of ``losvd[0]`` in
+        order, the projected radii at which the value reads the table, their
+        weights and the velocity breaks at those radii
+        (`aperture_losvd_panels`). Default: ``None``, which means nothing is
+        recorded.
 
     Returns
     -------
     result : ApertureLosvd
+        The distribution, the projected mass inside the aperture and the
+        record of the computation. ``result.record["table_level"]`` holds the
+        level of the tier of the report of `table` (`validate_table`).
 
     Raises
     ------
     InputError
-        Where the aperture encloses no tabulated surface density, or the disk
-        inside the table's first row carries more than `INNER_DISK_TOLERANCE`
-        of its weight.
+        If the aperture encloses no tabulated surface density.
+    InputError
+        If the disk inside the first row of `table`, or of `projected` for a
+        table that is not cut at its inner end, carries more than
+        `INNER_DISK_TOLERANCE` of the aperture's weight.
+    AccuracyError
+        If the disk inside the first row must be estimated and the slope
+        :math:`-{\\rm d}\\ln\\Sigma/{\\rm d}\\ln R_{\\rm 2D}` between the first
+        two rows is not below 2 (``_projection.INNER_SLOPE_MAX``).
     """
     rules = ellipse_rules(settings)
     observables = settings.observables
@@ -1086,10 +1395,13 @@ def aperture_losvd(
     with timed("aperture_losvd"):
         route = ellipse_route(model, rules, with_df=False)
         route.vrad_kept, route.vk_kept = table.kept.v_rad, table.kept.v_k
-        # the extrema the table's apertures computed before, kept on it
+        # The route reads and extends the extrema that earlier apertures on
+        # the same table computed and stored in LosvdTable.extrema.
         route._fext = table.extrema.setdefault((model.identity, rules), {})
         stencil = table_stencil(route, table)
-        # on a table cut inside, the integral starts at its first row
+        # On a table cut at its inner end, the integral over the aperture
+        # starts at the table's first row: the surface density is read from
+        # the first row of projected at or beyond that radius.
         r_first = float(table.rows[0].r_2d)
         r_p = np.asarray(projected.r_2d, dtype=np.float64)
         k = (
@@ -1105,16 +1417,16 @@ def aperture_losvd(
         )
         if k:
             surface.inner_note = (
-                f"The table's rows start at {r_first:.4e}, which "
-                f"losvd.innermost_read_radius sets; the smallest centered circle "
-                f"it serves at the goal has radius "
-                f"{served_radius(model, projected, r_first):.4e}."
+                f"The table's innermost projected radius is {r_first:.4e}, which the "
+                f"setting losvd.innermost_read_radius sets; the smallest centered "
+                f"circle that the table computes to a relative error of 0.000001 "
+                f"has the radius {served_radius(model, projected, r_first):.4e}."
             )
-        n_workers = get_workers()
+        n_workers = get_cores()
 
         def pool() -> Any:
-            # the table's pool, started where a radius first needs it and
-            # kept for the table's next apertures
+            # The table's pool starts when the first radius needs it, and the
+            # table keeps the pool for its next apertures.
             return table_pool(table, route, (model.identity, rules, n_workers))
 
         def extrema(r2: Array) -> None:
@@ -1128,6 +1440,7 @@ def aperture_losvd(
             n_nodes,
             per_decade,
             INNER_DISK_TOLERANCE,
+            record=record,
             extrema=extrema if n_workers > 1 else None,
         )
         r, weights, sigma = aperture_nodes(
@@ -1156,33 +1469,46 @@ def gauss_hermite_moments(v: Array, weights: Array, losvd: Array) -> dict[str, f
 
     Parameters
     ----------
-    v, weights : array, shape (n,)
-        Velocity nodes over the whole distribution, both signs, and their
-        quadrature weights. A row or an aperture distribution holds
-        ``V >= 0`` only: mirror it first.
+    v : array, shape (n,)
+        Velocity nodes over the whole distribution, at both signs of
+        velocity, in internal units. A `LosvdRow` or an `ApertureLosvd`
+        holds nodes at non-negative velocity only, so its nodes, weights and
+        values must be mirrored to negative velocity first.
+    weights : array, shape (n,)
+        Quadrature weights of `v`.
     losvd : array, shape (n,)
-        The distribution at `v`; it is normalized here to unit integral.
+        The distribution :math:`D(V)` at `v`. The function divides
+        :math:`D` by its integral with `weights` before it takes the moments.
 
     Returns
     -------
     moments : dict
-        ``mean`` and ``sigma``, the distribution's own mean and dispersion,
-        which are the Gaussian's :math:`V_*` and :math:`\sigma_*`; ``h3`` and
-        ``h4``; and the standardized moments ``s3`` and ``s4`` by direct sums.
+        ``mean`` and ``sigma`` are the mean and the dispersion of the
+        normalized distribution, in internal units. The function uses them
+        as the mean :math:`V_*` and the dispersion :math:`\sigma_*` of the
+        Gaussian. ``h3`` and ``h4`` are the Gauss-Hermite moments
+        :math:`h_3` and :math:`h_4`. ``s3`` and ``s4`` are the standardized
+        third and fourth moments :math:`s_3` and :math:`s_4`, by direct sums
+        over the nodes.
 
     Notes
     -----
-    With :math:`y = (V - V_*)/\sigma_*`,
-    :math:`h_n = 2\sqrt{\pi}\int D(V)\,H_n(y)\,e^{-y^2/2}/\sqrt{2\pi}
-    \,{\rm d}V`, the Hermite functions of van der Marel and Franx (1993):
-    :math:`H_3 = (2y^3 - 3y)/\sqrt{3}`,
+    With :math:`y = (V - V_*)/\sigma_*`, the moments are
+
+    .. math::
+
+        h_n = 2\sqrt{\pi}\int D(V)\,H_n(y)\,\frac{e^{-y^2/2}}{\sqrt{2\pi}}
+        \,{\rm d}V,
+
+    with the Hermite polynomials of van der Marel and Franx (1993),
+    :math:`H_3 = (2y^3 - 3y)/\sqrt{3}` and
     :math:`H_4 = (4y^4 - 12y^2 + 3)/(2\sqrt{6})`. To first order in
-    :math:`h_3, h_4`, :math:`s_3 = 4\sqrt{3}\,h_3` and
+    :math:`h_3` and :math:`h_4`, :math:`s_3 = 4\sqrt{3}\,h_3` and
     :math:`s_4 = 3 + 8\sqrt{6}\,h_4`.
 
     References
     ----------
-    Chiang+(2026d) [eqn:B_hn_def], [eqn:Hermit_polys].
+    Chiang+(2026d), Eq. (B63). Chiang+(2026d), Eq. (B61). Notes Eq. (T:6.3).
     """
     v = np.asarray(v, dtype=np.float64)
     w = np.asarray(weights, dtype=np.float64)
@@ -1210,50 +1536,74 @@ GAUSS_HERMITE_NAMES = ("mean", "sigma", "h3", "h4")
 
 @dataclass(frozen=True)
 class GaussHermiteTable:
-    """The Gauss-Hermite moments of a table's rows, read at any projected radius.
+    """The Gauss-Hermite moments of a table's rows, interpolated in radius.
+
+    `gauss_hermite_table` builds the object.
 
     Parameters
     ----------
     r_2d : array, shape (n,)
-        Projected radius of the rows that carry a distribution, increasing.
+        Projected radius of each row that has a distribution with a positive
+        integral, increasing, in internal units.
     moments : dict of str to array, shape (n,)
-        ``mean``, ``sigma``, ``h3`` and ``h4`` of each row (`gauss_hermite_moments`).
+        ``mean``, ``sigma``, ``h3`` and ``h4`` of each row
+        (`gauss_hermite_moments`).
 
     Notes
     -----
-    Between rows each moment is read as the table's squared dispersion is
-    (`dispersion_table_reader`): a not-a-knot cubic in ln R, zero beyond the
-    last row; a radius inside the first row is refused by `read`, and a
-    caller refuses it before it traces `read_traced`. At a row's own radius
-    both readings return the row's moments to the bit.
+    Each moment is interpolated between rows by a not-a-knot cubic spline in
+    ``ln R_2D``, the interpolation that `dispersion_table_reader` applies to
+    the squared line-of-sight dispersion. `read` raises InputError at a
+    projected radius inside the first row or beyond the last row. A caller
+    of `read_traced` must raise that error before it traces `read_traced`.
+    At the projected radius of a row, `read` and `read_traced` return the
+    row's own moments to the bit.
     """
 
     r_2d: Array
     moments: dict[str, Array]
 
-    def _splines(self) -> dict[str, CubicSpline]:
+    def __post_init__(self) -> None:
+        # The cubic splines of the moments are fitted once, so every call of
+        # read and read_traced evaluates the same splines.
         x = np.log(self.r_2d)
-        return {k: CubicSpline(x, self.moments[k]) for k in GAUSS_HERMITE_NAMES}
+        splines = {k: CubicSpline(x, self.moments[k]) for k in GAUSS_HERMITE_NAMES}
+        object.__setattr__(self, "_spline_cache", splines)
+
+    def _splines(self) -> dict[str, CubicSpline]:
+        return self._spline_cache  # type: ignore[attr-defined]
 
     def read(self, r_2d: ArrayLike) -> dict[str, Array]:
-        """Return the four moments at radii."""
+        """Return ``mean``, ``sigma``, ``h3`` and ``h4`` at projected radii.
+
+        A projected radius inside the first row or beyond the last row
+        raises InputError.
+        """
         r = np.atleast_1d(np.asarray(r_2d, dtype=np.float64))
         _refuse_below(r, float(self.r_2d[0]), "Gauss-Hermite moments")
+        _refuse_beyond(r, float(self.r_2d[-1]), "Gauss-Hermite moments")
         return {
             k: np.asarray(self.read_traced(r, np)[k], dtype=np.float64)
             for k in GAUSS_HERMITE_NAMES
         }
 
     def read_traced(self, r_2d: Any, xp: Any = np) -> dict[str, Any]:
-        """Return the four moments at radii, `r_2d` traceable under
-        ``jax.numpy``: the cubics' own coefficients evaluated in `xp`."""
+        """Return ``mean``, ``sigma``, ``h3`` and ``h4`` at projected radii,
+        with `r_2d` traceable by JAX.
+
+        The method evaluates the coefficients of the cubic splines in the
+        array module `xp` (``numpy`` or ``jax.numpy``). Beyond the last row
+        every moment is zero. Inside the first row the cubic of the first
+        interval is extended, and the values are not checked.
+        """
         log_r = xp.log(xp.maximum(r_2d, TINY))
         last = float(self.r_2d[-1])
         out = {}
         for k, spline in self._splines().items():
             value = spline_value(spline.x, spline.c, log_r, xp)
-            # the last row's own value, which its interval's cubic gives only
-            # to rounding
+            # At the last row's radius, the moment is the last row's stored
+            # value: the cubic of the last interval gives that value only to
+            # rounding.
             value = xp.where(r_2d == last, float(self.moments[k][-1]), value)
             out[k] = xp.where(r_2d > last * (1.0 + END_TOLERANCE), 0.0, value)
         return out
@@ -1262,9 +1612,10 @@ class GaussHermiteTable:
 def gauss_hermite_table(table: LosvdTable) -> GaussHermiteTable:
     """Return the Gauss-Hermite moments of a table's rows.
 
-    Each row (``V >= 0``) is mirrored to both signs and its moments taken by
-    `gauss_hermite_moments`; a row without a distribution (its integral not
-    positive) carries none and is left out.
+    Each row holds nodes at non-negative velocity only. The function mirrors
+    each row to both signs of velocity and takes the row's moments with
+    `gauss_hermite_moments`. A row whose integral with its weights is not
+    positive has no moments and is left out.
     """
     radii: list[float] = []
     values: dict[str, list[float]] = {k: [] for k in GAUSS_HERMITE_NAMES}
@@ -1291,32 +1642,43 @@ def gauss_hermite_table(table: LosvdTable) -> GaussHermiteTable:
 def validate_table(
     table: LosvdTable, projected: ProjectedDispersion
 ) -> ValidationReport:
-    r"""Return the report of a table: its essential checks.
+    r"""Return the validation report of a table of rows.
 
-    The norm of every row against the surface density, its second moment
-    against the projected dispersion, the rows that could not be judged, the
-    rows whose rule along the line of sight did not converge, the record of
-    the check between rows, and the floor of the layers toward the L = 0 point.
+    The report has six checks: ``norm``, ``second_moment``, ``unjudged``,
+    ``t_converged``, ``certificate`` and ``layer_floor``.
 
     Notes
     -----
-    ``norm`` and ``second_moment`` are the worst over the rows judged, at
-    their radius. A row is judged only where both checks are; one that is not
-    while the surface density there is positive (a row integrating to zero, or
-    a projected dispersion not positive) is ``unjudged``, beyond the hard
-    limit; a row without surface density has nothing to judge.
-    ``t_converged`` is beyond the hard limit where any row's rule along the
-    line of sight ran out of doublings before its tests passed (the row's
-    ``t_converged``), at the first such row. The
-    ``certificate`` is the table's last estimate of its reading between rows,
-    in units of its tolerances, times the larger tolerance (`ROW_TOL_PW`): a
-    bound on both the pointwise and the second-moment estimate. The
-    ``layer_floor`` is the relative error at which the layers toward the
-    L = 0 point stop converging, where the anisotropy's endpoint power is
-    negative (:math:`\beta_{\rm c}` between 1/2 and 1): every graded layer
-    then carries the rule's own error, and the count is the least within a
-    hundredth of the goal of the floor (`k_end`, which refuses a floor above
-    the goal); zero where the layers converge.
+    A row is judged where both of the row's relative errors,
+    ``norm_against_surface_density`` and
+    ``m2_against_projected_dispersion``, are finite. ``norm`` and
+    ``second_moment`` are the largest absolute relative errors over the
+    judged rows, each at the projected radius of its row.
+
+    ``unjudged`` is infinite, at the first such row, where a row is not
+    judged while the surface density at the row is positive. A row is not
+    judged when the row's integral is zero or the line-of-sight dispersion
+    at the row is not positive. A row where the surface density is zero has
+    nothing to judge. ``t_converged`` is infinite, at the first such row,
+    where the quadrature along the line of sight of any row did not converge
+    (the row's ``t_converged`` is false). An infinite error puts the report
+    in the tier ``"refused"``.
+
+    ``certificate`` is the table's last estimate of the error of the
+    interpolation between rows (``est_last``), in units of the table's
+    tolerances, multiplied by the larger tolerance `ROW_TOL_PW`
+    (:math:`10^{-7}`). The product bounds both the pointwise estimate and
+    the second-moment estimate.
+
+    ``layer_floor`` is nonzero where the quadrature layers toward the point
+    :math:`L = 0`, with :math:`L` the angular momentum, stop converging. The
+    layers stop converging where the anisotropy's end-point power is
+    negative, for :math:`\beta_{\rm c}` between 1/2 and 1. Every graded
+    layer then carries the quadrature rule's own error. ``layer_floor`` is
+    that error floor, the larger of the floors at :math:`V > 0` and at
+    :math:`V = 0`. The layer count is the least count whose error is within
+    :math:`10^{-8}` of the floor. `k_end` raises ResultError for a floor
+    above :math:`10^{-6}`. ``layer_floor`` is zero where the layers converge.
     """
     r = np.array([row.r_2d for row in table.rows])
     norm = np.array([row.record["norm_against_surface_density"] for row in table.rows])
@@ -1365,18 +1727,23 @@ def validate_table(
 
 
 def validate_aperture(result: ApertureLosvd, sigma_los: Array) -> ValidationReport:
-    r"""Return the report of an aperture distribution: its essential checks.
+    r"""Return the validation report of an aperture distribution.
 
-    Its norm by its own weights and its second moment against the aperture
-    dispersion `sigma_los`, with the status of the table it was read from.
+    The report has two checks, ``norm`` and ``second_moment``. The tier of
+    the report of the table that the distribution was read from enters as
+    the report's parent level.
 
     Notes
     -----
-    ``norm`` is the integral of the distribution by its own weights less one,
-    ``second_moment`` its second moment over that integral against
-    :math:`\sigma_{\rm los}^2` from `aperture_dispersion`, which reads no
-    distribution. The table's tier (`validate_table`, held in the record as
-    ``table_level``) is the report's parent.
+    ``norm`` is the absolute difference between 1 and the distribution's
+    integral over both signs of velocity with its own weights
+    (``record["norm_file"]``). ``second_moment`` is the absolute relative
+    difference between the distribution's second moment, divided by that
+    integral, and :math:`\sigma_{\rm los}^2`, with :math:`\sigma_{\rm los}`
+    the first entry of `sigma_los`. `sigma_los` comes from
+    `aperture_dispersion`, which reads no velocity distribution. The parent
+    level is ``record["table_level"]``, the level of the tier of the
+    table's report (`validate_table`).
     """
     norm = float(result.record["norm_file"])
     m2 = float(result.record["m2_file"]) / norm
@@ -1391,47 +1758,69 @@ def validate_aperture(result: ApertureLosvd, sigma_los: Array) -> ValidationRepo
     )
 
 
-# Doublings of the speed distribution's angle rule, at most, before its change
-# is reported as it stands.
-SPEED_DOUBLINGS = 3
-# Speeds within this fraction of V* are left out of the halving check: on a DF
-# that diverges at its floor the distribution itself is infinite at V*.
-SPEED_KINK_GAP = 1e-9
+# The largest number of times the velocity distribution's angle rule doubles its
+# nodes per panel while the change of the distribution between the rule and the
+# doubled rule is above velocity_tolerance (1e-6 in the default settings, 1e-4 in
+# the quick settings). After the last doubling the change is recorded as it is.
+VELOCITY_DOUBLINGS = 3
+# The relative distance from V* within which velocities are left out of the
+# halving check. On a DF that diverges at its floor, the velocity distribution
+# itself diverges at V*, so the change between rules is not defined there.
+VELOCITY_KINK_GAP = 1e-9
 
 
 @dataclass(frozen=True)
-class SpeedDistribution:
-    r"""The local speed distribution of a model at one 3D radius.
+class VelocityDistribution:
+    r"""The local velocity distribution of a model at one 3D radius.
+
+    `velocity_distribution` builds the object. Every quantity is in internal
+    units, whatever the unit system of the model.
 
     Parameters
     ----------
     r : float
-        Radius, in internal units.
-    v_nodes, v_weights : array, shape (n,)
-        The speed rule the record integrates on: Gauss-Legendre panels
-        graded toward each break of `panel_edges`.
+        3D radius :math:`R`, in internal units.
+    v_nodes : array, shape (n,)
+        Velocity nodes, in internal units: Gauss-Legendre nodes on panels
+        graded geometrically toward both ends of each interval between
+        neighboring entries of `panel_edges`.
+    v_weights : array, shape (n,)
+        Quadrature weights of `v_nodes`. The checks in `record` integrate
+        over velocity with these weights.
     panel_edges : array
-        The breaks of the distribution in speed: 0, :math:`V_*` where the
-        support starts to cut the directions, :math:`V_{\rm esc}` where it
-        lies inside, and :math:`V_{\rm max}`.
+        The velocities at which the distribution is not smooth, in increasing
+        order: 0; :math:`V_*`, the velocity above which the DF's support
+        excludes part of the directions of the velocity; :math:`V_{\rm esc}`,
+        where :math:`V_{\rm esc}` is below :math:`V_{\rm max}`; and
+        :math:`V_{\rm max}`. :math:`V_*` is included only where it lies
+        strictly between 0 and :math:`V_{\rm max}`.
     pdf : array, shape (n,)
-        :math:`p(V\,|\,r)` at `v_nodes`, per unit internal velocity.
+        The distribution :math:`p(V\,|\,R)` at `v_nodes`, per unit internal
+        velocity.
     v_esc : float
-        Escape speed :math:`\sqrt{2\mathcal{P}(r)}`.
+        Escape velocity :math:`V_{\rm esc} = \sqrt{2P(R)}`, with :math:`P` the
+        relative potential.
     v_max : float
-        Where the DF's support ends: :math:`V_{\rm esc}` of an isotropic,
-        constant or Type I model whose DF reaches zero energy; for Type II,
-        :math:`\sqrt{2(\mathcal{P} - K_c)/(1 - r^2/r_a^2)}`.
+        The largest velocity in the DF's support, :math:`V_{\rm max}`. With
+        :math:`K_{\rm c}` the DF's floor energy (0 where the DF has no
+        floor), :math:`V_{\rm max} = \sqrt{2(P - K_{\rm c})}` for an
+        isotropic model, a constant-anisotropy model and a Type I model, and
+        :math:`V_{\rm max} = \sqrt{2(P - K_{\rm c})/(1 - R^2/R_{\rm a}^2)}`
+        for a Type II model.
     unbound_fraction : float
-        The share of the distribution beyond :math:`V_{\rm esc}` (orbits of
-        negative energy that a Type II DF holds).
+        The integral of `pdf` over velocities above :math:`V_{\rm esc}`: the
+        share of particles on unbound orbits, which only a Type II DF
+        holds.
     record : dict
-        ``norm`` (the integral less one, against the profile's density),
-        ``second_moment`` (against :math:`\sigma_r^2 (3 - 2\beta_\sigma)` of
-        `dispersion_profile`), ``halving`` (the largest change of the
-        distribution on the rule's nodes when the angle rule's nodes
-        double, over its largest value), ``n_angle_nodes`` (the rule
-        checked) and ``tier``.
+        ``norm`` is the integral of `pdf` less 1. ``second_moment`` is the
+        mean squared velocity over :math:`\sigma_{\rm r}^2(3 - 2\beta_\sigma)`
+        less 1, with :math:`\sigma_{\rm r}` and :math:`\beta_\sigma` from
+        `dispersion_profile`. ``halving`` is the largest change of `pdf` at
+        `v_nodes` when the angle rule doubles its nodes, over the largest
+        value of the doubled rule's distribution. ``n_angle_nodes`` and
+        ``n_angle_panels`` define the angle rule of `pdf`. ``report`` is the
+        `ValidationReport` of the three checks, and ``tier`` is the report's
+        tier.
     model : Model
         The model.
     """
@@ -1448,14 +1837,19 @@ class SpeedDistribution:
     model: Model
 
     def read(self, v: ArrayLike) -> Array:
-        """Return :math:`p(V\\,|\\,r)` at any speeds, by the rule the record
-        checked; zero beyond `v_max` and at negative speeds."""
-        speeds = np.asarray(v, dtype=np.float64)
-        sm = speed_model(self.model)
-        psi, xi, scale = _speed_point(self.model, sm, self.r)
-        inside = (speeds >= 0.0) & (speeds <= self.v_max)
-        out = np.zeros(speeds.shape)
-        u = speeds[inside]
+        """Return :math:`p(V\\,|\\,R)` at velocities `v`, in internal units.
+
+        The method evaluates the angle integral with the rule that `record`
+        gives (``n_angle_nodes`` and ``n_angle_panels``), the rule whose
+        change ``halving`` measures. The result has the shape of `v`. The
+        result is zero at negative velocities and at velocities above `v_max`.
+        """
+        velocities = np.asarray(v, dtype=np.float64)
+        sm = velocity_model(self.model)
+        psi, xi, scale = _velocity_point(self.model, sm, self.r)
+        inside = (velocities >= 0.0) & (velocities <= self.v_max)
+        out = np.zeros(velocities.shape)
+        u = velocities[inside]
         n_nodes = int(self.record["n_angle_nodes"])
         n_panels = int(self.record["n_angle_panels"])
         out[inside] = (
@@ -1466,9 +1860,13 @@ class SpeedDistribution:
         return out
 
 
-def _speed_point(model: Model, sm: SpeedModel, r: float) -> tuple[float, float, float]:
-    """The potential, :math:`(r/r_a)^2` and the factor
-    :math:`4\\pi r^{-2b}/\\varrho` at a radius."""
+def _velocity_point(
+    model: Model, sm: VelocityModel, r: float
+) -> tuple[float, float, float]:
+    """Return three values at the 3D radius `r`: the relative potential
+    :math:`P(r)`; :math:`\\xi = (r/r_{\\rm a})^2`, or 0 for a model without
+    an anisotropy radius; and the factor :math:`4\\pi r^{-2b}/\\varrho(r)`,
+    with :math:`b` the exponent ``sm.b`` and :math:`\\varrho` the density."""
     rr = np.array([r])
     psi = float(np.asarray(model.profile.potential(rr))[0])
     rho = float(np.atleast_2d(np.asarray(model.profile.density(rr)))[0, 0])
@@ -1476,96 +1874,185 @@ def _speed_point(model: Model, sm: SpeedModel, r: float) -> tuple[float, float, 
     return psi, xi, 4.0 * np.pi * r ** (-2.0 * sm.b) / rho
 
 
-def speed_distribution(
+def velocity_distribution(
     model: Model,
     r: float,
     settings: Settings,
     profile: DispersionProfile | None = None,
-) -> SpeedDistribution:
-    r"""Return the local speed distribution of a model at a 3D radius.
+) -> VelocityDistribution:
+    r"""Return the local velocity distribution of a model at one 3D radius.
+
+    The distribution :math:`p(V\,|\,R)` is the probability density of the
+    velocity :math:`V` of the model's particles at the 3D radius :math:`R`. The
+    call returns the distribution at one radius, together with the checks
+    of the distribution and their validation report. `pdf_v` evaluates the
+    same distribution at many radii and velocities, in the model's unit system.
 
     Parameters
     ----------
     model : Model
-        A model of one component.
+        The model. The model has one component.
     r : float
-        Radius, in internal units, inside the profile and, for Type II,
-        inside the anisotropy radius.
+        3D radius :math:`R`. The radius is in internal units in all three
+        unit systems: a model set to the model system or to the physical
+        system (`Model.to`) still takes `r` in internal units. An Astropy
+        quantity is not accepted. The radius must lie at or beyond the
+        innermost radius of the model's tabulated profile and below the
+        outermost radius of the model's tabulated profile. For a Type II
+        model, the radius must also lie below the anisotropy radius
+        :math:`R_{\rm a}`. A radius outside that range raises InputError.
     settings : Settings
-        Numerical settings (the ``observables`` group's
-        ``n_speed_angle_nodes``, ``n_speed_angle_panels`` and
-        ``speed_tolerance``).
+        The numerical settings. The call reads three fields of the
+        ``observables`` group: ``n_velocity_angle_nodes``,
+        ``n_velocity_angle_panels`` and ``velocity_tolerance``. The settings table
+        (:doc:`/reference/settings`) describes the three fields.
     profile : DispersionProfile, optional
-        The model's intrinsic second moments, which the second moment is
-        checked against; computed when not given.
+        The intrinsic velocity dispersions of `model`, as the attribute
+        ``profile`` of ``pp.LosTable(model)`` holds them. The second moment
+        of the distribution is checked against these dispersions. Default:
+        ``None``, which means the call computes the intrinsic velocity
+        dispersions of `model`.
 
     Returns
     -------
-    distribution : SpeedDistribution
+    distribution : VelocityDistribution
+        The distribution at `r`. Every value is in internal units in all
+        three unit systems of the model: velocities in the internal unit of
+        velocity, and the distribution per unit internal velocity. The
+        object holds the 3D radius ``r``; the velocity nodes ``v_nodes`` and
+        their quadrature weights ``v_weights``; the distribution ``pdf`` at
+        the nodes; the escape velocity ``v_esc``; the largest velocity of the
+        distribution's support ``v_max``; and the share of the distribution
+        above the escape velocity ``unbound_fraction``. The method
+        ``read(v)`` returns the distribution at any velocities `v`, and zero at
+        negative velocities and at velocities above ``v_max``. The integral of the
+        distribution over velocity is 1 to within ``record["norm"]``.
+        ``record`` holds the relative errors of three checks (``"norm"``,
+        ``"second_moment"`` and ``"halving"``), their validation report
+        ``record["report"]`` and the report's tier ``record["tier"]``. The
+        call raises no error for a large check error: a check error above
+        :math:`10^{-2}` gives the tier ``"refused"`` in ``record["tier"]``.
 
     Raises
     ------
     InputError
-        For a model of more than one component, or a radius outside the
-        profile or, for Type II, at or beyond the anisotropy radius.
+        If `model` has more than one component.
+    InputError
+        If `r` lies inside the innermost radius or at or beyond the
+        outermost radius of the model's tabulated profile.
+    InputError
+        If `model` is a Type II model and `r` lies at or beyond the
+        anisotropy radius :math:`R_{\rm a}`.
+    InputError
+        If `r` lies outside the radii at which the intrinsic velocity
+        dispersions, given as `profile` or computed by the call, are
+        tabulated.
+    ResultError
+        If `profile` is not given and the call cannot form the model's
+        radial velocity dispersion: the contribution of the DF below the
+        tabulated potential is not finite, or the dispersion is positive at
+        no tabulated radius.
+
+    See Also
+    --------
+    pdf_v : The local velocity distribution at many radii and velocities, in the
+        model's unit system.
+    sigma_r : The radial velocity dispersion, which the second-moment check
+        reads.
+    LosTable : The tables of a model, whose attribute ``profile`` can be
+        passed as `profile`.
 
     Notes
     -----
-    :math:`p(V\,|\,r) = (4\pi/\varrho)\, r^{-2b} V^{2-2b} \int_0^1
-    (1-t^2)^{-b} f(Q)\,{\rm d}t` over the DF's own support (`_speed`), with
-    :math:`t = \cos\eta`, the angle between the velocity and the radius,
-    the variable of the sampler's angle law. The DF module states the
-    support (`AsymptoticForm.below_floor`): F is read through its lookup,
-    zero below its first energy where its rule is ``"zero"``. A Type II DF
-    is a function of :math:`Q_+ = Z + L^2/(2r_a^2)`, so its speeds reach
-    :math:`V_{\rm max} = \sqrt{2(\mathcal{P} - K_c)/(1 - r^2/r_a^2)}`,
-    beyond the escape speed where its floor :math:`K_c` is below
-    :math:`\xi\mathcal{P}(r)`, :math:`\xi = r^2/r_a^2`, and
-    `unbound_fraction` is the share there. A Type II model is truncated at
-    :math:`K_t \geq \mathcal{P}(r_a)` (`truncate`'s domain gate), so its
-    floor in the truncated potential is zero and its unbound share is not.
-    A floor at :math:`\mathcal{P}(r_a)` itself, in the potential that
-    vanishes at infinity, would leave no orbit unbound:
-    :math:`Z \geq (\mathcal{P}(r_a) - \xi\mathcal{P}(r))/(1 - \xi) > 0`, since
-    :math:`r^2\mathcal{P}(r)` increases with :math:`r` (its derivative
-    :math:`2r\mathcal{P} - M(r) \geq M(r) > 0`, as
-    :math:`\mathcal{P} \geq M(r)/r` there).
+    The distribution is
 
-    The angle rule's nodes double, at most `SPEED_DOUBLINGS` times, until
-    the distribution on the speed rule changes by less than
-    ``speed_tolerance`` of its largest value. On an untruncated Type I DF
-    that diverges at its floor (a tail :math:`F \propto K^{-1/2}` with a
-    logarithmic factor) the distribution is infinite at exactly
-    :math:`V_*`, an integrable singularity; speeds within
-    `SPEED_KINK_GAP` of it are left out of that check.
+    .. math::
+
+        p(V\,|\,R) = \frac{4\pi}{\varrho(R)}\, R^{-2b} V^{2-2b}
+        \int_0^1 (1-t^2)^{-b} F(\mathcal{Q})\,{\rm d}t,
+
+    with :math:`\varrho` the density, :math:`F` the distribution function
+    (DF), :math:`t = \cos\eta` and :math:`\eta` the angle between the
+    velocity and the radius vector. The exponent :math:`b` is the central
+    anisotropy :math:`\beta_{\rm c}` for a constant-anisotropy model and for
+    a Cuddeford-Osipkov-Merritt (COM) model, and :math:`b = 0` for an
+    isotropic model and for an Osipkov-Merritt model. The argument of the
+    DF is
+
+    .. math::
+
+        \mathcal{Q} = P(R) - \frac{V^2}{2}(1 + s\xi)
+        + \frac{s\xi V^2}{2}\,t^2,
+
+    with :math:`P` the relative potential, :math:`\xi = R^2/R_{\rm a}^2`,
+    and :math:`s = +1` for a Type I model, :math:`s = -1` for a Type II
+    model and :math:`s = 0` for a model without an anisotropy radius. The
+    integral runs over the DF's support, :math:`\mathcal{Q} > K_{\rm c}`,
+    with :math:`K_{\rm c}` the DF's floor energy (0 where the DF has no
+    floor).
+
+    The support excludes part of the directions above the velocity
+    :math:`V_*`: :math:`V_* = \sqrt{2(P - K_{\rm c})/(1 + \xi)}` for a
+    Type I model, and :math:`V_* = \sqrt{2(P - K_{\rm c})}` for a Type II
+    model. The support ends at
+    :math:`V_{\rm max} = \sqrt{2(P - K_{\rm c})/(1 - \xi)}` for a Type II
+    model and at :math:`V_{\rm max} = \sqrt{2(P - K_{\rm c})}` for every
+    other model. The escape velocity is :math:`V_{\rm esc} = \sqrt{2P}`. For a
+    Type II model, :math:`V_{\rm max}` is above :math:`V_{\rm esc}` where
+    :math:`K_{\rm c}` is below :math:`\xi P(R)`. `unbound_fraction` is the
+    share of the distribution between :math:`V_{\rm esc}` and
+    :math:`V_{\rm max}`.
+
+    The angle integral starts with ``n_velocity_angle_nodes`` nodes per
+    interval. The nodes double, at most three times, until the largest
+    change of the distribution between the integral and the integral with
+    doubled nodes is at most ``velocity_tolerance`` times the largest absolute
+    value of the distribution with doubled nodes. ``record["halving"]`` is
+    the ratio of the two maxima for the kept distribution.
+    ``velocity_tolerance`` is :math:`10^{-6}` in the default settings and
+    :math:`10^{-4}` in the quick settings. Velocities within a
+    relative distance of :math:`10^{-9}` from :math:`V_*` are left out of
+    that comparison. On a DF that diverges at its floor energy, the
+    distribution diverges at :math:`V_*`, and the divergence is integrable.
 
     References
     ----------
-    Chiang+(2026d) [eqn:rho_f_anisotropic_scale], [eqn:varphi_prob], [eqn:V_prob].
+    Chiang+(2026d), Eq. (B38). Chiang+(2026d), Eq. (B39). Chiang+(2026d),
+    Eq. (B40). Notes Eq. (T:6.4).
+
+    Examples
+    --------
+    >>> import pianistpy as pp
+    >>> from pianistpy.observables.stages import velocity_distribution
+    >>> model = pp.solve(pp.Component(pp.DoublePowerLaw.hernquist()))
+    >>> distribution = velocity_distribution(model, 1.0, model.settings)
+    >>> distribution.pdf.shape == distribution.v_nodes.shape
+    True
     """
     if len(model.components) != 1:
         raise InputError(
-            f"The speed distribution is computed for a model of one component; "
-            f"this one has {len(model.components)}."
+            f"The velocity distribution is computed for a model of one component; "
+            f"the model given has {len(model.components)} components."
         )
     observables = settings.observables
-    n_nodes = int(observables["n_speed_angle_nodes"])
-    n_panels = int(observables["n_speed_angle_panels"])
-    tolerance = float(observables["speed_tolerance"])
-    with timed("speed_distribution"):
-        sm = speed_model(model)
+    n_nodes = int(observables["n_velocity_angle_nodes"])
+    n_panels = int(observables["n_velocity_angle_panels"])
+    tolerance = float(observables["velocity_tolerance"])
+    with timed("velocity_distribution"):
+        sm = velocity_model(model)
         r = float(r)
         r_lo, r_hi = float(model.profile.r[0]), float(model.profile.r_table_max)
         if sm.sign < 0.0:
             r_hi = min(r_hi, sm.r_a)
         if not r_lo <= r < r_hi:
             raise InputError(
-                f"The speed distribution is read at a radius in [{r_lo:.6e}, "
-                f"{r_hi:.6e}) (the profile's rows, and a Type II model's "
-                f"anisotropy radius); got {r!r}."
+                f"The velocity distribution is read at a radius in [{r_lo:.6e}, "
+                f"{r_hi:.6e}), the range of the profile's tabulated radii, cut at "
+                f"the anisotropy radius for a Type II model; the radius given is "
+                f"{r!r}."
             )
-        psi, xi, scale = _speed_point(model, sm, r)
-        v_esc, v_kink, v_max = speed_breaks(sm, psi, xi)
+        psi, xi, scale = _velocity_point(model, sm, r)
+        v_esc, v_kink, v_max = velocity_breaks(sm, psi, xi)
         edges = np.array(
             sorted({0.0, v_max} | {x for x in (v_kink, v_esc) if 0.0 < x < v_max})
         )
@@ -1576,18 +2063,20 @@ def speed_distribution(
         v = np.concatenate([p[0] for p in parts])
         w = np.concatenate([p[1] for p in parts])
         factor = scale * v ** (2.0 - 2.0 * sm.b)
-        away = np.abs(v / v_kink - 1.0) > SPEED_KINK_GAP
+        away = np.abs(v / v_kink - 1.0) > VELOCITY_KINK_GAP
 
         def pdf_at(n: int) -> Array:
             return factor * angle_integral(sm, psi, xi, v, n, n_panels)
 
-        # the rule kept is the coarser of the last pair, its change the pair's
+        # The distribution kept is that of the coarser rule of the last
+        # compared pair, and halving is the change between the two rules of
+        # that pair.
         pdf = pdf_at(n_nodes)
-        for doubling in range(SPEED_DOUBLINGS + 1):
+        for doubling in range(VELOCITY_DOUBLINGS + 1):
             finer = pdf_at(2 * n_nodes)
             peak = float(np.max(np.abs(finer[away])))
             halving = float(np.max(np.abs(finer - pdf)[away])) / peak
-            if halving <= tolerance or doubling == SPEED_DOUBLINGS:
+            if halving <= tolerance or doubling == VELOCITY_DOUBLINGS:
                 break
             n_nodes, pdf = 2 * n_nodes, finer
         jeans = dispersion_profile(model, settings) if profile is None else profile
@@ -1606,7 +2095,7 @@ def speed_distribution(
                 "halving": Check(error=halving, where=r),
             },
         )
-        return SpeedDistribution(
+        return VelocityDistribution(
             r=r,
             v_nodes=v,
             v_weights=w,

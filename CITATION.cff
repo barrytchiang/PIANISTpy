@@ -6,6 +6,8 @@ authors:
   - family-names: Chiang
     given-names: Barry T.
 license: BSD-3-Clause
+version: 1.0.0
+date-released: "2026-10-21"
 url: "https://pianistpy.com"
 repository-code: "https://github.com/barrytchiang/PIANISTpy"
 preferred-citation:

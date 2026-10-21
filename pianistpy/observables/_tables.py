@@ -1,4 +1,31 @@
-"""The intrinsic and projected second moments of a model, from the model alone."""
+r"""The tables of the intrinsic and projected second moments of a model.
+
+`sigma_r`, `sigma_t`, `sigma_los`, `sigma_los_aperture` and `LosTable` read
+these tables through `stages.dispersion_profile` (which calls
+`radial_table`) and `stages.projected_dispersion` (which calls
+`projected_table`). `radial_table` tabulates the radial velocity dispersion
+:math:`\sigma_r` from the Jeans integral
+
+.. math::
+
+    \varrho_{\rm aux}(R)\,\sigma_r^2(R) = \int_0^{P(R)}
+    \varrho_{\rm aux}(K)\,{\rm d}K,
+
+with :math:`R` the 3D radius, :math:`P(R)` the relative potential,
+:math:`K` the energy variable of the DF and
+:math:`\varrho_{\rm aux} = \varrho/g` the auxiliary density, where
+:math:`\varrho` is the density and :math:`g(R)` is the separability factor
+of the anisotropy model. Rows are added to the radial table until the
+table's reading at every interval's midpoint differs from the Jeans
+integral by at most ``profile_tolerance`` in :math:`\sigma_r`
+(:math:`10^{-7}` in the default settings, a tenth of :math:`10^{-6}`).
+`projected_table` tabulates the surface density and the squared
+line-of-sight dispersion, and rows are added to the projected table until
+the table reads itself between rows to the relative tolerance that the
+caller passes (:math:`10^{-8}` from `stages.projected_dispersion`).
+Notes Eq. (T:6.1) states the Jeans integral, and Notes Section T:6.2 states
+the projection.
+"""
 
 __all__ = [
     "boundary_term",
@@ -19,66 +46,80 @@ from ..settings import Settings
 from ._dispersion import radial_dispersion, radial_integral_reader
 from ._projection import certify_projection, project
 
-# The projected radii end this far inside the edge, where the surface density
-# of a spatially finite model is not yet zero.
+# The projected table's starting radii end at _EDGE_FRACTION times the radius
+# r_t of the profile's last row. The surface density of a spatially finite model
+# is zero at r_t and positive at 0.9999 r_t.
 _EDGE_FRACTION = 0.9999
-# The boundary term's integral starts this far below its upper limit; the
-# auxiliary density vanishes as a positive power there, and the piece below
-# is far under rounding.
+# The lower limit of the boundary term's integral, as a fraction of its upper
+# limit P_outer. The auxiliary density falls as a positive power of K toward
+# K = 0, so the integral below 1e-20 P_outer is below 1e-20 of the integral
+# for a pure power law, below the bound 1e-6.
 _LOWER_FRACTION = 1e-20
-# Gauss-Legendre nodes on each decade of the boundary term's integral.
+# Gauss-Legendre nodes on each decade in K of the boundary term's integral.
 _NODES_PER_DECADE = 64
-# The radial dispersion's rows stall after this many rounds running without
-# progress (the worst not halved and no fewer intervals missing): near the edge
-# of a spatially finite model the worst holds for several rounds while the
-# misses fall, and where the rule's own error is near the tolerance the misses
-# double while the worst holds.
+# The radial table stalls after _PROFILE_IDLE_ROUNDS successive rounds without
+# progress.
+# A round makes progress when the round halves the largest midpoint error,
+# leaves fewer intervals above profile_tolerance, or halves the error of the
+# last interval. Near the edge of a spatially finite model, the largest error
+# can hold for several rounds while the last interval's error falls.
 _PROFILE_IDLE_ROUNDS = 3
-# The rounds of rows the radial dispersion is given at most.
+# The largest number of rounds in which the radial table adds rows.
 _PROFILE_ROUNDS = 40
-# The Gauss-Legendre nodes of each of the Jeans rule's panels it starts from,
-# and their doublings before the rule is reported as not converged (512).
+# The Gauss-Legendre node count of each panel of the Jeans integral at the
+# start, 8, and the largest number of doublings of that count, 6. After 6
+# doublings (512 nodes) the node count is logged as not converged.
 _PANEL_NODES = 8
 _RULE_DOUBLINGS = 6
 
 
 def _kernel_beta(model: Model) -> float:
-    r"""The L-factor exponent b of the auxiliary density: :math:`\beta_{\rm c}`
-    for the constant and COM classes, 0 for the isotropic and OM classes."""
+    r"""Return the exponent :math:`b` of the factor :math:`(L^2)^{-b}` of a
+    model's DF.
+
+    :math:`b` is the central anisotropy :math:`\beta_{\rm c}` of the model's
+    first component for the constant-anisotropy and COM models, and 0 for
+    the isotropic and Osipkov-Merritt models."""
     anisotropy = model.components[0].anisotropy
     return float(anisotropy.beta_c) if anisotropy.model in ("constant", "com") else 0.0
 
 
 def boundary_term(model: Model, p_outer: float) -> float:
-    r"""Return :math:`\int_0^{P_{\rm outer}}\varrho_{\rm aux}\,{\rm d}K` over the
-    model's DF.
+    r"""Return the boundary term
+    :math:`\int_0^{P_{\rm outer}}\varrho_{\rm aux}(K)\,{\rm d}K`, computed
+    from the model's DF.
 
     Parameters
     ----------
     model : Model
         The model, of one component.
     p_outer : float
-        The upper limit, the lowest potential of the profile's table, in
-        internal units.
+        The upper limit :math:`P_{\rm outer}`, the lowest relative potential
+        of the profile's table, in internal units.
 
     Returns
     -------
     term : float
-        The integral; zero on a spatially finite model, whose table ends where
-        the density does.
+        The boundary term, in internal units. The boundary term is zero on a
+        spatially finite model, whose profile table ends where the density
+        ends, and zero where `p_outer` is not positive.
 
     Notes
     -----
-    :math:`\varrho_{\rm aux}(K)` is the density the DF gives at the potential
-    ``K`` (`density_from_df`) divided by the class factor :math:`g` at the
-    same radius. The integral runs in ln K by Gauss-Legendre on panels of a
-    decade from :math:`10^{-20}P_{\rm outer}`, below which the auxiliary
-    density's power law leaves nothing at rounding.
+    :math:`\varrho_{\rm aux}(K)` is the density that the DF gives at the
+    relative potential :math:`K` (`density_from_df`), divided by the
+    separability factor :math:`g` at the same radius. The function evaluates
+    both at one radius, half the smaller of 1 and :math:`r_{\rm a}`, where
+    :math:`g` is finite for every anisotropy model. The integral runs in
+    :math:`\ln K` from :math:`10^{-20}P_{\rm outer}` to
+    :math:`P_{\rm outer}`, on panels of one decade in :math:`K`, with 64
+    Gauss-Legendre nodes on each panel.
     """
     if model.spatially_finite or not p_outer > 0.0:
         return 0.0
     anisotropy = model.components[0].anisotropy
-    # One radius where every class factor is finite: inside R_a for Type II.
+    # The radius r_any lies inside R_a, so the separability factor of a Type II
+    # model, like that of every other model, is finite at r_any.
     r_any = 0.5 * min(1.0, float(anisotropy.r_a))
     k_lo = _LOWER_FRACTION * p_outer
     n_panels = int(math.ceil(math.log10(p_outer / k_lo)))
@@ -96,15 +137,22 @@ def boundary_term(model: Model, p_outer: float) -> float:
 
 def edge_limit(model: Model) -> float:
     r"""Return the limit of :math:`\sigma_r^2 / P` at the edge of a spatially
-    finite model, or NaN where the DF states no power there.
+    finite model.
+
+    The result is NaN for a model that is not spatially finite, and NaN
+    where the DF's form states no power :math:`p` of :math:`F` at
+    :math:`K = 0`.
 
     Notes
     -----
-    With :math:`F \propto \mathcal{K}^p` at the edge, the auxiliary density goes
-    as :math:`P^{n}`, ``n = p + 3/2 - b``, and the Jeans integral gives
-    :math:`\sigma_r^2 \to P / (n + 1)`. ``p`` is the form's
-    `exponent_at_zero` where it states one, and for the Taylor rule 1 where
-    its first coefficient is non-zero and 2 where it is zero.
+    Near the edge, :math:`F \propto K^p`, so the auxiliary density goes as
+    :math:`\varrho_{\rm aux} \propto P^n` with :math:`n = p + 3/2 - b`, where
+    :math:`b` is the exponent of `_kernel_beta`. The Jeans integral then gives
+    :math:`\sigma_r^2 \to P/(n + 1)` as :math:`P \to 0`. The power :math:`p`
+    is the form's `exponent_at_zero` where the form states one. For a form
+    whose rule below the floor is ``"taylor"``, :math:`p = 1` where the
+    first Taylor coefficient is nonzero, and :math:`p = 2` where that
+    coefficient is zero.
     """
     if not model.spatially_finite:
         return float("nan")
@@ -119,41 +167,71 @@ def edge_limit(model: Model) -> float:
 
 
 def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
-    r"""Return the radial dispersion of a model on its rows, with what it read.
+    r"""Return the table of the radial dispersion of a model, with its record.
+
+    Parameters
+    ----------
+    model : Model
+        The model, of one component.
+    settings : Settings
+        Numerical settings. The function reads ``profile_tolerance`` and
+        ``n_profile_start`` from the ``observables`` group.
 
     Returns
     -------
     table : dict
-        ``r``, ``sigma_r2`` (on the rows placed from the profile's first row to
-        its last), ``boundary_term``, ``edge_limit``, ``p_outer``, ``r_t`` (the
-        radius of the last row) and ``certificate``: ``tolerance``,
-        ``n_jeans_nodes`` (the rule's nodes a panel the rows are placed
-        against),
-        ``rule_end`` (``"tolerance"`` or ``"stalled"``) and ``rule_change`` (the
-        rule's last change between n and 2n nodes), ``end`` (``"tolerance"`` or
-        ``"stalled"``), ``rounds``, ``rows``, ``worst_first``, ``worst_last``
-        and ``uncertified`` (the intervals still above the tolerance when the
-        rows stalled, as pairs of radii).
+        A dict with the following keys.
+
+        - ``r``: the table's 3D radii, from the profile's first row to the
+          profile's last row, in internal units.
+        - ``sigma_r2``: :math:`\sigma_r^2` at ``r``, in internal units.
+        - ``boundary_term``: the result of `boundary_term`.
+        - ``edge_limit``: the result of `edge_limit`.
+        - ``p_outer``: the lowest relative potential of the profile's table.
+        - ``r_t``: the radius of the profile's last row.
+        - ``certificate``: the record of the table, a dict described below.
+
+        The record holds ``tolerance`` (``profile_tolerance``),
+        ``n_jeans_nodes`` (the Gauss-Legendre node count of each panel of the
+        Jeans integral), ``rule_end`` (``"tolerance"`` where the node count
+        converged and ``"stalled"`` where the node count did not converge),
+        ``rule_change`` (the last relative change of :math:`\sigma_r` between
+        n and 2n nodes), ``end`` (``"tolerance"`` where every interval met
+        ``profile_tolerance`` and ``"stalled"`` otherwise), ``rounds`` (the
+        rounds that added rows), ``rows`` (the final number of rows),
+        ``worst_first`` and ``worst_last`` (the largest midpoint error in the
+        first round and in the last round), and ``uncertified`` (the
+        intervals whose midpoint error is above ``profile_tolerance`` when the
+        table stalls, as pairs of radii).
 
     Notes
     -----
-    The rule (`radial_dispersion` with ``knots``) integrates once over panels
-    between the profile's own table potentials, summed from ``p_outer``, and
-    each row adds its part panel to the next one, so a row's value does
-    not depend on the radii asked for with it. Its nodes a panel come first:
-    from eight, doubled until :math:`\sigma_r` at the worst of the start's
-    midpoints moves by less than ``profile_tolerance`` between n and 2n, at
-    most six times; a rule that has not converged is logged and stated in the
-    ``certificate`` record. The rows start on ``n_profile_start`` logarithmic
-    radii. At every
-    interval's midpoint in ln r, the reading (`radial_integral_reader`) is
-    compared with the rule (`radial_dispersion`) in :math:`\sigma_r`; where it misses
-    ``profile_tolerance`` the rule's value there becomes a row. Round by round
-    until none misses, or three rounds running neither halve the worst, nor
-    leave fewer intervals missing, nor halve the last interval's error (the
-    march to a finite edge), or 40 rounds have run (stalled); the
-    reading's slopes are the rule's own, so a row added changes the reading on
-    its own two intervals only. A stall is logged with its intervals.
+    The Jeans integral (`radial_dispersion` with ``knots``) integrates over
+    panels between the potentials of the profile's own table, summed from
+    ``p_outer``. Each row adds the partial panel from its own potential to the
+    next knot. A row's value therefore does not depend on the other radii of
+    the call.
+
+    The node count of each panel is set first. The count starts at 8 and
+    doubles until :math:`\sigma_r` changes by at most ``profile_tolerance``
+    between n and 2n nodes, at every midpoint of the starting radii. The count
+    doubles at most 6 times. A node count that has not converged after 6
+    doublings is logged and recorded in ``rule_end``.
+
+    The rows start on ``n_profile_start`` logarithmically spaced radii. In
+    each round, the function compares the table's reading
+    (`radial_integral_reader`) with the Jeans integral in :math:`\sigma_r` at
+    the midpoint in :math:`\ln r` of every interval. Where the relative
+    difference exceeds ``profile_tolerance``, the Jeans integral's value at
+    that midpoint becomes a new row. The reading is a cubic Hermite
+    interpolant with exact slopes at the rows, so a new row changes the
+    reading only on the two intervals next to the new row.
+
+    The rounds end in one of three ways. The table meets the tolerance when
+    no midpoint exceeds ``profile_tolerance``. The table stalls when 3
+    successive rounds make no progress (`_PROFILE_IDLE_ROUNDS`). The table
+    also stalls when 40 rounds have added rows. A stalled table is logged
+    with the intervals above ``profile_tolerance``.
     """
     observables = settings.observables
     profile = model.profile
@@ -193,8 +271,9 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
         int(observables["n_profile_start"]),
     )
 
-    # The rule's nodes a panel first: doubled until sigma_r at the worst of the
-    # start's midpoints moves by less than the tolerance between n and 2n.
+    # The node count of each panel is set first. The count doubles until the
+    # largest relative change of sigma_r between n and 2n nodes, over the
+    # midpoints of the starting radii, is at most profile_tolerance.
     n_nodes = _PANEL_NODES
     mid = np.exp(0.5 * (np.log(r[:-1]) + np.log(r[1:])))
     sigma_n = rule_of(n_nodes, mid)
@@ -210,9 +289,10 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
         if doublings >= _RULE_DOUBLINGS:
             rule_end = "stalled"
             log.warning(
-                "The radial dispersion's rule moved by %.2e of sigma_r between %d "
-                "and %d Jeans nodes against the tolerance %.1e, after %d "
-                "doublings; its rows are placed against %d nodes.",
+                "The radial dispersion sigma_r changes by the relative amount %.2e "
+                "between %d and %d nodes of the Jeans integral, more than the "
+                "tolerance %.1e, after %d doublings of the node count; the radii of "
+                "the radial dispersion profile are placed with %d nodes.",
                 rule_change,
                 n_nodes,
                 2 * n_nodes,
@@ -251,8 +331,10 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
         if not np.any(miss):
             break
         if len(worst) >= 2:
-            # the march to a finite edge holds the worst while the last
-            # interval's error falls round by round: that is progress too
+            # Near the edge of a spatially finite model, the largest error can
+            # hold while the last interval's error falls from round to round.
+            # A halving of the last interval's error therefore counts as
+            # progress.
             progress = (
                 worst[-1] <= 0.5 * worst[-2]
                 or misses[-1] < misses[-2]
@@ -266,9 +348,11 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
                 for a, b in zip(r[:-1][miss], r[1:][miss], strict=True)
             ]
             log.warning(
-                "The radial dispersion's rows stalled at %.2e of sigma_r against "
-                "the tolerance %.1e after %d rounds; %d intervals uncertified, "
-                "the first [%.6e, %.6e].",
+                "The interpolation of the radial dispersion sigma_r stopped "
+                "improving at the relative error %.2e, above the tolerance %.1e, "
+                "after %d rounds of added radii. The relative error is above the "
+                "tolerance in %d intervals between tabulated radii; the first such "
+                "interval is [%.6e, %.6e].",
                 worst[-1],
                 tolerance,
                 rounds,
@@ -306,23 +390,37 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
 def projected_table(
     model: Model, read_sigma_r2: Any, settings: Settings, tolerance: float
 ) -> dict[str, Any]:
-    r"""Return the projected table of a model, checked between rows.
+    r"""Return the table of the surface density and the squared line-of-sight
+    dispersion of a model.
+
+    The table starts on ``n_radii`` logarithmically spaced projected radii,
+    from the profile's first row to 0.9999 of the radius of the profile's
+    last row. `certify_projection` then adds rows until the table, read at
+    every interval's midpoint, differs from the line-of-sight integral
+    (`project`) by at most `tolerance`.
 
     Parameters
     ----------
     model : Model
         The model, of one component.
     read_sigma_r2 : callable
-        :math:`\sigma_r^2` at radii.
+        The function that returns :math:`\sigma_r^2` at 3D radii, in internal
+        units.
     settings : Settings
-        Numerical settings.
+        Numerical settings. The function reads ``n_projection_nodes`` and
+        ``n_radii`` from the ``observables`` group.
     tolerance : float
-        The check's relative tolerance between rows.
+        The largest relative difference allowed between the table's reading
+        at an interval's midpoint and the line-of-sight integral at that
+        midpoint.
 
     Returns
     -------
     table : dict
-        ``r_2d``, ``surface_density``, ``sigma_los2`` and ``certificate``.
+        A dict with the keys ``r_2d`` (the projected radii),
+        ``surface_density``, ``sigma_los2`` (the squared line-of-sight
+        dispersion), all in internal units, and ``certificate`` (the record
+        of `certify_projection`).
     """
     observables = settings.observables
     profile = model.profile

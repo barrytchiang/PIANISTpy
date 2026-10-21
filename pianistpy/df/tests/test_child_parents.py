@@ -1,6 +1,10 @@
-r"""Tests of a Method II child on a parent no other test builds: a radially
-biased child at :math:`\beta_{\rm c} = 0.5` on a cusp of slope 1, whose
-central band takes the closed form."""
+r"""Tests of Method II children on truncated NFW parents.
+
+The tests cover a radially biased child with :math:`\beta_{\rm c} = 0.5` on a
+cusp of slope :math:`\gamma = 1`, whose DF near the center is a closed-form
+series; a parent truncation that has no edge; and the tier that a child takes
+from its parent model.
+"""
 
 import numpy as np
 
@@ -17,7 +21,8 @@ def _finite_on_its_support(df):
 
 
 def test_a_child_at_beta_c_one_half_on_a_cusp_of_slope_one():
-    # gamma = 2 beta_c: the central band is the closed form's
+    # The NFW cusp has gamma = 1 = 2 beta_c, the critical case, so the child's DF
+    # near the center is the closed-form series band.
     parent = truncate(
         compute_df(Component(DoublePowerLaw.nfw(), Anisotropy())), Truncation(k_t=K_T)
     )
@@ -25,16 +30,20 @@ def test_a_child_at_beta_c_one_half_on_a_cusp_of_slope_one():
     assert child.inversion.critical_band
     assert _finite_on_its_support(child)
     model = truncate(child)
-    assert model.validation.tier == "goal"
-    # the model's parent is its DF: the DF's tier is the model's parents' tier
+    assert model.validation.tier == "silent"
+    # The parent of the child's model is the child's DF, so the model's
+    # parents_level equals the level of the child DF's validation report.
     assert model.validation.parents_level == child.validation.level
 
 
 def test_a_truncation_with_no_edge_is_refused_and_so_is_a_child_on_it():
-    # an NFW Osipkov-Merritt Type I parent truncated near its k_t_min (0.069):
-    # its solve reaches the outer radius above the floor, so it has no edge;
-    # truncate refuses it by name with the model as its result, and a component
-    # on that model's profile is refused by name
+    # The NFW Osipkov-Merritt Type I DF with r_a = 5, truncated at k_t = 0.1,
+    # gives a solve that reaches its outer radius with the potential above the
+    # floor, so the truncated model has no edge. truncate raises
+    # UnphysicalModelError with a message that starts with "NO EDGE" and carries
+    # the model as the exception's result. A component on that model's profile
+    # makes compute_df raise UnphysicalModelError with a message that contains
+    # "PARENT NOT SPATIALLY FINITE".
     import pytest
 
     from pianistpy import UnphysicalModelError
@@ -54,10 +63,10 @@ def test_a_truncation_with_no_edge_is_refused_and_so_is_a_child_on_it():
 
 
 def test_the_closed_form_band_meets_the_rows_at_its_anchor():
-    # Fig. 7's beta_c = +1/2 child: the band carries the parent's deficit to its
-    # cubic term, so it meets the computed rows at the anchor. With the deficit
-    # linear in the depth the join stepped by 2.45e-6 in log10 F; measured
-    # 6.7e-9 with the cubic.
+    # The child with beta_c = 1/2 of Chiang+(2026d), Fig. 7: the closed-form
+    # series band carries the parent's central deficit to its cubic term in the
+    # depth. At the first table node inside the band, log10 F of the table must
+    # differ from log10 F of the computed rows by less than 1e-7.
     from pianistpy import Settings
     from pianistpy.df.tabulated import tabulated_df
 
@@ -80,10 +89,11 @@ def test_the_closed_form_band_meets_the_rows_at_its_anchor():
 
 
 def test_a_childs_tier_carries_its_parent_models(tmp_path):
-    # truncate records the model's tier on its profile, and a
-    # Method II child's DF takes it as its parents' tier, so a child of a
-    # warning parent reads warning however well its own checks do; the field
-    # is written and read with the file
+    # truncate records the level of the model's validation report on the
+    # model's profile as model_level, and the file of the model stores
+    # model_level. A Method II child's DF takes the profile's model_level as its
+    # parents_level. A child of a parent whose tier is "warned" therefore has
+    # the tier "warned", whatever the child's own checks give.
     import dataclasses
 
     from pianistpy import read
@@ -96,13 +106,13 @@ def test_a_childs_tier_carries_its_parent_models(tmp_path):
     path = tmp_path / "parent.h5"
     parent.write(path)
     assert read(path).profile.model_level == parent.validation.level
-    warning = TIER_NAMES.index("warning")
+    warning = TIER_NAMES.index("warned")
     profile = dataclasses.replace(parent.profile, model_level=warning)
     child = compute_df(Component(profile, Anisotropy()))
     assert child.validation.parents_level == warning
-    assert child.validation.tier == "warning"
+    assert child.validation.tier == "warned"
     model = truncate(child)
-    assert model.validation.tier == "warning"
-    # a profile that records no tier reads as level 0
+    assert model.validation.tier == "warned"
+    # A profile whose model_level is None gives the child parents_level 0.
     unrecorded = dataclasses.replace(parent.profile, model_level=None)
     assert compute_df(Component(unrecorded, Anisotropy())).validation.parents_level == 0

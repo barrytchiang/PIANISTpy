@@ -1,8 +1,11 @@
-"""The log-likelihood of binned distributions of velocity (298 stage 2): the
-exact cumulative of a distribution on its sub-panels, the Data, the value
-against the members' distributions integrated in NumPy, the mass scale's
-gradient, the length scale held, and a free component's anisotropy. The
-aperture's distribution is tested on the isotropic member alone."""
+"""Tests of the log-likelihood of binned distributions of velocity.
+
+The tests check the exact cumulative distribution on each velocity interval,
+the checks of `Data` for binned observables, the log-likelihood against the
+components' distributions integrated in NumPy, the gradient in the mass
+scale, the length scale held at the model's own length scale, and the
+exception for a free component with binned data. The distribution in an
+aperture is tested on the isotropic component alone."""
 
 import dataclasses
 import math
@@ -32,8 +35,11 @@ from pianistpy.observables.stages import (
 )
 from pianistpy.particles.core import component_view
 
-# The quick tier: the members' tables of rows, which the binned reads need,
-# are minutes a member there against tens of minutes at the default tier.
+pytestmark = pytest.mark.slow
+
+# The quick settings keep the components' tables of line-of-sight velocity
+# distributions, which the binned distributions read, short enough to compute
+# within a test.
 SETTINGS = Settings(
     quick=True,
     observables={"n_radii": 400, "n_jeans_nodes": 200, "n_projection_nodes": 200},
@@ -49,7 +55,8 @@ def _physical(model):
 
 
 def test_the_cumulative_is_exact_on_each_sub_panel():
-    # a cubic on [0, 1] and a quadratic on [1, 3], at four Gauss nodes each
+    # A cubic on [0, 1] and a quadratic on [1, 3], each sampled at four
+    # Gauss-Legendre nodes, have exact antiderivatives to compare with.
     x, w = np.polynomial.legendre.leggauss(4)
     nodes = np.concatenate([0.5 + 0.5 * x, 2.0 + x])
     f = [lambda v: 1.0 + v - v**3, lambda v: 2.0 - 0.5 * (v - 1.0) ** 2]
@@ -76,10 +83,10 @@ def test_the_cumulative_is_exact_on_each_sub_panel():
 
 
 def test_the_sub_panels_of_a_graded_rule():
-    # the speed distribution's rule (Gauss-Legendre panels graded toward both
-    # ends of each interval between breaks): its panels found from the rule,
-    # and a cubic integrated exactly across them
-    from pianistpy.observables._speed import graded_rule
+    # The velocity distribution's quadrature rule grades Gauss-Legendre intervals
+    # toward both ends of each interval between breaks; the velocity
+    # intervals recovered from the rule's nodes must integrate a cubic exactly.
+    from pianistpy.observables._velocity import graded_rule
 
     rules = [graded_rule(0.0, 0.4, 5, 6), graded_rule(0.4, 1.0, 5, 6)]
     nodes = np.concatenate([r[0] for r in rules])
@@ -108,7 +115,7 @@ def test_the_binned_data():
     )
     with pytest.raises(InputError, match="v_edges"):
         Data("losvd", np.full(5, 0.2), r_2d=[100.0], errors=np.full(5, 0.01))
-    with pytest.raises(InputError, match="not negative"):
+    with pytest.raises(InputError, match="must not be negative"):
         Data(
             "pdf_v", np.full(5, 0.2), r=[500.0], v_edges=edges, errors=np.full(5, 0.01)
         )
@@ -120,7 +127,7 @@ def test_the_binned_data():
             v_edges=edges,
             errors=np.full(5, 0.01),
         )
-    with pytest.raises(InputError, match="no v_edges"):
+    with pytest.raises(InputError, match="neither v_edges nor r"):
         Data(
             "sigma_los",
             np.ones(2),
@@ -131,9 +138,12 @@ def test_the_binned_data():
 
 
 def _pair():
-    """S_E1's pair on its truncated NFW profile, isotropic and COM Type I, in
-    physical units (the truncated Hernquist COM's table of rows is refused, a
-    panel layout split at its edge), and the velocity unit."""
+    """Return two Method II components on one truncated NFW profile, one
+    isotropic and one Cuddeford-Osipkov-Merritt (COM) of Type I, in physical
+    units, and the velocity unit in kilometers per second. The truncated NFW
+    profile is used because the table of line-of-sight velocity
+    distributions of a COM component on a truncated Hernquist profile raises
+    an exception at the profile's edge."""
     parent = truncate(
         compute_df(Component(DoublePowerLaw.nfw(), Anisotropy()), SETTINGS),
         Truncation(k_t=K_T),
@@ -153,9 +163,11 @@ def _pair():
 
 
 def _data(kinds, v):
-    """Data of each kind in eight bins, an even share moved by 3 percent
-    cosines, errors of 2 percent: a LOSVD at a radius, one in an aperture, and
-    a speed distribution."""
+    """Return one `Data` for each observable in `kinds`, in eight bins: the
+    fraction 1/8 in each bin, moved by cosines of amplitude 3 percent, with
+    errors of 2 percent of 1/8. The shapes are a line-of-sight velocity
+    distribution at a projected radius, a line-of-sight velocity
+    distribution in an aperture, and a velocity distribution at a 3D radius."""
     shapes = {
         "losvd": dict(r_2d=[0.5 * R_0], v_edges=v * np.linspace(-0.6, 0.6, 9)),
         "losvd_aperture": dict(
@@ -183,8 +195,10 @@ def pair():
 
 @pytest.fixture(scope="module")
 def case(pair):
-    """The pair superposed with a LOSVD at a radius and a speed distribution,
-    and the fixed likelihood, built once."""
+    """Return the two components superposed at WEIGHTS, `Data` of a
+    line-of-sight velocity distribution at a projected radius and of a velocity
+    distribution, the velocity unit, and the likelihood, built once for the
+    module."""
     models, v = pair
     model = superpose({models[0]: WEIGHTS[0], models[1]: WEIGHTS[1]})
     data = _data(("losvd", "pdf_v"), v)
@@ -192,7 +206,8 @@ def case(pair):
 
 
 def _numpy_value(function, data, v, weights):
-    """The log-likelihood with each block's shares integrated in NumPy."""
+    """Return the log-likelihood with the fraction in each bin of each block
+    integrated in NumPy."""
     expected = 0.0
     for block, d in zip(function.binned, data, strict=True):
         share = _numpy_shares(block, weights, np.asarray(d.v_edges) / v)
@@ -203,9 +218,11 @@ def _numpy_value(function, data, v, weights):
 
 
 def _numpy_shares(block, weights, u):
-    """The window's share in each bin of the mixture, each member's
-    distribution integrated over the bins by Gauss-Legendre (64 nodes a
-    sub-panel piece) in NumPy, through `read_panels`."""
+    """Return the fraction of the mixture's distribution inside the
+    user-specified range that falls in each bin. Each component's
+    distribution is integrated over the bins in NumPy by Gauss-Legendre
+    quadrature with 64 nodes on each piece between velocity-interval ends
+    and bin edges, through `read_panels`."""
     x, wx = np.polynomial.legendre.leggauss(64)
     a, b, series = np.asarray(block.a), np.asarray(block.b), np.asarray(block.series)
     signed = block.kind != "pdf_v"
@@ -215,7 +232,9 @@ def _numpy_shares(block, weights, u):
         cuts = np.unique(np.concatenate([np.abs(u), a[k], b[k], [0.0]]))
 
         def integral(lo, hi, p=p, cuts=cuts):
-            # from lo to hi >= lo >= 0, piece by piece between the cuts
+            # The integral from lo to hi, with hi >= lo >= 0, is summed over
+            # the pieces between consecutive cuts, on each of which the
+            # distribution is one polynomial.
             pts = cuts[(cuts > lo) & (cuts < hi)]
             ends = np.concatenate([[lo], pts, [hi]])
             total = 0.0
@@ -241,7 +260,8 @@ def test_the_value_against_numpy(case):
 
 
 def test_the_aperture_value_against_numpy(pair):
-    # the aperture's distribution on the isotropic member alone
+    # The distribution in an aperture is tested on the isotropic component
+    # alone, which keeps the test to one table of distributions.
     models, v = pair
     data = _data(("losvd_aperture",), v)
     function = likelihood(models[0], data, SETTINGS)
@@ -265,23 +285,26 @@ def test_the_mass_scale_through_the_bin_edges(case):
     estimate = abs(central - first) / 3.0
     reference = central + (central - first) / 3.0
     assert abs(gradient - reference) <= 3.0 * estimate + 1e-9 * abs(reference)
-    # the length scale is held at the model's own: another is refused, and its
-    # gradient is not carried
+    # The binned distributions are computed at the model's own length scale:
+    # any other length scale gives minus infinity, and the gradient in the
+    # length scale is NaN.
     assert float(function(scale=[MASS_0, 0.9 * R_0])) == -np.inf
     assert np.isnan(np.asarray(jax.grad(lambda s: function(scale=s))(scale))[1])
 
 
-def test_a_free_component_with_binned_data_is_refused_by_name(case):
-    # until the observables' VJP of the distributions lands
+def test_a_free_component_with_binned_data_is_refused_with_cause(case):
+    # The likelihood has no derivative of the binned distributions in the
+    # anisotropy, so a free component with binned data raises InputError.
     model, data, _, _ = case
     with pytest.raises(InputError, match="binned data"):
         likelihood(model, data, SETTINGS, free=(1,))
 
 
 def test_the_frozen_reads_at_the_own_theta(case):
-    # the reference the VJP will be tested against (central differences of
-    # the reads on a placement held at theta): at the component's own theta
-    # the frozen reads are its reads, bit for bit
+    # At the component's own anisotropy, the reads on the frozen placement of
+    # the tables must equal the component's own reads bit for bit, so that
+    # central differences on the frozen placement are a valid reference for
+    # a derivative of the reads.
     model, data, v, _ = case
     member = component_view(model, 1)
     own = _binned.pieces(member, SETTINGS, False)
@@ -298,10 +321,11 @@ def test_the_frozen_reads_at_the_own_theta(case):
 
 
 def _frozen_pieces(model, settings, at):
-    """The tables of `model` on the placement of `at`: the rows recomputed
-    at `at`'s radii with `at`'s kept ranges, every other choice of the rows
-    their own; read at theta +- h and differenced, the reference for the
-    derivative of the reads at frozen placement."""
+    """Return the tables of `model` on the placement of `at`: the tables
+    recomputed at the radii of `at` with the kept ranges of `at`, and every
+    other choice of the tables taken from `model`. Reads of the returned
+    tables at the anisotropy plus and minus a step, differenced, are the
+    reference for a derivative of the reads at a frozen placement."""
     profile = dispersion_profile(model, settings)
     projected = projected_dispersion(model, profile, settings)
     table = None

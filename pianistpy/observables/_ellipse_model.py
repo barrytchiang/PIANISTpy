@@ -1,6 +1,24 @@
-"""The ellipse route's readers of a model: its potential with the slopes the
-extrema of a line of sight are bounded on, its DF with the cumulative
-integral, and the constants of the model the route's rules read."""
+r"""Build the ellipse route of a model of one component.
+
+The ellipse route (`EllipseRoute`) computes the rows of the line-of-sight
+velocity distribution that the public calls `pianistpy.losvd`,
+`pianistpy.aperture_losvd` and `pianistpy.LosTable` read. `ellipse_route`
+builds the route from a model. This module also holds the parts of a model
+that the route reads: the potential and its log-slopes
+(`PotentialReading`, `LogPotentialSlopes`), the DF (`DfReading`), the
+cumulative integral of the DF (`cumulative_df`), the constants of the model
+(`ellipse_model`) and the radius where the rows end (`floor_radius`).
+
+The cumulative integral of the DF is
+
+.. math::
+
+    G(Q) = \int_0^Q F(K)\,{\rm d}K,
+
+with F the DF and K its energy variable. `cumulative_df` doubles its
+Gauss-Legendre order until two successive orders agree to a relative
+:math:`10^{-7}` (Notes Section T:6.4).
+"""
 
 __all__ = [
     "DfReading",
@@ -10,6 +28,7 @@ __all__ = [
     "ellipse_model",
     "ellipse_route",
     "floor_radius",
+    "unconverged_cumulative",
 ]
 
 import math
@@ -17,6 +36,7 @@ import math
 import numpy as np
 
 from ..df import Model
+from ..df.central import LOG10_DF_CEILING
 from ..df.lookup import (
     K_0,
     LookupArrays,
@@ -25,38 +45,43 @@ from ..df.lookup import (
     evaluate_lookup,
     prepare_lookup,
 )
-from ..exceptions import InputError, ResultError
+from ..exceptions import AccuracyError, InputError, ResultError
 from ..numerics import hermite
 from ..profiles import TruncatedProfile
 from ..typing import Array, ArrayLike
-from ..validation import GOAL
+from ..validation import TIER_BOUNDS
 from ._ellipse import EllipseRoute
 from ._ellipse_df import EllipseDF
 from ._ellipse_rules import EllipseModel, EllipseRules, layer_counts
 from ._tables import _kernel_beta
 
-# The cumulative integral's Gauss-Legendre order starts here and doubles until
-# two orders agree to this fraction of the goal, or the order reaches the cap.
+# The Gauss-Legendre order of `cumulative_df` starts at CUMULATIVE_FIRST_ORDER
+# and doubles up to CUMULATIVE_LAST_ORDER. The doubling stops once two
+# successive orders agree to a relative CUMULATIVE_TOLERANCE, which is 0.1 of
+# 1e-6 and serves the bound 1e-6.
 CUMULATIVE_FIRST_ORDER = 16
 CUMULATIVE_LAST_ORDER = 512
-CUMULATIVE_TOLERANCE = 0.1 * GOAL
-# The DF is carried as 10^(log10 F - shift), the shift keeping its largest
-# value at most 10^this (it cancels in every normalized row).
-LOG10_DF_CEILING = 300.0
+CUMULATIVE_TOLERANCE = 0.1 * TIER_BOUNDS[0]
 
 
 class LogPotentialSlopes:
-    r"""The first and second derivatives of :math:`\ln\mathcal{P}` in
-    :math:`y = \ln r` of a profile's own potential, interval by interval.
+    r"""The first and second derivatives of :math:`\ln\mathcal{P}` in :math:`\ln r`.
 
-    Inside the rows :math:`\ln\mathcal{P}` is the profile's cubic Hermite in
-    :math:`y` (`TruncatedProfile.potential`), so on each interval the first
-    derivative is a quadratic and the second is linear, the form the bound of
-    `EllipseRoute.f_extrema` rests on. On the Kepler interval of a profile
-    with an edge row, :math:`\mathcal{P} = M_t(1/r - 1/r_t)`, the first
-    derivative :math:`-r_t/(r_t - r)` and the second
-    :math:`-r_t r/(r_t - r)^2` are monotone; both go to minus infinity at the
-    edge.
+    :math:`\mathcal{P}` is the relative potential of a profile, and
+    :math:`y = \ln r`. Between the profile's rows, :math:`\ln\mathcal{P}` is
+    the cubic Hermite interpolant in y that `TruncatedProfile.potential`
+    evaluates. On each interval between two rows, the first derivative is
+    therefore a quadratic in y and the second derivative is linear in y.
+    `EllipseRoute.f_extrema` bounds the first derivative on an interval from
+    the quadratic form of the first derivative.
+
+    A profile with an edge row has a Kepler interval from the last row to
+    the edge :math:`r_{\rm t}`. On the Kepler interval,
+    :math:`\mathcal{P} = M_{\rm t}(1/r - 1/r_{\rm t})`, with
+    :math:`M_{\rm t}` the mass of the truncated profile. The first derivative there is
+    :math:`-r_{\rm t}/(r_{\rm t} - r)`, and the second derivative is
+    :math:`-r_{\rm t} r/(r_{\rm t} - r)^2`. Both derivatives decrease
+    monotonically in r and tend to minus infinity at :math:`r_{\rm t}`.
 
     Parameters
     ----------
@@ -66,8 +91,8 @@ class LogPotentialSlopes:
     Attributes
     ----------
     x : array
-        The knots in :math:`\ln r`: the rows, and the edge where the profile
-        has an edge row.
+        The knots in ln r: the rows, followed by :math:`\ln r_{\rm t}` where
+        the profile has an edge row.
     """
 
     def __init__(self, profile: TruncatedProfile) -> None:
@@ -82,25 +107,35 @@ class LogPotentialSlopes:
         )
 
     def __call__(self, y: ArrayLike, nu: int) -> Array:
-        """The `nu`-th derivative at `y`, from the interval that starts at or
-        below `y` (the right-hand limit at a knot)."""
+        """Return the `nu`-th derivative at `y` as the right-hand limit at a knot.
+
+        The derivative is read on the interval that starts at or below `y`.
+        `nu` is 1 or 2.
+        """
         return self._read(y, nu, "right")
 
     def left(self, y: ArrayLike, nu: int) -> Array:
-        """The `nu`-th derivative at `y`, from the interval that ends at or
-        above `y` (the left-hand limit at a knot)."""
+        """Return the `nu`-th derivative at `y` as the left-hand limit at a knot.
+
+        The derivative is read on the interval that ends at or above `y`.
+        `nu` is 1 or 2.
+        """
         return self._read(y, nu, "left")
 
     def both(self, y: ArrayLike, side: str = "right") -> tuple[Array, Array]:
-        """The first and second derivatives at `y` from one lookup of the
-        interval, each the number `__call__` (``side="right"``) or `left`
-        (``side="left"``) gives."""
+        """Return the first and second derivatives at `y` from one interval lookup.
+
+        With ``side="right"`` each derivative equals the value of `__call__`.
+        With ``side="left"`` each derivative equals the value of `left`.
+        """
         d1, d2 = self._read_many(y, (1, 2), side)
         return d1, d2
 
     def _read(self, y: ArrayLike, nu: int, side: str) -> Array:
         if nu not in (1, 2):
-            raise ValueError(f"nu = {nu}: only the first and second derivatives.")
+            raise ValueError(
+                f"The derivative order nu must be 1 or 2; the order given is {nu}."
+            )
         return self._read_many(y, (nu,), side)[0]
 
     def _read_many(
@@ -113,14 +148,16 @@ class LogPotentialSlopes:
             np.searchsorted(x, y, side="right" if side == "right" else "left") - 1,
             0,
             n - 2,
-        )
-        h = x[i + 1] - x[i]
+        ).astype(np.intp, copy=False)
+        i1 = (i + 1).astype(np.intp, copy=False)
+        h = x[i1] - x[i]
         t = (y - x[i]) / h
-        y0, y1 = self._log_p[i], self._log_p[i + 1]
-        m0, m1 = self._slope[i] * h, self._slope[i + 1] * h
+        y0, y1 = self._log_p[i], self._log_p[i1]
+        m0, m1 = self._slope[i] * h, self._slope[i1] * h
         if self._edge:
-            # the Kepler interval starts at the last row: its right-hand limit
-            # there is Kepler's, its left-hand limit the Hermite's
+            # The Kepler interval starts at the last row. At the last row the
+            # right-hand limit is the Kepler form and the left-hand limit is
+            # the Hermite interpolant.
             kepler = (y >= x[-1]) if side == "right" else (y > x[-1])
             r = np.exp(y)
         out = []
@@ -151,31 +188,27 @@ class LogPotentialSlopes:
 
 
 class PotentialReading:
-    r"""The potential of a profile at radii, as the ellipse route reads it.
+    r"""The relative potential of a profile at radii, as the ellipse route reads it.
 
-    The rows' one reading of the potential: its values are
-    the profile's own (`TruncatedProfile.potential`), its derivatives those of
-    the same Hermite (`LogPotentialSlopes`, from the profile's interpolation
-    tables), and nothing else in the rows holds a potential. The one clip left
-    is `EllipseRoute.f_extrema`'s of ln R to the knots, behind its refusal of a
-    line of sight outside them: it takes the end's rounding
-    (``R_2D cosh(arccosh(R_t / R_2D))`` can exceed :math:`R_{\rm t}` by one
-    unit in the last place) to :math:`R_{\rm t}`.
+    A call returns the values of `TruncatedProfile.potential`. The attribute
+    `spline` gives the derivatives of the same Hermite interpolant
+    (`LogPotentialSlopes`).
 
     Parameters
     ----------
     profile : TruncatedProfile
         The profile.
     p_0 : float, optional
-        The model's central potential, which `depth` is read below; NaN
-        reads every depth as the difference.
+        The model's top energy :math:`P_0`, the reference of `depth`.
+        Default: ``nan``, with which `depth` returns NaN at every radius.
 
     Attributes
     ----------
     spline : LogPotentialSlopes
-        The derivatives of ln P in ln r on each interval, and its knots.
+        The derivatives of :math:`\ln\mathcal{P}` in ln r and their knots.
     R_knots : tuple of float
-        The first row and the end of the lines of sight.
+        The radius of the profile's first row and the largest radius of the
+        profile's table (``profile.r_table_max``).
     """
 
     def __init__(self, profile: TruncatedProfile, p_0: float = math.nan) -> None:
@@ -183,8 +216,10 @@ class PotentialReading:
         self.spline = LogPotentialSlopes(profile)
         self.R_knots = (float(profile.r[0]), float(profile.r_table_max))
         self.p_0 = float(p_0)
-        # the solve's depths on the rows where P_0 - Phi has lost digits (the
-        # depth below P_0 / 2), with the exact slope d ln u / d ln r = M / (r u)
+        # The depths u = P_0 - Phi of the solve's own column u_trunc, kept on
+        # the inner rows where 0 < u < P_0 / 2. On the rows with u < P_0 / 2,
+        # the difference P_0 - Phi loses digits. The exact slope of ln u is
+        # d ln u / d ln r = M / (r u), with M the enclosed mass.
         n = profile._n_interior
         u = np.asarray(profile.u_trunc, dtype=np.float64)
         self._deep = None
@@ -200,12 +235,18 @@ class PotentialReading:
         return self.profile.potential(np.atleast_1d(np.asarray(r, dtype=np.float64)))
 
     def depth(self, r: ArrayLike) -> Array:
-        r"""Return :math:`P_0 - \Phi` at radii: inside the rows whose depth is
-        below :math:`P_0/2`, the cubic Hermite in ln r of ln u through the
-        solve's own column `u_trunc` with its exact slopes :math:`M/(r u)`,
-        which keeps the digits :math:`P_0 - \Phi` loses near the center;
-        elsewhere, or where the column does not cover the rows, the
-        difference itself."""
+        r"""Return the depth :math:`u = P_0 - \Phi` below the top energy at radii.
+
+        :math:`\Phi` is the relative potential of the profile. The deep rows
+        are the profile's first rows, each with :math:`0 < u < P_0/2` in the
+        solve's column ``u_trunc``. At radii up to the outermost deep row, the
+        depth is the cubic Hermite interpolant in ln r of ln u through the
+        deep rows, with the exact slopes :math:`M/(r u)`. The interpolant
+        keeps the digits that the difference :math:`P_0 - \Phi` loses near
+        the center. At larger radii the depth is the difference
+        :math:`P_0 - \Phi`. The difference is used at every radius where
+        :math:`P_0` is NaN or fewer than two deep rows exist.
+        """
         r = np.atleast_1d(np.asarray(r, dtype=np.float64))
         out = self.p_0 - self(r)
         if self._deep is None:
@@ -219,35 +260,51 @@ class PotentialReading:
 
 
 class DfReading:
-    r"""F at energies from a prepared lookup, as
-    :math:`10^{\log_{10}F - c}`, zero where the DF has no value.
+    r"""The DF F at energies from a prepared lookup, scaled by a constant.
+
+    A call returns :math:`10^{\log_{10}F - c}`, with c the shift. The value is
+    0 where the lookup gives no finite :math:`\log_{10}F`.
 
     Parameters
     ----------
-    arrays, kinds
-        The prepared lookup (`prepare_lookup`).
+    arrays : LookupArrays
+        The arrays of the prepared lookup (`prepare_lookup`).
+    kinds : LookupKinds
+        The rules of the prepared lookup (`prepare_lookup`).
     shift : float
-        The shift c.
+        The shift c of :math:`\log_{10}F`.
     """
 
     def __init__(self, arrays: LookupArrays, kinds: LookupKinds, shift: float) -> None:
         self.arrays, self.kinds, self.shift = arrays, kinds, float(shift)
 
     def __call__(self, q: ArrayLike, u: ArrayLike | None = None) -> Array:
-        """F at the energies `q`, or by the depths ``u = P_0 - q`` where they are
-        given and finite (the lookup's depth entry)."""
+        """Return the scaled F at the energies `q`.
+
+        Where the depths ``u = P_0 - q`` are given and finite, the lookup reads
+        F by the depth u instead of by q (`evaluate_lookup`).
+        """
         log_f = evaluate_lookup(self.arrays, self.kinds, q, u=u)
         return np.where(np.isfinite(log_f), 10.0 ** (log_f - self.shift), 0.0)
 
     def log10(self, q: ArrayLike) -> Array:
-        """log10 F, without the shift."""
+        """Return the base-10 logarithm of F at the energies `q`, without the shift."""
         return evaluate_lookup(self.arrays, self.kinds, q)
 
 
 def _cumulative_at_order(
     arrays: LookupArrays, kinds: LookupKinds, q: float, order: int
 ) -> float:
-    r"""The panels of `cumulative_df` at one Gauss-Legendre order."""
+    r"""Return :math:`G(Q)` for Q = `q` at one Gauss-Legendre order.
+
+    The value is the lookup's `below_floor_mass` at the floor :math:`K_0`
+    plus Gauss-Legendre panels of `order` nodes from :math:`K_0` to Q. The
+    panel edges are :math:`K_0`, the lookup's nodes between :math:`K_0` and Q,
+    Q/2 where Q/2 lies above :math:`K_0`, and Q. A panel that ends at or
+    below Q/2 is integrated in ln K. A panel above Q/2 is integrated in
+    ln(Q - K). The panel that ends at Q is cut where Q - K falls below
+    :math:`e^{-60}` times the value of Q - K at the panel's lower edge.
+    """
     n = int(arrays.n)
     k_nodes = np.asarray(arrays.k[:n], dtype=np.float64)
     k_0 = float(arrays.params[K_0])
@@ -293,13 +350,18 @@ def _cumulative_at_order(
 def cumulative_df(arrays: LookupArrays, kinds: LookupKinds, q: float) -> float:
     r"""Return :math:`G(Q) = \int_0^Q F\,{\rm d}K` from a prepared lookup.
 
-    At or below the table's first energy :math:`K_0` it is the lookup's own
-    `below_floor_mass`. Above it, that at :math:`K_0` plus Gauss-Legendre
-    panels between the lookup's nodes: in :math:`\ln K` up to :math:`Q/2`, in
-    :math:`\ln(Q - K)` above, the order doubling from
-    `CUMULATIVE_FIRST_ORDER` until two orders agree to
-    `CUMULATIVE_TOLERANCE`. The working code's rule (``floor_term``), here
-    until the DF's lookup states its own cumulative integral.
+    At Q at or below the lookup's floor energy :math:`K_0`, G is the lookup's
+    `below_floor_mass` at Q. Above :math:`K_0`, G is
+    `_cumulative_at_order`. The order starts at `CUMULATIVE_FIRST_ORDER` and
+    doubles up to `CUMULATIVE_LAST_ORDER`. The function returns the value of
+    the first order whose relative difference from the previous order is at
+    or below `CUMULATIVE_TOLERANCE` (:math:`10^{-7}`).
+
+    Raises
+    ------
+    AccuracyError
+        If orders `CUMULATIVE_LAST_ORDER` / 2 and `CUMULATIVE_LAST_ORDER`
+        differ by more than `CUMULATIVE_TOLERANCE` relative to the value.
     """
     q = float(q)
     if q <= float(arrays.params[K_0]):
@@ -311,14 +373,47 @@ def cumulative_df(arrays: LookupArrays, kinds: LookupKinds, q: float) -> float:
         new = _cumulative_at_order(arrays, kinds, q, order)
         if abs(new - value) <= CUMULATIVE_TOLERANCE * abs(new):
             return new
-        value = new
-    return value
+        last, value = value, new
+    raise unconverged_cumulative(q, value, last)
+
+
+def unconverged_cumulative(q: float, value: float, previous: float) -> AccuracyError:
+    """Return the AccuracyError of a cumulative integral G(Q) that does not converge.
+
+    The message gives Q, the orders `CUMULATIVE_LAST_ORDER` / 2 and
+    `CUMULATIVE_LAST_ORDER`, and the relative difference between `value` and
+    `previous`, the values at orders `CUMULATIVE_LAST_ORDER` / 2 and
+    `CUMULATIVE_LAST_ORDER`.
+    """
+    return AccuracyError(
+        f"The DF's cumulative integral G(Q) at Q = {q:.6e} is not converged. The "
+        f"values of G(Q) at the orders {CUMULATIVE_LAST_ORDER // 2} and "
+        f"{CUMULATIVE_LAST_ORDER} differ by the relative amount "
+        f"{abs(value - previous) / max(abs(value), 1e-300):.3e}, more than the "
+        f"tolerance {CUMULATIVE_TOLERANCE:g}. The order cap {CUMULATIVE_LAST_ORDER} "
+        f"and the tolerance {CUMULATIVE_TOLERANCE:g} are constants of the method, "
+        f"and no setting moves the order cap or the tolerance."
+    )
 
 
 def _edge_gamma(arrays: LookupArrays, kinds: LookupKinds, p_edge: float) -> float:
-    r"""The least :math:`QF/G` over Q from GOAL :math:`\mathcal{P}_{\rm edge}`
-    to :math:`\mathcal{P}_{\rm edge}`; NaN where G vanishes there."""
-    q = p_edge * np.logspace(math.log10(GOAL), 0.0, 13)
+    r"""Return the least :math:`QF(Q)/G(Q)` near the potential at the profile's edge.
+
+    :math:`\mathcal{P}_{\rm edge}` = `p_edge` is the potential at the
+    profile's last row of support. The ratio is taken at 13 energies Q
+    spaced evenly in log Q from :math:`10^{-6}\,\mathcal{P}_{\rm edge}` to
+    :math:`\mathcal{P}_{\rm edge}`, with F unscaled from the lookup and G
+    from `cumulative_df`. For :math:`G \propto Q^\gamma` the ratio equals
+    :math:`\gamma`. The least ratio serves as the exponent :math:`\gamma` of G
+    near the edge energy. The result is NaN where no ratio is finite and
+    positive.
+
+    Raises
+    ------
+    AccuracyError
+        If `cumulative_df` raises AccuracyError at one of the 13 energies.
+    """
+    q = p_edge * np.logspace(math.log10(TIER_BOUNDS[0]), 0.0, 13)
     g = np.array(
         [
             x
@@ -334,7 +429,7 @@ def _edge_gamma(arrays: LookupArrays, kinds: LookupKinds, p_edge: float) -> floa
 def ellipse_model(
     model: Model, rules: EllipseRules, arrays: LookupArrays, kinds: LookupKinds
 ) -> EllipseModel:
-    r"""Return the constants of a model that the ellipse route's rules read.
+    r"""Return the constants of a model that the ellipse route reads.
 
     Parameters
     ----------
@@ -342,23 +437,64 @@ def ellipse_model(
         The model, of one component.
     rules : EllipseRules
         The route's rules.
-    arrays, kinds
-        The model's prepared lookup.
+    arrays : LookupArrays
+        The arrays of the model's prepared lookup.
+    kinds : LookupKinds
+        The rules of the model's prepared lookup.
 
     Returns
     -------
     constants : EllipseModel
+        The anisotropy, the layer counts and the velocity breaks V_edge and
+        V_c of the model.
+
+    Raises
+    ------
+    ResultError
+        If `layer_counts` raises ResultError.
+    AccuracyError
+        If `cumulative_df` raises AccuracyError in `_edge_gamma`.
 
     Notes
     -----
-    The layers toward the L = 0 point follow from :math:`\beta_c` alone
-    (`layer_counts`). Where the profile is not spatially finite and its last
-    row has :math:`\mathcal{P} > 0`, the line of sight's end :math:`V_{\rm
-    edge}` is a break, its layers from the exponent :math:`\gamma` of G there.
-    :math:`V_c` is a break where D's turnover exponent
-    :math:`p = -\kappa - (1 - b) - (1 - 2b)/\alpha` exceeds what a sub-panel
-    resolves, :math:`\alpha` the slope of :math:`\ln(P_0 - \mathcal{P})`
-    against :math:`\ln r` over the profile's innermost decade.
+    The layer counts toward the L = 0 point follow from
+    :math:`\beta_{\rm c}` alone (`layer_counts`).
+
+    The support of the profile is the set of rows with positive potential
+    :math:`\mathcal{P}`, positive density and positive radius.
+    :math:`\mathcal{P}_{\rm edge}` is the potential at the last row of
+    support. V_edge is a velocity break where the profile is not spatially
+    finite and :math:`\mathcal{P}_{\rm edge} > 0`. The layer count toward
+    V_edge is the least count n with
+    :math:`n \ge [\ln(10^{-6})/(\gamma + 2) - \ln 0.5]/\ln r_V`, and at
+    least 0. Here :math:`\gamma` is `_edge_gamma` and :math:`r_V` is
+    ``rules.vp_ratio``. Where :math:`\gamma` is NaN, the count is
+    ``rules.vp_layers_kink``.
+
+    The exponent of the turnover of D at V_c is
+
+    .. math::
+
+        p = -\kappa - (1 - b) - \frac{1 - 2b}{\alpha}.
+
+    Here :math:`\kappa` is the exponent of :math:`F \sim (P_0 - Q)^\kappa`
+    at the top energy :math:`P_0`. The exponent b of the L factor is
+    :math:`\beta_{\rm c}` for the constant and COM classes and 0 otherwise.
+    :math:`\alpha` is the least-squares slope of
+    :math:`\ln(P_0 - \mathcal{P})` against ln r. The fit takes the rows of
+    support with :math:`P_0 - \mathcal{P} > 0` whose radius is at most 10
+    times the least radius of those rows. p is computed only where
+    :math:`P_0` is finite, the fit has at least three rows and
+    :math:`\kappa` is finite. V_c is a velocity break where
+    :math:`(1/r_V - 1)\,p` exceeds ``rules.vp_nodes``.
+
+    At the innermost row of support, with potential
+    :math:`\mathcal{P}_{\rm in}`, the velocities are
+    :math:`V_c = [2(P_0 - \mathcal{P}_{\rm in})]^{1/2}` and
+    :math:`V_{\rm esc} = (2\mathcal{P}_{\rm in})^{1/2}`. Where
+    :math:`0 < V_c < V_{\rm esc}`, the layer count toward V_c is the least
+    count n with :math:`n \ge \ln[2V_c/(V_{\rm esc} - V_c)]/\ln r_V`, and at
+    least 0. Otherwise the count is ``rules.vp_layers_zero``.
     """
     anisotropy = model.components[0].anisotropy
     profile = model.profile
@@ -380,7 +516,7 @@ def ellipse_model(
             0,
             int(
                 np.ceil(
-                    (np.log(GOAL) / (edge_gamma + 2.0) - np.log(0.5))
+                    (np.log(TIER_BOUNDS[0]) / (edge_gamma + 2.0) - np.log(0.5))
                     / np.log(rules.vp_ratio)
                 )
             ),
@@ -392,7 +528,7 @@ def ellipse_model(
     if np.isfinite(p0_top):
         ok = support & (p0_top - p > 0.0)
         r_ok, depth = r[ok], p0_top - p[ok]
-        decade = r_ok <= 10.0 * r_ok.min()
+        decade = r_ok <= 10.0 * np.min(r_ok)
         if decade.sum() >= 3 and np.isfinite(kappa_top):
             alpha = float(np.polyfit(np.log(r_ok[decade]), np.log(depth[decade]), 1)[0])
             vc_p = -kappa_top - (1.0 - b) - (1.0 - 2.0 * b) / alpha
@@ -429,17 +565,22 @@ def ellipse_model(
 
 
 def floor_radius(model: Model) -> float:
-    r"""Return where the rows of a model end: the profile's last row, or,
-    where the DF is zero below its lookup's first energy :math:`K_0` (the
-    rule ``"zero"``, the nodes below the table included) and the potential
-    falls below :math:`K_0` inside the profile, the radius where
-    :math:`\mathcal{P} = K_0`, beyond which the DF is zero along every line
-    of sight.
+    r"""Return the radius where the rows of a model end.
+
+    The radius is ``profile.r_table_max``, the profile's last tabulated
+    radius, unless the case below applies. The lookup's rule ``"zero"`` sets
+    the DF to 0 below the floor energy :math:`K_0`. Under the rule
+    ``"zero"``, where the potential at the last tabulated radius is below
+    :math:`K_0`, the radius is instead the radius where
+    :math:`\mathcal{P} = K_0`, found by 200 bisections in ln r. Beyond the
+    radius where :math:`\mathcal{P} = K_0`, the DF is 0 along every line of
+    sight.
 
     Raises
     ------
     ResultError
-        Where that radius is at or inside the profile's first row.
+        If the rule is ``"zero"`` and the potential at the profile's first
+        row is at or below :math:`K_0`.
     """
     profile = model.profile
     r_last = float(profile.r_table_max)
@@ -454,9 +595,10 @@ def floor_radius(model: Model) -> float:
     lo, hi = math.log(float(profile.r[0])), math.log(r_last)
     if p(lo) <= k_0:
         raise ResultError(
-            f"The DF is zero below its floor K_0 = {k_0:.6e} (the rule 'zero'), "
-            f"which the potential reaches at or inside the profile's first row "
-            f"r = {math.exp(lo):.6e}: the model has no line of sight to tabulate."
+            f"The DF is zero below the DF's floor K_0 = {k_0:.6e} (the rule "
+            f"'zero'), which the potential reaches at or inside the profile's first "
+            f"tabulated radius r = {math.exp(lo):.6e}, so the model has no line of "
+            f"sight to tabulate."
         )
     for _ in range(200):
         mid = 0.5 * (lo + hi)
@@ -470,8 +612,11 @@ def floor_radius(model: Model) -> float:
 def ellipse_route(
     model: Model, rules: EllipseRules, with_df: bool = True
 ) -> EllipseRoute:
-    """Return the ellipse route of a model of one component, from the model
-    alone: its profile's potential, its DF's lookup and `ellipse_model`.
+    """Return the ellipse route of a model of one component.
+
+    The route reads the model alone: the potential of the model's profile
+    (`PotentialReading`), the lookup of the model's DF (`EllipseDF`), the
+    constants of `ellipse_model` and the end radius of `floor_radius`.
 
     Parameters
     ----------
@@ -480,20 +625,33 @@ def ellipse_route(
     rules : EllipseRules
         The route's rules.
     with_df : bool, optional
-        Whether the route carries the DF; without it, it places breaks only.
+        True builds a route that carries the DF and computes rows. False
+        builds a route without the DF, which places velocity breaks only.
+        Default: ``True``.
+
+    Returns
+    -------
+    route : EllipseRoute
+        The route of the model.
 
     Raises
     ------
     InputError
-        For a model of more than one component.
+        If the model has more than one component.
+    InputError
+        If `with_df` is True and the exponent p of ``F ~ K^p`` at K = 0 is
+        not above -1 (`EllipseDF`).
     ResultError
-        Where the DF's floor ends the rows inside the profile's first row
-        (`floor_radius`).
+        If the potential reaches the DF's floor energy at or inside the
+        profile's first row under the lookup's rule ``"zero"``
+        (`floor_radius`), or if `layer_counts` raises ResultError.
+    AccuracyError
+        If `cumulative_df` raises AccuracyError.
     """
     if len(model.components) != 1:
         raise InputError(
             f"The line-of-sight velocity distributions are computed for a model of "
-            f"one component; this one has {len(model.components)}."
+            f"one component; the model given has {len(model.components)} components."
         )
     arrays, kinds = prepare_lookup(model.table, model.form, 0)
     constants = ellipse_model(model, rules, arrays, kinds)
@@ -501,10 +659,16 @@ def ellipse_route(
     if with_df:
         n = int(arrays.n)
         log_df = np.asarray(arrays.log_df[:n], dtype=np.float64)
+        # The route carries the DF as 10^(log10 F - shift). The shift keeps the
+        # largest tabulated value of the carried DF at or below
+        # 10^LOG10_DF_CEILING. The shift cancels in every row normalized to
+        # unit integral.
         shift = max(0.0, float(np.max(log_df[np.isfinite(log_df)])) - LOG10_DF_CEILING)
         f = DfReading(arrays, kinds, shift)
-        # G's branches split at the table's own first energy: the nodes the
-        # inversion records below it lie on the lower branch, as the tail does
+        # EllipseDF takes the table's first and last written energies, at the
+        # indices i_first and i_last, as its floor Q_0 and top Q_top. The
+        # branches of G split at the floor Q_0. Table energies below index i_first
+        # lie on the lower branch of G, with the tail below the floor.
         table = model.table
         written = np.asarray(
             table.k[0, [table.i_first[0], table.i_last[0]]], dtype=np.float64
@@ -538,7 +702,7 @@ def ellipse_route(
 
 
 class _Cumulative:
-    """`cumulative_df` on one lookup, as a picklable callable."""
+    """A picklable callable that returns `cumulative_df` on one prepared lookup."""
 
     def __init__(self, arrays: LookupArrays, kinds: LookupKinds) -> None:
         self.arrays, self.kinds = arrays, kinds

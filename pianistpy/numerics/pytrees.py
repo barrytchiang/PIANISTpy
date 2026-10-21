@@ -1,11 +1,13 @@
-"""Result objects as pytrees: traced data, static configuration.
+"""Registration of frozen result dataclasses as JAX pytrees (`register_result`).
 
-A frozen result dataclass is registered with the names of its data fields
-(arrays and numbers, the leaves JAX traces, maps and differentiates); every
-other field is static configuration carried beside the tree, compared by
-value where it is hashable and by identity otherwise. Unflattening bypasses
-the constructor, so no validation meets a traced value (the gradient
-contract: a Python branch never reads a tracer).
+`register_result` registers a frozen dataclass as a pytree with the names of
+its data fields. The data fields hold arrays, numbers and registered objects:
+these fields are the leaves that JAX traces, maps and differentiates. Every
+other field is static configuration that the pytree carries beside the
+leaves. A static field is compared by value when the field's value is
+hashable, and by identity otherwise. Unflattening sets the fields directly
+and does not call the constructor, so that no input check of the
+constructor compares a traced value in a Python branch.
 """
 
 __all__ = ["register_result"]
@@ -17,7 +19,11 @@ import jax.tree_util
 
 
 class _Static:
-    """A static field's value, hashable for the tree definition."""
+    """Wrapper of a static field's value, hashable for the pytree definition.
+
+    A hashable value is compared by value. An unhashable value is compared by
+    the identity of the object.
+    """
 
     __slots__ = ("key", "value")
 
@@ -37,20 +43,26 @@ class _Static:
 
 
 def register_result(cls: type, data_fields: tuple[str, ...]) -> type:
-    """Make a frozen dataclass a pytree.
+    """Declare a frozen dataclass as a JAX pytree and return the class.
 
     Parameters
     ----------
     cls : type
-        The dataclass.
+        The frozen dataclass to declare as a JAX pytree.
     data_fields : tuple of str
-        The fields that are leaves or subtrees (arrays, numbers, registered
-        objects). The remaining fields are static.
+        Names of the fields that are leaves or subtrees of the pytree:
+        arrays, numbers and registered objects. Every other field of `cls`
+        is static.
 
     Returns
     -------
     cls : type
-        The same class, registered.
+        The class `cls` itself, now registered.
+
+    Raises
+    ------
+    ValueError
+        If a name in `data_fields` is not a field of `cls`.
     """
     names = tuple(f.name for f in dataclasses.fields(cls))
     missing = set(data_fields) - set(names)

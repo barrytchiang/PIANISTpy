@@ -1,4 +1,8 @@
-"""Tests of the truncation gates on small tables."""
+"""Tests of `truncation_gates` on small synthetic tables of an untruncated DF.
+
+Every table spans the energies Q from :math:`10^{-6}` to just below 1 in
+internal units, with 61 nodes spaced evenly in log Q.
+"""
 
 import numpy as np
 
@@ -8,6 +12,11 @@ Q = np.logspace(-6.0, -1e-3, 61)
 
 
 def _gates(f, k_t, a=-0.5):
+    """Return the gates of truncation energy `k_t` for the DF table `f` on Q.
+
+    The same table serves as the sign table and as the rounding-test table,
+    and `a` is the analytic exponent of the DF's tail.
+    """
     return truncation_gates(Q, f, Q, f, k_t, a)
 
 
@@ -33,7 +42,7 @@ def test_a_last_minimum_above_the_zero_crossing_sets_the_bound():
     assert g.fired == ("Z GATE",)
 
 
-def test_untruncated_negatives_are_rounding_only_below_the_ceiling():
+def test_untruncated_negatives_are_rounding_only_below_1e_4():
     f = Q**1.5
     f[:3] = -1e-30
     assert "Z_t = 0 GATE" not in _gates(f, 0.0).fired
@@ -43,12 +52,16 @@ def test_untruncated_negatives_are_rounding_only_below_the_ceiling():
 
 
 def test_the_domain_edge_bounds_the_truncation_and_the_gates_read_the_support():
-    # a negative scaffold below the edge: read on the support only, K_0 is none
+    # The DF table is negative below the domain edge K = 0.3 and positive
+    # above the domain edge. `truncation_gates` reads the table only above the
+    # domain edge, so the DF has no last zero crossing and K_0 is 0.
     q = np.linspace(0.01, 0.99, 99)
     f = np.where(q < 0.3, -1.0, q)
     g = truncation_gates(q, f, q, f, 0.0, -1.0, k_edge=0.3)
     assert g.k_0 == 0.0 and g.set_by == "domain_edge"
-    # DOMAIN is strict: k_t_min is the smallest K_t it admits, the next float
+    # The DOMAIN gate requires K_t strictly above the domain edge, so k_t_min
+    # is the next double above 0.3, the smallest K_t that the DOMAIN gate
+    # admits.
     assert g.k_t_min == np.nextafter(0.3, np.inf)
     assert truncation_gates(q, f, q, f, g.k_t_min, -1.0, k_edge=0.3).fired == ()
     assert g.fired == ("DOMAIN",)

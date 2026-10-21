@@ -1,13 +1,15 @@
-r"""Tests of the density's inner cut: the radius where the cusp's density
-leaves float64's range, from the profile's inputs, in place of a fixed
-:math:`10^{-13}`; and the center's window below it refused, never given a zero
-deficit.
+r"""Tests of `density_cut`, the inner radius below which the density is not computed.
 
-The edges are those measured on (alpha, beta, gamma) = (2, 4, gamma) with
-the old cut: the center's window (depth :math:`10^{-4}` to
-:math:`3 \times 10^{-4}` below :math:`P_0`) began to cross
-:math:`R = 10^{-13}` between gamma 1.70 and 1.705, and lay wholly inside it
-between 1.735 and 1.74, where the deficit was set to zero.
+`density_cut` returns the radius at which the cusp density
+:math:`C R^{-\gamma}` reaches the largest float64, with :math:`C` the profile's
+normalization and :math:`\gamma` its inner slope. The tests compare
+`density_cut` with the fixed cut :math:`R = 10^{-13}` (``OLD_CUT``). For the
+profiles :math:`(\alpha, \beta, \gamma) = (2, 4, \gamma)`, the center's window
+(depths from :math:`10^{-4}` to :math:`3 \times 10^{-4}` below :math:`P_0`)
+starts to cross :math:`R = 10^{-13}` between :math:`\gamma = 1.70` and
+:math:`\gamma = 1.705`, and lies wholly inside :math:`R = 10^{-13}` between
+:math:`\gamma = 1.735` and :math:`\gamma = 1.74`. A center's window that lies
+wholly inside the cut raises AccuracyError.
 """
 
 import numpy as np
@@ -23,7 +25,13 @@ OLD_CUT = 1e-13
 
 
 def _window_radius(gamma, u):
-    """The leading-order radius of depth u: (u (2-g)(3-g) / C)^(1/(2-g))."""
+    r"""Return the leading-order radius at depth `u` for inner slope `gamma`.
+
+    The depth `u` is measured below the central potential :math:`P_0`. The
+    radius is :math:`[u (2 - \gamma) (3 - \gamma) / C]^{1 / (2 - \gamma)}`,
+    with :math:`\gamma` the inner slope `gamma` and C the normalization of
+    the profile (2, 4, `gamma`).
+    """
     c = float(DoublePowerLaw(2.0, 4.0, gamma).rho_norm)
     return (u * (2.0 - gamma) * (3.0 - gamma) / c) ** (1.0 / (2.0 - gamma))
 

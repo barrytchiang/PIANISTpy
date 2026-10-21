@@ -38,7 +38,8 @@ def test_the_compilation_cache_is_on_by_default_and_can_be_moved_or_turned_off(
     try:
         assert pp.set_compilation_cache(tmp_path) == str(tmp_path)
         assert jax.config.jax_compilation_cache_dir == str(tmp_path)
-        # unbounded by default, as JAX's own folder
+        # With no max_size, the folder has no bound, as JAX's own cache folder
+        # has none.
         assert jax.config.jax_compilation_cache_max_size == -1
         pp.set_compilation_cache(tmp_path, max_size=2**20)
         assert jax.config.jax_compilation_cache_max_size == 2**20
@@ -49,8 +50,9 @@ def test_the_compilation_cache_is_on_by_default_and_can_be_moved_or_turned_off(
 
 
 def test_with_the_cache_off_there_is_no_default_folder(monkeypatch, tmp_path):
-    # the variable set to off: no default folder, and the cache turned on
-    # again takes the package's own folder, never one named off
+    # With PIANISTPY_COMPILATION_CACHE set to off, there is no default folder,
+    # and a cache turned on again uses the package's folder
+    # ~/.cache/pianistpy/jax, never a folder named "off".
     monkeypatch.setenv("PIANISTPY_COMPILATION_CACHE", "off")
     monkeypatch.setenv("HOME", str(tmp_path))
     assert default_compilation_cache() is None
@@ -80,10 +82,11 @@ def test_the_platform_switch_names_the_cpu_only_mode(monkeypatch):
 
 
 def test_the_cpu_only_mode_runs_on_the_cpu_in_a_fresh_process():
-    # The switch acts before the first computation (set_platform's own
-    # contract), and this suite's earlier tests have already started the
-    # backend, on a GPU where one is usable; so the platform the mode gives
-    # is read in a fresh interpreter, where it holds on every machine.
+    # set_platform acts only before JAX's first computation in a process, and
+    # earlier tests of the suite have already made JAX choose its hardware
+    # (a GPU where one is usable). The CPU-only mode is therefore checked in a
+    # new Python process, where set_platform("cpu") runs before any
+    # computation on every machine.
     out = subprocess.run(
         [
             sys.executable,

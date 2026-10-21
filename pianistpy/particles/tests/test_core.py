@@ -1,4 +1,5 @@
-"""Tests of the particle result and its writers."""
+"""Tests of the Particles result, the native writer and the registration of
+particle writers."""
 
 import numpy as np
 import pytest
@@ -100,9 +101,10 @@ def test_a_file_of_an_unknown_kind_is_refused(tmp_path):
         read(path)
 
 
-def test_a_draw_of_2_31_particles_is_refused_by_name():
-    # refused before the sampler is read: no tables are built here
-    with pytest.raises(InputError, match="reaches 2\\^31"):
+def test_a_draw_of_2_31_particles_is_refused_with_cause():
+    # Sampler.sample raises InputError before reading the sampler, so the test
+    # builds no tables.
+    with pytest.raises(InputError, match="is at least 2\\^31"):
         Sampler.sample(None, 2**31)
 
 

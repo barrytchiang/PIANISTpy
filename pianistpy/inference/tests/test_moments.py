@@ -1,5 +1,6 @@
-"""The Gauss-Hermite moments as observables of the log-likelihood, on the
-isotropic Method II member of the lowered Hernquist pair."""
+"""Tests of the Gauss-Hermite moments h3 and h4 in apertures as observables
+of the log-likelihood, on the isotropic Method II component on the truncated
+profile of the lowered Hernquist model."""
 
 import math
 
@@ -20,6 +21,8 @@ from pianistpy.observables.stages import (
 )
 from pianistpy.particles.tests.test_stages import _lowered_hernquist
 from pianistpy.superposition.tests.test_core import _member
+
+pytestmark = pytest.mark.slow
 
 SETTINGS = Settings(
     observables={"n_radii": 400, "n_jeans_nodes": 200, "n_projection_nodes": 200}
@@ -42,9 +45,10 @@ def _internal(aperture):
 
 @pytest.fixture(scope="module")
 def members():
-    """The isotropic Method II member on the lowered Hernquist pair, in
-    physical units, and its distribution in each aperture by the stages,
-    mirrored to both signs of velocity."""
+    """Return the isotropic Method II component on the truncated profile of
+    the lowered Hernquist model, in physical units, and the component's
+    velocity distribution in each aperture computed by the stages, mirrored
+    to negative velocities."""
     parent = _lowered_hernquist()
     out = []
     for beta_c in (0.0,):
@@ -65,8 +69,10 @@ def members():
 
 
 def _numpy_moments(weights, members, key):
-    """The mixture's moment in each aperture by `gauss_hermite_moments` on the
-    members' nodes put together, each member's weights scaled by its share."""
+    """Return the mixture's Gauss-Hermite moment `key` in each aperture,
+    computed by `gauss_hermite_moments` on the union of the components'
+    velocity nodes, with each component's quadrature weights scaled by the
+    component's share of the mixture."""
     n = np.asarray(weights) / np.sum(weights)
     values = []
     for i in range(len(APERTURES)):
@@ -120,7 +126,10 @@ def test_the_moments_against_numpy(members, data):
 def test_the_scales_of_moment_data(members, data):
     function = likelihood(members[0][0], data, SETTINGS)
     own = np.array([MASS_0, R_0])
-    # the mass scale leaves the moments; another length scale is refused
+    # The mass scale does not change the dimensionless moments, and any
+    # length scale other than the model's own gives minus infinity, because
+    # the distributions in the apertures are computed at the model's own
+    # length scale.
     assert float(function(scale=[3.0 * MASS_0, R_0])) == float(function())
     assert np.asarray(jax.grad(lambda s: function(scale=s))(own))[0] == 0.0
     assert function(scale=[MASS_0, 1.01 * R_0]) == -np.inf

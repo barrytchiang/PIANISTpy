@@ -1,3 +1,10 @@
+r"""Tests of the closed form of the DF and of the auxiliary density at the center.
+
+`center_form` gives the branch, the exponent and the amplitude of the DF's
+closed form near the central potential :math:`P_0`; `rho_aux_series` gives the
+auxiliary density as a series in the depth :math:`u = P_0 - P`.
+"""
+
 import math
 
 import numpy as np
@@ -9,8 +16,9 @@ from pianistpy.profiles import DoublePowerLaw
 
 
 def test_hernquist_isotropic_center():
-    # Hernquist (gamma = 1), isotropic: the regular branch, rho_aux ~ u^s with
-    # s = -gamma / (2 - gamma) = -1, and F ~ A u^kappa, kappa = s - 3/2 = -5/2.
+    # For the isotropic Hernquist model (gamma = 1) the center is on the regular
+    # branch. The auxiliary density goes as u^s with s = -gamma / (2 - gamma) = -1,
+    # and the DF goes as A u^kappa with kappa = s - 3/2 = -5/2.
     form = center_form(DoublePowerLaw(1.0, 4.0, 1.0), Anisotropy())
     assert (form["branch"], form["form"]) == ("regular", "power")
     assert form["s"] == -1.0 and form["kappa"] == -2.5
@@ -41,12 +49,11 @@ _ANCHOR_U = 1.0 - 0.9999999989985393
 def test_rho_aux_series_matches_the_exact_derivatives_at_the_anchor(
     profile, anisotropy
 ):
-    # The series' d^N/dP^N = (-1)^N sum C_s s (s - 1) ... u^(s - N), N = 0 to 3,
-    # against ExactDerivs' symbolic derivatives at the central anchor. The anchor
-    # is the grid node compute_df places, u = 1.0015e-9, the same at the default
-    # and quick tiers for every case here (measured; Type II and gamma < 1 DPL
-    # models carry no central anchor). Measured: at most 2.7e-15 relative (NFW
-    # constant beta_c 0.3, order 3).
+    # The N-th P-derivative of the series, (-1)^N sum_s C_s s (s - 1) ...
+    # (s - N + 1) u^(s - N) for N = 0 to 3, must match the N-th derivative that
+    # ExactDerivs computes symbolically, to a relative difference below 1e-13.
+    # The depth _ANCHOR_U = 1.0015e-9 below P_0 is the depth of the central
+    # anchor node on the grid that compute_df builds.
     from pianistpy.df.central import _MODEL_TYPES, rho_aux_series
     from pianistpy.df.derivatives import ExactDerivs
 

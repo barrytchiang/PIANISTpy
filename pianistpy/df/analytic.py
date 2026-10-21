@@ -1,9 +1,11 @@
 """Distribution functions in closed form, and the models built from them.
 
-Two isotropic models have a distribution function (DF) in closed form: the
-Hernquist model and the Plummer model. They serve as references that owe
-nothing to the numerical inversion, and `analytic_model` builds a complete
-`Model` from either, for tests and examples that need a model at no cost.
+The isotropic Hernquist model and the isotropic Plummer model have a
+distribution function (DF) in closed form: `hernquist_df` and `plummer_df`
+return each DF and its derivative. The closed forms are references
+independent of the numerical inversion. `analytic_model` builds a complete
+`Model` from either closed form, for tests and examples that need a model
+without an inversion.
 """
 
 __all__ = ["ANALYTIC_MODELS", "analytic_model", "hernquist_df", "plummer_df"]
@@ -27,23 +29,24 @@ from .results import Model
 from .stages import AsymptoticForm, DfTable
 from .truncation import K_FLOOR
 
-# Prefactor of the density integral of an isotropic DF:
+# The prefactor of the density integral of an isotropic DF:
 # rho(P) = 4 pi sqrt(2) INT_0^P F(K) (P - K)^(1/2) dK.
 ISOTROPIC_DENSITY_PREFACTOR = 4.0 * math.pi * math.sqrt(2.0)
-# Amplitude of the Hernquist DF at the center, F -> A (1 - K)^(-5/2).
+# The amplitude A of the Hernquist DF at the center, F -> A (1 - K)^(-5/2).
 HERNQUIST_CENTRAL_AMPLITUDE = 3.0 / (4.0 * math.sqrt(2.0) * math.pi)
-# Amplitude of the Plummer DF, F = A K^(7/2): the density 3 P^5 through the
-# density integral.
+# The amplitude A of the Plummer DF F = A K^(7/2), from the density 3 P^5
+# through the density integral.
 PLUMMER_AMPLITUDE = 3.0 / (ISOTROPIC_DENSITY_PREFACTOR * beta_function(4.5, 1.5))
 
 ANALYTIC_MODELS = ("hernquist", "plummer")
-# Ends of the tables of an analytic model: the energies and the depths below
-# the center that the DF table reaches (from the floor every solve shares,
-# K_FLOOR), and the radii of the profile.
+# The DF table of an analytic model runs from the energy K_FLOOR to the depth
+# U_TOP below the central potential 1. The profile of an analytic model runs
+# from the radius R_MIN to the radius R_MAX, in internal units.
 U_TOP = 1e-9
 R_MIN, R_MAX = 1e-6, 1e6
-# The rest of the form of a one-component DF that is a pure power-law tail
-# below its table and has no logarithm and no second singular term above it.
+# The remaining fields of the asymptotic form of a one-component DF whose
+# tail below the table is a pure power law, and whose center above the table
+# has no logarithm and no second singular term.
 _NO_FURTHER_TERM: dict = dict(
     central_log_coefficient=(math.nan,),
     central_next_form=("none",),
@@ -52,7 +55,8 @@ _NO_FURTHER_TERM: dict = dict(
     tail_log_scale=(1.0,),
     below_floor=("tail",),
     below_floor_coefficients=((),),
-    # no anchor: the closed-form table reaches the ceiling
+    # The closed-form table needs no anchor, because the closed-form table
+    # reaches the depth U_TOP below the center.
     central_anchor=(math.nan,),
     central_anchor_amplitude=(math.nan,),
     central_regular=((math.nan, math.nan),),
@@ -71,15 +75,17 @@ def hernquist_df(k: ArrayLike) -> tuple[Array, Array]:
     Returns
     -------
     df : array
-        The DF, in internal units.
+        The DF :math:`F(\mathcal{K})`, in internal units, with the shape of
+        `k`.
     ddf_dk : array
-        Its derivative with respect to the energy.
+        The derivative :math:`\mathrm{d}F/\mathrm{d}\mathcal{K}`, in internal
+        units, with the shape of `k`.
 
     Notes
     -----
-    In internal units the model has :math:`P = 1/(1+R)` and
-    :math:`\varrho = 2/[R(1+R)^3]`, and the DF of Hernquist (1990) takes the
-    form
+    In internal units the Hernquist model has the potential
+    :math:`P = 1/(1+R)` and the density :math:`\varrho = 2/[R(1+R)^3]`. The
+    DF of Hernquist (1990) is written as
 
     .. math::
 
@@ -87,8 +93,11 @@ def hernquist_df(k: ArrayLike) -> tuple[Array, Array]:
             \frac{I_\mathcal{K}(5/2, 5/2)}{(1-\mathcal{K})^{5/2}} ,
 
     with :math:`I` the regularized incomplete Beta function. Every term of
-    this form and of its derivative is positive, so neither loses precision
-    toward :math:`\mathcal{K} = 0`, where the textbook form cancels.
+    the incomplete-Beta form of :math:`F` and of
+    :math:`\mathrm{d}F/\mathrm{d}\mathcal{K}` is positive, so neither
+    :math:`F` nor :math:`\mathrm{d}F/\mathrm{d}\mathcal{K}` loses precision
+    toward :math:`\mathcal{K} = 0`. The textbook form of the
+    Hernquist DF subtracts nearly equal terms toward :math:`\mathcal{K} = 0`.
 
     Examples
     --------
@@ -98,8 +107,9 @@ def hernquist_df(k: ArrayLike) -> tuple[Array, Array]:
     """
     k = np.asarray(k, dtype=np.float64)
     u = 1.0 - k
-    # The Beta function is symmetric here, so the complement is taken on the
-    # side where the function itself is small.
+    # The regularized incomplete Beta function I_x(5/2, 5/2) satisfies
+    # I_x = 1 - I_(1-x). Above K = 0.5 the value is formed from the
+    # complement, so betainc is always evaluated where betainc is small.
     fraction = np.where(k <= 0.5, betainc(2.5, 2.5, k), 1.0 - betainc(2.5, 2.5, u))
     df = HERNQUIST_CENTRAL_AMPLITUDE * fraction * u**-2.5
     ddf_dk = HERNQUIST_CENTRAL_AMPLITUDE * (
@@ -120,15 +130,20 @@ def plummer_df(k: ArrayLike) -> tuple[Array, Array]:
     Returns
     -------
     df : array
-        The DF, in internal units.
+        The DF :math:`F(\mathcal{K})`, in internal units, with the shape of
+        `k`.
     ddf_dk : array
-        Its derivative with respect to the energy.
+        The derivative :math:`\mathrm{d}F/\mathrm{d}\mathcal{K}`, in internal
+        units, with the shape of `k`.
 
     Notes
     -----
-    In internal units the model has :math:`P = (1+R^2)^{-1/2}` and
-    :math:`\varrho = 3 P^5`, a polytrope: :math:`F = A\,\mathcal{K}^{7/2}`
-    with :math:`A = 3/[4\pi\sqrt{2}\,B(9/2, 3/2)]`.
+    In internal units the Plummer model has the potential
+    :math:`P = (1+R^2)^{-1/2}` and the density :math:`\varrho = 3 P^5`. The
+    Plummer model is a polytrope, with the DF
+    :math:`F = A\,\mathcal{K}^{7/2}` and
+    :math:`A = 3/[4\pi\sqrt{2}\,B(9/2, 3/2)]`, :math:`B` the Beta
+    function.
 
     Examples
     --------
@@ -141,28 +156,45 @@ def plummer_df(k: ArrayLike) -> tuple[Array, Array]:
 
 
 def analytic_model(name: str, n_nodes: int = 2001) -> Model:
-    """Return the untruncated isotropic model of a profile with a closed-form DF.
+    r"""Return the untruncated isotropic model of a profile with a closed-form DF.
 
-    The model is filled from closed forms only: its DF table from
-    `hernquist_df` or `plummer_df`, its profile from the density profile
-    itself. It is an untruncated model, and so is not spatially finite.
+    The model is filled from closed forms only. The DF table comes from
+    `hernquist_df` or `plummer_df`, and the model's profile comes from the
+    `DoublePowerLaw` density profile. The model is untruncated and therefore
+    not spatially finite. The model's validation report holds no checks.
 
     Parameters
     ----------
     name : {"hernquist", "plummer"}
-        The profile.
+        The profile: the Hernquist profile or the Plummer profile.
     n_nodes : int, optional
-        Number of energies of the DF table and of radii of the profile.
+        The number of energies of the DF table, and the number of radii of
+        the profile, at least 5. Default: ``2001``. The energies are uniform
+        in :math:`\ln \mathcal{K}` from ``K_FLOOR`` (:math:`10^{-10}`) to
+        0.5, and uniform in the logarithm of the depth
+        :math:`1 - \mathcal{K}` from 0.5 to ``U_TOP`` (:math:`10^{-9}`).
+        The radii are uniform in :math:`\ln R` from ``R_MIN``
+        (:math:`10^{-6}`) to ``R_MAX`` (:math:`10^{6}`), in internal units.
 
     Returns
     -------
     model : Model
+        The untruncated model, with one component, the default settings
+        (`Settings`), the closed-form DF table, and the asymptotic form of
+        the DF at the center and below the table.
+
+    Raises
+    ------
+    InputError
+        If ``name`` is neither "hernquist" nor "plummer".
+    InputError
+        If ``n_nodes`` is below 5.
 
     Examples
     --------
     >>> model = analytic_model("plummer", n_nodes=101)
     >>> model.spatially_finite, model.validation.tier
-    (False, 'goal')
+    (False, 'silent')
     """
     if name not in ANALYTIC_MODELS:
         raise InputError(
@@ -174,8 +206,10 @@ def analytic_model(name: str, n_nodes: int = 2001) -> Model:
     if name == "hernquist":
         profile = DoublePowerLaw.hernquist()
         df_function = hernquist_df
-        # F -> A u^(-5/2) at the center and (64 / (5 sqrt(2) pi^2)) K^(5/2) at
-        # the outer end, the latter from the density 2 P^4 there.
+        # The Hernquist DF tends to A u^(-5/2) at the center, with u = 1 - K
+        # and A = HERNQUIST_CENTRAL_AMPLITUDE.
+        # At the outer end the Hernquist DF tends to
+        # (64 / (5 sqrt(2) pi^2)) K^(5/2), from the density 2 P^4 at small P.
         form = AsymptoticForm(
             p_0=1.0,
             central_label=("regular",),
@@ -203,8 +237,9 @@ def analytic_model(name: str, n_nodes: int = 2001) -> Model:
             central_form=("analytic",),
             **_NO_FURTHER_TERM,
         )
-    # Energies uniform in the logarithm of K up to one half, and in the
-    # logarithm of the depth 1 - K above it.
+    # The energies are uniform in ln K up to K = 0.5, and uniform in the
+    # logarithm of the depth 1 - K above K = 0.5, so that the nodes resolve
+    # both the tail at small K and the center at small depth.
     n_lower = n_nodes // 2 + 1
     k_lower = np.geomspace(K_FLOOR, 0.5, n_lower)
     u_upper = np.geomspace(0.5, U_TOP, n_nodes - n_lower + 1)[1:]
@@ -249,10 +284,12 @@ def analytic_model(name: str, n_nodes: int = 2001) -> Model:
         profile=truncated_profile,
         validation=ValidationReport(keys=(), checks={}),
         timing={},
-        # a closed form holds every tier at every radius; a spatially finite
-        # one holds to its edge and states no radius
+        # A closed-form model meets every accuracy bound at every radius, so the
+        # radius of trust is infinite for the "silent" and "recorded" tiers.
+        # A spatially finite model is trusted to its edge and states no
+        # radius of trust.
         r_trust={}
         if truncated_profile.spatially_finite
-        else {"goal": math.inf, "ceiling": math.inf},
-        inversion=None,  # a closed form: not made by an inversion
+        else {"silent": math.inf, "recorded": math.inf},
+        inversion=None,  # A closed-form model has no inversion record.
     )

@@ -4,9 +4,9 @@
 
 Also called by ``docs/conf.py`` at the start of every build, so the tables can
 never lag the code: one table per group of `pianistpy.settings.FIELDS`, with
-each field's name, its value in the default and the quick tier, and the one
+each field's name, its value in the default and the quick settings, and the one
 line on what it controls. A quick value equal to the default is shown as
-"same": the quick tier keeps a default until a cheaper value has passed the
+"same": the quick settings keep a default until a cheaper value has passed the
 tests.
 """
 
@@ -24,7 +24,7 @@ def fmt(value) -> str:
 
 
 def render() -> str:
-    from pianistpy.settings import FIELDS, GROUPS, TIERS
+    from pianistpy.settings import FIELDS, GROUPS, LEVELS
 
     out = []
     out.append(
@@ -53,11 +53,12 @@ def render() -> str:
                 f"     - {quick_text}\n     - {doc}\n"
             )
     out.append(
-        "\nTiers: "
-        + ", ".join(f"``{t}``" for t in TIERS)
-        + ". A field is overridden one at a time, "
-        "``pp.Settings(inversion={'n_nodes': 800})``; the result then records "
-        "that it was made with custom settings and names the fields that differ.\n"
+        "\nSettings levels: "
+        + ", ".join(f"``{t}``" for t in LEVELS)
+        + ". A field is overridden by its group and its name, for example "
+        "``pp.Settings(inversion={'n_nodes': 800})``. A result computed with an "
+        "overridden field records that its settings are custom, and lists the "
+        "fields that differ from the settings level.\n"
     )
     return "".join(out)
 

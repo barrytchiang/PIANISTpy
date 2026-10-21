@@ -1,19 +1,34 @@
-"""The fills of a model's profile at its two ends.
+r"""The fills of a model's profile at its two ends, and the profile's mass.
 
-The Poisson solve's rows are sparse where the potential nears the floor
-(the outer end) and where it nears the center (the inner end). Both ends are
-filled to the profile's row density: the outer end by log-log interpolation
-of the solve's rows in Psi, continued below its lowest rows by their own
-slope (and by the edge's closed form below the Taylor switch); the inner end
-by the inner series of the source density, lowered by the central deficit
-where the model carries one, out to the join with the solve's rows, and
-between the join and the fill's threshold by the solve's own interpolant.
+`fill_profile` replaces the Poisson solve's rows of a model at each end of
+the profile, from the end out to the last row-count bin
+(`truncation.row_bin_edges`) that holds fewer solve rows than the bin's
+required count, and returns a `FilledProfile`. `profile_rows`
+then returns the `ProfileRows` that the profile keeps: radius :math:`r`,
+potential :math:`\Psi`, density :math:`\rho`, the enclosed mass
+:math:`M(r) = 4 \pi \int_0^r \rho\, r'^2\, dr'` and the depth
+:math:`u = P_0 - \Psi` below the central potential :math:`P_0`. All
+quantities are in internal units.
 
-The join is the depth to which the series is trusted, moved inward on a
-lowered model to where the series rows and the solve's rows agree.
-
-The arithmetic is the working pipeline's, operation for operation, so that
-its results are equal to the bit on the same backend.
+The solve's rows are sparse near the floor of the potential (the outer
+end) and near the center (the inner end). Each end is filled until every
+row-count bin holds its required rows. The outer fill interpolates the
+solve's rows log-log in :math:`\Psi`. Below the potential `OUTER_ANCHOR`
+times :math:`P_0`, the outer fill extrapolates :math:`\ln \rho` linearly in
+:math:`\ln \Psi` with the slope of the pair of solve rows at that
+potential. Below the truncated DF's Taylor switch, the outer fill takes
+the density's closed form. The inner fill takes the inner series of the
+source density, lowered by the central deficit where the model carries
+one, from the center out to the join depth, and the solve's own
+interpolant from the join depth out to the fill's threshold depth. The
+join depth is the largest depth at which the depth series' fifth term,
+relative to the sum of the series' first four terms, is at most
+:math:`10^{-7}`. On a model with a lowered center, the join depth moves to
+a smaller depth where the series rows and the solve's rows agree within
+:math:`10^{-7}`. The mass outside the radius where the mass series holds
+is integrated with sub-steps halved until the mass at every row changes by
+less than :math:`10^{-7}` relative, or until 64 sub-steps lie between two
+adjacent rows. The method is in Notes Section T:3.4.
 """
 
 __all__ = ["FilledProfile", "ProfileRows", "fill_profile", "profile_rows"]
@@ -31,7 +46,7 @@ from scipy.special import beta as _sbeta
 from ..anisotropy.factor import inverse_factor
 from ..exceptions import AccuracyError, InputError
 from ..typing import Array
-from ..validation import GOAL
+from ..validation import TIER_BOUNDS
 from .center import (
     CenterAmplitude,
     anisotropy_g,
@@ -54,22 +69,36 @@ from .truncation import K_FLOOR, OUTER_ANCHOR, ROW_BINS_TOP, row_bin_edges
 
 @dataclass(frozen=True)
 class FilledProfile:
-    """The profile's rows after the two fills.
+    r"""The profile's rows after the outer fill and the inner fill.
+
+    All quantities are in internal units.
 
     Parameters
     ----------
-    r, phi, rho : array, shape (n,)
-        Radius, potential and density of the rows, increasing in r.
-    u_fill_r, u_fill : array or None
-        The inner fill's rows and their central coordinate ``u = P_0 - Phi``,
-        without a subtraction; None where the inner fill did not run.
+    r : array, shape (n,)
+        Radii of the rows, increasing.
+    phi : array, shape (n,)
+        The potential :math:`\Psi` at `r`.
+    rho : array, shape (n,)
+        The density at `r`.
+    u_fill_r : array or None
+        Radii of the inner fill's rows; None where the inner fill did not
+        run.
+    u_fill : array or None
+        The depth :math:`u` below the central potential :math:`P_0` at
+        `u_fill_r`, computed directly rather than as the difference of
+        :math:`P_0` and the potential :math:`\Psi`; None where the inner
+        fill did not run.
     join : float
-        The depth of the series / solve join.
+        The join depth, below which the inner fill takes the inner series.
     threshold : float
-        The inner fill's threshold depth, the larger of the join and ``u_2``.
+        The inner fill's threshold depth: the larger of `join` and ``u_2``.
     reliability : dict
-        The depth ``u_2`` (the outermost underdense depth bin) and which of
-        the join and ``u_2`` set the threshold (``set_by``).
+        ``u_2``: the top edge of the highest depth bin that holds fewer
+        solve rows than the bin's required count, or 0 where no depth bin
+        does. ``set_by``:
+        "join" or "u_2", whichever is larger and so sets `threshold`
+        ("join" where the two are equal).
     """
 
     r: Array
@@ -83,6 +112,12 @@ class FilledProfile:
 
 
 def _potential(r, c, g, a, b, p_0):
+    """Return the inner series' potential at radii `r`.
+
+    The potential is :math:`P_0 - u(r)`, with :math:`P_0` the central
+    potential `p_0` and :math:`u(r)` the inner series' depth at `r`
+    (`inner_depth_series`).
+    """
     return p_0 - inner_depth_series(r, c, g, a, b)
 
 
@@ -100,8 +135,35 @@ def _low_psi_fill(
     edge,
     p_0,
 ):
-    """The outer end's fill below the outermost underdense bin; its slope is
-    anchored at ``Psi = OUTER_ANCHOR P_0``."""
+    r"""Return the rows :math:`(r, \Psi, \rho)` with the outer end filled.
+
+    The fill replaces every row with potential :math:`\Psi` at or below
+    `psi_lo_threshold`, the top edge of the highest potential bin that holds
+    fewer than `min_per_bin` rows. The fill's potentials are geometric from
+    `psi_lo_threshold` down to `K_FLOOR`, with at least 100 rows and at
+    least `min_per_bin` rows per bin of `dlog` decades. The fitted rows are
+    the solve's rows with positive density from the radius at
+    `psi_lo_threshold` out to the outermost row. The fill's radii
+    interpolate the fitted rows in :math:`\ln r` against :math:`\ln \Psi`.
+    The anchor pair is the pair of adjacent fitted rows whose lower
+    potential is the least fitted potential above `OUTER_ANCHOR` times
+    :math:`P_0` (or the pair of the two highest potentials, where no fitted
+    potential lies above `OUTER_ANCHOR` times :math:`P_0`). At and above the
+    anchor pair's lower potential, the fill's :math:`\ln \rho` interpolates
+    the fitted rows. Below the anchor pair's lower potential, the fill's
+    :math:`\ln \rho` is linear in :math:`\ln \Psi` with the anchor pair's
+    slope. Below the Taylor switch of `edge`, the density is the closed form
+    of the Taylor edge. The rows are returned unchanged in four cases:
+    `psi_lo_threshold` is None; no row is valid; `psi_lo_threshold` lies
+    outside the potentials of `p_sorted`; or fewer than four fitted rows
+    exist.
+
+    Raises
+    ------
+    InputError
+        If `edge` is of a Type II anisotropy and a filled row below the
+        Taylor switch lies at or beyond :math:`R_{\rm a}` (`inverse_factor`).
+    """
     floor = K_FLOOR
     if psi_lo_threshold is None:
         return r_save, p_save, rho_save
@@ -148,7 +210,9 @@ def _low_psi_fill(
     rho_fill = np.exp(log_rho_fill)
     psi_fill = psi_grid
     if edge is not None:
-        # below the Taylor switch the truncated DF is F1 K + F2 K^2 / 2 exactly
+        # Below the Taylor switch the truncated DF is F1 K + F2 K^2 / 2, so the
+        # density below the switch is the closed form of rho_aux divided by
+        # the anisotropy factor h(r) of inverse_factor.
         f1, f2, ksw, b_e, mt_e, ra_e = edge
         n_e = 0.5 - b_e
         mf = psi_fill < ksw
@@ -158,7 +222,8 @@ def _low_psi_fill(
                 f1 * _sbeta(2.0, n_e + 1.0) * pf ** (n_e + 2.0)
                 + 0.5 * f2 * _sbeta(3.0, n_e + 1.0) * pf ** (n_e + 3.0)
             )
-            # the factor's one form, with its Type II refusal
+            # inverse_factor raises InputError for a Type II row at or beyond
+            # R_a, where the anisotropy factor is not defined.
             gf = inverse_factor(rf, mt_e, b_e, ra_e)[0]
             rho_cl = cuddeford_prefactor(b_e) * pcl / gf
             rho_fill = np.array(rho_fill, dtype=np.float64)
@@ -192,8 +257,32 @@ def _high_psi_fill(
     solve,
     source,
 ):
-    """The inner end's fill above the threshold depth; returns the rows and
-    the fill's (r, u), or None for the latter where it did not run."""
+    r"""Return the rows with the inner end filled, and the fill's radii and depths.
+
+    The fill replaces every row whose depth :math:`u` is below
+    `u_threshold`. The split depth :math:`u_{\rm split}` is the larger of
+    `u_join` and the smallest depth among the solve rows passed in. From
+    `K_FLOOR` to :math:`u_{\rm split}`, the fill's rows come from the inner
+    series: radii from the series' leading term, refined by two Newton
+    steps on the series' potential and, on a lowered center, by up to 50
+    further Newton steps that include the center's depth shift. On a
+    lowered center, the series' density is lowered by the central deficit,
+    and the series' potential is raised by the deficit's depth shift. From
+    :math:`u_{\rm split}` to `u_threshold`, the fill's rows interpolate the
+    solve's rows log-log in :math:`u`; where the solve's dense interpolant
+    covers the fill's radii and the source table's ``p_0`` equals `p_0`,
+    the fill's rows take the solve's interpolant and `profile_density`
+    instead. The fill's :math:`(r, u)` is None, and the rows are returned
+    unchanged, where `u_hi_threshold` is None and `u_threshold` is at most
+    `u_join`.
+
+    Raises
+    ------
+    InputError
+        If the lowered center that `center` holds belongs to another
+        central potential :math:`P_0` or another central anisotropy
+        :math:`\beta_{\rm c}`.
+    """
     u_join_eff = float(u_join)
     if u_hi_threshold is None and u_threshold <= u_join_eff:
         return r_save, p_save, rho_save, None
@@ -222,9 +311,10 @@ def _high_psi_fill(
             np.isfinite(step) & (np.abs(step) < 0.5 * r_sr1), r_sr1 - step, r_sr1
         )
     if delta > 0.0:
-        # a lowered center shifts each row's depth by du: place the rows where
-        # their final depth is the grid's, so the grid's bins stay full up to
-        # the threshold
+        # A lowered center shifts each row's depth by du (du_at). The radii
+        # are moved so that each row's depth after the shift equals the
+        # row's grid depth, which keeps every depth bin full up to the
+        # threshold depth.
         lc = center.lowered
 
         def du_at(r):
@@ -355,37 +445,60 @@ def fill_profile(
     source: Mapping[str, Any],
     settings: Mapping[str, Any],
 ) -> FilledProfile:
-    r"""Return the profile's rows after the outer and the inner fill.
+    r"""Return the profile's rows after the outer fill and the inner fill.
+
+    All quantities are in internal units.
 
     Parameters
     ----------
     solve : PoissonSolve
-        The Poisson solve; its rows and its interpolant.
-    rho : array
-        The density on the solve's rows (`profile_density`).
+        The Poisson solve: its rows and its dense interpolant.
+    rho : array, shape (n,)
+        The density at the solve's rows (`profile_density`).
     p_0 : float
-        The model's central potential.
+        The model's central potential :math:`P_0`.
     center : CenterAmplitude
-        The inner amplitude and the central deficit.
-    profile : tuple
-        (C, alpha, beta, gamma) of the source density.
-    bc, factor
-        The anisotropy's :math:`\beta_{\rm c}`, its factor's kind and
-        :math:`R_{\rm a}`.
+        The inner series' amplitude and the central deficit.
+    profile : tuple of float
+        :math:`(C, \alpha, \beta, \gamma)` of the source density's inner
+        series.
+    bc : float
+        The central anisotropy :math:`\beta_{\rm c}`.
+    factor : tuple of (str or None, float)
+        The anisotropy's kind ("I", "II", or None for no anisotropy radius)
+        and :math:`R_{\rm a}`.
     edge : tuple or None
-        The Taylor edge (F_1, F_2, K_switch, :math:`\beta_{\rm c}`, model type,
-        :math:`R_{\rm a}`); None on an untruncated model.
+        The Taylor edge :math:`(F_1, F_2, K_{\rm switch}, \beta_{\rm c},`
+        model type, :math:`R_{\rm a})`; None for an untruncated model or
+        where the truncation has no Taylor form.
     source : mapping
         The solve's source table: ``q``, ``p_rhs``, ``p_0``, ``p_s``, ``ra``,
-        ``bc``, ``model_type``.
+        ``bc`` and ``model_type``.
     settings : mapping
-        The truncation's settings (`Settings.truncation`).
+        The truncation settings (`Settings.truncation`).
+
+    Returns
+    -------
+    filled : FilledProfile
+        The filled rows, the inner fill's depths, the join depth and the
+        threshold depth.
 
     Raises
     ------
     AccuracyError
-        Where the series rows and the solve's rows of a lowered model agree
-        in no half-decade of depth.
+        If the depth series' fifth term, relative to the sum of the series'
+        first four terms, exceeds :math:`10^{-7}` at every radius of
+        `join_depth`'s grid.
+    AccuracyError
+        If, on a model with a lowered center and at least ten solve rows
+        at or below the join depth, the series rows and the solve's rows agree
+        within :math:`10^{-7}` in no half-decade of depth.
+    InputError
+        If the lowered center that `center` holds belongs to another
+        :math:`P_0` or another :math:`\beta_{\rm c}`.
+    InputError
+        If `edge` is of a Type II anisotropy and a filled row below the
+        Taylor switch lies at or beyond :math:`R_{\rm a}`.
     """
     c_t = center.c_trunc
     _, a_p, b_p, g_p = profile
@@ -399,7 +512,9 @@ def fill_profile(
     psi_saved = psi_saved[np.isfinite(psi_saved)]
     u_vals = p_0 - psi_saved
     u_vals = u_vals[(u_vals > 0) & (u_vals <= ROW_BINS_TOP * p_0)]
-    # the row-count bins, the check's (profile_checks.row_density) by construction
+    # The fill and the check profile_checks.row_density both take the
+    # row-count bins from row_bin_edges, so that the fill and the check count
+    # rows in identical bins.
     row_bins = row_bin_edges(
         p_0, settings, float(np.max(u_vals)) if len(u_vals) else 0.0
     )
@@ -432,10 +547,17 @@ def fill_profile(
                 u_hi_threshold = float(u_edges[i + 1])
                 break
 
-    u_join = float(join_depth(c_t, g_p, a_p, b_p, GOAL / 10.0)[0])
+    # The join tolerance, 1e-7, is a tenth of the 1e-6 bound TIER_BOUNDS[0].
+    u_join = float(join_depth(c_t, g_p, a_p, b_p, TIER_BOUNDS[0] / 10.0)[0])
     lc = center.lowered if float(center.delta) > 0.0 else None
     if lc is not None:
-        tol = 0.1 * GOAL
+        # On a lowered center, the series rows and the solve's rows are
+        # compared in half-decades of depth; a half-decade agrees where every
+        # row in the half-decade agrees within 1e-7 relative in density and
+        # in depth. The join moves to the largest row depth in the longest
+        # run of consecutive agreeing half-decades, where that row depth is
+        # smaller than the series' own join depth.
+        tol = 0.1 * TIER_BOUNDS[0]
         ro, uo, rho_o = r_save, float(p_0) - p_save, rho_save
         sel = (
             (uo > 0.0)
@@ -532,36 +654,50 @@ def fill_profile(
 
 @dataclass(frozen=True)
 class ProfileRows:
-    """The profile's rows with their mass and central coordinate.
+    r"""The profile's rows with their enclosed mass and their depth.
+
+    All quantities are in internal units.
 
     Parameters
     ----------
-    r, phi, rho : array, shape (n,)
-        The filled rows the profile keeps: finite, rho > 0 and Phi at or
-        above the floor.
+    r : array, shape (n,)
+        Radii of the filled rows that the profile keeps: rows with finite
+        values, :math:`\rho > 0` and :math:`\Psi` at or above `K_FLOOR`.
+    phi : array, shape (n,)
+        The potential :math:`\Psi` at `r`.
+    rho : array, shape (n,)
+        The density at `r`.
     mass : array, shape (n,)
-        The enclosed mass (4 pi INT rho r^2 dr): the inner series' (less the
-        central deficit's) inside the ceiling, cumulative Simpson outside it
-        on the rows' density read as a cubic spline in the logarithms, its
-        step halved until the mass at every row moves by less than a tenth
-        of the goal.
+        The enclosed mass :math:`4 \pi \int_0^r \rho r'^2 dr'` at `r`.
+        Inside the ceiling radius, the mass is the inner mass series less
+        the central deficit's mass. Outside the ceiling radius, the mass is
+        a cumulative Simpson integral of the rows' density, read as a cubic
+        spline of :math:`\ln \rho` in :math:`\ln r`. The integral's
+        sub-steps are halved until the mass at every row changes by less
+        than :math:`10^{-7}` relative, or at most `_ZONE_LEVELS` times.
     u : array, shape (n,)
-        The central coordinate ``u = P_0 - Phi``, with no subtraction on the
-        solve's node rows and the inner fill's rows.
+        The depth :math:`u = P_0 - \Psi` at `r`. At the main solve's rows
+        and at the inner fill's rows, `u` is the depth those rows carry
+        directly, not the difference :math:`P_0 - \Psi`.
     central_deficit : tuple of float or None
-        (D0, D1, D2, D3, D4) of `central_deficit` on a truncated model;
-        None otherwise or where it is not available.
+        :math:`(D_0, D_1, D_2, D_3, D_4)` of `central_deficit` for a
+        truncated model; None for an untruncated model.
     ceiling : dict
-        The mass's zone boundary: the depth where the mass series' next term
-        reaches a tenth of the goal (``u_rule``, its fraction of :math:`P_0`
-        and the bound), the depth used (``u_ceil``, ``r_ceil``) and which of
-        the three set it (``set_by``): ``"rule"``, or a structural bound, where
-        series rows end (``"fill_threshold"``) or the lowered center's reach
-        (``"center_reach"``).
+        The boundary between the mass's two zones. ``u_rule``: the depth
+        where the mass series' next term, relative to the series, reaches
+        :math:`10^{-7}`; ``u_rule_fraction``: ``u_rule`` over
+        :math:`P_0`; ``bound``: the series' relative next term there.
+        ``u_ceil`` and ``r_ceil``: the ceiling depth and the ceiling radius
+        that bound the inner zone of the mass.
+        ``set_by``: "rule" where ``u_rule`` sets the boundary;
+        "fill_threshold" where the inner fill's threshold depth, below
+        ``u_rule``, sets it; "center_reach" where the lowered center's outer
+        radius ``R_hi`` sets it.
     zone : dict
-        The outer zone's convergence: the halvings of the step (``levels``),
-        its nodes and the largest relative move of the mass at a row at the
-        last halving (``change``).
+        The outer zone's convergence. ``levels``: the number of halvings of
+        the sub-steps; ``nodes``: the number of integration nodes at the
+        last level; ``change``: the largest relative change of the mass at a
+        row at the last halving (NaN where no halving ran).
     """
 
     r: Array
@@ -575,6 +711,20 @@ class ProfileRows:
 
 
 def _mass(r, rho, center, profile, p_0, r_ceil, bc):
+    r"""Return the enclosed mass at the rows and the outer zone's convergence record.
+
+    Inside `r_ceil` the mass is the inner mass series less the central
+    deficit's mass. Outside `r_ceil`, the mass is `_zone_mass` started from
+    the series' mass at `r_ceil`, or the trapezoid rule where fewer than two
+    rows lie outside `r_ceil`.
+
+    Raises
+    ------
+    InputError
+        If the lowered center that `center` holds belongs to another
+        central potential :math:`P_0` or another central anisotropy
+        :math:`\beta_{\rm c}`.
+    """
     c_t = center.c_trunc
     _, a_p, b_p, g_p = profile
     delta = float(center.delta)
@@ -627,7 +777,7 @@ def _mass(r, rho, center, profile, p_0, r_ceil, bc):
         r_aug = np.concatenate([[r_ceil], r_np[zone2]])
         rho_aug = np.concatenate([[rho_b], rho_np[zone2]])
         if r_aug.size >= 3:
-            zone_m, zone = _zone_mass(r_aug, rho_aug, m_b, 0.1 * GOAL)
+            zone_m, zone = _zone_mass(r_aug, rho_aug, m_b, 0.1 * TIER_BOUNDS[0])
             mass[zone2] = zone_m
         else:
             integrand = r_aug**2 * rho_aug
@@ -639,19 +789,26 @@ def _mass(r, rho, center, profile, p_0, r_ceil, bc):
     return mass, zone
 
 
-_ZONE_LEVELS = 6  # at most 2^6 sub-steps between two rows
+_ZONE_LEVELS = 6  # Most levels of _zone_mass: at most 2^6 sub-steps per row gap.
 
 
 def _zone_mass(r_aug, rho_aug, m_b, tol):
-    """The mass past the ceiling at the rows: cumulative Simpson on the rows'
-    density as a cubic spline in ln r of ln rho, each step between rows cut
-    into 2^level sub-steps (geometric in r), the level raised until the mass
-    at every row moves by less than ``tol`` relative; at most `_ZONE_LEVELS`
-    halvings, the move then reached is what the result states. Rows at one
-    radius in ln r (a repeated row) share the first one's mass."""
+    r"""Return the mass at the rows outside the ceiling radius, and its record.
+
+    The mass is `m_b` plus a cumulative Simpson integral of
+    :math:`4 \pi r^2 \rho`. Each gap between adjacent rows is cut into
+    :math:`2^{\ell}` sub-steps, geometric in :math:`r`, at level
+    :math:`\ell`. Level 0 integrates the rows themselves; at a higher level,
+    :math:`\ln \rho` at the sub-steps is read from a cubic spline of the
+    rows' :math:`\ln \rho` in :math:`\ln r`. The level rises until the mass
+    at every row changes by less than `tol` relative between two successive
+    levels, or until the level reaches `_ZONE_LEVELS`; the record states the
+    last relative change. Rows at an equal radius take the mass of the first
+    row at that radius.
+    """
     full_log_r = np.log(r_aug)
     distinct = np.concatenate([[True], np.diff(full_log_r) > 0.0])
-    at = np.cumsum(distinct) - 1  # each row's distinct node
+    at = np.cumsum(distinct) - 1  # Index of each row's distinct node.
     r_aug, rho_aug, log_r = r_aug[distinct], rho_aug[distinct], full_log_r[distinct]
     spline = CubicSpline(log_r, np.log(rho_aug))
     previous, change, level = None, float("nan"), 0
@@ -689,26 +846,65 @@ def profile_rows(
     df: Any,
     f_at_k_t: float,
 ) -> ProfileRows:
-    """Return the profile's rows, their enclosed mass and their central
-    coordinate, and the central deficit of a truncated model.
+    r"""Return the profile's rows with their enclosed mass and depth.
+
+    All quantities are in internal units. The rows are the filled rows with
+    finite values, :math:`\rho > 0` and :math:`\Psi` at or above `K_FLOOR`.
 
     Parameters
     ----------
     filled : FilledProfile
-        The rows after the two fills.
+        The rows after the outer fill and the inner fill.
     solve : PoissonSolve
-        The Poisson solve (its rows place the mass's inner zone; its u at
-        its nodes is the column's there).
-    k_t, pot_center, q, df, f_at_k_t : float or array
-        The truncation and the untruncated DF, for the central deficit.
+        The Poisson solve. The solve's rows map the ceiling depth to the
+        ceiling radius, and the main solve's depths `u` replace
+        :math:`P_0 - \Psi` at the rows they match.
+    p_0 : float
+        The model's central potential :math:`P_0`.
+    center : CenterAmplitude
+        The inner series' amplitude and the central deficit.
+    profile : tuple of float
+        :math:`(C, \alpha, \beta, \gamma)` of the source density's inner
+        series.
+    bc : float
+        The central anisotropy :math:`\beta_{\rm c}`.
+    k_t : float
+        The truncation energy :math:`\mathcal{K}_{\rm t}`; 0 for an
+        untruncated model, which has no central deficit.
+    pot_center : float
+        The untruncated model's central potential, for the central deficit.
+    q : array
+        Energies of the untruncated DF's table, for the central deficit.
+    df : array
+        The untruncated DF at `q`, for the central deficit.
+    f_at_k_t : float
+        The untruncated DF at :math:`\mathcal{K}_{\rm t}`.
+
+    Returns
+    -------
+    rows : ProfileRows
+        The rows, their enclosed mass and depth, the central deficit, and
+        the records of the mass's ceiling and outer zone.
+
+    Raises
+    ------
+    AccuracyError
+        If the mass series reaches no depth within :math:`10^{-7}`
+        (`ceiling_depth`).
+    InputError
+        If the lowered center that `center` holds belongs to another
+        :math:`P_0` or another :math:`\beta_{\rm c}`.
     """
     phi_raw = np.array(solve.phi)
     r_raw = np.array(solve.r)
     _, a_p, b_p, g_p = profile
-    u_rule, _, bound = ceiling_depth(center.c_trunc, g_p, a_p, b_p, 0.1 * GOAL)
+    u_rule, _, bound = ceiling_depth(
+        center.c_trunc, g_p, a_p, b_p, 0.1 * TIER_BOUNDS[0]
+    )
     u_ceil, set_by = u_rule, "rule"
     if filled.threshold is not None and float(filled.threshold) < u_ceil:
-        # the series is the rows' only where the inner fill laid series rows
+        # The inner series gives the rows only where the inner fill laid
+        # series rows, so the ceiling depth is at most the fill's threshold.
         u_ceil, set_by = float(filled.threshold), "fill_threshold"
     r_ceil = float(
         np.exp(

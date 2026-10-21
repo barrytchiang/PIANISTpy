@@ -1,4 +1,8 @@
-"""A superposed model and its particles in other units and in the files."""
+"""Tests of a superposed model and the model's particles in other unit systems.
+
+The tests also write the particles in the package's file and in two exchange
+layouts.
+"""
 
 import numpy as np
 import pytest
@@ -32,9 +36,10 @@ def internal(superposed):
     ],
 )
 def test_the_superposed_model_in_other_units(superposed, internal, units):
-    # .to() presents the same model: its profiles convert per component with the
-    # first component's analytic profile, and the draw is the same particles,
-    # converted at the output only
+    # The model's ``to`` method presents the same model in another unit
+    # system. The radial profiles of every component convert with the factors
+    # of the first component's analytic profile, and the sampler draws the
+    # same particles as in internal units, converted only at the output.
     model = superposed.to(**units)
     profile = superposed.components[0].unit_profile
     factors = model.units.factors(profile)
@@ -57,8 +62,9 @@ def test_the_superposed_model_in_other_units(superposed, internal, units):
 
 
 def test_the_draw_in_its_files(internal, tmp_path):
-    # the package's own file keeps the labels; the text adds the component
-    # column; GAMER's stream carries the composite, label-free (as Product S)
+    # The package's own HDF5 file keeps each particle's component label. The
+    # text layout adds a component column. The GAMER layout writes the
+    # particles of all components together, without component labels.
     internal.write(tmp_path / "p.h5")
     back = read(tmp_path / "p.h5")
     assert np.array_equal(back.component, internal.component)

@@ -1,26 +1,39 @@
-"""The inversion's rows: the Cuddeford operator on every energy of the grid.
+r"""The inversion's rows: the Cuddeford inversion operator at every energy of
+the grid, and the completions that the rows take below the table's floor.
 
-One operator for every model (Eq. (T:2.16) [unified-pair]):
+Every anisotropy model uses one operator (Notes Eq. (T:2.16)):
 
     F(Q) = C(n) d/dQ INT_0^Q rho_aux^(j)(P) (Q - P)^-n dP
-           [+ C(n_f) rho_aux^(m_f)(0) Q^-n_f where j = m_f + 1],
+           [+ C(n_f) rho_aux^(m_f)(0) Q^-n_f where j = m_f + 1].
 
-evaluated row by row in the form the model fixes (Section T:2.3
-[num-forms]): the local closed form at n = 0; the integrated-by-parts form;
-the derivative-outside split form (every row of a switched pair, the rows
-above an interior point, the rows of an unbounded outer end from
-``outer_from``); and Gauss-Jacobi rules on either side of an interior point.
-The same operator one derivative up gives dF/dQ on the same rows.
+Here F is the DF at the relative energy Q, P is the relative potential,
+rho_aux^(j) is the j-th derivative of the auxiliary density in P, n is the
+kernel exponent of the order pair (j, n), C(n) is the inversion's
+prefactor, and the bracketed boundary term with the floor pair (m_f, n_f)
+enters for a switched pair, j = m_f + 1.
 
-The quadrature (Section T:2.3.4 [quadrature]): on [q_min, s] a log-GL
-rule, on [s, c] a linear one, on [c, Q] the composite map
-``P = P_0 - (P_0 - Q) e^y``, y = v^k, k = 1 / (1 - n), which resolves a
-source steep toward :math:`P_0` and removes (Q - P)^-n exactly; c = 0.9 Q,
-``s = max(0.1 c, q_min (1 + 1e-9))``.
+Each row (one energy Q) is evaluated in the form that the model fixes
+(Notes Section T:2.3): the local closed form at n = 0; the form integrated
+by parts; the split form with the derivative outside the integral, used
+for every row of a switched pair, for the rows above an interior point and
+for the rows of an unbounded outer end from ``outer_from`` up; and
+Gauss-Jacobi rules on either side of an interior point. The operator one
+derivative higher gives dF/dQ at the energies of the rows of F.
 
-The arithmetic is the working pipeline's, operation for operation, so that
-its rows are equal to the bit on the same backend. The rows here are the
-kernel's: the completion below the table's floor is added by the caller.
+The quadrature of a row (Notes Section T:2.3.4) has three pieces: a
+Gauss-Legendre rule in ln P on [q_min, s], a Gauss-Legendre rule in P on
+[s, c], and, on [c, Q], the composite map ``P = P_0 - (P_0 - Q) e^y`` with
+``y = v^k`` and ``k = 1 / (1 - n)``. The composite map resolves a source
+that is steep toward the central potential :math:`P_0`, and the Jacobian
+of ``y = v^k`` cancels the singular factor (Q - P)^-n at P = Q, since
+k (1 - n) = 1. The split points are c = 0.9 Q and
+:math:`s = \max(0.1 c, q_{\rm min} (1 + 10^{-9}))`, with q_min the
+table's floor. For
+dF/dQ and for a switched pair, c is moved down to the nearest grid energy
+at or below 0.9 Q.
+
+The rows of `inversion_kernel` start at the table's floor. The caller adds
+the completion below the floor (`floor_completion`, `complete_rows`).
 """
 
 __all__ = [
@@ -54,44 +67,57 @@ from ..numerics.quadrature import gauss_legendre
 from ..profiles import DoublePowerLaw
 from ..settings import Settings
 from ..typing import Array
-from ..validation import GOAL
+from ..validation import TIER_BOUNDS
 from .form import InversionFormRecord, tail_exponent_analytic
 from .grid import TABLE_FLOOR
 from .inversion import inversion_prefactor, order_pair
 from .stages import AuxDerivatives
 
-# the completion below the floor: the exact integral starts at this energy
+# The lowest energy P_min of the completion below the table's floor: the
+# exact integral of the completion starts at P_min.
 FLOOR_P_MIN = 1e-42
-# the step of g's one-sided differences at the floor, as a fraction of it
+# The step of the one-sided differences of the source g at the floor q0, as
+# a fraction of q0.
 FLOOR_STEP = 1e-4
-# the DF below the written floor: candidate nodes per decade from BELOW_FROM
-# P_min, the second truncation at BELOW_SECOND P_min, the source's nodes per
-# decade, and each Q's rule (nodes in ln P, then in w)
+# The DF below the written floor: BELOW_PER_DECADE candidate nodes per decade
+# from BELOW_FROM P_min up; the second truncation of the integral at
+# BELOW_SECOND P_min; BELOW_SOURCE_PER_DECADE source nodes per decade; and,
+# for each energy Q, BELOW_LOG_NODES Gauss-Legendre nodes in ln P followed by
+# BELOW_END_NODES nodes in w = (Q - P)^(1 - n).
 BELOW_PER_DECADE = 12
 BELOW_FROM = 100.0
 BELOW_SECOND = 10.0
 BELOW_SOURCE_PER_DECADE = 24
 BELOW_LOG_NODES = 120
 BELOW_END_NODES = 60
-# the split of a row's integral: the top piece starts at this fraction of Q
+# The fraction of Q at which the top piece of a row's integral starts.
 GL_SPLIT_FRAC = 0.9
-# the least gap P_0 - Q of the composite map
+# The smallest gap P_0 - Q that the composite map of the top piece takes,
+# and the smallest Q in the boundary terms Q^-n of a row.
 INTEGRATOR_EPSILON = 1e-10
-# the clamp before a logarithm of an energy
+# The smallest energy whose logarithm is taken. A smaller energy is raised
+# to UNDERFLOW_GUARD before its logarithm is taken.
 UNDERFLOW_GUARD = 1e-30
-# the top piece of the steep-source rows (switched pairs, dF/dQ) takes this
-# many times the nodes of the others
+# The factor by which the top piece of a row with a steep source (every row
+# of a switched pair, and every row of dF/dQ) has more nodes than the top
+# piece of any other row.
 STEEP_FACTOR = 8
 
 
 @dataclass(frozen=True)
 class KernelRules:
-    """The Gauss-Legendre rules of the three pieces of a row.
+    """Numbers of Gauss-Legendre nodes of the three pieces of a row's
+    integral.
 
     Parameters
     ----------
-    n_low, n_mid, n_top : int
-        Nodes of the log piece, the linear piece and the top piece.
+    n_low : int
+        Number of nodes of the low piece, the rule in ln P on [q_min, s].
+    n_mid : int
+        Number of nodes of the middle piece, the rule in P on [s, c].
+    n_top : int
+        Number of nodes of the top piece, the composite map on [c, Q], for
+        a row whose source is not steep.
     """
 
     n_low: int
@@ -100,14 +126,18 @@ class KernelRules:
 
     @property
     def n_top_steep(self) -> int:
-        """Nodes of the top piece on the steep-source rows."""
+        """Number of nodes of the top piece for a row with a steep source,
+        STEEP_FACTOR times `n_top`."""
         return STEEP_FACTOR * self.n_top
 
 
 def kernel_rules(settings: Settings) -> KernelRules:
-    """Return the rules for the settings: 20, 60 and 20 percent of the
-    inversion's ``n_nodes`` (at least 10 each), the log piece raised to 12
-    nodes per decade of the table's floor."""
+    """Return the numbers of nodes of the three pieces for ``settings``.
+
+    The low, middle and top pieces take 20, 60 and 20 percent of the
+    inversion's ``n_nodes``, rounded, with at least 10 nodes each. The low
+    piece takes at least 12 nodes per decade between the table's floor
+    TABLE_FLOOR and 1."""
     abel_n = int(settings.inversion["n_nodes"])
     floor = TABLE_FLOOR
     n_low = max(10, int(round(0.20 * abel_n)))
@@ -143,51 +173,86 @@ def inversion_kernel(
     g1_slope: Array | None = None,
     outer_from: float = 0.0,
 ) -> Any:
-    """Return the kernel's F (or dF/dQ) on every energy of the grid.
+    r"""Return the kernel's F, or dF/dQ, at every energy of the grid.
+
+    The rows start at the table's floor q_min; the completion below the
+    floor is not included.
 
     Parameters
     ----------
     q : array, shape (n,)
-        The energies, increasing; the first is the table's floor q_min.
+        Relative energies Q, increasing, in internal units. The first
+        energy is the table's floor q_min.
     g1 : array, shape (n,)
-        rho_aux^(j+1) on the energies (rho_aux^(j) at n = 0, and
-        rho_aux^(j+1) there in derivative mode).
+        Source of the integral at the energies `q`, rho_aux^(j+1). Where the
+        kernel exponent n is 0, the closed form returns the prefactor times
+        `g0` for F and the prefactor times `g1` for dF/dQ.
     beta_c : float
-        The central anisotropy the prefactor takes (0 for an OM model).
+        Central anisotropy :math:`\beta_{\rm c}` in the prefactor. The
+        caller passes 0 for an Osipkov-Merritt model.
     is_om : bool
-        Whether the model is Osipkov-Merritt (its pair is the isotropic one).
+        Whether the model is Osipkov-Merritt, whose order pair is the
+        isotropic one.
     rules : KernelRules
-        The rules of the three pieces.
-    dm_j, dm_jm1 : float
-        rho_aux^(j) and rho_aux^(j-1) at the floor.
-    p_0 : float
-        The central potential of the composite map.
-    deriv : bool
-        Return dF/dQ (the operator one derivative up) instead of F.
-    g2 : array, optional
-        rho_aux^(j+2): the source of the top piece in derivative mode.
-    g0 : array, optional
-        rho_aux^(j): the source of the derivative-outside rows.
-    switched : bool
-        Whether the pair is switched (j = m_f + 1, n < 0).
-    p_s, s : float
-        An interior point of rho_aux and its exponent; p_s = 0 where none.
-    g1_slope : array, optional
-        The exact node slopes of g1 (rho_aux^(j+2)) for its lookups.
-    outer_from : float
-        Where an unbounded outer end's rows take the derivative-outside form
-        with no boundary term at the floor; 0 where none.
+        Numbers of nodes of the three pieces of each row.
+    dm_j : float, optional
+        rho_aux^(j) at the floor q_min. Default: ``0.0``.
+    p_0 : float, optional
+        Central potential :math:`P_0` of the composite map. Default:
+        ``1.0``, the central potential in internal units.
+    deriv : bool, optional
+        Whether to return dF/dQ, the operator one derivative higher,
+        instead of F. Default: ``False``.
+    g2 : array, shape (n,), optional
+        rho_aux^(j+2), the source of the top piece of dF/dQ. Default:
+        ``None``, which means no such source. Every call with `deriv` true
+        and n not 0 needs `g2`.
+    g0 : array, shape (n,), optional
+        rho_aux^(j), the source of the rows with the derivative outside the
+        integral, and of the closed form at n = 0. Default: ``None``, which
+        means no such source.
+    dm_jm1 : float, optional
+        rho_aux^(j-1) at the floor q_min, read by a switched pair. Default:
+        ``0.0``.
+    switched : bool, optional
+        Whether the order pair is switched (j = m_f + 1, n < 0). Default:
+        ``False``.
+    p_s : float, optional
+        Energy of the interior point of rho_aux. Default: ``0.0``, which
+        means no interior point.
+    s : float, optional
+        Exponent of rho_aux^(j) at the interior point, in (-1, 0].
+        Default: ``0.0``.
+    g1_slope : array, shape (n,), optional
+        Exact slopes of `g1` in P at the energies `q` (rho_aux^(j+2)), used
+        by the interpolation of `g1`. Default: ``None``, which means the
+        interpolation takes its own slopes.
+    outer_from : float, optional
+        Energy from which the rows of an unbounded outer end take the form
+        with the derivative outside the integral and no boundary term at
+        the floor. Ignored for a switched pair. Default: ``0.0``, which
+        means no such rows.
 
     Returns
     -------
     rows : jax array, shape (n,)
+        F, or dF/dQ where `deriv` is true, at the energies `q`, in internal
+        units.
 
     Raises
     ------
     InputError
-        If the arguments do not fit the form (a switched pair with ``n >= 0``, a
-        missing source table, an interior point outside the grid or with an
-        exponent outside (-1, 0]).
+        If the closed form at n = 0 has no source rho_aux^(j).
+    InputError
+        If `switched` is true and :math:`n \ge 0`, or `switched` is false
+        and :math:`n < 0`.
+    InputError
+        If a switched pair, the rows above an interior point or the rows of
+        an unbounded outer end miss `g0`, or miss `g2` for dF/dQ.
+    InputError
+        If the interior point's exponent `s` lies outside (-1, 0], fewer
+        than 3 energies lie on either side of the interior point, or a
+        source table is not finite on one side of the interior point.
     """
     pair = order_pair(0.0 if is_om else beta_c)
     n = pair.kernel_exponent
@@ -198,7 +263,8 @@ def inversion_kernel(
         return inversion_prefactor(0.0, beta_c) * source
     q_sampling = q
     if g0 is not None:
-        # The switched rows index g0 at traced nodes.
+        # g0 becomes a JAX array because the rows with the derivative outside
+        # the integral index g0 at energies that JAX traces.
         g0 = jnp.asarray(g0, dtype=jnp.float64)
     g_logf = bool(np.all(np.asarray(g1) > 0.0))
     m_src = None
@@ -283,10 +349,13 @@ def inversion_kernel(
                 x, f = np.append(qn_s[ml_s], ps), np.append(h, t2s_end(dl_s, h))
             else:
                 x, f = np.insert(qn_s[mr_s], 0, ps), np.insert(h, 0, t2s_end(dr_s, h))
-            # the slopes are linear in the column: formed on the column scaled
-            # by the power of 2 nearest below its largest magnitude, so a column
-            # near the double's largest value keeps finite secants, and one
-            # that fits is scaled exactly (bit for bit the same slopes)
+            # The spline's slopes are linear in the column f. The slopes are
+            # therefore formed on f / 2^e, with 2^e the largest power of 2 not
+            # above max |f|, and then multiplied by 2^e. A column near the
+            # largest double then keeps finite secants. Division and
+            # multiplication by a power of 2 are exact for normal doubles, so
+            # the slopes of a column without overflow are the unscaled slopes
+            # to the bit.
             top = float(np.max(np.abs(f)))
             scale = float(2.0 ** np.floor(np.log2(top))) if top > 0.0 else 1.0
             m = CubicSpline(np.log(x), f / scale).derivative()(np.log(x)) * scale
@@ -536,9 +605,20 @@ def inversion_kernel(
 
 
 def edge_term(q: Array, p_e: float, amplitude: float, beta_c: float) -> Array:
-    """Return the closed-form DF of a Type II model's removed edge power law
-    (zero at and below the edge energy P_e, where it diverges as
-    (Q - P_e)^-1/2 and the model is truncated below it)."""
+    r"""Return the closed-form DF of the edge power law removed from a Type II
+    model's source.
+
+    Above the edge energy :math:`P_{\rm e}` (`p_e`), the DF is
+
+    .. math::
+
+        F(Q) = \frac{A \, 2^{\beta_{\rm c}} (1 - \beta_{\rm c})}
+        {2^{3/2} \pi^2} (Q - P_{\rm e})^{-1/2},
+
+    with :math:`A` the `amplitude` and :math:`\beta_{\rm c}` the central
+    anisotropy `beta_c`; the DF diverges as :math:`(Q - P_{\rm e})^{-1/2}`
+    at :math:`P_{\rm e}`. At and below :math:`P_{\rm e}`, where the model is
+    truncated, the DF is 0."""
     dq = np.asarray(q, dtype=np.float64) - float(p_e)
     with np.errstate(divide="ignore", invalid="ignore"):
         return (
@@ -558,38 +638,54 @@ def floor_source(
     q0: float,
     n_nodes: int,
 ) -> dict[str, Any] | None:
-    """Return the rule and the exact source of the completion below the
-    table's floor q0, as `floor_completion` reads them (Section T:2.3.2
-    [floor]); None where the model has none.
+    """Return the quadrature rule and the exact source of the completion
+    below the table's floor q0, as `floor_completion` reads them, or None
+    where the model has no completion (Notes Section T:2.3.2).
 
-    The nodes are Gauss-Legendre in ln P on [P_min, q0/10] and in w = (q0 -
-    P)^(1-n) on [q0/10, q0], with the exact q0 - P of each node from the map.
-    The source g = rho_aux^(m+1) on them, in the floor pair (m, n), its value
-    and two one-sided differences at q0, and rho_aux^(m) at P_min and q0, are
-    the exact derivatives'; where rho_aux^(m) is unbounded at P = 0 (an
-    unbounded outer end), rho_aux^(m) on the nodes and rho_aux^(m-1)(P_min)
-    too. A model has the completion where its DF's tail vanishes or is
-    integrable, and where it is not integrable at an unbounded outer end.
+    The rule's nodes are Gauss-Legendre in ln P on [P_min, q0/10], with
+    P_min = FLOOR_P_MIN, and Gauss-Legendre in w = (q0 - P)^(1-n) on
+    [q0/10, q0]. The distance q0 - P of each node of the rule in w is taken
+    exactly from the map in w. In the floor pair (m, n), the source is
+    g = rho_aux^(m+1). The returned values of g at the nodes and at q0, and
+    of rho_aux^(m) at P_min and at q0, are exact derivatives. The returned
+    first and second derivatives of g at q0 are one-sided differences of
+    the exact g with step FLOOR_STEP q0. Where
+    rho_aux^(m) is unbounded at P = 0 (an unbounded outer end), the
+    returned values also include rho_aux^(m) at the nodes and
+    rho_aux^(m-1) at P_min. A model has the completion where the exponent
+    of its DF's tail is below 1, and also at an unbounded outer end.
 
     Parameters
     ----------
     aux : AuxDerivatives
-        The exact derivatives of the component.
+        Exact derivatives of the component's auxiliary density.
     record : InversionFormRecord
-        The component's form: the floor pair, the outer end.
+        The component's form, which gives the floor pair and the kind of
+        outer end.
     profile : DoublePowerLaw
         The component's profile.
     anisotropy : Anisotropy
-        Its anisotropy.
+        The component's anisotropy.
     q0 : float
-        The table's floor, the grid's first energy.
+        The table's floor, the grid's first energy, in internal units.
     n_nodes : int
-        The nodes in ln P (a third of them, at least 40, in w).
+        Number of nodes in ln P. The rule in w takes a third of `n_nodes`,
+        and at least 40 nodes.
+
+    Returns
+    -------
+    source : dict or None
+        The rule and the source, with the keys that `floor_completion`
+        documents for its argument ``src``, and also ``"p"`` (the nodes'
+        energies P), ``"m"`` (the floor pair's order) and ``"half_int"``
+        (whether the kernel exponent is 0). None where the model has no
+        completion.
 
     Raises
     ------
     ResultError
-        If the source is not finite on the nodes.
+        If the source g, or rho_aux^(m) at an unbounded outer end, is not
+        finite on the nodes.
     """
     a = tail_exponent_analytic(profile, anisotropy)
     unbounded = record.outer_end == "unbounded"
@@ -654,9 +750,14 @@ def floor_source(
 def _below_nodes(
     qs: Array, p_lo: float, n: float
 ) -> tuple[Array, Array, Array, list[int], Array]:
-    """The nodes of `below_integral`: for each Q, Gauss-Legendre in ln P on
-    [p_lo, Q/10] and in w = (Q - P)^(1-n) on [Q/10, Q]; the weights, the
-    exact Q - P, each Q's node count and the weights times the kernel."""
+    """Return the quadrature nodes of `below_integral` for every energy Q in
+    ``qs``, concatenated over Q.
+
+    For each Q the nodes are BELOW_LOG_NODES Gauss-Legendre nodes in ln P
+    on [p_lo, Q/10] and BELOW_END_NODES Gauss-Legendre nodes in
+    w = (Q - P)^(1-n) on [Q/10, Q]. The returned arrays are the nodes P,
+    the weights, the exact distances Q - P, the number of nodes of each Q,
+    and the weights times the kernel (Q - P)^-n."""
     xa, wa = np.polynomial.legendre.leggauss(BELOW_LOG_NODES)
     xb, wb = np.polynomial.legendre.leggauss(BELOW_END_NODES)
     om = 1.0 - n
@@ -671,8 +772,9 @@ def _below_nodes(
         w_b = 0.5 * wmx * wb * (1.0 / om) * wn ** (1.0 / om - 1.0)
         with np.errstate(divide="ignore", invalid="ignore"):
             kw_b = w_b * dq_b ** (-n)
-        # where (Q - P) = w^(1/(1-n)) underflows to 0 (n near 1), the weight
-        # times the kernel is its exact value in w, wmx w_i / (2 (1 - n))
+        # Where Q - P = w^(1/(1-n)) underflows to 0, the weight times the
+        # kernel takes its exact value in w,
+        # wmx w_i / (2 (1 - n)), instead of the product 0 times infinity.
         under = dq_b == 0.0
         kw_b[under] = 0.5 * wmx * wb[under] / om
         p_all.append(np.concatenate([p_a, qq - dq_b]))
@@ -698,11 +800,16 @@ def below_integral(
     g_i: Any,
     r_i: Any = None,
 ) -> Array:
-    """Return F below the written floor, the identity truncated at p_lo
-    (`below_floor`): pref [INT_{p_lo}^{Q} g (Q - P)^-n dP + dm_lo (Q -
-    p_lo)^-n], or with ``r_i`` (rho_aux^(m), an unbounded outer end) its log
-    part integrated by parts once more. Linear in ``g_i``, ``r_i`` and
-    ``dm_lo`` (functions of P, and rho_aux^(m)(p_lo)) at fixed n and pref."""
+    """Return F below the written floor at the energies ``qs`` from the
+    inversion identity truncated at the energy p_lo (`below_floor`).
+
+    Without ``r_i``, F(Q) = pref [INT_{p_lo}^{Q} g (Q - P)^-n dP +
+    dm_lo (Q - p_lo)^-n], with g = ``g_i`` and dm_lo = rho_aux^(m)(p_lo).
+    With ``r_i``, the function rho_aux^(m) at an unbounded outer end, the
+    part of the integral on [p_lo, Q/10] is integrated by parts once more,
+    with ``r_i`` as its source, and the term in dm_lo is not used. At fixed
+    n and pref, F is linear in the
+    functions ``g_i`` and ``r_i`` of P and in ``dm_lo``."""
     qs = np.atleast_1d(np.asarray(qs, dtype=np.float64))
     n_a = BELOW_LOG_NODES
     pc, wc, dc, seg, wk = _below_nodes(qs, p_lo, n)
@@ -730,44 +837,68 @@ def below_integral(
 def below_floor(
     aux: AuxDerivatives, floor: Mapping[str, Any], k_written: float
 ) -> dict[str, Any]:
-    """Return the DF below the written floor from the exact source of the
-    completion (Section T:2.3.2 [floor]): the identity truncated at P_min,
-    F(Q) = pref [INT_{P_min}^{Q} g (Q - P)^-n dP + rho_aux^(m)(P_min)
-    (Q - P_min)^-n], read as the whole of F, on a log grid ending on the first
+    r"""Return the DF below the written floor from the exact source of the
+    completion (Notes Section T:2.3.2).
+
+    F is the inversion identity truncated at P_min,
+    F(Q) = pref [INT_{P_min}^{Q} g (Q - P)^-n dP
+    + rho_aux^(m)(P_min) (Q - P_min)^-n], with g = rho_aux^(m+1) in the
+    floor pair (m, n). This F is the whole DF, not a correction. F is
+    evaluated on a grid uniform in ln Q that ends on the table's first
     written node.
 
-    Each Q has its own rule (Gauss-Legendre in ln P on [P_min, Q/10], in w =
-    (Q - P)^(1-n) on [Q/10, Q]). The source g = rho_aux^(m+1) is evaluated
-    once on a dense log grid and read between its nodes by a cubic in
-    (ln P, ln |g|), held against the exact source between the nodes. Where
-    rho_aux^(m) is unbounded at P = 0 the log part is integrated by parts once
-    more (source rho_aux^(m), its own cubic). The bottom is derived: the first
-    candidate node above which the identity truncated at P_min and at
-    10 P_min agree to the goal. dF/dQ is the slope of the cubic in
-    (ln Q, ln F) through F.
+    Each Q has its own rule: Gauss-Legendre in ln P on [P_min, Q/10] and in
+    w = (Q - P)^(1-n) on [Q/10, Q]. The source g is evaluated once on a
+    grid uniform in ln P, with BELOW_SOURCE_PER_DECADE nodes per decade from
+    P_min to the table's first written node, and is read between its nodes by a cubic
+    spline in (ln P, ln |g|). The spline is checked against the exact
+    source between the nodes, in value and in slope. Where rho_aux^(m) is
+    unbounded at P = 0, the part on [P_min, Q/10] is integrated by parts
+    once more, with rho_aux^(m) as source, read by its own spline. The
+    lowest node of the returned grid is the first candidate node above
+    which the identity truncated at P_min and the identity truncated at
+    10 P_min agree to :math:`10^{-6}`. dF/dQ is the slope of the cubic
+    spline in (ln Q, ln F) through F.
 
     Parameters
     ----------
     aux : AuxDerivatives
-        The exact derivatives of the component.
+        Exact derivatives of the component's auxiliary density.
     floor : mapping
-        The completion's source (`floor_source`): ``p_min``, ``n``, ``m``,
-        ``pref``, ``dmm`` and ``outer``.
+        The completion's source (`floor_source`), of which the keys
+        ``p_min``, ``n``, ``m``, ``pref``, ``dmm`` and ``outer`` are read.
     k_written : float
-        The first written node of the table.
+        Energy of the table's first written node, in internal units.
 
     Returns
     -------
     below : dict
-        ``K``, ``F``, ``dFdK`` and ``eval`` (F and dF/dQ at any Q below the
-        written floor), with the rule's numbers; or, where F on the candidate
-        grid is not positive, ``{"not_positive": True}`` and the least F.
+        ``K``, ``F`` and ``dFdK`` on the returned grid; ``eval``, a function
+        that returns F and dF/dQ at any Q below the written floor; the
+        source's splines ``g_i`` and ``r_i`` (None without an unbounded
+        outer end) and their grid ``p_source``; and the scalars ``P_min``,
+        ``n``, ``m``, ``K0_written``, ``source_interp_rel_err`` (the
+        splines' largest relative miss of the exact source),
+        ``bottom_discarded_decades`` and ``truncation_agreement_rel``.
+        Where F of either truncation is not positive at a candidate node,
+        the dict is instead ``{"not_positive": True, "F_min": ...}``, with
+        ``F_min`` the least F of the two truncations at the candidate nodes.
 
     Raises
     ------
     ResultError
-        If the source changes sign, its cubic misses it by the goal or more,
-        F is not finite, or the two truncations agree on less than a decade.
+        If the source g, or rho_aux^(m) at an unbounded outer end, changes
+        sign below the floor.
+    ResultError
+        If a spline of the source misses the exact source by
+        :math:`10^{-6}` or more.
+    ResultError
+        If F of either truncation is not finite at a candidate node.
+    ResultError
+        If the two truncations agree to :math:`10^{-6}` on less than one
+        decade below the written floor.
+    ResultError
+        If ``eval`` finds F not finite or not positive.
     """
     p_min, n, m = float(floor["p_min"]), float(floor["n"]), int(floor["m"])
     pref, dmm = float(floor["pref"]), float(floor["dmm"])
@@ -813,10 +944,10 @@ def below_floor(
 
         r_chk = np.asarray(aux.at(p_chk, m), dtype=np.float64)
         interp_err = float(max(interp_err, np.max(np.abs(r_i(p_chk) / r_chk - 1.0))))
-    if not (interp_err < GOAL):
+    if not (interp_err < TIER_BOUNDS[0]):
         raise ResultError(
             f"The source cubic misses the exact source by {interp_err:.2e} below "
-            f"the floor (goal {GOAL:g}): the exact source is not smooth on its grid."
+            f"the floor, above 0.000001: the exact source is not smooth on its grid."
         )
 
     def f_of(qs: Array, p_lo: float = p_min, dm_lo: float = dmm) -> Array:
@@ -836,28 +967,35 @@ def below_floor(
     if not (np.all(f1 > 0.0) and np.all(f2 > 0.0)):
         return {"not_positive": True, "F_min": float(min(np.min(f1), np.min(f2)))}
     trc = np.abs(f2 / f1 - 1.0)
-    bad = np.nonzero(trc >= GOAL)[0]
+    bad = np.nonzero(trc >= TIER_BOUNDS[0])[0]
     i0 = int(bad[-1]) + 1 if bad.size else 0
     if i0 >= n_c - BELOW_PER_DECADE:
         raise ResultError(
             f"The two truncations of the identity (P_min = {p_min:.0e} and "
-            f"{BELOW_SECOND:g} P_min) agree to the goal on less than one decade "
+            f"{BELOW_SECOND:g} P_min) agree to 0.000001 on less than one decade "
             f"below the written floor (worst {float(np.max(trc)):.2e}, last "
             f"disagreement at Q = {float(q_c[bad[-1]]):.2e})."
         )
     q_b = q_c[i0:]
 
-    def evaluate(qs: Array, q_master: Array = q_b) -> tuple[Array, Array]:
+    def evaluate(
+        qs: Array, q_master: Array = q_b, f_master: Array | None = None
+    ) -> tuple[Array, Array]:
         qs = np.atleast_1d(np.asarray(qs, dtype=np.float64))
         q_all = np.unique(np.concatenate([q_master, qs]))
-        f_all = f_of(q_all)
+        if f_master is not None and np.array_equal(q_all, q_master):
+            # The requested energies are all master nodes, whose F was already
+            # computed, so F is not computed again.
+            f_all = f_master
+        else:
+            f_all = f_of(q_all)
         if not (np.all(np.isfinite(f_all)) and np.all(f_all > 0.0)):
             raise ResultError("F below the floor is not finite and positive.")
         cs = CubicSpline(np.log(q_all), np.log(f_all))
         f = np.exp(cs(np.log(qs)))
         return f, f * cs(np.log(qs), 1) / qs
 
-    f_b, df_b = evaluate(q_b)
+    f_b, df_b = evaluate(q_b, f_master=f1[i0:])
     return {
         "K": q_b,
         "F": f_b,
@@ -876,36 +1014,49 @@ def below_floor(
     }
 
 
-def floor_completion(q: Array, src: Mapping[str, Any]) -> tuple[Array, Array]:
-    """Return the completion of the kernel's rows below the table's floor q0,
-    and its Q-derivative (Section T:2.3.2 [floor]).
+def floor_completion(
+    q: Array, src: Mapping[str, Any], deriv: bool = True
+) -> tuple[Array, Array | None]:
+    """Return the correction that adds to the kernel's rows the part of the
+    integral below the table's floor q0, and the correction's derivative in
+    Q (Notes Section T:2.3.2).
 
-    The kernel integrates from q0 and carries rho_aux^(m)(q0) Q^-n; the exact
-    floor form from P_min adds INT_{P_min}^{q0} g (Q - P)^-n dP +
-    rho_aux^(m)(P_min) (Q - P_min)^-n - rho_aux^(m)(q0) Q^-n, in the floor pair
-    (m, n), g = rho_aux^(m+1). Near q0 the difference g - g(q0) is its Taylor
-    form in the exact q0 - P. Where rho_aux^(m) is unbounded at P = 0 the
-    same correction is integrated by parts once more (source rho_aux^(m)),
-    and the rows from ``outer_from`` up take the general form with no
-    subtraction at q0.
+    The kernel integrates from q0 and carries the boundary term
+    rho_aux^(m)(q0) Q^-n. The exact form from P_min adds the correction
+    pref [INT_{P_min}^{q0} g (Q - P)^-n dP + rho_aux^(m)(P_min)
+    (Q - P_min)^-n - rho_aux^(m)(q0) Q^-n], in the floor pair (m, n), with
+    g = rho_aux^(m+1). At the nodes with d = q0 - P below 0.01 q0, the
+    difference g - g(q0) is replaced by its Taylor form
+    -g'(q0) d + g''(q0) d^2 / 2 in the exact d. Where rho_aux^(m) is
+    unbounded at P = 0, the correction is integrated by parts once more,
+    with rho_aux^(m) as source, and the rows from ``outer_from`` up take
+    the general form with no subtraction at q0.
 
     Parameters
     ----------
     q : array, shape (n,)
-        The energies.
+        Relative energies Q of the rows, in internal units.
     src : mapping
-        The rule and the exact source on its nodes: ``q0``, ``p_min``, ``n``,
-        ``pref``, ``dq0`` (rho_aux^(m)(q0)), ``dmm`` (rho_aux^(m)(P_min)),
-        ``gq0``, ``gpq0``, ``gppq0`` (g and its two derivatives at q0), ``w``
-        and ``d`` (the weights and the exact q0 - P of the nodes), ``g`` (g
-        on the nodes), ``outer``, ``outer_from``, and for an unbounded outer
-        end ``r`` (rho_aux^(m) on the nodes) and ``rm1min``
-        (rho_aux^(m-1)(P_min)).
+        The rule and the exact source on its nodes (`floor_source`):
+        ``q0``, ``p_min``, ``n``, ``pref``, ``dq0`` (rho_aux^(m)(q0)),
+        ``dmm`` (rho_aux^(m)(P_min)), ``gq0``, ``gpq0`` and ``gppq0`` (g and
+        its first two derivatives at q0), ``w`` and ``d`` (the nodes'
+        weights and exact distances q0 - P), ``g`` (g at the nodes),
+        ``outer`` (whether the outer end is unbounded), ``outer_from``, and,
+        for an unbounded outer end, ``r`` (rho_aux^(m) at the nodes) and
+        ``rm1min`` (rho_aux^(m-1)(P_min)).
+    deriv : bool, optional
+        Whether to compute the correction to dF/dQ. The correction to F
+        does not depend on `deriv`. Default: ``True``.
 
     Returns
     -------
-    corr, dcorr : array, shape (n,)
-        The correction to F and to dF/dQ; dcorr is NaN at Q = q0.
+    corr : array, shape (n,)
+        Correction to F at `q`.
+    dcorr : array, shape (n,) or None
+        Correction to dF/dQ at `q`, NaN at Q = q0 except at an unbounded
+        outer end with ``outer_from`` 0, where the correction at q0 is
+        finite; None where `deriv` is false.
     """
     qs = np.asarray(q, dtype=np.float64)
     q0t, n_n9, pref9 = float(src["q0"]), float(src["n"]), float(src["pref"])
@@ -928,12 +1079,14 @@ def floor_completion(q: Array, src: Mapping[str, Any]) -> tuple[Array, Array]:
             - n_n9 * ((q_m_p ** (-n_n9 - 1.0)) @ (w_p9 * rdif))
             - n_n9 * rm1min * qs ** (-n_n9 - 1.0)
         )
-        with np.errstate(divide="ignore", invalid="ignore"):
-            dcorr = pref9 * (
-                (-n_n9) * dq0 * ((qs - p_mn) ** (-n_n9 - 1.0) - qs ** (-n_n9 - 1.0))
-                + n_n9 * (n_n9 + 1.0) * ((q_m_p ** (-n_n9 - 2.0)) @ (w_p9 * rdif))
-                + n_n9 * (n_n9 + 1.0) * rm1min * qs ** (-n_n9 - 2.0)
-            )
+        dcorr = None
+        if deriv:
+            with np.errstate(divide="ignore", invalid="ignore"):
+                dcorr = pref9 * (
+                    (-n_n9) * dq0 * ((qs - p_mn) ** (-n_n9 - 1.0) - qs ** (-n_n9 - 1.0))
+                    + n_n9 * (n_n9 + 1.0) * ((q_m_p ** (-n_n9 - 2.0)) @ (w_p9 * rdif))
+                    + n_n9 * (n_n9 + 1.0) * rm1min * qs ** (-n_n9 - 2.0)
+                )
         ofr = float(src["outer_from"])
         if ofr > 0.0:
             co_out = (
@@ -944,18 +1097,20 @@ def floor_completion(q: Array, src: Mapping[str, Any]) -> tuple[Array, Array]:
                     + rm1min * qs ** (-n_n9 - 1.0)
                 )
             )
-            dco_out = (
-                pref9
-                * n_n9
-                * (n_n9 + 1.0)
-                * (
-                    (q_m_p ** (-n_n9 - 2.0)) @ (w_p9 * r9)
-                    + rm1min * qs ** (-n_n9 - 2.0)
-                )
-            )
             corr = np.where(qs >= ofr, co_out, corr)
-            dcorr = np.where(qs >= ofr, dco_out, dcorr)
-            dcorr = np.where(qs > q0t, dcorr, np.nan)
+            if deriv:
+                dco_out = (
+                    pref9
+                    * n_n9
+                    * (n_n9 + 1.0)
+                    * (
+                        (q_m_p ** (-n_n9 - 2.0)) @ (w_p9 * r9)
+                        + rm1min * qs ** (-n_n9 - 2.0)
+                    )
+                )
+                assert dcorr is not None
+                dcorr = np.where(qs >= ofr, dco_out, dcorr)
+                dcorr = np.where(qs > q0t, dcorr, np.nan)
         return corr, dcorr
     gdif = np.where(d_ex < 0.01 * q0t, -gpq0 * d_ex + 0.5 * gppq0 * d_ex**2, g9 - gq0)
     corr = pref9 * (
@@ -964,6 +1119,8 @@ def floor_completion(q: Array, src: Mapping[str, Any]) -> tuple[Array, Array]:
         + dmm * (qs - p_mn) ** (-n_n9)
         - dq0 * qs ** (-n_n9)
     )
+    if not deriv:
+        return corr, None
     with np.errstate(divide="ignore"):
         di_g0 = (qs - p_mn) ** (-n_n9) - np.where(qs > q0t, (qs - q0t), np.nan) ** (
             -n_n9
@@ -977,20 +1134,29 @@ def floor_completion(q: Array, src: Mapping[str, Any]) -> tuple[Array, Array]:
 
 
 def method2_floor_tail(q: Array, tail: Mapping[str, Any]) -> tuple[Array, Array]:
-    """Return a Method II child's exact tail below its table's floor, against
-    the boundary form the kernel carries, and its Q-derivative.
+    """Return the correction that turns the boundary term the kernel carries
+    into a Method II child's exact contribution from below its table's floor,
+    and the correction's derivative in Q (Notes Eq. (T:2.23)).
 
-    Per power P^q of the two-term edge expansion of rho_aux, with
-    a = q - m_f, b = 1 - n_f, x = q_min / Q:
-    C(n_f) a_q Gamma(q+1) / Gamma(a+1) Q^(a - n_f) x^a [2F1(a, n_f; a+1; x) - 1].
+    Each power P^q of the two-term edge expansion of rho_aux adds
+    C(n_f) a_q Gamma(q+1) / Gamma(a+1) Q^(a - n_f) x^a [2F1(a, n_f; a+1; x) - 1],
+    with a = q - m_f and x = q_min / Q.
 
     Parameters
     ----------
     q : array, shape (n,)
-        The energies; the first is the floor q_min.
+        Relative energies Q, in internal units. The smallest energy is the
+        floor q_min.
     tail : mapping
-        ``a_q`` (the expansion's coefficient per power), ``m_f``, ``n_f`` and
-        ``pref`` (C(n_f)).
+        ``a_q`` (a dict from each power q to its coefficient a_q), ``m_f``
+        and ``n_f`` (the floor pair) and ``pref`` (the prefactor C(n_f)).
+
+    Returns
+    -------
+    corr : array, shape (n,)
+        Correction to F at `q`.
+    dcorr : array, shape (n,)
+        Correction to dF/dQ at `q`, NaN at Q = q_min.
     """
     qm = np.asarray(q, dtype=np.float64)
     q0m = float(np.min(qm))
@@ -1021,16 +1187,22 @@ def complete_rows(
     floor: Mapping[str, Any] | None = None,
     m2_tail: Mapping[str, Any] | None = None,
 ) -> tuple[Array, Array | None]:
-    """Return the inversion's rows as made: the kernel's rows with the Type II
-    edge term, the completion below the floor (none at n = 0, where the
-    closed form is exact) and a Method II child's floor tail, in the working
-    pipeline's order; dF/dQ with the derivatives of the last two."""
+    """Return the inversion's complete rows F and dF/dQ.
+
+    F is the kernel's rows plus, in this order, the Type II edge term
+    (`edge_term`, where ``edge`` is given), the completion below the floor
+    (`floor_completion`, where ``floor`` is given and the kernel exponent is
+    not 0, since the closed form at n = 0 needs no completion) and a
+    Method II child's floor tail (`method2_floor_tail`, where ``m2_tail`` is
+    given). dF/dQ is ``ddf`` plus the derivatives of the completion below
+    the floor and of the Method II floor tail, or None where ``ddf`` is
+    None. dF/dQ does not include a derivative of the Type II edge term."""
     rows = np.asarray(f, dtype=np.float64)
     if edge is not None:
         rows = np.asarray(rows + edge_term(q, edge["Pe"], edge["A"], edge["bc"]))
     dcorr = None
     if floor is not None and not floor["half_int"]:
-        corr, dcorr = floor_completion(q, floor)
+        corr, dcorr = floor_completion(q, floor, deriv=ddf is not None)
         rows = np.asarray(rows + corr)
     dtail = None
     if m2_tail is not None:

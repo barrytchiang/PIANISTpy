@@ -1,14 +1,41 @@
-r"""The observables as JAX functions of a component's anisotropy.
+r"""The observables of one component as JAX functions of the component's anisotropy.
 
-`Differentiable` holds a model of one component on a truncated profile whose
-anisotropy :math:`(\beta_{\rm c}, R_{\rm a})`, ``theta``, is the variable. Each
-of its methods is a JAX function of theta with a custom VJP: its value is the
-plain call on the model rebuilt at theta on the host (at the model's own theta,
-the plain call's own value), and its derivative is the tangent rows of the
-observable in theta on the tables' own rows, their placement frozen, as the
-likelihood's free components carry it. The machinery of a free component
-(`_Free`, its tables at any theta and their tangent rows) lives here and the
-likelihood reads it.
+Users call `Differentiable`, defined in the module `_differentiable`. The
+likelihood (`pianistpy.likelihood`) reads the class `_Free` of `_differentiable`
+for each component whose anisotropy is a free parameter.
+
+The anisotropy is the pair :math:`\theta = (\beta_{\rm c}, R_{\rm a})` of the
+central anisotropy :math:`\beta_{\rm c}` and the anisotropy radius
+:math:`R_{\rm a}`. Each method of `Differentiable` is a JAX function of
+:math:`\theta` with a custom vector-Jacobian product. The value of a method at
+:math:`\theta` is the plain call of the same name as the method (`pianistpy.sigma_los`
+for `Differentiable.sigma_los`), evaluated on the host on the model rebuilt at
+:math:`\theta`. At the model's own :math:`\theta`, the value of a method
+is the plain call on the model itself.
+
+The derivative of the line-of-sight dispersion :math:`\sigma_{\rm los}` in a
+parameter :math:`\theta_i` (:math:`\beta_{\rm c}` or :math:`R_{\rm a}`) is
+
+.. math::
+
+    \frac{\partial \sigma_{\rm los}}{\partial \theta_i}
+    = \frac{1}{2\sigma_{\rm los}}
+    \frac{\partial \sigma_{\rm los}^2}{\partial \theta_i},
+
+with :math:`\partial \sigma_{\rm los}^2/\partial \theta_i` the tangent rows of
+the projected table at :math:`\theta`. The tangent rows sit at the projected
+radii of the projected table at :math:`\theta`, and the derivative holds the
+tabulated projected radii fixed. The projected table places the projected radii so that
+the table, read between two tabulated projected radii, differs from the
+line-of-sight integral by a relative error of at most :math:`10^{-8}`
+(`CERTIFICATE_TOLERANCE`). The derivatives of the radial and tangential
+dispersions divide the tangent rows of the squared dispersions in the
+dispersion profile by twice the dispersion, at fixed tabulated radii.
+The line-of-sight velocity distribution, the aperture's line-of-sight velocity
+distribution and the local velocity distribution take their derivatives through
+the derivative of the DF table in :math:`\theta` (`df.gradient.table_jacobian`).
+
+References: Notes Section T:7.
 """
 
 __all__ = ["Differentiable"]
@@ -41,10 +68,11 @@ from ._panels import panels, read_panels_vjp
 from ._rows_theta import losvd_rows_explicit
 from ._table_vjp import (
     DF_PARAMETERS,
+    RowsBasis,
     aperture_losvd_vjp,
     losvd_read_vjp,
     losvd_rows_vjp,
-    speed_distribution_vjp,
+    velocity_distribution_vjp,
 )
 from ._table_vjp import _add as add_cotangents
 from .aperture import Aperture
@@ -55,39 +83,50 @@ from .stages import (
     dispersion_profile,
     dispersion_table_reader,
     projected_dispersion,
-    speed_distribution,
     surface_density_reader,
+    velocity_distribution,
 )
 from .stages import aperture_losvd as stage_aperture_losvd
 
-# A free component's anisotropy (beta_c, R_a): its parameters' names, the
-# theta whose tables are kept, and the rows its table may hold as a multiple
-# of its rows at its own theta (the fixed shape of the traced reading).
+# The names of the two anisotropy parameters of a free component, in the order
+# of theta: the central anisotropy beta_c and the anisotropy radius R_a.
 THETA_NAMES = ("beta_c", "r_a")
+# The largest number of theta whose tables a free component keeps.
 THETA_KEPT = 8
+# The largest number of rows of the projected table at any theta, as a multiple
+# of the number of rows at the component's own theta. The reading of the
+# projected table under JAX tracing needs one fixed shape for every theta.
 BUCKET_FACTOR = 4
-# The families whose observables are not differentiable, and why (the
-# distribution function's own rule refuses them: docs/guide/gradient.rst).
+# The anisotropy families whose observables are not differentiable, each with
+# the reason. The DF table's derivative (df.gradient) raises InputError for
+# the families of REFUSED_FAMILIES. The user guide page
+# docs/guide/differentiability.rst lists the families.
 REFUSED_FAMILIES = {
-    "COM_II": "COM Type II: its interior point at P(R_a) moves with both parameters",
+    "COM_II": (
+        "the COM Type II DF has an interior point at P(R_a), which moves with both "
+        "beta_c and R_a"
+    ),
 }
 
 
 class _Free:
-    r"""A component whose anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` is a
-    parameter, on the host: its projected table at any theta (the DF inverted
-    on its truncated profile, the gate, then the two tables), with the tangent
-    rows of :math:`\sigma_{\rm los}^2` in theta on the table's own rows, their
-    placement frozen (`projected_dispersion`'s `tangents`); kept for the last
-    `THETA_KEPT` theta.
+    r"""A component whose anisotropy :math:`\theta = (\beta_{\rm c}, R_{\rm a})`
+    is a free parameter, evaluated on the host.
 
-    The tangent rows are taken in the family's own parameters: at
-    :math:`\beta_{\rm c} = 0` the family is OM, and until its rows are taken in
-    :math:`\beta_{\rm c}` too (the COM Type I tangent at :math:`\beta_{\rm c} = 0`,
-    asked of the observables) the derivative in :math:`\beta_{\rm c}` there is
-    not carried (NaN). An isotropic or constant member has no :math:`R_{\rm a}`:
-    its :math:`R_{\rm a}` column is held at its own (infinite) value, with a
-    zero gradient."""
+    For each theta, a `_Free` inverts the DF of the component at theta on the
+    component's truncated profile and builds two tables: the dispersion profile
+    and the projected table. Both tables carry tangent rows, the derivatives of
+    the squared dispersions in theta at the table's own radii
+    (`projected_dispersion` with ``tangents``). A `_Free` keeps the tables of
+    the component's own theta and of the `THETA_KEPT` - 1 other theta first
+    met most recently.
+
+    The tangent rows are taken in the parameters of `THETA_NAMES` that the
+    anisotropy family at theta varies in (`TANGENT_PARAMETERS`). The
+    derivative in a parameter without tangent rows is NaN. An isotropic or
+    constant component has an infinite :math:`R_{\rm a}`. For an isotropic or
+    constant component, the :math:`R_{\rm a}` entry of every theta is held at
+    infinity, and the derivative in :math:`R_{\rm a}` is zero."""
 
     def __init__(self, member: Model, settings: Settings) -> None:
         anisotropy = member.components[0].anisotropy
@@ -102,16 +141,18 @@ class _Free:
         self.bucket = BUCKET_FACTOR * int(np.size(self.projected.r_2d))
 
     def placed(self, theta: np.ndarray) -> np.ndarray:
-        r"""Theta as the member reads it: a held :math:`R_{\rm a}` column at its
-        own value."""
+        r"""Return theta as a float64 copy, with :math:`R_{\rm a}` replaced by
+        the component's own :math:`R_{\rm a}` when :math:`R_{\rm a}` is held."""
         theta = np.array(theta, dtype=np.float64)
         if self.held:
             theta[1] = self.theta[1]
         return theta
 
     def tables(self, theta: np.ndarray) -> Any:
-        """The dispersion profile and projected table at theta, or None where
-        the model at theta is refused."""
+        """Return the dispersion profile and the projected table at theta.
+
+        The return value is None when rebuilding the model at theta raises
+        InputError, UnphysicalModelError, AccuracyError or ResultError."""
         theta = self.placed(theta)
         key = theta.tobytes()
         if key not in self._kept:
@@ -135,7 +176,9 @@ class _Free:
                 ResultError,
             ) as error:
                 log.info(
-                    "The anisotropy (beta_c, R_a) = (%r, %r) of %r is refused: %s",
+                    "The anisotropy (beta_c, R_a) = (%r, %r) of %r gives an invalid "
+                    "model, because rebuilding the model with the anisotropy raised "
+                    "the error %s",
                     float(theta[0]),
                     float(theta[1]),
                     component.name,
@@ -150,9 +193,15 @@ class _Free:
         return self._kept[key]
 
     def forward(self, theta: np.ndarray) -> tuple[Array, Array, Array]:
-        r"""The breaks and coefficients of the :math:`\sigma_{\rm los}^2`
-        reading at theta, padded to the bucket, and whether theta is valid; a
-        refused theta reads its own theta's table."""
+        r"""Return the spline of :math:`\sigma_{\rm los}^2` at theta as three
+        arrays: the breaks, the coefficients and a validity flag.
+
+        The breaks and the coefficients are padded to `bucket` intervals. The
+        model at theta is invalid when rebuilding the model at theta fails, or
+        when the spline at theta has more intervals than `bucket`. The validity
+        flag is 1.0 for a valid model at theta and 0.0 for an invalid one. For
+        an invalid model at theta, the method returns the breaks and the
+        coefficients of the component's own theta."""
         theta = self.placed(theta)
         entry = self.tables(theta)
         valid = entry is not None
@@ -163,8 +212,10 @@ class _Free:
         n = spline.c.shape[1]
         if n > self.bucket:
             log.warning(
-                "The projected table at (beta_c, R_a) = (%r, %r) has %d rows, more "
-                "than the %d its likelihood reads: refused.",
+                "The projected table at the anisotropy (beta_c, R_a) = (%r, %r) has %d "
+                "tabulated radii, more than the %d tabulated radii that the "
+                "likelihood reads, so the likelihood takes the model at the "
+                "anisotropy as invalid.",
                 float(theta[0]),
                 float(theta[1]),
                 n + 1,
@@ -179,11 +230,15 @@ class _Free:
         return breaks, coefficients, np.float64(valid)
 
     def tangents(self, theta: np.ndarray) -> Array:
-        r"""The coefficients of the tangent rows' readings in
-        :math:`\beta_{\rm c}` and :math:`R_{\rm a}`, padded to the bucket, kept
-        with the tables; zero at a refused theta and in a held
-        :math:`R_{\rm a}`, NaN in a parameter the family's rows are not taken
-        in."""
+        r"""Return the spline coefficients of the tangent rows of
+        :math:`\sigma_{\rm los}^2` in :math:`\beta_{\rm c}` and
+        :math:`R_{\rm a}`, shape (2, 4, `bucket`).
+
+        The coefficients are zero at a theta where the model does not exist
+        and in a held :math:`R_{\rm a}`. The coefficients are NaN in a
+        parameter that the projected table at theta has no tangent rows in.
+        The coefficients at a theta are dropped when the tables at the theta
+        are dropped."""
         theta = self.placed(theta)
         out = np.zeros((2, 4, self.bucket))
         entry = self.tables(theta)
@@ -207,8 +262,9 @@ class _Free:
 
 
 def _tangent_tables(model: Model, settings: Settings) -> Any:
-    """The dispersion profile and projected table of a free component, with
-    the tangent rows in its family's own anisotropy parameters."""
+    """Return the dispersion profile and the projected table of a free
+    component, each with tangent rows in the parameters of `THETA_NAMES` that
+    the component's anisotropy family varies in (`TANGENT_PARAMETERS`)."""
     family = model.components[0].anisotropy.family
     names = tuple(n for n in THETA_NAMES if n in TANGENT_PARAMETERS[family])
     profile = dispersion_profile(model, settings, tangents=names)
@@ -216,11 +272,16 @@ def _tangent_tables(model: Model, settings: Settings) -> Any:
 
 
 def _free_reading(free: _Free) -> Any:
-    r"""The :math:`\sigma_{\rm los}^2` reading of a free component as a JAX
-    function of its theta: the breaks, coefficients and validity at theta
-    through a host callback, with a custom VJP whose backward contracts the
-    coefficients' cotangent with the tangent rows' coefficients (the
-    placement frozen: the breaks carry no gradient)."""
+    r"""Return the spline of :math:`\sigma_{\rm los}^2` of a free component as
+    a JAX function of theta.
+
+    The function returns the breaks, the coefficients and the validity flag of
+    `_Free.forward` through a host callback. The function carries a custom
+    vector-Jacobian product. The backward pass contracts the cotangent on the
+    coefficients with the coefficients of the tangent rows (`_Free.tangents`).
+    The breaks carry no gradient, so the derivative holds the projected radii
+    of the table fixed. The gradient is zero at a theta with an invalid
+    model."""
     shapes = (
         jax.ShapeDtypeStruct((free.bucket + 1,), jnp.float64),
         jax.ShapeDtypeStruct((4, free.bucket), jnp.float64),
@@ -247,94 +308,194 @@ def _free_reading(free: _Free) -> Any:
 
 
 def refuse_unless_free(model: Model, name: str) -> None:
-    r"""Refuse, by name, a component whose anisotropy cannot be a parameter:
-    not spatially finite, not a DF on a truncated profile that carries its
-    parent's DF, or a family with neither :math:`\beta_{\rm c}` nor
-    :math:`R_{\rm a}` to free."""
+    r"""Raise InputError, whose message refers to the component as `name`,
+    when the anisotropy of the model's component cannot be a free parameter.
+
+    The anisotropy cannot be a free parameter in three cases: the model is not
+    spatially finite; the component's profile is not a `TruncatedProfile`
+    that carries the DF of a parent model; or the component's anisotropy
+    family varies in neither :math:`\beta_{\rm c}` nor :math:`R_{\rm a}`
+    (`TANGENT_PARAMETERS`)."""
     component = model.components[0]
     if not model.spatially_finite:
         raise InputError(
-            f"{name} is not spatially finite: its anisotropy cannot be "
-            "free (its edge terms read its DF)."
+            f"{name} is not spatially finite, so the anisotropy of {name} cannot "
+            f"be a free parameter; the edge terms of the derivative depend on the "
+            f"DF of {name}."
         )
     if not isinstance(component.profile, TruncatedProfile) or (
         np.size(component.profile.df_k) == 0
     ):
         raise InputError(
-            f"{name} is not a DF on a truncated profile that carries its "
-            "parent's DF (a model made by `truncate` on such a profile): its "
-            "anisotropy cannot be free. A Method I truncated model's profile is "
-            "its own DF's and moves with beta_c and R_a, so neither the Jeans "
-            "path (a fixed profile) nor the DF path at a fixed potential carries "
-            "the full derivative; the anisotropy is a parameter of a Method II "
-            "model, a DF on another model's truncated profile, held fixed."
+            f"{name} is not a DF on a truncated profile that carries the parent "
+            "model's DF (a model made by truncate on such a profile), so the "
+            f"anisotropy of {name} cannot be a free parameter. The profile of a "
+            "Method I truncated model follows the model's own DF and moves with "
+            "beta_c and R_a, so neither the Jeans path (a fixed profile) nor the DF "
+            "path at a fixed potential gives the full derivative. A free "
+            "anisotropy is a parameter of a Method II model, a DF on another "
+            "model's truncated profile, with the truncated profile held fixed."
         )
     family = component.anisotropy.family
     if not any(n in TANGENT_PARAMETERS[family] for n in THETA_NAMES):
         raise InputError(
-            f"{name}'s anisotropy ({family}) has neither beta_c nor R_a to free."
+            f"The anisotropy family {family} of {name} varies in neither beta_c nor "
+            f"R_a, so the anisotropy of {name} has no free parameter."
         )
 
 
 class Differentiable:
-    r"""A model's observables as JAX functions of its anisotropy.
+    r"""The observables of a one-component model as JAX functions of the
+    component's anisotropy.
 
-    Built once from a model of one component on a truncated profile (a DF
-    inverted on its parent's profile, as `truncate` makes it): its tables are
-    computed here, at the model's own anisotropy. Each method takes
-    ``theta = (beta_c, R_a)``, the component's anisotropy in internal units,
-    first, and is a JAX function of it, traceable and differentiable.
+    The anisotropy is the pair :math:`\theta = (\beta_{\rm c}, R_{\rm a})` of
+    the central anisotropy :math:`\beta_{\rm c}` and the anisotropy radius
+    :math:`R_{\rm a}`. Each method of `Differentiable` takes :math:`\theta` as
+    the first argument. Each method returns the value of the public function
+    of the same name as the method (`pianistpy.sigma_los` for
+    `Differentiable.sigma_los`) on the model rebuilt at :math:`\theta`. Each method is a
+    JAX function of :math:`\theta` and works under ``jax.jit`` and
+    ``jax.grad``. To differentiate the observables of a model with several
+    components, call `likelihood`.
 
     Parameters
     ----------
     model : Model
-        A model of one component on a truncated profile, spatially finite,
-        whose family has :math:`\beta_{\rm c}` or :math:`R_{\rm a}`: constant
-        anisotropy (:math:`\beta_{\rm c}`; an isotropic or constant
-        component's :math:`R_{\rm a}` is held at its own, infinite, value with
-        a zero gradient), Cuddeford-Osipkov-Merritt (COM) Type I (both),
-        Osipkov-Merritt Type I and Type II (:math:`R_{\rm a}`).
+        Model of one component. The model must meet three conditions: the
+        model is spatially finite (``model.spatially_finite`` is True); the
+        component's profile is the truncated profile of a parent model and
+        carries the parent's distribution function (DF); and the component's
+        anisotropy family is isotropic, constant, Osipkov-Merritt (OM) Type
+        I, OM Type II or Cuddeford-Osipkov-Merritt (COM) Type I.
     settings : Settings, optional
-        Numerical settings of the observables; the model's by default.
+        Numerical settings of the observables. Default: ``None``, which
+        means the settings of `model`.
 
     Attributes
     ----------
     model : Model
-        The model.
+        The model passed to the constructor.
     theta : array, shape (2,)
-        Its own :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
+        The anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the model's
+        component. :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}`
+        is in internal units in every unit system of the model (internal,
+        model and physical). An isotropic or constant component has an
+        infinite :math:`R_{\rm a}`.
 
     Raises
     ------
     InputError
-        For a superposition or a model of several components, a component not
-        spatially finite or not on a truncated profile that carries its
-        parent's DF, and a family whose observables are not differentiable
-        (COM Type II), each named.
+        If `model` is not a `Model`, or if `model` has more than one
+        component. The components of a model with several components are
+        differentiated through `likelihood`.
+    InputError
+        If the model is not spatially finite, or if the component's profile
+        is not a truncated profile that carries the DF of a parent model.
+    InputError
+        If the component's anisotropy family is COM Type II. The observables
+        of a COM Type II component are not differentiable in the anisotropy.
+    InputError
+        If a setting of the ``observables`` group is outside the setting's
+        range: ``n_projection_nodes`` below 20.
+    AccuracyError
+        If the validation report of the model has tier ``"refused"`` (an
+        error above :math:`10^{-2}`) and the settings of the model do not set
+        ``write_anyway=True``.
+    AccuracyError
+        If the squared line-of-sight dispersion of the model is negative at
+        a tabulated projected radius.
+    ResultError
+        If an intermediate result fails a check that the next step of the
+        computation needs, for example non-finite values from a degenerate
+        model.
+
+    See Also
+    --------
+    likelihood : The likelihood of data given a model, differentiable in
+        the anisotropy of each component.
+    truncate : The truncated model whose profile a differentiable component
+        uses.
+    sigma_los : The line-of-sight velocity dispersion of a model.
+    losvd : The line-of-sight velocity distribution of a model.
+    pdf_v : The local velocity distribution of a model.
 
     Notes
     -----
-    Radii and velocities are in internal units, whatever the model's unit
-    system: theta, as the likelihood's, is internal, and so is everything a
-    method reads and returns.
+    Every radius, velocity, aperture length and :math:`R_{\rm a}` that a
+    method reads is in internal units in every unit system of the model.
+    Every value that a method returns is in internal units.
 
-    A method's value at a theta is computed on the host the first time the
-    method meets it: the DF inverted at theta on the component's truncated
-    profile, then the observable's tables, at the cost of the likelihood's
-    own rebuild of a free component (about that of the plain call on the
-    model rebuilt at theta); the last eight theta are kept. At a theta where
-    the model is refused the value is NaN and its gradient zero. The
-    derivative is the observable's tangent rows in theta on the tables' own
-    rows, their placement frozen: between two placements the value moves by
-    the tables' tolerance, which the derivative does not carry. A method is
-    not differentiable in its radii (their gradient is NaN).
+    The first call of a method at a new :math:`\theta` inverts the DF of the
+    component at :math:`\theta` on the component's truncated profile. The
+    first call then builds the tables of the observable at :math:`\theta`. A
+    `Differentiable` keeps the tables of at most eight values of
+    :math:`\theta`: the model's own :math:`\theta` and the seven other values
+    of :math:`\theta` first met most recently.
+
+    At a :math:`\theta` where rebuilding the model raises `InputError`,
+    `UnphysicalModelError`, `AccuracyError` or `ResultError`, a method
+    returns NaN and a zero gradient. Any other package error raised during
+    the computation of a method reaches the caller as
+    ``jax.errors.JaxRuntimeError``. The message of the
+    ``jax.errors.JaxRuntimeError`` carries the message of the package error.
+    Three checks run before the computation and raise the package error
+    directly: the check of a concrete radius against the tabulated radii in
+    `sigma_r`, `sigma_t` and `sigma_los`; the check that the component's DF
+    is differentiable in `losvd`, `pdf_v` and `aperture_losvd`; and the
+    check that the aperture passed to `aperture_losvd` is an `Aperture`.
+
+    The derivative of a method holds fixed the radii and velocities at which
+    the tables at :math:`\theta` are tabulated. The value of a method follows
+    the change of the tabulated radii and velocities from one :math:`\theta`
+    to another. The derivative of a method omits the change of the tabulated
+    radii and velocities. A method is not differentiable in the radii or
+    velocities that the method reads. The gradient in a radius or a velocity
+    is NaN.
+
+    The parameters that carry a derivative depend on the method:
+
+    - `sigma_r`, `sigma_t`, `sigma_los` and `sigma_los_aperture` carry the
+      derivative in :math:`\beta_{\rm c}` for every accepted family, and in
+      :math:`R_{\rm a}` for the OM and COM families.
+    - `losvd`, `pdf_v` and `aperture_losvd` carry the derivative in
+      :math:`\beta_{\rm c}` for the constant and COM Type I families, and in
+      :math:`R_{\rm a}` for the OM and COM Type I families. The gradient of
+      `losvd`, `pdf_v` or `aperture_losvd` in :math:`\beta_{\rm c}` is NaN
+      for an OM component.
+    - For an isotropic or constant component, every method holds
+      :math:`R_{\rm a}` at infinity, and the gradient in :math:`R_{\rm a}` is
+      zero.
+
+    References
+    ----------
+    Notes Section T:7.2. Notes Section T:7.3.
+
+    Examples
+    --------
+    >>> import jax
+    >>> import pianistpy as pp
+    >>> parent = pp.truncate(
+    ...     pp.compute_df(pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy())),
+    ...     pp.Truncation(k_t=0.05),
+    ... )
+    >>> member = pp.truncate(
+    ...     pp.compute_df(
+    ...         pp.Component(
+    ...             profile=parent.profile, anisotropy=pp.Anisotropy(beta_c=0.25)
+    ...         )
+    ...     )
+    ... )
+    >>> d = pp.Differentiable(member)
+    >>> grad = jax.grad(lambda theta: d.sigma_los(theta, [0.1, 0.3]).sum())(d.theta)
+    >>> grad.shape
+    (2,)
     """
 
     def __init__(self, model: Model, settings: Settings | None = None) -> None:
         if not isinstance(model, Model) or len(model.components) != 1:
             raise InputError(
-                "Differentiable takes a Model of one component; a superposition's "
-                "components are differentiated through the likelihood."
+                "Differentiable takes a Model of one component; the components of "
+                "a superposition are differentiated through the likelihood."
             )
         refuse_unless_free(model, "The model's component")
         refuse_unless_asked(
@@ -343,8 +504,8 @@ class Differentiable:
         family = model.components[0].anisotropy.family
         if family in REFUSED_FAMILIES:
             raise InputError(
-                f"The observables of a {family} component are not differentiable: "
-                f"{REFUSED_FAMILIES[family]}."
+                f"The observables of a {family} component are not differentiable, "
+                f"because {REFUSED_FAMILIES[family]}."
             )
         refusal = _df_refusal(model.components[0])
         self.model = model
@@ -359,85 +520,226 @@ class Differentiable:
         self._pdf_v = _pdf_v_function(self._df)
 
     def sigma_r(self, theta: ArrayLike, r: ArrayLike) -> Array:
-        r"""Return the radial velocity dispersion at radii, as
-        `pianistpy.sigma_r` of the model at theta.
+        r"""Return the radial velocity dispersion at user-specified 3D radii
+        for the model at the anisotropy theta.
+
+        The value is `pianistpy.sigma_r` of the model rebuilt at `theta`.
 
         Parameters
         ----------
         theta : array-like, shape (2,)
-            The component's :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
+            Anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the component.
+            :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}` is in
+            internal units in every unit system of the model.
         r : array-like
-            Radii, in internal units.
+            User-specified 3D radii :math:`r`. The radii are in internal units
+            in every unit system of the model.
 
         Returns
         -------
         sigma_r : array
-            The dispersion in internal units, with the shape of `r`; NaN where
-            the model at theta is refused.
+            Radial velocity dispersion :math:`\sigma_{\rm r}` in internal
+            units, with the shape of `r`. Every value is NaN when rebuilding
+            the model at `theta` raises InputError, UnphysicalModelError,
+            AccuracyError or ResultError.
+
+        Raises
+        ------
+        InputError
+            If a radius lies inside the innermost or beyond the outermost
+            radius that the model tabulates. A radius inside a function
+            compiled by ``jax.jit`` is not checked before the computation.
+        jax.errors.JaxRuntimeError
+            If the computation raises a package error other than the four
+            package errors that give NaN, for example
+            `pianistpy.exceptions.WorkerError` when a parallel process ends.
+            The message of the ``jax.errors.JaxRuntimeError`` carries the
+            message of the package error.
+
+        See Also
+        --------
+        `pianistpy.sigma_r` : The radial velocity dispersion of a model.
+        `Differentiable.sigma_t` : The tangential velocity dispersion as a JAX
+            function of the anisotropy.
         """
+        self._refuse_outside(r, projected=False)
         return self._sigma_r(_theta(theta), jnp.asarray(r, dtype=jnp.float64))
 
     def sigma_t(self, theta: ArrayLike, r: ArrayLike) -> Array:
-        r"""Return the tangential velocity dispersion at radii (both tangential
-        components together), as `pianistpy.sigma_t` of the model at theta.
+        r"""Return the tangential velocity dispersion at user-specified 3D
+        radii for the model at the anisotropy theta.
+
+        The tangential velocity dispersion :math:`\sigma_{\rm t}` combines
+        both tangential velocity components. The value is `pianistpy.sigma_t`
+        of the model rebuilt at `theta`.
 
         Parameters
         ----------
         theta : array-like, shape (2,)
-            The component's :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
+            Anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the component.
+            :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}` is in
+            internal units in every unit system of the model.
         r : array-like
-            Radii, in internal units.
+            User-specified 3D radii :math:`r`. The radii are in internal units
+            in every unit system of the model.
 
         Returns
         -------
         sigma_t : array
-            The dispersion in internal units, with the shape of `r`; NaN where
-            the model at theta is refused.
+            Tangential velocity dispersion :math:`\sigma_{\rm t}` in internal
+            units, with the shape of `r`. Every value is NaN when rebuilding
+            the model at `theta` raises InputError, UnphysicalModelError,
+            AccuracyError or ResultError.
+
+        Raises
+        ------
+        InputError
+            If a radius lies inside the innermost or beyond the outermost
+            radius that the model tabulates. A radius inside a function
+            compiled by ``jax.jit`` is not checked before the computation.
+        jax.errors.JaxRuntimeError
+            If the computation raises a package error other than the four
+            package errors that give NaN, for example
+            `pianistpy.exceptions.WorkerError` when a parallel process ends.
+            The message of the ``jax.errors.JaxRuntimeError`` carries the
+            message of the package error.
+
+        See Also
+        --------
+        `pianistpy.sigma_t` : The tangential velocity dispersion of a model.
+        `Differentiable.sigma_r` : The radial velocity dispersion as a JAX
+            function of the anisotropy.
         """
+        self._refuse_outside(r, projected=False)
         return self._sigma_t(_theta(theta), jnp.asarray(r, dtype=jnp.float64))
 
     def sigma_los(self, theta: ArrayLike, r_2d: ArrayLike) -> Array:
-        r"""Return the line-of-sight velocity dispersion at projected radii, as
-        `pianistpy.sigma_los` of the model at theta.
+        r"""Return the line-of-sight velocity dispersion at user-specified
+        projected radii for the model at the anisotropy theta.
+
+        The value is `pianistpy.sigma_los` of the model rebuilt at `theta`.
 
         Parameters
         ----------
         theta : array-like, shape (2,)
-            The component's :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
+            Anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the component.
+            :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}` is in
+            internal units in every unit system of the model.
         r_2d : array-like
-            Projected radii, in internal units.
+            User-specified projected radii :math:`R_{\rm 2D}`. The projected
+            radii are in internal units in every unit system of the model.
 
         Returns
         -------
         sigma_los : array
-            The dispersion in internal units, with the shape of `r_2d`; zero
-            beyond the last row, NaN where the model at theta is refused.
+            Line-of-sight velocity dispersion :math:`\sigma_{\rm los}` in
+            internal units, with the shape of `r_2d`. Every value is NaN when
+            rebuilding the model at `theta` raises InputError,
+            UnphysicalModelError, AccuracyError or ResultError.
+
+        Raises
+        ------
+        InputError
+            If a projected radius lies inside the innermost or beyond the
+            outermost projected radius that the model tabulates. A projected
+            radius inside a function compiled by ``jax.jit`` is not checked
+            before the computation.
+        jax.errors.JaxRuntimeError
+            If the computation raises a package error other than the four
+            package errors that give NaN, for example
+            `pianistpy.exceptions.WorkerError` when a parallel process ends.
+            The message of the ``jax.errors.JaxRuntimeError`` carries the
+            message of the package error.
+
+        See Also
+        --------
+        `pianistpy.sigma_los` : The line-of-sight velocity dispersion of a
+            model.
+        Differentiable.sigma_los_aperture : The line-of-sight velocity
+            dispersion over an aperture as a JAX function of the anisotropy.
         """
+        self._refuse_outside(r_2d, projected=True)
         return self._sigma_los(_theta(theta), jnp.asarray(r_2d, dtype=jnp.float64))
 
+    def _refuse_outside(self, radii: ArrayLike, projected: bool) -> None:
+        """Raise InputError for a radius outside the radii tabulated at the
+        model's own theta.
+
+        The check reads the dispersion profile (3D radii) or the projected
+        table (projected radii) at the model's own theta. The first and last
+        tabulated radii come from the component's profile and do not change
+        with theta. A radius traced by JAX is not checked."""
+        if isinstance(radii, jax.core.Tracer):
+            return
+        entry = self._free.tables(self._free.theta)
+        if entry is None:
+            return
+        r = np.atleast_1d(np.asarray(radii, dtype=np.float64))
+        if projected:
+            entry[1].read(r)
+        else:
+            entry[0].read(r)
+
     def sigma_los_aperture(self, theta: ArrayLike, aperture: Aperture) -> Array:
-        r"""Return the line-of-sight velocity dispersion averaged over an
-        aperture, weighted by the surface density, as
-        `pianistpy.sigma_los_aperture` of the model at theta.
+        r"""Return the line-of-sight velocity dispersion over an aperture for
+        the model at the anisotropy theta.
+
+        The aperture dispersion :math:`\sigma_{\rm ape}` is the root mean
+        square of :math:`\sigma_{\rm los}` over the aperture, weighted by the
+        surface density. The value is `pianistpy.sigma_los_aperture` of the
+        model rebuilt at `theta`.
 
         Parameters
         ----------
         theta : array-like, shape (2,)
-            The component's :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
+            Anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the component.
+            :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}` is in
+            internal units in every unit system of the model.
         aperture : Aperture
-            The aperture, its lengths in internal units.
+            User-specified aperture. The lengths of the aperture are in
+            internal units in every unit system of the model.
 
         Returns
         -------
         sigma_los : scalar array
-            The dispersion in internal units; NaN where the model at theta is
-            refused.
+            Aperture dispersion :math:`\sigma_{\rm ape}` in internal units.
+            The value is NaN when rebuilding the model at `theta` raises
+            InputError, UnphysicalModelError, AccuracyError or ResultError.
+
+        Raises
+        ------
+        jax.errors.JaxRuntimeError
+            If `pianistpy.sigma_los_aperture` raises `InputError` for the
+            aperture on the model at `theta`, because the tables of the model
+            do not cover the aperture. The message of the
+            ``jax.errors.JaxRuntimeError`` carries the message of the
+            `InputError`.
+
+        See Also
+        --------
+        pianistpy.sigma_los_aperture : The line-of-sight velocity dispersion
+            of a model over an aperture.
+        Aperture : The apertures of the observables.
+        Differentiable.aperture_losvd : The line-of-sight velocity
+            distribution in an aperture as a JAX function of the anisotropy.
 
         Notes
         -----
-        The derivative is the aperture's integral of the tangent rows of
-        :math:`\sigma_{\rm los}^2`, on the nodes and weights of the plain call's own
-        quadrature (the integral is linear in the rows), over twice the value.
+        The derivative of :math:`\sigma_{\rm ape}` in a parameter
+        :math:`\theta_i` (:math:`\beta_{\rm c}` or :math:`R_{\rm a}`) is
+
+        .. math::
+
+            \frac{\partial \sigma_{\rm ape}}{\partial \theta_i}
+            = \frac{1}{2\sigma_{\rm ape}}
+            \frac{\int_A \Sigma\, \partial \sigma_{\rm los}^2/\partial
+            \theta_i \, {\rm d}A}{\int_A \Sigma \, {\rm d}A},
+
+        with :math:`A` the aperture and :math:`\Sigma` the surface density of
+        the component. The surface density does not depend on
+        :math:`\theta`, since the component's profile is fixed. Both
+        integrals use the quadrature nodes and weights of
+        `pianistpy.sigma_los_aperture`.
         """
         value, slope = _aperture_host(self._free, aperture)
         return _radial_function(self._free, (value, slope))(
@@ -446,29 +748,67 @@ class Differentiable:
 
     def losvd(self, theta: ArrayLike, r_2d: ArrayLike, v: ArrayLike) -> Array:
         r"""Return the line-of-sight velocity distribution at the pairs
-        ``(r_2d, v)``, as `pianistpy.losvd` of the model at theta.
+        ``(r_2d, v)`` for the model at the anisotropy theta.
+
+        The value is `pianistpy.losvd` of the model rebuilt at `theta`.
 
         Parameters
         ----------
         theta : array-like, shape (2,)
-            The component's :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
-        r_2d, v : array-like
-            Projected radii and line-of-sight velocities, in internal units;
-            they broadcast against each other.
+            Anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the component.
+            :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}` is in
+            internal units in every unit system of the model.
+        r_2d : array-like
+            User-specified projected radii :math:`R_{\rm 2D}`. The projected
+            radii are in internal units in every unit system of the model.
+        v : array-like
+            Line-of-sight velocities :math:`V`, in internal units in every
+            unit system of the model. The arrays `r_2d` and `v` broadcast
+            against each other.
 
         Returns
         -------
         losvd : array
-            The distribution per unit internal velocity, with the broadcast
-            shape; NaN where the model at theta is refused.
+            Line-of-sight velocity distribution per unit internal velocity,
+            with the broadcast shape of `r_2d` and `v`. Every value is NaN
+            when rebuilding the model at `theta` raises InputError,
+            UnphysicalModelError, AccuracyError or ResultError.
+
+        Raises
+        ------
+        InputError
+            If the component's DF is not differentiable in the anisotropy.
+            The DF of an isotropic component is not differentiable in the
+            anisotropy. The DF of a component whose DF center lies on a
+            critical branch is not differentiable in the anisotropy. The
+            message states the reason.
+        jax.errors.JaxRuntimeError
+            If the computation raises a package error other than the four
+            package errors that give NaN, for example
+            `pianistpy.exceptions.WorkerError` when a parallel process ends.
+            The message of the ``jax.errors.JaxRuntimeError`` carries the
+            message of the package error. A projected radius outside the
+            table, for which `pianistpy.losvd` raises a package error, gives
+            a ``jax.errors.JaxRuntimeError``.
+
+        See Also
+        --------
+        pianistpy.losvd : The line-of-sight velocity distribution of a model.
+        Differentiable.aperture_losvd : The line-of-sight velocity
+            distribution in an aperture as a JAX function of the anisotropy.
 
         Notes
         -----
-        The derivative is the DF path's, its placement frozen: the reading's
-        transpose onto the table's rows (`losvd_read_vjp`), the rows' onto the
-        DF's table and forms (`losvd_rows_vjp`) with the rows' explicit part
-        in the anisotropy, and the DF table's derivative in theta
-        (`df.gradient.table_jacobian`). Not differentiable in ``r_2d`` or v.
+        The derivative in a parameter :math:`\theta_i` (:math:`\beta_{\rm c}`
+        or :math:`R_{\rm a}`) is the sum of two parts. The first part is the
+        derivative in :math:`\theta_i` at a fixed DF table. The second part
+        is the derivative through the values of the DF table, with the
+        energies of the DF table held fixed. The method is not
+        differentiable in `r_2d` or `v`.
+
+        References
+        ----------
+        Notes Section T:7.1.
         """
         self._df.served()
         x, u = jnp.broadcast_arrays(
@@ -477,31 +817,67 @@ class Differentiable:
         return self._losvd(jnp.asarray(theta, dtype=jnp.float64), x, u)
 
     def pdf_v(self, theta: ArrayLike, r: ArrayLike, v: ArrayLike) -> Array:
-        r"""Return the local speed distribution at the pairs (r, v), as
-        `pianistpy.pdf_v` of the model at theta.
+        r"""Return the local velocity distribution at the pairs ``(r, v)`` for the
+        model at the anisotropy theta.
+
+        The value is `pianistpy.pdf_v` of the model rebuilt at `theta`.
 
         Parameters
         ----------
         theta : array-like, shape (2,)
-            The component's :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
-        r, v : array-like
-            Radii and speeds, in internal units; they broadcast against each
-            other.
+            Anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the component.
+            :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}` is in
+            internal units in every unit system of the model.
+        r : array-like
+            User-specified 3D radii :math:`r`. The radii are in internal units
+            in every unit system of the model.
+        v : array-like
+            Velocities :math:`v`, in internal units in every unit system of the
+            model. The arrays `r` and `v` broadcast against each other.
 
         Returns
         -------
         pdf_v : array
-            The distribution per unit internal velocity, with the broadcast
-            shape; NaN where the model at theta is refused.
+            Local velocity distribution per unit internal velocity, with the
+            broadcast shape of `r` and `v`. Every value is NaN when rebuilding
+            the model at `theta` raises InputError, UnphysicalModelError,
+            AccuracyError or ResultError.
+
+        Raises
+        ------
+        InputError
+            If the component's DF is not differentiable in the anisotropy.
+            The DF of an isotropic component is not differentiable in the
+            anisotropy. The DF of a component whose DF center lies on a
+            critical branch is not differentiable in the anisotropy. The
+            message states the reason.
+        jax.errors.JaxRuntimeError
+            If the computation raises a package error other than the four
+            package errors that give NaN, for example
+            `pianistpy.exceptions.WorkerError` when a parallel process ends.
+            The message of the ``jax.errors.JaxRuntimeError`` carries the
+            message of the package error. A radius outside the radii of the
+            model, for which `pianistpy.pdf_v` raises a package error, gives a
+            ``jax.errors.JaxRuntimeError``.
+
+        See Also
+        --------
+        pianistpy.pdf_v : The local velocity distribution of a model.
+        Differentiable.losvd : The line-of-sight velocity distribution as a
+            JAX function of the anisotropy.
 
         Notes
         -----
-        The derivative is the DF path's: at each radius the speed
-        distribution's transpose (`speed_distribution_vjp`) at the speeds
-        asked, the distribution there computed by the rule its record
-        checked, as `SpeedDistribution.read` computes it, with its explicit
-        part in the anisotropy, and the DF table's derivative in theta. Not
-        differentiable in r or v.
+        The derivative in a parameter :math:`\theta_i` (:math:`\beta_{\rm c}`
+        or :math:`R_{\rm a}`) is the sum of two parts. The first part is the
+        derivative in :math:`\theta_i` at a fixed DF table and at fixed
+        velocities. The second part is the derivative through the values of the
+        DF table, with the energies of the DF table held fixed. The method is
+        not differentiable in `r` or `v`.
+
+        References
+        ----------
+        Notes Section T:7.1.
         """
         self._df.served()
         x, u = jnp.broadcast_arrays(
@@ -512,35 +888,79 @@ class Differentiable:
     def aperture_losvd(
         self, theta: ArrayLike, aperture: Aperture, v: ArrayLike
     ) -> Array:
-        r"""Return the line-of-sight velocity distribution inside an aperture
-        at the velocities v, as `pianistpy.aperture_losvd` of the model at
-        theta.
+        r"""Return the line-of-sight velocity distribution in an aperture at
+        user-specified line-of-sight velocities for the model at the
+        anisotropy theta.
+
+        The value is `pianistpy.aperture_losvd` of the model rebuilt at
+        `theta`.
 
         Parameters
         ----------
         theta : array-like, shape (2,)
-            The component's :math:`(\beta_{\rm c}, R_{\rm a})`, in internal units.
+            Anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` of the component.
+            :math:`\beta_{\rm c}` is dimensionless. :math:`R_{\rm a}` is in
+            internal units in every unit system of the model.
         aperture : Aperture
-            The aperture, its lengths in internal units.
+            User-specified aperture. The lengths of the aperture are in
+            internal units in every unit system of the model.
         v : array-like
-            Line-of-sight velocities, in internal units.
+            Line-of-sight velocities :math:`V`, in internal units in every
+            unit system of the model.
 
         Returns
         -------
         losvd : array
-            The distribution per unit internal velocity, with the shape of
-            `v`; NaN where the model at theta is refused.
+            Line-of-sight velocity distribution in the aperture per unit
+            internal velocity, with the shape of `v`. Every value is NaN when
+            rebuilding the model at `theta` raises InputError,
+            UnphysicalModelError, AccuracyError or ResultError.
+
+        Raises
+        ------
+        InputError
+            If the component's DF is not differentiable in the anisotropy.
+            The DF of an isotropic component is not differentiable in the
+            anisotropy. The DF of a component whose DF center lies on a
+            critical branch is not differentiable in the anisotropy.
+        InputError
+            If `aperture` is not an `Aperture`.
+        jax.errors.JaxRuntimeError
+            If the computation raises a package error other than the four
+            package errors that give NaN, for example
+            `pianistpy.exceptions.WorkerError` when a parallel process ends.
+            The message of the ``jax.errors.JaxRuntimeError`` carries the
+            message of the package error. An aperture that the table does not
+            cover, for which `pianistpy.aperture_losvd` raises a package
+            error, gives a ``jax.errors.JaxRuntimeError``.
+
+        See Also
+        --------
+        pianistpy.aperture_losvd : The line-of-sight velocity distribution of
+            a model in an aperture.
+        Aperture : The apertures of the observables.
+        Differentiable.losvd : The line-of-sight velocity distribution as a
+            JAX function of the anisotropy.
 
         Notes
         -----
-        The derivative is the DF path's: the transpose of the reading of the
-        aperture's panels (each panel's polynomial through its nodes) onto
-        its values at the nodes, theirs onto the table's rows
-        (`aperture_losvd_vjp`), then as `losvd`. Not differentiable in v.
+        The derivative in a parameter :math:`\theta_i` (:math:`\beta_{\rm c}`
+        or :math:`R_{\rm a}`) is the sum of two parts. The first part is the
+        derivative in :math:`\theta_i` at a fixed DF table. The second part
+        is the derivative through the values of the DF table, with the
+        energies of the DF table held fixed. The method is not
+        differentiable in `v`.
+
+        References
+        ----------
+        Notes Section T:7.1.
         """
         self._df.served()
         if not isinstance(aperture, Aperture):
-            raise InputError("aperture_losvd reads an Aperture.")
+            raise InputError(
+                "The aperture of aperture_losvd must be an Aperture; the value "
+                "given is not an Aperture."
+            )
         function = _aperture_function(self._df, aperture)
         return function(
             jnp.asarray(theta, dtype=jnp.float64), jnp.asarray(v, dtype=jnp.float64)
@@ -552,10 +972,13 @@ def _theta(theta: ArrayLike) -> Array:
 
 
 def _radial_function(free: _Free, host: tuple[Any, Any]) -> Any:
-    """An observable of a free component as a JAX function of (theta, x): its
-    value and its derivative in theta (shape (2,) + x's) computed on the host
-    by the pair `host`, with a custom VJP; the derivative in x is not carried
-    (NaN)."""
+    """Return an observable of a free component as a JAX function of
+    ``(theta, x)`` with a custom vector-Jacobian product.
+
+    The pair `host` holds two host functions of ``(theta, x)``: the value of
+    the observable, and the derivative of the observable in theta with shape
+    ``(2,) + x.shape``. The gradient in x is NaN. The argument `free` is not
+    read."""
     value, slope = host
 
     @jax.custom_vjp
@@ -580,9 +1003,13 @@ def _radial_function(free: _Free, host: tuple[Any, Any]) -> Any:
 
 
 def _each_parameter(free: _Free, entry: Any, tangents: Any, out: np.ndarray) -> Any:
-    r"""The parameters whose derivative is computed: yields (i, name) for each
-    the family carries; leaves a held :math:`R_{\rm a}` at zero and sets one
-    the family's rows are not taken in to NaN."""
+    r"""Yield ``(i, name)`` for each parameter of `THETA_NAMES` whose
+    derivative is computed.
+
+    A parameter is skipped in two cases. A held :math:`R_{\rm a}` is skipped,
+    and ``out[i]`` keeps the value already in `out`. A parameter not in
+    `tangents` is skipped after ``out[i]`` is set to NaN. The argument `entry`
+    is not read."""
     for i, name in enumerate(THETA_NAMES):
         if name == "r_a" and free.held:
             continue
@@ -593,12 +1020,18 @@ def _each_parameter(free: _Free, entry: Any, tangents: Any, out: np.ndarray) -> 
 
 
 def _sigma_r_host(free: _Free, which: int) -> tuple[Any, Any]:
-    r""":math:`\sigma_r` (which 0) or :math:`\sigma_t` (which 1) on the host:
-    the value read from the dispersion profile at theta as the plain call
-    reads it; the derivative from the profile's tangent reading of
-    :math:`\sigma_r^2` and, for
-    :math:`\sigma_t^2 = 2 (1 - \beta_\sigma) \sigma_r^2`, from
-    :math:`\beta_\sigma`'s tangent."""
+    r"""Return the host pair (value, derivative) of :math:`\sigma_{\rm r}`
+    (`which` 0) or :math:`\sigma_{\rm t}` (`which` 1).
+
+    The value function reads the dispersion profile at theta, as the plain
+    call reads the dispersion profile. The derivative function divides the
+    derivative of the squared dispersion by twice the dispersion. The
+    derivative of :math:`\sigma_{\rm r}^2` is the tangent reading of the
+    dispersion profile. The derivative of
+    :math:`\sigma_{\rm t}^2 = 2 (1 - \beta_\sigma) \sigma_{\rm r}^2` adds the
+    derivative of the anisotropy profile :math:`\beta_\sigma`
+    (`beta_sigma_tangent`). The derivative is zero where the dispersion is
+    not positive."""
 
     def value(theta: np.ndarray, x: np.ndarray) -> np.ndarray:
         x = np.asarray(x, dtype=np.float64)
@@ -633,10 +1066,18 @@ def _sigma_r_host(free: _Free, which: int) -> tuple[Any, Any]:
 
 
 def _sigma_los_host(free: _Free) -> tuple[Any, Any]:
-    r""":math:`\sigma_{\rm los}` on the host: the value read from the projected
-    table at theta as the plain call reads it; the derivative the tangent rows
-    of :math:`\sigma_{\rm los}^2` read at the same radii (placement frozen)
-    over twice the value, zero beyond the last row."""
+    r"""Return the host pair (value, derivative) of :math:`\sigma_{\rm los}`.
+
+    The value function reads the projected table at theta, as the plain call
+    reads the projected table. The derivative function reads the spline of
+    the tangent rows of :math:`\sigma_{\rm los}^2` at the requested projected
+    radii and divides the result by twice the value. The tangent rows sit at
+    the tabulated projected radii of the projected table at theta. The
+    derivative is zero at a projected radius that is not positive, at a
+    projected radius beyond the last tabulated projected radius, and where
+    the value is not positive. `Differentiable.sigma_los` raises InputError
+    for a concrete projected radius beyond the last tabulated projected radius
+    before the computation."""
 
     def value(theta: np.ndarray, x: np.ndarray) -> np.ndarray:
         x = np.asarray(x, dtype=np.float64)
@@ -668,11 +1109,18 @@ def _sigma_los_host(free: _Free) -> tuple[Any, Any]:
 
 
 def _aperture_host(free: _Free, aperture: Aperture) -> tuple[Any, Any]:
-    r""":math:`\sigma_{\rm los}` over an aperture on the host: the value as the
-    plain call computes it (`aperture_dispersion` on the projected table at
-    theta); the derivative the same quadrature of the tangent rows of
-    :math:`\sigma_{\rm los}^2` (its nodes and weights, the integral linear in
-    the rows) over twice the value."""
+    r"""Return the host pair (value, derivative) of the aperture dispersion
+    :math:`\sigma_{\rm ape}` in `aperture`.
+
+    The value function computes :math:`\sigma_{\rm ape}` as the plain call
+    computes :math:`\sigma_{\rm ape}` (`aperture_dispersion` on the projected
+    table at theta). The derivative function integrates the tangent rows of
+    :math:`\sigma_{\rm los}^2` over the aperture with the quadrature nodes and
+    weights of the plain call, and divides the integral by
+    :math:`2\sigma_{\rm ape}`. The quadrature of the aperture is linear in the
+    integrand, so the quadrature of the tangent rows is the derivative of the
+    quadrature of :math:`\sigma_{\rm los}^2`. The derivative is zero where
+    :math:`\sigma_{\rm ape}` is not positive."""
     observables = free.settings.observables
 
     def mean_square(projected: Any, rows: Array) -> float:
@@ -685,7 +1133,8 @@ def _aperture_host(free: _Free, aperture: Aperture) -> tuple[Any, Any]:
         )
         return aperture_mean_square(
             surface,
-            # a tangent row is signed: read it before the reader's clip at zero
+            # A tangent row can be negative. The reader's raw method reads a
+            # negative row, and the reader's call raises AccuracyError on one.
             dispersion_table_reader(projected.r_2d, np.asarray(rows)).raw,
             aperture,
             int(observables["n_aperture_nodes"]),
@@ -714,8 +1163,8 @@ def _aperture_host(free: _Free, aperture: Aperture) -> tuple[Any, Any]:
     return value, slope
 
 
-# The numbers of the DF's center that the table's derivative carries, in the
-# order of `df.gradient.table_jacobian`'s ``center``.
+# The numbers of the DF's central form that the derivative of the DF table
+# carries, in the order of the entry "center" of df.gradient.table_jacobian.
 _CENTER_LEAVES = (
     "central_exponent",
     "central_amplitude",
@@ -723,18 +1172,28 @@ _CENTER_LEAVES = (
     "central_next_coefficient",
 )
 
-# The DF path's refusal of an isotropic member (`DF_PARAMETERS`).
+# The reason, carried by an InputError of `_DfPath.served`, why the DF path
+# takes no derivative of an isotropic component (DF_PARAMETERS gives the
+# isotropic family no parameter).
 ISOTROPIC_DF = (
-    "an isotropic member's beta_c is not taken: the derivative of its child's "
-    "DF table from beta_c = 0 needs orders of the sources that the table's "
-    "held sources do not carry, and its rows read G with no L factor."
+    "The DF path takes no derivative in beta_c of an isotropic member. At "
+    "beta_c = 0, the form of the inversion changes, and the derivatives of the "
+    "child model's DF table from the two sides of beta_c = 0 do not agree to "
+    "0.000001 (the line-of-sight velocity distributions of an isotropic member "
+    "are computed from G alone, with no L factor). sigma_los and "
+    "sigma_los_aperture take the derivative in beta_c of an isotropic member by "
+    "the Jeans path."
 )
 
 
 def _df_refusal(component: Any) -> str | None:
-    """Why the DF table's rule refuses a component (`df.gradient`: its center
-    on a critical branch, or no parameter to vary), or None where it serves
-    it."""
+    """Return the message of the InputError that the derivative of the DF
+    table (`df.gradient._child_checked`) raises for a component, or None
+    when `df.gradient._child_checked` accepts the component.
+
+    `df.gradient._child_checked` raises InputError for a COM Type II
+    component, for a family with no anisotropy parameter to vary, and for a
+    component whose DF center lies on a critical branch."""
     try:
         _child_checked(component)
     except InputError as error:
@@ -743,19 +1202,27 @@ def _df_refusal(component: Any) -> str | None:
 
 
 class _DfPath:
-    r"""The DF path of a free component on the host: the model at any theta
-    (the member itself at its own), its LosTable and its dispersion profile
-    when first asked, and the gradient in theta of a cotangent on its DF table
-    and forms (`df.gradient.table_jacobian`, the grid and the kept nodes held
-    at that theta) with the explicit part; kept for the last `THETA_KEPT`
-    theta.
+    r"""The DF path of a free component, evaluated on the host.
 
-    The parameters are the DF path's (`DF_PARAMETERS`): an Osipkov-Merritt
-    member's :math:`\beta_{\rm c}` is not taken (NaN), and a held
-    :math:`R_{\rm a}` has a zero gradient. A member the DF table's rule refuses
-    (its center on a critical branch) is named at construction, and its DF
-    methods refuse it by that name; so is an isotropic member, whose
-    :math:`\beta_{\rm c}` the DF path does not take (`DF_PARAMETERS`)."""
+    For each theta, a `_DfPath` holds the model rebuilt at theta, converted to
+    internal units and given the settings of the `_Free`. At the component's
+    own theta, the model is the component's own model, also converted to
+    internal units and given the settings of the `_Free`. The `LosTable`, the
+    `RowsBasis`, the derivative of the DF table and the velocity-distribution
+    profiles of the model at theta are built at the first request. A
+    `_DfPath` computes the gradient in theta of a cotangent on the DF table
+    and the DF's forms (`df.gradient.table_jacobian`, with the energies of the
+    DF table at theta held fixed), plus the explicit part. A `_DfPath` keeps
+    the entries of the component's own theta and of the `THETA_KEPT` - 1
+    other theta first met most recently.
+
+    The parameters of the DF path are the parameters that `DF_PARAMETERS`
+    gives the component's family. The gradient
+    in :math:`\beta_{\rm c}` of an OM component is NaN. The gradient in a
+    held :math:`R_{\rm a}` is zero. The constructor stores, in `refusal`,
+    the reason why the DF path takes no derivative of the component: the
+    message of `_df_refusal`, or `ISOTROPIC_DF` for an isotropic component.
+    `served` raises InputError with the stored reason."""
 
     def __init__(self, free: _Free, refusal: str | None) -> None:
         self.free = free
@@ -767,21 +1234,27 @@ class _DfPath:
             refusal = ISOTROPIC_DF
         self.refusal = refusal
         self._kept: dict[bytes, dict[str, Any] | None] = {}
-        # the DF table derivative's exponent steps, measured at the member's
-        # own theta and carried to every theta (`df.gradient.table_jacobian`)
+        # The exponent steps of the DF table's derivative
+        # (df.gradient.table_jacobian). `gradient` measures the steps at the
+        # component's own theta before the first derivative at another theta,
+        # and the derivative at every theta reuses the steps.
         self._steps: dict[tuple, dict[str, Any]] = {}
 
     def served(self) -> None:
-        """Refuse, by name, a member whose DF table's rule refuses it."""
+        """Raise InputError with the stored reason when the DF path takes no
+        derivative of the component."""
         if self.refusal is not None:
             raise InputError(
-                f"The DF path of the model's component is not differentiable: "
+                f"The DF path of the model's component is not differentiable. "
                 f"{self.refusal}"
             )
 
     def entry(self, theta: np.ndarray) -> dict[str, Any] | None:
-        """The model at theta and what has been made from it, or None where
-        the model at theta is refused."""
+        """Return the entry at theta: a dict that holds the model at theta,
+        in internal units, and the objects built from the model at theta.
+
+        The return value is None when rebuilding the model at theta raises
+        InputError, UnphysicalModelError, AccuracyError or ResultError."""
         free = self.free
         theta = free.placed(np.asarray(theta))
         key = theta.tobytes()
@@ -809,7 +1282,9 @@ class _DfPath:
                     ResultError,
                 ) as error:
                     log.info(
-                        "The anisotropy (beta_c, R_a) = (%r, %r) of %r is refused: %s",
+                        "The anisotropy (beta_c, R_a) = (%r, %r) of %r gives an "
+                        "invalid model, because rebuilding the model with the "
+                        "anisotropy raised the error %s",
                         float(theta[0]),
                         float(theta[1]),
                         component.name,
@@ -827,16 +1302,32 @@ class _DfPath:
         return self._kept[key]
 
     def los_table(self, entry: dict[str, Any]) -> Any:
-        """The LosTable of an entry's model, made when first asked."""
+        """Return the LosTable of the entry's model, built at the first
+        request."""
         if "los_table" not in entry:
             from .core import LosTable
 
             entry["los_table"] = LosTable(entry["model"])
         return entry["los_table"]
 
+    def rows_basis(self, entry: dict[str, Any], part: Any) -> RowsBasis:
+        """Return the `RowsBasis` of the model of a LosTable part, built at
+        the first request and kept in the entry.
+
+        The `RowsBasis` holds the route with the DF and the prepared lookup
+        that the transpose of the rows and the explicit part read. Keeping the
+        `RowsBasis` in the entry builds the route with the DF once per
+        theta."""
+        if "rows_basis" not in entry:
+            entry["rows_basis"] = RowsBasis(part.model, part.model.settings)
+        return entry["rows_basis"]
+
     def _jacobian(self, entry: dict[str, Any]) -> tuple[Any, Any]:
-        """The DF table's derivative at an entry's theta, made when first
-        asked, with the steps of the store (`_steps`)."""
+        """Return the derivative of the DF table at the entry's theta, built at
+        the first request with the stored exponent steps (`_steps`).
+
+        Raises ResultError when the derivative's energies differ from the
+        energies of the model's DF table."""
         if "jac" not in entry:
             model = entry["model"]
             values, jac, _ = table_jacobian(
@@ -844,8 +1335,9 @@ class _DfPath:
             )
             if values["k"].tobytes() != np.asarray(model.table.k[0]).tobytes():
                 raise ResultError(
-                    "The DF table's derivative is not on the model's own grid: the "
-                    "table was not made by the rule its derivative holds."
+                    "The energies of the DF table's derivative differ from the "
+                    "energies of the model's own DF table, so the model's DF table "
+                    "was not made by the rule that the derivative holds."
                 )
             entry["jac"] = (values, jac)
         return entry["jac"]
@@ -853,10 +1345,26 @@ class _DfPath:
     def gradient(
         self, entry: dict[str, Any], cotangent: Any, explicit: dict[str, float]
     ) -> np.ndarray:
-        """The gradient in theta of a cotangent on the entry's DF table and
-        forms, with the explicit part in each parameter."""
+        """Return the gradient in theta, shape (2,), of a cotangent on the
+        entry's DF table and forms, plus the explicit part `explicit` of each
+        parameter.
+
+        A `cotangent` of None stands for a zero cotangent. The gradient is
+        NaN in a parameter that the DF path does not take. The gradient is
+        zero in a held anisotropy radius."""
+        if cotangent is None or _is_zero(cotangent):
+            # A zero cotangent adds nothing through the DF table, so the DF
+            # table's derivative is not built. Each parameter takes 0.0 plus
+            # the explicit part. The general branch below also gives +0.0 for
+            # the DF table's part of a zero cotangent, because the mask on
+            # log_df drops every zero entry of the cotangent.
+            out = np.zeros(2)
+            for i, name in _each_parameter(self.free, entry, self.names, out):
+                out[i] = 0.0 + float(explicit.get(name, 0.0))
+            return out
         if "jac" not in entry and not self._steps:
-            # the steps are measured at the member's own theta first
+            # The exponent steps are measured at the component's own theta
+            # before the derivative at any other theta.
             own = self.entry(self.free.theta)
             if own is not None and own is not entry:
                 self._jacobian(own)
@@ -881,11 +1389,30 @@ class _DfPath:
         return out
 
 
+def _is_zero(cotangent: Any) -> bool:
+    """Return True when every number of a cotangent on the DF table and
+    forms is zero. A NaN counts as nonzero."""
+    return not any(
+        np.any(np.asarray(x, dtype=np.float64))
+        for x in (
+            cotangent.log_df,
+            cotangent.log_df_slope,
+            cotangent.log_df_below,
+            cotangent.log_df_slope_below,
+            *cotangent.form.values(),
+        )
+    )
+
+
 def _carried(cotangent: Any, values: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
-    """The cotangent's leaves the DF table's derivative carries (the floor's
-    edge law and the center's numbers), refusing by name a cotangent on a
-    leaf it does not carry: the observable would read a part of the DF whose
-    motion in theta is not held."""
+    """Return the parts of a cotangent that the derivative of the DF table
+    carries: the coefficients of the floor's edge law and the numbers of the
+    DF's central form (`_CENTER_LEAVES`).
+
+    Raises ResultError when the cotangent is nonzero on a part of the DF
+    table or forms that the derivative of the DF table does not carry. The
+    message of the ResultError lists each such part. The derivative in theta
+    of such a part is not computed, so the gradient would be incomplete."""
     form = dict(cotangent.form)
     law = np.asarray(form.pop("below_floor_coefficients", ()), dtype=np.float64)
     n_law = np.size(values.get("edge_law", ()))
@@ -901,8 +1428,10 @@ def _carried(cotangent: Any, values: dict[str, np.ndarray]) -> dict[str, np.ndar
             loose.append(name)
     if loose:
         raise ResultError(
-            "The observable reads parts of the DF whose derivative in theta the "
-            f"table's rule does not carry: {', '.join(sorted(set(loose)))}."
+            "The observable depends on the parts "
+            f"{', '.join(sorted(set(loose)))} of the DF, whose derivative in theta "
+            "the DF table's derivative does not carry, so the gradient would be "
+            "incomplete."
         )
     return {
         "below_floor_coefficients": law[:n_law],
@@ -911,10 +1440,13 @@ def _carried(cotangent: Any, values: dict[str, np.ndarray]) -> dict[str, np.ndar
 
 
 def _df_function(value: Any, backward: Any) -> Any:
-    """A JAX function of (theta, *arrays) computed on the host, its output the
-    shape of the last array, with a custom VJP whose backward is the host's
-    gradient in theta of the output's cotangent; the arrays carry no
-    gradient (NaN)."""
+    """Return a JAX function of ``(theta, *arrays)`` evaluated on the host by
+    `value`, with a custom vector-Jacobian product.
+
+    The output has the shape of the last array. The backward pass calls the
+    host function `backward` with theta, the arrays and the cotangent on the
+    output, and `backward` returns the gradient in theta, shape (2,). The
+    gradient in each array is NaN."""
 
     @jax.custom_vjp
     def function(theta: Array, *arrays: Array) -> Array:
@@ -939,12 +1471,18 @@ def _df_function(value: Any, backward: Any) -> Any:
 def _rows_gradient(
     path: _DfPath, entry: dict[str, Any], part: Any, rows: list[Array]
 ) -> np.ndarray:
-    """The gradient in theta of cotangents on a LosTable part's rows: the
-    rows' transpose onto the DF's table and forms, and their explicit part."""
+    """Return the gradient in theta of cotangents on the rows of a LosTable
+    part.
+
+    The transpose of the rows (`losvd_rows_vjp`) carries the cotangents onto
+    the DF table and forms. The explicit part (`losvd_rows_explicit`) is the
+    derivative of the rows in each parameter at a fixed DF table.
+    `_DfPath.gradient` adds the two parts."""
     settings = part.model.settings
-    cotangent = losvd_rows_vjp(part.model, part.table, settings, rows)
+    basis = path.rows_basis(entry, part)
+    cotangent = losvd_rows_vjp(part.model, part.table, settings, rows, basis)
     explicit = (
-        losvd_rows_explicit(part.model, part.table, settings, rows, path.names)
+        losvd_rows_explicit(part.model, part.table, settings, rows, path.names, basis)
         if path.names
         else {}
     )
@@ -952,8 +1490,9 @@ def _rows_gradient(
 
 
 def _losvd_function(path: _DfPath) -> Any:
-    """`losvd` of a free component as a JAX function of ``(theta, r_2d, v)``."""
-    from .core import losvd
+    """Return `losvd` of a free component as a JAX function of
+    ``(theta, r_2d, v)``."""
+    from .core import _reader_of, losvd
 
     def value(theta: np.ndarray, x: np.ndarray, u: np.ndarray) -> np.ndarray:
         entry = path.entry(theta)
@@ -966,12 +1505,17 @@ def _losvd_function(path: _DfPath) -> Any:
         entry = path.entry(theta)
         if entry is None:
             return np.zeros(2)
+        c = np.asarray(cotangent, dtype=np.float64).ravel()
+        if not np.any(c):
+            # A zero cotangent adds nothing to the gradient, so no reading
+            # and no row is transposed.
+            return path.gradient(entry, None, {})
         part = path.los_table(entry).parts[0]
         rows = losvd_read_vjp(
-            part,
+            _reader_of(part),
             np.asarray(x, dtype=np.float64).ravel(),
             np.asarray(u, dtype=np.float64).ravel(),
-            np.asarray(cotangent, dtype=np.float64).ravel(),
+            c,
         )
         return _rows_gradient(path, entry, part, rows)
 
@@ -979,8 +1523,8 @@ def _losvd_function(path: _DfPath) -> Any:
 
 
 def _aperture_function(path: _DfPath, aperture: Aperture) -> Any:
-    """`aperture_losvd` of a free component in one aperture as a JAX
-    function of (theta, v)."""
+    """Return `aperture_losvd` of a free component in one aperture as a JAX
+    function of ``(theta, v)``."""
     from .core import _internal_aperture
     from .core import aperture_losvd as plain
 
@@ -995,21 +1539,37 @@ def _aperture_function(path: _DfPath, aperture: Aperture) -> Any:
         entry = path.entry(theta)
         if entry is None:
             return np.zeros(2)
+        c = np.asarray(cotangent, dtype=np.float64).ravel()
+        if not np.any(c):
+            # A zero cotangent adds nothing to the gradient, so the aperture's
+            # distribution is not computed again, and no reading and no row
+            # is transposed.
+            return path.gradient(entry, None, {})
         table = path.los_table(entry)
         part = table.parts[0]
         settings = part.model.settings
         inside = _internal_aperture(table.model, aperture)
+        # The aperture's distribution is computed once, and `record` collects
+        # the table readings behind each value for the transpose.
+        record: list[Any] = []
         result = stage_aperture_losvd(
-            part.model, part.table, part.projected, inside, settings
+            part.model, part.table, part.projected, inside, settings, record=record
         )
         rule = panels(result.v_nodes, result.v_weights, result.losvd[0])
         at_nodes = read_panels_vjp(
             rule,
             np.abs(np.asarray(v, dtype=np.float64)).ravel(),
-            np.asarray(cotangent, dtype=np.float64).ravel(),
+            c,
         )
         rows = aperture_losvd_vjp(
-            part.model, part.table, part.projected, inside, settings, result, at_nodes
+            part.model,
+            part.table,
+            part.projected,
+            inside,
+            settings,
+            result,
+            at_nodes,
+            record=record,
         )
         return _rows_gradient(path, entry, part, rows)
 
@@ -1017,7 +1577,8 @@ def _aperture_function(path: _DfPath, aperture: Aperture) -> Any:
 
 
 def _pdf_v_function(path: _DfPath) -> Any:
-    """`pdf_v` of a free component as a JAX function of (theta, r, v)."""
+    """Return `pdf_v` of a free component as a JAX function of
+    ``(theta, r, v)``."""
     from .core import _profiles, pdf_v
 
     def value(theta: np.ndarray, x: np.ndarray, u: np.ndarray) -> np.ndarray:
@@ -1041,24 +1602,35 @@ def _pdf_v_function(path: _DfPath) -> Any:
         total, explicit = None, dict.fromkeys(path.names, 0.0)
         for radius in np.unique(xs):
             at = xs == radius
-            result = speed_distribution(view, float(radius), view.settings, profile)
-            speeds, c = us[at], cs[at]
-            inside = (speeds >= 0.0) & (speeds <= result.v_max) & (c != 0.0)
+            velocities, c = us[at], cs[at]
+            # A radius whose cotangents are all zero adds nothing to the
+            # gradient, so the velocity distribution at the radius is skipped.
+            if not np.any(c):
+                continue
+            result = velocity_distribution(view, float(radius), view.settings, profile)
+            inside = (velocities >= 0.0) & (velocities <= result.v_max) & (c != 0.0)
             if not np.any(inside):
                 continue
-            # the distribution at the speeds asked, by the rule its record
-            # checked (`SpeedDistribution.read`), and its transpose there
+            # The distribution is read at the requested velocities by the rule
+            # that the distribution's record holds (`VelocityDistribution.read`),
+            # and the transpose is taken at the requested velocities.
             asked = replace(
-                result, v_nodes=speeds[inside], pdf=result.read(speeds[inside])
+                result, v_nodes=velocities[inside], pdf=result.read(velocities[inside])
             )
-            cotangent_df, part = speed_distribution_vjp(asked, c[inside], path.names)
+            cotangent_df, part = velocity_distribution_vjp(asked, c[inside], path.names)
             total = (
                 cotangent_df if total is None else add_cotangents(total, cotangent_df)
             )
             for name in path.names:
                 explicit[name] += float(part[name])
         if total is None:
-            return np.zeros(2)
+            # No velocity carries a nonzero cotangent. The gradient is zero in
+            # each parameter that the DF path takes and NaN in each other
+            # parameter, as in `_DfPath.gradient`.
+            out = np.zeros(2)
+            for i, _ in _each_parameter(path.free, entry, path.names, out):
+                out[i] = 0.0
+            return out
         return path.gradient(entry, total, explicit)
 
     return _df_function(value, backward)

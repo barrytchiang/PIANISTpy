@@ -1,4 +1,8 @@
-"""Tests of the DF results and their files."""
+"""Tests of the DF results (`Model` and its parts) and of the files they write.
+
+The tests write each result to a file, read the file back, and compare the
+result read back with the result written.
+"""
 
 import dataclasses
 import math
@@ -113,7 +117,11 @@ def _same(a, b):
 
 
 def _same_inversion(a, b):
-    """Equal records: NaN equals NaN, in the tuples and in the band records."""
+    """Assert that two inversion records are equal, with NaN equal to NaN.
+
+    The comparison covers every tuple field and every dictionary entry of the
+    band records.
+    """
     for item in dataclasses.fields(a):
         x, y = getattr(a, item.name), getattr(b, item.name)
         assert len(x) == len(y), item.name
@@ -212,16 +220,18 @@ def test_model_round_trip(tmp_path):
     for name in ("table", "form", "profile"):
         _same(getattr(model, name), getattr(back, name))
     _same_inversion(model.inversion, back.inversion)
-    # the table's end is its last row
+    # The table's outer radius and the mass there are those of the profile's
+    # last row, R = 10 and M = 2.
     assert (back.profile.r_table_max, back.profile.mass_at_r_table_max) == (10.0, 2.0)
-    assert back.r_trust == {}  # spatially finite: valid to its edge
+    assert back.r_trust == {}  # A spatially finite model is valid to its edge.
     with pytest.raises(InputError, match="exists"):
         model.write(path)
 
 
 def test_a_form_says_where_its_df_diverges():
     form = _form()
-    # a tail A K^-0.75 diverges as K -> 0; a Taylor rule vanishes there
+    # Below the floor, the first component's tail A K^-0.75 diverges as K goes
+    # to 0, and the second component's Taylor form vanishes as K goes to 0.
     assert form.exponent_at_zero(0) == -0.75
     assert form.exponent_at_zero(1) is None
     assert form.diverges_at_zero == (True, False)
@@ -235,7 +245,8 @@ def test_a_form_says_where_its_df_diverges():
 
 
 def test_a_profile_carries_its_models_df_and_a_child_needs_it(tmp_path):
-    # the model's DF table and Taylor edge ride with its profile through the file
+    # The profile carries the model's DF table and the DF's Taylor coefficients
+    # at the edge, and the file keeps both.
     one = COMPONENTS[:1]
     truncation = Truncation(k_t=0.1)
     k = np.linspace(1e-9, 0.85, N)[None, :]
@@ -277,7 +288,8 @@ def test_a_profile_carries_its_models_df_and_a_child_needs_it(tmp_path):
     for name in ("df_k", "df_log_f", "df_slope"):
         assert np.array_equal(getattr(back, name), getattr(profile, name))
     assert back.df_taylor == profile.df_taylor
-    # a profile that does not carry its model's DF refuses a child, by name
+    # compute_df raises InputError for a component on a profile that carries
+    # no DF of its model, since a Method II child needs the parent's DF.
     bare = dataclasses.replace(
         profile,
         df_k=np.zeros((0, 0)),

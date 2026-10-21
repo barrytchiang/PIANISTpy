@@ -1,4 +1,4 @@
-"""Tests of the anisotropy model."""
+"""Tests of `Anisotropy`: the model label, the dictionary form and the input checks."""
 
 import pytest
 
@@ -33,7 +33,10 @@ def test_inadmissible_parameters_are_refused(kwargs):
 
 
 def test_the_kind_is_one_where_r_a_is_infinite():
-    # the type does not enter a model without R_a: one model, one identity
+    # A model with an infinite anisotropy radius R_a does not depend on the
+    # type, so Anisotropy stores kind "I" for every such model. Two such models
+    # that differ only in the type given are then equal and have equal
+    # dictionary forms.
     for beta_c in (0.0, 0.3):
         typed = Anisotropy(beta_c=beta_c, kind="II")
         assert typed.kind == "I"

@@ -1,38 +1,12 @@
 Examples
 ========
 
-Every notebook is stored with its outputs and run on a compute node against the release it is pinned to; the
-manual renders them and runs nothing. The notebooks live in their own repository,
-`PIANISTpy-notebooks <https://github.com/barrytchiang/PIANISTpy-notebooks>`_, from which they can be opened in
-the browser.
-
-Tutorials
----------
+The Examples pages show each notebook with its stored outputs. The notebooks are in their own repository,
+`PIANISTpy-notebooks <https://github.com/barrytchiang/PIANISTpy-notebooks>`_, where each notebook can be opened in a
+browser.
 
 .. toctree::
    :maxdepth: 1
 
-   Generate particle initial conditions <tutorials/particles>
-   Compute observables from a model <tutorials/observables>
-
-Planned for ver. 1.0.0: build a truncated model (profile to distribution function to model, Method I and Method II);
-fit a superposition to data; observables in an aperture of any shape.
-
-.. _notebooks-paper:
-
-Reproducing |paper-name|
-------------------------
-
-Notebooks that reproduce the result figures of |paper|, from the released package, with the tables and measured numbers the
-technical notes leave out: the distribution-function panels; the superposition figures, with the fit of an
-anisotropy profile over the superposition weights; the observable mocks; the appendix figures. Released with
-ver. 0.9.9.
-
-:math:`N`-body tests with GAMER
--------------------------------
-
-*Under construction.* The test problem used for the isolation runs of |paper| (and in `Chiang et al. 2025
-<https://academic.oup.com/mnras/article/544/1/36/8266513>`_, `2026a
-<https://astro.theoj.org/article/155367-universal-numerical-convergence-criteria-for-subhalo-tidal-evolution>`_) is
-being prepared as a test problem of the `GAMER <https://academic.oup.com/mnras/article/481/4/4815/5106358>`_ code,
-with its analysis and plotting scripts inside it. A link follows once it is merged there.
+   tutorials/index
+   gamer

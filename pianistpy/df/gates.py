@@ -1,17 +1,34 @@
-r"""The gates of a truncation energy.
+r"""Sign checks of an untruncated DF and the gates of a truncation energy.
 
-A truncated model ``F(K + K_t) - F(K_t)`` is physical only where the
-untruncated DF is non-negative and non-decreasing above
-:math:`\mathcal{K}_{\rm t}`: :math:`\mathcal{K}_{\rm t}` must be at least the
-last zero crossing K_0 of the DF and the location Q_min of its last minimum.
-The lowest admissible truncation energy is the larger of the two. An
-untruncated model (:math:`\mathcal{K}_{\rm t} = 0`) is physical where the DF
-has no negative value, or where its negatives are rounding: the exact DF
-vanishes at K -> 0 (its analytic tail exponent is negative) and every
-negative value is within the ceiling of F a decade above the negative zone.
+`truncation_gates` reads the table of an untruncated distribution function
+(DF) :math:`F(K)` of the energy :math:`K` and returns a `TruncationGates`
+record. The record holds
+the DF's most negative value, the DF's last zero crossing :math:`K_0`, the
+energy :math:`Q_{\rm min}` where the DF's last decrease ends, the lowest
+admissible truncation energy, and the names of the gates that a given
+truncation energy :math:`\mathcal{K}_{\rm t}` fails.
 
-The arithmetic is the working pipeline's, so that the gates and their
-values are the same on the same table.
+The truncated DF is :math:`F(K + \mathcal{K}_{\rm t}) - F(\mathcal{K}_{\rm t})`.
+The gates admit a truncation energy :math:`\mathcal{K}_{\rm t} > 0` only at
+or above both :math:`K_0` and :math:`Q_{\rm min}`. Above :math:`K_0` the
+tabulated DF has no negative value. From :math:`Q_{\rm min}` upward the
+tabulated DF has no step between successive table energies that starts at
+a positive value :math:`F_i` and ends at a value :math:`F_{i+1}` with
+:math:`F_i > (1 + 10^{-5})\,F_{i+1}`.
+For a Type II model, the gates also require :math:`\mathcal{K}_{\rm t}` to
+exceed the potential at the anisotropy radius :math:`R_{\rm a}`.
+
+An untruncated model (:math:`\mathcal{K}_{\rm t} = 0`) passes the gates when
+the DF has no negative value, or when the DF's negative values are rounding.
+The negative values count as rounding when three conditions hold: the
+analytic exponent :math:`a` of the DF's tail :math:`F \sim A K^{-a}` as
+:math:`K \to 0`, with :math:`A` a constant, is negative, so that the exact DF
+vanishes as :math:`K \to 0`; the energy :math:`10 K_0` is at or below the
+table's highest energy; and the DF's most negative value is, in absolute value, at
+most :math:`10^{-4}` times the DF at the first table energy at or above
+:math:`10 K_0`, with that DF positive.
+
+The gates are derived in Notes Section T:3.5.
 """
 
 __all__ = ["TruncationGates", "truncation_gates"]
@@ -21,39 +38,58 @@ from dataclasses import dataclass
 import numpy as np
 
 from ..typing import Array
-from ..validation import CEILING
+from ..validation import TIER_BOUNDS
 
 
 @dataclass(frozen=True)
 class TruncationGates:
-    r"""The sign of the untruncated DF and the gates a truncation energy meets.
+    r"""Sign record of an untruncated DF and the gates a truncation energy fails.
+
+    All energies are in internal units. The DF's table is read only at
+    energies above ``k_edge`` (see `truncation_gates`).
 
     Parameters
     ----------
-    f_min, k_at_f_min : float
-        The DF's most negative value and its energy (its smallest value and
-        NaN where it has none negative).
+    f_min : float
+        The DF's most negative tabulated value. Where the DF has no negative
+        value, the DF's smallest finite value, or NaN where the table has no
+        finite value.
+    k_at_f_min : float
+        The energy of the DF's most negative value; NaN where the DF has no
+        negative value.
     k_0 : float
-        The last zero crossing: the highest energy where F < 0; 0 where none.
+        The DF's last zero crossing :math:`K_0`: the highest tabulated energy
+        where the DF is negative; 0 where the DF has no negative value.
     q_min : float
-        Where the DF's last decrease (by more than :math:`10^{-5}` relative) ends; 0
-        where it has none.
+        The energy :math:`Q_{\rm min}` where the DF's last decrease ends. A
+        decrease is a step between successive positive table energies whose
+        DF values :math:`F_i` and :math:`F_{i+1}` are finite, with
+        :math:`F_i` positive and :math:`F_i > (1 + 10^{-5})\,F_{i+1}`.
+        :math:`Q_{\rm min}` is the energy at the end of the last decrease; 0
+        where the DF has no decrease.
     k_t_min : float
-        The lowest admissible truncation energy, max(k_0, q_min), or, where
-        the anisotropy's domain edge is above both, the next float above
-        k_edge (the potential at the edge; DOMAIN is strict). For a Type II
-        model it is necessary, not sufficient: the truncated model's edge
-        must also lie inside :math:`R_{\rm a}`, which the solve judges
-        (TYPE II EDGE).
-    set_by : str
-        Which sets it: "K_0", "Q_min" (a tie with K_0 included),
-        "domain_edge" (above both), or "none".
+        The lowest admissible truncation energy: the largest of `k_0` and
+        `q_min`, or, where the potential ``k_edge`` at the anisotropy radius
+        exceeds both, the next double above ``k_edge`` (the "DOMAIN" gate
+        requires :math:`\mathcal{K}_{\rm t}` strictly above ``k_edge``). For
+        a Type II model, a truncation energy at or above `k_t_min` is not
+        sufficient by itself: the truncated model's edge must also lie
+        inside :math:`R_{\rm a}`, which the Poisson solve checks.
+    set_by : {"K_0", "Q_min", "domain_edge", "none"}
+        The quantity that sets `k_t_min`: "K_0" where `k_0` exceeds `q_min`;
+        "Q_min" where `q_min` is at or above `k_0`; "domain_edge" where
+        ``k_edge`` exceeds both `k_0` and `q_min`; "none" where `k_t_min` is 0.
     fired : tuple of str
-        The gates the truncation energy fails: "DOMAIN"
-        (:math:`\mathcal{K}_{\rm t}` at or below k_edge, the untruncated
-        :math:`\mathcal{K}_{\rm t} = 0` included), ``"0 < K_t < K_0"``,
-        "Z_t = 0 GATE" (an untruncated DF negative beyond rounding) and
-        "Z GATE" (``0 < K_t < k_t_min``).
+        The names of the gates that the truncation energy
+        :math:`\mathcal{K}_{\rm t}` fails, empty where the truncation energy
+        fails no gate.
+        "DOMAIN": ``k_edge > 0`` and :math:`\mathcal{K}_{\rm t}` is at or
+        below ``k_edge`` (which includes :math:`\mathcal{K}_{\rm t} = 0`).
+        ``"0 < K_t < K_0"``: :math:`\mathcal{K}_{\rm t}` is positive and
+        below `k_0`. "Z_t = 0 GATE": :math:`\mathcal{K}_{\rm t} = 0` and the
+        DF has negative values that do not count as rounding. "Z GATE":
+        :math:`\mathcal{K}_{\rm t}` is positive and below `k_t_min` by more
+        than a relative :math:`10^{-12}`.
     """
 
     f_min: float
@@ -74,23 +110,43 @@ def truncation_gates(
     a_analytic: float,
     k_edge: float = 0.0,
 ) -> TruncationGates:
-    r"""Return the sign report and the gates of a truncation energy.
+    r"""Return the DF's sign record and the gates of a truncation energy.
 
     Parameters
     ----------
-    q_sign, f_sign : array
-        The inversion's table the sign and the last minimum are read from.
-    q, f : array
-        The table the untruncated rounding test reads F a decade above the
-        negative zone from.
+    q_sign : array, shape (m,)
+        Energies of the inversion's table, increasing, in internal units.
+        `k_0`, `q_min` and the DF's most negative value are read on this
+        table.
+    f_sign : array, shape (m,)
+        The untruncated DF at `q_sign`.
+    q : array, shape (k,)
+        Energies of a table of the untruncated DF, increasing, in internal
+        units, from which the rounding test of
+        an untruncated model reads the DF at the first energy at or above
+        :math:`10 K_0`.
+    f : array, shape (k,)
+        The untruncated DF at `q`.
     k_t : float
-        The truncation energy; 0 for an untruncated model.
+        The truncation energy :math:`\mathcal{K}_{\rm t}` in internal units;
+        0 for an untruncated model.
     a_analytic : float
-        The analytic exponent of the DF's tail A K^-a as K -> 0.
+        The analytic exponent :math:`a` of the DF's tail :math:`A K^{-a}` as
+        :math:`K \to 0`. NaN makes every negative value of an untruncated DF
+        fail the rounding test.
     k_edge : float, optional
-        The potential at the anisotropy's domain edge (:math:`P(R_{\rm a})`
-        for a Type II model, 0 otherwise): the DF's support is K > k_edge, and
-        the sign and the last minimum are read there only.
+        The potential at the anisotropy radius, :math:`P(R_{\rm a})`, for a
+        Type II model, in internal units. The DF's support is the energies
+        above `k_edge`, and `q_sign` and `f_sign` are read only at energies
+        above `k_edge`.
+        Default: ``0.0``, which means no domain edge (all models other than
+        Type II).
+
+    Returns
+    -------
+    gates : TruncationGates
+        The DF's sign record, the lowest admissible truncation energy and
+        the gates that `k_t` fails.
     """
     f_s = np.asarray(f_sign, dtype=np.float64)
     q_s = np.asarray(q_sign, dtype=np.float64)
@@ -119,8 +175,9 @@ def truncation_gates(
         set_by = "none"
     elif k_edge > max(float(sign[2]), q_min):
         set_by = "domain_edge"
-        # DOMAIN is strict (K_t > k_edge): the smallest K_t it admits is the
-        # next float above k_edge
+        # The DOMAIN gate requires K_t strictly above k_edge, so the smallest
+        # truncation energy the DOMAIN gate admits is the next double above
+        # k_edge.
         k_t_min = float(np.nextafter(k_edge, np.inf))
     else:
         set_by = "Q_min" if q_min >= float(sign[2]) else "K_0"
@@ -142,7 +199,7 @@ def truncation_gates(
             and np.isfinite(a_analytic)
             and a_analytic < 0.0
             and f_ref > 0.0
-            and abs(float(sign[0])) <= CEILING * f_ref
+            and abs(float(sign[0])) <= TIER_BOUNDS[1] * f_ref
         )
         if not rounding:
             fired.append("Z_t = 0 GATE")

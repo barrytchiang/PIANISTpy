@@ -1,9 +1,7 @@
 The package
 ===========
 
-Package ``pianistpy``
-
 .. automodule:: pianistpy
 
-The public names of the package are imported from its subpackages and documented on their
-pages.
+Every public class and function of the package is documented on the page of its subpackage
+(:doc:`Functions by subpackage <index>`).

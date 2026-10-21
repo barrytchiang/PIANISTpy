@@ -1,4 +1,4 @@
-"""Tests of the superposition of models that share one truncated pair."""
+"""Tests of the superposition of models built on one truncated profile."""
 
 import dataclasses
 
@@ -13,9 +13,12 @@ from pianistpy.superposition import mixture, moments, superpose
 
 
 def _member(parent, beta_c, n_keep=None):
-    """A Method II model on `parent`'s truncated profile with its own
-    anisotropy; with `n_keep`, its table cut to that many energies, a grid of
-    its own."""
+    """Return a Method II model on the truncated profile of `parent`, with
+    the central anisotropy `beta_c`.
+
+    With `n_keep`, the member's DF table is cut to the table's first `n_keep`
+    energies, so the member has an energy grid shorter than the parent's
+    energy grid."""
     component = Component(profile=parent.profile, anisotropy=Anisotropy(beta_c=beta_c))
     table = parent.table
     if n_keep is not None:
@@ -37,21 +40,24 @@ def parent():
 def test_the_members_are_stacked_on_their_own_grids(parent):
     a, b = _member(parent, 0.0), _member(parent, -0.2, n_keep=1500)
     model = superpose({a: 0.25, b: 0.75})
-    # one component per member, its weight as its mass relative to the first
+    # The model has one component per member, and each component's mass is the
+    # member's weight divided by the first member's weight.
     assert [c.mass for c in model.components] == [1.0, 3.0]
     assert [c.anisotropy.beta_c for c in model.components] == [0.0, -0.2]
     table = model.table
     assert table.k.shape == (2, a.table.k.shape[1])
     assert table.k[0].tobytes() == a.table.k[0].tobytes()
     assert table.log_df[0].tobytes() == a.table.log_df[0].tobytes()
-    # the shorter grid: its own energies, then its last one repeated, NaN there
+    # The shorter energy grid keeps the member's own energies, then repeats the
+    # member's last energy, with NaN values at the repeated energies.
     assert table.k[1, :1500].tobytes() == b.table.k[0].tobytes()
     assert np.all(table.k[1, 1500:] == b.table.k[0, -1])
     assert np.all(np.isnan(table.log_df[1, 1500:]))
     assert table.i_last == (a.table.i_last[0], 1499)
     assert model.form.below_floor == a.form.below_floor + b.form.below_floor
     assert model.form.p_0 == a.form.p_0
-    # the shared density split by weight, its rows summing to it
+    # The shared density is split among the components by weight, and the
+    # components' density rows sum to the shared density.
     rho = parent.profile.rho_trunc[0]
     np.testing.assert_array_equal(model.profile.rho_trunc[0], 0.25 * rho)
     np.testing.assert_array_equal(model.profile.rho_trunc[1], 0.75 * rho)
@@ -59,14 +65,17 @@ def test_the_members_are_stacked_on_their_own_grids(parent):
     assert model.profile.r.tobytes() == parent.profile.r.tobytes()
     assert len(model.profile.edge_exponent) == 2
     assert model.profile.model == model.identity
-    # the same request, the same identity; another weight, another
+    # The same members with the same weights give the same identity string,
+    # and different weights give a different identity string.
     assert superpose({a: 0.25, b: 0.75}).identity == model.identity
     assert superpose({a: 0.5, b: 0.5}).identity != model.identity
 
 
 def test_the_weights_are_normalized_with_a_warning(parent, caplog):
-    # the log, not the recent messages: those are a bounded queue, full after
-    # the tests before this one, so that their length does not grow
+    # The test reads the log through caplog and not through the package's
+    # queue of recent messages, because the queue of recent messages has a
+    # bounded length and is already full from the earlier tests, so the
+    # queue's length cannot show a new message.
     a, b = _member(parent, 0.0), _member(parent, -0.2)
     with caplog.at_level("WARNING", logger="pianistpy"):
         model = superpose({a: 1.0, b: 3.0})
@@ -107,9 +116,10 @@ def test_superpose_refuses_by_name(parent):
 
 
 def test_a_mixture_is_differentiable_in_its_weights():
-    # the gradient contract: a quantity of the mixture is linear
-    # in the members' values and, through the normalization, smooth in the
-    # weights; reverse mode against the closed form and central differences
+    # A quantity of the mixture is linear in the members' values and, through
+    # the normalization, a smooth function of the weights. The test compares
+    # the reverse-mode gradient with the closed-form gradient and with central
+    # differences.
     values = jnp.array([[1.0, 2.0, 3.0], [4.0, 1.0, 0.5], [2.0, 2.0, 7.0]])
     weights = jnp.array([0.2, 0.5, 0.3])
 
@@ -129,8 +139,9 @@ def test_a_mixture_is_differentiable_in_its_weights():
 
 
 def test_the_moments_of_a_mixture(parent):
-    # isotropic members: the mixture is isotropic and its dispersion each
-    # member's; an isotropic and a constant-beta member: the weighted sums
+    # Two isotropic members give an isotropic mixture whose dispersion equals
+    # each member's dispersion. An isotropic member and a member of constant
+    # anisotropy give the weighted sums of the members' moments.
     r = np.geomspace(1e-3, 0.9 * float(parent.profile.r_t), 40)
     same = moments(superpose({_member(parent, 0.0): 0.3, _member(parent, 0.0): 0.7}), r)
     np.testing.assert_array_equal(same["beta_sigma"][same["sigma_r2"] > 0], 0.0)

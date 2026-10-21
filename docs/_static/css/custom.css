@@ -116,12 +116,12 @@ table.acc .acc-word, table.acc .acc-note { font-style: italic; color: var(--site
 table.acc .acc-note { white-space: normal; font-size: 11.5px; }
 table.acc .acc-name { white-space: normal; font-size: 12px; }
 table.acc .acc-flag { color: #A6192E; font-weight: 700; }
-table.acc td.acc-ceiling { background: #F7F1DC; }
-table.acc td.acc-warning { background: #FBE6CF; }
+table.acc td.acc-recorded { background: #F7F1DC; }
+table.acc td.acc-warned { background: #FBE6CF; }
 table.acc td.acc-refused { background: #F6D9D9; }
 table.acc td.acc-refusal { background: #EFEFEF; }
-html[data-theme="dark"] table.acc td.acc-ceiling { background: #3A3520; }
-html[data-theme="dark"] table.acc td.acc-warning { background: #46321C; }
+html[data-theme="dark"] table.acc td.acc-recorded { background: #3A3520; }
+html[data-theme="dark"] table.acc td.acc-warned { background: #46321C; }
 html[data-theme="dark"] table.acc td.acc-refused { background: #4A2525; }
 html[data-theme="dark"] table.acc td.acc-refusal { background: #2E2E2E; }
 html[data-theme="dark"] table.acc .acc-flag { color: #F08A96; }

@@ -1,4 +1,21 @@
-member,table,row,column,alpha,beta,gamma,family,beta_c,r_a,method,k_t,parent,expected
+# PIANISTpy accuracy grid, ver. 1.0.0: the list of the grid's models.
+# One row is one model: its place in the tables of the Accuracy tables page (table, row, column), its parameters, and the outcome the grid expects of it.
+# Columns: https://pianistpy.com/docs/reference/accuracy#the-downloadable-files
+# model: the model's key, as in the grid files
+# table: the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation energy, 4 limiting cases (the page's sections)
+# row: the key of the model's row in that table, as the page labels it
+# column: the key of the model's column in that table, as the page labels it
+# alpha: the transition sharpness of the double power law
+# beta: the outer slope of the double power law
+# gamma: the inner slope of the double power law
+# anisotropy model: the velocity anisotropy model, as in the grid files
+# beta_c: the central velocity anisotropy
+# r_a: the anisotropy radius in scale radii; blank where the model has none
+# truncation method: 1 or 2, as in the grid files
+# k_t: the truncation energy as a fraction of the central potential; blank for an untruncated model
+# parent: for a Method II child, the parent model; blank otherwise
+# expected outcome: what the grid expects of the model, as in the grid files
+model,table,row,column,alpha,beta,gamma,anisotropy model,beta_c,r_a,truncation method,k_t,parent,expected outcome
 T1_g0_b3_iso,1,g0_b3,iso,1,3,0,iso,0.0,,1,,,value
 T1_g0_b3_b-0.50,1,g0_b3,b-0.50,1,3,0,constant,-0.5,,1,,,value
 T1_g0_b3_b-0.25,1,g0_b3,b-0.25,1,3,0,constant,-0.25,,1,,,value
@@ -49,13 +66,13 @@ T1_g1.9_b3_OMII_Ra10,1,g1.9_b3,OMII_Ra10,1,3,1.9,OM_II,0.0,10,1,,,value: not phy
 T1_g1.9_b3_COMI_b-0.25_Ra10,1,g1.9_b3,COMI_b-0.25_Ra10,1,3,1.9,COM_I,-0.25,10,1,,,value
 T1_g1.9_b3_COMI_b+0.25_Ra10,1,g1.9_b3,COMI_b+0.25_Ra10,1,3,1.9,COM_I,0.25,10,1,,,value
 T1_g1.9_b3_COMII_b-0.25_Ra10,1,g1.9_b3,COMII_b-0.25_Ra10,1,3,1.9,COM_II,-0.25,10,1,,,value: not physical
-T1_g1.99_b3_iso,1,g1.99_b3,iso,1,3,1.99,iso,0.0,,1,,,refused: the package's tier (validity)
+T1_g1.99_b3_iso,1,g1.99_b3,iso,1,3,1.99,iso,0.0,,1,,,value
 T1_g1.99_b3_b-0.50,1,g1.99_b3,b-0.50,1,3,1.99,constant,-0.5,,1,,,value
 T1_g1.99_b3_b-0.25,1,g1.99_b3,b-0.25,1,3,1.99,constant,-0.25,,1,,,value
 T1_g1.99_b3_b+0.25,1,g1.99_b3,b+0.25,1,3,1.99,constant,0.25,,1,,,value
 T1_g1.99_b3_b+0.50,1,g1.99_b3,b+0.50,1,3,1.99,constant,0.5,,1,,,value
-T1_g1.99_b3_OMI_Ra10,1,g1.99_b3,OMI_Ra10,1,3,1.99,OM_I,0.0,10,1,,,refused: the package's tier (validity)
-T1_g1.99_b3_OMII_Ra10,1,g1.99_b3,OMII_Ra10,1,3,1.99,OM_II,0.0,10,1,,,refused: the package's tier (validity)
+T1_g1.99_b3_OMI_Ra10,1,g1.99_b3,OMI_Ra10,1,3,1.99,OM_I,0.0,10,1,,,value
+T1_g1.99_b3_OMII_Ra10,1,g1.99_b3,OMII_Ra10,1,3,1.99,OM_II,0.0,10,1,,,refusal: AccuracyError: rows of the inversion inside the table exceed the DF's ceiling 10^300
 T1_g1.99_b3_COMI_b-0.25_Ra10,1,g1.99_b3,COMI_b-0.25_Ra10,1,3,1.99,COM_I,-0.25,10,1,,,value
 T1_g1.99_b3_COMI_b+0.25_Ra10,1,g1.99_b3,COMI_b+0.25_Ra10,1,3,1.99,COM_I,0.25,10,1,,,value
 T1_g1.99_b3_COMII_b-0.25_Ra10,1,g1.99_b3,COMII_b-0.25_Ra10,1,3,1.99,COM_II,-0.25,10,1,,,value: not physical
@@ -109,13 +126,13 @@ T1_g1.9_b4_OMII_Ra10,1,g1.9_b4,OMII_Ra10,1,4,1.9,OM_II,0.0,10,1,,,value: not phy
 T1_g1.9_b4_COMI_b-0.25_Ra10,1,g1.9_b4,COMI_b-0.25_Ra10,1,4,1.9,COM_I,-0.25,10,1,,,value
 T1_g1.9_b4_COMI_b+0.25_Ra10,1,g1.9_b4,COMI_b+0.25_Ra10,1,4,1.9,COM_I,0.25,10,1,,,value
 T1_g1.9_b4_COMII_b-0.25_Ra10,1,g1.9_b4,COMII_b-0.25_Ra10,1,4,1.9,COM_II,-0.25,10,1,,,value: not physical
-T1_g1.99_b4_iso,1,g1.99_b4,iso,1,4,1.99,iso,0.0,,1,,,refused: the package's tier (validity)
+T1_g1.99_b4_iso,1,g1.99_b4,iso,1,4,1.99,iso,0.0,,1,,,value
 T1_g1.99_b4_b-0.50,1,g1.99_b4,b-0.50,1,4,1.99,constant,-0.5,,1,,,value
 T1_g1.99_b4_b-0.25,1,g1.99_b4,b-0.25,1,4,1.99,constant,-0.25,,1,,,value
 T1_g1.99_b4_b+0.25,1,g1.99_b4,b+0.25,1,4,1.99,constant,0.25,,1,,,value
 T1_g1.99_b4_b+0.50,1,g1.99_b4,b+0.50,1,4,1.99,constant,0.5,,1,,,value
-T1_g1.99_b4_OMI_Ra10,1,g1.99_b4,OMI_Ra10,1,4,1.99,OM_I,0.0,10,1,,,refused: the package's tier (validity)
-T1_g1.99_b4_OMII_Ra10,1,g1.99_b4,OMII_Ra10,1,4,1.99,OM_II,0.0,10,1,,,refused: the package's tier (validity)
+T1_g1.99_b4_OMI_Ra10,1,g1.99_b4,OMI_Ra10,1,4,1.99,OM_I,0.0,10,1,,,value
+T1_g1.99_b4_OMII_Ra10,1,g1.99_b4,OMII_Ra10,1,4,1.99,OM_II,0.0,10,1,,,refusal: AccuracyError: rows of the inversion inside the table exceed the DF's ceiling 10^300
 T1_g1.99_b4_COMI_b-0.25_Ra10,1,g1.99_b4,COMI_b-0.25_Ra10,1,4,1.99,COM_I,-0.25,10,1,,,value
 T1_g1.99_b4_COMI_b+0.25_Ra10,1,g1.99_b4,COMI_b+0.25_Ra10,1,4,1.99,COM_I,0.25,10,1,,,value
 T1_g1.99_b4_COMII_b-0.25_Ra10,1,g1.99_b4,COMII_b-0.25_Ra10,1,4,1.99,COM_II,-0.25,10,1,,,value: not physical
@@ -169,13 +186,13 @@ T1_g1.9_b5_OMII_Ra10,1,g1.9_b5,OMII_Ra10,1,5,1.9,OM_II,0.0,10,1,,,value: not phy
 T1_g1.9_b5_COMI_b-0.25_Ra10,1,g1.9_b5,COMI_b-0.25_Ra10,1,5,1.9,COM_I,-0.25,10,1,,,value
 T1_g1.9_b5_COMI_b+0.25_Ra10,1,g1.9_b5,COMI_b+0.25_Ra10,1,5,1.9,COM_I,0.25,10,1,,,value
 T1_g1.9_b5_COMII_b-0.25_Ra10,1,g1.9_b5,COMII_b-0.25_Ra10,1,5,1.9,COM_II,-0.25,10,1,,,value: not physical
-T1_g1.99_b5_iso,1,g1.99_b5,iso,1,5,1.99,iso,0.0,,1,,,refused: the package's tier (validity)
+T1_g1.99_b5_iso,1,g1.99_b5,iso,1,5,1.99,iso,0.0,,1,,,value
 T1_g1.99_b5_b-0.50,1,g1.99_b5,b-0.50,1,5,1.99,constant,-0.5,,1,,,value
 T1_g1.99_b5_b-0.25,1,g1.99_b5,b-0.25,1,5,1.99,constant,-0.25,,1,,,value
 T1_g1.99_b5_b+0.25,1,g1.99_b5,b+0.25,1,5,1.99,constant,0.25,,1,,,value
 T1_g1.99_b5_b+0.50,1,g1.99_b5,b+0.50,1,5,1.99,constant,0.5,,1,,,value
-T1_g1.99_b5_OMI_Ra10,1,g1.99_b5,OMI_Ra10,1,5,1.99,OM_I,0.0,10,1,,,refused: the package's tier (validity)
-T1_g1.99_b5_OMII_Ra10,1,g1.99_b5,OMII_Ra10,1,5,1.99,OM_II,0.0,10,1,,,refused: the package's tier (validity)
+T1_g1.99_b5_OMI_Ra10,1,g1.99_b5,OMI_Ra10,1,5,1.99,OM_I,0.0,10,1,,,value
+T1_g1.99_b5_OMII_Ra10,1,g1.99_b5,OMII_Ra10,1,5,1.99,OM_II,0.0,10,1,,,refusal: AccuracyError: rows of the inversion inside the table exceed the DF's ceiling 10^300
 T1_g1.99_b5_COMI_b-0.25_Ra10,1,g1.99_b5,COMI_b-0.25_Ra10,1,5,1.99,COM_I,-0.25,10,1,,,value
 T1_g1.99_b5_COMI_b+0.25_Ra10,1,g1.99_b5,COMI_b+0.25_Ra10,1,5,1.99,COM_I,0.25,10,1,,,value
 T1_g1.99_b5_COMII_b-0.25_Ra10,1,g1.99_b5,COMII_b-0.25_Ra10,1,5,1.99,COM_II,-0.25,10,1,,,value: not physical
@@ -278,11 +295,11 @@ T3_nfw_iso_M1_kt0.2,3,nfw_iso_M1,kt0.2,1,3,1,iso,0.0,,1,0.2,,value
 T3_nfw_iso_M1_kt0.05,3,nfw_iso_M1,kt0.05,1,3,1,iso,0.0,,1,0.05,,value
 T3_nfw_iso_M1_kt0.01,3,nfw_iso_M1,kt0.01,1,3,1,iso,0.0,,1,0.01,,value
 T3_nfw_iso_M1_kt0.002,3,nfw_iso_M1,kt0.002,1,3,1,iso,0.0,,1,0.002,,value
-T3_nfw_iso_M2_kt0.5,3,nfw_iso_M2,kt0.5,1,3,1,iso,0.0,,2,0.5,nfw iso k_t 0.5,"value: the parent's DF within the goal, read by the package's rule"
-T3_nfw_iso_M2_kt0.2,3,nfw_iso_M2,kt0.2,1,3,1,iso,0.0,,2,0.2,nfw iso k_t 0.2,"value: the parent's DF within the goal, read by the package's rule"
-T3_nfw_iso_M2_kt0.05,3,nfw_iso_M2,kt0.05,1,3,1,iso,0.0,,2,0.05,nfw iso k_t 0.05,"value: the parent's DF within the goal, read by the package's rule"
-T3_nfw_iso_M2_kt0.01,3,nfw_iso_M2,kt0.01,1,3,1,iso,0.0,,2,0.01,nfw iso k_t 0.01,"value: the parent's DF within the goal, read by the package's rule"
-T3_nfw_iso_M2_kt0.002,3,nfw_iso_M2,kt0.002,1,3,1,iso,0.0,,2,0.002,nfw iso k_t 0.002,"value: the parent's DF within the goal, read by the package's rule"
+T3_nfw_iso_M2_kt0.5,3,nfw_iso_M2,kt0.5,1,3,1,iso,0.0,,2,0.5,nfw iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.2,3,nfw_iso_M2,kt0.2,1,3,1,iso,0.0,,2,0.2,nfw iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.05,3,nfw_iso_M2,kt0.05,1,3,1,iso,0.0,,2,0.05,nfw iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.01,3,nfw_iso_M2,kt0.01,1,3,1,iso,0.0,,2,0.01,nfw iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.002,3,nfw_iso_M2,kt0.002,1,3,1,iso,0.0,,2,0.002,nfw iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
 T3_nfw_b-0.50_M1_kt0.5,3,nfw_b-0.50_M1,kt0.5,1,3,1,constant,-0.5,,1,0.5,,value
 T3_nfw_b-0.50_M1_kt0.2,3,nfw_b-0.50_M1,kt0.2,1,3,1,constant,-0.5,,1,0.2,,value
 T3_nfw_b-0.50_M1_kt0.05,3,nfw_b-0.50_M1,kt0.05,1,3,1,constant,-0.5,,1,0.05,,value
@@ -338,11 +355,11 @@ T3_hern_iso_M1_kt0.2,3,hern_iso_M1,kt0.2,1,4,1,iso,0.0,,1,0.2,,value
 T3_hern_iso_M1_kt0.05,3,hern_iso_M1,kt0.05,1,4,1,iso,0.0,,1,0.05,,value
 T3_hern_iso_M1_kt0.01,3,hern_iso_M1,kt0.01,1,4,1,iso,0.0,,1,0.01,,value
 T3_hern_iso_M1_kt0.002,3,hern_iso_M1,kt0.002,1,4,1,iso,0.0,,1,0.002,,value
-T3_hern_iso_M2_kt0.5,3,hern_iso_M2,kt0.5,1,4,1,iso,0.0,,2,0.5,hern iso k_t 0.5,"value: the parent's DF within the goal, read by the package's rule"
-T3_hern_iso_M2_kt0.2,3,hern_iso_M2,kt0.2,1,4,1,iso,0.0,,2,0.2,hern iso k_t 0.2,"value: the parent's DF within the goal, read by the package's rule"
-T3_hern_iso_M2_kt0.05,3,hern_iso_M2,kt0.05,1,4,1,iso,0.0,,2,0.05,hern iso k_t 0.05,"value: the parent's DF within the goal, read by the package's rule"
-T3_hern_iso_M2_kt0.01,3,hern_iso_M2,kt0.01,1,4,1,iso,0.0,,2,0.01,hern iso k_t 0.01,"value: the parent's DF within the goal, read by the package's rule"
-T3_hern_iso_M2_kt0.002,3,hern_iso_M2,kt0.002,1,4,1,iso,0.0,,2,0.002,hern iso k_t 0.002,"value: the parent's DF within the goal, read by the package's rule"
+T3_hern_iso_M2_kt0.5,3,hern_iso_M2,kt0.5,1,4,1,iso,0.0,,2,0.5,hern iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.2,3,hern_iso_M2,kt0.2,1,4,1,iso,0.0,,2,0.2,hern iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.05,3,hern_iso_M2,kt0.05,1,4,1,iso,0.0,,2,0.05,hern iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.01,3,hern_iso_M2,kt0.01,1,4,1,iso,0.0,,2,0.01,hern iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.002,3,hern_iso_M2,kt0.002,1,4,1,iso,0.0,,2,0.002,hern iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
 T3_hern_b-0.50_M1_kt0.5,3,hern_b-0.50_M1,kt0.5,1,4,1,constant,-0.5,,1,0.5,,value
 T3_hern_b-0.50_M1_kt0.2,3,hern_b-0.50_M1,kt0.2,1,4,1,constant,-0.5,,1,0.2,,value
 T3_hern_b-0.50_M1_kt0.05,3,hern_b-0.50_M1,kt0.05,1,4,1,constant,-0.5,,1,0.05,,value
@@ -398,11 +415,11 @@ T3_cored_iso_M1_kt0.2,3,cored_iso_M1,kt0.2,1,4,0,iso,0.0,,1,0.2,,value
 T3_cored_iso_M1_kt0.05,3,cored_iso_M1,kt0.05,1,4,0,iso,0.0,,1,0.05,,value
 T3_cored_iso_M1_kt0.01,3,cored_iso_M1,kt0.01,1,4,0,iso,0.0,,1,0.01,,value
 T3_cored_iso_M1_kt0.002,3,cored_iso_M1,kt0.002,1,4,0,iso,0.0,,1,0.002,,value
-T3_cored_iso_M2_kt0.5,3,cored_iso_M2,kt0.5,1,4,0,iso,0.0,,2,0.5,cored iso k_t 0.5,"value: the parent's DF within the goal, read by the package's rule"
-T3_cored_iso_M2_kt0.2,3,cored_iso_M2,kt0.2,1,4,0,iso,0.0,,2,0.2,cored iso k_t 0.2,"value: the parent's DF within the goal, read by the package's rule"
-T3_cored_iso_M2_kt0.05,3,cored_iso_M2,kt0.05,1,4,0,iso,0.0,,2,0.05,cored iso k_t 0.05,"value: the parent's DF within the goal, read by the package's rule"
-T3_cored_iso_M2_kt0.01,3,cored_iso_M2,kt0.01,1,4,0,iso,0.0,,2,0.01,cored iso k_t 0.01,"value: the parent's DF within the goal, read by the package's rule"
-T3_cored_iso_M2_kt0.002,3,cored_iso_M2,kt0.002,1,4,0,iso,0.0,,2,0.002,cored iso k_t 0.002,"value: the parent's DF within the goal, read by the package's rule"
+T3_cored_iso_M2_kt0.5,3,cored_iso_M2,kt0.5,1,4,0,iso,0.0,,2,0.5,cored iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.2,3,cored_iso_M2,kt0.2,1,4,0,iso,0.0,,2,0.2,cored iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.05,3,cored_iso_M2,kt0.05,1,4,0,iso,0.0,,2,0.05,cored iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.01,3,cored_iso_M2,kt0.01,1,4,0,iso,0.0,,2,0.01,cored iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.002,3,cored_iso_M2,kt0.002,1,4,0,iso,0.0,,2,0.002,cored iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
 T3_cored_b-0.50_M1_kt0.5,3,cored_b-0.50_M1,kt0.5,1,4,0,constant,-0.5,,1,0.5,,value
 T3_cored_b-0.50_M1_kt0.2,3,cored_b-0.50_M1,kt0.2,1,4,0,constant,-0.5,,1,0.2,,value
 T3_cored_b-0.50_M1_kt0.05,3,cored_b-0.50_M1,kt0.05,1,4,0,constant,-0.5,,1,0.05,,value
@@ -458,11 +475,11 @@ T3_steep_iso_M1_kt0.2,3,steep_iso_M1,kt0.2,1,4,1.5,iso,0.0,,1,0.2,,value
 T3_steep_iso_M1_kt0.05,3,steep_iso_M1,kt0.05,1,4,1.5,iso,0.0,,1,0.05,,value
 T3_steep_iso_M1_kt0.01,3,steep_iso_M1,kt0.01,1,4,1.5,iso,0.0,,1,0.01,,value
 T3_steep_iso_M1_kt0.002,3,steep_iso_M1,kt0.002,1,4,1.5,iso,0.0,,1,0.002,,value
-T3_steep_iso_M2_kt0.5,3,steep_iso_M2,kt0.5,1,4,1.5,iso,0.0,,2,0.5,steep iso k_t 0.5,"value: the parent's DF within the goal, read by the package's rule"
-T3_steep_iso_M2_kt0.2,3,steep_iso_M2,kt0.2,1,4,1.5,iso,0.0,,2,0.2,steep iso k_t 0.2,"value: the parent's DF within the goal, read by the package's rule"
-T3_steep_iso_M2_kt0.05,3,steep_iso_M2,kt0.05,1,4,1.5,iso,0.0,,2,0.05,steep iso k_t 0.05,"value: the parent's DF within the goal, read by the package's rule"
-T3_steep_iso_M2_kt0.01,3,steep_iso_M2,kt0.01,1,4,1.5,iso,0.0,,2,0.01,steep iso k_t 0.01,"value: the parent's DF within the goal, read by the package's rule"
-T3_steep_iso_M2_kt0.002,3,steep_iso_M2,kt0.002,1,4,1.5,iso,0.0,,2,0.002,steep iso k_t 0.002,"value: the parent's DF within the goal, read by the package's rule"
+T3_steep_iso_M2_kt0.5,3,steep_iso_M2,kt0.5,1,4,1.5,iso,0.0,,2,0.5,steep iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.2,3,steep_iso_M2,kt0.2,1,4,1.5,iso,0.0,,2,0.2,steep iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.05,3,steep_iso_M2,kt0.05,1,4,1.5,iso,0.0,,2,0.05,steep iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.01,3,steep_iso_M2,kt0.01,1,4,1.5,iso,0.0,,2,0.01,steep iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.002,3,steep_iso_M2,kt0.002,1,4,1.5,iso,0.0,,2,0.002,steep iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
 T3_steep_b-0.50_M1_kt0.5,3,steep_b-0.50_M1,kt0.5,1,4,1.5,constant,-0.5,,1,0.5,,value
 T3_steep_b-0.50_M1_kt0.2,3,steep_b-0.50_M1,kt0.2,1,4,1.5,constant,-0.5,,1,0.2,,value
 T3_steep_b-0.50_M1_kt0.05,3,steep_b-0.50_M1,kt0.05,1,4,1.5,constant,-0.5,,1,0.05,,value

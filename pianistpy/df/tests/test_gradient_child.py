@@ -1,11 +1,16 @@
-r"""Tests of the DF table's derivative on a Method II child.
+r"""Tests of `table_jacobian` and `make_inversion_table` on Method II children.
 
-S_E1's parent (NFW isotropic, truncated at
-:math:`\mathcal{K}_{\rm t} = 0.0079589980165958`) and two children on it,
-COM Type I (-0.2, 1.8) and OM Type I (:math:`R_{\rm a} = 5`): the rule
-against central differences of the child solve on the grid held at theta
-(Richardson over two steps), the values against the solve's bit for bit, and
-the VJP against the rule.
+The parent is the isotropic NFW model truncated at the energy
+:math:`\mathcal{K}_{\rm t} = 0.0079589980165958` in internal units. Two
+Method II children use the parent's truncated profile: a COM Type I child
+with :math:`\beta_{\rm c} = -0.2` and :math:`R_{\rm a} = 1.8`, and an OM
+Type I child with :math:`R_{\rm a} = 5`. The tests check three properties of
+each child. The values from `table_jacobian` equal the values of the child's
+solve bit for bit. The derivatives from `table_jacobian` match a Richardson
+extrapolation of central differences of the child's solve, with the grid
+held at the child's own parameters. The vector-Jacobian product of
+`make_inversion_table` equals the transpose of the derivatives from
+`table_jacobian`.
 """
 
 import numpy as np
@@ -29,9 +34,12 @@ from pianistpy.exceptions import InputError
 from pianistpy.profiles import DoublePowerLaw
 from pianistpy.settings import Settings
 
+pytestmark = pytest.mark.slow
+
 K_T = 0.0079589980165958
-# the transpose held to the bit is a property of a fixed reduction order,
-# which a GPU does not promise; there the accuracy grid judges
+# A transpose that is reproduced to the bit requires a fixed order of
+# floating-point reductions, which a GPU does not guarantee. On a GPU the
+# accuracy grid judges the derivative instead of this bitwise test.
 CPU_ONLY = pytest.mark.skipif(
     platform() != "cpu",
     reason="deterministic recomputation, a property of a fixed reduction order; "
@@ -68,8 +76,10 @@ def test_the_values_are_the_solve(child):
 
 
 def test_the_rule_against_the_frozen_grid(child):
-    # the solve at theta +- h and +- h/2 on the grid and kept nodes held at
-    # theta, Richardson, h = 1e-3
+    # The reference derivative in each parameter theta is the Richardson
+    # extrapolation of two central differences, with steps h = 1e-3 and
+    # h/2 = 5e-4. Each difference solves the child at theta + h and theta - h
+    # on the grid and the kept nodes of the child's solve at theta.
     c, values, jac, _ = child
     s = Settings()
     held = _child_held(c, s)
@@ -92,7 +102,9 @@ def test_the_rule_against_the_frozen_grid(child):
             )
             diff[h] = {k: (up[k] - dn[k]) / (2 * h) for k in up}
         rich = {k: (4 * diff[5e-4][k] - diff[1e-3][k]) / 3 for k in diff[1e-3]}
-        # every row, in beta_c the rows' exponent part at its measured step
+        # The derivative of log_df is compared at every row. In beta_c the
+        # derivative from `table_jacobian` includes the rows' exponent part,
+        # differenced at the step that `table_jacobian` measured.
         np.testing.assert_allclose(
             jac[theta]["log_df"], rich["log_df"], rtol=1e-6, atol=1e-6
         )

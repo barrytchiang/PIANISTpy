@@ -3,38 +3,46 @@ Radial velocity dispersion
 
 :func:`pianistpy.sigma_r`, :class:`pianistpy.LosTable`
 
-``sigma_r(source, r)`` returns the intrinsic radial velocity dispersion :math:`\sigma_{\rm r}` at 3D radii: the second
-moment of the radial velocity over the model's distribution function at a fixed radius. As in |paper|, it is
-the velocity moment of the augmented density :math:`\varrho_{\rm aug}(P, R)` taken at the potential of the radius,
+``sigma_r(source, r)`` returns the intrinsic radial velocity dispersion :math:`\sigma_{\rm r}` at user-specified 3D radii.
+:math:`\sigma_{\rm r}^2` is the second moment of the radial velocity over the model's distribution function at a
+fixed radius. As in |paper|, :math:`\sigma_{\rm r}^2` is the velocity moment of the augmented density
+:math:`\varrho_{\rm aug}`, integrated over the energy :math:`\mathcal{K}` up to the relative potential
+:math:`P = P(R)` at the radius :math:`R`,
 
 .. math::
 
    \sigma_{\rm r}^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
-   {\rm d}\mathcal{K}, \qquad P = P(R),
+   {\rm d}\mathcal{K}, \qquad P = P(R).
 
-which for the anisotropy models of the package, whose augmented density separates as
-:math:`\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)`, is the Jeans integral of :math:`\varrho_{\rm aux}`
-over the potential. The radius :math:`R` of |paper| is ``r`` in the package.
+For the anisotropy models of the package, the augmented density separates as
+:math:`\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)`, with :math:`\varrho_{\rm aux}` the auxiliary density
+and :math:`g` the anisotropy factor (``Anisotropy.factor``). :math:`\sigma_{\rm r}^2` is then the Jeans integral of
+:math:`\varrho_{\rm aux}` over the potential. The radius :math:`R` of |paper| is ``r`` in the package.
 
 Arguments and units
 -------------------
 
-``source`` is a :class:`~pianistpy.Model` (one component, or a superposition) or its prepared
-:class:`~pianistpy.LosTable`, which holds the same intrinsic profile. ``r`` is an array of radii in the model's
-unit system: internal units by default (the scale radius is 1), parsecs (a float or an Astropy quantity) after
-``model.to("physical", ...)``. The result has the shape of ``r``, in the model's velocity unit (km/s in the
-physical system).
+- ``source`` is a :class:`~pianistpy.Model` (one component, or a superposition) or the model's
+  line-of-sight table (:class:`~pianistpy.LosTable`), which holds the same intrinsic profile.
+- ``r`` is an array of 3D radii in the model's unit system. In the internal and the model systems, the unit of ``r``
+  is the scale radius. After ``model.to("physical", ...)``, ``r`` is in parsecs, or an Astropy quantity of any
+  length unit.
+- The result has the shape of ``r``, in the model's velocity unit (km/s in the physical system).
 
-Of a superposition, whose components share one density, the second moments add with the weights:
+The members of a superposition, Method II models of one parent, share one density, so the members' second moments
+add with the weights:
 :math:`\sigma_{\rm r}^2 = \sum_k w_k \sigma_{{\rm r},k}^2`.
 
-Tiers
------
+Accuracy
+--------
 
-The profile is tabulated once per model in radius, with rows added until every interval between rows reads
-within ``profile_tolerance`` at its midpoint (:math:`10^{-7}` at the default tier, :math:`10^{-6}` at the quick tier; a tenth of the
-goal, the profile's share of the error of what is projected from it). A model beyond the hard limit is refused
-unless its settings ask for it (``write_anyway``), as for every observable (:doc:`accuracy`).
+The profile is tabulated in radius once per model. Radii are added to the profile until :math:`\sigma_{\rm r}` at
+the midpoint of every interval between the profile's radii is within a relative ``profile_tolerance``:
+:math:`10^{-7}` with the default settings and :math:`10^{-6}` with ``Settings(quick=True)``. The default value of
+``profile_tolerance``, :math:`10^{-7}`, is a tenth of :math:`10^{-6}`, so the profile adds little to the error of the
+projected quantities computed from the profile. As for every observable, a model whose relative error is above
+:math:`10^{-2}` raises :class:`~pianistpy.AccuracyError`, unless the model's settings set ``write_anyway=True``
+(:doc:`accuracy`).
 
 Example
 -------

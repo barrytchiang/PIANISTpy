@@ -50,7 +50,8 @@ def test_gradient_through_the_anisotropy_factor_in_beta_c():
 
     a = Anisotropy(beta_c=0.3)
     grad = jax.grad(g)(a)
-    # d/d beta_c of 2^(-2 beta_c) = -2 ln 2 2^(-2 beta_c)
+    # The derivative of 2^(-2 beta_c) with respect to beta_c is
+    # -2 ln(2) 2^(-2 beta_c).
     assert float(grad.beta_c) == pytest.approx(
         -2.0 * math.log(2.0) * 2.0**-0.6, rel=1e-12
     )
@@ -79,9 +80,9 @@ def test_jit_retraces_on_the_family_not_on_the_values():
     assert len(calls) == 1
     g(Anisotropy(beta_c=0.1, r_a=5.0), r)
     assert len(calls) == 2
-    # beta_c traced, the power is XLA's, not NumPy's: at rounding (measured on
-    # the CPU, 4000 radii 1e-3 to 1e3 and five beta_c: up to 8 ulp, 86 percent
-    # to the bit; the form g = R^(-2 beta_c) u^(-s) the same, up to 7 ulp)
+    # With beta_c traced, XLA computes the power instead of NumPy, so the two
+    # factors agree at the level of rounding, not bit for bit; the comparison
+    # allows 16 units in the last place of the NumPy factor.
     got = np.asarray(g(Anisotropy(beta_c=0.1, r_a=5.0), r))
     want = Anisotropy(beta_c=0.1, r_a=5.0).factor(np.asarray([0.5, 2.0]))
     assert np.all(np.abs(got - want) <= 16 * np.spacing(np.abs(want)))

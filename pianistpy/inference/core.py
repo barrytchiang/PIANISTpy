@@ -1,17 +1,32 @@
-"""The log-likelihood of a model against data.
+r"""The log-likelihood of a model against measured data.
 
-The observables a model predicts are read on the host once, as tables over
-projected radius; the likelihood is a JAX function of the parameters that
-enter after them: the weights of the components and the scales of the
-units. `likelihood` returns that function, prepared; `log_likelihood` is its
-value at the model as it stands.
+A user stores each set of measurements in a `Data` and calls `likelihood` on
+a model and the data. `likelihood` computes the projected tables of the
+model once and returns a `Likelihood`, a JAX function of the component
+weights, of the mass and length scales and, for chosen components, of the
+anisotropy parameters. `log_likelihood` returns the value of the
+log-likelihood at the model's own weights and scales.
 
-A projected radius in the data's units is ``R = L l x``, with ``x`` in
-internal units, and a speed is ``v = V (m / l)^(1/2) u``, with ``u`` in
-internal units: ``L`` and ``V`` are the factors of the model's units, and
-``m`` and ``l`` the mass and the length scale relative to the model's own
-(one there). In the physical system the scales are the mass M_0 in solar
-masses and the radius r_0 in parsecs, as `Model.to` takes them.
+For measured values :math:`d`, model values :math:`m` and the covariance
+matrix :math:`C` of the errors (diagonal, with :math:`C_{ii} = e_i^2`, for
+independent errors :math:`e_i`), the log-likelihood of one `Data` is
+
+.. math::
+
+    \ln \mathcal{L} = -\frac{1}{2} (d - m)^{\rm T} C^{-1} (d - m)
+    - \frac{1}{2} \ln \det (2 \pi C),
+
+and the log-likelihoods of several `Data` are summed. A projected radius in
+the units of the data is :math:`R = L\,l\,x`, with :math:`x` the projected
+radius in internal units, :math:`L` the length factor of the unit system of
+the data and :math:`l` the length scale divided by the model's own length
+scale. A velocity in the units of the data is
+:math:`v = V (\mu / l)^{1/2} u`, with :math:`u` the velocity in internal units,
+:math:`V` the velocity factor of the unit system of the data and :math:`\mu`
+the mass scale divided by the model's own mass scale. In the physical
+system the mass scale is :math:`M_0` in solar masses and the length scale
+is :math:`r_0` in parsecs, as `Model.to` takes them. Notes Section T:7.4
+derives the likelihood.
 """
 
 __all__ = ["OBSERVABLES", "Data", "Likelihood", "likelihood", "log_likelihood"]
@@ -42,11 +57,13 @@ from ..observables._differentiable import (
     _free_reading,
     refuse_unless_free,
 )
+from ..observables._projection import dispersion_table_reader
 from ..observables.aperture import Aperture
 from ..observables.stages import (
     END_TOLERANCE,
     INNER_DISK_TOLERANCE,
     TINY,
+    DispersionProfile,
     GaussHermiteTable,
     ProjectedDispersion,
     aperture_losvd,
@@ -69,51 +86,114 @@ from . import _binned
 from ._binned import BINNED
 
 RESULT_KIND = "data"
-# Gauss-Hermite moments of the line-of-sight velocity distribution.
+# The observables h3 and h4 are the Gauss-Hermite moments h_3 and h_4 of the
+# line-of-sight velocity distribution; their values are dimensionless.
 MOMENTS = ("h3", "h4")
 OBSERVABLES = ("sigma_los", "sigma_los_aperture") + BINNED + MOMENTS
 
 
 @dataclass(frozen=True)
 class Data:
-    """Measurements of one observable, with their errors.
+    r"""Measurements of one observable, with their errors.
+
+    A `Data` holds one set of measured values, the projected radii,
+    apertures or 3D radius at which the values were measured, and the
+    errors of the values. `likelihood` compares a model with one `Data` or
+    with several.
 
     Parameters
     ----------
     observable : str
-        One of ``"sigma_los"``, ``"sigma_los_aperture"``, ``"losvd"``,
-        ``"losvd_aperture"``, ``"pdf_v"``, ``"h3"`` and ``"h4"``. What was
-        measured: the line-of-sight dispersion at projected radii, or
-        averaged over apertures (weighted by the surface density); or a
-        binned distribution of velocity: the line-of-sight velocity
-        distribution at one projected radius or in one aperture, or the
-        local speed distribution at one 3D radius; or a Gauss-Hermite
-        moment of the line-of-sight velocity distribution at projected radii
-        or inside apertures (`gauss_hermite_moments`; dimensionless).
+        The measured quantity, one of seven observables. ``"sigma_los"``
+        is the line-of-sight velocity dispersion :math:`\sigma_{\rm los}`
+        at user-specified projected radii. ``"sigma_los_aperture"`` is
+        :math:`\sigma_{\rm los}` averaged over each aperture with the
+        surface density as the weight.
+        ``"losvd"`` is the binned line-of-sight velocity distribution at one
+        projected radius, and ``"losvd_aperture"`` the binned line-of-sight
+        velocity distribution in one aperture. ``"pdf_v"`` is the binned
+        local velocity distribution at one 3D radius. ``"h3"`` and ``"h4"`` are
+        the Gauss-Hermite moments :math:`h_3` and :math:`h_4` of the
+        line-of-sight velocity distribution at user-specified projected
+        radii or in apertures.
     values : array-like, shape (n,)
-        The measured values. For a binned distribution, the share of the
-        distribution inside the window ``[v_edges[0], v_edges[-1]]`` that
-        falls in each bin.
+        The measured values. A value of ``"sigma_los"`` or
+        ``"sigma_los_aperture"`` is a dispersion in the velocity unit of
+        `unit_system`. A value of ``"losvd"``, ``"losvd_aperture"`` or
+        ``"pdf_v"`` is the fraction of the distribution inside the
+        user-specified range ``[v_edges[0], v_edges[-1]]`` that falls in one
+        bin. A value of ``"h3"`` or ``"h4"`` is dimensionless.
     r_2d : array-like, shape (n,), optional
-        The projected radii, for ``"sigma_los"`` and for moments at radii;
-        one radius for ``"losvd"``.
+        User-specified projected radii :math:`R_{\rm 2D}`, positive, in the
+        length unit of `unit_system`: one projected radius per value for
+        ``"sigma_los"``, ``"h3"`` and ``"h4"``, and one projected radius for
+        ``"losvd"``. Default: ``None``, which means no projected radii, as
+        ``"sigma_los_aperture"``, ``"losvd_aperture"`` and ``"pdf_v"`` take.
     apertures : sequence of Aperture, optional
-        The apertures, for ``"sigma_los_aperture"`` and for moments over
-        apertures, their lengths in the units of the data; one aperture for
-        ``"losvd_aperture"``.
+        The apertures, with lengths in the length unit of `unit_system`: one
+        aperture per value for ``"sigma_los_aperture"``, ``"h3"`` and
+        ``"h4"``, and one aperture for ``"losvd_aperture"``. Default:
+        ``()``, which means no apertures.
     errors : array-like, shape (n,), optional
-        The standard deviations of independent errors.
+        The standard deviation of the error of each value, positive, for
+        independent errors. Exactly one of `errors` and `covariance` is
+        given. Default: ``None``, which means `covariance` gives the errors.
     covariance : array-like, shape (n, n), optional
-        The covariance of the errors, in place of `errors`.
-    unit_system : {"internal", "model", "physical"}
-        The units of the data: in the physical system radii in parsecs and
-        speeds in kilometers per second. A model is compared in the same
-        system.
+        The covariance matrix of the errors, symmetric. `likelihood`
+        requires the covariance matrix to be positive definite as well.
+        Default: ``None``, which means `errors` gives the errors.
+    unit_system : {"internal", "model", "physical"}, optional
+        The unit system of the data. In the physical system a length is in
+        parsecs and a velocity in kilometers per second. `likelihood`
+        compares a model only in the unit system of the data. Default:
+        ``"internal"``, which means internal units.
     v_edges : array-like, shape (n + 1,), optional
-        The edges of the bins of a binned distribution, increasing; speeds
-        of ``"pdf_v"`` not negative.
+        The bin edges of ``"losvd"``, ``"losvd_aperture"`` or ``"pdf_v"``,
+        increasing, in the velocity unit of `unit_system`. The first edge of
+        ``"pdf_v"`` is not negative. Default: ``None``, which means no bins;
+        ``"losvd"``, ``"losvd_aperture"`` and ``"pdf_v"`` require `v_edges`.
     r : array-like, shape (1,), optional
-        The 3D radius of ``"pdf_v"``.
+        The 3D radius of ``"pdf_v"``, positive, in the length unit of
+        `unit_system`. Default: ``None``, which means no 3D radius;
+        ``"pdf_v"`` requires `r`.
+
+    Raises
+    ------
+    InputError
+        If `observable` is not one of the seven observables, or
+        `unit_system` is not one of the three unit systems.
+    InputError
+        If `values` is not a non-empty one-dimensional array.
+    InputError
+        If a field that `observable` requires (`r_2d`, `apertures`,
+        `v_edges` or `r`) is missing, has the wrong length or holds a
+        radius that is not positive, or if a field that `observable` does
+        not take is given.
+    InputError
+        If `v_edges` is not increasing, or the first edge of ``"pdf_v"`` is
+        negative.
+    InputError
+        If both `errors` and `covariance` are given or neither is given, if
+        an error is not positive, or if `covariance` is not a symmetric
+        matrix of n rows and n columns.
+
+    See Also
+    --------
+    likelihood : The log-likelihood of a model against one or several `Data`.
+    log_likelihood : The log-likelihood at the model's own weights and scales.
+    Aperture : An aperture of ``"sigma_los_aperture"``, ``"losvd_aperture"``,
+        ``"h3"`` or ``"h4"``.
+
+    Examples
+    --------
+    >>> import pianistpy as pp
+    >>> data = pp.Data(
+    ...     "sigma_los", [0.30, 0.25], r_2d=[0.5, 1.0], errors=[0.01, 0.01]
+    ... )
+    >>> data.values.shape
+    (2,)
+    >>> data.unit_system
+    'internal'
     """
 
     observable: str
@@ -129,84 +209,143 @@ class Data:
     def __post_init__(self) -> None:
         if self.observable not in OBSERVABLES:
             raise InputError(
-                f"observable must be one of {OBSERVABLES}; got {self.observable!r}."
+                f"The observable of Data must be one of {OBSERVABLES}; the value "
+                f"given is {self.observable!r}."
             )
         if self.unit_system not in SYSTEMS:
             raise InputError(
-                f"unit_system must be one of {SYSTEMS}; got {self.unit_system!r}."
+                f"The unit system of Data must be one of {SYSTEMS}; the value "
+                f"given is {self.unit_system!r}."
             )
         values = np.asarray(self.values, dtype=np.float64)
         if values.ndim != 1 or values.size == 0:
-            raise InputError("values must be a non-empty one-dimensional array.")
+            raise InputError(
+                "The values of Data must be a non-empty one-dimensional array."
+            )
         object.__setattr__(self, "values", values)
         n = values.size
         binned = self.observable in BINNED
         if binned:
             if self.v_edges is None:
-                raise InputError(f"{self.observable} data take v_edges.")
+                raise InputError(
+                    f"Data of the observable {self.observable} need v_edges, the "
+                    "edges of the velocity bins."
+                )
             edges = np.asarray(self.v_edges, dtype=np.float64)
             if edges.shape != (n + 1,) or not np.all(np.diff(edges) > 0.0):
-                raise InputError(f"v_edges must hold {n + 1} increasing velocities.")
+                raise InputError(
+                    f"The velocity bin edges v_edges must be {n + 1} increasing "
+                    "velocities, one more than the number of values."
+                )
             if self.observable == "pdf_v" and edges[0] < 0.0:
-                raise InputError("The speeds of pdf_v data are not negative.")
+                raise InputError(
+                    "The velocity bin edges of pdf_v data are velocity magnitudes "
+                    "and must not be negative; the first edge given is negative."
+                )
             object.__setattr__(self, "v_edges", edges)
         elif self.v_edges is not None or self.r is not None:
-            raise InputError(f"{self.observable} data take no v_edges and no r.")
+            raise InputError(
+                f"Data of the observable {self.observable} take neither v_edges nor r: "
+                "v_edges belong to the binned observables, and r belongs to pdf_v."
+            )
         if self.observable == "pdf_v":
             if self.r is None or self.r_2d is not None or self.apertures:
-                raise InputError("pdf_v data take r and no r_2d or apertures.")
+                raise InputError(
+                    "Data of the observable pdf_v need r, the 3D radius, and take "
+                    "neither r_2d nor apertures."
+                )
             r = np.asarray(self.r, dtype=np.float64).reshape(-1)
             if r.shape != (1,) or not r[0] > 0.0:
-                raise InputError("r must hold one positive radius.")
+                raise InputError(
+                    "The 3D radius r of pdf_v data must be one positive radius."
+                )
             object.__setattr__(self, "r", r)
         elif self.r is not None:
-            raise InputError(f"{self.observable} data take no r.")
+            raise InputError(
+                f"Data of the observable {self.observable} take no 3D radius r; only "
+                "pdf_v data take r."
+            )
         elif self.observable in ("sigma_los", "losvd") or (
             self.observable in MOMENTS and self.r_2d is not None
         ):
             m = 1 if binned else n
             if self.r_2d is None or self.apertures:
-                raise InputError(f"{self.observable} data take r_2d and no apertures.")
+                raise InputError(
+                    f"Data of the observable {self.observable} need the projected "
+                    "radii r_2d and take no apertures."
+                )
             r_2d = np.asarray(self.r_2d, dtype=np.float64).reshape(-1)
             if r_2d.shape != (m,) or not np.all(r_2d > 0.0):
-                raise InputError(f"r_2d must hold {m} positive radii.")
+                raise InputError(
+                    f"The projected radii r_2d must be {m} positive radii."
+                )
             object.__setattr__(self, "r_2d", r_2d)
         else:
             m = 1 if binned else n
             if self.r_2d is not None or len(self.apertures) != m:
                 raise InputError(
-                    f"{self.observable} data take {m} apertures"
+                    f"Data of the observable {self.observable} need {m} apertures"
                     + (
-                        f" or {m} projected radii."
+                        f" or {m} projected radii r_2d."
                         if self.observable in MOMENTS
-                        else " and no r_2d."
+                        else " and take no projected radii r_2d."
                     )
                 )
             if not all(isinstance(a, Aperture) for a in self.apertures):
-                raise InputError("apertures must be Aperture objects.")
+                raise InputError("Every entry of apertures must be an Aperture object.")
             object.__setattr__(self, "apertures", tuple(self.apertures))
         if (self.errors is None) == (self.covariance is None):
-            raise InputError("Give errors or covariance, not both.")
+            raise InputError(
+                "Data need exactly one of errors and covariance; the values given set "
+                "both or neither."
+            )
         if self.errors is not None:
             errors = np.asarray(self.errors, dtype=np.float64)
             if errors.shape != (n,) or not np.all(errors > 0.0):
-                raise InputError(f"errors must hold {n} positive values.")
+                raise InputError(
+                    f"The errors of Data must be {n} positive values, one for each "
+                    "value."
+                )
             object.__setattr__(self, "errors", errors)
         else:
             covariance = np.asarray(self.covariance, dtype=np.float64)
             if covariance.shape != (n, n) or not np.allclose(
                 covariance, covariance.T, rtol=0.0, atol=0.0
             ):
-                raise InputError(f"covariance must be a symmetric {n} by {n} matrix.")
+                raise InputError(
+                    f"The covariance of Data must be a symmetric {n} by {n} matrix, "
+                    "one row and one column for each value."
+                )
             object.__setattr__(self, "covariance", covariance)
 
     @property
     def identity(self) -> str:
-        """The identity string of the data: a digest of everything it holds."""
+        """The identity string of the data, a digest of every field of the data."""
         return identity_string(_data_record(self), {}, __version__)
 
     def write(self, path: str | os.PathLike, overwrite: bool = False) -> None:
-        """Write the data to a file; `pianistpy.read` reads it back."""
+        """Write the data to an HDF5 file, which `pianistpy.read` reads back.
+
+        Parameters
+        ----------
+        path : str or path-like
+            The path of the HDF5 file to write.
+        overwrite : bool, optional
+            Whether to replace an existing file at `path`. Default:
+            ``False``, which means an existing file at `path` raises
+            `InputError`.
+
+        Raises
+        ------
+        InputError
+            If a file exists at `path` and `overwrite` is false.
+        ResultError
+            If the written file does not read back as the data.
+
+        See Also
+        --------
+        pianistpy.read : Read a result file, a file of `Data` included.
+        """
         arrays = {"values": self.values}
         for name in ("r_2d", "errors", "covariance", "v_edges", "r"):
             if getattr(self, name) is not None:
@@ -225,7 +364,8 @@ register_result(Data, ("values", "r_2d", "errors", "covariance", "v_edges", "r")
 
 
 def _data_record(data: Data) -> dict[str, Any]:
-    """The dictionary form of data, with its arrays as lists."""
+    """The dictionary form of `data`, with every array as a list, from which
+    the identity string of `data` is computed."""
 
     def plain(value: Any) -> Any:
         return None if value is None else np.asarray(value).tolist()
@@ -239,8 +379,9 @@ def _data_record(data: Data) -> dict[str, Any]:
         "errors": plain(data.errors),
         "covariance": plain(data.covariance),
     }
-    # a binned distribution's own fields, only where it has them: the
-    # identity of every other Data is as before
+    # The fields v_edges and r enter the record only where the data hold
+    # them, so that the identity string of data without bins depends only on
+    # observable, unit_system, apertures, values, r_2d, errors and covariance.
     for name in ("v_edges", "r"):
         if getattr(data, name) is not None:
             record[name] = plain(getattr(data, name))
@@ -248,11 +389,12 @@ def _data_record(data: Data) -> dict[str, Any]:
 
 
 def _read_data(source: StoredResult | str | os.PathLike) -> Data:
-    """Return data from a result file or from a stored result."""
+    """Return the `Data` stored in a result file or in a stored result."""
     stored = load_result(source)
     if stored.kind != RESULT_KIND:
         raise ResultError(
-            f"The result is of kind {stored.kind!r}, not {RESULT_KIND!r}."
+            f"The stored result read is of kind {stored.kind!r}; Data are read only "
+            f"from a result of kind {RESULT_KIND!r}."
         )
     arrays = stored.arrays
     return Data(
@@ -273,27 +415,38 @@ register_reader(RESULT_KIND, _read_data)
 
 @dataclass(frozen=True)
 class _Table:
-    """One component's projected table: its result, read in JAX by
-    `ProjectedDispersion.read_traced`, and the host reading of its surface
-    density, on which the aperture nodes are laid."""
+    """The projected table of one component, with the reader of the
+    component's surface density and the reader of the component's squared
+    line-of-sight dispersion. The likelihood evaluates both readers in JAX,
+    as `ProjectedDispersion.read_traced` evaluates them, and places the
+    aperture nodes on the surface density reader."""
 
     projected: ProjectedDispersion
     surface: Any
+    square: Any
+    # The intrinsic dispersion profile from which `projected` was computed is
+    # kept where `_table` computed the profile, so that the binned
+    # distributions read the profile instead of computing the profile again.
+    profile: DispersionProfile | None = None
 
     def read(self, x: Array) -> tuple[Array, Array]:
-        """The surface density and the squared dispersion at internal radii,
-        zero beyond the last row, the first rows' cubics continued inside the
-        first row."""
-        surface, square = self.projected.read_traced(x, jnp)
-        return surface[0], square[0]
+        """Return the surface density and the squared line-of-sight
+        dispersion at the internal projected radii `x`, as JAX arrays. Both
+        readings are zero beyond the outermost tabulated radius, and inside
+        the innermost tabulated radius both readings continue the cubic of
+        the innermost interval. The preparation in `likelihood` rejects or
+        moves every radius outside the tabulated radii before `_Table.read`
+        receives the radius."""
+        return self.surface.traced(x, jnp), self.square.traced(x, jnp)
 
 
 @jax.custom_vjp
 def _not_carried(length: Array) -> Array:
-    """Zero, whose gradient in the length scale is NaN: the binned
-    distributions hold the length scale at the model's own and carry no
-    gradient in it, which a caller then reads as not a number rather than as
-    a number."""
+    """Return zero, with a gradient of NaN in the length scale. The binned
+    distributions are computed at the model's own length scale and carry
+    no gradient in the length scale, so the likelihood adds `_not_carried`
+    of the length scale: a caller then reads the gradient in the length
+    scale as NaN instead of as a wrong number."""
     return jnp.zeros_like(length)
 
 
@@ -309,20 +462,25 @@ _not_carried.defvjp(_not_carried_forward, _not_carried_backward)
 
 
 def _square(breaks: Array, coefficients: Array, x: Array, x_end: float) -> Array:
-    """`DispersionReading.traced` on a padded table: clipped at zero, zero
-    beyond the last row."""
+    """Return the squared dispersion of a padded spline table at the internal
+    radii `x`, read as `DispersionReading.traced` reads a dispersion table.
+    The value is NaN
+    where the spline is negative and zero where the logarithm of `x`
+    exceeds `x_end`, the logarithm of the outermost tabulated radius."""
     log_r = jnp.log(jnp.maximum(x, TINY))
     value = spline_value(breaks, coefficients, log_r, jnp)
     value = jnp.where(log_r > x_end, 0.0, value)
-    return jnp.maximum(value, 0.0)
+    return jnp.where(value < 0.0, jnp.nan, value)
 
 
 @dataclass(frozen=True)
 class _Block:
-    """One `Data` prepared: the nodes in internal radius at the model's own
-    scale, for apertures the weight of each node in each measurement (radii
-    are read at their nodes directly), and the Gaussian's terms that do not
-    move."""
+    """One `Data` of dispersions prepared for the likelihood. The block holds
+    the internal radii `x` of the nodes at the model's own length scale; for
+    apertures, the weight `q` of each node in each measurement (a projected
+    radius is read at the projected radius itself, without weights); and the
+    Cholesky factor or the errors and the normalization of the Gaussian,
+    which no parameter of the likelihood changes."""
 
     x: Array
     q: Array | None
@@ -335,10 +493,12 @@ class _Block:
 
 @dataclass(frozen=True)
 class _BinnedBlock:
-    """One binned distribution prepared: what it is and where, the bins'
-    edges in the data's velocity, each component's share of the mixture
-    there and its distribution's padded sub-panels at its own theta, and the
-    Gaussian's terms that do not move."""
+    """One binned distribution prepared for the likelihood. The block holds
+    the observable, the bin edges in the velocity unit of the data, each
+    component's share of the mixture at the position of the data, each
+    component's distribution as padded velocity intervals `a` to `b` with
+    the Legendre series of the antiderivative on each interval, and the
+    Cholesky factor or the errors and the normalization of the Gaussian."""
 
     kind: str
     v_edges: Array
@@ -354,11 +514,13 @@ class _BinnedBlock:
 
 @dataclass(frozen=True)
 class _Moments:
-    """One `Data` of Gauss-Hermite moments over apertures prepared: for each
-    component and aperture, its distribution on its own velocity nodes
-    mirrored to both signs (padded with zero weights to one length),
-    normalized to unit integral, and its projected mass; the Gaussian's
-    terms that do not move."""
+    """One `Data` of Gauss-Hermite moments in apertures prepared for the
+    likelihood. For each component and each aperture, the block holds the
+    component's velocity distribution in the aperture on the component's
+    own velocity nodes `v`, mirrored to negative velocities, padded with
+    zero weights to one length and normalized to unit integral, and the
+    component's projected mass in the aperture. The block also holds the
+    Cholesky factor or the errors and the normalization of the Gaussian."""
 
     order: int
     v: Array
@@ -371,9 +533,12 @@ class _Moments:
     log_norm: float
 
     def predict(self, weights: Array) -> Array:
-        """The moment of the mixture in each aperture: its distribution the
-        components' weighted by weight and projected mass, its mean and
-        dispersion its own, as `gauss_hermite_moments` takes them."""
+        """Return the Gauss-Hermite moment of the mixture in each aperture.
+        The mixture's velocity distribution is the sum of the components'
+        distributions, each weighted by the component's entry of `weights`
+        times the component's projected mass in the aperture. The moment is
+        taken about the mixture's own mean velocity, in units of the
+        mixture's own dispersion."""
         share = weights[:, None] * self.mass
         share = share / jnp.sum(share, axis=0)
         wd = share[:, :, None] * self.w * self.d
@@ -391,10 +556,13 @@ class _Moments:
 
 @dataclass(frozen=True)
 class _PointMoments:
-    """One `Data` of Gauss-Hermite moments at projected radii prepared, on a
-    model of one component: its moments' table in radius
-    (`gauss_hermite_table`), read in JAX at the radii the length scale moves
-    (``x = R / (L l)``), and the Gaussian's terms that do not move."""
+    """One `Data` of Gauss-Hermite moments at projected radii prepared for the
+    likelihood, on a model of one component. The block holds the table of
+    the model's moments over projected radius (`gauss_hermite_table`), the
+    internal radii `x` of the data at the model's own length scale (a length
+    scale l reads the table at x = R / (L l)), the innermost radius `r_min`
+    of the table, and the Cholesky factor or the errors and the
+    normalization of the Gaussian."""
 
     key: str
     table: GaussHermiteTable
@@ -410,34 +578,69 @@ class _PointMoments:
 class Likelihood:
     r"""The log-likelihood of a model against data, as a JAX function.
 
-    Built by `likelihood`. Called with the weights of the components and the
-    scales of the units, it returns the Gaussian log-likelihood, traceable
-    and differentiable in both.
+    `likelihood` builds a `Likelihood`. A call of a `Likelihood` with the
+    component weights, the mass and length scales and, for free components,
+    the anisotropy parameters returns the Gaussian log-likelihood. JAX can
+    compile the call and differentiate the call in each argument.
 
     Attributes
     ----------
     tables : tuple
         The projected table of each component, read in JAX.
     blocks : tuple
-        Each `Data`, prepared.
+        Each `Data` of dispersions or Gauss-Hermite moments, prepared.
     weights : array, shape (n_components,)
-        The model's own weights (its components' masses).
+        The model's own component weights, which are the masses of the
+        components.
     scale : array, shape (2,)
-        The model's own mass and length scales in the data's units.
-    length, velocity : float
-        The factors of the data's units at the model's own scales.
-    r_min, r_max : float
-        The innermost and outermost projected radius of the tables, in
-        internal units.
+        The model's own mass scale and length scale, in the units of the
+        data.
+    length : float
+        The length factor :math:`L` of the unit system of the data at the
+        model's own scales.
+    velocity : float
+        The velocity factor :math:`V` of the unit system of the data at the
+        model's own scales.
+    r_min : float
+        The innermost projected radius of the tables, in internal units.
+    r_max : float
+        The outermost projected radius of the tables, in internal units.
     free : tuple of int
-        The components whose anisotropy
-        (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`) is a parameter.
+        The indices of the components whose anisotropy parameters
+        (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`) are parameters of the
+        likelihood.
     theta : array, shape (n_free, 2)
-        Their own (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`), in internal units.
+        The model's own (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`) of each
+        free component, in internal units.
     members : tuple
-        Their tables at any theta, on the host.
+        The free components, each with the tables computed at every
+        anisotropy at which the `Likelihood` has been called.
     readings : tuple
-        Their :math:`\sigma_{\rm los}^2` readings as JAX functions of theta.
+        The squared line-of-sight dispersion :math:`\sigma_{\rm los}^2` of
+        each free component, as a JAX function of the component's
+        anisotropy parameters.
+    binned : tuple
+        Each `Data` of ``"losvd"``, ``"losvd_aperture"`` or ``"pdf_v"``,
+        prepared.
+
+    See Also
+    --------
+    likelihood : Build the `Likelihood` of a model against data.
+    log_likelihood : The log-likelihood at the model's own weights and scales.
+    Data : The measurements a `Likelihood` compares with.
+
+    Examples
+    --------
+    >>> import pianistpy as pp
+    >>> model = pp.solve(pp.Component(pp.DoublePowerLaw.hernquist()))
+    >>> data = pp.Data(
+    ...     "sigma_los", [0.30, 0.25], r_2d=[0.5, 1.0], errors=[0.01, 0.01]
+    ... )
+    >>> like = pp.likelihood(model, data)
+    >>> bool(float(like()) > float("-inf"))
+    True
+    >>> float(like(scale=[1.0, -1.0]))
+    -inf
     """
 
     tables: tuple[_Table, ...]
@@ -460,44 +663,66 @@ class Likelihood:
         scale: ArrayLike | None = None,
         theta: ArrayLike | None = None,
     ) -> Array:
-        r"""Return the log-likelihood.
+        r"""Return the log-likelihood at the given parameters.
 
         Parameters
         ----------
         weights : array-like, shape (n_components,), optional
-            Non-negative weights of the components, normalized here; the
-            model's own by default.
+            The component weights, non-negative. The call divides the
+            weights by the sum of the weights. Default: ``None``, which
+            means the model's own component weights.
         scale : array-like, shape (2,), optional
-            The mass and the length scale in the data's units; the model's
-            own by default.
+            The mass scale and the length scale, in the units of the data.
+            Default: ``None``, which means the model's own mass scale and
+            length scale.
         theta : array-like, shape (n_free, 2), optional
-            The (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`) of each free
-            component (`likelihood`'s ``free``), in internal units; their own
-            by default. An isotropic or constant member's :math:`R_{\rm a}`
-            column is held at its own value (infinite), its gradient zero.
+            The anisotropy parameters (:math:`\beta_{\rm c}`,
+            :math:`R_{\rm a}`) of each free component, in the order of
+            `free`, in internal units. For an isotropic or constant-anisotropy
+            component, the :math:`R_{\rm a}` column stays at the component's
+            own value, infinity, and the gradient in the :math:`R_{\rm a}`
+            column is zero. Default: ``None``, which means the free
+            components' own anisotropy parameters.
 
         Returns
         -------
         log_likelihood : scalar array
-            Minus infinity where the weights leave the simplex, a scale is
-            not positive, a projected radius falls inside the tables'
-            first row or where the model has no surface density, or a free
-            component's model at its theta is refused (its gradient there
-            is zero); with Gauss-Hermite data over apertures, where the
-            length scale is not the model's own (the members' distributions
-            are read on the host at the model's own radii until a traced
-            reader of them in radius lands).
+            The Gaussian log-likelihood summed over the data. The value is
+            minus infinity where any of the following conditions holds:
+
+            - a weight is negative, or the sum of the weights is zero;
+            - a scale is not positive;
+            - a projected radius of the data, at the given length scale,
+              lies inside the innermost tabulated projected radius;
+            - the nodes of a measurement carry no surface density;
+            - a free component's :math:`\beta_{\rm c}` is not below 1, the
+              component's :math:`R_{\rm a}` is not positive, or the
+              component's model at the given anisotropy cannot be built (the
+              gradient is then zero);
+            - the data include binned distributions or Gauss-Hermite moments
+              in apertures, and the length scale differs from the model's
+              own length scale, because the distributions of binned data and
+              of moments in apertures are computed at the model's own radii.
+
+        Raises
+        ------
+        InputError
+            If `theta` is given and the `Likelihood` has no free component.
         """
         w = self.weights if weights is None else jnp.asarray(weights, dtype=jnp.float64)
         s = self.scale if scale is None else jnp.asarray(scale, dtype=jnp.float64)
         valid = jnp.all(w >= 0.0) & (jnp.sum(w) > 0.0) & jnp.all(s > 0.0)
-        # Refused values are replaced before they are used, so that neither the
-        # value nor the gradient of the kept branch meets a NaN.
+        # Invalid weights and scales are replaced by the model's own before
+        # the weights and scales are used, so that neither the value nor the
+        # gradient of the valid branch of jnp.where meets a NaN.
         w = jnp.where(valid, w, self.weights)
         s = jnp.where(valid, s, self.scale)
         squares: dict[int, tuple[Array, Array]] = {}
         if theta is not None and not self.free:
-            raise InputError("theta is given, but no component's anisotropy is free.")
+            raise InputError(
+                "The likelihood is called with theta, but no component's anisotropy is "
+                "free in the likelihood."
+            )
         if self.free:
             assert self.theta is not None
             t = (
@@ -513,12 +738,13 @@ class Likelihood:
                 squares[k] = (breaks, coefficients)
         ratio = s / self.scale
         stretch = 1.0 / ratio[1]
-        speed = self.velocity * jnp.sqrt(ratio[0] / ratio[1])
+        velocity = self.velocity * jnp.sqrt(ratio[0] / ratio[1])
         total: Array = 0.0
         for block in self.blocks:
             if isinstance(block, _PointMoments):
-                # Dimensionless: the mass scale leaves them; the length scale
-                # moves the radii they are read at.
+                # Gauss-Hermite moments are dimensionless, so the mass scale
+                # does not change the moments; the length scale moves the
+                # radii at which the moments' table is read.
                 x = block.x * stretch
                 inside = jnp.all(x >= block.r_min * (1.0 - END_TOLERANCE))
                 valid = valid & inside
@@ -527,8 +753,11 @@ class Likelihood:
                 total = total - _gaussian(block, block.values - moment)
                 continue
             if isinstance(block, _Moments):
-                # The moments are dimensionless: the mass scale leaves them,
-                # and the length scale is held at the model's own.
+                # Gauss-Hermite moments are dimensionless, so the mass scale
+                # does not change the moments; the distributions in the
+                # apertures are computed at the model's own length scale, so
+                # any other length scale makes the log-likelihood minus
+                # infinity.
                 valid = valid & (s[1] == self.scale[1])
                 total = total - _gaussian(block, block.values - block.predict(w))
                 continue
@@ -537,9 +766,11 @@ class Likelihood:
                 inside = jnp.all(x >= self.r_min * (1.0 - END_TOLERANCE))
                 valid = valid & inside
                 x = jnp.where(inside, x, block.x)
-            # A node beyond the last row reads zero: it is read at the last row
-            # and zeroed, so that no reader's gradient meets the edge's
-            # logarithm beyond the table (a NaN through the where).
+            # A node beyond the outermost tabulated radius is read at the
+            # outermost tabulated radius and set to zero afterwards. Reading
+            # the node at the node's own radius would evaluate the logarithm
+            # of the edge term beyond the table, whose NaN gradient would pass
+            # through jnp.where.
             beyond = x > self.r_max * (1.0 + END_TOLERANCE)
             x = jnp.where(beyond, self.r_max, x)
             read = [
@@ -560,21 +791,23 @@ class Likelihood:
             mean_square = jnp.where(
                 has_mass, numerator / jnp.where(has_mass, denominator, 1.0), 1.0
             )
-            residual = block.values - speed * jnp.sqrt(mean_square)
+            residual = block.values - velocity * jnp.sqrt(mean_square)
             if block.chol is None:
                 z = residual / block.errors
             else:
                 z = solve_triangular(block.chol, residual, lower=True)
             total = total - 0.5 * jnp.dot(z, z) - block.log_norm
         if self.binned:
-            # The binned distributions hold the length scale at the model's
-            # own: another is refused, and its gradient is not carried.
+            # The binned distributions are computed at the model's own length
+            # scale, so any other length scale makes the log-likelihood minus
+            # infinity, and _not_carried makes the gradient in the length
+            # scale NaN.
             valid = valid & (s[1] == self.scale[1])
             total = total + _not_carried(s[1])
-            speed = self.velocity * jnp.sqrt(ratio[0])
+            velocity = self.velocity * jnp.sqrt(ratio[0])
             for bin_block in self.binned:
                 a, b, series = bin_block.a, bin_block.b, bin_block.series
-                u = bin_block.v_edges / speed
+                u = bin_block.v_edges / velocity
                 cumulative = jnp.stack(
                     [
                         _binned.cumulative(a[k], b[k], series[k], jnp.abs(u))
@@ -582,7 +815,10 @@ class Likelihood:
                     ]
                 )
                 if bin_block.kind != "pdf_v":
-                    # an even distribution: the integral from 0 to u, signed
+                    # The line-of-sight velocity distribution is even in the
+                    # velocity, so the cumulative distribution from 0 to a
+                    # negative edge u is minus the cumulative distribution
+                    # from 0 to -u.
                     cumulative = jnp.sign(u) * cumulative
                 parts = cumulative[:, 1:] - cumulative[:, :-1]
                 inside = (w * bin_block.share) @ parts
@@ -599,8 +835,9 @@ class Likelihood:
 
 
 def _gaussian(block: _Moments | _PointMoments, residual: Array) -> Array:
-    """Minus the Gaussian log-likelihood of residuals: ``r^T C^-1 r / 2`` and
-    the normalization."""
+    """Return minus the Gaussian log-likelihood of the residuals `residual`:
+    r^T C^-1 r / 2 for residuals r and covariance matrix C, plus the
+    normalization `block.log_norm`."""
     if block.chol is None:
         z = residual / block.errors
     else:
@@ -609,7 +846,9 @@ def _gaussian(block: _Moments | _PointMoments, residual: Array) -> Array:
 
 
 def _internal(aperture: Aperture, length: float) -> Aperture:
-    """An aperture in the data's units, in internal units."""
+    """Return `aperture`, given in the length unit of the data, with every
+    length divided by `length`, which gives the aperture in internal
+    units."""
     return replace(
         aperture,
         r_off=aperture.r_off / length,
@@ -620,13 +859,15 @@ def _internal(aperture: Aperture, length: float) -> Aperture:
 
 
 def _factors(model: Model, unit_system: str) -> tuple[float, float, np.ndarray]:
-    """The length and velocity factors of a system at the model's own scales,
-    and those scales."""
+    """Return the length factor and the velocity factor of `unit_system` at
+    the model's own scales, and the model's own mass scale and length scale
+    in `unit_system`."""
     units = model.units
     if units.system != unit_system:
         raise InputError(
-            f"The data are in the {unit_system} system and the model in the "
-            f"{units.system} system; present the model with Model.to."
+            f"The data are in the {unit_system} unit system and the model is in the "
+            f"{units.system} unit system; convert the model to the data's unit "
+            "system with Model.to."
         )
     if unit_system == "internal":
         return 1.0, 1.0, np.ones(2)
@@ -640,9 +881,9 @@ def _factors(model: Model, unit_system: str) -> tuple[float, float, np.ndarray]:
 
 
 def _by_measurement(values: Array, block: _Block) -> Array:
-    """Each component's values at the block's nodes carried to its
-    measurements: read directly for radii, weighted by the aperture weights
-    for apertures."""
+    """Return each component's values at the nodes of `block` carried to the
+    measurements of `block`: the values themselves for projected radii, and
+    the values weighted by the aperture weights `block.q` for apertures."""
     if block.points:
         return values
     assert block.q is not None
@@ -650,20 +891,23 @@ def _by_measurement(values: Array, block: _Block) -> Array:
 
 
 def _block(data: Data, surface: Any, length: float, settings: Settings) -> _Block:
-    """Prepare one `Data`: its nodes, their weights and the Gaussian's terms."""
+    """Return one `Data` of dispersions prepared: the nodes of the data, the
+    weights of the nodes, and the Cholesky factor or the errors and the
+    normalization of the Gaussian."""
     n = data.values.size
     if data.observable == "sigma_los":
         x = np.asarray(data.r_2d) / length
         if np.any(x < surface.r_min * (1.0 - END_TOLERANCE)):
             raise InputError(
-                f"A projected radius lies inside the innermost row of the model's "
-                f"table, {surface.r_min * length:.4e} in the data's units."
+                f"A projected radius of the data lies inside the innermost projected "
+                f"radius of the model's table, {surface.r_min * length:.4e} in the "
+                "data's units."
             )
         if np.any(x > surface.r_max * (1.0 + END_TOLERANCE)):
             raise InputError(
-                f"A projected radius lies beyond the last row of the model's "
-                f"table, {surface.r_max * length:.4e} in the data's units, where "
-                f"it has no surface density."
+                f"A projected radius of the data lies beyond the outermost projected "
+                f"radius of the model's table, {surface.r_max * length:.4e} in the "
+                "data's units, where the model has no surface density."
             )
         q = None
         points = True
@@ -716,8 +960,9 @@ def _block(data: Data, surface: Any, length: float, settings: Settings) -> _Bloc
 
 
 class _Shared:
-    """Each component's kept ranges and table of distributions, built once
-    for every Data of one likelihood, where the first of them needs it."""
+    """Each component's kept ranges and table of velocity distributions,
+    computed once for all the `Data` of one likelihood, when the first
+    `Data` that reads a component's table needs the table."""
 
     def __init__(
         self, views: tuple[Model, ...], tables: tuple[_Table, ...], settings: Settings
@@ -749,14 +994,15 @@ def _point_moments(
     settings: Settings,
     shared: _Shared,
 ) -> _PointMoments:
-    """Prepare one `Data` of Gauss-Hermite moments at projected radii: the
-    model's table of distributions once and its moments' table in radius."""
+    """Return one `Data` of Gauss-Hermite moments at projected radii
+    prepared: the model's table of velocity distributions, computed once,
+    and the table of the model's moments over projected radius."""
     if len(views) != 1:
         raise InputError(
-            "Gauss-Hermite moments at projected radii are read on a model of one "
-            "component; a superposition's moments are those of its distribution, "
-            "not of its members' moments: give them over "
-            "apertures."
+            "Gauss-Hermite moments at projected radii are computed for a model of one "
+            "component only. The moments of a superposition are the moments of the "
+            "superposition's summed distribution, not the members' moments, so the "
+            "moments of a superposition are given over apertures."
         )
     table = gauss_hermite_table(shared.losvd(0))
     x = np.asarray(data.r_2d) / length
@@ -765,7 +1011,8 @@ def _point_moments(
         x > r_max * (1.0 + END_TOLERANCE)
     ):
         raise InputError(
-            f"A projected radius lies outside the rows of the model's moments, "
+            f"A projected radius of the data lies outside the projected radii of the "
+            f"model's moments, "
             f"[{r_min * length:.4e}, {r_max * length:.4e}] in the data's units."
         )
     chol, errors, log_norm = _noise(data)
@@ -789,10 +1036,11 @@ def _moments(
     settings: Settings,
     shared: _Shared,
 ) -> _Moments:
-    """Prepare one `Data` of Gauss-Hermite moments over apertures: each
-    component's table of distributions (`kept_ranges`, `losvd_table`, built
-    once for every Data, `_Shared`), its distribution in each aperture
-    (`aperture_losvd`), mirrored to both signs of velocity."""
+    """Return one `Data` of Gauss-Hermite moments in apertures prepared: each
+    component's table of velocity distributions (`kept_ranges` and
+    `losvd_table`, computed once for all the `Data` through `_Shared`) and
+    each component's distribution in each aperture (`aperture_losvd`),
+    mirrored to negative velocities."""
     rows = []
     for k, (view, table) in enumerate(zip(views, tables, strict=True)):
         projected = table.projected
@@ -834,12 +1082,14 @@ def _moments(
 def _table(
     model: Model, settings: Settings, projected: ProjectedDispersion | None = None
 ) -> _Table:
-    """The projected table of a model of one component, read as
-    `ProjectedDispersion.read` reads it."""
+    """Return the projected table of a model of one component, with the
+    readers that evaluate the table as `ProjectedDispersion.read` evaluates
+    the table. The dispersion profile and the projection are computed here
+    unless `projected` is given."""
+    profile = None
     if projected is None:
-        projected = projected_dispersion(
-            model, dispersion_profile(model, settings), settings
-        )
+        profile = dispersion_profile(model, settings)
+        projected = projected_dispersion(model, profile, settings)
     return _Table(
         projected,
         surface_density_reader(
@@ -848,6 +1098,10 @@ def _table(
             float(model.profile.r_table_max),
             model.spatially_finite,
         ),
+        dispersion_table_reader(
+            projected.r_2d, np.asarray(projected.sigma_los[0]) ** 2
+        ),
+        profile,
     )
 
 
@@ -857,11 +1111,13 @@ def likelihood(
     settings: Settings | None = None,
     free: Sequence[int] = (),
 ) -> Likelihood:
-    r"""Return the log-likelihood of a model against data, prepared.
+    r"""Return the log-likelihood of a model against data, as a JAX function.
 
-    The projected table of each component is computed here, once; the
-    returned function reads them in JAX. A model or data that cannot be
-    compared are refused here, with an exception.
+    `likelihood` computes the projected table of each component once and
+    returns a `Likelihood`, which reads the tables in JAX at every call. A
+    model and data that cannot be compared raise an exception in
+    `likelihood`, never in a call of the returned `Likelihood`. For one
+    value at the model's own weights and scales, call `log_likelihood`.
 
     Parameters
     ----------
@@ -869,60 +1125,171 @@ def likelihood(
         A model of one component, or a superposition (`superpose`), in the
         unit system of the data.
     data : Data or sequence of Data
-        The measurements; their log-likelihoods are summed.
+        The measurements. The log-likelihoods of several `Data` are summed.
     settings : Settings, optional
-        Numerical settings of the observables; the model's by default.
+        The numerical settings of the observables. Default: ``None``, which
+        means the model's own settings.
     free : sequence of int, optional
-        The components whose anisotropy
-        (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`) is a parameter of the
-        likelihood (its ``theta``): each a spatially finite model on a
-        truncated profile (a DF inverted on its parent's profile). An
-        isotropic or constant member's :math:`\beta_{\rm c}` is free and its
-        :math:`R_{\rm a}` column is held at its own value (infinite), with a
-        zero gradient: the family has no :math:`R_{\rm a}`.
+        The indices of the components whose anisotropy parameters
+        (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`) become the parameter
+        ``theta`` of the returned `Likelihood`. Each free component is a
+        spatially finite Method II model: a DF computed on the truncated
+        profile of another model, where the truncated profile carries the
+        DF of the other model.
+        For an isotropic or constant-anisotropy component,
+        :math:`\beta_{\rm c}` is free and the :math:`R_{\rm a}` column stays
+        at the component's own value, infinity, with a zero gradient,
+        because the isotropic and constant-anisotropy models have no
+        anisotropy radius. Default: ``()``, which means no anisotropy
+        parameter is a parameter of the likelihood.
 
     Returns
     -------
     likelihood : Likelihood
+        The log-likelihood as a JAX function of the component weights, the
+        mass and length scales and, for the components in `free`, the
+        anisotropy parameters. A call of the `Likelihood` without arguments
+        returns the value at the model's own weights and scales, the value
+        `log_likelihood` returns.
+
+    Raises
+    ------
+    InputError
+        If `model` is not a `Model`, or `model` has several components and
+        is not a superposition.
+    InputError
+        If `data` is empty or holds an object that is not a `Data`.
+    InputError
+        If the data are in several unit systems, or in a unit system other
+        than the unit system of `model` (`Model.to` presents a model in
+        another unit system).
+    InputError
+        If `free` repeats a component index or lists a component index that
+        `model` does not have.
+    InputError
+        If a free component is not spatially finite, is not a DF on a
+        truncated profile that carries the DF of another model, or has an
+        anisotropy model with neither a :math:`\beta_{\rm c}` nor an
+        :math:`R_{\rm a}`.
+    InputError
+        If `free` is given together with binned distributions or
+        Gauss-Hermite moments.
+    InputError
+        If the projected tables of the components differ in the innermost
+        tabulated radius, the outermost tabulated radius or the edge radius.
+    InputError
+        If a projected radius of ``"sigma_los"`` data lies inside the
+        innermost or beyond the outermost projected radius of the model's
+        table. The likelihood does not extrapolate the table.
+    InputError
+        If Gauss-Hermite moments at projected radii are given on a
+        superposition, or a projected radius of the moments lies outside the
+        projected radii of the model's table of moments. A superposition
+        takes Gauss-Hermite moments in apertures only.
+    InputError
+        If an aperture encloses no tabulated surface density, or if the disk
+        inside the innermost tabulated projected radius carries more than
+        :math:`10^{-6}` of the aperture's weight.
+    InputError
+        If the 3D radius of ``"pdf_v"`` data lies outside the profile or,
+        for a Type II model, at or beyond the anisotropy radius.
+    AccuracyError
+        If the error of a component's accuracy check exceeds
+        :math:`10^{-2}` and the component's settings do not set
+        ``write_anyway=True``.
+    AccuracyError
+        If the projection gives a negative squared line-of-sight dispersion.
+    ResultError
+        If a table of velocity distributions fails the table's own
+        consistency check (for binned distributions and Gauss-Hermite
+        moments).
+    WorkerError
+        If a parallel process ends while a table of velocity distributions
+        is computed (for binned distributions and Gauss-Hermite moments).
+
+    See Also
+    --------
+    log_likelihood : The log-likelihood at the model's own weights and scales.
+    Likelihood : The JAX function `likelihood` returns.
+    Data : The measurements a model is compared with.
+    superpose : A superposition of models that share one density.
 
     Notes
     -----
-    Each measurement is the surface-density weighted mean of
-    :math:`\sigma_{\rm los}^2` over its nodes, ``sum_j q_ij Sigma(x_j)
-    sigma^2(x_j) / sum_j q_ij Sigma(x_j)``: for a projected radius one node,
-    for an aperture the nodes and weights of `aperture_dispersion`. On a
-    superposition each component's table is its member's own, on the shared
-    density, and the two sums are mixed by the weights (`mixture`): the
-    measurement is a ratio of two sums linear in the weights. A scale
-    of length other than the model's own moves the nodes (``x = R / (L l)``)
-    and keeps their weights, a change of variable to the data's radius in
-    which the aperture is fixed.
+    Each dispersion measurement :math:`i` is the mean of
+    :math:`\sigma_{\rm los}^2` over the measurement's nodes :math:`x_j`,
+    weighted by the node weights :math:`q_{ij}` and the surface density
+    :math:`\Sigma`,
 
-    A free component's tables at a theta are built on the host when the
-    function first meets it: its DF on its truncated profile (refused there,
-    the function is minus infinity), then the two tables, their rows placed
-    at that theta. The gradient in theta is that of the reading on those rows
-    (their placement frozen); between placements the value moves within the
-    tables' tolerance. An untruncated component is not free: its edge terms
-    read its DF.
+    .. math::
 
-    A Gauss-Hermite moment (``"h3"``, ``"h4"``) over an aperture is that of
-    the mixture's distribution in the aperture, the components' own
-    (`aperture_losvd`, each on its velocity nodes, mirrored to both signs)
-    weighted by weight and projected mass, with its own mean and dispersion
-    as `gauss_hermite_moments` takes them: traced in the weights; the mass
-    scale leaves it. Its distributions are read at the model's own radii, so
-    the length scale is held there (until a traced reader of each member's
-    distribution in radius lands). Moments at projected radii
-    are read on a model of one component from its moments' table
-    (`gauss_hermite_table`, `read_traced`) at the radii the length scale
-    moves, so they are traced in it too. Neither is served with a free
-    component: its distributions are read at its own theta.
+        \sigma_i^2 = \frac{\sum_j q_{ij}\, \Sigma(x_j)\,
+        \sigma_{\rm los}^2(x_j)}{\sum_j q_{ij}\, \Sigma(x_j)}.
+
+    A projected radius has one node, the projected radius itself. An
+    aperture has the nodes and weights of `sigma_los_aperture`. On a
+    superposition, each component's table is the component's own table on
+    the shared density, and the component weights mix the numerator and
+    the denominator of :math:`\sigma_i^2` (`mixture`), so each measurement
+    is a ratio of two sums linear in the weights. A length scale :math:`l`
+    other than the model's own length scale moves each node to
+    :math:`x_j = R_j / (L\,l)` and keeps the node weights :math:`q_{ij}`:
+    the move is a change of variable to the projected radius of the data,
+    in which the aperture is fixed.
+
+    A free component's tables at an anisotropy :math:`\theta` are computed
+    at the first call of the `Likelihood` at :math:`\theta`: first the
+    component's DF on the component's truncated profile, then the
+    component's two projected tables, with the tabulated radii placed for
+    :math:`\theta`. Where the DF cannot be built at :math:`\theta`, the
+    `Likelihood` returns minus infinity. The gradient in :math:`\theta` is
+    the gradient of the reading at the placed radii, with the placed radii
+    held fixed. Between two placements of the radii, the value changes by
+    no more than the tolerance of the tables. An untruncated component
+    cannot be free, because the edge terms of an untruncated component read
+    the component's DF.
+
+    A Gauss-Hermite moment (``"h3"`` or ``"h4"``) in an aperture is the
+    moment of the mixture's velocity distribution in the aperture. The
+    mixture's distribution is the sum of the components' distributions
+    (`aperture_losvd`), each weighted by the component weight and the
+    component's projected mass, and the moment is taken about the
+    mixture's own mean velocity, in units of the mixture's own dispersion.
+    A moment in an aperture is differentiable in the weights and does not
+    depend on the mass scale. The distributions in apertures are computed
+    at the model's own radii, so the length scale stays at the model's own
+    length scale. A Gauss-Hermite moment at a projected radius is read on a
+    model of one component from a table of the model's moments over
+    projected radius, at the projected radius that the length scale moves,
+    so a moment at a projected radius is also differentiable in the length
+    scale. Neither kind of Gauss-Hermite moment is taken together with a
+    free component.
+
+    Each call of `likelihood` computes the projected table of every
+    component. For many evaluations on one model, call `likelihood` once
+    and call the returned `Likelihood` many times.
+
+    References
+    ----------
+    Notes Section T:7.4.
+
+    Examples
+    --------
+    >>> import pianistpy as pp
+    >>> model = pp.solve(pp.Component(pp.DoublePowerLaw.hernquist()))
+    >>> data = pp.Data(
+    ...     "sigma_los", [0.30, 0.25], r_2d=[0.5, 1.0], errors=[0.01, 0.01]
+    ... )
+    >>> like = pp.likelihood(model, data)
+    >>> like.weights.shape
+    (1,)
+    >>> bool(float(like()) > float("-inf"))
+    True
     """
     if not isinstance(model, Model):
         raise InputError(
-            "The likelihood takes a Model of one component or a superposition "
-            "(`superpose`)."
+            "The likelihood takes a Model of one component or a superposition made by "
+            "superpose; the model given is not a Model."
         )
     settings = model.settings if settings is None else settings
     if len(model.components) == 1:
@@ -931,50 +1298,64 @@ def likelihood(
         views = tuple(component_view(model, k) for k in range(len(model.components)))
     else:
         raise InputError(
-            "The likelihood takes a model of one component or a superposition "
-            "(`superpose`)."
+            "The likelihood takes a Model of one component or a superposition made by "
+            "superpose; the model given has several components and is not a "
+            "superposition."
         )
     datasets = (data,) if isinstance(data, Data) else tuple(data)
     if not datasets or not all(isinstance(d, Data) for d in datasets):
-        raise InputError("data must be a Data object or a sequence of them.")
+        raise InputError(
+            "The data must be one Data object or a non-empty sequence of Data objects."
+        )
     systems = {d.unit_system for d in datasets}
     if len(systems) != 1:
-        raise InputError(f"The data are in several unit systems: {sorted(systems)}.")
+        raise InputError(
+            f"All the data must be in one unit system; the data given are in the unit "
+            f"systems {sorted(systems)}."
+        )
     length, velocity, scale = _factors(model, systems.pop())
     free = tuple(int(k) for k in free)
     if len(set(free)) != len(free) or not all(0 <= k < len(views) for k in free):
         raise InputError(
-            f"free must name distinct components of the {len(views)}; got {free}."
+            f"free must list distinct components among the model's {len(views)} "
+            f"components, by index from 0; the value given is {free}."
         )
     for k in free:
         refuse_unless_free(views[k], f"Component {k}")
     for k, view in enumerate(views):
-        # a component beyond the hard limit is refused unless its settings ask
+        # A component whose accuracy check exceeds 1e-2 raises AccuracyError
+        # unless the component's settings set write_anyway=True.
         refuse_unless_asked(f"Component {k}", view.validation, view.settings)
     binned_kinds = sorted(
         {d.observable for d in datasets if d.observable in BINNED + MOMENTS}
     )
     if free and binned_kinds:
         raise InputError(
-            "A free component's anisotropy is not served with binned data or "
-            f"Gauss-Hermite moments ({', '.join(binned_kinds)}) "
-            "until the observables' VJP of the distributions lands: the "
-            "likelihood carries no derivative its record cannot validate."
+            "A free component's anisotropy cannot be fitted to binned data or "
+            f"Gauss-Hermite moments ({', '.join(binned_kinds)}): the likelihood has "
+            "no validated derivative of a binned distribution or of a "
+            "Gauss-Hermite moment with respect to the anisotropy."
         )
     members = {k: _Free(views[k], settings) for k in free}
     tables = tuple(
         _table(view, settings, members[k].projected if k in members else None)
         for k, view in enumerate(views)
     )
-    # The members share one truncated profile, which fixes a projected table's
-    # first row, last row and edge; only the rows added between differ.
+    # The members of a superposition share one truncated profile, and the
+    # truncated profile fixes the innermost tabulated radius, the outermost
+    # tabulated radius and the edge radius of every member's projected table;
+    # the members' tables differ only in the radii added between the
+    # innermost and the outermost tabulated radius.
     extents = {(t.surface.r_min, t.surface.r_max, t.surface.r_t) for t in tables}
     if len(extents) != 1:
         raise InputError(
-            f"The components' projected tables differ in extent: {sorted(extents)}."
+            f"The projected tables of the model's components must share the "
+            "innermost radius, the outermost radius and the edge radius; the "
+            f"tables have {sorted(extents)}."
         )
-    # each component's kept ranges and table of distributions, once for all
-    # the Data that read them
+    # Each component's kept ranges and table of velocity distributions are
+    # computed once and shared by every Data that reads the component's
+    # table, so that no component's table is computed twice.
     shared = _Shared(views, tables, settings)
     blocks = tuple(
         (
@@ -1008,7 +1389,10 @@ def likelihood(
 
 
 def _noise(data: Data) -> tuple[Array | None, Array | None, float]:
-    """The Gaussian's Cholesky factor or errors, and its normalization."""
+    """Return the Cholesky factor of the covariance matrix of `data` (or None),
+    the errors of `data` (or None), and the normalization of the Gaussian,
+    half the logarithm of the determinant of 2 pi times the covariance
+    matrix."""
     n = data.values.size
     if data.errors is not None:
         errors = np.asarray(data.errors)
@@ -1029,8 +1413,9 @@ def _binned_blocks(
     settings: Settings,
     shared: _Shared,
 ) -> tuple[_BinnedBlock, ...]:
-    """Prepare the binned distributions: each component's distribution for
-    each, on the host."""
+    """Return each `Data` of a binned distribution prepared, with each
+    component's distribution at the position of the data, computed in NumPy
+    before any JAX call."""
     if not datasets:
         return ()
     specs = []
@@ -1058,14 +1443,17 @@ def _binned_blocks(
             with_table,
             kept=shared.kept(k),
             table=shared.losvd(k) if with_table else None,
+            profile=shared.tables[k].profile,
+            projected=shared.tables[k].projected,
         )
         reads.append([_binned.read(kind, w, got, settings) for kind, w in specs])
     blocks = []
     for i, d in enumerate(datasets):
         n = BUCKET_FACTOR * max(r[i][0].a.size for r in reads)
         padded = [_binned.padded(r[i][0], n) for r in reads]
-        # the members' series to one length: a Legendre series padded with
-        # zero coefficients is the same series
+        # The members' Legendre series are padded to one number of
+        # coefficients so that the series stack into one array; a Legendre
+        # series padded with zero coefficients has unchanged values.
         m = max(p[2].shape[1] for p in padded)
         padded = [
             (p[0], p[1], np.pad(p[2], ((0, 0), (0, m - p[2].shape[1])))) for p in padded
@@ -1091,25 +1479,80 @@ def _binned_blocks(
 def log_likelihood(
     model: Model, data: Data | Sequence[Data], settings: Settings | None = None
 ) -> float:
-    """Return the Gaussian log-likelihood of a model against data.
+    r"""Return the Gaussian log-likelihood of a model against data.
+
+    `log_likelihood` returns one number, the value of `likelihood` at the
+    model's own component weights and scales. For many evaluations, or for
+    gradients, call `likelihood` once and call the returned `Likelihood`.
 
     Parameters
     ----------
     model : Model
-        The model, in the unit system of the data.
+        A model of one component, or a superposition (`superpose`), in the
+        unit system of the data.
     data : Data or sequence of Data
-        The measurements; their log-likelihoods are summed.
+        The measurements. The log-likelihoods of several `Data` are summed.
     settings : Settings, optional
-        Numerical settings of the observables; the model's by default.
+        The numerical settings of the observables. Default: ``None``, which
+        means the model's own settings.
 
     Returns
     -------
     log_likelihood : float
+        The Gaussian log-likelihood at the model's own component weights
+        and scales, summed over the data. The value is minus infinity where
+        the nodes of a measurement carry no surface density or where a
+        projected radius of the data lies inside the innermost tabulated
+        projected radius.
+
+    Raises
+    ------
+    InputError
+        If `model` and `data` cannot be compared, under each condition the
+        Raises section of `likelihood` lists for `InputError`.
+    AccuracyError
+        If the error of a component's accuracy check exceeds
+        :math:`10^{-2}` and the component's settings do not set
+        ``write_anyway=True``, or if the projection gives a negative squared
+        line-of-sight dispersion.
+    ResultError
+        If a table of velocity distributions fails the table's own
+        consistency check (for binned distributions and Gauss-Hermite
+        moments).
+    WorkerError
+        If a parallel process ends while a table of velocity distributions
+        is computed (for binned distributions and Gauss-Hermite moments).
+
+    See Also
+    --------
+    likelihood : The log-likelihood as a JAX function of the parameters.
+    Data : The measurements a model is compared with.
 
     Notes
     -----
-    With residuals ``r`` of the measured values against the model's, and
-    errors ``e`` or a covariance ``C``, ``-r^T C^-1 r / 2 - ln det(2 pi C) / 2``.
-    The value of `likelihood` at the model's own weights and scales.
+    For residuals :math:`r` of the measured values minus the model's values
+    and the covariance matrix :math:`C` of the errors (diagonal, with
+    :math:`C_{ii} = e_i^2`, for independent errors :math:`e_i`),
+
+    .. math::
+
+        \ln \mathcal{L} = -\frac{1}{2} r^{\rm T} C^{-1} r
+        - \frac{1}{2} \ln \det (2 \pi C).
+
+    References
+    ----------
+    Notes Section T:7.4.
+
+    Examples
+    --------
+    >>> import pianistpy as pp
+    >>> from pianistpy.inference import log_likelihood
+    >>> model = pp.solve(pp.Component(pp.DoublePowerLaw.hernquist()))
+    >>> data = pp.Data(
+    ...     "sigma_los", [0.30, 0.25], r_2d=[0.5, 1.0], errors=[0.01, 0.01]
+    ... )
+    >>> value = log_likelihood(model, data)
+    >>> isinstance(value, float)
+    True
     """
     return float(likelihood(model, data, settings)())

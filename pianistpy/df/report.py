@@ -1,14 +1,17 @@
-"""The DF's report, computed on the inversion's own table and its forms.
+"""Validation report of a DF, measured on the inversion's own table.
 
-Each check is measured on the table `invert_rows` returns, the rows as the
-inversion made them, and on the forms `asymptotic_form` states beyond its two
-ends; nothing is refused here: every value is judged on the tiers of the
-report (silent within the goal, a warning above it, refused beyond the hard
-limit). The checks of the DF are the DF's alone: the Poisson solve's offset
-eps lives on the model's report, which refers to this one.
+`validate_df` measures each check of a DF on the table that the inversion
+returns, with the rows as the inversion made them, and on the closed forms
+that the asymptotic form states beyond the table's two ends. The module
+raises no AccuracyError: `ValidationReport` places each check's value in
+its tier, "silent" at or below :math:`10^{-6}`, "recorded" up to
+:math:`10^{-4}`, "warned" up to :math:`10^{-2}` and "refused" above
+:math:`10^{-2}`. The report holds the DF's checks only; the offset of the
+Poisson solve belongs to the model's report.
 
-The gates of a truncation energy are read from the same table: the lowest
-admissible truncation energy and the untruncated DF's sign test.
+`validate_df` also returns the gates of a truncation energy, read from the
+inversion's table: the lowest admissible truncation energy and the sign
+test of the untruncated DF.
 """
 
 __all__ = [
@@ -33,16 +36,16 @@ from ..anisotropy import Anisotropy
 from ..exceptions import InputError
 from ..profiles import DoublePowerLaw
 from ..validation import Check, ValidationReport
-from .central import top_limit
+from .central import center_form
 from .checks import TableChecks, measure_table, validity_certificate
-from .derivatives import ExactDerivs, host_reachable_radius
+from .derivatives import _r_of_p
 from .form import tail_exponent_analytic
 from .gates import TruncationGates, truncation_gates
 from .profile_checks import density_from_df
 from .stages import AsymptoticForm, DfTable, PotentialDensityPair
 from .truncation import CEILING_GAP
 
-# The checks of a DF's report, one key set per kind of DF.
+# The keys of the checks in a DF's report, one tuple per kind of DF.
 DF_REPORT_KEYS = {
     "untruncated_df": (
         "top_form",
@@ -65,8 +68,9 @@ DF_REPORT_KEYS = {
     "method_ii_df": ("top_form", "slope_column", "below_floor_join"),
 }
 _NAN = float("nan")
-# why the slope column of a table that states none is not judged: a DF from a
-# function (F only), and a Method II child (its table has no slope column)
+# The reasons a report gives for not judging the slope column of a table
+# without a dF/dK column: a DF from a function, which gives F only, and a
+# Method II child, whose inversion makes no dF/dK.
 NO_SLOPE_COLUMN = (
     "no derivative column: the lookup's slopes are the spline's, not judged"
 )
@@ -74,27 +78,33 @@ NO_SLOPE_COLUMN_CHILD = (
     "no derivative column: the inversion of a tabulated pair makes no dF/dK, "
     "the lookup's slopes are the spline's, not judged"
 )
-# why an untruncated Type II DF's density round trip is not judged (the DF is
-# returned over its support K > P(R_a) only)
+# The reason a report gives for not judging the density round trip of an
+# untruncated Type II DF: the DF is returned over its support K > P(R_a) only.
 NO_ROUND_TRIP_TYPE_II = (
     "the support ends at P(R_a); the density inside R_a reads the "
     "continuation below it, which is not part of the product; the roundtrip is "
     "judged on its truncations at K_t > P(R_a)"
 )
-# what an untruncated Type II DF's slope column leaves unjudged: the
-# polynomial stencils cannot read the edge law at the support's first node
+# The reason a report gives for not judging the slope column of an untruncated
+# Type II DF at the support's first node: the polynomial stencils of the slope
+# check cannot follow the power (K - P(R_a))^(-1/2) at that node.
 NO_SLOPE_AT_TYPE_II_EDGE = (
     "the support's first node, at P(R_a), is not judged: F goes as "
     "(K - P(R_a))^(-1/2) there, which the stencils' polynomials cannot "
     "read; the slope column is judged on the other nodes"
 )
-# the center's forms whose exponent is the singular one's; the others follow
-# u^0 at the center
+# The center's forms whose DF goes as u^kappa at the center, with kappa the
+# form's central exponent; `_kappa` gives the other forms the exponent 0 or NaN.
 _POWER_FORMS = ("power", "fitted")
 
 
 def _kappa(form: AsymptoticForm, i: int) -> float:
-    """The exponent of u = p_0 - k the DF follows at the center."""
+    """Return the exponent kappa of u = p_0 - k that the DF follows at the center.
+
+    The exponent is the form's central exponent for a "power" or "fitted"
+    form, 0 for an "analytic", "log" or "constant_plus_power" form, and NaN
+    for any other form.
+    """
     if form.central_form[i] in _POWER_FORMS:
         return float(form.central_exponent[i])
     if form.central_form[i] in ("analytic", "log", "constant_plus_power"):
@@ -103,7 +113,7 @@ def _kappa(form: AsymptoticForm, i: int) -> float:
 
 
 def _top(form: AsymptoticForm, i: int) -> dict[str, Any]:
-    """The stated center under the names `measure_table` reads."""
+    """Return component i's stated center under the key names `measure_table` reads."""
     top: dict[str, Any] = {"top_kappa": _kappa(form, i)}
     if form.central_form[i] != "fitted":
         top.update(
@@ -129,14 +139,23 @@ def _slope_mismatch(
     form: AsymptoticForm,
     i: int,
 ) -> Check:
-    """|kappa_loc - kappa_form| at the table's top where the center's form
-    took over below the ceiling (the table ends at an anchor under :math:`P_0` less
-    the ceiling gap); zero where the rows reach the ceiling, or the form is
-    not a power of u. kappa_form is the form's own d ln F / d ln u at the
-    anchor, with its regular part where it states one, else kappa.
+    r"""Return the check |kappa_loc - kappa_form| at the table's top energy.
 
-    kappa_loc = d ln F / d ln u at the top: -u F'/F from the exact slope, or
-    the least-squares slope over the 7 nodes nearest the top.
+    The check applies where the table's last energy lies below the ceiling
+    p_0 - CEILING_GAP, so that the center's closed form covers the energies
+    from the table's last energy to the ceiling. The check is zero where the
+    table's last energy is at least
+    :math:`(p_0 - {\rm CEILING\_GAP})(1 - 10^{-15})`, and zero where the
+    center's form is neither "power" nor "fitted" (a power of
+    u = p_0 - k).
+
+    kappa_loc is d ln F / d ln u at the table's top: -u F'/F from the exact
+    slope column, or, without one, the least-squares slope of ln F against
+    ln u over the 7 nodes with the smallest u. kappa_form is the form's own
+    d ln F / d ln u at the anchor, including the regular part where the
+    form states an anchor, and the central exponent kappa otherwise. The
+    check is infinite where fewer than 5 nodes or no spread in ln u are
+    available for the fit, or where kappa_loc or kappa_form is not finite.
     """
     reaches_ceiling = float(k[-1]) >= (p_0 - CEILING_GAP) * (1.0 - 1e-15)
     if reaches_ceiling or form.central_form[i] not in _POWER_FORMS:
@@ -152,8 +171,8 @@ def _slope_mismatch(
             return Check(np.inf, float(k[-1]))
         kappa_loc = float(np.polyfit(lu, log_df[idx] * np.log(10.0), 1)[0])
     if form.central_anchor and np.isfinite(float(form.central_anchor[i])):
-        # the form as used at the anchor, all its terms: d ln F / d ln u of
-        # A_a (u / u_a)^kappa + B + D u at u_a
+        # kappa_form is d ln F / d ln u at u_a of the whole form used above the
+        # anchor, A_a (u / u_a)^kappa + B + D u.
         a_a = float(form.central_anchor_amplitude[i])
         b, d = form.central_regular[i]
         u_a = p_0 - float(form.central_anchor[i])
@@ -166,7 +185,12 @@ def _slope_mismatch(
 def _forms_below(
     form: AsymptoticForm, i: int
 ) -> tuple[Mapping[str, float] | None, Any, Any]:
-    """The tail, the Taylor form and the edge law below the floor."""
+    """Return the tail, the Taylor form and the edge law below the floor.
+
+    Each of the tail, the Taylor form and the edge law is None unless the
+    form states the rule of that name ("tail", "taylor" or "edge_law") below
+    the floor of component i.
+    """
     rule, coefficients = form.below_floor[i], form.below_floor_coefficients[i]
     tail = None
     if rule == "tail":
@@ -184,17 +208,29 @@ def _forms_below(
 def stated_forms(
     form: AsymptoticForm, i: int
 ) -> tuple[dict[str, Any], Mapping[str, float] | None, Any, Any]:
-    """Return the forms a DF's table is measured against, for component i.
+    """Return the forms that component i's DF table is measured against.
+
+    Parameters
+    ----------
+    form : AsymptoticForm
+        The forms beyond the table's two ends.
+    i : int
+        Index of the component.
 
     Returns
     -------
     top : dict
-        The stated center at the table's top, under the names
+        The stated center at the table's top, under the key names that
         `measure_table` reads.
-    tail, taylor, law
-        The forms below the floor: the tail's parameters, the Taylor
-        coefficients and the edge law's, each None where the form states
-        another rule.
+    tail : mapping or None
+        The tail's parameters ``A``, ``a``, ``k`` and ``E0``; None where the
+        form states another rule below the floor.
+    taylor : tuple or None
+        The Taylor coefficients; None where the form states another rule
+        below the floor.
+    law : tuple or None
+        The edge law's coefficients; None where the form states another
+        rule below the floor.
     """
     return (_top(form, i), *_forms_below(form, i))
 
@@ -202,46 +238,53 @@ def stated_forms(
 def validate_df(
     pair: PotentialDensityPair, table: DfTable, form: AsymptoticForm
 ) -> tuple[float, ValidationReport, TruncationGates]:
-    r"""Return the lowest admissible truncation energy, the DF's report and
-    the gates of the untruncated DF.
+    r"""Return the lowest admissible truncation energy, the DF's report and the gates.
 
     Parameters
     ----------
     pair : PotentialDensityPair
-        The model, which fixes the validity check and the analytic
-        exponent of the DF's tail.
+        The potential-density pair of the model. The pair's component fixes
+        the validity check and the analytic exponent of the DF's tail.
     table : DfTable
         The inversion's own table: the rows as made, ending where the
-        center's form takes over.
+        center's closed form takes over.
     form : AsymptoticForm
         The forms beyond the table's two ends.
 
     Returns
     -------
     k_t_min : float
-        The largest of the highest zero crossing and the last minimum of the
-        DF on its support, and the potential at the anisotropy's domain edge
-        (:math:`P(R_{\rm a})` for a Type II model); zero where the DF is
-        non-negative and non-decreasing and the domain has no edge. A strict
-        lower bound: a truncation energy must lie above it, which is
-        necessary, not sufficient; a Type II model's admitted truncations are
-        those whose solve passes the edge gate (``R_t < R_a``), which only the
-        solve decides.
+        The largest of three energies: the highest table energy at which
+        the DF is negative (`TruncationGates.k_0`), the energy at which the
+        DF's last decrease ends (`TruncationGates.q_min`), and the potential
+        :math:`P(R_{\rm a})` at the anisotropy's domain edge for a Type II
+        model. Where :math:`P(R_{\rm a})` exceeds the other two energies,
+        `k_t_min` is the next double above :math:`P(R_{\rm a})`. Zero where
+        the DF has no negative value and no decrease and the anisotropy has
+        no domain edge. A truncation energy at or above `k_t_min` is
+        necessary for admissibility, not sufficient. A Type II model's
+        truncation is admitted only where the truncated solve finds
+        :math:`R_{\rm t} < R_{\rm a}`.
     report : ValidationReport
-        The DF's checks, each judged on the tiers. The density round trip
-        of an untruncated Type II DF is not judged (`NO_ROUND_TRIP_TYPE_II`)
-        and not computed; its slope column is not judged at the support's
-        first node (`NO_SLOPE_AT_TYPE_II_EDGE`, in the check's ``excluded``).
+        The DF's checks, each placed in its tier. A DF with a negative
+        value gets the "flagged_df" report, whose two checks, ``top_form``
+        and ``slope_column``, are NaN. The
+        density round trip of an untruncated Type II DF is not computed and
+        not judged (`NO_ROUND_TRIP_TYPE_II`). The slope column of an
+        untruncated Type II DF is not judged at the support's first node
+        (`NO_SLOPE_AT_TYPE_II_EDGE`, in the check's ``excluded``).
     gates : TruncationGates
-        The sign of the DF and its gates at :math:`\mathcal{K}_{\rm t} = 0`;
-        the gates of a truncation energy above zero are its comparison with
-        `k_0` and `k_t_min`.
+        The sign record of the DF and the gates that
+        :math:`\mathcal{K}_{\rm t} = 0` fails. A truncation energy above
+        zero is gated by its comparison with ``gates.k_0`` and `k_t_min`.
 
     Raises
     ------
     InputError
-        If the pair has more than one component (this release validates one
-        DF).
+        If the pair has more than one component.
+    InputError
+        If the pair is analytic and the component's profile is not a
+        `DoublePowerLaw`.
     """
     if len(pair.components) != 1:
         raise InputError("This release validates one component's DF.")
@@ -263,8 +306,10 @@ def validate_df(
         if isinstance(profile, DoublePowerLaw)
         else _NAN
     )
-    # the anisotropy's domain edge: P(R_a) for a Type II component of an
-    # analytic pair, below which no truncation energy is admissible
+    # The energy k_edge is P(R_a), the potential at the anisotropy's domain
+    # edge R_a, for a Type II component of an analytic pair with a double
+    # power law, and 0 otherwise. No truncation energy at or below P(R_a) is
+    # admissible.
     edge = component.anisotropy.domain_edge
     k_edge = (
         float(np.asarray(profile.p(np.array([edge])))[0])
@@ -292,8 +337,8 @@ def validate_df(
         )
     top, tail, taylor, law = stated_forms(form, i)
     p_0 = float(form.p_0)
-    # a Type II DF's support starts at P(R_a), where F goes as
-    # (K - P(R_a))^(-1/2): the slope column is not judged at that node
+    # A Type II DF's support starts at P(R_a), where F goes as
+    # (K - P(R_a))^(-1/2), so the slope column is not judged at that node.
     edge_first = k_edge > 0.0 and slope is not None
     measured: TableChecks = measure_table(
         k, log_df, slope, p_0, top, below, tail, taylor, law, edge_first
@@ -304,8 +349,9 @@ def validate_df(
             abs(measured.slope_column_excess),
             excluded=NO_SLOPE_AT_TYPE_II_EDGE if edge_first else None,
         ),
-        # zero where there are no nodes below: nothing is joined there, and the
-        # forms continue the table (the tail's join is its own check)
+        # The join check is zero where the table has no nodes below the floor,
+        # because without such nodes the forms below the floor continue the
+        # table directly. The join of the tail is the separate check tail_join.
         "below_floor_join": Check(
             abs(measured.below_join) if below is not None else 0.0, float(k[0])
         ),
@@ -313,8 +359,10 @@ def validate_df(
     if not pair.is_analytic:
         return (
             gates.k_t_min,
-            # the parent model's tier, as its truncation recorded it on the
-            # profile (level 0 where it did not)
+            # A Method II child's report takes as parents_level the level of the
+            # parent model's report (0 to 3, silent to refused), which the
+            # parent's truncation records on the profile as model_level. The
+            # parents_level is 0 where the profile records no model_level.
             ValidationReport(
                 DF_REPORT_KEYS["method_ii_df"],
                 checks,
@@ -324,14 +372,17 @@ def validate_df(
         )
     if not isinstance(profile, DoublePowerLaw):
         raise InputError("An analytic pair's component has a double power law.")
-    # the validity check at the rows' top: the ceiling gap, or where that lies above
-    # it the shallower of the depth where the exact derivatives leave float64 and
-    # the depth at the host floor (the cut invert._below_limit makes)
-    u_floor = float(
-        profile.depth_inner(np.array([host_reachable_radius()]), terms=8)[0][0]
+    # The validity check is evaluated at the table's top row with the center's
+    # closed form A u^kappa (`center_form`), the form by which `ceiling_limit`
+    # cuts the rows.
+    center = center_form(profile, component.anisotropy)
+    power = center["form"] == "power" and float(center["amplitude"]) > 0.0
+    cert = validity_certificate(
+        float(profile.rho_gamma),
+        _kappa(form, i),
+        p_0 - float(k[-1]),
+        math.log10(float(center["amplitude"])) if power else 0.0,
     )
-    u_top = max(CEILING_GAP, top_limit(profile, component.anisotropy), u_floor)
-    cert = validity_certificate(float(profile.rho_gamma), _kappa(form, i), u_top)
     passed = (
         cert["valid_gamma"]
         and cert["linearF_representable"]
@@ -359,12 +410,17 @@ def _round_trip(
     form: AsymptoticForm,
     k: np.ndarray,
 ) -> Check:
-    """The density the DF gives (its table and its forms, through the lookup)
-    against the profile's, at the radii of the table's own rows, r(K) from
-    the analytic potential, each read with its exact depth where the
-    profile's inner series holds it; the largest relative difference and its
-    radius."""
-    r = np.asarray(ExactDerivs(profile, max_order=1).r_of_p(k), dtype=np.float64)
+    """Return the density round trip of an untruncated DF at the table's radii.
+
+    The check compares the density that the DF gives, through the lookup of
+    its table and forms, with the profile's density at the radii r(K) of
+    the table's energies, with r(K) from the analytic potential. The DF is
+    read by the exact depth u from the profile's inner series where the
+    series' error bound is below :math:`10^{-16}`, and by the energy elsewhere. The
+    check's value is the largest relative difference, and its location the
+    radius of that difference; a non-finite difference counts as infinite.
+    """
+    r = np.asarray(_r_of_p(profile, k), dtype=np.float64)
     rho = np.asarray(profile.rho(r), dtype=np.float64)
     u, bound = profile.depth_inner(r)
     depth = np.where(np.asarray(bound) < 1e-16, u, np.nan)
@@ -382,10 +438,16 @@ def _round_trip(
 def slope_column_not_judged(
     report: ValidationReport, table: DfTable, reason: str
 ) -> ValidationReport:
-    """Return the report with its ``slope_column`` stated not judged, for a
-    table that states no dF/dK column (`DfTable.slopes_exact` false): the
-    check then measures nothing, and says why. A signed DF's report, which
-    measures neither of its checks, is returned as it is."""
+    """Return the report with its slope-column check marked as not judged.
+
+    The call applies to a table without a dF/dK column
+    (`DfTable.slopes_exact` false): the ``slope_column`` check is replaced
+    by a NaN check that carries ``reason``. The report is returned
+    unchanged where the table has a dF/dK column, where the table has a
+    sign column (the report of a signed DF already holds NaN for both of its
+    checks, ``top_form`` and ``slope_column``), or
+    where the report has no ``slope_column`` check.
+    """
     if table.slopes_exact[0] or table.sign.size or "slope_column" not in report.checks:
         return report
     checks = {**report.checks, "slope_column": Check(math.nan, reason=reason)}

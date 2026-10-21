@@ -1,20 +1,21 @@
-r"""The derivatives of the auxiliary density with respect to the potential.
+r"""The exact derivatives of the auxiliary density in the relative potential.
 
-rho_aux(R) = rho(R) g(R), with ``g = R^(2 beta_c)`` times the (C)OM factor.
-The derivatives with respect to P are the operator D_P = (dP/dR)^-1 d/dR
-applied N times, with dP/dR = -M(R)/R^2 and M'(R) = R^2 rho(R), so that P(R)
-is never needed in closed form (Section T:1.2 [num-pair], Eq. (T:1.3)
-[dp-operator]). The operator is applied symbolically (sympy) and the results
-are evaluated in float64, and in mpmath where float64 cancels:
-:math:`R < 10^{-2}`, :math:`R > 10^{6}`, order at least 3 beyond
-:math:`R = 10^{2}`, and order at least 2 within the band about
-:math:`R_{\rm a}` of a Type II model. M(R) is the incomplete-Beta mass,
-evaluated once per point. R(P) is found by bisection in ln R with a widened
-bracket and, near the ceiling, by bisection on the profile's subtraction-free
-depth.
-
-The arithmetic is the working pipeline's, expression for expression, so that
-its values are equal to the bit on the same backend.
+The auxiliary density is rho_aux(R) = rho(R) g(R), with rho the density and
+``g = R^(2 beta_c)`` times the inverse (C)OM anisotropy factor. The N-th
+derivative of rho_aux in the relative potential P is the operator
+D_P = (dP/dR)^-1 d/dR applied N times, with dP/dR = -M(R)/R^2 and
+M'(R) = R^2 rho(R), so that P(R) is never needed in closed form (Notes
+Section T:1.2, Notes Eq. (T:1.3)). Sympy applies the operator symbolically,
+and the resulting expressions are evaluated in float64, and in mpmath where
+float64 loses digits to cancellation: at :math:`R < 10^{-2}`, for orders 1
+and above at :math:`R > 10^{6}`, for orders 3 and above at
+:math:`R > 10^{2}`, for orders 2 and above where
+:math:`|1 - (R/R_{\rm a})^2| < 0.75` in a Type II model, and wherever the
+float64 value is not finite. The mpmath mass M(R) is the incomplete-Beta
+mass; `ExactDerivs` computes the mpmath mass once per radius and
+precision. The radius R(P) is found by bisection in ln R, with a bracket
+widened until the bracket holds P, and, near the center, by bisection on
+the profile's subtraction-free depth u = 1 - P.
 """
 
 __all__ = [
@@ -41,17 +42,21 @@ CONSTRUCTION_CACHE = "derivatives"
 
 @cache
 def host_reachable_radius() -> float:
-    """Return the smallest radius r = 2^-k whose square host float64 (NumPy)
-    holds, r*r > 0: 2^-537 with IEEE subnormals."""
+    """Return the smallest radius r = 2^-k whose square is positive in host
+    float64 (NumPy), r*r > 0. With IEEE subnormals the radius is 2^-537."""
     r = np.ldexp(1.0, -np.arange(1100))
     return float(r[r * r > 0.0][-1])
 
 
 def _construction_name(key: tuple) -> str:
-    """The cache file of one construction, named by the digest of its exact
-    inputs, the sympy and package versions, the construction's own source and
-    the factor's expression (`inverse_factor_expr`): a change to any of them
-    is another file, so a stale entry cannot change a number."""
+    """Return the name of the cache file of one construction of derivative
+    expressions.
+
+    The name is the SHA-256 digest of the construction's exact inputs
+    ``key``, the sympy version, the package version, the source of
+    `ExactDerivs.__init__` and the source of `inverse_factor_expr`. A change
+    to any of these inputs gives another file name, so a stale cache entry
+    cannot change a number."""
     import hashlib
     import inspect
 
@@ -72,8 +77,9 @@ def _construction_name(key: tuple) -> str:
 
 
 def _load_construction(key: tuple) -> list[Any] | None:
-    """The derivatives' expressions of a construction made before, or None
-    (the file is the runtime's: `pianistpy.runtime.read_cache`)."""
+    """Return the derivative expressions that an earlier construction with
+    key ``key`` kept in the cache (`pianistpy.runtime.read_cache`), or
+    None where the cache holds no readable entry for ``key``."""
     import json
 
     import sympy as sp
@@ -91,8 +97,8 @@ def _load_construction(key: tuple) -> list[Any] | None:
 
 
 def _save_construction(key: tuple, exprs: list[Any]) -> None:
-    """Keep the expressions for the next construction with the same inputs
-    (`pianistpy.runtime.write_cache`)."""
+    """Keep the derivative expressions ``exprs`` in the cache for a later
+    construction with key ``key`` (`pianistpy.runtime.write_cache`)."""
     import json
 
     import sympy as sp
@@ -104,9 +110,11 @@ def _save_construction(key: tuple, exprs: list[Any]) -> None:
 
 
 def _lambdify_deep(r: Any, expr: Any, modules: str, chunk: int = 64) -> Any:
-    """``sympy.lambdify``, split into nested callables only where the generated
-    source is too deeply nested for Python's compiler; the flat form wherever
-    it compiles."""
+    """Return ``sympy.lambdify(r, expr, modules)``, or, where the generated
+    source is too deeply nested for Python's compiler, a nest of callables
+    built from the arguments of ``expr``. A sum or product with more than
+    ``chunk`` terms is first split into sums or products of at most
+    ``chunk`` terms."""
     import sympy as sp
 
     try:
@@ -133,21 +141,24 @@ def _lambdify_deep(r: Any, expr: Any, modules: str, chunk: int = 64) -> Any:
 
 
 class ExactDerivs:
-    """The exact derivatives d^N rho_aux / dP^N of an analytic double power law.
+    """The exact derivatives d^N rho_aux / dP^N of the auxiliary density of an
+    analytic double power law, for N from 0 to ``max_order``.
 
     Parameters
     ----------
     profile : DoublePowerLaw
-        The density.
-    beta_c : float
-        The central anisotropy in the factor ``R^(2 beta_c)`` (0 for OM).
-    model : str
-        The anisotropy family: ``"isotropic"``, ``"constant"``, ``"OM_I"``,
-        ``"OM_II"``, ``"COM_I"`` or ``"COM_II"``.
-    r_a : float
-        The anisotropy radius of an (C)OM model.
-    max_order : int
-        The highest order built.
+        The density, in internal units.
+    beta_c : float, optional
+        Central anisotropy in the factor ``R^(2 beta_c)``; 0 for an
+        Osipkov-Merritt model. Default: ``0.0``.
+    model : str, optional
+        Anisotropy family: ``"isotropic"``, ``"constant"``, ``"OM_I"``,
+        ``"OM_II"``, ``"COM_I"`` or ``"COM_II"``. Default: ``"constant"``.
+    r_a : float, optional
+        Anisotropy radius of an OM or COM model, in units of r_0. Default:
+        ``1.0``.
+    max_order : int, optional
+        Highest order N built. Default: ``4``.
     """
 
     R_SMALL = 1e-2
@@ -174,10 +185,11 @@ class ExactDerivs:
             if abs(c_norm - round(c_norm * 8) / 8) < 1e-12
             else sp.Float(c_norm, 30)
         )
-        # An exponent whose exact binary value is a small fraction enters as
-        # that fraction; any other enters as a symbol whose float value is
-        # given at evaluation. None is rounded to a nearby fraction, so the
-        # closed form is the model asked for.
+        # An exponent whose exact binary value is a fraction with denominator
+        # at most 1000 enters the expressions as that fraction. Any other
+        # exponent enters as a symbol whose float value is given at
+        # evaluation. No exponent is rounded to a nearby fraction, so the
+        # closed form is the closed form of the requested model.
         syms: list[Any] = []
         vals: list[float] = []
 
@@ -196,8 +208,9 @@ class ExactDerivs:
         bc_s = exponent(bc, "beta_c", real=True)
         rho = C * R ** (-eg) * (1 + R**ea) ** ((eg - eb) / ea)
         ra_s = sp.Rational(str(r_a))
-        # the inversion of an untruncated Type II model reads rho_aux beyond
-        # R_a: the factor's continuation there, by its argument
+        # The inversion of an untruncated Type II model reads rho_aux beyond
+        # R_a, so the factor takes its continuation beyond R_a
+        # (continuation=True).
         gfac = inverse_factor_expr(R, model, bc_s, ra_s, continuation=True)
         rho_aux = rho * gfac
         m_sym = sp.Function("M")(R)
@@ -258,10 +271,10 @@ class ExactDerivs:
                 expr = expr.replace(sp.DiracDelta, lambda *args: sp.Integer(0))
                 exprs.append(expr.xreplace({m_sym: mv}))
             _save_construction(key, exprs)
-        # The arbitrary-precision orders are one evaluation per node and
-        # precision, their common subexpressions computed once (at rounding
-        # against 60 more digits where it is not to the bit); the orders one
-        # at a time where sympy cannot do it.
+        # The mpmath functions of all orders are one joint lambdify with common
+        # subexpressions, evaluated once per radius and precision and memoized.
+        # Where sympy cannot build the joint function, each order gets its
+        # own mpmath function.
         try:
             joint = sp.lambdify((R, mv, *syms), exprs, "mpmath", cse=True)
         except (TypeError, RecursionError):
@@ -297,8 +310,9 @@ class ExactDerivs:
 
     def _eval(self, n: int, rv: Any) -> Array:
         rv = np.atleast_1d(rv)
-        # the radii mpmath takes in any case; the float expression is formed on
-        # the others only, so that it never overflows where it is not kept
+        # The radii in ``bad`` always go to mpmath. The float64 expression is
+        # evaluated on the other radii only, so that the float64 expression
+        # never overflows at a radius whose float64 value would be discarded.
         bad = (rv < self.R_SMALL) | ((n >= 3) & (rv > 1e2)) | ((n >= 1) & (rv > 1e6))
         if self._typeII and n >= 2:
             bad = bad | (np.abs(1.0 - (rv / self._ra) ** 2) < self.TYPEII_MP_BAND)
@@ -341,19 +355,43 @@ class ExactDerivs:
         return out
 
     def r_of_p(self, pq: Any, r_lo: float = 1e-12, r_hi: float = 1e40) -> Array:
-        """Return the radius where the potential is ``pq``.
+        """Return the radii at which the profile's relative potential equals
+        ``pq``.
 
-        The solve runs in host float64 (NumPy), so the radii it reaches end at
-        `host_reachable_radius` (2^-537): below it r*r rounds to zero and the
-        slope dP/dR = -M/R^2 has no value. JAX's CPU backend flushes subnormals
-        and would end at 2^-511, so moving this solve into JAX means deriving
-        the floor again.
+        The solve runs in host float64 (NumPy), so the smallest radius the
+        solve reaches is `host_reachable_radius` (2^-537). Below
+        `host_reachable_radius`, R*R rounds to 0 and the slope
+        dP/dR = -M/R^2 has no value. JAX's CPU backend flushes subnormals to
+        0, so a JAX version of `r_of_p` would reach only R = 2^-511.
+
+        Parameters
+        ----------
+        pq : array-like
+            Relative potentials P, in internal units.
+        r_lo : float, optional
+            Initial lower end of the bisection bracket in R; divided by
+            :math:`10^{12}` until the potential at `r_lo` exceeds the largest
+            P or `r_lo` is below :math:`10^{-290}`. Default: ``1e-12``.
+        r_hi : float, optional
+            Initial upper end of the bisection bracket in R; multiplied by
+            :math:`10^{12}` until the potential at `r_hi` is below the
+            smallest P or `r_hi` reaches :math:`10^{290}`. Default:
+            ``1e40``.
+
+        Returns
+        -------
+        r : ndarray
+            Radii, with the shape of ``pq``, in internal units.
 
         Raises
         ------
         InputError
-            Where a depth u = 1 - P asked for lies below the depth at that
-            radius: it needs a radius host float64 does not reach.
+            If the smallest requested depth u = 1 - P lies below the depth at
+            `host_reachable_radius`, so that the depth needs a radius that
+            host float64 does not reach.
+        ValueError
+            If the potential is still at or above the smallest requested P
+            once the bracket's upper end reaches :math:`10^{290}`.
         """
         pq = np.asarray(pq, dtype=np.float64)
         uq_all = 1.0 - pq
@@ -415,33 +453,57 @@ class ExactDerivs:
         return rv
 
     def derivs_at_p(self, pq: Any, n: int) -> tuple[Array, Array, Array]:
-        """Return (rho_aux, d rho_aux/dP, d^N rho_aux/dP^N) at the potentials ``pq``."""
+        """Return rho_aux, d rho_aux/dP and d^n rho_aux/dP^n at the relative
+        potentials ``pq``."""
         rv = self.r_of_p(pq)
         return self._eval(0, rv), self._eval(1, rv), self._eval(n, rv)
+
+
+def _r_of_p(profile: DoublePowerLaw, pq: Any) -> Array:
+    """Return the radii at which the profile's relative potential equals
+    ``pq``, by `ExactDerivs.r_of_p`. `ExactDerivs.r_of_p` reads only the
+    profile, so the derivative expressions are not built."""
+    exact = ExactDerivs.__new__(ExactDerivs)
+    exact.prof = profile
+    return exact.r_of_p(pq)
 
 
 def aux_derivatives(
     pair: PotentialDensityPair, grid: EnergyGrid, form: InversionForm
 ) -> AuxDerivatives:
-    """Return the exact derivatives of each auxiliary density on the grid.
+    """Return the exact derivatives of the component's auxiliary density at
+    the energies of the grid.
 
-    The orders held are j - 1 to j + 2 of each component's pair in use (the
-    closure, the source of the derivative-outside rows, the integrated-by-
-    parts source and its slope). `AuxDerivatives.at` evaluates any order at
-    any energy from the same closed forms.
+    The orders held are j - 1 to j + 2 of the order pair in use, with j - 1
+    not below 0: the closure (j - 1), the source of the rows with the
+    derivative outside the integral (j), the source of the form integrated
+    by parts (j + 1) and the slope of the source of order j + 1 (j + 2).
+    `AuxDerivatives.at` evaluates any order at any energy from the closed
+    forms of the returned `ExactDerivs`.
 
     Parameters
     ----------
     pair : PotentialDensityPair
-        An analytic pair of one component.
+        Analytic potential-density pair of one component.
     grid : EnergyGrid
-        The energies.
+        Energies of the inversion, in internal units.
     form : InversionForm
-        The pair in use, j = ``form.order_j``.
+        Form of the inversion, whose ``order_j`` gives the order j.
 
     Returns
     -------
     derivatives : AuxDerivatives
+        Values of each order at the grid's energies and at the grid's first
+        energy, 0 at energies outside (0, 1), with the `ExactDerivs` that
+        made the values.
+
+    Raises
+    ------
+    InputError
+        If `pair` is not an analytic pair of one component, or the
+        component's profile is not a `DoublePowerLaw`.
+    ResultError
+        If a derivative at the grid's first energy is not finite.
     """
     from ..exceptions import InputError, ResultError
 
@@ -466,9 +528,10 @@ def aux_derivatives(
     k = np.asarray(grid.k, dtype=np.float64)[0]
 
     def every_order(p: Array) -> Array:
-        # R(P) once for the energies, each order once on it (0 outside (0, 1),
-        # as AuxDerivatives.at). The floor is its own call: the bracket of the
-        # bisection is set by the energies asked for.
+        # R(P) is solved once for the energies p, and each order is evaluated
+        # once at the solved radii. An order is 0 at energies outside (0, 1),
+        # as in AuxDerivatives.at. The floor gets its own call because the
+        # bisection bracket of r_of_p depends on the energies requested.
         out = np.zeros((len(orders), p.size))
         ok = (p > 0.0) & (p < 1.0)
         if ok.any():
@@ -489,21 +552,41 @@ def aux_derivatives(
 
 
 class ParameterDerivs(ExactDerivs):
-    r"""The mixed derivatives d/dtheta d^N rho_aux / dP^N at fixed P of an
-    analytic double power law, theta = ``"beta_c"`` or ``"r_a"``.
+    r"""The mixed derivatives d/dtheta d^N rho_aux / dP^N at fixed P of the
+    auxiliary density of an analytic double power law, for the parameter
+    :math:`\theta` equal to :math:`\beta_{\rm c}` or :math:`R_{\rm a}`.
 
-    At a fixed profile R(P) is fixed and D_P = (dP/dR)^-1 d/dR does not depend
-    on theta, so d/dtheta commutes with it: each order's expression of
-    `ExactDerivs`, built with :math:`\beta_{\rm c}` and :math:`R_{\rm a}` as
-    symbols, is differentiated in theta. Evaluated, and R(P) found, as
-    `ExactDerivs` does: ``_eval(N, R)`` is d/dtheta of the order N,
-    ``derivs_at_p`` the three the completion reads.
+    At a fixed profile, R(P) is fixed and the operator
+    D_P = (dP/dR)^-1 d/dR does not depend on :math:`\theta`, so d/dtheta
+    commutes with D_P. Each order's expression, built as in `ExactDerivs`
+    but with :math:`\beta_{\rm c}` and :math:`R_{\rm a}` as symbols, is
+    therefore differentiated in :math:`\theta`. The expressions are
+    evaluated, and R(P) is found, as in `ExactDerivs`: ``_eval(N, R)`` is
+    d/dtheta of order N, and ``derivs_at_p(pq, n)`` returns d/dtheta of
+    orders 0, 1 and n.
+
+    Parameters
+    ----------
+    profile : DoublePowerLaw
+        The density, in internal units.
+    beta_c : float
+        Central anisotropy :math:`\beta_{\rm c}`.
+    model : str
+        Anisotropy family, as in `ExactDerivs`.
+    r_a : float
+        Anisotropy radius :math:`R_{\rm a}`, in units of r_0.
+    max_order : int
+        Highest order N built.
+    wrt : {"beta_c", "r_a"}
+        Parameter theta of the derivative.
 
     Raises
     ------
     InputError
-        Where theta is not a parameter of the family (:math:`\beta_{\rm c}`
-        of an OM model, :math:`R_{\rm a}` of a model without one).
+        If `wrt` is neither ``"beta_c"`` nor ``"r_a"``, or is a parameter
+        that the family does not have: :math:`\beta_{\rm c}` of an
+        Osipkov-Merritt model, or :math:`R_{\rm a}` of a model without an
+        anisotropy radius.
     """
 
     def __init__(
@@ -630,9 +713,16 @@ class ParameterDerivs(ExactDerivs):
 def source_rows(
     source: ExactDerivs, k: Array, orders: tuple[int, ...]
 ) -> AuxDerivatives:
-    """Return the rows of ``source`` (`ExactDerivs` or `ParameterDerivs`) of
-    the given orders on the energies k, their values at the floor k[0], and
-    the source itself for the completion, as `aux_derivatives` makes them."""
+    """Return the values of ``source`` (an `ExactDerivs` or a
+    `ParameterDerivs`) for the orders ``orders`` at the energies k, their values
+    at the floor k[0], and ``source`` itself for the completion below the
+    floor, in the `AuxDerivatives` layout that `aux_derivatives` returns.
+
+    Raises
+    ------
+    ResultError
+        If a value at the floor k[0] is not finite.
+    """
     from ..exceptions import ResultError
 
     def every_order(p: Array) -> Array:

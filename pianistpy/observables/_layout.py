@@ -1,5 +1,31 @@
-"""The V panels of a row of the line-of-sight velocity distribution: which
-breaks a row carries, in which order, and the lattice of its nodes."""
+r"""The velocity panels of one row of the line-of-sight velocity distribution.
+
+The tables behind `pianistpy.losvd`, `pianistpy.aperture_losvd` and
+`pianistpy.LosTable` store the distribution at a set of projected radii
+:math:`R_{\rm 2D}`, one row per radius. A row covers the line-of-sight velocities
+:math:`0 \le V \le V_{\rm end}`, with :math:`V_{\rm end}` the velocity above
+which the row's distribution is zero. Up to four interior break velocities
+split :math:`[0, V_{\rm end}]` into panels: :math:`V_k`, :math:`V_{\rm rad}`,
+:math:`V_{\rm edge}` and :math:`V_{\rm c}` (`EllipseRoute.breaks_many`,
+`EllipseRoute.v_edge_many` and `EllipseRoute.v_c_many` compute the four
+values). This module codes the order of a row's interior breaks as an integer
+layout code, grades the sub-panels of each panel toward the panel's ends, and
+merges an interior break where the panel next to the break is too narrow for
+double precision.
+
+A panel graded with :math:`L_{\rm lo}` layers toward its lower end and
+:math:`L_{\rm hi}` layers toward its upper end has the sub-panel edges, in
+units of the panel's width from the panel's lower end,
+
+.. math::
+
+    0,\ \tfrac12 r^{L_{\rm lo}},\ \ldots,\ \tfrac12 r,\ \tfrac12,\
+    1 - \tfrac12 r,\ \ldots,\ 1 - \tfrac12 r^{L_{\rm hi}},\ 1,
+
+with :math:`r` the setting ``losvd.velocity_layer_ratio``. Each sub-panel
+carries a Gauss-Legendre rule whose node count is the setting
+``losvd.n_velocity_nodes``. Notes
+Section T:6.4 treats the line-of-sight velocity distribution."""
 
 __all__ = [
     "BREAK_LABELS",
@@ -23,10 +49,12 @@ from ._ellipse_rules import (
     gl01,
 )
 
-# The interior breaks: k = V_k, r = V_rad, e = V_edge, c = V_c. The layouts by
-# code are append-only, so that no stored code changes meaning: 0 to 15 as
-# written, 16 to 64 the orders that contain c, by length, each in the order of
-# itertools.permutations over "krec".
+# The letters of the interior breaks: k is V_k, r is V_rad, e is V_edge and c
+# is V_c. LAYOUT_SEQ maps a layout code to the letters of a row's interior
+# breaks in increasing velocity. Codes 0 to 15 are the orders without V_c, as
+# listed. Codes 16 to 64 are the orders that contain V_c, by length, each
+# length in the order of itertools.permutations over "krec". New codes are only
+# appended, so a code stored in a table keeps its meaning.
 BREAK_LABELS = "krec"
 LAYOUT_SEQ: dict[int, str] = {
     0: "",
@@ -58,22 +86,28 @@ LAYOUT_SEQ.update(
     }
 )
 SEQ_LAYOUT = {s: c for c, s in LAYOUT_SEQ.items()}
-# A kept V_k inside the zero grading's first sub-panel: the same breaks, the
-# panel above V_k graded toward it as the first panel is toward V = 0.
+# A code plus DEEP_K marks a row whose interior V_k lies below the first
+# sub-panel edge of the panel [0, V_end] graded toward V = 0. The code plus
+# DEEP_K has the same breaks as the code. The panel above V_k is then graded
+# toward V_k with as many layers as the first panel has toward V = 0.
 LAYOUT_SEQ.update({DEEP_K + c: s for c, s in list(LAYOUT_SEQ.items()) if "k" in s})
-# The order in which an unresolved panel's interior breaks are merged.
+# The preference order of the interior break merged at a panel that double
+# precision does not resolve: V_k first, then V_c, then V_rad, then V_edge.
 MERGE_ORDER = "kcre"
 
 
 class Lattice:
-    """The grading of a row's V panels and the tests on its nodes.
+    """The sub-panel grading of a row's velocity panels, and the tests of
+    whether double precision resolves the row's nodes.
 
     Parameters
     ----------
     rules : EllipseRules
-        The route's rules.
+        The numerical rules of the ellipse route, read from the settings'
+        ``losvd`` group.
     model : EllipseModel
-        The model's constants (the layers toward V_edge and V_c).
+        The model's constants, among them the layer counts toward V_edge and
+        toward V_c.
     """
 
     def __init__(self, rules: EllipseRules, model: EllipseModel) -> None:
@@ -89,9 +123,14 @@ class Lattice:
         vedge: ArrayLike = np.nan,
         vc: ArrayLike = np.nan,
     ) -> tuple[Array, ...]:
-        """Return (V_k interior, V_rad interior, V_edge interior, V_c
-        interior), elementwise: a break within BREAK_TOL of V_end coincides
-        with it."""
+        """Return four boolean arrays that mark where V_k, V_rad, V_edge and
+        V_c are interior breaks.
+
+        A break velocity is an interior break where three conditions hold:
+        the break velocity is finite; the break velocity is positive; and
+        V_end minus the break velocity exceeds BREAK_TOL (``1e-9``) times
+        V_end. The arguments broadcast against each other.
+        """
         vk, vend, vrad, vedge, vc = (
             np.asarray(x, dtype=np.float64) for x in (vk, vend, vrad, vedge, vc)
         )
@@ -110,9 +149,14 @@ class Lattice:
         vedge: ArrayLike = np.nan,
         vc: ArrayLike = np.nan,
     ) -> Array:
-        """Return the layout's code: the order of the interior breaks, ties
-        ordering k before r before e before c, plus DEEP_K where a kept V_k
-        lies inside the zero grading's first sub-panel."""
+        """Return the layout code of each row from the row's break velocities.
+
+        The code is the entry of SEQ_LAYOUT for the row's interior breaks
+        (`interior_breaks`) in increasing velocity. Equal break velocities keep
+        the order V_k, V_rad, V_edge, V_c. The code is raised by DEEP_K where
+        V_k is an interior break below ``0.5 r**L * V_end``, with ``r`` the
+        rules' ``vp_ratio`` and ``L`` the rules' ``vp_layers_zero``.
+        """
         fl = self.interior_breaks(vk, vend, vrad, vedge, vc)
         shape, nb = np.shape(fl[0]), len(BREAK_LABELS)
         vals = np.stack(
@@ -144,9 +188,16 @@ class Lattice:
     def panel_edges_unit(
         self, first: bool, lay_lo: int | None = None, lay_hi: int | None = None
     ) -> Array:
-        """Return the sub-panel edges of one panel on [0, 1], graded toward
-        both ends: vp_layers_zero toward 0 on the first panel and
-        vp_layers_kink toward every break, unless `lay_lo` or `lay_hi` say."""
+        """Return the sub-panel edges of one panel in units of the panel's
+        width, from 0 at the panel's lower end to 1 at the panel's upper end.
+
+        The edges are graded geometrically toward both ends with the ratio
+        ``vp_ratio``: `lay_lo` layers toward the lower end and `lay_hi` layers
+        toward the upper end. Where `lay_lo` is None, the lower end takes
+        ``vp_layers_zero`` layers on the first panel (`first` true) and
+        ``vp_layers_kink`` layers on any other panel. Where `lay_hi` is None,
+        the upper end takes ``vp_layers_kink`` layers.
+        """
         rr = self.rules
         r = rr.vp_ratio
         lo = (
@@ -161,7 +212,9 @@ class Lattice:
         return np.concatenate([[0.0], ua, 1.0 - ub[::-1][1:], [1.0]])
 
     def panel_units(self, code: int) -> list[Array]:
-        """Return the unit sub-panel edges of every panel of a layout."""
+        """Return the sub-panel edges of every panel of layout `code`, each in
+        units of the panel's width (`panel_edges_unit`), computed once per
+        layout code."""
         if code not in self._units:
             self._units[code] = [
                 self.panel_edges_unit(i == 0, lo, hi)
@@ -170,8 +223,17 @@ class Lattice:
         return self._units[code]
 
     def panel_layers(self, code: int) -> list[tuple[int, int]]:
-        """Return (layers toward the lower end, toward the upper end) for
-        every panel of a layout."""
+        """Return, for every panel of layout `code`, the pair (layers toward
+        the panel's lower end, layers toward the panel's upper end).
+
+        The lower end of a panel takes one of three layer counts: the model's
+        ``vp_layers_c`` where the panel's lower end is V_c; the rules'
+        ``vp_layers_zero`` where the panel is the first panel, or where the
+        panel's lower end is V_k and the code is DEEP_K or above; and the
+        rules' ``vp_layers_kink`` otherwise. The upper end of a panel takes
+        the model's ``vp_layers_edge`` where the panel's upper end is V_edge,
+        and the rules' ``vp_layers_kink`` otherwise.
+        """
         rr, m = self.rules, self.model
         seq = LAYOUT_SEQ[int(code)]
         return [
@@ -189,15 +251,18 @@ class Lattice:
         ]
 
     def lattice_min_gaps(self, br: Array, units: list[Array]) -> Array:
-        """Return the least gap of each panel of rows with breaks `br`
-        (m, panels + 1), shape (m, panels).
+        """Return the smallest relative node gap of each panel, shape
+        (m, panels), for m rows with panel ends `br`, shape (m, panels + 1).
 
-        The gap between two neighboring nodes is their step, from the unit
-        offsets times the panel's width, over the upper node's value. A gap
-        inside a panel is its panel's; the gap across a break is the narrower
-        panel's (the lower one where they are as wide). Each gap is formed from
-        its own step and node, a block of nodes at a time of at most
-        ``rules.chunk`` elements, never the whole lattice at once.
+        The relative gap of two neighboring nodes is the velocity difference
+        of the two nodes divided by the velocity of the upper node. Panel i's
+        nodes are the ``vp_nodes``-point Gauss-Legendre nodes of each
+        sub-panel, with the sub-panel edges ``units[i]`` given in units of the
+        panel's width. A gap between two nodes of one panel belongs to that panel. A
+        gap across a break belongs to the narrower of the two panels at the
+        break, and to the lower panel where the two panels have equal widths.
+        The gaps are formed in blocks of nodes, each block holding at most
+        ``rules.chunk`` elements.
         """
         xg = gl01(self.rules.vp_nodes)[0]
         w = np.diff(br, axis=1)
@@ -235,13 +300,21 @@ class Lattice:
         vedge: ArrayLike = np.nan,
         vc: ArrayLike = np.nan,
     ) -> tuple[Array, ...]:
-        """Return (V_k, V_rad, V_edge, V_c) with every break NaN whose panel
-        the row's lattice does not resolve.
+        r"""Return (V_k, V_rad, V_edge, V_c) with NaN in place of each interior
+        break that the row's panels cannot carry in double precision.
 
-        A panel is carried where doubles resolve its nodes (RB_MIN_GAP of their
-        own values) and its graded sides (`l_max`); otherwise one of its
-        interior breaks is merged (MERGE_ORDER; a panel bounded by 0 or V_end
-        loses its other break) and the row is tested again.
+        A panel fails in either of two cases: the panel's smallest relative
+        node gap (`lattice_min_gaps`) is below RB_MIN_GAP (``1e-12``) or is
+        NaN; or a positive end of the panel needs more layers than
+        :math:`L_{\max} = \lfloor \ln(x_1 w / (2 \epsilon V))
+        / \ln(1/r) \rfloor`, with :math:`x_1` the first Gauss-Legendre node
+        on [0, 1], :math:`w` the panel's width, :math:`V` the end's velocity,
+        :math:`\epsilon` the machine epsilon of doubles and :math:`r` the
+        rules' ``vp_ratio``. In a row with a failed panel, the function takes
+        the failed panel with the smallest node gap and sets to NaN one of
+        that panel's interior break ends, the one earliest in MERGE_ORDER. The
+        ends 0 and V_end are never merged. The function then tests the rows
+        again, at most four times in all.
         """
         vk, vend, vrad, vedge, vc = np.broadcast_arrays(
             *(np.asarray(x, dtype=np.float64) for x in (vk, vend, vrad, vedge, vc))

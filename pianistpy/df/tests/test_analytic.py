@@ -1,4 +1,9 @@
-"""Tests of the closed-form distribution functions and the models built from them."""
+"""Tests of the closed-form DFs of the isotropic Hernquist and Plummer models.
+
+The tests hold `hernquist_df` and `plummer_df` to their densities, to the
+textbook Hernquist DF in 40-digit arithmetic and to their own derivatives, and
+they check the `Model` that `analytic_model` builds from each closed form.
+"""
 
 import dataclasses
 import math
@@ -89,7 +94,7 @@ def test_the_analytic_model_is_a_model_and_survives_its_file(name, tmp_path):
     assert isinstance(model, Model)
     assert not model.spatially_finite
     assert model.truncation is None
-    assert model.validation.tier == "goal"
+    assert model.validation.tier == "silent"
     assert model.table.log_df.shape == (1, 201)
     assert np.all(np.diff(model.table.k[0]) > 0.0)
     assert np.all(np.diff(model.profile.p_trunc) < 0.0)
@@ -110,11 +115,17 @@ def test_the_analytic_model_is_a_model_and_survives_its_file(name, tmp_path):
             else:
                 assert other == value, key
     assert back.form.tail_amplitude == model.form.tail_amplitude
-    assert back.r_trust == model.r_trust == {"goal": math.inf, "ceiling": math.inf}
-    # radii of an untruncated model's tiers read back equal
-    radii = dataclasses.replace(model, r_trust={"goal": 7.8e5, "ceiling": 7.8e7})
+    assert back.r_trust == model.r_trust == {"silent": math.inf, "recorded": math.inf}
+    # A model whose r_trust holds finite radii reads those radii back from its
+    # file unchanged.
+    radii = dataclasses.replace(model, r_trust={"silent": 7.8e5, "recorded": 7.8e7})
     radii.write(tmp_path / "radii.h5")
-    assert read(tmp_path / "radii.h5").r_trust == {"goal": 7.8e5, "ceiling": 7.8e7}
+    assert read(tmp_path / "radii.h5").r_trust == {"silent": 7.8e5, "recorded": 7.8e7}
+    # A file whose r_trust is keyed by "goal" and "ceiling" reads back with the
+    # keys "silent" and "recorded".
+    former = dataclasses.replace(model, r_trust={"goal": 7.8e5, "ceiling": 7.8e7})
+    former.write(tmp_path / "former.h5")
+    assert read(tmp_path / "former.h5").r_trust == {"silent": 7.8e5, "recorded": 7.8e7}
     assert back.form.central_label == model.form.central_label
 
 

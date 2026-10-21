@@ -1,3 +1,5 @@
+"""Tests of the validation report of a closed-form untruncated DF."""
+
 import numpy as np
 
 from pianistpy.df.analytic import analytic_model
@@ -5,12 +7,15 @@ from pianistpy.df.report import DF_REPORT_KEYS, validate_df
 from pianistpy.df.stages import PotentialDensityPair
 
 
-def test_the_closed_form_hernquist_df_is_within_the_goal():
-    # The closed-form table and its forms: every check of the DF's report
-    # within the goal, no eps among them, and a non-negative, non-decreasing
-    # DF admits every truncation energy. 4000 nodes: the density round trip
-    # reads the lookup's interpolation of the table, 6e-6 at 400 nodes (tier
-    # ceiling), 7e-10 at 4000.
+def test_the_closed_form_hernquist_df_is_silent():
+    """The report of the closed-form Hernquist DF has the keys of an
+    untruncated DF with a tail, with no "eps" check, and its tier is "silent":
+    every check is at most :math:`10^{-6}`. The Hernquist DF is non-negative
+    and non-decreasing, so its lowest admissible truncation energy is zero and
+    no truncation gate fires."""
+    # The density round trip reads the lookup's interpolation of the table.
+    # A table of 4000 nodes keeps that interpolation error below 1e-6, the
+    # upper bound of the "silent" tier.
     model = analytic_model("hernquist", n_nodes=4000)
     pair = PotentialDensityPair(
         components=model.components,
@@ -23,5 +28,5 @@ def test_the_closed_form_hernquist_df_is_within_the_goal():
     k_t_min, report, gates = validate_df(pair, model.table, model.form)
     assert report.keys == DF_REPORT_KEYS["untruncated_df_with_tail"]
     assert "eps" not in report.keys
-    assert report.tier == "goal"
+    assert report.tier == "silent"
     assert k_t_min == 0.0 and gates.set_by == "none" and gates.fired == ()

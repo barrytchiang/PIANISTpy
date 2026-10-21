@@ -1,4 +1,4 @@
-"""Tests of the cubic Hermite interpolant and its inverse."""
+"""Tests of `hermite`, the cubic Hermite interpolant, and of `hermite_inverse`."""
 
 import numpy as np
 
@@ -50,8 +50,10 @@ def test_the_inverse_returns_the_points_of_an_increasing_interpolant():
 
 
 def test_the_inverse_stays_in_its_bracket_on_a_steep_interval():
-    # An interval whose end slopes are far steeper than its secant: a plain
-    # Newton step from its middle leaves the interval.
+    # The slope at the middle node, 1e-9, is far below the secant 1 of both
+    # intervals. A plain Newton step near the middle node divides by a slope
+    # near 1e-9 and leaves the interval, so hermite_inverse must keep each
+    # root inside the root's bracket.
     x_nodes = np.array([0.0, 1.0, 2.0])
     f_nodes = np.array([0.0, 1.0, 2.0])
     df_dx_nodes = np.array([1.0, 1e-9, 1.0])

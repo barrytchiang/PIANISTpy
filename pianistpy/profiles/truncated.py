@@ -1,4 +1,11 @@
-"""The self-consistent profile of a model, tabulated, and its evaluation."""
+r"""The self-consistent profile of a model, tabulated at nodes, and its evaluation.
+
+`TruncatedProfile` holds the relative potential, the density of each
+component and the enclosed mass of a model at a set of radii, the nodes, and
+evaluates them at any radius. `ProfileTables` holds the interpolants of
+`TruncatedProfile` as arrays that a JAX function takes as arguments. The
+evaluation is described in Notes Section T:1.3.
+"""
 
 __all__ = ["ProfileTables", "TruncatedProfile"]
 
@@ -20,34 +27,79 @@ from .core import DoublePowerLaw
 
 @dataclass(frozen=True)
 class ProfileTables:
-    r"""The arrays a kernel reads a `TruncatedProfile` from.
+    r"""Arrays from which a JAX function evaluates a `TruncatedProfile`.
 
-    They are the numbers `TruncatedProfile.potential`, `density`, `mass` and
-    `radius` evaluate, laid out for a kernel that takes them as traced
-    arguments: the cubic Hermite in the logarithms on the interior rows and
-    the edge's closed forms beyond them.
+    The arrays are the numbers from which `TruncatedProfile.potential`,
+    `TruncatedProfile.density`, `TruncatedProfile.mass` and
+    `TruncatedProfile.radius` evaluate the profile, laid out so that a JAX
+    function takes them as arguments and is differentiable in them. A node
+    is one tabulated radius of the profile. An interior node is any node
+    other than the edge node of a spatially finite profile.
 
     Parameters
     ----------
-    log_r, log_p, log_p_slope : array, shape (n_interior,)
-        ln r, ln P and d ln P / d ln r at the interior rows (every row but
-        an edge row).
-    log_r_all, log_mass, log_mass_slope : array, shape (n,)
-        ln r, ln M and d ln M / d ln r at every row.
+    log_r : array, shape (n_interior,)
+        :math:`\ln R` at the interior nodes, with :math:`R` the radius in
+        internal units.
+    log_p : array, shape (n_interior,)
+        :math:`\ln P` at the interior nodes, with :math:`P` the relative
+        potential in internal units.
+    log_p_slope : array, shape (n_interior,)
+        :math:`\mathrm{d}\ln P/\mathrm{d}\ln R` at the interior nodes.
+    log_r_all : array, shape (n,)
+        :math:`\ln R` at every node.
+    log_mass : array, shape (n,)
+        :math:`\ln \mathcal{M}` at every node, with :math:`\mathcal{M}` the
+        enclosed mass in internal units.
+    log_mass_slope : array, shape (n,)
+        :math:`\mathrm{d}\ln \mathcal{M}/\mathrm{d}\ln R` at every node.
     log_rho_coefficients : array, shape (n_components, 4, n_interior - 1)
-        The coefficients of the cubic spline of ln rho in ln r on each
-        interval, highest power first, in the interval's own ln r offset.
+        Coefficients of the cubic spline of :math:`\ln\varrho` in
+        :math:`\ln R` for each component and each interval between interior
+        nodes, highest power first, as polynomials in the offset of
+        :math:`\ln R` from the interval's lower node.
     has_edge_row : bool
-        Whether the profile carries its edge as its last row; the fields
-        below are read only then.
-    r_last, p_last : float
-        Radius and potential of the last interior row.
+        Whether the last node of the profile is its edge node.
+    r_last : float
+        Radius of the last interior node, in internal units.
+    p_last : float
+        Relative potential at the last interior node, in internal units.
     rho_last : array, shape (n_components,)
-        Density of each component there.
-    r_t, mass_t : float
-        Truncation radius and total mass.
+        Density of each component at the last interior node, in internal
+        units.
+    r_t : float
+        Truncation radius :math:`R_{\rm t}`, in internal units. Infinite
+        where `has_edge_row` is False.
+    mass_t : float
+        Total mass :math:`\mathcal{M}_{\rm t}`, in internal units. Infinite
+        where `has_edge_row` is False.
     edge_exponent : array, shape (n_components,)
-        Exponent q of each component's density at the edge.
+        Exponent :math:`q` of each component's density at the edge,
+        :math:`\varrho \propto P^q`. Empty where the model has no edge.
+
+    See Also
+    --------
+    TruncatedProfile.interpolation_tables : The arrays of a profile.
+    TruncatedProfile : The profile the arrays evaluate.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import pianistpy as pp
+    >>> from pianistpy.profiles import TruncatedProfile
+    >>> hernquist = pp.DoublePowerLaw.hernquist()
+    >>> r = np.geomspace(1e-3, 1e3, 601)
+    >>> profile = TruncatedProfile(
+    ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+    ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+    ...     spatially_finite=False, source=hernquist,
+    ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+    ... )
+    >>> tables = profile.interpolation_tables()
+    >>> tables.log_r.shape, tables.log_rho_coefficients.shape
+    ((601,), (1, 4, 600))
+    >>> tables.has_edge_row
+    False
     """
 
     log_r: Array
@@ -68,107 +120,189 @@ class ProfileTables:
 
 @dataclass(frozen=True, eq=False)
 class TruncatedProfile:
-    r"""The self-consistent profile of a truncated model.
+    r"""Self-consistent profile of a model, tabulated at radii called nodes.
 
-    It is the profile of a model, and it can be the profile of a component
-    of another model: a component given the truncated profile of a parent
-    model and a new anisotropy is Method II of Chiang+(2026d).
+    The profile of a model is ``model.profile``. A component given the
+    profile of a parent model and a new anisotropy is Method II of
+    Chiang+(2026d), Appendix B2.2. The methods `potential`, `density`,
+    `mass` and `radius` evaluate the profile between the nodes.
 
-    Two profiles are equal where they belong to the same model: the identity
-    of a model determines its profile.
-
-    The profile evaluates itself: `potential`, `density`, `mass` and
-    `radius` are the one reading of the rows that every stage of the
-    package takes, in place of an interpolant of its own. Between the rows
-    the potential and the mass are cubic Hermite interpolants in the
-    logarithms with the exact slopes the rows state (the Poisson equation
-    gives :math:`\mathrm{d}\ln\mathcal{P}/\mathrm{d}\ln r = -M/(r\mathcal{P})`
-    and :math:`\mathrm{d}\ln M/\mathrm{d}\ln r = r^3\rho/M`); the density
-    of each component is a cubic spline in the logarithms, since the rows
-    state no density slope. On the last interval of a spatially finite
-    profile whose last row is its edge (:math:`\mathcal{P} = 0` at `r_t`),
-    the potential is the Kepler form :math:`M_t(1/r - 1/r_t)` and the
-    density follows the edge law :math:`\rho \propto \mathcal{P}^q` with
-    the stated `edge_exponent`; beyond `r_t` the potential is :math:`M_t/r`
-    and the density zero. Inside the first row and, for a profile without
-    an edge, beyond the last, the interpolants continue as the power laws
-    of the end rows.
+    Two profiles are equal if the identity strings `model` of the two
+    profiles are equal, because the identity of a model determines its
+    profile.
 
     Parameters
     ----------
     r : array, shape (n,)
-        Radius, strictly increasing.
+        Radius :math:`R` of each node, in internal units. The radii are
+        positive and strictly increasing, and there are at least two.
     p_trunc : array, shape (n,)
-        Total relative potential of the truncated model.
+        Total relative potential :math:`P` of the model at each node, in
+        internal units.
     rho_trunc : array, shape (n_components, n)
-        Density of each component.
+        Density :math:`\varrho` of each component at each node, in internal
+        units.
     mass_trunc : array, shape (n,)
-        Total enclosed mass, in the unit of `DoublePowerLaw.mass` (the
-        Hernquist profile's total is 1); 4 pi times it is the integral of
-        the density over the volume.
+        Total enclosed mass :math:`\mathcal{M}` at each node, in internal
+        units, the unit of `DoublePowerLaw.mass`, in which the total mass of
+        the Hernquist profile is 1. :math:`4\pi` times `mass_trunc` is the
+        integral of the density over the volume.
     k_t : float
-        Truncation energy.
-    r_t, mass_t : float
-        Truncation radius and total mass; infinite where the model is not
-        spatially finite.
+        Truncation energy :math:`\mathcal{K}_{\rm t}`, in internal units.
+    r_t : float
+        Truncation radius :math:`R_{\rm t}`, in internal units. Infinite
+        where the model is not spatially finite.
+    mass_t : float
+        Total mass :math:`\mathcal{M}_{\rm t}`, in internal units. Infinite
+        where the model is not spatially finite.
     spatially_finite : bool
         Whether the density reaches zero at a finite radius with a finite
-        total mass. A spatially finite profile whose last row has
-        ``p_trunc == 0`` carries its edge as that row, and then the row's
-        density is zero and its radius is `r_t`.
+        total mass. A spatially finite profile whose last node has
+        ``p_trunc == 0`` holds its edge as that last node, the edge node.
+        The edge node's density is zero and its radius is `r_t`.
     source : DoublePowerLaw
-        The analytic profile of the first component of the model: its scale
-        radius and its central potential are the internal units the arrays
-        are in.
+        The analytic profile of the first component of the model. The scale
+        radius and the central potential of `source` define the internal
+        units of the arrays.
     source_anisotropy : Anisotropy
-        The anisotropy of that component in the model the profile belongs
-        to. A component built on this profile (Method II) reads here what
-        its parent was.
+        The anisotropy of the first component in the model the profile
+        belongs to. A component built on the profile (Method II) reads its
+        parent's anisotropy from `source_anisotropy`.
     model : str
         Identity string of the model the profile belongs to.
-    model_level : int or None
-        The tier level of that model's report (`ValidationReport.level`),
-        written by `truncate`, so that a component built on this profile
-        (Method II) takes it as its parents' tier. None where it was not
-        recorded (a profile made otherwise, or read from a file written
-        before it was): read as level 0.
     edge_exponent : tuple of float
         Exponent :math:`q` of each component's density at the edge of the
-        model, :math:`\rho \propto \mathcal{P}^q`; empty where the model
-        is not spatially finite and has no edge.
-    u_trunc : array, shape (n,)
-        The central potential less the potential, p_trunc[0] + u_trunc[0]
-        less p_trunc, kept exact where p_trunc is close to it: near the
-        center p_trunc alone has lost the digits of the difference that the
-        DF's singular center is read in. Empty where not computed.
-    central_deficit : tuple of tuple of float
-        For each component, (D_0, D_1, ...): the central auxiliary density
-        of the orbits the truncation removed as its Taylor series in the
-        depth u, D_0 - D_1 u + D_2 u^2 - ... (D_0 to D_4 as made; a record
-        of D_0 and D_1 alone reads as the linear deficit). Empty where not
-        recorded.
-    override_r, override_r_end : float
-        Radii between which the closed-form profile replaced the rows of
-        the solve; NaN where no row was replaced.
-    df_k, df_log_f, df_slope : array, shape (n_components, m)
-        The DF table of the model the profile belongs to: the energies,
-        log10 F and its slope d log10 F / d ln K (NaN where not exact), as
-        `truncate` made them. A component built on this profile (Method II)
-        reads its sources from the integral of this DF. Empty where not
-        recorded.
-    df_taylor : tuple of tuple of float
-        For each component, the model's Taylor edge (F_1, F_2, K_switch):
-        F = F_1 K + F_2 K^2 / 2 below K_switch. Empty where not recorded.
-    override_rows : int
-        Number of rows replaced there.
-    override_rule : str
-        What replaced them, ``"none"`` where nothing did.
-    origin : array of int8, shape (n,)
-        Where each row comes from, a code of
-        `pianistpy.df.truncation.ORIGINS` (the main solve, the edge
-        continuation, the floor event, the fills, the closed-form outer rows,
-        the edge row): the profile's checks read each row's tolerance from it.
-        Empty where not recorded.
+        model, :math:`\varrho \propto P^q`. Empty where the model is not
+        spatially finite.
+    u_trunc : array, shape (n,), optional
+        Depth :math:`u`, the central potential less the potential, at each
+        node, in internal units. Near the center `p_trunc` has lost the
+        digits of the depth, and `u_trunc` keeps them. Default: an empty
+        array, which means the depth was not stored.
+    central_deficit : tuple of tuple of float, optional
+        For each component, the coefficients :math:`(D_0, D_1, \ldots, D_4)`
+        of the Taylor series :math:`D_0 - D_1 u + D_2 u^2 - \ldots` in the
+        depth :math:`u` of the central augmented density of the orbits that
+        the truncation removed. A record that holds only :math:`D_0` and
+        :math:`D_1` is the linear form of the deficit. Default: ``()``,
+        which means the deficit was not recorded.
+    override_r : float, optional
+        Inner radius of the range in which a closed form of the profile
+        replaced the solution of the Poisson equation, in internal units.
+        Default: NaN, which means no node was replaced.
+    override_r_end : float, optional
+        Outer radius of the range in which a closed form replaced the
+        solution of the Poisson equation, in internal units. Default: NaN,
+        which means no node was replaced.
+    override_rows : int, optional
+        Number of nodes that a closed form replaced. Default: ``0``, which
+        means no node was replaced.
+    override_rule : str, optional
+        Name of the closed form that replaced the nodes. Default:
+        ``"none"``, which means no node was replaced.
+    origin : array of int8, shape (n,), optional
+        Source of each node, as a code from 0 to 6. The code is 0 for the
+        solution of the Poisson equation, 1 for the continuation of the
+        Poisson solution to the edge, 2 for the radius at which the
+        potential reaches zero, 3 for a node filled in at the inner end, 4
+        for a node filled in at the outer end, 5 for a closed-form outer
+        node and 6 for the edge node. Default: an empty array, which means
+        the sources were not recorded.
+    df_k : array, shape (n_components, m), optional
+        Energies :math:`\mathcal{K}` of the DF table of the model the
+        profile belongs to, in internal units. A component built on the
+        profile (Method II) computes its own DF from the parent's DF table.
+        Default: an empty array, which means the table was not recorded.
+    df_log_f : array, shape (n_components, m), optional
+        :math:`\log_{10} F` at the energies `df_k`, with :math:`F` the DF in
+        internal units. Default: an empty array, which means the table was
+        not recorded.
+    df_slope : array, shape (n_components, m), optional
+        :math:`\mathrm{d}\log_{10} F/\mathrm{d}\ln\mathcal{K}` at the
+        energies `df_k`. Default: an empty array, which means the table was
+        not recorded.
+    df_taylor : tuple of tuple of float, optional
+        For each component, the coefficients :math:`(F_1, F_2,
+        \mathcal{K}_{\rm s})` of the model's DF near the edge:
+        :math:`F = F_1 \mathcal{K} + F_2 \mathcal{K}^2/2` for
+        :math:`\mathcal{K}` below :math:`\mathcal{K}_{\rm s}`. Default:
+        ``()``, which means the coefficients were not recorded.
+    model_level : int or None, optional
+        Level of the validation report of the model the profile belongs to
+        (`ValidationReport.level`), set by the call that made the model. A
+        component built on the profile (Method II) takes `model_level` as
+        the level of its parent. Default: ``None``, which means the level
+        was not recorded and is read as level 0.
+
+    Raises
+    ------
+    ResultError
+        If the radii are fewer than two, not positive or not strictly
+        increasing.
+    ResultError
+        If `p_trunc` or `mass_trunc` does not have one value per radius, or
+        `rho_trunc` does not have the shape (n_components, n).
+    ResultError
+        If a spatially finite profile does not give the edge exponent of
+        every component.
+    ResultError
+        If the edge node does not have zero density or does not lie at
+        `r_t`.
+
+    See Also
+    --------
+    truncate : The call that makes a model and its profile.
+    Component : A component built on a profile (Method II).
+    DoublePowerLaw : The analytic profile of a component.
+
+    Notes
+    -----
+    Between the nodes, :math:`\ln P` and :math:`\ln \mathcal{M}` are cubic
+    polynomials in :math:`\ln R` that match the values and the slopes at
+    the two nodes of each interval. The slopes are exact, from the Poisson
+    equation and the mass integral:
+
+    .. math::
+
+        \frac{\mathrm{d}\ln P}{\mathrm{d}\ln R} = -\frac{\mathcal{M}}{R P},
+        \qquad
+        \frac{\mathrm{d}\ln \mathcal{M}}{\mathrm{d}\ln R}
+        = \frac{R^3\varrho}{\mathcal{M}},
+
+    with :math:`\varrho` the total density. The logarithm of each
+    component's density is a cubic spline in :math:`\ln R`. On the last
+    interval of a profile with an edge node, the potential is the Kepler
+    form :math:`\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})`, and each
+    component's density is :math:`\varrho_L (P/P_L)^q`, with
+    :math:`\varrho_L` and :math:`P_L` the values at the last interior node
+    and :math:`q` from `edge_exponent`. At and beyond :math:`R_{\rm t}`, the
+    relative potential and the density are zero, and the enclosed mass is
+    :math:`\mathcal{M}_{\rm t}`. Inside the first node, and beyond the last
+    node of a profile without an edge node, :math:`P` and
+    :math:`\mathcal{M}` continue as the power laws of the end nodes.
+
+    References
+    ----------
+    Notes Section T:1.3.
+
+    Examples
+    --------
+    The example builds the untruncated Hernquist profile on 601 nodes
+    directly; a model's profile is ``model.profile``.
+
+    >>> import numpy as np
+    >>> import pianistpy as pp
+    >>> from pianistpy.profiles import TruncatedProfile
+    >>> hernquist = pp.DoublePowerLaw.hernquist()
+    >>> r = np.geomspace(1e-3, 1e3, 601)
+    >>> profile = TruncatedProfile(
+    ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+    ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+    ...     spatially_finite=False, source=hernquist,
+    ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+    ... )
+    >>> round(float(profile.potential(1.5)), 6)
+    0.4
     """
 
     r: Array
@@ -225,41 +359,46 @@ class TruncatedProfile:
                 )
 
     def __eq__(self, other: object) -> bool:
+        """Return whether two profiles belong to the same model."""
         if not isinstance(other, TruncatedProfile):
             return NotImplemented
         return self.model == other.model
 
     def __hash__(self) -> int:
+        """Return the hash of the model's identity string."""
         return hash(self.model)
 
     @property
     def has_edge_row(self) -> bool:
-        """Whether the last row is the edge of a spatially finite profile."""
+        """Whether the last node is the edge node of a spatially finite profile."""
         return bool(self.spatially_finite) and float(self.p_trunc[-1]) == 0.0
 
     @property
     def r_table_max(self) -> float:
-        """The radius of the last row: the outer end of the table, which is
-        the edge of a spatially finite model."""
+        """Radius of the last node, in internal units; `r_t` at an edge node."""
         return float(self.r[-1])
 
     @property
     def mass_at_r_table_max(self) -> float:
-        """`mass_trunc` at the last row."""
+        """Enclosed mass `mass_trunc` at the last node, in internal units."""
         return float(self.mass_trunc[-1])
 
-    # The rows the logarithmic interpolants are built on: every row but an
-    # edge row, whose potential and density are zero.
+    # The interpolants in the logarithms are built on the interior nodes:
+    # every node but an edge node, whose potential and density are zero and
+    # have no logarithm.
     @cached_property
     def _n_interior(self) -> int:
+        """Number of interior nodes."""
         return int(self.r.size) - (1 if self.has_edge_row else 0)
 
     @cached_property
     def _log_r(self) -> Array:
+        """Return ln R at the interior nodes."""
         return np.log(np.asarray(self.r[: self._n_interior], dtype=np.float64))
 
     @cached_property
     def _log_p(self) -> Array:
+        """Return ln P at the interior nodes; ResultError if a P is not positive."""
         p = np.asarray(self.p_trunc[: self._n_interior], dtype=np.float64)
         if not np.all(p > 0.0):
             raise ResultError("The potential of a profile is positive inside its edge.")
@@ -267,7 +406,9 @@ class TruncatedProfile:
 
     @cached_property
     def _log_p_slope(self) -> Array:
-        # d ln P / d ln r = -M / (r P), the Poisson equation at the rows
+        """Return d ln P / d ln R at the interior nodes."""
+        # The Poisson equation dP/dR = -M / R**2 gives
+        # d ln P / d ln R = -M / (R P) at each node.
         n = self._n_interior
         return -np.asarray(self.mass_trunc[:n]) / (
             np.asarray(self.r[:n]) * np.asarray(self.p_trunc[:n])
@@ -275,7 +416,9 @@ class TruncatedProfile:
 
     @cached_property
     def _log_mass_slope(self) -> Array:
-        # d ln M / d ln r = r^3 rho / M, with rho the total density
+        """Return d ln M / d ln R at every node; ResultError if an M is not positive."""
+        # The mass integral dM/dR = R**2 rho, with rho the total density of
+        # the components, gives d ln M / d ln R = R**3 rho / M at each node.
         r, m = (
             np.asarray(self.r, dtype=np.float64),
             np.asarray(self.mass_trunc, dtype=np.float64),
@@ -288,6 +431,11 @@ class TruncatedProfile:
 
     @cached_property
     def _log_rho_splines(self) -> tuple[CubicSpline, ...]:
+        """Return each component's cubic spline of ln rho in ln R.
+
+        The splines are built on the interior nodes. ResultError if a
+        density at an interior node is not positive.
+        """
         n = self._n_interior
         rho = np.asarray(self.rho_trunc[:, :n], dtype=np.float64)
         if not np.all(rho > 0.0):
@@ -295,11 +443,45 @@ class TruncatedProfile:
         return tuple(CubicSpline(self._log_r, np.log(row)) for row in rho)
 
     def interpolation_tables(self) -> ProfileTables:
-        """Return the arrays a kernel reads this profile from.
+        """Return the arrays from which a JAX function evaluates the profile.
 
-        A kernel that evaluates them as `potential`, `density`, `mass` and
-        `radius` do gives the same numbers; the arrays are traced arguments
-        of the kernel, never closed over.
+        A JAX function that applies the formulas of `potential`, `density`,
+        `mass` and `radius` to the arrays returns the values of those four
+        methods. Such a JAX function takes the arrays as arguments and is
+        differentiable in the arrays.
+
+        Returns
+        -------
+        tables : ProfileTables
+            The logarithms of the potential and of the mass and their slopes
+            at the nodes, the coefficients of each component's density
+            spline, and the values at the last interior node and at the edge.
+
+        Raises
+        ------
+        ResultError
+            If the potential or a density at an interior node is not
+            positive, or the enclosed mass at a node is not positive.
+
+        See Also
+        --------
+        ProfileTables : The arrays and their meaning.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> profile.interpolation_tables().log_r.shape
+        (601,)
         """
         last = self._n_interior - 1
         finite = self.has_edge_row
@@ -326,13 +508,59 @@ class TruncatedProfile:
         )
 
     def _on_last_interval(self, r: Array) -> Array:
-        """Where `r` lies on the Kepler interval of a profile with an edge row."""
+        """Return the mask of the radii on the Kepler interval of the profile.
+
+        The Kepler interval of a profile with an edge node is the range of
+        radii beyond the last interior node, where the potential takes the
+        Kepler form. The mask is False everywhere for a profile without an
+        edge node.
+        """
         if not self.has_edge_row:
             return np.zeros(np.shape(r), dtype=bool)
         return r > float(self.r[self._n_interior - 1])
 
     def potential(self, r: ArrayLike) -> Array:
-        """Return the relative potential at radii `r`."""
+        r"""Return the relative potential :math:`P(R)`.
+
+        Parameters
+        ----------
+        r : array-like
+            User-specified 3D radii :math:`R`, positive, in internal units.
+
+        Returns
+        -------
+        p : ndarray
+            Relative potential :math:`P(R)` in internal units, with the
+            shape of `r`. For a profile with an edge node, :math:`P` is the
+            Kepler form :math:`\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})` beyond
+            the last interior node and zero at and beyond :math:`R_{\rm t}`.
+
+        Raises
+        ------
+        ResultError
+            If the potential at an interior node is not positive.
+
+        See Also
+        --------
+        radius : The radius at a given potential.
+        potential_log_slope : The logarithmic slope of the potential.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> round(float(profile.potential(1.0)), 6)
+        0.5
+        """
         r = np.asarray(r, dtype=np.float64)
         with np.errstate(divide="ignore", invalid="ignore"):
             log_p, _ = hermite(np.log(r), self._log_r, self._log_p, self._log_p_slope)
@@ -343,9 +571,47 @@ class TruncatedProfile:
         return np.where(self._on_last_interval(r), kepler, inside)
 
     def density(self, r: ArrayLike) -> Array:
-        """Return the density of each component at radii `r`.
+        r"""Return the density :math:`\varrho(R)` of each component.
 
-        The result has one row per component and one column per radius.
+        Parameters
+        ----------
+        r : array-like, shape (m,)
+            User-specified 3D radii :math:`R`, positive, in internal units.
+
+        Returns
+        -------
+        rho : ndarray, shape (n_components, m)
+            Density of each component in internal units. For a profile with
+            an edge node, the density is zero at and beyond
+            :math:`R_{\rm t}`.
+
+        Raises
+        ------
+        ResultError
+            If a density or, for a profile with an edge node, the potential
+            at an interior node is not positive.
+
+        See Also
+        --------
+        mass : The enclosed mass.
+        potential : The relative potential.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> rho = profile.density([0.5, 1.0])
+        >>> rho.shape, round(float(rho[0, 1]), 6)
+        ((1, 2), 0.25)
         """
         r = np.asarray(r, dtype=np.float64)
         log_r = np.log(r)
@@ -366,7 +632,46 @@ class TruncatedProfile:
         return np.where(self._on_last_interval(r)[np.newaxis, :], edge, inside)
 
     def mass(self, r: ArrayLike) -> Array:
-        """Return the total enclosed mass at radii `r`."""
+        r"""Return the total enclosed mass :math:`\mathcal{M}(R)`.
+
+        Parameters
+        ----------
+        r : array-like
+            User-specified 3D radii :math:`R`, positive, in internal units.
+
+        Returns
+        -------
+        mass : ndarray
+            Enclosed mass :math:`\mathcal{M}(R)` in internal units (the unit
+            of `mass_trunc`), with the shape of `r`. For a spatially finite
+            profile, the mass is `mass_t` at and beyond `r_t`.
+
+        Raises
+        ------
+        ResultError
+            If the enclosed mass at a node is not positive.
+
+        See Also
+        --------
+        density : The density of each component.
+        potential : The relative potential.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> round(float(profile.mass(1.0)), 6)
+        0.25
+        """
         r = np.asarray(r, dtype=np.float64)
         log_mass, _ = hermite(
             np.log(r),
@@ -380,28 +685,109 @@ class TruncatedProfile:
         return np.where(r >= self.r_t, self.mass_t, inside)
 
     def potential_log_slope(self, r: ArrayLike) -> Array:
-        r"""Return :math:`d\ln P / d\ln r` at radii `r`, from the profile's own
-        representation.
+        r"""Return the logarithmic slope :math:`\mathrm{d}\ln P/\mathrm{d}\ln R`.
 
-        The slope is exact in the rows' quantities: :math:`dP/dr = -M/r^2`
-        (the Poisson equation in the profile's unit), so
-        :math:`d\ln P/d\ln r = -M/(r P)` with `mass` and `potential` read as
-        every consumer reads them. The knots of the representation are the
-        rows `r`; between two rows the slope is smooth.
+        The Poisson equation :math:`\mathrm{d}P/\mathrm{d}R =
+        -\mathcal{M}/R^2` gives :math:`\mathrm{d}\ln P/\mathrm{d}\ln R =
+        -\mathcal{M}/(R P)`. The slope is evaluated from `mass` and
+        `potential` with no further approximation. The slope is continuous
+        in :math:`R` between the nodes.
+
+        Parameters
+        ----------
+        r : array-like
+            User-specified 3D radii :math:`R`, positive, in internal units.
+
+        Returns
+        -------
+        slope : ndarray
+            :math:`\mathrm{d}\ln P/\mathrm{d}\ln R`, dimensionless, with the
+            shape of `r`.
+
+        Raises
+        ------
+        ResultError
+            If the potential at an interior node or the enclosed mass at a
+            node is not positive.
+
+        See Also
+        --------
+        potential_log_slope_derivative : The derivative of the slope in
+            :math:`R`.
+        potential : The relative potential.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> round(float(profile.potential_log_slope(1.0)), 6)
+        -0.5
         """
         r = np.asarray(r, dtype=np.float64)
         with np.errstate(divide="ignore", invalid="ignore"):
             return -self.mass(r) / (r * self.potential(r))
 
     def potential_log_slope_derivative(self, r: ArrayLike) -> Array:
-        r"""Return :math:`d(d\ln P/d\ln r)/dr` at radii `r`, exact in the rows'
-        quantities.
+        r"""Return the derivative in :math:`R` of the potential's logarithmic slope.
 
-        With :math:`q = -M/(rP)`, :math:`dM/dr = r^2 \varrho` (the total
-        density of the components) and :math:`dP/dr = -M/r^2`:
-        :math:`dq/dr = -(r^3 \varrho P - M P + M^2/r) / (r^2 P^2)`. Beyond the
-        edge the density is zero and the same form holds on the Kepler
-        potential.
+        With :math:`s = -\mathcal{M}/(R P)` the logarithmic slope of the
+        potential, :math:`\mathrm{d}\mathcal{M}/\mathrm{d}R = R^2 \varrho`
+        (:math:`\varrho` the total density of the components) and
+        :math:`\mathrm{d}P/\mathrm{d}R = -\mathcal{M}/R^2`, the derivative is
+
+        .. math::
+
+            \frac{\mathrm{d}s}{\mathrm{d}R} = -\frac{R^3 \varrho P
+            - \mathcal{M} P + \mathcal{M}^2/R}{R^2 P^2},
+
+        evaluated from `mass`, `potential` and `density` with no further
+        approximation.
+
+        Parameters
+        ----------
+        r : array-like
+            User-specified 3D radii :math:`R`, positive, in internal units.
+
+        Returns
+        -------
+        derivative : ndarray
+            :math:`\mathrm{d}s/\mathrm{d}R` in internal units (inverse units
+            of :math:`r_0`), with the shape of `r`.
+
+        Raises
+        ------
+        ResultError
+            If the potential or a density at an interior node, or the
+            enclosed mass at a node, is not positive.
+
+        See Also
+        --------
+        potential_log_slope : The logarithmic slope of the potential.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> round(float(profile.potential_log_slope_derivative(1.0)), 6)
+        -0.25
         """
         r = np.asarray(r, dtype=np.float64)
         m, p = self.mass(r), self.potential(r)
@@ -410,17 +796,56 @@ class TruncatedProfile:
             return -(r**3 * rho * p - m * p + m * m / r) / (r * r * p * p)
 
     def radius(self, p: ArrayLike) -> Array:
-        """Return the radii at which the potential takes the values `p`.
+        r"""Return the radius :math:`R` at which the potential takes the value `p`.
 
-        Values above the central potential are refused; a value of zero or
-        below is the truncation radius of a spatially finite profile.
+        Parameters
+        ----------
+        p : array-like
+            User-specified relative potentials :math:`P`, in internal units,
+            at most `p_trunc` at the first node. For a profile with an edge
+            node, a value of zero or below gives `r_t`. For a profile
+            without an edge node, a value of zero or below gives the radius
+            of the last node.
+
+        Returns
+        -------
+        r : ndarray
+            Radius :math:`R` in internal units, with the shape of `p`.
+
+        Raises
+        ------
+        InputError
+            If a value of `p` is above `p_trunc` at the first node.
+        ResultError
+            If the potential at an interior node is not positive.
+
+        See Also
+        --------
+        potential : The potential at a given radius.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> round(float(profile.radius(0.5)), 6)
+        1.0
         """
         p = np.asarray(p, dtype=np.float64)
         if np.any(p > float(self.p_trunc[0])):
             raise InputError("A potential above the central value has no radius.")
         p_last = float(self.p_trunc[self._n_interior - 1])
         safe = np.where(p > 0.0, p, p_last)
-        # -ln P increases with ln r: the inverse of the Hermite interpolant
+        # The inverse is taken of -ln P, which increases with ln R, as the
+        # inverse of the cubic Hermite interpolant of -ln P in ln R.
         log_r, _ = hermite_inverse(
             -np.log(safe), self._log_r, -self._log_p, -self._log_p_slope
         )
@@ -431,10 +856,39 @@ class TruncatedProfile:
         return np.where(p < p_last, kepler, inside)
 
     def to_dict(self) -> dict[str, Any]:
-        """Return what identifies the profile, as a plain dictionary.
+        """Return the record that identifies the profile, as a plain dictionary.
 
-        The arrays are not part of it: the identity of the model determines
-        them, and a file holds them beside this record.
+        The arrays of the profile are not in the record. The identity of
+        the model determines the arrays, and a file stores the arrays
+        beside the record.
+
+        Returns
+        -------
+        record : dict
+            The key ``"profile"`` with the value ``"truncated"``, the key
+            ``"model"`` with the identity string of the model, and the keys
+            ``"source"`` and ``"source_anisotropy"`` with the dictionaries of
+            `source` and `source_anisotropy`.
+
+        See Also
+        --------
+        DoublePowerLaw.to_dict : The dictionary of the source profile.
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> import pianistpy as pp
+        >>> from pianistpy.profiles import TruncatedProfile
+        >>> hernquist = pp.DoublePowerLaw.hernquist()
+        >>> r = np.geomspace(1e-3, 1e3, 601)
+        >>> profile = TruncatedProfile(
+        ...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+        ...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+        ...     spatially_finite=False, source=hernquist,
+        ...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+        ... )
+        >>> sorted(profile.to_dict())
+        ['model', 'profile', 'source', 'source_anisotropy']
         """
         return {
             "profile": "truncated",
@@ -444,9 +898,9 @@ class TruncatedProfile:
         }
 
 
-# The profile as a pytree: its rows and the numbers of its edge are the data;
-# the source, the labels and the override record are static (the gradient
-# contract).
+# The profile as a JAX pytree. The fields listed are the pytree's leaves and
+# subtrees. The other fields (source, source_anisotropy, model,
+# spatially_finite, the override record and model_level) are static.
 register_result(
     TruncatedProfile,
     (

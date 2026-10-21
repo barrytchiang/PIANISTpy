@@ -1,19 +1,31 @@
-r"""Tests of the inversion's gradient in the anisotropy parameters.
+r"""Tests of `rows_jacobian` and `make_inversion_rows`.
 
-The reference is the exact derivative of the inversion's defining integral,
-here for the Hernquist profile in model units,
-rho = 2 R^-1 (1 + R)^-3 and P = 1/(1 + R), so R(P) = 1/P - 1 exactly:
+`rows_jacobian` returns the derivatives of the inverted DF :math:`F(Q)` in
+the anisotropy parameters :math:`\beta_{\rm c}` and :math:`R_{\rm a}`. The
+reference is the exact derivative of the inversion's defining integral for
+the Hernquist profile in model units, :math:`\rho = 2 R^{-1} (1 + R)^{-3}`
+and :math:`P = 1 / (1 + R)`, so that :math:`R(P) = 1/P - 1` exactly. With
+:math:`b = \beta_{\rm c}`:
 
-    F(Q)    = Pf / Gamma(e + 1) INT_0^Q h(P) (Q - P)^e dP,
-    h       = d^k rho_aux / dP^k,  k = ceil(3/2 - b),  e = k - 5/2 + b,
-    Pf      = 2^b / ((2 pi)^(3/2) Gamma(1 - b)),
-    dF/db   = F [ln 2 + psi(1 - b) - psi(e + 1)]
-              + Pf / Gamma(e + 1) [INT d_b h (Q - P)^e + INT h (Q - P)^e ln(Q - P)],
-    dF/dR_a = Pf / Gamma(e + 1) INT d_Ra h (Q - P)^e dP,
+.. math::
 
-in mpmath at 40 digits. The rule is held to :math:`10^{-6}` relative
-(measured: :math:`5.6 \times 10^{-7}` at worst, near the center of the
-Cuddeford member).
+    F(Q) &= \frac{P_{\rm f}}{\Gamma(e + 1)} \int_0^Q h(P) \, (Q - P)^e \,
+    {\rm d}P, \\
+    h &= \frac{{\rm d}^k \rho_{\rm aux}}{{\rm d}P^k}, \quad
+    k = \lceil 3/2 - b \rceil, \quad e = k - 5/2 + b, \\
+    P_{\rm f} &= \frac{2^b}{(2 \pi)^{3/2} \, \Gamma(1 - b)}, \\
+    \frac{\partial F}{\partial b} &= F \, [\ln 2 + \psi(1 - b) - \psi(e + 1)]
+    + \frac{P_{\rm f}}{\Gamma(e + 1)} \int_0^Q \left[ \partial_b h \,
+    (Q - P)^e + h \, (Q - P)^e \ln (Q - P) \right] {\rm d}P, \\
+    \frac{\partial F}{\partial R_{\rm a}} &= \frac{P_{\rm f}}{\Gamma(e + 1)}
+    \int_0^Q \partial_{R_{\rm a}} h \, (Q - P)^e \, {\rm d}P.
+
+Here :math:`\rho_{\rm aux}` is the auxiliary density, :math:`\psi` the
+digamma function, and :math:`\partial_b` and :math:`\partial_{R_{\rm a}}`
+the partial derivatives in :math:`b` and :math:`R_{\rm a}`. The reference
+evaluates the integrals in mpmath at 40 digits. Away from the corners of the
+inversion's form in :math:`\beta_{\rm c}`, the derivative from
+`rows_jacobian` must match the reference to a relative :math:`10^{-6}`.
 """
 
 import math
@@ -29,9 +41,12 @@ from pianistpy.exceptions import InputError
 from pianistpy.profiles import DoublePowerLaw
 from pianistpy.settings import Settings
 
+pytestmark = pytest.mark.slow
+
 HERNQUIST = DoublePowerLaw(1.0, 4.0, 1.0)
-# the transpose held to the bit is a property of a fixed reduction order,
-# which a GPU does not promise; there the accuracy grid judges
+# A transpose that is reproduced to the bit requires a fixed order of
+# floating-point reductions, which a GPU does not guarantee. On a GPU the
+# accuracy grid judges the derivative instead of this bitwise test.
 CPU_ONLY = pytest.mark.skipif(
     platform() != "cpu",
     reason="deterministic recomputation, a property of a fixed reduction order; "
@@ -48,8 +63,10 @@ def _exact(q, b, r_a, wrt, sign):
     p, ras = sp.symbols("P R_a", positive=True)
     bcs = sp.Symbol("beta_c", real=True)
     r = 1 / p - 1
-    # the anisotropy factor (1 + sign R^2 / R_a^2)^(1 - beta_c): Cuddeford Type I
-    # (sign 1), Osipkov-Merritt Type I and II at beta_c 0 (sign 1 and -1)
+    # The anisotropy factor is R^(2 beta_c) (1 + sign R^2 / R_a^2)^(1 - beta_c).
+    # The COM Type I model has sign = 1. The OM models have beta_c = 0, with
+    # sign = 1 for Type I and sign = -1 for Type II. The constant-anisotropy
+    # model is evaluated with sign = 0.
     gfac = r ** (2 * bcs) * (1 + sign * r**2 / ras**2) ** (1 - bcs)
     k = math.ceil(1.5 - b)
     h = sp.diff(2 * r ** (-1) * (1 + r) ** (-3) * gfac, p, k)
@@ -88,8 +105,11 @@ def _nodes(q):
 
 
 def _inside(record):
-    # every quotient's stencil stays inside the form's region on its side,
-    # b +- d central and b + 2 s d one-sided, the pilot's where it was measured
+    # Every difference quotient in beta_c must stay inside the region where
+    # the inversion's form is the form beside b on the quotient's side. A
+    # central quotient reaches b +- d and a one-sided quotient reaches b + 2 s d,
+    # with d the step and s the side's sign. Where the steps were measured at
+    # this call, the pilot step must also stay inside the region.
     reach = 1.0 if record["exponent"] == "central" else 2.0
     for d, p, w in zip(
         record["steps"], record["pilots"], record["regions"], strict=True
@@ -131,9 +151,13 @@ def test_cuddeford_against_the_exact_derivative(cuddeford, wrt):
 
 @pytest.mark.parametrize("b0", [0.5, 0.0])
 def test_a_corner_takes_both_sides(b0):
-    # F is smooth across both corners, so its slope at b0 is the limit from
-    # below, extrapolated from b0 - 1e-3 and b0 - 5e-4 (above +1/2 the
-    # reference's exponent tends to -1, which the quadrature does not resolve)
+    # At the corners b0 = 0.5 and b0 = 0 the inversion's form changes, and
+    # `rows_jacobian` differences one-sided on both sides of b0. F is smooth
+    # across both corners, so the reference slope at b0 is the limit from
+    # below, extrapolated linearly from the exact derivatives at b0 - 1e-3 and
+    # b0 - 5e-4. The reference is not taken from above, because above
+    # beta_c = 1/2 the reference's exponent e tends to -1, which the mpmath
+    # quadrature does not resolve.
     c = Component(HERNQUIST, Anisotropy(beta_c=b0))
     q, _, jac, record = rows_jacobian(c, Settings())
     assert record["exponent"] == "one-sided" and record["sides"] == 2
@@ -155,8 +179,9 @@ def test_osipkov_merritt_against_the_exact_derivative(kind, sign):
 
 
 def test_the_steps_travel_in_the_caller_s_store():
-    # read from the store where it has them; without one, measured at each
-    # call, so a result never depends on the calls made before it
+    # `rows_jacobian` reads the beta_c steps from the caller's store where the
+    # store holds them. Without a store, `rows_jacobian` measures the steps at
+    # each call, so that a result never depends on the calls made before it.
     steps: dict = {}
     first = rows_jacobian(
         Component(HERNQUIST, Anisotropy(beta_c=0.25)), Settings(), steps=steps

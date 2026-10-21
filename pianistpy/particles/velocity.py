@@ -1,27 +1,45 @@
-"""The speed table: the inverse distribution of the scaled speed, by potential.
+r"""The velocity table of a one-component model: the inverse cumulative distribution
+of the scaled velocity on rows of constant potential.
 
-The density of the scaled speed x on the row of potential Psi is
+The particle sampler (`Sampler`) calls `build_velocity_table` to build the table
+that turns a uniform random number into a velocity at a given radius. On the row
+of relative potential Psi, the probability density of the scaled velocity
+x = v / (2 Psi)^{1/2} is
 
-    ``p(x | Psi) ~ x^(2 - 2 beta_c) F(Psi (1 - x^2))``,
+    ``p(x | Psi) proportional to x^(2 - 2 beta_c) F(Psi (1 - x^2))``,
+    ``0 <= x <= x_e``,
 
-a function of Psi alone, so one table serves every radius (Section T:5.2.1
-[speed-table]). Its rows are uniform in lambda_p = ln(Psi / (p_0 -
-Psi)) over the profile's range of Psi, with one guard row beyond each end;
-on each row the inverse s(lambda_u), s = ln(x / (x_e - x)) and lambda_u =
-ln(u / (1 - u)), is tabulated at nodes uniform in lambda_u with its exact
-slope, and the slope across rows at fixed u is a third channel. The rows are
-refined (n to 2 n - 3, every row kept) until the table's own error across rows
-is under the goal.
+where :math:`\beta_{\rm c}` is the component's constant anisotropy, F(E) is the
+distribution function at relative energy E, and x_e is the edge of the velocity
+support:
+x_e = 1 where F continues down to E = 0, and x_e = (1 - K_0 / Psi)^{1/2} where
+F vanishes below its lowest tabulated energy K_0. The density p(x | Psi)
+depends on the radius only through Psi, so one row of the table serves every
+radius at the row's potential (Notes Section T:5.2.1).
 
-The construction of a row: the mass of the density on the panels of the
-velocity grid, refined at both ends by Gauss-Legendre panels in the logarithm
-of x and of x_e - x, with the closed forms beyond; the cumulative masses from
-each end at the panels' edges are the construction nodes; their cubic Hermite
-is inverted at the table's nodes, and each node is then polished by a
-safeguarded Newton on the true residual.
+The rows are uniform in lambda_p = ln(Psi / (p_0 - Psi)), where p_0 is the
+central value of the relative potential, and one extra row lies beyond each end
+of the profile's range of Psi. On each row the table holds
+s = ln(x / (x_e - x)) at nodes uniform in lambda_u = ln(u / (1 - u)), where u is
+the cumulative probability of x, together with the slope ds / dlambda_u along
+the row and the slope ds / dlambda_p across rows at fixed u. The row count
+starts at sampling["n_rows"] (512) and is refined from n rows to 2 n - 3 rows,
+every existing row kept, until the table's own error across rows is below
+sampling["row_error_goal"] (:math:`10^{-6}` under the default settings,
+:math:`10^{-4}` under the quick settings) or the next refinement would pass
+sampling["n_rows_max"] (4075 rows).
+
+Each row is built from the probability masses of the density on panels of the
+scaled velocity: Gauss-Legendre panels in ln x near x = 0 and in ln(x_e - x) near
+the edge, with closed forms below the smallest refined velocity and above the
+closest refined distance from the edge. The cumulative masses at the panel
+edges are the row's construction nodes. The inverse of the construction nodes'
+cubic Hermite interpolant gives a first s at each table node, and a safeguarded
+Newton iteration on the exact cumulative mass then moves each table node until
+the node's residual in lambda_u is below NODE_TOLERANCE (:math:`10^{-13}`).
 """
 
-__all__ = ["SPEED_TABLE_KEYS", "build_speed_table"]
+__all__ = ["VELOCITY_TABLE_KEYS", "build_velocity_table"]
 
 import functools
 import logging
@@ -51,67 +69,93 @@ from ..df.lookup import (
 from ..exceptions import AccuracyError, ResultError, UnphysicalModelError
 from ..numerics import hermite, hermite_inverse
 from ..typing import Array
-from ..validation import GOAL, HARD_LIMIT, Check, ValidationReport
+from ..validation import TIER_BOUNDS, Check, ValidationReport
 
-# A node of a row is polished until its residual in lambda_u is under this,
-# its step is below the spacing of doubles, or two passes fail to improve it.
+# The Newton polish of a row stops moving a table node when one of three
+# conditions holds: the node's absolute residual in lambda_u (the node's target
+# lambda_u minus the lambda_u of the exact cumulative mass at the node's s) is
+# below NODE_TOLERANCE; the node's Newton step in s is at most 4 times the
+# spacing of doubles at max(|s|, 1); or two successive polish passes both leave
+# the node's absolute residual at or above the smallest absolute residual the
+# node has reached. A residual of 1e-13 in lambda_u is at most 2.5e-14 in the
+# cumulative probability u, because du / dlambda_u = u (1 - u) <= 1/4, which is
+# more than seven orders of magnitude below the 1e-6 bound of the table's error
+# across rows.
 NODE_TOLERANCE = 1e-13
-# Most passes of the polish of a row: a guard. With the lookup asked by the
-# depth near the top, the 33 test models take at most 5.
+# Largest number of polish passes over one row on the host, or over one chunk
+# of rows in the row kernels. A table node still moving after
+# POLISH_PASSES_MAX passes keeps the s of the node's smallest absolute residual,
+# and the build reports the largest such residual as the check
+# "polish_residual".
 POLISH_PASSES_MAX = 60
-# Most iterations, and the tolerance, of the Newton that places a node beyond
-# the last construction node on a tail with a logarithmic factor. On the two
-# members of the subset with such a tail, 1 or 2 points of some rows reach the
-# 80 iterations at |g| up to 1.8e-11: the resolution of the tail's mass there
-# (scaled_upper_gamma at the tail's order s = 1 - b near -0.01, below an
-# argument of 30, reads 1e-11 relative), which 1e-12 lies under. In the
-# cumulative probability that is 2e-11.
+# Largest number of iterations, and the stopping tolerance, of the Newton
+# iteration that places a table node beyond a row's last construction node on a
+# DF tail with a logarithmic factor. The iteration stops when the difference
+# between the logarithm of the tail's mass and the logarithm of the target mass,
+# or the iteration's step relative to max(1, y), is below
+# TAIL_NEWTON_TOLERANCE. A difference of 1e-12 in the logarithm of the tail's
+# mass is at most 1e-12 in the cumulative probability, six orders of magnitude
+# below the 1e-6 bound of the table's error across rows. A node whose iteration
+# reaches TAIL_NEWTON_ITERATIONS keeps the last iterate. The iteration's
+# variable is y = ln(E_1 / E), where E is the energy at the node and E_1 is the
+# energy at the closest refined distance from the support's edge.
 TAIL_NEWTON_ITERATIONS = 80
 TAIL_NEWTON_TOLERANCE = 1e-12
-# The upper refinement starts at the last interior node this far, relative,
-# below the edge of the support. At 1e-3 or 1e-5 instead, the tables of the 33
-# members move by at most 1.5e-7 in s, inside their own error across rows.
+# The upper refinement of a row starts at the last interior node of the
+# velocity grid whose scaled velocity lies below x_e (1 - EDGE_MARGIN), so that no
+# interior interval of the grid ends within a relative distance of 1e-4 of the
+# support's edge x_e, where the panels in ln(x_e - x) take over.
 EDGE_MARGIN = 1e-4
-# Fewest nodes a row keeps, and fewest finite slopes across rows, below which
-# the row is refused: the cubic Hermite and its inversion need a stencil. The
-# 33 members keep at least 309 nodes a row and all 2048 slopes.
+# A row with fewer than ROW_NODES_MIN construction nodes, or with fewer than
+# ROW_NODES_MIN finite slopes across rows, is refused as unresolved, because the
+# row's cubic Hermite interpolant and the interpolant's inverse are then built
+# on too few nodes to represent the row's distribution.
 ROW_NODES_MIN = 8
-# Floor of an argument of a logarithm.
+# Smallest argument passed to a logarithm. The value 1e-300 lies above the
+# smallest normal double (about 2.2e-308), so the logarithm of a vanishing
+# scaled velocity stays finite.
 LOG_ARGUMENT_MIN = 1e-300
-# The checks of a speed table: the table's own error across rows and the
-# largest residual its polish leaves at a node, both in the cumulative
-# probability.
-SPEED_TABLE_KEYS = ("row_error", "polish_residual")
+# The names of the two checks of a velocity table: "row_error", the table's own
+# error across rows (the larger of the error in the cumulative probability u
+# and the error relative to the scaled velocity x), and "polish_residual", the
+# largest absolute residual in lambda_u that the polish leaves at a node.
+VELOCITY_TABLE_KEYS = ("row_error", "polish_residual")
 
 _log = logging.getLogger("pianistpy")
 
 
-# ---- the kernels: module functions, the tables and the model's numbers traced,
-# so that every model of the same shapes and kinds shares one compilation ----
+# ---- JAX functions of the velocity table. Each function takes the DF's lookup
+# arrays and the model's numbers as traced arguments, so every model with the
+# equal array shapes and equal lookup kinds reuses one compilation. ----
 
 
 @functools.partial(jax.jit, static_argnums=(3,))
 def _log10_df_kernel(e, u, arrays, kinds):
-    """log10 F at energies of any shape, asked by the depth `u` where it is
-    finite (`evaluate_lookup`'s second entry)."""
+    """Return log10 F(E) at energies `e` of any shape. Where the depth
+    `u` = p_0 - E is finite, the lookup reads F by the depth `u` instead of by
+    the energy `e` (the depth argument of `evaluate_lookup`)."""
     return evaluate_lookup(arrays, kinds, e, xp=jnp, u=u)
 
 
 @functools.partial(jax.jit, static_argnums=(3,))
 def _kappa_kernel(e, u, arrays, kinds):
-    """d ln F / d ln K at energies of shape (n,), by the depth `u` where it
-    is finite (`_kappa_at`)."""
+    """Return kappa = d ln F / d ln E at energies `e` of shape (n,), with the
+    depth `u` used where the depth is finite, as `_kappa_at` defines."""
     return _kappa_at(e, u, arrays, kinds)
 
 
 def _kappa_at(e, u, arrays, kinds):
-    """d ln F / d ln K at energies of shape (n,): where the depth u = p_0 - K
-    is held (finite), -K d ln F / d u through the lookup's depth entry, since
-    K formed near p_0 moves in steps of its last bit; elsewhere by K. At the
-    table's first energy K_0 itself, where the DF continues below it, the
-    rule below the table's: the lookup reads K_0 from the table, whose
-    derivative there is one-sided, while the rule's is exact (the bottom row
-    of a table whose lowest potential is K_0 reads it at every node)."""
+    """Return kappa = d ln F / d ln E at energies `e` of shape (n,).
+
+    Where the depth u = p_0 - E is finite, kappa = -E d ln F / du through the
+    lookup's depth argument, because an energy E formed near p_0 changes only
+    in steps of the last bit of E, while the depth u carries every digit.
+    Where the depth is not finite, kappa is differentiated in E. At the DF
+    table's lowest energy K_0, where the DF continues below K_0, kappa comes
+    from the DF's rule below the table, whose derivative at K_0 is exact,
+    instead of from the table, whose derivative at K_0 is one-sided. The
+    bottom row of a velocity table whose lowest potential equals K_0 evaluates
+    kappa at E = K_0 at every node, so the choice at K_0 sets the bottom row."""
     k_0 = arrays.params[K_0]
 
     def one(z, d):
@@ -129,8 +173,10 @@ def _kappa_at(e, u, arrays, kinds):
 
 
 def _on_bucket(kernel, e, arrays, kinds, u=None):
-    """A kernel at host energies (and depths, where given), padded to a power
-    of two (one compilation per bucket), on the host."""
+    """Return `kernel` evaluated at host energies `e`, and at depths `u`
+    where `u` is given, as a NumPy array of the shape of `e`. The inputs are
+    padded to the next power of two in length, so `kernel` compiles once per
+    power of two instead of once per input length."""
     e = np.asarray(e, dtype=np.float64)
     flat = e.ravel()
     if flat.size == 0:
@@ -145,21 +191,26 @@ def _on_bucket(kernel, e, arrays, kinds, u=None):
     return np.asarray(kernel(*padded, arrays, kinds))[: flat.size].reshape(e.shape)
 
 
-# ---- the rows in kernels: a chunk of rows at once, every row's construction,
-# polish and slopes on fixed shapes (the same operations as `_Rows.row`) ----
+# ---- JAX functions that build a chunk of rows at once. The construction,
+# polish and slopes of every row run on fixed array shapes and repeat the
+# operations of `_Rows.row`, the host reference. ----
 
-# Rows given to the row kernels at once, and the multiple the chunk's padded
-# counts are rounded up to: one compiled shape per bucket.
+# ROWS_PER_CHUNK is the number of rows passed to the row kernels at once.
+# COUNT_BUCKET is the multiple to which each chunk's padded per-row counts are
+# rounded up, so each rounded size compiles once.
 ROWS_PER_CHUNK = 64
 COUNT_BUCKET = 64
-# The rows are built by the kernels (True) or by `_Rows.row` on the host, one
-# row at a time (False): the reference the kernels are held to.
+# KERNEL_ROWS = True builds the rows in the JAX row kernels; KERNEL_ROWS = False
+# builds the rows one at a time by `_Rows.row` on the host, the reference that
+# the row kernels reproduce.
 KERNEL_ROWS = True
 
 
 class _RowConfig(NamedTuple):
-    """The static part of the row kernels: the lookup's kinds and the rule's
-    branches."""
+    """The static arguments of the row kernels: the lookup's kinds, whether
+    the DF continues below its table, the name of the DF's rule below its
+    table, and whether table nodes beyond a row's last construction node are
+    placed by the tail's Newton iteration."""
 
     kinds: LookupKinds
     continues: bool
@@ -168,7 +219,12 @@ class _RowConfig(NamedTuple):
 
 
 class _RowNumbers(NamedTuple):
-    """The model's numbers the row kernels read, traced."""
+    r"""The model's numbers that the row kernels read as traced arguments: the
+    central potential p_0, the power :math:`2 - 2\beta_{\rm c}` of x in the density, the
+    energy at the support's edge, the effective exponent of the DF as E -> 0,
+    the exponent and the scale of the tail's logarithmic factor, the velocity
+    grid, the panel edges of the lower refinement, the Gauss-Legendre nodes and
+    weights, and the target lambda_u of the table nodes."""
 
     p_0: Array
     velocity_power: Array
@@ -184,8 +240,14 @@ class _RowNumbers(NamedTuple):
 
 
 def _k_logpdf(psi, w, xe, x, d, arrays, cfg, nums):
-    """`_Rows.logpdf` in a kernel: E from d where d is finite, F asked by the
-    depth on the side formed from x near the top, w the row's depth p_0 - Psi."""
+    r"""Return :math:`\log_{10}[x^{2 - 2\beta_{\rm c}} F(E)]` at scaled velocities
+    `x` on the row of potential `psi`, as `_Rows.logpdf` does on the host.
+
+    Where the distance `d` = x_e - x is finite, the energy is formed as
+    E = E_edge + Psi d (2 x_e - d), which keeps every digit of E near the
+    edge; elsewhere E = Psi (1 - x^2). Where `d` is not finite and
+    :math:`E \ge p_0/2`, F is read by the depth `w` + Psi x^2, where `w` = p_0 - Psi
+    is the row's depth."""
     e = jnp.maximum(psi * (1.0 - x * x), 0.0)
     fd = jnp.isfinite(d)
     dd = jnp.where(fd, d, 0.0)
@@ -197,14 +259,17 @@ def _k_logpdf(psi, w, xe, x, d, arrays, cfg, nums):
 
 
 def _k_kappa(e, u, arrays, cfg):
-    """d ln F / d ln K of the lookup at energies of any shape, by the depth u
-    where it is finite."""
+    """Return kappa = d ln F / d ln E at energies `e` of any shape, with the
+    depth `u` used where the depth is finite (`_kappa_at`)."""
     return _kappa_at(e.ravel(), u.ravel(), arrays, cfg.kinds).reshape(e.shape)
 
 
 def _k_gl_mass(psi, w, xe, s0, s1, valid, by_d, arrays, cfg, nums):
-    """GL masses of panels between s0 and s1 in ln x, or in ln d = ln(x_e - x)
-    with by_d; the group shifted by its own largest term, as one host call."""
+    """Return the Gauss-Legendre masses of the density on the panels between
+    `s0` and `s1`, where s is ln x, or ln d = ln(x_e - x) when `by_d` is true; a
+    panel whose `valid` entry is false gets mass 0. Every panel's integrand is
+    divided by the largest integrand value over all panels before the power of
+    ten is taken, so the powers of ten stay finite."""
     mid, half = 0.5 * (s0 + s1), 0.5 * (s1 - s0)
     e = jnp.exp(mid[:, None] + half[:, None] * nums.gl_x[None, :])
     x = xe - e if by_d else e
@@ -218,14 +283,17 @@ def _k_gl_mass(psi, w, xe, s0, s1, valid, by_d, arrays, cfg, nums):
 
 
 def _k_compact(mask, *arrays):
-    """The entries under mask moved to the front in order; -> (count, arrays)."""
+    """Return the count of true entries of `mask`, and each array of `arrays`
+    reordered so that the entries where `mask` is true come first, in their
+    original order."""
     n = mask.size
     order = jnp.argsort(jnp.where(mask, jnp.arange(n), n + jnp.arange(n)))
     return jnp.sum(mask).astype(jnp.int32), [a[order] for a in arrays]
 
 
 def _k_floor_mass(e, arrays, cfg):
-    """`below_floor_mass` for the Taylor form and the edge law in a kernel."""
+    """Return the integral of F from 0 to `e` under the DF's "taylor" rule or
+    edge-law rule below its table, as `below_floor_mass` does on the host."""
     params = arrays.params
     if cfg.rule == "taylor":
         return params[FLOOR_0] * e * e / 2.0 + params[FLOOR_1] * e * e * e / 6.0
@@ -234,7 +302,11 @@ def _k_floor_mass(e, arrays, cfg):
 
 
 def _k_hermite(xq, xn, fn, mn, n):
-    """`hermite` on one row whose nodes are padded beyond n: value, derivative."""
+    """Return the value and the derivative at `xq` of the cubic Hermite
+    interpolant through nodes `xn`, values `fn` and slopes `mn`, as `hermite`
+    does, on a row whose first `n` nodes are real and whose remaining nodes are
+    padding. Below the first real node and above the last real node the
+    interpolant continues linearly with the end node's slope."""
     i = jnp.clip(jnp.searchsorted(xn, xq, side="right") - 1, 0, n - 2)
     h = xn[i + 1] - xn[i]
     t = (xq - xn[i]) / h
@@ -262,8 +334,10 @@ def _k_hermite(xq, xn, fn, mn, n):
 
 
 def _k_hermite_inverse(xn, fn, mn, n, target):
-    """`hermite_inverse` on one row padded beyond n: the bracketed bisection,
-    60 halvings, then two Newton steps kept inside the bracket."""
+    """Return the point where the cubic Hermite interpolant of a padded row
+    equals `target`, as `hermite_inverse` does: 60 bisection halvings of the
+    bracketing interval, then two Newton steps, each Newton step taken only
+    where the step's length is below the bracket's width plus :math:`10^{-12}`."""
     i = jnp.clip(jnp.searchsorted(fn, target, side="right") - 1, 0, n - 2)
     lo = jnp.where(target < fn[0], xn[0] + (target - fn[0]) / mn[0] - 1.0, xn[i])
     hi = jnp.where(
@@ -288,9 +362,14 @@ def _k_hermite_inverse(xn, fn, mn, n, target):
 
 
 def _k_pair_masses(psi, w, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=False):
-    """`_Rows.pair_masses` in a kernel: each pair's panel shifted by its own
-    largest term (the polish), or the row's (the slopes, with the weight
-    kappa(E))."""
+    """Return the signed mass of the density from each construction node
+    (`xa`, at distance `da` from the edge) to the node's query point (`xq`, at
+    distance `dq`), one Gauss-Legendre panel per pair, in ln x below x_e / 2
+    and in ln(x_e - x) above, as `_Rows.pair_masses` does. Without
+    `kappa_weight` (the polish), each pair's integrand is divided by the
+    pair's own largest integrand value; with `kappa_weight` (the slopes across
+    rows), the integrand carries the weight kappa(E) and every pair is divided
+    by the row's largest integrand value."""
     up = xq >= 0.5 * xe
     a = jnp.where(up, jnp.log(da), jnp.log(xa))
     b = jnp.where(up, jnp.log(dq), jnp.log(xq))
@@ -325,7 +404,10 @@ def _k_pair_masses(psi, w, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=F
 
 
 def _k_place_beyond(psi, xe, tot, d1, c_above, s_t, s_last, q_t, nums):
-    """`_Rows._place_beyond` in a kernel, every node of the row under a mask."""
+    """Return `s_t` with every table node beyond the row's last construction
+    node `s_last` placed on the DF's logarithmic tail, as
+    `_Rows._place_beyond` does, with the nodes selected by a mask instead of
+    an index list."""
     a_eff, b, e_0 = nums.a_eff, nums.tail_log_exponent, nums.tail_log_scale
     e_1 = psi * d1 * (2.0 * xe - d1)
     m_1 = tail_mass_below(1.0, a_eff, e_1, b, e_0, jnp)
@@ -365,9 +447,12 @@ def _k_construct_row(
     psi, w, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid, arrays,
     cfg, nums,
 ):  # fmt: skip
-    """`_Rows.row` up to the polish, on one row of the layout: the construction
-    nodes padded beyond their count, the row's total and remainder, and the
-    refusal flags (too few nodes, not monotone)."""
+    """Return the construction of one row of the layout, as `_Rows.row` does
+    before the polish: the construction nodes padded beyond their count, the
+    row's total mass, the row's mass above the closest refined distance from
+    the edge, the number of construction nodes after the monotonicity filter,
+    and whether the kept construction nodes fail to increase in both s and
+    lambda_u."""
     x_nodes, sub_lo = nums.x_nodes, nums.sub_lo_edges
     n_x = x_nodes.size
     args = (arrays, cfg, nums)
@@ -416,7 +501,8 @@ def _k_construct_row(
     q_lo = (cc_hi[0] + up_inc[-1]) + jnp.concatenate(
         [jnp.cumsum(m_lo[::-1])[::-1][1:], jnp.zeros(1)]
     )
-    # the interior nodes x_nodes[2 .. k_hi], the upper edges 1 .. n_h - 1
+    # Cumulative masses at the interior grid nodes x_nodes[2] to x_nodes[k_hi]
+    # and at the upper panel edges 1 to n_h - 1.
     i_b = jnp.arange(n_x - 2)
     u_b = c_lo[-1] + up_inc[i_b + 1]
     q_b = cc_hi[0] + jnp.where(
@@ -468,7 +554,11 @@ def _k_construct_row(
 
 
 def _k_polish_start(psi, xe, tot, nodes, nums):
-    """The polish's start on one row: the Hermite inversion and the state."""
+    """Return the polish's starting state on one row, with each table node's
+    first s from the inverse of the row's cubic Hermite interpolant, and a
+    mask of the table nodes whose s lies strictly between the first and the
+    last construction node. A table node outside the construction nodes is finished
+    from the start."""
     s_n, lam_n, m_n, _, _, _, _, n = nodes
     s_t = _k_hermite_inverse(s_n, lam_n, m_n, n, nums.lam_t)
     inside = (s_t > s_n[0]) & (s_t < s_n[n - 1])
@@ -488,8 +578,19 @@ def _k_polish_start(psi, xe, tot, nodes, nums):
 
 
 def _k_polish_pass(state, psi, w, xe, tot, nodes, arrays, cfg, nums):
-    """One pass of `_Rows.row`'s safeguarded Newton on one row: every node
-    evaluated, the live ones updated."""
+    """Return the polish state after one pass of the safeguarded Newton
+    iteration of `_Rows.row` on one row.
+
+    Every unfinished table node evaluates the node's residual in lambda_u. A
+    table node finishes when the node's absolute residual is below
+    NODE_TOLERANCE, when two successive passes both leave the node's absolute
+    residual at or above the node's smallest absolute residual so far, or when
+    the node's step is at most 4 times the spacing of doubles at max(|s|, 1).
+    An unfinished node takes the Newton step where the Newton step lands inside
+    the node's bracket; otherwise the node moves to the bracket's midpoint
+    where both bracket ends have moved from the row's end nodes; otherwise the
+    node takes the Newton step clipped to the width of the node's construction
+    interval."""
     s_n, _, _, xk, dk, uk, qk, n = nodes
     lam_t = nums.lam_t
     u_t, q_t = 1.0 / (1.0 + jnp.exp(-lam_t)), 1.0 / (1.0 + jnp.exp(lam_t))
@@ -552,8 +653,10 @@ def _rows_construct_polish(
     psi, w, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid, arrays,
     cfg, nums,
 ):  # fmt: skip
-    """A chunk's rows: the construction of each and the polish of all of them,
-    the passes running while any node of the chunk moves."""
+    """Return the construction and the polish of every row of a chunk. Polish
+    passes repeat while any table node of the chunk is unfinished, up to
+    POLISH_PASSES_MAX passes, and each table node inside the construction
+    nodes keeps the s of the node's smallest absolute residual."""
     nodes, tot, c_above, n_2, not_monotone = jax.vmap(
         functools.partial(_k_construct_row, arrays=arrays, cfg=cfg, nums=nums)
     )(psi, w, xe, k_hi, d1, n_h, d_hi, ratio, i_lo, i_hi, i_kind, i_own, i_valid)
@@ -578,9 +681,13 @@ def _rows_construct_polish(
 
 
 def _k_finish_row(psi, w, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
-    """`_Rows.row` after the polish on one row: the nodes beyond the last
-    construction node on a logarithmic tail, the slope along the row and the
-    across-row slope. -> (stack[s, ms, rs], the count of finite slopes)."""
+    """Return one row after the polish, as `_Rows.row` does after the polish:
+    the stack (s, ds / dlambda_u, ds / dlambda_p) at the row's table nodes, and
+    the count of finite slopes across rows. Table nodes beyond the last
+    construction node are first placed on a logarithmic tail where the
+    configuration asks for the tail's Newton iteration; each non-finite slope
+    across rows is replaced by linear interpolation in node index between the
+    finite slopes."""
     s_n, lam_n, m_n, _, _, _, _, n = nodes
     lam_t = nums.lam_t
     u_t, q_t = 1.0 / (1.0 + jnp.exp(-lam_t)), 1.0 / (1.0 + jnp.exp(lam_t))
@@ -648,14 +755,15 @@ def _k_finish_row(psi, w, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
 
 @functools.partial(jax.jit, static_argnums=(9,))
 def _rows_finish(psi, w, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
-    """A chunk's rows after the polish (`_k_finish_row` on each)."""
+    """Return `_k_finish_row` applied to every row of a chunk."""
     return jax.vmap(
         functools.partial(_k_finish_row, arrays=arrays, cfg=cfg, nums=nums)
     )(psi, w, xe, tot, d1, c_above, s_t, nodes)
 
 
 class _Rows:
-    """Everything a row of the speed table needs, fixed for a model."""
+    """The quantities that every row of one model's velocity table needs, fixed
+    when the table is built, and the host functions that build one row."""
 
     def __init__(self, model, settings) -> None:
         sampling = settings.sampling
@@ -663,11 +771,13 @@ class _Rows:
         anisotropy = model.components[component].anisotropy
         form = model.form
         self.p_0 = float(form.p_0)
-        # the DF is the package's lookup; its arrays are traced arguments of
-        # every kernel, held once on the device and once on the host
+        # The DF is read through the package's lookup. The lookup arrays are
+        # held once on the device, as traced arguments of every kernel, and once
+        # on the host.
         self.host_arrays, self.kinds = prepare_lookup(model.table, form, component)
         self.arrays = LookupArrays(*(jnp.asarray(a) for a in self.host_arrays))
-        # the DF's first energy, the nodes below the written table included
+        # The DF's lowest energy K_0, counting the nodes below the written
+        # table.
         self.q_min = float(self.host_arrays.params[K_0])
         self.n_below = model.table.nodes_below(component)
         self.q_min_written = float(
@@ -678,11 +788,12 @@ class _Rows:
         self.rule = rule
         self.tail_log_exponent = float(form.tail_log_exponent[component])
         self.tail_log_scale = float(form.tail_log_scale[component])
-        # the DF's power as K -> 0 below its table: the contract's for a tail and
-        # an edge law; for "taylor", F_1 K + F_2 K^2 / 2, the power of its
-        # leading term, 1 where F_1 is not zero and 2 where it is (the
-        # stationary edge); none for "zero", where the support ends at the
-        # table's first energy
+        # floor_s is the power of the DF as K -> 0 below the DF's table. For a
+        # tail and for an edge law, floor_s is the exponent of the asymptotic
+        # form. For the "taylor" rule F = F_1 K + F_2 K^2 / 2, floor_s is the
+        # power of the leading term: 1 where F_1 is not zero, and 2 where F_1 is
+        # zero. Under the "zero" rule the support ends at the table's lowest
+        # energy, and floor_s does not enter the density.
         if rule == "taylor":
             floor_s = 1.0 if form.below_floor_coefficients[component][0] != 0.0 else 2.0
         else:
@@ -691,13 +802,13 @@ class _Rows:
         self.continues = rule != "zero"
         if self.continues and not floor_s > -1.0:
             raise UnphysicalModelError(
-                f"Below its table the DF goes as K^{floor_s:g} ({rule!r}): its "
-                "mass is not finite at K = 0."
+                f"Below the DF's table, the DF goes as K^{floor_s:g} under the "
+                f"{rule!r} rule, so the DF's mass is not finite at K = 0."
             )
         beta_eff = float(anisotropy.beta_c)
         self.velocity_power = 2.0 - 2.0 * beta_eff
         self.p_map = 1.0 + floor_s if (self.continues and floor_s < 0.0) else 1.0
-        self.n_intervals = int(sampling["n_speed_intervals"])
+        self.n_intervals = int(sampling["n_velocity_intervals"])
         self.n_nodes = int(sampling["n_nodes"])
         self.lnu0 = math.log(sampling["tail_mass_min"])
         self.panels_per_decade = int(sampling["panels_per_decade"])
@@ -705,7 +816,7 @@ class _Rows:
         self.x_nodes = (
             np.sin(0.5 * np.pi * np.linspace(0.0, 1.0, self.n_intervals + 1)) ** 1.5
         )
-        low = float(sampling["speed_low_refined"])
+        low = float(sampling["velocity_low_refined"])
         self.sub_lo_edges = np.exp(
             np.linspace(
                 math.log(low),
@@ -720,25 +831,35 @@ class _Rows:
         )
 
     def log10_df(self, e, u=None):
-        """log10 F at host energies, by the depth `u` where it is finite."""
+        """Return log10 F at host energies `e`, read by the depth `u` where
+        `u` is finite."""
         if u is None:
             u = np.full(np.shape(e), np.nan)
         return _on_bucket(_log10_df_kernel, e, self.arrays, self.kinds, u)
 
     def kappa(self, e, u=None):
-        """d ln F / d ln K at host energies, by the depth `u` where it is finite."""
+        """Return kappa = d ln F / d ln E at host energies `e`, read by the
+        depth `u` where `u` is finite."""
         if u is None:
             u = np.full(np.shape(e), np.nan)
         return _on_bucket(_kappa_kernel, e, self.arrays, self.kinds, u)
 
-    # ---- the density on the host ----
+    # ---- The density of the scaled velocity, evaluated on the host. ----
 
     def support_edge(self, psi):
-        """x_e: 1 where F continues below its table, else where E reaches its floor."""
+        """Return the support's edge x_e on the row of potential `psi`: 1 where
+        F continues below its table, else (1 - K_0 / Psi)^{1/2}, the scaled
+        velocity at which the energy Psi (1 - x^2) reaches the DF's lowest energy
+        K_0."""
         return 1.0 if self.continues else math.sqrt(max(1.0 - self.q_min / psi, 0.0))
 
     def hi_edges(self, psi, x_from):
-        """Distances from the edge, decreasing, of the upper refinement's panels."""
+        """Return the panel edges of the upper refinement on the row of
+        potential `psi`, as decreasing distances d = x_e - x from
+        x_e - `x_from` down to the closest refined distance, and the support's
+        edge x_e. The closest refined distance is the smaller of
+        sampling["edge_refined"] x_e and, where F continues below its table,
+        the distance at which the energy reaches K_0."""
         xe = self.support_edge(psi)
         q = self.q_min
         d_pl = (
@@ -753,7 +874,11 @@ class _Rows:
         return np.exp(np.linspace(math.log(d0), math.log(d1), count)), xe
 
     def energy(self, psi, x, d=None, xe=None):
-        """E = Psi (1 - x^2), formed from the distance d = x_e - x where it is given."""
+        """Return the energy E = Psi (1 - x^2) at scaled velocities `x`. Where the
+        distance `d` = x_e - x is given and finite, E is formed as
+        E = E_edge + Psi d (2 x_e - d), which keeps every digit of E near the
+        edge; E_edge is 0 where F continues below its table and K_0
+        otherwise."""
         e = np.maximum(psi * (1.0 - x * x), 0.0)
         if d is not None:
             d = np.asarray(d, dtype=np.float64)
@@ -764,13 +889,16 @@ class _Rows:
         return e
 
     def depth(self, psi, w, x, d, e):
-        r"""The depth u = p_0 - E where it is held exactly, NaN elsewhere: on the
-        side formed from x (no finite d) with ``E >= p_0 / 2``, u = w + Psi x^2,
-        both terms exact (``Psi >= E >= p_0 / 2``), w = p_0 - Psi the row's depth
-        as `build_speed_table` gives it. E formed as
-        Psi (1 - x^2) loses it there: on the top rows its last bit is :math:`10^{-10}`
-        of u, so F would move in steps of E rather than with x, and the polish's
-        Newton slope would be off by a factor near 2."""
+        r"""Return the depth u = p_0 - E where the depth is known exactly, and
+        NaN elsewhere.
+
+        Where E is formed from x (no finite distance `d`) and
+        ``E >= p_0 / 2``, the depth is u = `w` + Psi x^2, where `w` = p_0 - Psi
+        is the row's depth as `build_velocity_table` passes the depth; both terms
+        are exact because ``Psi >= E >= p_0 / 2``. The energy formed as
+        Psi (1 - x^2) loses the depth's digits there: on the top rows the last
+        bit of E is :math:`10^{-10}` of the depth, so F read by E would change
+        in steps of the last bit of E instead of continuously with x."""
         x = np.asarray(x, dtype=np.float64)
         by_x = (
             np.ones(np.shape(e), dtype=bool)
@@ -781,15 +909,18 @@ class _Rows:
             return np.where(by_x & (e >= 0.5 * self.p_0), w + psi * x * x, np.nan)
 
     def logpdf(self, psi, w, x, d=None, xe=None):
-        """log10 of ``x^(2 - 2 beta_c) F(E)`` at host points, F asked by the depth
-        where it is held."""
+        """Return log10 of ``x^(2 - 2 beta_c) F(E)`` at host scaled velocities `x`
+        on the row of potential `psi`, with F read by the depth where `depth`
+        gives an exact depth."""
         e = self.energy(psi, x, d, xe)
         return self.log10_df(e, self.depth(psi, w, x, d, e)) + self.velocity_power * (
             np.log10(np.maximum(x, 1e-300))
         )
 
     def panel_masses_d(self, psi, w, d_edges, xe):
-        """Mass on each panel between edges given as distances from the edge."""
+        """Return the mass of the density on each panel between consecutive
+        edges `d_edges`, given as distances from the support's edge x_e, by
+        Gauss-Legendre quadrature in ln d."""
         s0, s1 = np.log(d_edges[:-1]), np.log(d_edges[1:])
         mid, half = 0.5 * (s0 + s1), 0.5 * (s1 - s0)
         sp = mid[:, None] + half[:, None] * self.gl_x[None, :]
@@ -804,7 +935,9 @@ class _Rows:
         return np.abs(half) * (vals @ self.gl_w) * 10.0**peak
 
     def panel_masses(self, psi, w, edges, xe=None):
-        """Mass on each panel between edges: GL in ln x, or in ln(x_e - x) with xe."""
+        """Return the mass of the density on each panel between consecutive
+        scaled velocities `edges`, by Gauss-Legendre quadrature in ln x, or in
+        ln(x_e - x) when `xe` is given."""
         if xe is not None:
             s0, s1 = np.log(xe - edges[:-1]), np.log(xe - edges[1:])
         else:
@@ -823,7 +956,10 @@ class _Rows:
         return np.abs(half) * (vals @ self.gl_w) * 10.0**peak
 
     def interior_masses(self, psi, w, k_hi, xe):
-        """Mass on each interior interval of the velocity grid, in sub-panels."""
+        """Return the mass of the density on each interior interval of the
+        velocity grid, x_nodes[1] to x_nodes[k_hi]. Each interval is split into
+        sub-panels at sampling["panels_per_decade"] panels per decade of the
+        interval's local variable: ln x below x_e / 2 and ln(x_e - x) above."""
         xn = self.x_nodes[1 : k_hi + 1]
         up = xn[:-1] >= 0.5 * xe
         out = np.zeros(xn.size - 1)
@@ -851,8 +987,11 @@ class _Rows:
         return out
 
     def pair_masses(self, psi, w, xa, xq, dq, xe, da=None, xshift=0.0, kappa_w=None):
-        """Signed mass from xa to xq, one GL panel per pair; with kappa_w = c the
-        integrand carries the weight c + kappa(E)."""
+        """Return the signed mass of the density from each construction node
+        `xa` to the node's query point `xq`, one Gauss-Legendre panel per pair,
+        in ln x below x_e / 2 and in ln(x_e - x) above. With `kappa_w` = c the
+        integrand carries the weight c + kappa(E); with `xshift` the integrand
+        carries the extra factor x^xshift."""
         up = xq >= 0.5 * xe
         a = np.where(up, np.log((xe - xa) if da is None else da), np.log(xa))
         b = np.where(up, np.log(dq), np.log(xq))
@@ -875,29 +1014,33 @@ class _Rows:
         return np.where(up, -integral, integral)
 
     def floor_mass_below(self, e):
-        """The integral of F from 0 to e under the rule below the table."""
+        """Return the integral of F from 0 to `e` under the DF's rule below
+        the DF's table."""
         return below_floor_mass(self.host_arrays, self.kinds, e)
 
-    # ---- one row ----
+    # ---- One row of the velocity table, built on the host. ----
 
     def row(self, psi, w):
-        """One row, at Psi and its depth w = p_0 - Psi: (s, d s / d lambda_u,
-        d s / d lambda_p) at the nodes, the residual of the polish, the row's
-        total, x_e."""
+        """Return one row of the velocity table at potential `psi` and depth
+        `w` = p_0 - Psi: the stack (s, ds / dlambda_u, ds / dlambda_p) at the
+        row's table nodes, the largest absolute residual in lambda_u that the
+        polish leaves at a table node inside the construction nodes, the row's
+        total mass, and the support's edge x_e."""
         vp = self.velocity_power
         x_nodes = self.x_nodes
         xe0 = self.support_edge(psi)
         below_edge = np.flatnonzero(x_nodes < xe0 * (1.0 - EDGE_MARGIN))
         if below_edge.size < 2:
             raise AccuracyError(
-                f"The row at Psi = {psi:.6e}: its support ends at x_e = {xe0:.3e}, "
-                "inside the velocity grid's first interval, where the lower "
-                "refinement ends."
+                f"The velocity support of the velocity table's row at Psi = {psi:.6e} "
+                f"ends at x_e = {xe0:.3e}, inside the first interval of the "
+                "velocity grid, where the lower refinement of the grid ends."
             )
         k_hi = int(below_edge[-1])
         k_hi = min(k_hi, x_nodes.size - 2)
         sub_hi_d, xe = self.hi_edges(psi, x_nodes[k_hi])
-        # the masses of the grid's interior intervals, x_nodes[1] to x_nodes[k_hi]
+        # The masses of the velocity grid's interior intervals, x_nodes[1] to
+        # x_nodes[k_hi].
         inc = self.interior_masses(psi, w, k_hi, xe) if k_hi > 1 else np.zeros(0)
         m_lo = self.panel_masses(psi, w, self.sub_lo_edges)
         m_hi = self.panel_masses_d(psi, w, sub_hi_d, xe)
@@ -964,8 +1107,8 @@ class _Rows:
         x_all, d_all, u, q = x_all[prog], d_all[prog], u[prog], q[prog]
         if x_all.size < ROW_NODES_MIN:
             raise AccuracyError(
-                f"The row at Psi = {psi:.6e} carries no resolvable mass "
-                f"({x_all.size} nodes)."
+                f"The velocity table's row at Psi = {psi:.6e} carries no resolvable "
+                f"mass on the row's {x_all.size} nodes."
             )
         d_or_nan = np.where(x_all >= 0.5 * xe, d_all, np.nan)
         p_n = 10.0 ** (self.logpdf(psi, w, x_all, d_or_nan, xe) - np.log10(tot))
@@ -977,7 +1120,8 @@ class _Rows:
         s_n, lam_n, m_n = s_n[keep], lam_n[keep], m_n[keep]
         if not (np.all(np.diff(s_n) > 0.0) and np.all(np.diff(lam_n) > 0.0)):
             raise ResultError(
-                f"The row at Psi = {psi:.6e}: the CDF is not monotone in (s, lambda_u)."
+                "The cumulative distribution on the velocity table's row at "
+                f"Psi = {psi:.6e} is not monotone in (s, lambda_u)."
             )
         lam_t = np.linspace(self.lnu0, -self.lnu0, self.n_nodes)
         s_t, _ = hermite_inverse(lam_t, s_n, lam_n, m_n)
@@ -1014,8 +1158,9 @@ class _Rows:
             )
             if not np.all(np.isfinite(r)):
                 raise ResultError(
-                    f"The row at Psi = {psi:.6e}: the true CDF residual is not finite "
-                    f"at {int(np.sum(~np.isfinite(r)))} node(s)."
+                    "The residual of the exact cumulative distribution on the velocity "
+                    f"table's row at Psi = {psi:.6e} is not finite at "
+                    f"{int(np.sum(~np.isfinite(r)))} node(s)."
                 )
             better = np.abs(r) < best_r[act]
             strikes[act] = np.where(better, 0, strikes[act] + 1)
@@ -1064,7 +1209,13 @@ class _Rows:
         return np.stack([s_t, ms_t, rs_t]), res, tot, xe
 
     def _place_beyond(self, psi, s_t, beyond, q_t, tot, c_above, d1, xe, a_eff):
-        """Nodes beyond the last construction node, on the tail with its logarithm."""
+        """Place in `s_t` each table node whose index is in `beyond`, a node
+        beyond the row's last construction node, on the DF's tail with a
+        logarithmic factor of exponent tail_log_exponent and scale
+        tail_log_scale. A Newton iteration in y = ln(E_1 / E), where E_1 is the
+        energy at the closest refined distance `d1` from the edge, matches the
+        logarithm of the tail's mass below E to the logarithm of the node's
+        target mass."""
         b, e0 = self.tail_log_exponent, self.tail_log_scale
         e_1 = psi * d1 * (2.0 * xe - d1)
         m_1 = float(tail_mass_below(1.0, a_eff, e_1, b, e0)[0])
@@ -1094,7 +1245,10 @@ class _Rows:
         s_t[beyond[put]] = np.log((xe - d[put]) / d[put])
 
     def _across_rows(self, psi, w, x_t, d_t, p_t, tot, xe, u_t, q_t, lam_t):
-        """d s / d lambda_p at fixed u, from the density's own derivative in Psi."""
+        """Return ds / dlambda_p at fixed cumulative probability u at the row's
+        table nodes, from the derivative of the density in Psi. Each non-finite
+        slope is replaced by linear interpolation in node index between the
+        finite slopes."""
         vp = self.velocity_power
         pdf_t = p_t * tot
         okp = np.isfinite(pdf_t) & (pdf_t > 0.0)
@@ -1148,8 +1302,8 @@ class _Rows:
         good = okp & np.isfinite(rs_t)
         if good.sum() < ROW_NODES_MIN:
             raise ResultError(
-                f"The row at Psi = {psi:.6e}: the across-row slope is finite at "
-                f"{int(good.sum())} node(s) only."
+                "The slope across rows on the velocity table's row at "
+                f"Psi = {psi:.6e} is finite at only {int(good.sum())} node(s)."
             )
         return np.where(
             good,
@@ -1157,10 +1311,11 @@ class _Rows:
             np.interp(np.arange(rs_t.size), np.flatnonzero(good), rs_t[good]),
         )
 
-    # ---- the rows in kernels ----
+    # ---- The rows of the velocity table, built in the JAX row kernels. ----
 
     def kernel_inputs(self):
-        """The row kernels' static config and traced numbers for this model."""
+        """Return the static configuration (`_RowConfig`) and the traced
+        numbers (`_RowNumbers`) of the row kernels for the model of `_Rows`."""
         b = self.tail_log_exponent
         cfg = _RowConfig(
             kinds=self.kinds,
@@ -1189,10 +1344,13 @@ class _Rows:
         return cfg, nums
 
     def layout(self, psis):
-        """A chunk's layout on the host, with `_Rows.row`'s refusals: per row
-        x_e, k_hi, d1 and the tail's remainder ratio; the upper edges in d; the
-        interior panels' x edges, their interval and kind (1 above x_e / 2);
-        the counts padded to multiples of COUNT_BUCKET."""
+        """Return a chunk's layout on the host, raising the errors that
+        `_Rows.row` raises. For each row the layout holds x_e, the index k_hi of
+        the last interior grid node, the closest refined distance d1 and the
+        tail's remainder ratio; the upper panel edges as distances from x_e;
+        and the interior panels' x edges, each panel's owning interval and each
+        panel's kind (1 where the interval lies above x_e / 2). Each count is
+        padded up to a multiple of COUNT_BUCKET."""
         n = psis.size
         xe, k_hi, d1, ratio, d_his, panels = (
             np.zeros(n), np.zeros(n, np.int32), np.zeros(n), np.ones(n), [], []
@@ -1203,9 +1361,10 @@ class _Rows:
             below_edge = np.flatnonzero(self.x_nodes < xe0 * (1.0 - EDGE_MARGIN))
             if below_edge.size < 2:
                 raise AccuracyError(
-                    f"The row at Psi = {psi:.6e}: its support ends at x_e = {xe0:.3e}, "
-                    "inside the velocity grid's first interval, where the lower "
-                    "refinement ends."
+                    "The velocity support of the velocity table's row at "
+                    f"Psi = {psi:.6e} "
+                    f"ends at x_e = {xe0:.3e}, inside the first interval of the "
+                    "velocity grid, where the lower refinement of the grid ends."
                 )
             k_hi[j] = min(int(below_edge[-1]), self.x_nodes.size - 2)
             d_hi, xe[j] = self.hi_edges(psi, self.x_nodes[k_hi[j]])
@@ -1213,7 +1372,8 @@ class _Rows:
             d_his.append(d_hi)
             panels.append(self.interior_edges(xe[j], int(k_hi[j])))
         if self.rule == "tail" and self.tail_log_exponent != 0.0:
-            # the chunk's rows in one call: the function works element by element
+            # tail_mass_below works element by element, so one call gives the
+            # remainder ratio of every row of the chunk.
             e_1 = np.asarray(psis, dtype=np.float64) * d1 * (2.0 * xe - d1)
             b, e_0 = self.tail_log_exponent, self.tail_log_scale
             ratio = (
@@ -1230,7 +1390,7 @@ class _Rows:
 
         n_h = np.array([d.size for d in d_his], dtype=np.int32)
         n_p = max([1] + [p[0].size for p in panels])
-        size_h = COUNT_BUCKET * math.ceil(int(n_h.max()) / COUNT_BUCKET)
+        size_h = COUNT_BUCKET * math.ceil(int(np.max(n_h)) / COUNT_BUCKET)
         size_p = COUNT_BUCKET * math.ceil(n_p / COUNT_BUCKET)
         return dict(
             xe=xe, k_hi=k_hi, d1=d1, n_h=n_h, d_hi=padded(d_his, size_h, 1.0),
@@ -1245,9 +1405,10 @@ class _Rows:
         )  # fmt: skip
 
     def interior_edges(self, xe, k_hi):
-        """The interior intervals' panels as `interior_masses` forms them: the x
-        edges of each panel, its kind (1 where its interval lies above x_e / 2)
-        and the interval that owns it."""
+        """Return the panels of the interior intervals as `interior_masses`
+        forms the panels: each panel's lower and upper x edges, each panel's
+        kind (1 where the panel's interval lies above x_e / 2) and the index of
+        the interval that owns each panel."""
         xn = self.x_nodes[1 : k_hi + 1]
         if xn.size < 2:
             return (np.zeros(0), np.zeros(0), np.zeros(0, int), np.zeros(0, int))
@@ -1261,7 +1422,7 @@ class _Rows:
             nsub = np.maximum(
                 np.ceil(self.panels_per_decade * np.abs(np.log10(b / a))).astype(int), 1
             )
-            la, lb = np.log(a), np.log(b)  # libm's log, as math.log
+            la, lb = np.log(a), np.log(b)  # Equals math.log in interior_masses.
             owner = np.repeat(np.arange(idx.size), nsub)
             k = (
                 np.arange(int(nsub.sum())) - np.repeat(np.cumsum(nsub) - nsub, nsub) + 1
@@ -1277,7 +1438,8 @@ class _Rows:
         return tuple(np.concatenate(v) for v in (lo, hi, kinds, owners))
 
     def build_kernels(self, psis, ws):
-        """`build` in the row kernels, ROWS_PER_CHUNK rows at a time."""
+        """Return the output of `build`, computed by the row kernels on
+        ROWS_PER_CHUNK rows at a time."""
         n = int(psis.size)
         table = np.zeros((n, 3, self.n_nodes))
         totals, edges = np.zeros(n), np.ones(n)
@@ -1311,8 +1473,9 @@ class _Rows:
             }  # fmt: skip
             s_t = host["s_t"].copy()
             s_n, count = np.asarray(nodes[0]), np.asarray(nodes[7])
-            # the chunk's refusals at once; the first row that fails names its
-            # first failed check, as row by row
+            # The refusals of the whole chunk are found at once. The first
+            # failing row raises the error of the row's first failed check, the
+            # error that `_Rows.row` raises for the failing row.
             few = host["n_2"][:real] < ROW_NODES_MIN
             failed = few | host["not_monotone"][:real] | (host["bad"][:real] > 0)
             if failed.any():
@@ -1320,17 +1483,18 @@ class _Rows:
                 psi = float(pad[j])
                 if few[j]:
                     raise AccuracyError(
-                        f"The row at Psi = {psi:.6e} carries no resolvable mass "
-                        f"({int(host['n_2'][j])} nodes)."
+                        f"The velocity table's row at Psi = {psi:.6e} carries no "
+                        f"resolvable mass on the row's {int(host['n_2'][j])} nodes."
                     )
                 if host["not_monotone"][j]:
                     raise ResultError(
-                        f"The row at Psi = {psi:.6e}: the CDF is not monotone in "
-                        "(s, lambda_u)."
+                        "The cumulative distribution on the velocity table's row at "
+                        f"Psi = {psi:.6e} is not monotone in (s, lambda_u)."
                     )
                 raise ResultError(
-                    f"The row at Psi = {psi:.6e}: the true CDF residual is not "
-                    f"finite at {int(host['bad'][j])} node(s)."
+                    "The residual of the exact cumulative distribution on the velocity "
+                    f"table's row at Psi = {psi:.6e} is not finite at "
+                    f"{int(host['bad'][j])} node(s)."
                 )
             if (
                 not cfg.tail_newton
@@ -1363,29 +1527,33 @@ class _Rows:
                 psi = float(pad[j])
                 if thin[j]:
                     raise ResultError(
-                        f"The row at Psi = {psi:.6e}: the across-row slope is finite "
-                        f"at {int(n_good[j])} node(s) only."
+                        "The slope across rows on the velocity table's row at "
+                        f"Psi = {psi:.6e} is finite at only {int(n_good[j])} node(s)."
                     )
                 raise ResultError(
-                    f"The row at Psi = {psi:.6e} is not finite and increasing."
+                    "The values of s on the velocity table's row at "
+                    f"Psi = {psi:.6e} are not all finite and increasing."
                 )
             res = np.max(
                 np.where(host["inside"][:real], host["best_r"][:real], 0.0), axis=1
             )
             table[c0 : c0 + real], totals[c0 : c0 + real] = rows, host["tot"][:real]
             edges[c0 : c0 + real] = lay["xe"][:real]
-            j = int(np.argmax(res))  # the first row of the chunk's largest
+            j = int(np.argmax(res))  # First row with the chunk's largest residual.
             if res[j] > residual:
                 residual, residual_psi = float(res[j]), float(pad[j])
         return table, totals, edges, (residual, residual_psi)
 
-    # ---- the rows ----
+    # ---- The rows of the velocity table. ----
 
     def build(self, psis, ws):
-        """The rows at the given Psi and depths w = p_0 - Psi: the table (n, 3,
-        nodes), the totals, the edges, and the largest residual of the polish
-        with its row's Psi. By the row kernels where KERNEL_ROWS (the default),
-        else row by row on the host, the reference."""
+        """Return the rows of the velocity table at potentials `psis` and depths
+        `ws` = p_0 - Psi: the table of shape (rows, 3, nodes), the rows' total
+        masses, the rows' support edges, and the largest absolute residual of
+        the polish with the potential of the row where the residual occurs. The
+        row kernels build the rows when KERNEL_ROWS is true (the default);
+        otherwise `_Rows.row` builds the rows one at a time on the host, the
+        reference."""
         if KERNEL_ROWS:
             return self.build_kernels(psis, ws)
         n = int(psis.size)
@@ -1401,7 +1569,8 @@ class _Rows:
                 and np.all(row[1] > 0.0)
             ):
                 raise ResultError(
-                    f"The row at Psi = {psi:.6e} is not finite and increasing."
+                    "The values of s on the velocity table's row at "
+                    f"Psi = {psi:.6e} are not all finite and increasing."
                 )
             table[j], totals[j], edges[j] = row, tot, xe
             if res > residual:
@@ -1410,27 +1579,34 @@ class _Rows:
 
 
 def _panel_count(per_decade, ratio, where):
-    """Panels for a span of `ratio` at `per_decade` panels a decade, at least
-    one; a span that is not a positive ratio above 1 is refused."""
+    """Return the number of panels for a span of `ratio` at `per_decade`
+    panels per decade, at least one panel. A `ratio` that is not above 1
+    raises ResultError."""
     if not ratio > 1.0:
         raise ResultError(
-            f"The speed integral's panels at the {where} span a ratio of {ratio!r}, "
-            "not above 1."
+            f"The panels of the velocity integral at the {where} span a ratio of outer "
+            f"end to inner end of {ratio!r}, which is not above 1."
         )
     return int(per_decade * math.log10(ratio)) + 1
 
 
-def _odd_row_error(table, dlam, lnu0, stride=1, in_speed=False):
-    """Every interior row predicted from its neighbors at twice the spacing by
-    the draw's interpolant, against the row itself: the largest miss in u (or
-    in x / x), over the nodes a uniform double can address, and its row."""
+def _odd_row_error(table, dlam, lnu0, stride=1, in_velocity=False):
+    r"""Return the table's own error across rows and the index of the row
+    where the error is largest.
+
+    Every interior row is predicted from the two rows `stride` rows away on
+    each side by the draw's cubic Hermite interpolant across rows, and the
+    prediction is compared with the row itself. The miss is measured in the
+    cumulative probability u, or relative to the scaled velocity x when
+    `in_velocity` is true. Only table nodes with :math:`|\lambda_u| \le 53 \ln 2` count,
+    the cumulative probabilities that a uniform double reaches."""
     n_nodes = table.shape[2]
     lam_t = np.linspace(lnu0, -lnu0, n_nodes)
     reach = np.abs(lam_t) <= 53.0 * math.log(2.0)
     s, ms, rs = table[:, 0, :], table[:, 1, :], table[:, 2, :]
     k2 = 2 * int(stride)
     pred = 0.5 * (s[:-k2] + s[k2:]) + (k2 * dlam / 8.0) * (rs[:-k2] - rs[k2:])
-    if in_speed:
+    if in_velocity:
         miss = np.abs(pred - s[stride:-stride]) / (1.0 + np.exp(s[stride:-stride]))
     else:
         w = 1.0 / ((1.0 + np.exp(-lam_t)) * (1.0 + np.exp(lam_t)))
@@ -1440,22 +1616,36 @@ def _odd_row_error(table, dlam, lnu0, stride=1, in_speed=False):
     return float(by_row[worst]), worst + int(stride)
 
 
-def build_speed_table(model, settings):
-    """Return the arrays of the speed table of a one-component model.
+def build_velocity_table(model, settings):
+    """Return the arrays of the velocity table of a one-component model.
 
     Returns
     -------
     fields : dict
-        The fields of `SpeedTable`, as arrays of one component. Its
-        `validation` holds the checks `SPEED_TABLE_KEYS`, each at its row's
-        Psi: the table's own error across rows (where the refinement stopped,
-        at the goal or at ``sampling.n_rows_max``) and the polish's largest
-        residual.
+        The fields of `VelocityTable`, as arrays of one component. The field
+        `validation` holds the two checks listed in `VELOCITY_TABLE_KEYS`, each
+        located at the potential Psi of the check's row: "row_error", the
+        table's own error across rows where the refinement stopped (at
+        ``sampling["row_error_goal"]`` or at ``sampling["n_rows_max"]``), and
+        "polish_residual", the largest absolute residual in lambda_u that the
+        polish leaves at a table node.
 
     Raises
     ------
     AccuracyError
-        If either check lies beyond the hard limit.
+        If either check is above :math:`10^{-2}` and the settings do not set
+        ``write_anyway=True``.
+    AccuracyError
+        If more than :math:`10^{-6}` of the model's mass lies at potentials
+        below the lowest row.
+    AccuracyError
+        If a row's velocity support ends inside the velocity grid's first
+        interval, or a row keeps fewer than ROW_NODES_MIN construction nodes.
+    ResultError
+        If the profile holds fewer than two potentials between 0 and p_0, or
+        a row fails its own consistency checks.
+    UnphysicalModelError
+        If the DF below its table has a mass that is not finite at E = 0.
     """
     sampling = settings.sampling
     rows = _Rows(model, settings)
@@ -1464,29 +1654,34 @@ def build_speed_table(model, settings):
     psi_pos = psi_profile[(psi_profile > 0.0) & (psi_profile < p_0)]
     if psi_pos.size < 2:
         raise ResultError(
-            f"The profile holds {psi_pos.size} potential(s) inside (0, p_0 = {p_0!r}): "
-            "the speed table's rows span that range."
+            "The rows of the velocity table span the potentials strictly between 0 "
+            f"and p_0 = {p_0!r}; the profile holds {psi_pos.size} potential(s) in "
+            "that interval, and the velocity table needs at least 2."
         )
     if rows.continues or rows.n_below > 0:
         psi_lo = float(np.min(psi_pos))
     else:
-        psi_lo = max(float(np.min(psi_pos)), rows.q_min_written / math.sqrt(GOAL))
+        psi_lo = max(
+            float(np.min(psi_pos)), rows.q_min_written / math.sqrt(TIER_BOUNDS[0])
+        )
     mass = np.asarray(model.profile.mass_trunc, dtype=np.float64)
     below_rows = (psi_profile > 0.0) & (psi_profile < psi_lo)
     mass_beyond = float(
         1.0
         - (np.min(mass[below_rows]) if below_rows.any() else mass.max()) / mass.max()
     )
-    if mass_beyond > GOAL:
+    if mass_beyond > TIER_BOUNDS[0]:
         raise AccuracyError(
-            f"{mass_beyond:.3e} of the model's mass lies where Psi is below the "
-            f"lowest row ({psi_lo:.4e}), above the goal {GOAL:g}."
+            f"A fraction {mass_beyond:.3e} of the model's mass lies where the "
+            "relative potential Psi is below the potential of the velocity table's "
+            f"lowest row, {psi_lo:.4e}; the fraction must be at most 0.000001."
         )
     psi_hi = float(np.max(psi_pos))
-    # the top row at the depth of its potential in the solve's own column
-    # u_trunc, exact where p_0 - Psi has lost its digits (on a cored model the
-    # largest potential below p_0 is an ulp under it); p_0 - Psi where the
-    # column does not cover the row
+    # The top row's depth comes from the profile's column u_trunc, which holds
+    # p_0 - Psi exactly. The difference p_0 - Psi formed by subtraction loses
+    # its digits near the top: on a cored model the largest potential below p_0
+    # lies one unit in the last place below p_0. Where u_trunc does not cover
+    # the top row, the depth is p_0 - Psi.
     u_col = np.asarray(model.profile.u_trunc, dtype=np.float64)
     i_hi = int(np.flatnonzero(psi_profile == psi_hi)[0])
     u_hi = (
@@ -1497,8 +1692,9 @@ def build_speed_table(model, settings):
     n_rows = int(sampling["n_rows"])
     dlam = float((lam_hi - lam_lo) / (n_rows - 3))
     lam_rows = (lam_lo - dlam) + dlam * np.arange(n_rows)
-    # each row's Psi and its depth p_0 - Psi, both from lambda_p: the depth is
-    # not formed by subtraction, which near the top leaves only its last bits
+    # Each row's Psi and depth p_0 - Psi both come from lambda_p, because the
+    # depth formed by subtraction near the top keeps only the depth's last
+    # bits.
     psi_rows = p_0 / (1.0 + np.exp(-lam_rows))
     w_rows = p_0 / (1.0 + np.exp(lam_rows))
     table, totals, edges, residual = rows.build(psi_rows, w_rows)
@@ -1506,7 +1702,7 @@ def build_speed_table(model, settings):
     while True:
         row_error = max(
             _odd_row_error(table, dlam, rows.lnu0),
-            _odd_row_error(table, dlam, rows.lnu0, in_speed=True),
+            _odd_row_error(table, dlam, rows.lnu0, in_velocity=True),
         )
         goal = float(sampling["row_error_goal"])
         if row_error[0] <= goal or 2 * n_rows - 3 > int(sampling["n_rows_max"]):
@@ -1536,40 +1732,43 @@ def build_speed_table(model, settings):
         "polish_residual": Check(error=residual[0], where=residual[1]),
     }
     for key, check in checks.items():
-        # beyond the hard limit the table is refused, unless the settings ask
-        # for it anyway: then its report carries the verdict (tier "refused")
-        # and the sampler announces it
+        # A check above 0.01 refuses the table unless the settings set
+        # write_anyway. With write_anyway, the table's validation report carries
+        # the tier "refused" and the sampler announces the tier.
         if check.level == 3 and not settings.write_anyway:
-            # what was observed, and for an Osipkov-Merritt or COM Type I
-            # model its inputs (the family whose rows the Sampler's notes find
-            # reaching the cap)
+            # The message states the observed error and, for an Osipkov-Merritt
+            # or Cuddeford-Osipkov-Merritt (COM) Type I model, the anisotropy's
+            # inputs, because the Notes section of `Sampler` describes the rows
+            # of Osipkov-Merritt and COM Type I models reaching n_rows_max.
             capped = key == "row_error" and 2 * n_rows - 3 > int(sampling["n_rows_max"])
             anisotropy = model.components[0].anisotropy
             raise AccuracyError(
-                f"The speed table's {key.replace('_', ' ')} is {check.error:.2e} at "
-                f"Psi = {check.where:.6e}, beyond the hard limit {HARD_LIMIT:g}"
+                f"The velocity table's {key.replace('_', ' ')} is {check.error:.2e} at "
+                f"Psi = {check.where:.6e}, above 0.01"
                 + (
-                    f", with its rows at n_rows_max ({n_rows}) before the error "
-                    "across them reached the goal"
+                    f", and the table's rows reached n_rows_max ({n_rows}) before "
+                    "the table's error across rows reached sampling.row_error_goal"
                     if capped
                     else ""
                 )
                 + (
-                    f", for this {anisotropy.family.replace('_', ' Type ')} model "
-                    f"(beta_c = {anisotropy.beta_c:g}, r_a = {anisotropy.r_a:g}; see "
-                    "Sampler)."
+                    "; the model's anisotropy is "
+                    f"{anisotropy.family.replace('_', ' Type ')} with "
+                    f"beta_c = {anisotropy.beta_c:g} and r_a = {anisotropy.r_a:g} (the "
+                    "Notes of Sampler describe the rows of such models)."
                     if capped and anisotropy.family in ("OM_I", "COM_I")
                     else "."
                 )
             )
-    # the cause where the rows stopped at the cap above the goal: not a check
-    # (the record holds the judgments), the table's log line and the
-    # sampler's announcement say it
+    # Where the rows stopped at n_rows_max with the error across rows above
+    # row_error_goal, the cause is not a check, because the validation report
+    # holds only checks. The table's log line and the sampler's announcement
+    # state the cause.
     row_cap = (
-        f"its rows reached n_rows_max ({n_rows})"
+        f"the velocity table's rows reached n_rows_max ({n_rows})"
         + (
-            f" with the error across them still falling, "
-            f"{previous / row_error[0]:.1f} times over the last doubling of the rows"
+            " with the table's error across rows still falling, by a factor of "
+            f"{previous / row_error[0]:.1f} over the last doubling of the rows"
             if math.isfinite(previous)
             else ""
         )
@@ -1577,7 +1776,9 @@ def build_speed_table(model, settings):
         else ""
     )
     if row_cap:
-        _log.info("The speed table's row error is %.2e: %s.", row_error[0], row_cap)
+        _log.info(
+            "The velocity table's error across rows is %.2e: %s.", row_error[0], row_cap
+        )
     return dict(
         lambda_p=lam_rows,
         dlambda_p=dlam,
@@ -1588,6 +1789,6 @@ def build_speed_table(model, settings):
         x_edge=edges[None, :],
         p_0=p_0,
         e_edge=(0.0 if rows.continues else rows.q_min,),
-        validation=ValidationReport(keys=SPEED_TABLE_KEYS, checks=checks),
+        validation=ValidationReport(keys=VELOCITY_TABLE_KEYS, checks=checks),
         row_cap=row_cap,
     )

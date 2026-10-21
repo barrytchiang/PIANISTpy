@@ -12,7 +12,7 @@ def _restore_switches():
     yield
     runtime.set_verbosity("quiet")
     runtime.set_timing(False)
-    runtime.set_workers("auto")
+    runtime.set_cores("auto")
 
 
 def test_quiet_by_default_and_messages_are_still_remembered(capsys):
@@ -73,9 +73,10 @@ def test_stages_are_timed_whether_or_not_timing_is_printed(capsys):
 
 
 def test_peak_memory_is_recorded_with_each_stage(monkeypatch):
-    # The peak is the largest memory of the whole process, so what an
-    # allocation here adds to it depends on the tests that ran before: the
-    # reading is checked on its own and the recording with stated readings.
+    # peak_memory returns the largest memory of the whole process, so the
+    # change an allocation in this test makes to peak_memory depends on the
+    # tests that ran before. The test therefore checks one reading of
+    # peak_memory on its own and checks the recording with fixed readings.
     before = runtime.peak_memory()
     assert before is not None and before > 2**20
     readings = iter([before + 64 * 2**20, before + 96 * 2**20])
@@ -111,25 +112,25 @@ def test_workers(monkeypatch):
     for name in runtime.SCHEDULER_JOB_VARIABLES + runtime.SCHEDULER_CORE_VARIABLES:
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setattr(runtime, "allowed_cores", lambda: 16)
-    runtime.set_workers("auto")
-    assert runtime.get_workers() == 8
-    runtime.set_workers("full")
-    assert runtime.get_workers() == 16
-    runtime.set_workers("half")
-    assert runtime.get_workers() == 8
-    runtime.set_workers(3)
-    assert runtime.get_workers() == 3
-    runtime.set_workers("5")
-    assert runtime.get_workers() == 5
+    runtime.set_cores("auto")
+    assert runtime.get_cores() == 8
+    runtime.set_cores("full")
+    assert runtime.get_cores() == 16
+    runtime.set_cores("half")
+    assert runtime.get_cores() == 8
+    runtime.set_cores(3)
+    assert runtime.get_cores() == 3
+    runtime.set_cores("5")
+    assert runtime.get_cores() == 5
     monkeypatch.setenv("SLURM_JOB_ID", "1")
-    runtime.set_workers("auto")
-    assert runtime.get_workers() == 16
+    runtime.set_cores("auto")
+    assert runtime.get_cores() == 16
     monkeypatch.setattr(runtime, "allowed_cores", lambda: 1)
-    runtime.set_workers("half")
-    assert runtime.get_workers() == 1
+    runtime.set_cores("half")
+    assert runtime.get_cores() == 1
     for bad in (0, -2, "many", True, 1.5):
         with pytest.raises(InputError):
-            runtime.set_workers(bad)
+            runtime.set_cores(bad)
 
 
 def test_allowed_cores_follows_the_scheduler(monkeypatch):
@@ -152,12 +153,12 @@ def test_the_card_memory_is_none_off_a_gpu(monkeypatch):
     assert runtime.card_memory() is None
 
 
-def test_the_workers_are_explicit_only_when_set_to_a_number():
-    assert not runtime.workers_explicit()
-    runtime.set_workers("3")
-    assert runtime.workers_explicit()
-    runtime.set_workers("half")
-    assert not runtime.workers_explicit()
+def test_the_cores_are_explicit_only_when_set_to_a_number():
+    assert not runtime.cores_explicit()
+    runtime.set_cores("3")
+    assert runtime.cores_explicit()
+    runtime.set_cores("half")
+    assert not runtime.cores_explicit()
 
 
 def test_the_environment_switches_read_one_set_of_words_in_any_case(monkeypatch):
@@ -182,8 +183,9 @@ def test_the_environment_switches_read_one_set_of_words_in_any_case(monkeypatch)
 
 
 def test_the_workers_run_xla_on_one_thread(monkeypatch):
-    # a worker's XLA flags carry the one-thread flags beside
-    # the process's own, for the spawn only
+    # The XLA flags of a parallel process hold the one-thread flags in
+    # addition to the main process's own flags, and only while the parallel
+    # processes start.
     import os
 
     from pianistpy import runtime

@@ -1,5 +1,25 @@
-"""The line-of-sight velocity distribution averaged over an aperture, on its
-own V panels, read from the table of rows."""
+r"""The line-of-sight velocity distribution averaged over an aperture.
+
+`aperture_losvd`, and `sigma_los_aperture` given a `LosTable`, use this
+module through `stages.aperture_losvd`. The aperture distribution at the
+line-of-sight velocity :math:`V \ge 0` is
+
+.. math::
+
+    \bar D(V) = \frac{\int D(R, V)\,\Sigma(R)\,{\rm arc}(R)\,R\,{\rm d}R}
+    {\int \Sigma(R)\,{\rm arc}(R)\,R\,{\rm d}R},
+
+with :math:`D(R, V)` the line-of-sight velocity distribution of the table
+of rows at projected radius :math:`R`, :math:`\Sigma` the surface density
+and :math:`{\rm arc}(R)` the angle of the circle of radius :math:`R` inside
+the aperture (`Aperture.arc`). The aperture distribution has its own
+velocity panels, with breaks at the extreme values of the rows' break
+velocities over the aperture. The panels are bisected until the norm and
+the second moment of the aperture distribution agree with the norm and
+the second moment from the rows' own velocity rules to a relative
+:math:`10^{-8}`. The distribution in an aperture is the subject of Notes
+Section T:6.6.
+"""
 
 __all__ = [
     "BreakCurves",
@@ -15,7 +35,7 @@ from typing import Any
 import numpy as np
 
 from ..typing import Array
-from ..validation import GOAL
+from ..validation import TIER_BOUNDS
 from ._aperture import general_aperture_nodes, outside_table, unit_rule
 from ._ellipse import EllipseRoute
 from ._ellipse_rules import BREAK_TOL, gl01
@@ -23,17 +43,29 @@ from ._panel_table import PanelTable
 from ._projection import _refuse_below
 from .aperture import Aperture
 
+# The names of the five break velocities of a row, in the column order of
+# BreakCurves.val.
 CURVE_KEYS = ("V_k", "V_end", "V_rad", "V_edge", "V_c")
 
 
 class BreakCurves:
-    """Every row break as a function of projected radius, at the radii of one
-    aperture, each radius scanned once.
+    """The five break velocities of a row (`CURVE_KEYS`) as functions of
+    projected radius, cached at the projected radii of one aperture.
 
-    A new radius between two known ones whose maxima sit within one coarse
-    scan step of each other takes the zooms in the bracket their positions
-    span, widened by that step; otherwise the full scan. The radii are kept in
-    a merged part and up to `_MERGE` added since.
+    A call returns the break velocities at the requested projected radii.
+    The route computes each projected radius once, and the cache keeps the
+    result. A new radius R gets a bracketed search in three conditions: R
+    lies between two cached radii; at the two cached radii, the positions
+    of the line-of-sight maxima differ by at most one coarse scan step h;
+    and, for a route with an L factor, the positions of the second maxima
+    also differ by at most h. The bracket of the search runs from the
+    smaller to the larger position, widened by h on each side. Every other
+    new radius gets the full scan. The counters ``n_near`` and ``n_full``
+    count the radii of each kind.
+
+    The cache holds a merged sorted part (``R``, ``val``, ``t``) and a
+    pending sorted part. When the pending part holds more than `_MERGE`
+    radii, the pending part is merged into the merged part.
     """
 
     _MERGE = 4096
@@ -73,7 +105,8 @@ class BreakCurves:
             for rs, ts in ((self.R, self.t), (self._pR, self._pt)):
                 if rs.size:
                     j = np.searchsorted(rs, new)
-                    a, b = np.clip(j - 1, 0, rs.size - 1), np.clip(j, 0, rs.size - 1)
+                    a = np.clip(j - 1, 0, rs.size - 1).astype(np.intp, copy=False)
+                    b = np.clip(j, 0, rs.size - 1).astype(np.intp, copy=False)
                     up = (j > 0) & (rs[a] > lo_r)
                     dn = (j < rs.size) & (rs[b] < hi_r)
                     lo_r, ta = (
@@ -145,9 +178,16 @@ def curve_radii(
     rs: Array,
     vs: Array,
 ) -> list[list[float]]:
-    """Return, for each V, the radii inside the sample (rs, vs) where the
-    break curve `name` equals V: regula falsi with the Illinois step on the
-    curve itself, to one unit in the last place of R, 60 steps at most."""
+    """Return, for each velocity in `v`, the projected radii where the break
+    curve `name` equals the velocity.
+
+    The sample (`rs`, `vs`) holds the break curve's values `vs` at the
+    projected radii `rs`. A velocity strictly between the curve's values at two
+    consecutive sample radii has one root between the two sample radii. The root
+    search is regula falsi with the Illinois step, on the break curve
+    itself (`curves`). The search ends when the root's bracket is at most
+    one unit in the last place of the bracket's upper radius, or after 60
+    steps. The returned root is the midpoint of the final bracket."""
     out: list[list[float]] = [[] for _ in range(len(v))]
     ok = np.isfinite(vs)
     for j in range(len(rs) - 1):
@@ -196,11 +236,18 @@ def curve_radii(
 def aperture_output_rule(
     route: EllipseRoute, curves: dict[str, Array], v_top: float
 ) -> tuple[Array, Array, Array, Array]:
-    """Return the ``V >= 0`` nodes and weights of the aperture distribution's own
-    panels, its breaks and its sub-panels' edges: breaks at 0, at the least
-    and largest value of each row break over the aperture, and at `v_top`,
-    graded as a row's panels are; two breaks within BREAK_TOL of `v_top`
-    coincide, except V_k's."""
+    """Return the velocity rule of the aperture distribution's own panels.
+
+    The returned tuple holds the ``V >= 0`` nodes, the weights, the panel
+    breaks, and the edges of the sub-panels. The candidate breaks are 0,
+    the least and the largest value over the aperture of each break curve
+    in `curves` inside (0, `v_top`), and `v_top`. A candidate break is kept
+    where the candidate exceeds the last kept break by more than
+    ``BREAK_TOL * v_top``. A least or largest value of ``V_k`` is kept
+    wherever the value exceeds the last kept break. The last break is set
+    to `v_top`. Each panel is split into sub-panels as a row's panels are
+    (``route.lattice.panel_edges_unit``). Each sub-panel carries a
+    Gauss-Legendre rule of ``route.rules.vp_nodes`` nodes."""
     ends = sorted(
         {
             float(x)
@@ -237,9 +284,16 @@ def aperture_output_rule(
 def rows_rule_moments(
     table: PanelTable, route: EllipseRoute, r_nodes: Array, w_nodes: Array
 ) -> tuple[float, float]:
-    """Return (norm, second moment) of the aperture distribution by the rows'
-    own rule: at each radial node the stencil's rows at the same (panel, xi),
-    integrated in each row's own panels with its own weights."""
+    """Return the norm and the second moment of the aperture distribution by
+    the rows' own velocity rules.
+
+    At each radial node, the stencil combines rows of the table with the
+    stencil's weights. Each row is integrated on the row's own ``V >= 0``
+    nodes and weights. Each node of the row is moved to the velocity with the
+    same panel and the same relative position xi in the panel, among the
+    breaks at the radial node. The radial weights `w_nodes` weight the
+    radial nodes. The factor 2 adds the ``V < 0`` half of the even
+    distribution."""
     m = table.lattice.rules.vp_nodes
     table._prep_key = None
     table.at(route, r_nodes, 0.0)
@@ -278,31 +332,99 @@ def aperture_losvd_panels(
     record: list[tuple[Array, Array, dict[str, Array]]] | None = None,
     extrema: Callable[[Array], None] | None = None,
 ) -> tuple[Array, Array, Array, Array, dict[str, Any], Array | None, Array | None]:
-    r"""Return the aperture-averaged distribution on its own panels: (the
-    ``V >= 0`` nodes, weights, D, breaks, info, V on an even grid, D there).
+    r"""Return the aperture distribution on the distribution's own velocity
+    panels.
 
-    The radial rule over the aperture is `general_aperture_nodes` up to the
-    tables' common edge, weighted by the surface density. A V that meets no
-    row break inside the aperture takes that rule; each other V takes its own,
-    with the radii where a break curve equals it as breaks. The output rule
-    refines itself, bisecting its widest sub-panels, until its moments are
-    within :math:`10^{-2}` of the goal of the rows' own rule's, the widest is no wider
-    than the narrowest it began with, or a round moves nothing.
+    The base radial rule over the aperture is `general_aperture_nodes`, up
+    to the smaller of ``surface.r_max`` and the table's last radius
+    ``table.R_max``. The base weights include the surface density and are
+    normalized to unit sum. A velocity V that equals no break curve inside
+    the aperture uses the base radial rule. Every other velocity V uses a
+    radial rule of its own, with the projected radii where a break curve
+    equals V (`curve_radii`) as extra panel breaks.
 
-    With `record`, the source of each value of the returned D is appended to
-    it in order: the radii it reads the table at, their weights and the
-    breaks there, so that D at a node is the weighted sum of the table read
-    at those radii and the node's V.
+    The velocity rule starts from `aperture_output_rule`. The velocity rule
+    is refined in rounds. Each round bisects every sub-panel wider than
+    half of the widest sub-panel. The refinement ends at the first of three
+    conditions: the relative differences of the norm and of the second
+    moment from the rows' own rules (`rows_rule_moments`) are both at most
+    :math:`10^{-8}`; the widest sub-panel is no wider than the narrowest
+    sub-panel of the starting rule; or a round changes the norm and the
+    second moment by at most :math:`10^{-8}` relative while the difference
+    from the rows' own rules is still above :math:`10^{-8}`.
 
-    With `extrema`, the extrema of the line of sight (`EllipseRoute.f_extrema`)
-    at the radii of the sample and of the V's own radial rules are computed
-    by it at once, before the curves read them one rule after another: each
-    radius's are the ones it forms alone, so every number is the same.
+    Parameters
+    ----------
+    surface : callable
+        The reader of the surface density (`general_aperture_nodes`).
+    table : PanelTable
+        The table of rows, read between rows by its stencil.
+    route : EllipseRoute
+        The route of the component, without the DF.
+    aperture : Aperture
+        The aperture, with lengths in internal units.
+    n_nodes : int
+        The least number of Gauss-Legendre nodes of each radial panel.
+    nodes_per_decade : int
+        Radial nodes per decade of a panel's span in ln R, where this count
+        gives a panel more nodes than `n_nodes`.
+    inner_tolerance : float
+        The largest accepted estimated share of the aperture's weight inside
+        the table's first row.
+    even : sequence of float, optional
+        A pair (count, v_max). With `even`, the distribution is also
+        evaluated on ``count`` velocities evenly spaced on [-v_max, v_max], or
+        on [-v_top, v_top] where v_max is not positive. Default: ``None``,
+        which means no evenly spaced evaluation.
+    record : list, optional
+        With `record`, the call appends one entry per returned node, in node
+        order. Each entry holds the projected radii at which the node reads
+        the table, the normalized weights of those projected radii, and the
+        break velocities at those projected radii. The node's value of D is
+        the weighted sum of the table read at the entry's radii and the
+        node's V. Default: ``None``, which means no record.
+    extrema : callable, optional
+        With `extrema`, the call computes the line-of-sight extrema
+        (`EllipseRoute.f_extrema`) at all radii of the sample and of each
+        velocity's own radial rule in one batch, before the break curves read
+        the extrema. Each extremum at a radius equals the extremum that the
+        radius forms when computed alone, so the result does not change.
+        Default: ``None``, which means each break curve computes the
+        extrema as the curve reads them.
+
+    Returns
+    -------
+    v : array
+        The ``V >= 0`` nodes of the velocity rule.
+    w : array
+        The weights of the velocity rule.
+    d : array
+        The aperture distribution D at the nodes.
+    breaks : array
+        The panel breaks of the velocity rule.
+    info : dict
+        The norm and second moment by the velocity rule (``norm_file``,
+        ``m2_file``) and by the rows' own rules (``norm_rows``,
+        ``m2_rows``), the node counts, the scan counts of the break curves,
+        the stencil order and the stencil's error estimate
+        (``stencil_K``, ``stencil_est``), and the refinement's rounds, end
+        condition and first and last relative differences.
+    v_even : array or None
+        The evenly spaced velocities, or None without `even`.
+    d_even : array or None
+        D at the evenly spaced velocities, zero beyond v_top, or None without
+        `even`.
 
     Raises
     ------
     InputError
-        Where the aperture encloses no tabulated surface density.
+        If the aperture encloses no tabulated surface density.
+    InputError
+        If the estimated share of the aperture's weight inside the table's
+        first row is above `inner_tolerance`.
+    InputError
+        If a node of the base radial rule lies inside the first row of the
+        table of rows, ``table.R_2D[0]`` (`_projection._refuse_below`).
     """
     t_gl, w_h = unit_rule(n_nodes)
     r_edge = min(surface.r_max, float(table.R_max))
@@ -419,7 +541,9 @@ def aperture_losvd_panels(
 
     n_file, m2_file, gap0 = gap_of(vp, wp, dp)
     gap, rounds, end = gap0, 0, "tolerance"
-    while gap > 1e-2 * GOAL:
+    # The refinement tolerance 1e-2 * TIER_BOUNDS[0] = 1e-8 lies two decades
+    # below the 1e-6 bound of the aperture distribution's checks.
+    while gap > 1e-2 * TIER_BOUNDS[0]:
         wid = sub[:, 1] - sub[:, 0]
         if not float(wid.max()) > w_floor:
             end = "floor"
@@ -479,7 +603,7 @@ def aperture_losvd_panels(
         own += own_q
         rounds += 1
         n_file, m2_file, gap = gap_of(vp, wp, dp)
-        if gap > 1e-2 * GOAL and not moved > 1e-2 * GOAL:
+        if gap > 1e-2 * TIER_BOUNDS[0] and not moved > 1e-2 * TIER_BOUNDS[0]:
             end = "stalled"
             break
     info: dict[str, Any] = dict(

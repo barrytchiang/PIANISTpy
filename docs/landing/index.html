@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PIANISTpy</title>
 <meta name="description" content="PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, with differentiable observables in JAX.">
-<!-- PRE-RELEASE: the two lines below are removed at 1.0.0 -->
-<meta name="robots" content="noindex, nofollow">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="docs/_static/fonts/LibreFranklin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="docs/_static/fonts/SourceSerif4.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="docs/_static/fonts/LibreBaskerville.woff2">
@@ -79,7 +77,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
     <img src="docs/_static/logo.png" alt="PIANISTpy logo">
     <div class="hero-text">
       <h1>Anisotropic spherical models, truncated in phase space</h1>
-      <p class="lead">PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.</p>
+      <p class="lead">PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides distribution functions, particle initial conditions, radial and tangential velocity dispersion profiles and line-of-sight observables, with JAX-based end-to-end differentiability for gradient-based Monte Carlo inference.</p>
     </div>
   </section>
 
@@ -87,23 +85,23 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
     <div class="cards">
       <div class="card">
         <h3>Install</h3>
-        <p><code>pip install pianistpy</code>. Python 3.11 or later. Runs on the CPU everywhere, with optional GPU acceleration.</p>
+        <p><code>pip install pianistpy</code>. Python 3.11 or later. PIANISTpy runs on the CPU on Linux, macOS and Windows, and on a CUDA GPU under Linux.</p>
         <a href="docs/start/install">Dependencies and platforms &rarr;</a>
       </div>
       <div class="card">
         <h3>Quick start</h3>
-        <p>From an input density profile and anisotropy model to the distribution function, a phase-space-truncated model, particle initial conditions and velocity observables, in a few lines.</p>
+        <p>A few lines of code go from an input density profile and an anisotropy model to the distribution function, a model truncated in phase space, particle initial conditions and velocity observables.</p>
         <a href="docs/start/quickstart">Run the example &rarr;</a>
       </div>
       <div class="card">
         <h3>Examples</h3>
-        <p>Jupyter notebooks with worked examples for each feature, and reproductions of the figures in the initial release paper.</p>
-        <a href="docs/notebooks/">Open the examples &rarr;</a>
+        <p>Jupyter notebooks for generating particle initial conditions and for computing observables from a model.</p>
+        <a href="docs/notebooks/">Examples &rarr;</a>
       </div>
       <div class="card">
         <h3>Accuracy</h3>
-        <p>The accuracy tier of each model in the release's accuracy grid, with every refusal named.</p>
-        <a href="docs/reference/accuracy">See the accuracy tables &rarr;</a>
+        <p>For each model of a fixed grid, the relative error of the density computed back from the distribution function, and the tier that the result reports, or the exception that the package raises for a model that the package does not build.</p>
+        <a href="docs/reference/accuracy">Accuracy tables &rarr;</a>
       </div>
     </div>
   </section>
@@ -118,25 +116,25 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
 
   <section id="releases">
     <h2>Release notes (ver. @RELEASE@)</h2>
-    <p><b>Ver. 0.9.9</b>, the code of <a href="@PAPER_URL@">@PAPER_FULL@</a>, @PAPER_STATUS@ (henceforth <a href="@PAPER_URL@">@PAPER@</a>). Over ver. 0.9.0 it adds a report of the numerical accuracy with every result, on the CPU and on the GPU, the observables as calls of their own (<code>sigma_r</code>, <code>sigma_t</code>, <code>losvd</code>, <code>aperture_losvd</code>, <code>pdf_v</code>), ranged draws, and gradients in the anisotropy parameters. Ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list. The dependencies, standard and minimum, are listed with each release.</p>
-    <p><a href="docs/project/changelog">All releases: what is new, changed and fixed &rarr;</a></p>
+    <p><b>Ver. 1.0.0</b> is the initial public release of PIANISTpy, described in <a href="@PAPER_URL@">@PAPER_FULL@ @PAPER_STATUS@</a>, henceforth <a href="@PAPER_URL@">@PAPER@</a>. Ver. 1.0.0 provides the distribution functions and their truncation, particle sampling with draws restricted to a user-specified range of radii or velocities, the observables (<code>sigma_r</code>, <code>sigma_t</code>, <code>sigma_los</code>, <code>losvd</code>, <code>aperture_losvd</code>, <code>pdf_v</code>), a report of the numerical accuracy with every result, and gradients in the superposition weights, the mass and length scales and, for Method II components, the anisotropy parameters. Ver. 1.0.0 runs on the CPU and, with a CUDA build of JAX under Linux, on the GPU. The dependencies, standard and minimum, are listed on the <a href="docs/start/install">Install</a> page.</p>
+    <p><a href="docs/project/release-notes">Release notes &rarr;</a></p>
   </section>
 
   <section id="paper">
     <h2>Citation</h2>
-    <p>PIANISTpy is described in <a href="@PAPER_URL@">@PAPER@</a>. The citation entry, the arXiv link and the software DOI are added with ver. 1.0.0.</p>
+    <p>PIANISTpy is described in <a href="@PAPER_URL@">@PAPER@</a>.</p>
     <p><a href="docs/project/citing">How to cite &rarr;</a></p>
   </section>
 
   <footer>
-    PIANISTpy is written and maintained by Barry T. Chiang (Yale University). BSD 3-Clause license.
+    PIANISTpy is written and maintained by Barry T. Chiang (Yale University) and is released under the BSD 3-Clause License.
     <a href="https://github.com/barrytchiang/PIANISTpy">Source on GitHub</a> &middot;
     <a href="https://pypi.org/project/pianistpy/">PyPI</a> &middot;
     <a href="docs/project/contributing">Contributing</a>
   </footer>
 </main>
 
-<div class="site-foot"><div class="wrap">&copy; 2026 Barry T. Chiang &middot; <a href="docs/">Documentation</a></div></div>
+<div class="site-foot"><div class="wrap">&copy; 2026 Barry T. Chiang</div></div>
 
 </body>
 </html>

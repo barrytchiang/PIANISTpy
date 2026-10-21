@@ -1,4 +1,12 @@
-"""The anchor rule on rows of a known power law."""
+"""Tests of the anchor rule of the central form (`pianistpy.df.top`).
+
+The rows are the power law F(k) = (1 - k)^KAPPA with KAPPA = -1.5, so the
+local exponent d ln F / d ln u, with u = 1 - k, is KAPPA exactly. The tests
+check `kappa_loc` against KAPPA, and check which rule `anchor` applies:
+none where the rows reach the ceiling, "data top" where the rows end below
+the ceiling, "defect repair" below a band of negative rows, and no rule below
+a band of negative rows where the rows do not follow the exponent KAPPA.
+"""
 
 import math
 
@@ -11,6 +19,7 @@ REGULAR = {"branch": "regular", "form": "power"}
 
 
 def _rows():
+    """Return 400 energies k from 0.9 toward 1 and the power law (1 - k)^KAPPA."""
     k = 1.0 - np.logspace(-1, -9, 400)
     return k, (1.0 - k) ** KAPPA
 

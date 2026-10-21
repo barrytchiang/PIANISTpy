@@ -1,8 +1,9 @@
-"""Every public path that mixes members takes Models only.
+"""Tests that every public function that mixes members accepts Models only.
 
-A distribution function whose inversion was refused (signed, ``is_physical``
-False) is never a Model; handed to a mixture path in a Model's place, it is
-refused by name, never mixed.
+A distribution function with a signed table (``is_physical`` False) is never a
+Model. Passed to `superpose`, `moments` or `likelihood` in place of a Model,
+the distribution function raises an error that names the reason, and is never
+mixed.
 """
 
 import numpy as np

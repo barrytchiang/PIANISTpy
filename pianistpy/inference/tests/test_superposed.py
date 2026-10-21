@@ -1,4 +1,6 @@
-"""The log-likelihood of a superposed model, in its weights."""
+"""Tests of the log-likelihood of a superposed model as a function of the
+component weights: the value and the gradient against an independent
+computation in NumPy, and the recovery of the weights from data."""
 
 import math
 
@@ -48,10 +50,11 @@ def members():
 
 @pytest.fixture(scope="module")
 def sums(members):
-    """For each component and measurement, the two sums of the mixture, from
-    the members' own tables by the stages' readers in NumPy: A = the weighted
-    Sigma sigma^2 and B = the weighted Sigma, at the radii, and over each
-    aperture on the first member's nodes."""
+    """Return, for each component and each measurement, the two sums of the
+    mixture, A, the weighted sum of Sigma sigma^2, and B, the weighted sum
+    of Sigma, computed in NumPy from each component's own table by the
+    stages' readers: at the projected radii, and over each aperture on the
+    first component's aperture nodes. The velocity unit is returned last."""
     readers = []
     for m in members:
         p = projected_dispersion(m, dispersion_profile(m, SETTINGS), SETTINGS)
@@ -95,8 +98,10 @@ def _predict(w, a, b, v):
 
 @pytest.fixture(scope="module")
 def data(sums):
-    """Data on the mixture at WEIGHTS, moved by 3 percent cosines: radii with
-    errors of 2 percent, apertures with a correlated covariance."""
+    """Return two `Data` on the mixture at WEIGHTS, each value moved by
+    cosines or sines of amplitude 3 percent: dispersions at projected radii
+    with errors of 2 percent, and dispersions in apertures with a covariance
+    matrix of 2 percent standard deviations and correlation 0.3."""
     (a_p, b_p), (a_a, b_a), v = sums
     sigma_p = _predict(WEIGHTS, a_p, b_p, v)
     sigma_a = _predict(WEIGHTS, a_a, b_a, v)
@@ -121,16 +126,18 @@ def data(sums):
 
 
 def _numpy(w, sums, data):
-    """The log-likelihood and its gradient in the weights, written out: each
-    measurement f = (w.A)/(w.B) with w normalized, df/dw_k = (A_k (w.B) -
-    B_k (w.A)) / (w.B)^2 / sum(w), and sigma = v f^(1/2)."""
+    """Return the log-likelihood and the log-likelihood's gradient in the
+    weights `w`, written out in NumPy. With n = w / sum(w), each measurement
+    is f = (n.A)/(n.B), the derivative of f in n_k is
+    (A_k (n.B) - B_k (n.A)) / (n.B)^2, the chain rule through n = w / sum(w)
+    gives the derivative in w_k, and the dispersion is sigma = v f^(1/2)."""
     w = np.asarray(w, dtype=np.float64)
     total, gradient = 0.0, np.zeros(w.size)
     for (a, b), d in zip(sums[:2], data, strict=True):
         n = w / w.sum()
         f = (n @ a) / (n @ b)
         df = (a * (n @ b) - b * (n @ a)) / (n @ b) ** 2
-        df = (df - n @ df) / w.sum()  # through the normalization
+        df = (df - n @ df) / w.sum()  # The chain rule through n = w / sum(w).
         sigma = sums[2] * np.sqrt(f)
         dsigma = sums[2] * 0.5 / np.sqrt(f) * df
         r = d.values - sigma
@@ -178,9 +185,10 @@ def test_the_value_and_gradient_in_the_weights(members, sums, data):
 
 
 def test_the_weights_are_recovered_from_their_own_data(members, sums):
-    # data drawn on the mixture at WEIGHTS with noise of 1 percent (seed 7);
-    # a Newton iteration on w = (t, 1 - t) finds t within three of its errors
-    # (the Fisher error), and without noise to 1e-8
+    # Data are drawn on the mixture at WEIGHTS, once without noise and once
+    # with Gaussian noise of 1 percent (seed 7). A Newton iteration on
+    # w = (t, 1 - t) must recover t to 1e-8 without noise and within three
+    # Fisher errors of t with noise.
     (a_p, b_p), (a_a, b_a), v = sums
     model = superpose(dict(zip(members, WEIGHTS, strict=True)))
     exact = _predict(WEIGHTS, a_p, b_p, v)

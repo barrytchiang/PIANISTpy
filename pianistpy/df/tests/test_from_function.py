@@ -1,5 +1,9 @@
-"""Tests of a DF from a function: its tabulation on the inversion's grid, its
-certificate and its refusal."""
+"""Tests of `DistributionFunction.from_function`.
+
+The tests check the tabulation of a user-specified DF function on the energy
+grid of the inversion, the validation report of the tabulated DF, and the
+InputError that `truncate` and a non-finite DF function raise.
+"""
 
 import re
 
@@ -27,8 +31,12 @@ def plummer(k):
 
 @pytest.fixture(scope="module")
 def from_plummer():
-    """The isotropic Plummer model's closed-form DF through `from_function`,
-    with the energies the function was called on."""
+    """Return the isotropic Plummer DF built by `from_function`, and the calls.
+
+    The DF function is the closed-form isotropic Plummer DF. The second item
+    is the list of the (energy, depth) array pairs that `from_function`
+    passed to the DF function, one pair per call.
+    """
     called = []
 
     def recorded(k, depth):
@@ -40,13 +48,17 @@ def from_plummer():
 
 
 def test_the_tabulation_of_the_packages_own_df_is_its_table():
-    # f = the package's own DF of a component read at its grid's nodes and at
-    # its nodes below the written floor: the function's table has the
-    # inversion's log_df at every node they share, and the same nodes below
+    # The DF function returns the inverted Hernquist DF itself, read at the
+    # nodes of the inverted table and at the table's nodes below the written
+    # floor. The table of the DF from the function must then hold the inverted
+    # table's log_df at every node the two tables share, and the same nodes
+    # below the written floor.
     component = Component(DoublePowerLaw.hernquist(), Anisotropy())
     own = compute_df(component)
     kb = own.table.k_below[0]
-    # the rows first: at an energy both hold, a function has the rows' value
+    # The rows' energies come first. At an energy present both in the rows
+    # and below the floor, the stable sort keeps the rows' copy first, and
+    # the left-sided search in read_at_the_nodes returns the rows' DF value.
     q = np.concatenate([own.rows.k[0], kb])
     f = np.concatenate([own.rows.f[0], 10.0 ** own.table.log_df_below[0]])
     order = np.argsort(q, kind="stable")
@@ -78,17 +90,18 @@ def test_the_tabulation_of_the_packages_own_df_is_its_table():
     assert df.identity != own.identity
 
 
-def test_the_plummer_closed_form_certifies_at_the_goal(from_plummer, tmp_path):
-    # the forms certify at the goal; the slope column is not judged, and the
-    # report says why
+def test_the_plummer_closed_form_certifies_silent(from_plummer, tmp_path):
+    # Every judged check of the closed-form Plummer DF is in the silent tier
+    # (below 1e-6). The slope column is not judged, and the report's reason
+    # for the slope column is NO_SLOPE_COLUMN.
     df, _ = from_plummer
-    assert df.validation.tier == "goal"
+    assert df.validation.tier == "silent"
     assert df.validation.keys == compute_df(PLUMMER).validation.keys
     slope = df.validation.checks["slope_column"]
     assert slope.reason == NO_SLOPE_COLUMN and slope.tier == "not judged"
     assert all(
         df.validation.checks[k].reason is None
-        and df.validation.checks[k].tier == "goal"
+        and df.validation.checks[k].tier == "silent"
         for k in df.validation.keys
         if k != "slope_column"
     )
@@ -110,7 +123,9 @@ def test_truncation_refuses_a_df_from_a_function(from_plummer):
 
 
 def test_the_function_reads_the_grids_energies_and_depths(from_plummer):
-    # called once, on the grid's energies and their depths P_0 - K
+    # `from_function` calls the DF function once, on the grid's increasing
+    # energies K and their depths P_0 - K, with P_0 = 1 for the untruncated
+    # Plummer model in internal units.
     _, called = from_plummer
     assert len(called) == 1
     k, depth = called[0]

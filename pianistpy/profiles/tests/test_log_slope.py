@@ -1,4 +1,4 @@
-"""The potential's logarithmic slope and its derivative, from the profile."""
+"""Tests of `TruncatedProfile.potential_log_slope` and of its derivative in radius."""
 
 import numpy as np
 
@@ -11,8 +11,8 @@ def test_the_log_slope_is_exact_in_the_rows_quantities():
     q = profile.potential_log_slope(r)
     assert q.shape == r.shape
     assert np.all(q < 0.0)
-    # Hernquist in internal units: P = 1 / (1 + r), M = r^2 / (1 + r)^2 up to
-    # the profile's normalization; the ratio M / (r P) is -d ln P / d ln r = r / (1 + r)
+    # For the Hernquist profile in internal units, P = 1 / (1 + r) and
+    # M = r**2 / (1 + r)**2, so d ln P / d ln r = -M / (r P) = -r / (1 + r).
     expected = -r / (1.0 + r)
     assert np.allclose(q, expected, rtol=1e-6, atol=0.0)
 
@@ -25,8 +25,9 @@ def test_the_derivative_of_the_log_slope_matches_central_differences():
         profile.potential_log_slope(r + step) - profile.potential_log_slope(r - step)
     ) / (2.0 * step)
     exact = profile.potential_log_slope_derivative(r)
-    # the exact form reads the density's spline while the central difference reads
-    # the potential's Hermite: they agree to the representation's own consistency
+    # The exact form reads the density's spline, and the central difference
+    # reads the potential's Hermite interpolant. The two agree to the
+    # consistency of the two interpolants, here 1e-4.
     assert np.allclose(exact, central, rtol=1e-4, atol=1e-12)
-    # the closed form of the Hernquist case: d/dr [-r / (1 + r)] = -1 / (1 + r)^2
+    # For the Hernquist profile, d/dr [-r / (1 + r)] = -1 / (1 + r)**2.
     assert np.allclose(exact, -1.0 / (1.0 + r) ** 2, rtol=1e-5, atol=0.0)

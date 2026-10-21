@@ -1,4 +1,10 @@
-"""Tests of the inputs of the distribution-function computation."""
+"""Tests of the inputs of `compute_df`, `solve` and `truncate`.
+
+The tests cover the dictionary forms of `Component` and `Truncation`, the
+targets that `Truncation` accepts, the model identity, the one-component
+limit, the warning for a DF that diverges as K goes to 0, and the checks of an
+untruncated model that are not judged.
+"""
 
 import pytest
 
@@ -70,8 +76,9 @@ def test_this_release_computes_one_component():
 
 
 def test_truncate_says_so_where_the_df_diverges(caplog):
-    # the log, not the recent messages: those are a bounded queue, full after
-    # the tests before this one, so that their length does not grow
+    # The test reads the log records through caplog. The package's recent
+    # messages are a queue of fixed length, which earlier tests may already
+    # have filled, so the queue's length cannot show a new message.
     import dataclasses
 
     from pianistpy.df import core
@@ -96,8 +103,10 @@ def test_truncate_says_so_where_the_df_diverges(caplog):
 
 
 def test_an_untruncated_models_closed_form_checks_are_not_judged():
-    # its profile is the closed form: no outer join and no offset to measure,
-    # so the two checks say why they were not judged, never a measured zero
+    # The untruncated model's profile is the closed form, so the model has no
+    # outer join and no offset eps to measure. The checks "outer_join" and
+    # "eps" are therefore marked "not judged", with an error of NaN and a
+    # stated reason, never with a measured error of zero.
     import math
 
     from pianistpy.df import core

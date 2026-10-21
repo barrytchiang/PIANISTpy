@@ -1,19 +1,24 @@
-"""The validation of a model's profile rows.
+r"""Return the validated rows of a model's profile after the Poisson solve.
 
-The rows the profile keeps are those the Poisson solve reached reliably:
-from the innermost radius the solve was asked for to the last row where the
-potential is at or above the floor. On an untruncated model the solve's
-potential carries a constant outer offset eps (its integration constant),
-measured against the source profile's own potential beyond
-:math:`r = 10^{3}`; it sets the radius out to which a relative accuracy holds
-(R_trust). The outer rows of an untruncated model, where the depth
-``u = P_0 - Phi`` is well conditioned (``Phi < P_0 / 2``), are then the source
-profile's closed forms on a fixed logarithmic grid, from
-``R(Phi = P_0 / 2)`` to ``R(Phi = floor)``, so that the
-table's end does not move with the solve's offset.
-
-The arithmetic is the working pipeline's, operation for operation, so that
-its results are equal to the bit on the same backend.
+`validate_rows` keeps the rows of the profile that the Poisson solve
+reached reliably: from the innermost row, inner fill rows included, to the
+last solve row whose potential is finite and at or above the floor
+`K_FLOOR`. On an untruncated model, the solve's potential carries a
+constant outer offset eps, the solve's integration constant, measured as
+the mean difference from the source profile's potential over the rows
+beyond :math:`r = 10^{3}`. The offset eps sets R_trust, the radius out to
+which the estimated relative error
+``|eps| / Phi * max(1, |d ln rho / d ln Phi|)`` of the rows with a
+potential Phi below :math:`P_0 / 2` stays at or below a given accuracy,
+with :math:`P_0` the central potential and rho the density. The outer rows
+of an untruncated model, where Phi is below :math:`P_0 / 2` and the depth
+``u = P_0 - Phi`` is well conditioned, are replaced by the source
+profile's closed forms on a fixed logarithmic grid from
+``R(Phi = P_0 / 2)`` to the smaller of ``R(Phi = K_FLOOR)`` and the
+solve's largest radius, so that the table's outer end does not depend on
+the solve's offset. A truncated model whose solve
+stopped at the floor event gets an edge row at the truncation radius
+:math:`R_{\rm t}`, where the potential reaches zero.
 """
 
 __all__ = ["ValidatedRows", "validate_rows"]
@@ -35,39 +40,51 @@ from .truncation import K_FLOOR, ORIGINS
 
 @dataclass(frozen=True)
 class ValidatedRows:
-    """The profile's rows after validation.
+    """The rows of a model's profile after validation.
 
     Parameters
     ----------
-    r, phi, rho, mass : array, shape (n,)
-        The rows the profile keeps, increasing in r.
-    u_r, u : array
-        The central coordinate ``u = P_0 - Phi`` on the solve's rows and the
-        fill's, and on the closed-form outer rows; matched to the profile's
-        rows by radius.
+    r : array, shape (n,)
+        Radii of the rows the profile keeps, increasing, in internal units.
+    phi : array, shape (n,)
+        Potential Phi on the kept rows.
+    rho : array, shape (n,)
+        Density on the kept rows.
+    mass : array, shape (n,)
+        Enclosed mass on the kept rows.
+    u_r : array
+        Radii of the depth column ``u``. The radii are matched to the
+        profile's rows by value, not by index.
+    u : array
+        Depth ``u = P_0 - Phi`` on the radii `u_r`: the solve's and the
+        fill's own depths, and ``P_0 - Phi`` on the closed-form outer rows.
     eps : float
-        The untruncated solve's outer potential offset; NaN on a truncated
+        Outer potential offset of the untruncated solve. NaN on a truncated
         model.
     r_trust : dict
-        R_trust at the relative accuracies :math:`10^{-4}`, :math:`10^{-5}`
-        and :math:`10^{-6}` (NaN on a truncated model).
-    inner_rows : dict
-        The rows inside the solve's requested inner radius (the inner fill's
-        series rows), which the profile keeps: their count and their radius
-        and depth ranges.
-    r_t : float
-        The edge of a spatially finite model, where the profile's last row
-        is: the radius where the Kepler exterior of the last row of the solve,
-        ``Phi = M (1/r - 1/r_t) / (4 pi)``, reaches zero; infinite where the solve
-        found no edge.
+        R_trust keyed by the relative accuracies :math:`10^{-4}`,
+        :math:`10^{-5}` and :math:`10^{-6}`. Each value is NaN on a
+        truncated model.
     exact_outer : dict
-        The closed-form outer rows' join, end, row count and the solve's
-        relative difference from the closed forms at its last inner row;
-        empty on a truncated model.
+        For the closed-form outer rows: the join radius, the end radius, the
+        row count, the rows per decade, and the solve's relative difference
+        from the closed forms in potential, density and mass at the last
+        kept row inside the join radius. Empty on a truncated model.
+    r_t : float
+        Edge radius of a spatially finite model, the radius of the
+        profile's last row. The edge radius is where the Kepler exterior
+        ``Phi = M (1/r - 1/r_t) / (4 pi)`` of the last kept row with Phi at
+        or above `K_FLOOR` and a positive density reaches zero, with M that
+        row's enclosed mass.
+        Infinite where the solve found no edge.
+    inner_rows : dict
+        The rows inside the solve's requested inner radius, which are the
+        inner fill's series rows and which the profile keeps: the requested
+        radius, the row count, and the radius and depth ranges of the rows.
     origin : array of int8
-        Each row's origin, a code of `truncation.ORIGINS`: the main solve, the edge
-        continuation, the floor event, the inner and the outer fills, the
-        closed-form outer rows, the edge row.
+        Origin of each row, a code of `truncation.ORIGINS`: the main solve,
+        the edge continuation, the floor event, the inner fill, the outer
+        fill, the closed-form outer rows, or the edge row.
     """
 
     r: Array
@@ -85,11 +102,16 @@ class ValidatedRows:
 
 
 def _pot(source: DoublePowerLaw, r: Any) -> Array:
+    """Return the source profile's potential at the radii r, as an array."""
     return np.asarray(source.p(np.atleast_1d(np.asarray(r, dtype=np.float64))))
 
 
 def _r_where(source: DoublePowerLaw, level: float, lo: float, hi: float) -> float:
-    """ln R bisection for Phi(R) = level, Phi decreasing in R."""
+    """Return the radius R where the source potential Phi(R) equals level.
+
+    The radius comes from 200 bisection steps in ln R on [lo, hi], with lo
+    and hi given as ln R, for a potential that decreases with R.
+    """
     for _ in range(200):
         mid = 0.5 * (lo + hi)
         if float(_pot(source, np.exp(mid)).reshape(-1)[0]) > level:
@@ -107,29 +129,40 @@ def validate_rows(
     source: DoublePowerLaw,
     settings: Mapping[str, Any],
 ) -> ValidatedRows:
-    """Return the profile's validated rows.
+    """Return the validated rows of a model's profile.
 
     Parameters
     ----------
     rows : ProfileRows
-        The rows, mass and u column of the profile (`profile_rows`).
+        The profile's rows, with mass and depth column (`profile_rows`).
     solve : PoissonSolve
-        The Poisson solve: its innermost requested radius and its rows'
-        reach.
-    k_t, p_center : float
-        The truncation energy and the untruncated central potential.
+        The Poisson solve. The call reads the solve's innermost requested
+        radius, its rows, its floor event and its edge continuation.
+    k_t : float
+        Truncation energy, in internal units. Zero for an untruncated model.
+    p_center : float
+        Central potential of the untruncated model, in internal units.
     source : DoublePowerLaw
-        The source profile: its potential, density and enclosed mass.
+        The source profile, whose potential, density and enclosed mass the
+        call reads.
     settings : mapping
-        The truncation's settings (`Settings.truncation`): ``log10_r_max``
-        (the run's) and ``profile_rows_per_decade``.
+        The truncation's settings (`Settings.truncation`). The call reads
+        ``log10_r_max``, the largest radius of the solve as a base-10
+        logarithm, and ``profile_rows_per_decade``.
+
+    Returns
+    -------
+    rows : ValidatedRows
+        The kept rows, the depth column, the offset eps, R_trust, the
+        closed-form outer rows' record, the edge radius and the origin of
+        each row.
 
     Raises
     ------
     AccuracyError
-        Where an untruncated model's solve ends without reaching
-        :math:`r = 10^{3}`: the
-        DF does not rebuild the model's density.
+        If the profile of an untruncated model has no finite row beyond
+        :math:`r = 10^{3}`, so that the offset eps is not finite. Without a
+        finite offset eps, the DF does not rebuild the model's density.
     """
     r_out, psi_out = np.array(solve.r), np.array(solve.phi)
     reached = (psi_out >= K_FLOOR) & np.isfinite(psi_out)
@@ -184,6 +217,10 @@ def validate_rows(
         outer = pr < 0.5 * float(p_center)
 
         def trust(g):
+            """Return the radius of the row before the first outer row whose
+            relative error |eps| / Phi * max(1, |d ln rho / d ln Phi|) exceeds
+            g; the radius of the last row where no outer row exceeds g; NaN
+            where the first outer row that exceeds g is the first row."""
             bad = np.flatnonzero(outer & (rel > g))
             if not bad.size:
                 return float(rr[-1])
@@ -236,7 +273,8 @@ def validate_rows(
     closed = closed[clip]
     r_t = float("inf")
     if float(k_t) > 0.0 and solve.event_hit:
-        # the edge row: the last row's Kepler exterior reaches Phi = 0 at r_t
+        # The edge row sits at r_t, where the Kepler exterior of the last row
+        # with Phi at or above K_FLOOR and a positive density reaches Phi = 0.
         last = np.flatnonzero((p_v >= K_FLOOR) & (rho_v > 0))[-1]
         r_l, p_l, m_l = float(r_v[last]), float(p_v[last]), float(m_v[last])
         r_t = 1.0 / (1.0 / r_l - 4.0 * np.pi * p_l / m_l)
@@ -269,11 +307,15 @@ def validate_rows(
 def _origin(
     r: Array, phi: Array, closed: Array, solve: PoissonSolve, edge: bool
 ) -> Array:
-    """Each row's origin (`ORIGINS`): a row at one of the solve's radii is the
-    solve's, the edge continuation's from its start, the event's at the floor;
-    a closed-form outer row is marked as built; the edge row is the last; the
-    other rows are the fills', inner below the solve's first kept row and
-    outer beyond it."""
+    """Return the origin code (`ORIGINS`) of each row.
+
+    A row at one of the solve's radii has the origin "solve"; from the start
+    radius ``R_c`` of the edge continuation outward, "continuation"; and at
+    the floor event, where Phi equals K_FLOOR, "event". A closed-form outer
+    row has the origin "closed_outer". The edge row, the last row, has the
+    origin "edge". Every other row comes from a fill: "inner_fill" below
+    the solve's smallest kept radius, and "outer_fill" otherwise.
+    """
     origin = np.full(r.size, ORIGINS["outer_fill"], dtype=np.int8)
     from_solve = np.isin(r, np.asarray(solve.r, dtype=np.float64))
     first = float(np.min(r[from_solve])) if from_solve.any() else np.inf

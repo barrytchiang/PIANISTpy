@@ -1,4 +1,4 @@
-"""Tests of the radial dispersion and the anisotropy profile against closed forms."""
+"""Tests of `beta_sigma` and `radial_dispersion` against closed forms."""
 
 import numpy as np
 import pytest
@@ -21,8 +21,14 @@ ANISOTROPIES = [
 
 @pytest.mark.parametrize("anisotropy", ANISOTROPIES, ids=str)
 def test_beta_sigma_is_the_slope_of_the_factor(anisotropy):
-    # beta_sigma = -R^2 d ln g / d R^2 (Chiang+(2026d), Eq. B44), by a central
-    # difference
+    """Assert that `beta_sigma` equals -R^2 d ln g / d R^2 from a central
+    difference in R^2.
+
+    The factor g(R) is `Anisotropy.factor` (Chiang+(2026d), Eq. (B44)), and
+    beta_sigma = -R^2 d ln g / d R^2 is Chiang+(2026d), Eq. (B45). The step in
+    R^2 is :math:`10^{-6} R^2`. The test holds to ``rtol=1e-6`` and ``atol=1e-9``
+    at R in (0.1, 0.5, 1, 1.5), for each of the six models in ANISOTROPIES.
+    """
     r = np.array([0.1, 0.5, 1.0, 1.5])
     x = r**2
     step = 1e-6 * x
@@ -36,9 +42,14 @@ def test_beta_sigma_is_the_slope_of_the_factor(anisotropy):
 
 
 def _plummer():
-    """The isotropic Plummer sphere in internal units: P = (1 + r^2)^(-1/2),
-    rho = 3 P^5, so that ``rho sigma_r^2 = INT_0^P 3 K^5 dK`` and
-    ``sigma_r^2 = P / 6``."""
+    """Return the potential, the density and the radius at a potential of the
+    isotropic Plummer sphere in internal units.
+
+    The potential is P = (1 + r^2)^(-1/2), and the density is rho = 3 P^5. The
+    isotropic Jeans integral ``rho sigma_r^2 = INT_0^P 3 K^5 dK`` gives
+    ``sigma_r^2 = P / 6``. The radius at the potential P is
+    ``(1 / P^2 - 1)^(1/2)``.
+    """
 
     def potential(r):
         return (1.0 + np.asarray(r, dtype=np.float64) ** 2) ** -0.5
@@ -54,6 +65,15 @@ def _plummer():
 
 
 def test_radial_dispersion_of_plummer():
+    r"""Assert that `radial_dispersion` gives :math:`\sigma_{\rm r}^2 = P / 6` for the
+    Plummer sphere.
+
+    The integral starts at the potential P_outer at r = 100. The boundary term
+    0.5 P_outer^6 is the integral of 3 K^5 dK from zero to P_outer. The test
+    asserts :math:`\sigma_{\rm r}^2 = P / 6` to ``rtol=1e-12`` at 40 radii from
+    :math:`10^{-3}` to 100, and a boundary fraction between 0 and 1 at each of the
+    40 radii.
+    """
     potential, density, radius = _plummer()
     r = np.logspace(-3, 2, 40)
     p_outer = float(potential(np.array([100.0]))[0])

@@ -8,9 +8,11 @@ from pianistpy.profiles import DoublePowerLaw
 
 
 def test_unbounded_outer_end_rows():
-    # COM I, beta_c = -0.75, outer slope 3.5: rho_aux ~ P^1.5 at the outer end,
-    # below the floor order m = 2, so the rows from 10 times the first energy
-    # take the general form and the rows below keep the surface term.
+    # The COM Type I model with beta_c = -0.75 and outer density slope 3.5 has
+    # an auxiliary density rho_aux ~ P^1.5 at the outer end. The power 1.5 is
+    # below the floor order m = 2, so the outer end is unbounded. The rows at
+    # energies of at least 10 times the table's first energy take the general
+    # form, and the rows at lower energies keep the surface-term form.
     component = Component(
         DoublePowerLaw(1.0, 3.5, 1.0), Anisotropy(beta_c=-0.75, r_a=10.0, kind="I")
     )

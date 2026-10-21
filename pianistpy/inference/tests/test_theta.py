@@ -1,7 +1,8 @@
-r"""The log-likelihood in the anisotropy (:math:`\beta_{\rm c}`, :math:`R_{\rm a}`)
-of a free component: its value at the component's own theta, its gradient at
-frozen placement against central differences of the same function on the same
-rows, and refusals."""
+r"""Tests of the log-likelihood as a function of the anisotropy parameters
+(:math:`\beta_{\rm c}`, :math:`R_{\rm a}`) of a free component: the value at
+the component's own anisotropy, the gradient at a frozen placement of the
+tabulated radii against central differences on the frozen radii, and the
+exceptions for components that cannot be free."""
 
 import dataclasses
 
@@ -29,6 +30,8 @@ from pianistpy.observables._projection import dispersion_table_reader, project
 from pianistpy.observables.aperture import Aperture
 from pianistpy.observables.stages import dispersion_profile, projected_dispersion
 
+pytestmark = pytest.mark.slow
+
 SETTINGS = Settings(
     observables={"n_radii": 400, "n_jeans_nodes": 200, "n_projection_nodes": 200}
 )
@@ -45,9 +48,10 @@ def _physical(model):
 
 @pytest.fixture(scope="module")
 def case():
-    """Two members on the truncated Hernquist model's profile, isotropic and
-    COM Type I, superposed; data moved by 3 percent from the first's own
-    dispersion. The parent is returned too."""
+    """Return two Method II components on the truncated profile of the
+    Hernquist model, one isotropic and one Cuddeford-Osipkov-Merritt (COM)
+    of Type I, superposed; the truncated Hernquist parent; and data moved by
+    3 percent from the isotropic component's own dispersion."""
     parent = truncate(
         compute_df(Component(DoublePowerLaw.hernquist(), Anisotropy())),
         Truncation(k_t=0.05),
@@ -98,10 +102,12 @@ def test_the_value_at_its_own_theta_is_the_fixed_likelihood(case):
 
 
 def test_the_gradient_in_theta_at_frozen_placement(case):
-    # at a theta of its own (the member inverted there), the gradient against
-    # central differences of the likelihood on the rows placed at that theta,
-    # steps 4h and 2h of the tangent rows' h, Richardson; within three of the
-    # differences' own error estimate
+    # At an anisotropy other than the component's own, the component's DF is
+    # inverted at the new anisotropy. The JAX gradient is compared with
+    # Richardson-extrapolated central differences of the likelihood on the
+    # tabulated radii placed at the new anisotropy, with steps 4h and 2h for
+    # the step h of the tangent tables, and must agree within three times
+    # the differences' own error estimate.
     model, _, data = case
     function = likelihood(model, data, SETTINGS, free=(1,))
     _check_against_frozen(function, np.array([THETA[0] + 0.03, THETA[1] * 1.1]))
@@ -139,10 +145,11 @@ def _check_against_frozen(function, theta):
 
 
 def _frozen(free, theta, at):
-    r"""The reference: :math:`\sigma_{\rm los}^2` at the anisotropy `at` on the
-    rows of the free component's table at theta, their placement frozen (the
-    radial rule on the table's radial rows and nodes, read as the table reads
-    them with its edge limit held, projected on its projected rows)."""
+    r"""Return the reference :math:`\sigma_{\rm los}^2` at the anisotropy
+    `at` on the tabulated radii of the free component's table at `theta`,
+    with the placement of the radii frozen: the radial quadrature rule on the
+    table's radii and nodes, read as the table reads the radii with the
+    table's edge limit held, and projected on the table's projected radii."""
     profile, projected = free.tables(theta)
     model = profile.model
     rows = np.asarray(profile.r)
@@ -187,10 +194,11 @@ def _frozen(free, theta, at):
 
 
 def test_at_beta_c_zero_the_gradient_in_beta_c(case):
-    # at beta_c = 0 the family is OM; g(r; beta_c, R_a) is the same smooth
-    # function there whatever the family's name, so the derivative in beta_c
-    # is the COM I tangent at beta_c = 0, against the frozen differences
-    # across 0
+    # At beta_c = 0 the anisotropy model is Osipkov-Merritt (OM), and the
+    # anisotropy function g(r; beta_c, R_a) is smooth in beta_c across 0
+    # whatever name the model carries. The derivative in beta_c at 0 is
+    # therefore the COM I tangent at beta_c = 0, compared with frozen
+    # central differences across 0.
     model, _, data = case
     function = likelihood(model, data, SETTINGS, free=(1,))
     _check_against_frozen(function, np.array([0.0, THETA[1]]))
@@ -198,7 +206,8 @@ def test_at_beta_c_zero_the_gradient_in_beta_c(case):
 
 @pytest.fixture(scope="module")
 def parent():
-    """The truncated Hernquist parent of `case`, in internal units."""
+    """Return the truncated Hernquist parent of the components of `case`,
+    in internal units."""
     return truncate(
         compute_df(Component(DoublePowerLaw.hernquist(), Anisotropy())),
         Truncation(k_t=0.05),
@@ -209,12 +218,13 @@ def parent():
     "k, beta_c", [(0, 0.0), (1, BETA_CONSTANT)], ids=["isotropic", "constant"]
 )
 def test_an_isotropic_or_constant_member_is_free_in_beta_c(case, parent, k, beta_c):
-    # an isotropic or constant member free (the other member constant at
-    # BETA_CONSTANT or isotropic): its R_a column held at its own (infinite)
-    # value with a zero gradient; the gradient in beta_c against central
-    # differences of the likelihood with the member rebuilt at beta_c +- step
-    # (free placement), steps 2h and h, Richardson; within three of the
-    # differences' own error estimate
+    # One isotropic or constant-anisotropy component is free, and the other
+    # component has the constant anisotropy BETA_CONSTANT or is isotropic.
+    # The free component's R_a column stays at the component's own value,
+    # infinity, with a zero gradient. The gradient in beta_c is compared with
+    # Richardson-extrapolated central differences of the likelihood with the
+    # component rebuilt at beta_c plus and minus a step, with steps 2h and h,
+    # and must agree within three times the differences' own error estimate.
     _, _, data = case
 
     def build(b):

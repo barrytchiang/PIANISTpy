@@ -1,14 +1,19 @@
-r"""Tests of the truncated table's rows below the Taylor form's switch at
-:math:`\beta_{\rm c} = \pm 1/2`.
+r"""Tests of the truncated table at :math:`\beta_{\rm c} = \pm 1/2` below the
+switch energy of the below-floor Taylor form.
 
-There the table holds the exact shifted closed form ``F_u(K + K_t) - F_u(K_t)``,
-whose difference cancels by ``F_u(K_t) / F(K)`` (about :math:`6 \times 10^{8}`
-at the floor on a steep cusp), so its rounding set the sign of the Taylor
-form's check. Below the switch the rows are the closed form's own Taylor sum
-at :math:`\mathcal{K}_{\rm t}`. Measured here on a Hernquist component against
-the shifted difference at 50 digits, from the closed form
-``Psi = 1 / (1 + R)``: ``rho_aux = R^(2 beta_c) rho(R(Psi))``,
-``F_u = d^m rho_aux / dPsi^m / (2 pi^2)``.
+At :math:`\beta_{\rm c} = \pm 1/2` the truncated table holds the exact shifted
+closed form ``F_u(K + K_t) - F_u(K_t)``, with ``F_u`` the untruncated DF. In
+float64 that difference loses digits in proportion to the ratio
+``F_u(K_t) / F(K)``, which is large at small K. Below the Taylor form's switch
+energy ``k_switch``, the table therefore holds the Taylor sum of ``F_u`` at
+:math:`\mathcal{K}_{\rm t}` to the cubic term, whose terms are all positive.
+
+The tests compare the table of a truncated Hernquist component with the shifted
+difference evaluated at 50 digits. The Hernquist potential is
+``Psi = 1 / (1 + R)``, the augmented density is
+``rho_aux = R^(2 beta_c) rho(R(Psi))``, and the DF is
+``F_u = d^m rho_aux / dPsi^m / (2 pi^2)``, with m = 1 at
+:math:`\beta_{\rm c} = 1/2` and m = 2 at :math:`\beta_{\rm c} = -1/2`.
 """
 
 import mpmath as mp
@@ -25,7 +30,11 @@ K_T = 0.1
 
 
 def _shifted(k, k_t, beta_c):
-    """``F_u(k + k_t) - F_u(k_t)`` at 50 digits, Hernquist (C = 2, Psi(0) = 1)."""
+    """Return ``F_u(k + k_t) - F_u(k_t)`` of the Hernquist DF at 50 digits.
+
+    The Hernquist profile has C = 2 and Psi(0) = 1. Each returned value is
+    rounded to float64 only after the difference is formed at 50 digits.
+    """
     m = 1 if beta_c > 0 else 2
     with mp.workdps(50):
         b = mp.mpf(beta_c)

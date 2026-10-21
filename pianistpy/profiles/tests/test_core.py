@@ -1,4 +1,4 @@
-"""Tests of the double-power-law profile."""
+"""Tests of `DoublePowerLaw`: its parameter sets, closed forms and general forms."""
 
 import math
 
@@ -31,7 +31,7 @@ GENERAL_KEYS = [(1.0, 3.5, 1.5), (1.5, 4.5, 0.5), (0.5, 3.5, 1.0)]
 R_WIDE = np.logspace(-8, 8, 17)
 
 
-def test_presets_are_parameter_sets_of_the_one_profile():
+def test_the_profile_families_are_parameter_sets_of_the_one_profile():
     assert DoublePowerLaw.nfw() == DoublePowerLaw(1.0, 3.0, 1.0)
     assert DoublePowerLaw.hernquist() == DoublePowerLaw(1.0, 4.0, 1.0)
     assert DoublePowerLaw.plummer() == DoublePowerLaw(2.0, 5.0, 0.0)
@@ -52,7 +52,8 @@ def test_inadmissible_parameters_are_refused(rho_alpha, rho_beta, rho_gamma):
 
 
 def test_hernquist_against_its_textbook_forms():
-    # In model units the Hernquist profile has unit total mass and scale radius.
+    # In internal units the Hernquist profile has C = 2, a total mass of 1 and
+    # a scale radius of 1.
     profile = DoublePowerLaw.hernquist()
     r = np.logspace(-4, 4, 33)
     assert profile.rho_norm == 2.0
@@ -91,8 +92,9 @@ def test_mass_and_potential_against_arbitrary_precision(key):
 
 @pytest.mark.parametrize("key", [k for k in CLOSED_FORM_KEYS if k[1] > 3.0])
 def test_closed_forms_agree_with_the_general_path(key):
-    # One result, one path: a closed form used inside the general functions is
-    # held to the incomplete-Beta form.
+    # Each closed form of a profile with a name must agree with the general
+    # incomplete-Beta form, so that one profile gives one result whichever
+    # form evaluates it.
     profile = DoublePowerLaw(*key)
     r = np.logspace(-6, 6, 25)
     assert_allclose(_p_closed(profile, r), _p_general(profile, r), rtol=1e-10)
@@ -101,7 +103,8 @@ def test_closed_forms_agree_with_the_general_path(key):
 
 @pytest.mark.parametrize("key", [(1.0, 3.0, 1.0), (1.0, 4.0, 1.0), (1.5, 4.5, 0.5)])
 def test_poisson_equation(key):
-    # dP/dR = -M / R**2, by a centered difference of the potential.
+    # The Poisson equation dP/dR = -M / R**2 must hold, with dP/dR from a
+    # centered difference of the potential.
     profile = DoublePowerLaw(*key)
     r = np.logspace(-2, 2, 41)
     step = 1e-5 * r
@@ -111,9 +114,11 @@ def test_poisson_equation(key):
 
 @pytest.mark.parametrize("rho_beta", [2.2, 2.5])
 def test_the_far_outer_branch_holds_for_an_outer_slope_below_three(rho_beta):
-    # Beyond r ~ 1e10 the complement branch is used. For 2 < beta < 3 the mass
-    # grows as r^(3 - beta) and the potential falls as r^(2 - beta), with
-    # coefficients fixed by the density C r^(-beta).
+    # Beyond R of about 1e10, where the complement 1 / (1 + R) is below
+    # MP_COMPLEMENT_MIN = 1e-10, the arbitrary-precision mass is evaluated in
+    # the complement. For 2 < beta < 3, the mass grows as
+    # C R**(3 - beta) / (3 - beta) and the potential falls as
+    # C R**(2 - beta) / ((3 - beta) (beta - 2)), from the density C R**(-beta).
     profile = DoublePowerLaw(1.0, rho_beta, 1.0)
     r = np.array([1e9, 1e10, 1e11, 1e13, 1e16, 1e20])
     mass = profile.rho_norm * r ** (3.0 - rho_beta) / (3.0 - rho_beta)
@@ -130,6 +135,8 @@ def test_the_mass_and_the_potential_are_continuous_where_the_branch_changes(rho_
     r = np.array([0.98e10, 0.99e10, 1.01e10, 1.02e10])
     for values in (np.asarray(profile.mass(r)), np.asarray(profile.p(r))):
         slope = np.diff(np.log(values)) / np.diff(np.log(r))
-        # The middle interval spans the change of branch: its slope lies
-        # between its neighbors', as on any smooth stretch.
+        # The middle of the three intervals spans R = 1e10, where the
+        # evaluation branch changes for an outer slope below 3. The middle
+        # interval's logarithmic slope must equal the mean of the two outer
+        # intervals' slopes to 1e-6, as on any smooth stretch of the curve.
         assert abs(slope[1] - 0.5 * (slope[0] + slope[2])) < 1e-6

@@ -1,4 +1,10 @@
-"""Tests of the leaves of the DF subpackage."""
+"""Tests of the elementary functions of `pianistpy.df`.
+
+The tests cover the derivative orders and prefactors of the inversion
+(`order_pair`, `inversion_prefactor`, `forward_prefactor`), the DF tail's mass
+below an energy (`tail_mass_below`), and the scaled upper incomplete gamma
+function (`scaled_upper_gamma`).
+"""
 
 import math
 
@@ -39,7 +45,9 @@ def test_order_pair(beta_c, expected):
 
 
 def test_prefactors_at_their_known_values():
-    # Isotropic: 1 / (sqrt(8) pi^2) and 4 pi; beta_c = 1/2: 1 / (2 pi^2), 2 pi^2.
+    # For beta_c = 0, the inversion prefactor is 1 / (sqrt(8) pi^2) and the
+    # forward prefactor is 4 pi. For beta_c = 1/2, the inversion prefactor is
+    # 1 / (2 pi^2) and the forward prefactor is 2 pi^2.
     assert_allclose(inversion_prefactor(0.5, 0.0), 1.0 / (math.sqrt(8.0) * math.pi**2))
     assert_allclose(forward_prefactor(0.0), 4.0 * math.pi)
     assert inversion_prefactor(0.0, 0.5) == 1.0 / (2.0 * math.pi**2)
@@ -54,9 +62,10 @@ def test_tail_mass_of_a_pure_power_law():
 
 @pytest.mark.parametrize("b", [1.0086, 1.0111, 1.5])
 def test_the_tail_mass_in_a_kernel_is_the_numpy_one(b):
-    # the one function in NumPy and jitted in jax.numpy: the same algorithm,
-    # its loops' exits by the same masks, so the two differ by rounding
-    # (6e-13 at these orders)
+    # tail_mass_below runs the same algorithm in NumPy and, compiled by
+    # jax.jit, in jax.numpy, with the loops' exits decided by the same masks.
+    # The NumPy result and the jax.numpy result therefore differ by rounding
+    # only, which is below the test's tolerance 1e-11.
     import jax
     import jax.numpy as jnp
 
@@ -70,9 +79,11 @@ def test_the_tail_mass_in_a_kernel_is_the_numpy_one(b):
 
 
 def test_the_scaled_gamma_at_order_minus_one_half_is_its_closed_form():
-    # Gamma(-1/2, x) = 2 e^-x / sqrt(x) - 2 sqrt(pi) erfc(sqrt(x)), scaled by
-    # e^x: the continued fraction above x = 1 and the series below it (the
-    # closed form's own two terms cancel as x grows: 5e-14 at 500)
+    # Gamma(-1/2, x) = 2 e^-x / sqrt(x) - 2 sqrt(pi) erfc(sqrt(x)), so
+    # e^x Gamma(-1/2, x) = 2 / sqrt(x) - 2 sqrt(pi) erfcx(sqrt(x)). The test
+    # reads scaled_upper_gamma's series below x = 1 and its continued
+    # fraction above x = 1. The test stops at x = 30, since the two terms of
+    # the closed form cancel more and more as x grows.
     from scipy.special import erfcx
 
     x = np.concatenate(
@@ -84,8 +95,10 @@ def test_the_scaled_gamma_at_order_minus_one_half_is_its_closed_form():
 
 @pytest.mark.parametrize("s", [-0.0111, -0.0086, -0.25])
 def test_the_scaled_gamma_at_a_small_negative_order_holds_its_digits(s):
-    # the recurrence Gamma(s, x) = [Gamma(s + 1, x) - x^s e^-x] / s
-    # read 1e-11 relative at s = -0.01; at the order itself, rounding
+    # For a small negative order s, the recurrence
+    # Gamma(s, x) = [Gamma(s + 1, x) - x^s e^-x] / s loses digits by
+    # cancellation. scaled_upper_gamma evaluates the function at the order s
+    # itself and must agree with mpmath at 40 digits to within 1e-13.
     mp = pytest.importorskip("mpmath")
     mp.mp.dps = 40
     x = np.concatenate(

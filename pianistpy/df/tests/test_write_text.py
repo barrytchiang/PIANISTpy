@@ -1,4 +1,10 @@
-"""Tests of the text exports of a model and of a distribution function."""
+"""Tests of `Model.write_text`: the radial-profile export and the DF-table export.
+
+The tests check each file's header lines, that each column equals the model's
+values as rounded by the text format TEXT_FIELD, that the radial profile
+follows the model's unit system, and that an unknown table name or an
+existing file raises InputError.
+"""
 
 import numpy as np
 import pytest
@@ -9,6 +15,7 @@ from pianistpy.io.text import TEXT_FIELD
 
 
 def _rounded(values):
+    """Return the values as written and read back through TEXT_FIELD."""
     return np.array([float(TEXT_FIELD.format(v).strip()) for v in np.asarray(values)])
 
 

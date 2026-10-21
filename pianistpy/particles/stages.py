@@ -1,36 +1,48 @@
-"""Stages of the particle sampler and their results.
+r"""Stages of the particle sampler and the stages' results.
 
-The sampler is prepared once per model::
+`Sampler` (in `pianistpy.particles.core`) builds three tables once per model::
 
-    radius_table, speed_table, angle_table
+    radius_table, velocity_table, angle_table
 
-and each draw composes::
+and each draw of particles runs the stages::
 
-    random_numbers -> draw_radius -> draw_angle -> draw_speed
+    random_numbers -> draw_radius -> draw_angle -> draw_velocity
         -> draw_directions -> validate_particles
 
-Every variable is drawn by inversion; nothing is rejected. A particle's random
-numbers depend only on the seed, the component and the particle's index.
+At each radius the phase-space density factorizes into the scaled velocity x and
+the angle variate y = sin^2 phi, where phi is the angle between the velocity
+and the radius vector (Notes Eq. (T:5.3)). The radius r follows the enclosed
+mass fraction M(r) / M(r_e) inside the sampling's edge r_e; the scaled velocity
+x = v / (2 Psi)^{1/2} follows p(x | Psi) proportional to
+:math:`x^{2 - 2\beta_{\rm c}} F(\Psi (1 - x^2))`, where Psi is the relative
+potential at r, :math:`\beta_{\rm c}` is the component's constant anisotropy
+and F is the distribution function; and y follows
+:math:`{\rm Beta}(1 - \beta_{\rm c}, 1/2)`. Every variable is drawn by
+inversion of the variable's cumulative distribution, and no draw is rejected.
+A particle's random numbers depend only on the seed, the component index and
+the particle's index. A drawn particle's velocity must satisfy the phase-space
+bound within BOUND_SAFETY times the bound's rounding floor (Notes Section
+T:5.3).
 """
 
 __all__ = [
     "AngleTable",
     "RandomNumbers",
     "RadiusTable",
-    "SpeedTable",
+    "VelocityTable",
     "angle_table",
     "component_numbers",
     "draw_angle",
     "draw_directions",
     "draw_radius",
-    "draw_speed",
+    "draw_velocity",
     "radius_bounds",
     "radius_table",
     "random_numbers",
     "random_numbers_block",
-    "speed_bounds",
-    "speed_draw_tables",
-    "speed_table",
+    "velocity_bounds",
+    "velocity_draw_tables",
+    "velocity_table",
     "validate_particles",
 ]
 
@@ -49,51 +61,71 @@ from ..numerics import hermite_inverse
 from ..settings import Settings
 from ..typing import Array
 from ..validation import Check, ValidationReport
-from .speed import build_speed_table
+from .velocity import build_velocity_table
 
-# Relative slack within which a radius counts as the profile's last one.
+# Relative tolerance within which a user-specified r_sample counts as the
+# profile's last radius: an r_sample within a factor of 1 +/- 1e-12 of the last
+# radius is sampled to the last radius, so an r_sample equal to the last radius
+# up to rounding is accepted and is not interpolated.
 PROFILE_END_SLACK = 1e-12
-# The channel of a particle's key each random variable is drawn from.
+# The channel of a particle's random key from which each random variable is
+# drawn. Each variable has a channel of its own, so the numbers of one variable
+# do not depend on which other variables a draw uses.
 RNG_CHANNELS = dict(
-    radius=0, speed=1, angle=2, radial_sign=3, position=4, velocity=5, component=6
+    radius=0,
+    velocity_magnitude=1,
+    angle=2,
+    radial_sign=3,
+    position=4,
+    velocity=5,
+    component=6,
 )
-# Floor of the argument of a logarithm and of the norm of a direction in the
-# draws: a uniform double is never 0 or 1, so it only keeps a discarded branch
-# finite.
+# Smallest argument of a logarithm, and smallest norm of a direction, in the
+# draws. The floor 1e-300 keeps the logarithm and the division finite where a
+# uniform number is 0 or 1 and in the branch of jnp.where that a draw discards;
+# at every other uniform number the floor changes no value.
 LOG_ARGUMENT_MIN = 1e-300
-# The velocity rebuilt from the particle's arrays must reproduce the draw's
-# bound within this many times its own rounding floor, eps (1 + xi); the
-# largest excess measured is 0.10 of it, on the 1e6 particles of each of 33
-# test models.
+# The velocity rebuilt from a particle's position and velocity arrays must
+# satisfy the draw's bound v^2 + sigma xi v_t^2 <= 2 Psi within BOUND_SAFETY
+# times the bound's rounding floor eps (1 + xi), where eps is the spacing of
+# doubles at 1 and xi = (r / r_a)^2. BOUND_SAFETY = 1 accepts an excess up to
+# the rounding floor itself.
 BOUND_SAFETY = 1.0
 
 
-# Halvings of the bisection for a radius bound: the logit's span (about 70)
-# reaches a double's spacing in about 60.
+# Number of bisection halvings that find the logit of the mass fraction at a
+# radius bound. The logit spans about 83, twice ln(1e18) for
+# sampling["tail_mass_min"] = 1e-18, and 100 halvings shrink an interval of
+# width 83 below the spacing of doubles at every point of the logit's span.
 RADIUS_BOUND_HALVINGS = 100
-# Halvings of the bisection for a speed bound: the speed number's logit spans the
-# table's lambda_u range, a few tens, as the radius's.
-SPEED_BOUND_HALVINGS = 100
+# Number of bisection halvings that find the logit of the velocity number at a
+# velocity bound. The logit spans the velocity table's lambda_u range, also twice
+# ln(1e18), so 100 halvings also shrink the interval below the spacing of
+# doubles.
+VELOCITY_BOUND_HALVINGS = 100
 
 
 @dataclass(frozen=True)
 class RadiusTable:
-    """The inverse of the enclosed-mass fraction of each component.
+    """The inverse of the enclosed-mass fraction of each component, the table
+    from which `draw_radius` draws radii.
 
     Parameters
     ----------
     lambda_u : array, shape (n,)
-        Nodes, uniform in the logit of the mass fraction.
+        Table nodes, uniform in lambda = ln(u / (1 - u)), the logit of the
+        enclosed-mass fraction u.
     s : array, shape (n_components, n)
-        Logit of the radius relative to the outer radius of the sampling.
+        s = ln(r / (r_e - r)), the logit of the radius r relative to the
+        sampling's outer radius r_e, at each table node.
     ds_dlambda : array, shape (n_components, n)
-        Exact slope of `s` at the nodes.
+        Exact slope ds / dlambda of `s` at the table nodes.
     r_sample : tuple of float
-        Outer radius of the sampling of each component, in internal units:
+        Outer radius r_e of the sampling of each component, in internal units:
         the truncation radius of a spatially finite model, otherwise the
-        radius given by the user.
+        user-specified radius.
     mass_sample : tuple of float
-        Mass of each component inside `r_sample`.
+        Mass of each component inside `r_sample`, in internal units.
     """
 
     lambda_u: Array
@@ -104,56 +136,67 @@ class RadiusTable:
 
 
 @dataclass(frozen=True)
-class SpeedTable:
-    r"""The inverse distribution of the scaled speed, by potential.
+class VelocityTable:
+    r"""The inverse distribution of the scaled velocity on rows of constant
+    potential, the table from which `draw_velocity` draws velocities.
 
     Parameters
     ----------
     lambda_p : array, shape (n_rows,)
-        Rows, uniform in the logit of the potential relative to its central
-        value, ln(Psi / (p_0 - Psi)). The row count is the table's own: from
-        ``sampling.n_rows`` the rows are refined (n to 2 n - 3, every row
-        kept) until the table's own error across rows is under the goal for
-        every component, or until a further refinement would pass
-        ``sampling.n_rows_max``; `validation` says which. The top row is the
-        largest potential of the profile strictly below p_0, at the depth the
-        solve holds for it: rows whose potential rounds to p_0 are not
-        distinct rows of a table in the potential, whatever depth they hold
-        (on a cored model the well above that row holds about :math:`10^{-15}` of the
-        mass).
+        The rows, uniform in lambda_p = ln(Psi / (p_0 - Psi)), the logit of
+        the relative potential Psi relative to the potential's central value
+        p_0. The row count starts at ``sampling["n_rows"]`` and is refined
+        from n rows to 2 n - 3 rows, every existing row kept, until the
+        table's own error across rows is below ``sampling["row_error_goal"]``
+        for every component, or until the next refinement would pass
+        ``sampling["n_rows_max"]``. The check "row_error" in `validation` and
+        the field `row_cap` record where the refinement stopped. The top row
+        is the profile's largest potential strictly below p_0, at the depth
+        p_0 - Psi that the profile holds for the top row's potential. Potentials that
+        round to p_0 do not give distinct rows, whatever depth the profile
+        holds for them.
     dlambda_p : float
-        Spacing of the rows in `lambda_p`, as the draw reads it: the rows are
-        formed from it, and a difference of two rows does not return it to
-        the bit.
+        Spacing of the rows in `lambda_p`. The rows are formed from
+        `dlambda_p`, and the draw reads `dlambda_p` directly, because the
+        difference of two rows does not reproduce `dlambda_p` to the last bit.
     lambda_u : array, shape (n,)
-        Nodes of each row, uniform in the logit of the cumulative
-        probability.
+        Table nodes of each row, uniform in lambda_u = ln(u / (1 - u)), the
+        logit of the cumulative probability u of the scaled velocity.
     s : array, shape (n_components, n_rows, n)
-        Logit of the scaled speed relative to the edge of its support.
-    ds_dlambda_u, ds_dlambda_p : array, shape (n_components, n_rows, n)
-        Exact slopes of `s` along a row and across rows.
+        s = ln(x / (x_e - x)), the logit of the scaled velocity x relative to the
+        support's edge x_e, at each component, row and table node.
+    ds_dlambda_u : array, shape (n_components, n_rows, n)
+        Exact slope ds / dlambda_u of `s` along each row.
+    ds_dlambda_p : array, shape (n_components, n_rows, n)
+        Exact slope ds / dlambda_p of `s` across rows at fixed cumulative
+        probability.
     x_edge : array, shape (n_components, n_rows)
-        Edge of the support of the scaled speed on each row.
+        Edge x_e of the support of the scaled velocity on each row.
     p_0 : float
-        Central potential, the end of the logit `lambda_p`.
+        Central value p_0 of the relative potential, the upper end of the
+        potentials that `lambda_p` maps.
     e_edge : tuple of float
-        Energy at which each component's DF ends: zero where the DF continues
-        below its table, else the table's first energy. A draw forms the edge
-        of the support at the particle's own potential, sqrt(1 - e_edge / Psi).
+        Energy at which each component's DF ends: 0 where the DF continues
+        below the DF's table, else the DF table's lowest energy. A draw forms
+        the support's edge as x_e = (1 - e_edge / Psi)^{1/2} (`draw_velocity`).
     validation : ValidationReport
-        The table's checks (`SPEED_TABLE_KEYS`), each with the Psi of its
-        worst row: ``row_error``, the table's own error across rows (every
-        interior row predicted from its two neighbors by the interpolant of
-        the draw, at twice the written spacing; the larger of the misses in
-        the cumulative probability and in the relative speed), and
-        ``polish_residual``, the largest miss of a node against the true
-        cumulative probability, in its logit. A table beyond the hard limit
-        is refused.
+        The table's two checks, listed in `VELOCITY_TABLE_KEYS`, each located at
+        the potential Psi of the check's worst row. "row_error" is the
+        table's own error across rows: every interior row is predicted from
+        the row's two neighbors at twice the row spacing by the draw's
+        interpolant, and the error is the larger of the miss in the
+        cumulative probability and the miss relative to the scaled velocity.
+        "polish_residual" is the largest absolute residual of a table node in
+        lambda_u against the exact cumulative probability. A table with
+        either check above :math:`10^{-2}` is refused unless the settings set
+        ``write_anyway=True``.
     row_cap : str, optional
-        Where the rows stopped at ``sampling.n_rows_max`` above the goal, the
-        cause: the row count and how much the error fell over the last
-        doubling of the rows; empty otherwise. Not a check: the judgments
-        are in `validation`.
+        Where the rows stopped at ``sampling["n_rows_max"]`` with the error
+        across rows above ``sampling["row_error_goal"]``, the cause: the row
+        count and the factor by which the error fell over the last doubling
+        of the rows. The cause is not a check; the checks are in
+        `validation`. Default: ``""``, which means the refinement stopped at
+        ``sampling["row_error_goal"]``.
     """
 
     lambda_p: Array
@@ -171,23 +214,27 @@ class SpeedTable:
 
 @dataclass(frozen=True)
 class AngleTable:
-    """The inverse distribution of the velocity angle of each component.
+    r"""The inverse distribution of the velocity angle of each component, the
+    table from which `draw_angle` draws angles.
 
-    The angle of a component follows from a variate y = sin^2 of the angle,
-    ``Beta(1 - beta_c, 1/2)`` distributed and the same at every radius; the table
-    holds its inverse from each end, both ends being power laws. An isotropic
-    component takes the same path, with Beta(1, 1/2).
+    The angle phi between the velocity and the radius vector follows from the
+    variate y = sin^2 phi, which is :math:`{\rm Beta}(1 - \beta_{\rm c}, 1/2)`
+    distributed at every radius, where :math:`\beta_{\rm c}` is the component's
+    constant anisotropy. The
+    table holds the inverse of the Beta distribution from each end, where both
+    ends are power laws. An isotropic component uses Beta(1, 1/2).
 
     Parameters
     ----------
     ln_u : array, shape (n,)
-        Nodes, uniform in the logarithm of the cumulative probability from
-        each end, from `tail_mass_min` to 1/2.
+        Table nodes, uniform in the logarithm of the cumulative probability
+        from each end, from ``sampling["tail_mass_min"]`` to 1/2.
     ln_y : array, shape (n_components, 2, n)
-        Logarithm of the variate from each end: ``ln_y[:, 0]`` is ln y against
-        ln u, ``ln_y[:, 1]`` is ln(1 - y) against ln(1 - u).
+        Logarithm of the variate from each end: ``ln_y[:, 0]`` is ln y as a
+        function of ln u, and ``ln_y[:, 1]`` is ln(1 - y) as a function of
+        ln(1 - u).
     dln_y_dln_u : array, shape (n_components, 2, n)
-        Exact slopes of `ln_y` at the nodes, from the Beta density.
+        Exact slopes of `ln_y` at the table nodes, from the Beta density.
     """
 
     ln_u: Array
@@ -197,23 +244,32 @@ class AngleTable:
 
 @dataclass(frozen=True)
 class RandomNumbers:
-    """Random numbers of a set of particles.
+    """The random numbers of a set of particles.
 
     Parameters
     ----------
-    radius, speed, angle : array, shape (n,)
-        One uniform random number per particle for each drawn variable.
+    radius : array, shape (n,)
+        One uniform random number per particle for the radius.
+    velocity_magnitude : array, shape (n,)
+        One uniform random number per particle for the velocity magnitude.
+    angle : array, shape (n,)
+        One uniform random number per particle for the velocity angle.
     radial_sign : array, shape (n,)
-        One uniform random number per particle for the sign of the radial velocity.
-    position, velocity : array of uint32, shape (n, 2)
-        The key of each of the two directions. Its three normal numbers are
-        drawn from it inside `draw_directions`, in the same compiled function
-        as the direction: the compiler rounds the direction otherwise, by one
-        unit in the last place on about 2 percent of the components.
+        One uniform random number per particle for the sign of the radial
+        velocity.
+    position : array of uint32, shape (n, 2)
+        The random key of each particle's position direction.
+    velocity : array of uint32, shape (n, 2)
+        The random key of each particle's tangential velocity direction. The
+        three normal numbers of each direction are drawn from the direction's
+        key inside `draw_directions`, in the compiled function that forms the
+        direction, because the compiler rounds a direction formed from numbers
+        drawn in a separate compiled function differently, by one unit in the
+        last place.
     """
 
     radius: Array
-    speed: Array
+    velocity_magnitude: Array
     angle: Array
     radial_sign: Array
     position: Array
@@ -230,37 +286,45 @@ def radius_table(
     model : Model
         The model to sample.
     settings : Settings
-        Numerical settings.
+        Numerical settings. The call reads ``sampling["radius_edge_refined"]``,
+        ``sampling["tail_mass_min"]`` and ``sampling["n_radius_nodes"]``.
     r_sample : float, optional
         Outer radius of the sampling, in internal units. Required for a model
-        that is not spatially finite.
+        that is not spatially finite; not accepted for a spatially finite
+        model. Default: ``None``, which means the model's truncation radius.
 
     Returns
     -------
     table : RadiusTable
+        The inverse of the enclosed-mass fraction of the model's one
+        component.
 
     Raises
     ------
     InputError
+        If the model has more than one component.
+    InputError
         If `r_sample` is missing for a model that is not spatially finite,
-        given for one that is, or outside the profile.
+        given for a spatially finite model, or outside the profile's radii.
     ResultError
-        If the enclosed mass is not increasing in the table's variables.
+        If the enclosed mass does not increase in the table's variables s and
+        lambda, or the table's inverse is not finite and increasing.
 
     Notes
     -----
-    With the mass fraction u = M(r) / M(r_e) and the edge r_e = `r_sample`,
-    the variables s = ln(r / (r_e - r)) and lambda = ln(u / (1 - u)) are
-    power laws at both ends, the center and the edge, whether the edge is
-    smooth (the truncation radius, where the density vanishes) or sharp (a
-    radius the user gives, where it does not). The mass fraction is exact at
-    the profile's rows and its slope is exact everywhere, du/dr = 4 pi r^2
-    rho / M(r_e); the inverse s(lambda) is tabulated at nodes uniform in
-    lambda with its exact slope. Rows where 1 - u is below
-    ``sampling.radius_edge_refined`` are left out (1 - u is a difference
-    there); at a sharp edge the last interval is refined at halved distances
-    from the edge by the cubic Hermite in (r_e - r, 1 - u), whose two ends
-    are exact.
+    With the mass fraction u = M(r) / M(r_e) inside the edge r_e = `r_sample`,
+    the variables s = ln(r / (r_e - r)) and lambda = ln(u / (1 - u)) follow
+    power laws in each other at both ends, the center and the edge, whether
+    the edge is smooth (the truncation radius, where the density vanishes) or
+    sharp (a user-specified radius, where the density does not vanish). The
+    mass fraction is exact at the profile's radii, and the slope
+    du/dr = 4 pi r^2 rho / M(r_e) is exact everywhere. The inverse s(lambda)
+    is tabulated at nodes uniform in lambda with the inverse's exact slope.
+    Profile radii where 1 - u is below ``sampling["radius_edge_refined"]``
+    (:math:`10^{-10}`) are left out, because 1 - u there is the difference of
+    two nearly equal numbers. At a sharp edge, the last interval is refined at
+    halved distances from the edge by the cubic Hermite interpolant of 1 - u
+    in r_e - r, whose two end values and two end slopes are exact.
     """
     if len(model.components) != 1:
         raise InputError(
@@ -292,7 +356,8 @@ def radius_table(
         )
         t = 0.5 ** np.arange(1, int(math.ceil(math.log2(q_0 / q_min))) + 2)
         t2, t3 = t * t, t * t * t
-        # the last interval's cubic Hermite in (r_e - r, 1 - u), 1 - u = 0 at r_e
+        # The last interval's cubic Hermite interpolant of 1 - u in r_e - r,
+        # with 1 - u = 0 at r_e.
         q_k = (
             (t3 - 2 * t2 + t) * d_0 * g_e
             + (-2 * t3 + 3 * t2) * q_0
@@ -323,8 +388,9 @@ def radius_table(
     lambda_end = -math.log(sampling["tail_mass_min"])
     lambda_u = np.linspace(-lambda_end, lambda_end, sampling["n_radius_nodes"])
     s, _ = hermite_inverse(lambda_u, s_n, lambda_n, dlambda_ds_n)
-    # the exact slope of the inverse, du/dr between the nodes by interpolation
-    # of its logarithm in s; beyond the nodes the continuation's own
+    # The exact slope of the inverse: du/dr between the profile's radii comes
+    # from linear interpolation of ln(du/dr) in s, and beyond the first and the
+    # last profile radius the slope is the end radius's slope.
     u_t, q_t = 1.0 / (1.0 + np.exp(-lambda_u)), 1.0 / (1.0 + np.exp(lambda_u))
     r_t, d_t = r_edge / (1.0 + np.exp(-s)), r_edge / (1.0 + np.exp(s))
     g_t = np.exp(np.interp(s, s_n, np.log(g_n)))
@@ -341,7 +407,8 @@ def radius_table(
         and np.all(ds_dlambda > 0.0)
     ):
         raise ResultError(
-            "The inverse of the enclosed mass is not finite and increasing."
+            "The inverse of the enclosed mass is not finite and increasing on the "
+            "radius table's nodes."
         )
     return RadiusTable(
         lambda_u=lambda_u,
@@ -355,13 +422,14 @@ def radius_table(
 def _sampled_profile(
     model: Model, r_sample: float | None
 ) -> tuple[Array, Array, Array, Array, float, bool]:
-    """The profile's rows out to the sampling edge, cut as the working code cuts them.
+    """Return the profile's columns out to the sampling's edge as
+    (r, psi, rho, mass, r_edge, smooth).
 
-    Returns (r, psi, rho, mass, r_edge, smooth): the mass column is 4 pi times
-    the profile's, as the working code holds it; a model that is not spatially
-    finite ends on `r_sample`, its point by linear interpolation in the
-    logarithms, and its edge is sharp; a spatially finite one ends on its
-    truncation radius, a smooth edge.
+    The mass column is 4 pi times the profile's enclosed mass. A model that is
+    not spatially finite ends at `r_sample`, whose column values come from
+    linear interpolation of the columns' logarithms in ln r, and the model's
+    edge is sharp (smooth is False). A spatially finite model ends at the
+    model's truncation radius, a smooth edge (smooth is True).
     """
     profile = model.profile
     r, psi, rho = profile.r, profile.p_trunc, profile.rho_trunc[0]
@@ -369,7 +437,8 @@ def _sampled_profile(
     if model.spatially_finite:
         if r_sample is not None:
             raise InputError(
-                "A spatially finite model is sampled to its edge: no r_sample is given."
+                "A spatially finite model is sampled to the model's edge, so "
+                "r_sample must not be given."
             )
         return r, psi, rho, mass, float(profile.r_t), True
     if r_sample is None:
@@ -379,7 +448,8 @@ def _sampled_profile(
         )
     if not (r[0] < r_sample <= r[-1] * (1.0 + PROFILE_END_SLACK)):
         raise InputError(
-            f"r_sample = {r_sample!r} is outside the profile ({r[0]!r}, {r[-1]!r}]."
+            f"r_sample = {r_sample!r} lies outside the profile's radii, the "
+            f"interval ({r[0]!r}, {r[-1]!r}]."
         )
     if r_sample < r[-1] * (1.0 - PROFILE_END_SLACK):
         log_r, log_cut = np.log(r), np.log(r_sample)
@@ -397,72 +467,86 @@ def _sampled_profile(
     return r, psi, rho, mass, float(r[-1]), False
 
 
-def speed_table(model: Model, settings: Settings) -> SpeedTable:
-    """Return the inverse distribution of the scaled speed, by potential.
+def velocity_table(model: Model, settings: Settings) -> VelocityTable:
+    """Return the inverse distribution of the scaled velocity on rows of constant
+    potential.
 
-    The density of the scaled speed depends on the radius only through the
-    potential, so one table serves every radius and angle.
+    The density of the scaled velocity depends on the radius only through the
+    potential, so one table serves every radius and every angle.
 
     Parameters
     ----------
     model : Model
         The model to sample.
     settings : Settings
-        Numerical settings.
+        Numerical settings. The call reads the group ``sampling``.
 
     Returns
     -------
-    table : SpeedTable
+    table : VelocityTable
+        The velocity table of the model's one component.
 
     Raises
     ------
+    InputError
+        If the model has more than one component.
     AccuracyError
-        If a row cannot be resolved, the model's mass lies below the lowest
-        row above the goal, or a check of the table lies beyond the hard limit.
+        If a row cannot be resolved, more than :math:`10^{-6}` of the model's
+        mass lies at potentials below the lowest row, or a check of the table
+        is above :math:`10^{-2}` and the settings do not set
+        ``write_anyway=True``.
     ResultError
         If a row is not finite and increasing, or the profile's potentials do
         not span the rows.
+    UnphysicalModelError
+        If the DF below its table has a mass that is not finite at zero
+        energy.
 
     References
     ----------
-    Eq. (T:5.2) [x], Eq. (T:5.3) [factorized],
-    Section T:5.2.1 [speed-table].
+    Notes Eq. (T:5.2), Notes Eq. (T:5.3), Notes Section T:5.2.1.
 
     Notes
     -----
-    The construction is `pianistpy.particles.speed.build_speed_table`.
+    `pianistpy.particles.velocity.build_velocity_table` builds the table.
     """
     if len(model.components) != 1:
         raise InputError(
-            "The speed table of a model of several components is not built yet."
+            "The velocity table is built for models of one component; the model "
+            "given has several components."
         )
-    return SpeedTable(**build_speed_table(model, settings))
+    return VelocityTable(**build_velocity_table(model, settings))
 
 
 def angle_table(model: Model, settings: Settings) -> AngleTable:
     """Return the inverse distribution of the velocity angle.
 
-    For each component, y = sin^2 of the angle between the velocity and the
-    radius vector is Beta(a, 1/2) with ``a = 1 - beta_c`` (Eq. (T:5.1) [f2]);
-    1 - y is Beta(1/2, a). Each half of the inverse is tabulated against the
-    logarithm of its own end's probability, where both ends are power laws, and
-    the slope of the inverse is u / (y pdf(y)) in closed form.
+    For each component, y = sin^2 phi, where phi is the angle between the
+    velocity and the radius vector, is Beta(a, 1/2) distributed with
+    ``a = 1 - beta_c`` (Notes Eq. (T:5.1)), and 1 - y is Beta(1/2, a)
+    distributed. Each half of the inverse is tabulated against the logarithm
+    of the half's own end probability, where both ends are power laws. The
+    slope d ln y / d ln u of the inverse is u / (y p(y)) in closed form, where
+    p(y) is the Beta density.
 
     Parameters
     ----------
     model : Model
         The model to sample.
     settings : Settings
-        Numerical settings: ``sampling.n_angle_nodes``, ``sampling.tail_mass_min``.
+        Numerical settings. The call reads ``sampling["n_angle_nodes"]`` and
+        ``sampling["tail_mass_min"]``.
 
     Returns
     -------
     table : AngleTable
+        The inverse Beta distributions of every component.
 
     Raises
     ------
     ResultError
-        If an inverse is not finite and increasing.
+        If the inverse of a component's Beta distribution is not finite and
+        increasing on the table nodes.
     """
     sampling = settings.sampling
     ln_u = np.linspace(
@@ -486,7 +570,7 @@ def angle_table(model: Model, settings: Settings) -> AngleTable:
         ):
             raise ResultError(
                 f"The inverse of Beta({a}, 1/2) of component {i} is not finite and "
-                "increasing on the table's nodes."
+                "increasing on the angle table's nodes."
             )
         ln_y[i, 0], ln_y[i, 1] = ln_y_low, ln_z
         dln_y_dln_u[i, 0] = np.exp(ln_u - (a * ln_y_low - 0.5 * np.log1p(-y) - ln_beta))
@@ -500,11 +584,11 @@ def random_numbers(seed: int, component: int, n: int) -> RandomNumbers:
     """Return the random numbers of the particles of one component.
 
     The random numbers of particle `i` depend only on the seed, the component
-    and `i`. They are the same on every machine and backend, for any batch
-    size and number of cores, and the first `n` particles of a larger draw are
-    the same particles. What a set of particles was drawn with (the model,
-    the settings, the version) is the record of its result, not a part of
-    its key.
+    index and `i`. The numbers are equal to the bit on every machine and
+    backend, for any block size and any number of cores, and the first `n`
+    particles of a larger draw are the particles of a draw of `n` particles.
+    The model, the settings and the package version of a draw are recorded in
+    the draw's result, not in the random keys.
 
     Parameters
     ----------
@@ -518,14 +602,17 @@ def random_numbers(seed: int, component: int, n: int) -> RandomNumbers:
     Returns
     -------
     numbers : RandomNumbers
+        The uniform numbers and the direction keys of particles 0 to n - 1.
 
     Notes
     -----
-    Particle `i` draws from the key k_i = fold_in(base, i), with base =
-    fold_in(PRNGKey(seed), component), and each variable from its own
-    channel of k_i: ``RNG_CHANNELS``; the two directions are kept as their
-    keys. The keys are integer arithmetic, so the keys and the uniform numbers
-    are the same bits on every backend; what is formed from them rounds.
+    Particle `i` draws from the key k_i = fold_in(base, i), with
+    base = fold_in(PRNGKey(seed), component), and each random variable draws
+    from the variable's own channel of k_i (``RNG_CHANNELS``); the two
+    directions are stored as keys. The keys are formed by integer arithmetic,
+    so the keys and the uniform numbers are equal to the bit on every backend;
+    quantities computed from the uniform numbers round differently on
+    different backends.
     """
     return random_numbers_block(seed, component, 0, n)
 
@@ -533,10 +620,11 @@ def random_numbers(seed: int, component: int, n: int) -> RandomNumbers:
 def random_numbers_block(
     seed: int, component: int, start: int, n: int
 ) -> RandomNumbers:
-    """Return the random numbers of particles `start` .. `start + n - 1`.
+    """Return the random numbers of particles `start` to `start` + `n` - 1.
 
-    The same numbers as those particles carry in `random_numbers` of any
-    larger draw: each particle's key is formed from its own index.
+    Each particle's key is formed from the particle's own index, so the
+    numbers equal the numbers that particles `start` to `start` + `n` - 1
+    carry in `random_numbers` of any larger draw.
     """
     return _random_numbers_from(
         jax.random.fold_in(jax.random.PRNGKey(seed), component), n, start
@@ -544,10 +632,12 @@ def random_numbers_block(
 
 
 def component_numbers(seed: int, start: int, n: int) -> Array:
-    """Return the uniform number of particles `start` .. `start + n - 1` that
-    chooses the component of a superposed model: the channel ``component`` of
-    each particle's own key, beside the channels of its draw, so that the
-    particle's other numbers are those of the draw of one component."""
+    """Return, for each of particles `start` to `start` + `n` - 1, the uniform
+    number that chooses the particle's component in a superposed model. The
+    number comes from the channel ``component`` of the particle's own key,
+    beside the channels of the particle's draw, so the particle's other
+    numbers equal the numbers of the particle in a draw of component index
+    0."""
     base = jax.random.fold_in(jax.random.PRNGKey(seed), 0)
     keys = jax.vmap(lambda i: jax.random.fold_in(base, i))(
         jnp.arange(start, start + n, dtype=jnp.int32)
@@ -556,7 +646,8 @@ def component_numbers(seed: int, start: int, n: int) -> Array:
 
 
 def _random_numbers_from(base: Array, n: int, start: int = 0) -> RandomNumbers:
-    """The random numbers of particles start .. start + n - 1 drawn from a base key."""
+    """Return the random numbers of particles `start` to `start` + `n` - 1,
+    drawn from the base key `base`."""
     keys = jax.vmap(lambda i: jax.random.fold_in(base, i))(
         jnp.arange(start, start + n, dtype=jnp.int32)
     )
@@ -569,7 +660,7 @@ def _random_numbers_from(base: Array, n: int, start: int = 0) -> RandomNumbers:
 
     return RandomNumbers(
         radius=uniform(RNG_CHANNELS["radius"]),
-        speed=uniform(RNG_CHANNELS["speed"]),
+        velocity_magnitude=uniform(RNG_CHANNELS["velocity_magnitude"]),
         angle=uniform(RNG_CHANNELS["angle"]),
         radial_sign=uniform(RNG_CHANNELS["radial_sign"]),
         position=channel_keys(RNG_CHANNELS["position"]),
@@ -578,7 +669,8 @@ def _random_numbers_from(base: Array, n: int, start: int = 0) -> RandomNumbers:
 
 
 def _channel_uniform(keys: Array, channel: int) -> Array:
-    """One uniform number per key from its channel."""
+    """Return one uniform number per key of `keys`, drawn from channel
+    `channel` of each key."""
     return jax.vmap(
         lambda key: jax.random.uniform(
             jax.random.fold_in(key, channel), dtype=jnp.float64
@@ -587,10 +679,12 @@ def _channel_uniform(keys: Array, channel: int) -> Array:
 
 
 def _hermite_uniform(x, x_0, x_1, f, m):
-    """The cubic Hermite through (f, m) on nodes uniform over [x_0, x_1].
+    """Return at `x` the cubic Hermite interpolant through values `f` and
+    slopes `m` on nodes uniform over [x_0, x_1].
 
-    The cell is found by index arithmetic, with no search; beyond the ends the
-    end node holds.
+    The interval that holds `x` is found by index arithmetic, without a
+    search. An `x` outside [x_0, x_1] is clamped to the nearer end, so the end
+    node's value holds beyond each end.
     """
     n = f.shape[0]
     h = (x_1 - x_0) / (n - 1)
@@ -607,7 +701,8 @@ def _hermite_uniform(x, x_0, x_1, f, m):
 
 
 def _logit(u):
-    """ln(u / (1 - u)) of a uniform number; 1 - u is exact for ``u >= 1/2``."""
+    """Return ln(u / (1 - u)) of a uniform number `u`; the difference 1 - u
+    is exact for ``u >= 1/2``."""
     return jnp.log(jnp.maximum(u, LOG_ARGUMENT_MIN)) - jnp.log(
         jnp.maximum(1.0 - u, LOG_ARGUMENT_MIN)
     )
@@ -624,8 +719,9 @@ def _radius_kernel(u, lambda_0, lambda_1, s, ds_dlambda, r_edge):
 
 @jax.jit
 def _radius_bounds_kernel(s_target, lambda_0, lambda_1, s, ds_dlambda):
-    """The logit of the mass fraction at which the table's radius is each
-    target's, by bisection on the table's own cubic Hermite."""
+    """Return the logit of the mass fraction at which the table's radius
+    logit reaches each target `s_target`, by bisection on the table's own
+    cubic Hermite interpolant."""
 
     def halve(_, ends):
         lo, hi = ends
@@ -645,7 +741,8 @@ def _radius_bounds_kernel(s_target, lambda_0, lambda_1, s, ds_dlambda):
 def radius_bounds(
     table: RadiusTable, component: int, r_range: tuple[float, float]
 ) -> tuple[float, float]:
-    """Return the uniform numbers that bound the radius draw to a range.
+    """Return the uniform numbers that bound the radius draw to a
+    user-specified range.
 
     Parameters
     ----------
@@ -654,22 +751,26 @@ def radius_bounds(
     component : int
         Index of the component.
     r_range : tuple of float
-        The radii (r_lo, r_hi), in internal units, with
-        ``0 <= r_lo < r_hi``, ``r_hi`` at most the table's ``r_sample``.
+        The user-specified radii (r_lo, r_hi), in internal units, with
+        ``0 <= r_lo < r_hi`` and ``r_hi`` at most the table's ``r_sample``.
 
     Returns
     -------
-    u_lo, u_hi : float
-        The mass fractions at which the table's own inverse reaches r_lo and
-        r_hi. The radius is increasing in the uniform number, so a number
-        taken in [u_lo, u_hi] draws a radius in [r_lo, r_hi], and u_hi - u_lo
-        is the fraction of the sampled mass in the range. An r_lo below the
-        table's first radius is 0, an r_hi beyond its last 1.
+    u_lo : float
+        The mass fraction at which the table's own inverse reaches r_lo; 0
+        where r_lo lies at or below the table's first radius.
+    u_hi : float
+        The mass fraction at which the table's own inverse reaches r_hi; 1
+        where r_hi lies at or beyond the table's last radius. The radius
+        increases with the uniform number, so a uniform number in
+        [u_lo, u_hi] draws a radius in [r_lo, r_hi], and u_hi - u_lo is the
+        fraction of the sampled mass between r_lo and r_hi.
 
     Raises
     ------
     InputError
-        If the range holds none of the table's radii.
+        If r_hi lies at or below the table's first radius, or r_lo lies at or
+        above the table's last radius.
     """
     r_edge = float(table.r_sample[component])
     s_c = np.asarray(table.s[component])
@@ -678,8 +779,8 @@ def radius_bounds(
     r_lo, r_hi = r_range
     if r_hi <= r_first or r_lo >= r_last:
         raise InputError(
-            f"The radius range ({r_lo!r}, {r_hi!r}) holds none of the table's "
-            f"radii, {r_first:.6e} to {r_last:.6e}."
+            f"The radius range r_range = ({r_lo!r}, {r_hi!r}) holds none of the "
+            f"radius table's radii, which run from {r_first:.6e} to {r_last:.6e}."
         )
 
     def variate(r_k):
@@ -706,10 +807,11 @@ def draw_radius(
 ) -> Array:
     """Return the radius of each particle, in internal units.
 
-    The logit of the radius relative to the edge of the sampling is the cubic
-    Hermite of the table in the logit of the particle's uniform number. With
-    `bounds` (`radius_bounds`), the number is first taken in [u_lo, u_hi]:
-    u_lo + (u_hi - u_lo) u, which is u itself for the whole table.
+    The logit s of the radius relative to the sampling's edge is the table's
+    cubic Hermite interpolant at the logit of the particle's uniform number u.
+    With `bounds` = (u_lo, u_hi) from `radius_bounds`, the uniform number is
+    first mapped into [u_lo, u_hi] as u_lo + (u_hi - u_lo) u; the default
+    bounds (0, 1) leave u unchanged.
     """
     u_lo, u_hi = bounds
     return np.asarray(
@@ -727,30 +829,34 @@ def draw_radius(
 def draw_angle(
     table: AngleTable, model: Model, component: int, r: Array, numbers: RandomNumbers
 ) -> tuple[Array, Array, Array]:
-    """Return the velocity angle of each particle and its speed factor.
+    """Return the velocity angle of each particle and the particle's velocity
+    magnitude factor.
 
     Returns
     -------
-    cos_phi, sin_phi : array, shape (n,)
-        Cosine and sine of the angle between the velocity and the radius
-        vector. Both are non-negative; the sign of the radial velocity is
-        drawn apart.
-    speed_factor : array, shape (n,)
-        The factor of the anisotropy model that turns the scaled speed into
+    cos_phi : array, shape (n,)
+        Cosine of the angle phi between the velocity and the radius vector,
+        non-negative; `draw_directions` draws the sign of the radial velocity
+        separately.
+    sin_phi : array, shape (n,)
+        Sine of the angle phi, non-negative.
+    velocity_factor : array, shape (n,)
+        The factor of the anisotropy model that turns the scaled velocity into
         v / v_esc: 1 for a constant anisotropy, and
-        ``1 / sqrt(1 + sigma (r / r_a)^2 sin^2)`` for an Osipkov-Merritt one,
-        sigma = +1 for type I and -1 for type II.
+        ``1 / sqrt(1 + sigma (r / r_a)^2 sin^2 phi)`` for an Osipkov-Merritt
+        model, with sigma = +1 for Type I and sigma = -1 for Type II.
 
     References
     ----------
-    Eq. (T:5.1) [f2].
+    Notes Eq. (T:5.1).
 
     Notes
     -----
-    y = sin^2 is read from the table's lower half for u < 1/2 and 1 - y from
-    its upper half otherwise, so that neither loses digits. With
-    ``xi = sigma (r / r_a)^2`` (0 for a constant anisotropy) and den = 1 + xi (1 - y):
-    sin = sqrt(y / den), cos = sqrt((1 - y) (1 + xi) / den) and the factor
+    The variate y = sin^2 is read from the table's lower half for u < 1/2,
+    and 1 - y from the table's upper half otherwise, so neither y nor 1 - y
+    loses digits. With ``xi = sigma (r / r_a)^2`` (0 for a constant
+    anisotropy) and den = 1 + xi (1 - y): sin phi = sqrt(y / den),
+    cos phi = sqrt((1 - y) (1 + xi) / den), and the velocity factor is
     sqrt(den / (1 + xi)).
     """
     anisotropy = model.components[component].anisotropy
@@ -796,60 +902,69 @@ def _angle_kernel(u, xi, ln_u_0, ln_u_1, ln_y, m_y, ln_z, m_z):
     )
 
 
-def draw_speed(
-    table: SpeedTable,
+def draw_velocity(
+    table: VelocityTable,
     model: Model,
     component: int,
     r: Array,
-    speed_factor: Array,
+    velocity_factor: Array,
     numbers: RandomNumbers,
     prepared: tuple | None = None,
 ) -> tuple[Array, Array, Array, Array]:
-    """Return the speed of each particle, in internal units.
+    """Return the velocity of each particle, in internal units.
 
-    `prepared` is `speed_draw_tables` of the same table, model and component,
-    formed once where the draw is made in blocks; formed here otherwise.
+    `prepared` is the output of `velocity_draw_tables` for the `table`, `model`
+    and `component` passed to `draw_velocity`. A draw made in blocks forms
+    `prepared` once; `draw_velocity` forms `prepared` itself where `prepared` is
+    None.
 
-    The scaled speed is read from the table at the particle's potential and
-    converted with the escape speed and the factor of the anisotropy model.
+    The scaled velocity x is read from the table at the particle's potential Psi,
+    and the velocity is v = (2 Psi)^{1/2} x times the anisotropy model's velocity
+    factor.
 
     Returns
     -------
     v : array, shape (n,)
-        Speed.
-    x, d : array, shape (n,)
-        The scaled speed and its distance from the edge of the support, the
-        two halves of one logistic, which `validate_particles` checks.
+        Velocity of each particle.
+    x : array, shape (n,)
+        Scaled velocity of each particle.
+    d : array, shape (n,)
+        Distance x_e - x of each particle's scaled velocity from the support's
+        edge x_e. The scaled velocity `x` and the distance `d` are the two halves
+        of one logistic function of s, and `validate_particles` checks both.
     psi : array, shape (n,)
-        The potential at each particle.
+        The relative potential at each particle.
 
     References
     ----------
-    Eq. (T:5.2) [x].
+    Notes Eq. (T:5.2).
 
     Notes
     -----
-    The potential is the profile's own, `TruncatedProfile.potential`, read
-    from its `interpolation_tables`: the cubic Hermite of ln Psi in ln r
-    through the interior rows with their exact slopes, the straight line of
-    the end row's slope beyond them, and on the last interval of a profile
-    with its edge row the Kepler form ``M_t (1/r - 1/r_t)``. The row of the table
-    is found by index arithmetic in lambda_p, clamped to the rows that have a
-    neighbor on each side; across the two neighboring rows s is the cubic
-    Hermite with the table's exact
-    across-row slope, read along the row by Catmull-Rom. The edge of the
-    support is formed at the particle's own potential when it lies outside the
-    rows, else at the potential the clamped row position stands for. Past the
-    middle of the row (s > 0) the speed is formed from its distance to the
-    edge, so that ``x <= x_e`` holds in the arithmetic.
+    The potential is the profile's own (`TruncatedProfile.potential`), read
+    from the profile's `interpolation_tables`: the cubic Hermite interpolant
+    of ln Psi in ln r through the interior radii with the radii's exact
+    slopes, a straight line with the end radius's slope beyond the interior
+    radii, and on the last interval of a profile with an edge row the Kepler
+    form ``M_t (1/r - 1/r_t)``. The table row is found by index arithmetic in
+    lambda_p and clamped to the rows that have a neighbor on each side.
+    Between the two neighboring rows, s is the cubic Hermite interpolant in
+    lambda_p with the table's exact across-row slope; along each row, s is the
+    cubic Hermite interpolant in lambda_u, and the across-row slope is the
+    Catmull-Rom interpolant in lambda_u. The support's edge is formed at the
+    particle's own potential where the particle's potential lies outside the
+    rows, and otherwise at the potential that the clamped row position
+    represents. Where s > 0, past the middle of the row, the scaled velocity is
+    formed as x_e - d from the particle's distance d to the edge, so that
+    ``x <= x_e`` holds in floating-point arithmetic.
     """
     if prepared is None:
-        prepared = speed_draw_tables(table, model, component)
+        prepared = velocity_draw_tables(table, model, component)
     potential, (s, ds_dlambda_u, ds_dlambda_p) = prepared
     psi = _psi_kernel(jnp.asarray(r), *potential)
     n_rows = int(table.lambda_p.shape[0])
-    x, d = _speed_kernel(
-        jnp.asarray(numbers.speed),
+    x, d = _velocity_kernel(
+        jnp.asarray(numbers.velocity_magnitude),
         psi,
         jnp.float64(table.p_0),
         jnp.float64(table.lambda_p[0]),
@@ -862,69 +977,84 @@ def draw_speed(
         ds_dlambda_u,
         ds_dlambda_p,
     )
-    v = jnp.sqrt(2.0 * psi) * (x * jnp.asarray(speed_factor))
+    v = jnp.sqrt(2.0 * psi) * (x * jnp.asarray(velocity_factor))
     return np.asarray(v), np.asarray(x), np.asarray(d), np.asarray(psi)
 
 
 @jax.jit
-def _speed_bounds_kernel(x_target, psi, *tables):
-    """The logit of the speed number at which the draw's scaled speed at each
-    potential is each target's, by bisection on `_speed_kernel` itself."""
+def _velocity_bounds_kernel(x_target, psi, *tables):
+    """Return the logit of the velocity number at which the draw's scaled velocity
+    at each potential `psi` reaches each target `x_target`, by bisection on
+    `_velocity_kernel` itself."""
 
     def halve(_, ends):
         lo, hi = ends
         mid = 0.5 * (lo + hi)
-        below = _speed_kernel(jax.nn.sigmoid(mid), psi, *tables)[0] < x_target
+        below = _velocity_kernel(jax.nn.sigmoid(mid), psi, *tables)[0] < x_target
         return jnp.where(below, mid, lo), jnp.where(below, hi, mid)
 
     lo, hi = jax.lax.fori_loop(
         0,
-        SPEED_BOUND_HALVINGS,
+        VELOCITY_BOUND_HALVINGS,
         halve,
         (jnp.full_like(x_target, tables[4]), jnp.full_like(x_target, tables[5])),
     )
     return 0.5 * (lo + hi)
 
 
-def speed_bounds(
-    table: SpeedTable,
+def velocity_bounds(
+    table: VelocityTable,
     model: Model,
     component: int,
     r: Array,
     v_range: tuple[Any, Any],
     prepared: tuple | None = None,
 ) -> tuple[Array, Array]:
-    """Return the uniform numbers that bound the speed draw at each radius to a
-    window, for a constant anisotropy.
+    """Return the uniform numbers that bound the velocity draw at each radius to a
+    user-specified range, for a constant anisotropy.
 
     Parameters
     ----------
-    table, model, component, prepared
-        As `draw_speed`.
+    table : VelocityTable
+        The velocity table, as for `draw_velocity`.
+    model : Model
+        The sampled model, as for `draw_velocity`.
+    component : int
+        Index of the component, as for `draw_velocity`.
     r : array, shape (n,)
-        Radii, in internal units.
+        User-specified 3D radii, in internal units.
     v_range : tuple of float or of array, shape (n,)
-        The speeds (v_lo, v_hi), in internal units, ``0 <= v_lo < v_hi``: one
-        window for every radius, or one at each.
+        The user-specified velocities (v_lo, v_hi), in internal units, with
+        ``0 <= v_lo < v_hi``: one range for every radius, or one range at each
+        radius.
+    prepared : tuple, optional
+        The output of `velocity_draw_tables`, as for `draw_velocity`. Default:
+        ``None``, which means `velocity_bounds` forms the tables itself.
 
     Returns
     -------
-    u_lo, u_hi : array, shape (n,)
-        The speed numbers at which the draw's own speed at each radius reaches
-        v_lo and v_hi. The speed is increasing in its number, so a number
-        taken in [u_lo, u_hi] draws a speed in the window, and u_hi - u_lo is
-        the fraction of the speed distribution at that radius in the window. A
-        v_lo below the table's first speed is 0, a v_hi beyond its last 1; a
-        window holding none of the speeds at a radius gives u_lo = u_hi = 0.
+    u_lo : array, shape (n,)
+        The velocity number at which the draw's own velocity at each radius reaches
+        v_lo; 0 where v_lo lies at or below the table's first velocity at the
+        radius.
+    u_hi : array, shape (n,)
+        The velocity number at which the draw's own velocity at each radius reaches
+        v_hi; 1 where v_hi lies at or beyond the table's last velocity at the
+        radius. The velocity increases with the velocity number, so a velocity number
+        in [u_lo, u_hi] draws a velocity between v_lo and v_hi, and u_hi - u_lo is
+        the fraction of the velocity distribution at the radius between v_lo and
+        v_hi. Where the range holds none of the velocities at a radius, u_lo and
+        u_hi are both 0.
 
     Notes
     -----
-    With a constant anisotropy the speed is v = sqrt(2 Psi) x, the scaled speed
-    x read from the table at the radius's potential (`draw_speed` with the
-    speed factor 1), so the window is one interval of x.
+    With a constant anisotropy the velocity is v = (2 Psi)^{1/2} x, where the
+    scaled velocity x is read from the table at the radius's potential Psi
+    (`draw_velocity` with the velocity factor 1), so the user-specified range of
+    velocities at a radius is one interval of x.
     """
     if prepared is None:
-        prepared = speed_draw_tables(table, model, component)
+        prepared = velocity_draw_tables(table, model, component)
     potential, (s, ds_dlambda_u, ds_dlambda_p) = prepared
     psi = _psi_kernel(jnp.asarray(r), *potential)
     tables = (
@@ -944,25 +1074,31 @@ def speed_bounds(
     with np.errstate(divide="ignore"):
         x_lo, x_hi = v_lo / scale, v_hi / scale
     ends = [
-        np.asarray(_speed_kernel(jnp.full(scale.shape, u), psi, *tables)[0])
+        np.asarray(_velocity_kernel(jnp.full(scale.shape, u), psi, *tables)[0])
         for u in (special.expit(float(table.lambda_u[0])),
                   special.expit(float(table.lambda_u[-1])))
     ]  # fmt: skip
 
     def variate(x_k):
-        lam = _speed_bounds_kernel(jnp.asarray(np.minimum(x_k, ends[1])), psi, *tables)
+        lam = _velocity_bounds_kernel(
+            jnp.asarray(np.minimum(x_k, ends[1])), psi, *tables
+        )
         return special.expit(np.asarray(lam))
 
-    u_lo = np.where(x_lo <= ends[0], 0.0, variate(x_lo))
-    u_hi = np.where(x_hi >= ends[1], 1.0, variate(x_hi))
+    # Each bound's bisection runs only where some radius needs the bound; the
+    # whole distribution, v_lo = 0 and v_hi infinite, needs neither bisection.
+    below, beyond = x_lo <= ends[0], x_hi >= ends[1]
+    u_lo = np.where(below, 0.0, variate(x_lo) if not np.all(below) else 0.0)
+    u_hi = np.where(beyond, 1.0, variate(x_hi) if not np.all(beyond) else 1.0)
     empty = (x_hi <= ends[0]) | (x_lo >= ends[1])
     return np.where(empty, 0.0, u_lo), np.where(empty, 0.0, u_hi)
 
 
-def speed_draw_tables(table: SpeedTable, model: Model, component: int) -> tuple:
-    """The tables `draw_speed` reads, padded and on the device: the
-    potential's and the speed table's three channels. Formed once for a draw
-    made in blocks."""
+def velocity_draw_tables(table: VelocityTable, model: Model, component: int) -> tuple:
+    """Return the tables that `draw_velocity` reads, padded and placed on the
+    device: the profile's potential tables and the velocity table's three arrays
+    s, ds / dlambda_u and ds / dlambda_p of component `component`. A draw made
+    in blocks forms the tables once."""
     potential = tuple(jnp.asarray(a) for a in _potential_tables(model))
     channels = tuple(
         jnp.asarray(_row_bucket(a[component]))
@@ -972,16 +1108,17 @@ def speed_draw_tables(table: SpeedTable, model: Model, component: int) -> tuple:
 
 
 def _row_bucket(a: Array) -> Array:
-    """The rows of an array padded to a power of two by repeating the last:
-    the padding is never read, since a draw's row index stops at the last
-    real row."""
+    """Return the rows of `a` padded to a power of two by repeating the last
+    row. A draw never reads the padding, because a draw's row index stops at
+    the last real row."""
     a = np.asarray(a)
     m = 1 << (a.shape[0] - 1).bit_length()
     return np.concatenate([a, np.repeat(a[-1:], m - a.shape[0], axis=0)])
 
 
 def _potential_tables(model: Model) -> tuple[Array, ...]:
-    """The profile's tables of the potential, as `_psi_kernel` takes them."""
+    """Return the profile's tables of the potential in the form that
+    `_psi_kernel` takes."""
     tables = model.profile.interpolation_tables()
     return _padded_tables(
         tables.log_r,
@@ -996,9 +1133,11 @@ def _potential_tables(model: Model) -> tuple[Array, ...]:
 def _padded_tables(
     x: Array, y: Array, m: Array, r_last: float, r_t: float, mass_t: float
 ) -> tuple[Array, ...]:
-    """ln r, ln Psi and its slope on the interior rows, padded to a power of
-    two (ln r infinite there, never read), their count, and the Kepler
-    interval's start, ``r_t`` and M_t (r_last infinite where there is none)."""
+    """Return ln r, ln Psi and the slope d ln Psi / d ln r on the interior
+    radii, padded to a power of two (ln r infinite on the padding, which is
+    never read); the count of real radii; the start `r_last` of the Kepler
+    interval; the truncation radius ``r_t``; and the truncated mass M_t.
+    `r_last` is infinite where the profile has no Kepler interval."""
     pad = (1 << (x.size - 1).bit_length()) - x.size
     return (
         np.concatenate([x, np.full(pad, np.inf)]),
@@ -1040,7 +1179,7 @@ def _psi_kernel(r, x_nodes, y_nodes, m_nodes, n, r_last, r_t, mass_t):
 
 
 @jax.jit
-def _speed_kernel(
+def _velocity_kernel(
     u,
     psi,
     p_0,
@@ -1058,7 +1197,8 @@ def _speed_kernel(
     h_u = (lambda_u_1 - lambda_u_0) / (n_nodes - 1)
 
     def row(lam_u, i_rows):
-        """s and its across-row slope on the rows i_rows at lambda_u."""
+        """Return s and the across-row slope at `lam_u` on the rows
+        `i_rows`."""
         sx = (jnp.clip(lam_u, lambda_u_0, lambda_u_1) - lambda_u_0) / h_u
         j = jnp.clip(jnp.floor(sx).astype(jnp.int32), 0, n_nodes - 2)
         t = sx - j
@@ -1113,9 +1253,10 @@ def draw_directions(
 ) -> tuple[Array, Array]:
     """Return the Cartesian positions and velocities of the particles.
 
-    The position is uniform on the sphere. The tangential velocity points
-    along an isotropic vector projected on the plane normal to the position.
-    The radial velocity is outward for a radial-sign number below 1/2.
+    The direction of each position is uniform on the sphere. The tangential
+    velocity points along an isotropic vector projected onto the plane normal
+    to the position. The radial velocity points outward where the particle's
+    radial-sign number is below 1/2.
     """
     r, v = jnp.asarray(r), jnp.asarray(v)
     unit = jax.vmap(_unit_vector)(jnp.asarray(numbers.position))
@@ -1130,8 +1271,8 @@ def draw_directions(
 
 @jax.jit
 def _unit_vector(key):
-    """A direction uniform on the sphere: three normal numbers from the key's
-    three subkeys, over their norm."""
+    """Return a direction uniform on the sphere: three normal numbers drawn
+    from the three subkeys of `key`, divided by the three numbers' norm."""
     k_1, k_2, k_3 = jax.random.split(key, 3)
     g_1 = jax.random.normal(k_1, dtype=jnp.float64)
     g_2 = jax.random.normal(k_2, dtype=jnp.float64)
@@ -1142,12 +1283,13 @@ def _unit_vector(key):
 
 @jax.jit
 def _tangent_vector(unit, key):
-    """A direction uniform on the sphere, projected normal to `unit`.
+    """Return a direction uniform on the sphere, projected onto the plane
+    normal to `unit` and normalized.
 
-    The dot product and the norm are sums written in one order: batched by
-    `vmap`, `jnp.dot` and `jnp.linalg.norm` are reductions whose order XLA
-    may choose by the batch size (JAX 0.10.2 does), and a particle's velocity
-    must not depend on the size of the block it is drawn in.
+    The dot product and the norm are sums written in a fixed order, because
+    under `vmap` XLA may order the reductions `jnp.dot` and `jnp.linalg.norm`
+    according to the batch size, and a particle's velocity must not depend on
+    the size of the block in which the particle is drawn.
     """
     direction = _unit_vector(key)
     dot = (direction[0] * unit[0] + direction[1] * unit[1]) + direction[2] * unit[2]
@@ -1168,49 +1310,63 @@ def validate_particles(
     d: Array,
     psi: Array,
 ) -> ValidationReport:
-    """Return the report of a draw: its essential checks.
+    """Return the validation report of a draw, with the draw's two checks.
 
-    Every particle must lie inside the phase-space support of its
-    component's DF. The bound is checked on the draw's own variables, the
-    scaled speed `x` and its distance `d` from the edge (``x <= 1`` and
-    ``d >= 0``), which hold it exactly; a speed rebuilt from the velocity
-    carries the rounding of the conversion. The velocity is then checked
-    against the bound it was built from: ``v^2 + sigma xi v_t^2 <= 2 Psi``, with
-    ``xi = (r / r_a)^2`` (0 for a constant anisotropy), within `BOUND_SAFETY`
-    times its own rounding floor eps (1 + xi).
+    Every particle must lie inside the phase-space support of the
+    component's DF. The phase-space bound is checked on the draw's own
+    variables, the scaled velocity `x` and the distance `d` from the edge
+    (``x <= 1`` and ``d >= 0``), which satisfy the bound exactly; a velocity
+    rebuilt from the velocity carries the rounding of the conversion. The
+    velocity is then checked against the bound from which the velocity was
+    built, ``v^2 + sigma xi v_t^2 <= 2 Psi``, where ``xi = (r / r_a)^2`` (0
+    for a constant anisotropy), sigma = +1 for Type I and sigma = -1 for
+    Type II, and v_t is the tangential velocity, within `BOUND_SAFETY` times the
+    bound's rounding floor eps (1 + xi).
 
     Parameters
     ----------
     model : Model
-        The model drawn from.
+        The model from which the particles are drawn.
     component : int
         Index of the component.
-    position, velocity : array, shape (n, 3)
-        The particles, in internal units.
-    x, d : array, shape (n,)
-        The draw's scaled speed and its distance from the edge.
+    position : array, shape (n, 3)
+        Positions of the particles, in internal units.
+    velocity : array, shape (n, 3)
+        Velocities of the particles, in internal units.
+    x : array, shape (n,)
+        The draw's scaled velocity of each particle.
+    d : array, shape (n,)
+        The draw's distance of each particle's scaled velocity from the support's
+        edge.
     psi : array, shape (n,)
-        The potential at each particle, as the draw read it.
+        The relative potential at each particle, as the draw read the
+        potential.
 
     Returns
     -------
     report : ValidationReport
-        Both checks at zero: a particle that fails either is refused.
+        The two checks listed in ``VALIDATION_KEYS``, both with error 0: a draw
+        in which any particle fails either check raises AccuracyError instead
+        of returning.
 
     Raises
     ------
     AccuracyError
-        If a particle lies beyond the bound, or its velocity does not
-        reproduce it.
+        If a particle has x > 1, d < 0, or a non-finite x or d.
+    AccuracyError
+        If a particle's velocity exceeds the bound
+        ``v^2 + sigma xi v_t^2 <= 2 Psi`` by more than `BOUND_SAFETY` times
+        the rounding floor eps (1 + xi).
     """
     x, d = np.asarray(x), np.asarray(d)
     beyond = (x > 1.0) | (d < 0.0) | ~np.isfinite(x) | ~np.isfinite(d)
     if np.any(beyond):
         i = int(np.argmax(np.where(np.isfinite(x), x, np.inf)))
         raise AccuracyError(
-            f"{int(np.sum(beyond))} particles lie beyond the phase-space bound "
-            f"(x > 1, d < 0 or not finite); the worst has x = {float(x[i])!r}, "
-            f"d = {float(d[i])!r}."
+            f"{int(np.sum(beyond))} drawn particles lie beyond the phase-space "
+            "bound: the scaled velocity x is above 1, the distance d to the velocity "
+            "support's edge is below 0, or x or d is not finite. The worst "
+            f"particle has x = {float(x[i])!r} and d = {float(d[i])!r}."
         )
     anisotropy = model.components[component].anisotropy
     position, velocity = np.asarray(position), np.asarray(velocity)
@@ -1229,9 +1385,10 @@ def validate_particles(
     if np.any(excess > floor):
         i = int(np.argmax(excess - floor))
         raise AccuracyError(
-            f"The velocity of {int(np.sum(excess > floor))} particles does not "
-            f"reproduce the draw's bound; the worst at r = {float(r[i])!r}: "
-            f"{float(excess[i]):+.3e} against its floor {float(floor[i]):.1e}."
+            f"The velocities of {int(np.sum(excess > floor))} drawn particles do "
+            "not reproduce the draw's phase-space bound. The worst particle, at "
+            f"r = {float(r[i])!r}, exceeds the bound by {float(excess[i]):+.3e}, "
+            f"against the bound's rounding floor {float(floor[i]):.1e}."
         )
     return ValidationReport(
         keys=VALIDATION_KEYS, checks={key: Check(error=0.0) for key in VALIDATION_KEYS}

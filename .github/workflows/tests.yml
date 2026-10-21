@@ -19,7 +19,7 @@ concurrency:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     # Python 3.11 with the standard environment of the install page, exactly;
     # 3.12 and 3.13 with the newest versions pyproject admits. The coverage is
     # uploaded from the 3.11 leg.
@@ -46,7 +46,7 @@ jobs:
       - name: Types
         run: python -m mypy
       - name: Tests
-        run: python -m pytest -q --cov=pianistpy --cov-report=xml --cov-report=term
+        run: python -m pytest -q -m "not slow" --cov=pianistpy --cov-report=xml --cov-report=term
       - name: Coverage report
         if: github.repository == 'barrytchiang/PIANISTpy' && matrix.python-version == '3.11'
         uses: codecov/codecov-action@v5

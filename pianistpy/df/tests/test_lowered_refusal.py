@@ -1,12 +1,18 @@
-r"""Tests of the lowered center's refusal where its fixed point is not reached.
+r"""Tests of the AccuracyError that `lowered_center` raises where its
+fixed-point iteration for the central deficit leaves the domain of its map.
 
-The inputs of `lowered_center` as `center_amplitude` makes them (the deficit's
-Chebyshev series, the grid's ends), captured from `truncate` on
-(alpha, beta) = (2, 4) with C = rho_norm. At :math:`\beta_{\rm c} = -1/2`,
-:math:`\mathcal{K}_{\rm t} = 0.3`, from gamma 1.735 the iteration leaves the
-map's domain (measured: neither Picard nor Newton on the residual reaches a
-fixed point from delta_1; at 1.78 the map has no root at delta_1 itself); at
-+1/2, :math:`\mathcal{K}_{\rm t} = 0.05`, gamma 1.70 it converges.
+``CASES`` holds, for each inner slope gamma of the double power law with
+(alpha, beta) = (2, 4), the inputs that `center_amplitude` passes to
+`lowered_center` in a call of `truncate`: the inner end of the radial grid,
+the density normalization ``rho_norm``, the central anisotropy
+:math:`\beta_{\rm c}`, the coefficients of the Chebyshev series of the deficit
+D(u) in the depth u, and the upper end of the depth interval of that series.
+The cases with gamma 1.735, 1.75 and 1.78 have :math:`\beta_{\rm c} = -1/2`
+and :math:`\mathcal{K}_{\rm t} = 0.3`. At gamma 1.735 and 1.75, the iteration
+from the first-order deficit delta_1 leaves the map's domain before it reaches
+a fixed point. At gamma 1.78, the map has no root at delta_1 itself. The case
+with gamma 1.70 has :math:`\beta_{\rm c} = +1/2` and
+:math:`\mathcal{K}_{\rm t} = 0.05`, and its iteration converges.
 """
 
 import numpy as np
@@ -88,25 +94,37 @@ CASES = {
 
 
 def _run(gamma):
+    """Return the output of `lowered_center` on the inputs ``CASES[gamma]``,
+    with the outer end of the radial grid at 0.5 and ``kind=None``, which
+    means a constant anisotropy with no anisotropy radius."""
     r_lo, c, bc, coef, top = CASES[gamma]
     cheb = np.polynomial.chebyshev.Chebyshev(coef, domain=[0.0, top])
     return lowered_center(r_lo, 0.5, c, gamma, 2.0, 4.0, bc, cheb, None, 1.0)
 
 
 @pytest.mark.parametrize("gamma", [1.735, 1.75])
-def test_the_fixed_point_not_reached_is_refused_by_name(gamma):
+def test_the_fixed_point_not_reached_is_refused_with_cause(gamma):
+    """At gamma 1.735 and 1.75, `lowered_center` raises AccuracyError that
+    states the fixed point is not reached from delta_1, gives the update's
+    response to a uniform change of delta, and states that the map has no root
+    in (0, r]."""
     with pytest.raises(AccuracyError, match="not reached from delta_1") as err:
         _run(gamma)
     assert "response to a uniform change of delta" in str(err.value)
     assert "no root in (0, r]" in str(err.value)
 
 
-def test_no_map_at_delta_1_is_refused_by_name():
+def test_no_map_at_delta_1_is_refused_with_cause():
+    """At gamma 1.78, `lowered_center` raises AccuracyError that states the
+    map is not defined at the first-order deficit delta_1."""
     with pytest.raises(AccuracyError, match="not defined at delta_1"):
         _run(1.78)
 
 
 def test_the_neighbor_at_plus_one_half_converges():
+    r"""At gamma 1.70 with :math:`\beta_{\rm c} = +1/2`, the iteration of
+    `lowered_center` converges in 31 iterations to a last change below
+    :math:`10^{-15}`, without the stop at the rounding floor."""
     out = _run(1.70)
     assert out["iters"] == 31
     assert out["err"] < 1e-15 and not out["floor_stopped"]

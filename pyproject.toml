@@ -29,6 +29,8 @@ license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 authors = [{name = "Barry T. Chiang", email = "barrytchiang@gmail.com"}]
 classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -45,7 +47,7 @@ test = ["pytest"]
 
 [project.urls]
 Homepage = "https://pianistpy.com"
-Documentation = "https://pianistpy.com/docs/"
+Documentation = "https://pianistpy.com/docs/start/overview"
 Source = "https://github.com/barrytchiang/PIANISTpy"
 Issues = "https://github.com/barrytchiang/PIANISTpy/issues"
 
@@ -70,6 +72,9 @@ known-first-party = ["pianistpy"]
 [tool.pytest.ini_options]
 testpaths = ["pianistpy"]
 addopts = "--doctest-modules"
+markers = [
+    "slow: a module longer than the public workflow allows on two cores; the full suite runs it on a cluster",
+]
 
 [tool.mypy]
 python_version = "3.11"

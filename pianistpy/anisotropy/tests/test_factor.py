@@ -1,4 +1,10 @@
-"""The factor g(R) of the augmented density, the one definition in the package."""
+"""Tests of the factor g(R) of the augmented density and of its inverse h = 1/g.
+
+`Anisotropy.factor` returns g(R), and `inverse_factor` and
+`inverse_factor_expr` return h(R) and the derivatives of h in R. The tests
+compare these values with the closed forms of Chiang+(2026d), Eq. (B44), with
+finite differences, and with mpmath.
+"""
 
 import numpy as np
 import pytest
@@ -40,9 +46,9 @@ def test_factor_in_jax_equals_the_numpy_value():
     anisotropy = Anisotropy(beta_c=-0.25, r_a=10.0)
     g_np = anisotropy.factor(R)
     g_jax = np.asarray(anisotropy.factor(jax.numpy.asarray(R), xp=jax.numpy))
-    # to the bit on the CPU; elsewhere at rounding, the platform's own
-    # arithmetic (measured: one value of four apart on a GPU, at 2.2e-16
-    # relative, one epsilon, which is up to 2 ulp of the value)
+    # On the CPU, the jax.numpy factor must equal the NumPy factor to the bit.
+    # On any other platform, such as the GPU, the platform's own rounding is
+    # allowed: the two factors may differ by up to 2 ulp of the NumPy factor.
     platform = jax.default_backend()
     ulps = 0 if platform == "cpu" else 2
     off = np.abs(g_jax - g_np) / np.spacing(np.abs(g_np))
@@ -68,9 +74,11 @@ def test_a_type_ii_factor_is_refused_at_and_beyond_r_a(beta_c):
     ],
 )
 def test_the_factor_and_its_inverse_are_one_form(anisotropy):
-    # g = 1/h, h from inverse_factor (the sources, the edge law and the
-    # Poisson solve read h); h' and h'' against central differences of the
-    # order below
+    # Anisotropy.factor must return g = 1/h exactly, with h from
+    # inverse_factor, which the Method II sources, the edge law and the
+    # Poisson solve read. The first and second derivatives of h from
+    # inverse_factor must match, to 1e-7, central differences of h and of the
+    # first derivative of h.
     (h,) = inverse_factor(R, anisotropy.family, anisotropy.beta_c, anisotropy.r_a)
     assert np.array_equal(anisotropy.factor(R), 1.0 / h)
     x = R[1:]
@@ -95,9 +103,10 @@ def test_factor_of_a_constant_model_is_traceable_in_beta_c():
     def g(beta_c):
         return Anisotropy(beta_c=float(beta_c)).factor(2.0, xp=jnp)
 
-    # beta_c enters as a Python float of the frozen object: the gradient with
-    # respect to it is not through the object (the anisotropy's pytree
-    # form carries it); the value is checked here.
+    # g(beta_c) passes beta_c to Anisotropy as a Python float, so a gradient
+    # in beta_c does not pass through the Anisotropy object here. The
+    # gradient passes through the pytree form of Anisotropy, which carries
+    # beta_c as a leaf. This test checks the factor's value only.
     assert float(g(0.3)) == pytest.approx(2.0**-0.6, rel=1e-15)
 
 
@@ -116,11 +125,13 @@ _EXACT_CASES = [
 
 @pytest.mark.parametrize("anisotropy", _EXACT_CASES, ids=lambda a: f"{a.family}")
 def test_third_derivative_matches_the_exact_expression(anisotropy):
-    # h''' against sympy's third derivative of inverse_factor_expr evaluated by
-    # mpmath at 30 digits, radii 1e-6 to 1e3 (inside R_a for Type II), the
-    # error over max(|h| / R^3, |h'''|). Measured (721 radii): at most 2.7e-13,
-    # COM II beta_c 0.4 R_a 3 at R = 2.985 (u = 1 - R^2 / R_a^2 = 0.01, the
-    # float u's rounding amplified by u^(s - 3)); every other case 2.4e-15 or less.
+    # The third derivative h''' from inverse_factor is compared with sympy's
+    # third derivative of inverse_factor_expr, evaluated by mpmath at 30
+    # digits, at radii from 1e-6 to 1e3. A Type II model uses only the radii
+    # inside R_a, plus the radius where u = 1 - R^2 / R_a^2 = 0.01. The error,
+    # divided by the larger of |h| / R^3 and |h'''|, must be below 1e-12. The
+    # error is largest near R_a of a Type II model, where the factor
+    # u^(s - 3) in h''' amplifies the rounding of the float u.
     mp = pytest.importorskip("mpmath")
     sympy = pytest.importorskip("sympy")
     from pianistpy.anisotropy.factor import inverse_factor_expr
@@ -150,9 +161,11 @@ def test_third_derivative_matches_the_exact_expression(anisotropy):
 
 @pytest.mark.parametrize("beta_c", [-0.25, 0.25, 0.4])
 def test_the_com_ii_continuation_is_the_signed_power(beta_c):
-    # The continuation branch (continuation=True, beyond R_a) against the
-    # independent form sign(u) |u|^(1 - beta_c) R^(2 beta_c) and its mpmath
-    # third derivative, relative. Measured: h 3e-31, h''' 8e-23 (30 digits).
+    # Beyond R_a, inverse_factor_expr with continuation=True must equal the
+    # independent form sign(u) |u|^(1 - beta_c) R^(2 beta_c) to a relative
+    # 1e-25. The third derivative of inverse_factor_expr must equal mpmath's
+    # third derivative of the independent form to a relative 1e-20. Both
+    # comparisons run at 30 digits.
     mp = pytest.importorskip("mpmath")
     sympy = pytest.importorskip("sympy")
     from pianistpy.anisotropy.factor import inverse_factor_expr

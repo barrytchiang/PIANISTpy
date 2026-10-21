@@ -4,16 +4,19 @@
 
 The notebooks repository holds ``tutorials/`` and ``paper/`` (one folder each,
 notebooks with their stored outputs and the figures they wrote). Each folder is
-copied whole under the target, so the manual's ``notebooks/index.rst`` can list
-them by path. Nothing is executed here; the build renders the stored outputs.
+copied whole into its group's folder of the manual (``paper/`` into
+``chiang2026d/``), whose ``index.rst`` lists them and is kept. Nothing is
+executed here; the build renders the stored outputs.
 """
 
 import shutil
 import sys
 from pathlib import Path
 
-FOLDERS = ("tutorials", "paper")
+# the notebooks repository's folder -> the manual's group folder
+FOLDERS = {"tutorials": "tutorials", "paper": "chiang2026d"}
 SKIP = {".ipynb_checkpoints", "__pycache__", ".git", "README.md"}
+KEEP = {"index.rst"}
 
 
 def main(source: str, target: str) -> int:
@@ -21,16 +24,25 @@ def main(source: str, target: str) -> int:
     if not src.is_dir():
         print(f"no notebooks checkout at {src}; the manual builds without them")
         return 0
-    for name in FOLDERS:
+    for name, group in FOLDERS.items():
         folder = src / name
         if not folder.is_dir():
             print(f"{folder} is absent; skipped")
             continue
-        out = dst / name
-        if out.exists():
-            shutil.rmtree(out)
+        out = dst / group
+        # the group's own page stays; everything copied before goes
+        for child in out.iterdir() if out.is_dir() else ():
+            if child.name in KEEP:
+                continue
+            if child.is_dir():
+                shutil.rmtree(child)
+            else:
+                child.unlink()
         shutil.copytree(
-            folder, out, ignore=lambda _d, names: [n for n in names if n in SKIP]
+            folder,
+            out,
+            ignore=lambda _d, names: [n for n in names if n in SKIP],
+            dirs_exist_ok=True,
         )
         count = sum(1 for _ in out.rglob("*.ipynb"))
         print(f"{name}: {count} notebooks copied to {out}")

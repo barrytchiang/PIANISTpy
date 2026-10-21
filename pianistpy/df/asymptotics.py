@@ -1,4 +1,23 @@
-"""The DF below the first energy of its table: the tail and its mass."""
+r"""The tail of the DF below the first energy of its table, and the tail's integral.
+
+The DF lookup and the table checks call `tail_log10_df` for the DF below
+the table's first energy, and `tail_mass_below` for the integral of the
+tail from zero up to an energy. The tail is
+
+.. math::
+
+    F(\mathcal{K}) = A\,\mathcal{K}^{-a}\,
+        \left[\ln(P_{0}/\mathcal{K})\right]^{-b},
+
+with amplitude :math:`A`, power-law exponent :math:`a`, logarithmic
+exponent :math:`b` and central potential :math:`P_0`. The integral needs
+the scaled upper incomplete gamma function :math:`e^{x}\Gamma(s, x)`
+(`scaled_upper_gamma`).
+
+References
+----------
+Notes Eq. (T:2.13), Notes Section T:2.5.3.
+"""
 
 __all__ = [
     "ln_ratio",
@@ -18,12 +37,18 @@ from scipy.special import gamma as gamma_function
 
 from ..typing import Array, ArrayLike
 
-# Above this argument the scaled incomplete gamma function is evaluated by
-# its asymptotic series, below it by the regularized function.
+# The argument x from which `scaled_upper_gamma` sums the asymptotic series
+# in 1/x, for orders s outside (-1, 0). Below SERIES_ARGUMENT_MIN,
+# `scaled_upper_gamma` uses the regularized incomplete gamma function for
+# s > 0, the exponential integral for s = 0, and the recurrence in s for
+# s <= -1. The asymptotic series sums at most SERIES_TERMS_MAX terms, and the
+# series about s = 0 at most SERIES_TERMS_MAX - 1 terms.
 SERIES_ARGUMENT_MIN = 30.0
 SERIES_TERMS_MAX = 80
-# For an order -1 < s < 0, the continued fraction from this argument up and
-# the series about s = 0 below it; the most terms of either.
+# For an order -1 < s < 0, the continued fraction is used from the argument
+# FRACTION_ARGUMENT_MIN up, and the series about s = 0 below
+# FRACTION_ARGUMENT_MIN. The continued fraction takes at most
+# FRACTION_TERMS_MAX - 1 modified Lentz steps.
 FRACTION_ARGUMENT_MIN = 1.0
 FRACTION_TERMS_MAX = 500
 
@@ -34,17 +59,20 @@ def ln_ratio(p_0: float, k: ArrayLike, xp=np) -> Array:
     Parameters
     ----------
     p_0 : float
-        Central potential, in internal units.
+        Central potential :math:`P_0`, in internal units.
     k : array-like
-        Energy, positive.
+        Energy :math:`\mathcal{K}`, positive, in internal units.
     xp : module, optional
-        ``numpy``, or ``jax.numpy`` in a kernel.
+        The array namespace. Default: ``numpy``; ``jax.numpy`` inside a JAX
+        kernel.
 
     Returns
     -------
     ln_ratio : array
-        The logarithm of the ratio where the ratio is a finite double, and
-        the difference of the logarithms where the ratio overflows.
+        :math:`\ln(P_0/\mathcal{K})`, with the shape of `k`. Where the ratio
+        :math:`P_0/\mathcal{K}` is a finite double, the logarithm of the
+        ratio; where the ratio overflows, the difference
+        :math:`\ln P_0 - \ln\mathcal{K}`.
     """
     if xp is np:
         k = np.asarray(k, dtype=np.float64)
@@ -69,20 +97,24 @@ def tail_log10_df(
     Parameters
     ----------
     tail_amplitude : float
-        Amplitude :math:`A` of the tail.
+        Amplitude :math:`A` of the tail, in internal units.
     tail_exponent : float
         Exponent :math:`a` of the power law.
     k : array-like
-        Energy, in internal units.
+        Energy :math:`\mathcal{K}`, positive, in internal units.
     tail_log_exponent : float, optional
-        Exponent :math:`b` of the logarithmic factor; zero for a pure power
-        law, which a profile with an outer slope above 3 has.
+        Exponent :math:`b` of the logarithmic factor. Default: ``0.0``, which
+        means a pure power law, the tail of a profile with an outer slope
+        above 3.
     p_0 : float, optional
-        Central potential.
+        Central potential :math:`P_0`, in internal units. Default: ``1.0``,
+        the central potential of an untruncated model in internal units.
+        :math:`P_0` enters only where :math:`b` is not zero.
 
     Returns
     -------
     log10_df : array
+        :math:`\log_{10} F(\mathcal{K})`, with the shape of `k`.
 
     Notes
     -----
@@ -93,7 +125,7 @@ def tail_log10_df(
 
     References
     ----------
-    Eq. (T:2.13) [tail-exponent].
+    Notes Eq. (T:2.13).
     """
     k = np.asarray(k, dtype=np.float64)
     with np.errstate(divide="ignore", invalid="ignore"):
@@ -109,42 +141,53 @@ def scaled_upper_gamma(s: float, x: ArrayLike) -> Array:
     Parameters
     ----------
     s : float
-        Order of the incomplete gamma function; any real number.
+        Order :math:`s` of the incomplete gamma function; any real number.
     x : array-like
-        Argument, positive.
+        Argument :math:`x`, positive.
 
     Returns
     -------
-    value : array, shape of `x` with at least one dimension
+    value : array
+        :math:`e^{x}\,\Gamma(s, x)`, with the shape of `x` and at least one
+        dimension.
 
     Notes
     -----
-    Below an argument of 30 the regularized function is used, with the
-    exponential integral at :math:`s = 0`. For :math:`-1 < s < 0` the
-    function is evaluated at the order itself: the continued fraction
-    :math:`e^{x}\Gamma(s, x) = x^{s}/(x+1-s-\,1(1-s)/(x+3-s-\cdots))` from
-    `FRACTION_ARGUMENT_MIN` up, and below it the series about
-    :math:`s = 0`,
+    The evaluation depends on the order :math:`s` and the argument
+    :math:`x`:
 
-    .. math::
+    - For :math:`s > 0` and :math:`x` below `SERIES_ARGUMENT_MIN` (30), the
+      regularized upper incomplete gamma function times
+      :math:`\Gamma(s)\,e^{x}`.
+    - For :math:`s = 0` and :math:`x` below 30, the exponential integral
+      :math:`e^{x} E_1(x)`.
+    - For :math:`-1 < s < 0` and every :math:`x`, the order itself, with no
+      recurrence: from `FRACTION_ARGUMENT_MIN` up, the continued fraction
+      :math:`e^{x}\Gamma(s, x) = x^{s}/(x+1-s-\,1(1-s)/(x+3-s-\cdots))`;
+      below `FRACTION_ARGUMENT_MIN`, the series about :math:`s = 0`,
 
-        \Gamma(s, x) = \frac{\operatorname{expm1}\ln\Gamma(1+s)
-            - \operatorname{expm1}(s\ln x)}{s}
-            - x^{s}\sum_{n\ge1}\frac{(-x)^{n}}{n!\,(s+n)},
+      .. math::
 
-    whose bracket is formed to its own precision before the division by
-    `s`. The recurrence :math:`\Gamma(s, x) = [\Gamma(s+1, x) -
-    x^{s}e^{-x}]/s` divided a rounded difference by `s` there and read
-    :math:`10^{-11}` relative at :math:`s \approx -0.01`; it remains for
-    :math:`s \le -1`, where `s` magnifies nothing. Above 30, except at
-    :math:`-1 < s < 0`, the asymptotic series
-    :math:`x^{s-1}\sum_n (s-1)\cdots(s-n)/x^{n}` is summed, each element
-    stopped at its smallest term.
+          \Gamma(s, x) = \frac{\operatorname{expm1}\ln\Gamma(1+s)
+              - \operatorname{expm1}(s\ln x)}{s}
+              - x^{s}\sum_{n\ge1}\frac{(-x)^{n}}{n!\,(s+n)},
+
+      whose numerator is formed to full relative precision before the
+      division by :math:`s`.
+    - For :math:`s \le -1` and :math:`x` below 30, the recurrence
+      :math:`\Gamma(s, x) = [\Gamma(s+1, x) - x^{s}e^{-x}]/s`. For
+      :math:`s \le -1`, the division by :math:`s` does not magnify the
+      rounding error of the difference.
+    - For :math:`s` outside :math:`(-1, 0)` and :math:`x` at or above 30,
+      the asymptotic series :math:`x^{s-1}\sum_n (s-1)\cdots(s-n)/x^{n}`,
+      summed for each element until the magnitude of the terms stops
+      decreasing, with at most `SERIES_TERMS_MAX` terms.
     """
     x = np.atleast_1d(np.asarray(x, dtype=np.float64))
     out = np.empty(x.shape)
-    # at an order -1 < s < 0 the continued fraction serves every argument from
-    # FRACTION_ARGUMENT_MIN up, where the asymptotic series reads 7e-13 near 30
+    # For an order -1 < s < 0, the continued fraction serves every argument
+    # from FRACTION_ARGUMENT_MIN up, so the asymptotic series is never used
+    # at orders -1 < s < 0.
     small = (x < SERIES_ARGUMENT_MIN) | (-1.0 < s < 0.0)
     if np.any(small):
         x_small = x[small]
@@ -173,10 +216,16 @@ def scaled_upper_gamma(s: float, x: ArrayLike) -> Array:
 
 
 def _masked_loop(term, state, trips, xp):
-    """`state = term(i, state)` for i = 1, 2, ... below `trips`, the state's last
-    entry the mask of the lanes not yet converged, which `term` keeps frozen.
-    The loop leaves early once no lane is live: the result is that of every
-    trip. A Python loop in NumPy, a `jax.lax.while_loop` in a kernel."""
+    """Return the state after ``state = term(i, state)`` for i = 1, 2, ..., trips - 1.
+
+    The last entry of ``state`` is the mask of the lanes not yet converged,
+    and ``term`` leaves unchanged, on the converged lanes, the entries of
+    ``state`` that the caller reads. The loop stops early once the mask is
+    False on every lane, so the early stop gives the caller the same values
+    as running every trip. With ``xp`` equal to NumPy the loop is a
+    Python loop; otherwise the loop is a `jax.lax.while_loop` inside a JAX
+    kernel.
+    """
     if xp is np:
         for i in range(1, trips):
             if not np.any(state[-1]):
@@ -194,11 +243,18 @@ def _masked_loop(term, state, trips, xp):
 
 
 def _scaled_upper_gamma_small_order(s: float, x: Array, xp=np) -> Array:
-    """e^x Gamma(s, x) for -1 < s < 0 and positive x, at the order itself: the
-    continued fraction (modified Lentz) from FRACTION_ARGUMENT_MIN up, the series
-    about s = 0 below it. Traceable: in NumPy, or in a kernel with
-    `xp=jax.numpy` and `s` traced; each loop runs over every lane, its most
-    trips fixed, under the mask of the lanes not yet converged."""
+    """Return e^x Gamma(s, x) for an order -1 < s < 0 and a positive x.
+
+    The function is evaluated at the order s itself, with no recurrence.
+    From FRACTION_ARGUMENT_MIN up, the continued fraction is evaluated by the
+    modified Lentz method; below FRACTION_ARGUMENT_MIN, the series about
+    s = 0 of `scaled_upper_gamma` is summed. The function runs in NumPy, or
+    inside a JAX kernel with ``xp=jax.numpy`` and a traced ``s``. The
+    continued-fraction loop and the series loop each run over every lane,
+    with at most FRACTION_TERMS_MAX - 1 and SERIES_TERMS_MAX - 1 steps
+    respectively,
+    under the mask of the lanes not yet converged.
+    """
     log_gamma = gammaln if xp is np else jax_gammaln
     tiny = 1e-300
     far = x >= FRACTION_ARGUMENT_MIN
@@ -247,24 +303,30 @@ def tail_mass_below(
     Parameters
     ----------
     tail_amplitude : float
-        Amplitude :math:`A` of the tail.
+        Amplitude :math:`A` of the tail, in internal units.
     tail_exponent : float
-        Exponent :math:`a` of the power law, smaller than 1.
+        Exponent :math:`a` of the power law, below 1.
     k : array-like
-        Upper limit of the integral, in internal units.
+        Upper limit :math:`\mathcal{K}` of the integral, positive, in
+        internal units.
     tail_log_exponent : float, optional
-        Exponent :math:`b` of the logarithmic factor.
+        Exponent :math:`b` of the logarithmic factor. Default: ``0.0``, which
+        means a pure power law.
     p_0 : float, optional
-        Central potential.
+        Central potential :math:`P_0`, in internal units. Default: ``1.0``,
+        the central potential of an untruncated model in internal units.
     xp : module, optional
-        ``numpy``, or ``jax.numpy`` in a kernel, where the numbers may be
-        traced and the order :math:`1-b` must lie in :math:`(-1, 0)`, the
-        only one a kernel reads.
+        The array namespace. Default: ``numpy``. With ``jax.numpy``, inside a
+        JAX kernel, the numbers may be traced, and the order :math:`1-b`
+        must lie in :math:`(-1, 0)`, the only order range the kernel path
+        evaluates.
 
     Returns
     -------
-    integral : array, shape of `k` with at least one dimension (in a kernel,
-        the shape of `k`)
+    integral : array
+        :math:`\int_0^{\mathcal{K}} F\,\mathrm{d}E`, in internal units. With
+        NumPy, the shape of `k` with at least one dimension; with
+        ``jax.numpy``, the shape of `k`.
 
     Notes
     -----

@@ -1,21 +1,24 @@
-"""Shape-preserving cubic Hermite interpolation (PCHIP) in JAX.
+"""Shape-preserving piecewise cubic Hermite interpolation (PCHIP) in JAX.
 
-The interpolant of the truncation's lookups: jit and vmap safe, with the node
-arrays taken as closure constants at the call sites, so that the slopes are
-traced once per kernel.
+`interp1d` is the interpolant that the truncation's lookups use. The functions
+of this module run under ``jax.jit`` and ``jax.vmap``. The call sites pass
+the node arrays as closure constants, so that JAX traces the PCHIP slopes
+once per compiled kernel. The options of `interp1d` are:
 
-* ``order="cubic"`` evaluates the piecewise cubic Hermite polynomial with
-  Fritsch-Carlson slopes (shape preserving: no overshoot), or with the slopes
-  ``m`` the caller gives in the interpolation space. PCHIP slopes are second
-  order at best and zero at a local extremum; exact slopes make the
-  interpolant fourth order.
-* ``order="linear"`` is ``jnp.interp`` in linear x and f, whatever ``logx``,
-  ``logf`` and ``m``.
-* ``logx``, ``logf``: interpolate in the logarithm of x, of f (f > 0). Every
-  argument of a logarithm is clamped at ``floor`` first; a fill value of 0
-  with ``logf`` comes back as ``floor``.
-* Out of range (cubic): ``left`` below the first node, ``right`` above the
-  last; a query on an end node is interpolated.
+* ``order="cubic"`` evaluates the piecewise cubic Hermite polynomial. The
+  slopes at the nodes are the Fritsch-Carlson slopes, which preserve the
+  data's monotonicity (no overshoot), unless the caller passes slopes ``m``
+  in the interpolation space. The Fritsch-Carlson slopes are accurate to
+  second order at best and are zero at a local extremum of the data. Exact
+  slopes ``m`` make the interpolant accurate to fourth order.
+* ``order="linear"`` is ``jnp.interp`` in linear x and linear f, and ignores
+  ``logx``, ``logf`` and ``m``.
+* ``logx`` and ``logf`` select interpolation in the logarithm of x and in the
+  logarithm of f (which requires f > 0). Every argument of a logarithm is
+  first clamped from below at ``floor``. With ``logf``, a ``left`` or
+  ``right`` of 0 therefore comes back as ``floor``.
+* Outside the nodes, the cubic order returns ``left`` below the first node
+  and ``right`` above the last node. A query on an end node is interpolated.
 """
 
 __all__ = ["hermite_eval", "interp1d", "pchip_slopes"]
@@ -28,18 +31,23 @@ from ..exceptions import InputError
 def pchip_slopes(xp, fp):
     """Return the Fritsch-Carlson slopes at the nodes.
 
-    The convention is SciPy's ``PchipInterpolator``: the weighted harmonic
-    mean of the two secants where they have one sign and zero otherwise, and
-    the shape-preserving three-point formula at each end.
+    The slopes follow the convention of SciPy's ``PchipInterpolator``. At an
+    interior node, the slope is the weighted harmonic mean of the two
+    neighboring secants when both secants have the same sign, and zero
+    otherwise. At each end node, the slope is the shape-preserving
+    three-point formula.
 
     Parameters
     ----------
-    xp, fp : array, shape (n,)
-        Increasing nodes and their values, ``n >= 3``.
+    xp : array, shape (n,)
+        Nodes, strictly increasing, with n of 3 or more.
+    fp : array, shape (n,)
+        Values at the nodes.
 
     Returns
     -------
     m : array, shape (n,)
+        Slopes df/dx at the nodes.
 
     Raises
     ------
@@ -77,12 +85,17 @@ def pchip_slopes(xp, fp):
     return jnp.concatenate([m0[None], m_int, mN[None]])
 
 
-def hermite_eval(x, xp, fp, m, left, right):
-    """Return the cubic Hermite interpolant of (xp, fp, m) at x.
+def hermite_eval(x, xp, fp, m, left, right, n=None):
+    """Return the cubic Hermite interpolant of nodes xp, values fp and slopes m at x.
 
-    Below the first node it returns ``left``, above the last ``right``.
+    The interpolant is ``left`` below the first node and ``right`` above the
+    last node. When ``n`` is given, only the first ``n`` nodes are read, and
+    the remaining entries of ``xp``, ``fp`` and ``m`` are padding that repeats
+    the last node. The interpolant with padding then equals the interpolant
+    of the first ``n`` nodes alone.
     """
-    i = jnp.clip(jnp.searchsorted(xp, x, side="right") - 1, 0, xp.shape[0] - 2)
+    top = xp.shape[0] - 2 if n is None else n - 2
+    i = jnp.clip(jnp.searchsorted(xp, x, side="right") - 1, 0, top)
     x0, x1 = xp[i], xp[i + 1]
     h = x1 - x0
     t = (x - x0) / h
@@ -98,27 +111,68 @@ def hermite_eval(x, xp, fp, m, left, right):
 
 
 def interp1d(
-    x, xp, fp, left, right, order="cubic", logx=False, logf=False, m=None, floor=1e-300
+    x,
+    xp,
+    fp,
+    left,
+    right,
+    order="cubic",
+    logx=False,
+    logf=False,
+    m=None,
+    floor=1e-300,
+    n=None,
 ):
-    """Return the interpolant of (xp, fp) at x, as ``jnp.interp`` with the
-    choices of the module docstring.
+    """Return the interpolant of nodes xp and values fp at x.
+
+    The call takes the arguments of ``jnp.interp`` plus the options that the
+    module docstring describes.
 
     Parameters
     ----------
     x : array
-        Queries.
-    xp, fp : array, shape (n,)
-        Increasing nodes and their values.
-    left, right : float
-        Values below the first node and above the last, in f.
-    order : {"cubic", "linear"}
-    logx, logf : bool
-        Interpolate in log x, in log f.
+        Query points.
+    xp : array, shape (n,)
+        Nodes, strictly increasing.
+    fp : array, shape (n,)
+        Values at the nodes.
+    left : float
+        Value of f below the first node.
+    right : float
+        Value of f above the last node.
+    order : {"cubic", "linear"}, optional
+        Piecewise cubic Hermite or piecewise linear interpolation. Default:
+        ``"cubic"``.
+    logx : bool, optional
+        If True, interpolate in log x. Default: ``False``.
+    logf : bool, optional
+        If True, interpolate in log f. Default: ``False``.
     m : array, shape (n,), optional
-        Slopes at the nodes in the interpolation space; PCHIP's where None.
-    floor : float
-        Clamp before every logarithm.
+        Slopes at the nodes in the interpolation space. Default: ``None``,
+        which means the PCHIP slopes of `pchip_slopes`.
+    floor : float, optional
+        Lower clamp of every argument of a logarithm. Default: ``1e-300``.
+    n : int or traced int, optional
+        Number of nodes that are read; the remaining entries of ``xp`` are
+        padding that repeats the last node, as in `hermite_eval`. Allowed
+        only with ``order="cubic"`` and slopes ``m``. Default: ``None``,
+        which means every node is read.
+
+    Returns
+    -------
+    f : array
+        The interpolant at ``x``, with the shape of ``x``.
+
+    Raises
+    ------
+    InputError
+        If ``n`` is given without slopes ``m`` or with ``order="linear"``.
+    InputError
+        If ``m`` is None, the order is cubic, and there are fewer than
+        three nodes.
     """
+    if n is not None and (m is None or order != "cubic"):
+        raise InputError("padded nodes (n) are read by the cubic order with m only")
     if order == "linear":
         return jnp.interp(x, xp, fp, left=left, right=right)
     xq = jnp.log(jnp.maximum(x, floor)) if logx else x
@@ -127,5 +181,5 @@ def interp1d(
     slopes = pchip_slopes(xg, fg) if m is None else m
     lf = jnp.log(jnp.maximum(left, floor)) if logf else left
     rf = jnp.log(jnp.maximum(right, floor)) if logf else right
-    y = hermite_eval(xq, xg, fg, slopes, lf, rf)
+    y = hermite_eval(xq, xg, fg, slopes, lf, rf, n)
     return jnp.exp(y) if logf else y

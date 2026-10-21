@@ -1,4 +1,10 @@
-"""Tests of the DF at the edge of a truncated density."""
+r"""Tests of the DF at the edge of a truncated density, in `pianistpy.df.edge`.
+
+Near the edge, a truncated density goes as C P^q and the DF as A K^p. The tests
+check the relation between the exponents q and p, the amplitude A from the
+amplitude C, and the lowest central anisotropy :math:`\beta_{\rm c}` for which
+a DF exists.
+"""
 
 import math
 
@@ -24,8 +30,10 @@ DF_EDGE = [1.0, 2.0]
 @pytest.mark.parametrize("beta_parent", BETA_PARENT)
 @pytest.mark.parametrize("df_edge", DF_EDGE)
 def test_the_condition_is_one_on_the_difference(beta_parent, df_edge):
-    # a parent whose DF ends as K^nu admits children with
-    # beta_c - beta_parent > -1 - nu, whatever beta_parent is
+    # A parent whose DF goes as K^nu at the edge has a child DF of central
+    # anisotropy beta_c exactly when beta_c - beta_parent > -1 - nu, for every
+    # parent anisotropy beta_parent. The child DF then goes as
+    # K^(nu + beta_c - beta_parent) at the edge.
     q = density_edge_exponent(df_edge, beta_parent)
     assert lowest_beta_c(q) - beta_parent == pytest.approx(-1.0 - df_edge)
     for beta_child in (-2.5, -1.0, 0.0, 0.4):
@@ -58,8 +66,10 @@ def test_a_non_integrable_df_edge_is_refused():
 @pytest.mark.parametrize("q", [2.5, 3.5, 1.2])
 @pytest.mark.parametrize("beta_c", [0.4, 0.0, -0.5, -0.9])
 def test_amplitude_against_the_density_integral(q, beta_c):
-    # rho_aux(P) = K_f INT_0^P F(Q) (P - Q)^(1/2 - beta_c) dQ with F = A Q^p
-    # must return C P^q
+    # The DF F(Q) = A Q^p, with A from df_edge_amplitude and p from
+    # df_edge_exponent, must give back the density C P^q with C = 1 through
+    # rho_aux(P) = K_f INT_0^P F(Q) (P - Q)^(1/2 - beta_c) dQ, where K_f is
+    # the forward prefactor.
     if not beta_c > lowest_beta_c(q):
         pytest.skip("no DF")
     amplitude = df_edge_amplitude(1.0, q, beta_c)
@@ -79,9 +89,10 @@ def test_amplitude_against_the_density_integral(q, beta_c):
 
 
 def test_isotropic_edge_of_the_truncated_hernquist_model():
-    # F_t(K) = F(K + K_t) - F(K_t) = F'(K_t) K at the edge, so the density
-    # ends as C P^(5/2) with C = 4 pi sqrt(2) F'(K_t) B(2, 3/2); the
-    # amplitude returns F'(K_t)
+    # The truncated isotropic DF F_t(K) = F(K + K_t) - F(K_t) goes as
+    # F'(K_t) K at the edge. The truncated density therefore goes as C P^(5/2)
+    # with C = 4 pi sqrt(2) F'(K_t) B(2, 3/2), where B(2, 3/2) = 4/15, and
+    # df_edge_amplitude must return F'(K_t) from C.
     k_t = 0.05
     _, slope = hernquist_df(k_t)
     density_amplitude = 4.0 * math.pi * math.sqrt(2.0) * float(slope) * (4.0 / 15.0)

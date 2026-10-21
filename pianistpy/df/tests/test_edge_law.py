@@ -1,6 +1,11 @@
-"""Tests of the Method II edge law: the expansion of the augmented density at
-the parent's edge, the law it inverts to, and the floor terms, held to
-closed-form identities (no product is needed)."""
+"""Tests of the Method II edge law in `pianistpy.df.edge_law`.
+
+The edge expansion is the expansion of a child's augmented density at the
+parent's edge, built from the parent DF's Taylor coefficients F_1 and F_2. The
+edge law is the child DF's power law that the edge expansion inverts to. The
+tests compare the edge expansion, the edge law and the floor terms with
+closed-form identities, so no stored product is needed.
+"""
 
 from types import SimpleNamespace
 
@@ -58,8 +63,10 @@ def test_the_inverse_factor_and_its_slope_match_the_package_factor(anisotropy):
 
 @pytest.mark.parametrize("anisotropy", _children())
 def test_the_edge_law_inverts_the_expansion_exactly(anisotropy):
-    # the forward identity per power: the density integral over C_q K^(q - 3/2 + bc)
-    # gives a_q P^q back, with the package's forward prefactor
+    # For each power q of the edge expansion, the density integral of the
+    # edge-law term C_q K^(q - 3/2 + bc), with the package's forward
+    # prefactor, must give back the expansion's term a_q P^q. Here bc is the
+    # child's central anisotropy beta_c.
     ex = _expansion(anisotropy)
     p, c0, c1 = edge_law.edge_law(ex)
     bc = ex.beta_c
@@ -87,7 +94,8 @@ def test_the_floor_tail_feeds_the_kernel_with_the_floor_pair(anisotropy):
     assert np.all(np.isfinite(corr))
     p, c0, c1 = edge_law.edge_law(ex)
     law = q**p * (c0 + c1 * q)
-    # far above the floor the correction is a vanishing fraction of the law
+    # At the largest test energy, 1e-5, the floor correction is below 1e-3 of
+    # the edge law.
     assert abs(corr[-1]) < 1e-3 * abs(law[-1]) + 1e-300
 
 
@@ -126,8 +134,10 @@ def test_a_type_ii_child_whose_edge_lies_beyond_its_anisotropy_radius_is_refused
 
 @pytest.mark.parametrize("anisotropy", _children())
 def test_the_expansion_at_a_node_on_the_edge_is_the_edge_expansion(anisotropy):
-    # the floor node's factor, g_t = g(node) - G1 P_node, at P_node = 0 is the
-    # factor and its slope at the edge itself
+    # edge_expansion_at_node takes the inverse factor at the edge as
+    # h_t = h(P_node) - H_1 P_node, with H_1 the slope of h in P. At
+    # P_node = 0, h_t is h at the edge, so the expansion at the node equals the
+    # edge expansion.
     ex = _expansion(anisotropy)
     node = edge_law.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, 0.0, ex.h_t, ex.h_1, anisotropy
@@ -139,8 +149,8 @@ def test_the_expansion_at_a_node_on_the_edge_is_the_edge_expansion(anisotropy):
         ex.h_t,
         ex.h_1,
     )
-    # one node inside the edge: the factor's value there less its slope times
-    # the node's potential
+    # At P_node = 1e-10 inside the edge, with h(P_node) = h_t + H_1 P_node, the
+    # expansion's h_t equals the edge expansion's h_t.
     p_node = 1e-10
     moved = edge_law.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, p_node, ex.h_t + ex.h_1 * p_node, ex.h_1, anisotropy
@@ -151,8 +161,10 @@ def test_the_expansion_at_a_node_on_the_edge_is_the_edge_expansion(anisotropy):
 
 @pytest.mark.parametrize("anisotropy", _children())
 def test_an_om_parent_with_h_one_is_the_isotropic_parent(anisotropy):
-    # an OM I parent's h = 1 + R^2 / r_a^2 divided out: at h = 1 with zero slope
-    # the expansion is the isotropic parent's of the same rows
+    # For an OM Type I parent, the expansion divides the child's inverse factor
+    # by the parent's inverse factor h_p = 1 + R^2 / r_a^2. With h_p = 1 and a
+    # slope of h_p equal to zero, the expansion equals the expansion for an
+    # isotropic parent at the same node.
     p_node, h_node, h_slope = 3e-10, 1.7, -2.5e3
     iso = edge_law.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, p_node, h_node, h_slope, anisotropy
@@ -162,8 +174,9 @@ def test_an_om_parent_with_h_one_is_the_isotropic_parent(anisotropy):
     )
     assert om.coefficients == iso.coefficients
     assert (om.h_t, om.h_1) == (iso.h_t, iso.h_1)
-    # and a parent h != 1 divides the factor: the coefficients scale as 1 / h
-    # where its slope is zero
+    # With h_p = 2 and a slope of h_p equal to zero, the expansion equals the
+    # expansion for an isotropic parent with the child's inverse factor
+    # divided by 2.
     om2 = edge_law.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, 0.0, h_node, 0.0, anisotropy, parent_h=(2.0, 0.0)
     )

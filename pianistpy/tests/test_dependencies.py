@@ -9,7 +9,8 @@ import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PACKAGE = ROOT / "pianistpy"
-# Distributions whose import name differs from the dependency's name.
+# Each dependency whose import names differ from the dependency's name,
+# mapped to the names the package imports.
 IMPORT_OF = {"jax": {"jax", "jaxlib"}}
 
 

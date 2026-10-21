@@ -1,4 +1,4 @@
-"""Tests of the unit factors."""
+"""Tests of the conversion factors out of internal units (`unit_factors`)."""
 
 import math
 
@@ -20,7 +20,8 @@ R_0_PC = 2.0e4
 
 @pytest.mark.parametrize("key", KEYS)
 def test_model_factors_against_a_direct_quadrature(key):
-    # q is the integral of the density normalized by rho_0, by definition.
+    # The number q is, by definition, the integral of r**2 times the density
+    # in units of rho_0 from r = 0 to the concentration radius.
     alpha, beta, gamma = key
     mass_q, _ = quad(
         lambda r: r**2 * r ** (-gamma) * (1.0 + r**alpha) ** ((gamma - beta) / alpha),
@@ -44,14 +45,17 @@ def test_physical_factors_against_their_definitions():
     mass_q = math.log(1.0 + CONCENTRATION) - CONCENTRATION / (1.0 + CONCENTRATION)
     rho_0 = MASS_0_MSUN * u.Msun / (4.0 * math.pi * (R_0_PC * u.pc) ** 3 * mass_q)
     rho_w = rho_0 / profile.rho_norm
-    speed = np.sqrt(4.0 * math.pi * G * rho_w * (R_0_PC * u.pc) ** 2).to(u.km / u.s)
+    velocity = np.sqrt(4.0 * math.pi * G * rho_w * (R_0_PC * u.pc) ** 2).to(u.km / u.s)
     mass = (4.0 * math.pi * rho_w * (R_0_PC * u.pc) ** 3).to(u.Msun)
-    assert_allclose(factors.physical_v_kms, speed.value, rtol=1e-12)
+    assert_allclose(factors.physical_v_kms, velocity.value, rtol=1e-12)
     assert_allclose(factors.physical_mass_msun, mass.value, rtol=1e-12)
-    assert_allclose(factors.physical_p_kms2, speed.value**2, rtol=1e-12)
-    # The model speed unit is sqrt(G M_0 / r_0).
-    speed_0 = np.sqrt(G * MASS_0_MSUN * u.Msun / (R_0_PC * u.pc)).to(u.km / u.s)
-    assert_allclose(factors.physical_v_kms / factors.model_v, speed_0.value, rtol=1e-12)
+    assert_allclose(factors.physical_p_kms2, velocity.value**2, rtol=1e-12)
+    # The model unit of velocity is sqrt(G M_0 / r_0), so the physical factor
+    # divided by the model factor equals sqrt(G M_0 / r_0) in km/s.
+    velocity_0 = np.sqrt(G * MASS_0_MSUN * u.Msun / (R_0_PC * u.pc)).to(u.km / u.s)
+    assert_allclose(
+        factors.physical_v_kms / factors.model_v, velocity_0.value, rtol=1e-12
+    )
 
 
 def test_inadmissible_inputs_are_refused():

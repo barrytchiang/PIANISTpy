@@ -1,9 +1,13 @@
-r"""The potential-density pair a DF is inverted from.
+r"""Potential-density pair from which a DF is inverted.
 
-An untruncated model's pair is analytic: its components' closed forms, in
-the internal unit of the potential (the central value 1), evaluated where
-they are needed. A Method II model's pair is tabulated: the rows of its
-parent's truncated profile, whose central potential is :math:`1 - \mathcal{K}_{\rm t}`.
+`potential_density_pair` returns the pair for the inversion. The pair of an
+untruncated model is analytic: the inversion evaluates the closed forms of
+the components' profiles, with the central potential
+equal to 1, the internal unit of the potential. The pair of a Method II
+model is tabulated: the radii, potentials and densities of the parent's
+truncated profile, whose central potential is
+:math:`1 - \mathcal{K}_{\rm t}`, with :math:`\mathcal{K}_{\rm t}` the
+parent's truncation energy.
 """
 
 __all__ = ["potential_density_pair"]
@@ -22,30 +26,36 @@ def potential_density_pair(
     components: Sequence[Component],
     parent: TruncatedProfile | None = None,
 ) -> PotentialDensityPair:
-    """Return the total potential and the component densities.
+    r"""Return the total potential and the component densities of a model.
 
     Parameters
     ----------
     components : sequence of Component
         The components of the model.
     parent : TruncatedProfile, optional
-        The truncated profile to invert, for Method II. If omitted, it is the
-        profile of a component built on one; otherwise the pair is the
-        analytic one of the untruncated components.
+        Truncated profile to invert, for a Method II model. Default:
+        ``None``. With ``None``, the call uses the first component's profile
+        where that profile is a `TruncatedProfile`, and the analytic pair of
+        the untruncated components otherwise.
 
     Returns
     -------
     pair : PotentialDensityPair
+        The analytic pair (``is_analytic`` true, central potential 1, empty
+        tables) or the tabulated pair of the parent (``is_analytic`` false,
+        central potential :math:`1 - \mathcal{K}_{\rm t}`, the parent's
+        radii, potentials and densities).
 
     Raises
     ------
     InputError
-        If an untruncated component's profile has no closed form.
+        If no truncated profile is given or found and a component's profile
+        is not a `DoublePowerLaw`.
     """
     components = tuple(components)
     if parent is None and isinstance(components[0].profile, TruncatedProfile):
-        # a component on another model's truncated profile: the pair is
-        # tabulated, read from the component
+        # A first component whose profile is a TruncatedProfile gets the
+        # tabulated pair of that TruncatedProfile.
         parent = components[0].profile
     if parent is None:
         if not all(isinstance(c.profile, DoublePowerLaw) for c in components):
@@ -56,7 +66,7 @@ def potential_density_pair(
         return PotentialDensityPair(
             components=components,
             is_analytic=True,
-            p_0=1.0,  # the internal unit of the potential
+            p_0=1.0,  # The internal unit of the potential.
             r=np.zeros(0),
             p=np.zeros(0),
             rho=np.zeros((len(components), 0)),

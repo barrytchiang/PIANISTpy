@@ -1,54 +1,59 @@
-r"""The inversion's gradient in the anisotropy parameters at a fixed profile.
+r"""Derivatives of a component's distribution function in its anisotropy.
 
-The inversion's rows F = T_b[g](q) (`invert._rows`: the kernel and the
-completion below the floor) on a fixed grid q. At a fixed central anisotropy
-b the operator T_b is linear in its source g, the rows of d^N rho_aux / dP^N,
-so, by that linearity:
+This module returns the distribution function (DF) :math:`F(Q)` that
+`compute_df` makes for a component, at fixed relative energies :math:`Q`,
+together with the derivatives of :math:`F` in the anisotropy parameters
+:math:`\theta = (\beta_{\rm c}, R_{\rm a})`. `inversion_nodes` returns the
+energies at which `compute_df` evaluates :math:`F`. `rows_jacobian` returns
+:math:`F` and its derivatives at the energies of `inversion_nodes` as
+arrays, and `table_jacobian` returns every array of the DF's table and its
+derivatives. `make_inversion_rows` returns :math:`F`, and
+`make_inversion_table` returns the arrays of the DF's table, as JAX
+functions of :math:`\theta`, which ``jax.grad`` and ``jax.vjp``
+differentiate.
 
-    dF/dR_a    = T_b[ d_Ra g ]
-    dF/dbeta_c = T_b[ d_b g ] + E_b[g]
+The DF is :math:`F = T_b[g]`. Here :math:`b = \beta_{\rm c}` is the central
+anisotropy. The source :math:`g` is the set of derivatives
+:math:`{\rm d}^N \varrho_{\rm aux} / {\rm d}P^N` of the auxiliary density
+:math:`\varrho_{\rm aux}` in the relative potential :math:`P`. The operator
+:math:`T_b` is the inversion of the auxiliary density at
+:math:`\beta_{\rm c} = b`, and :math:`T_b` is linear in :math:`g`. The
+derivatives of :math:`F` are
 
-with d_theta g the mixed derivatives at fixed P (`ParameterDerivs`) and E_b
-the derivative of the operator itself in b with g held: the prefactor C(n, b)
-and the kernel's exponent, computed by the operator at b +- d (central,
-Richardson over d and d/2) or, at the corners where the inversion's form
-changes on one side (half-integer :math:`\beta_{\rm c}`, the pair's switch),
-by the one-sided Richardson combinations (third order) of both sides and
-their mean; the step d
-balances the kernel's measured accuracy over d against the quotient's
-truncation term (`_exponent_part`).
+.. math::
 
-The table (`invert._table_pieces`) is a function of the rows and of closed
-forms in theta, so its derivative is the chain rule through each piece, with
-every discrete choice of the forward held (the grid, the anchor, the fit's
-window, the nodes below the written floor), `table_jacobian`:
+    \frac{\partial F}{\partial R_{\rm a}} = T_b\left[\partial_{R_{\rm a}} g\right],
+    \qquad
+    \frac{\partial F}{\partial \beta_{\rm c}} = T_b\left[\partial_b g\right]
+    + E_b[g].
 
-- the rows' log10 F and their log slope, from dF and d(dF/dK), the rows'
-  part as the operator's own derivative along the mixed rows (`_along`);
-- the form above the anchor (`top_patch`): its least-squares fit linearized
-  in the rows, and the center's exponent kappa(b) and amplitude A(b) in
-  closed form (the regular branch);
-- the nodes below the written floor (`below_floor`): the integral linear in
-  its source, the source's cubic in (ln P, ln ``|g|``) linearized, and in b the
-  floor pair's exponent and prefactor by the same difference as E_b;
-- the tail (A, a(b), k), from the first node below the floor or the first
-  written row.
+The derivative :math:`\partial_\theta g` of the source in :math:`\theta` at
+a fixed :math:`P` is in closed form. The term :math:`E_b[g]` is the
+derivative of the operator :math:`T_b` in :math:`b` at a fixed source
+:math:`g`. :math:`E_b[g]` has no closed form and is taken by finite
+differences of :math:`T_b[g]` in :math:`b`. The record returned with each
+derivative in :math:`\beta_{\rm c}` states the residual of the finite
+differences in :math:`b`, for comparison with the accuracy bounds
+:math:`10^{-6}`, :math:`10^{-4}` and :math:`10^{-2}` of the package's
+validation reports.
 
-On a component on a truncated profile (Method II, `tabulated.tabulated_df`)
-the parent is held and the child's sources are a Leibniz sum of the parent's
-density derivatives and the factor ``g(R(P); beta_c, R_a)``, so their derivative
-is the same sum with d g / d theta in closed form; the rows follow as above
-on the grid held at theta, and the leaves are log10 ``|F|`` on the table's nodes,
-the edge law (p, C_0, C_1) and the center the form states, each closed form
-with its derivative written out.
+The derivative of the DF's table follows by the chain rule through each
+array of the table. The energies and every discrete choice of the table are
+held at the parameters the call is given. For a component on a
+`TruncatedProfile` (Method II), the profile is held, and the derivative of
+the source is the derivative of the inverse anisotropy factor in closed
+form.
 
-Served: constant beta and Cuddeford-Osipkov-Merritt (COM) Type I (:math:`\beta_{\rm c}`,
-:math:`R_{\rm a}`), Osipkov-Merritt Type I and II (:math:`R_{\rm a}`).
-Refused: COM Type II, whose interior point at :math:`P(R_{\rm a})` moves
-with :math:`R_{\rm a}` (and its exponent with :math:`\beta_{\rm c}`), so the
-rows of the mixed derivative are not integrable there; and a table whose
-center is not on its regular branch (the critical band, where the branch
-changes with :math:`\beta_{\rm c}`).
+The derivatives are available for constant anisotropy
+(:math:`\beta_{\rm c}`), Cuddeford-Osipkov-Merritt (COM) Type I
+(:math:`\beta_{\rm c}` and :math:`R_{\rm a}`), and Osipkov-Merritt Type I
+and Type II (:math:`R_{\rm a}`). The derivatives are not available for COM
+Type II, whose interior point at the potential :math:`P(R_{\rm a})` moves
+with both parameters. The derivatives are not available for a DF whose
+center lies on the
+critical branch, where the inner slope :math:`\gamma` of the density equals
+:math:`2\beta_{\rm c}` and the form of the center changes with
+:math:`\beta_{\rm c}`. The derivation is Notes Eq. (T:7.1).
 """
 
 __all__ = [
@@ -61,6 +66,7 @@ __all__ = [
 
 import math
 from dataclasses import replace
+from functools import cache
 from typing import Any
 
 import numpy as np
@@ -80,8 +86,10 @@ from .pair import potential_density_pair
 from .rows import below_integral
 from .stages import AuxDerivatives
 
-# the offset at which the form just beside a central anisotropy is read, and
-# the parameters of each family
+# BESIDE is the offset from a central anisotropy b at which `_region` and
+# `_table_difference` read the inversion's form just beside b. PARAMETERS
+# maps each anisotropy family to its parameters, in the order of a parameter
+# vector theta.
 BESIDE = 2.0**-30
 PARAMETERS = {
     "constant": ("beta_c",),
@@ -100,9 +108,54 @@ def _invert():
 
 
 def inversion_nodes(component: Component, settings: Settings) -> np.ndarray:
-    """Return the grid q the inversion places its rows on (`inversion_df`'s:
-    the pilot's feature where the family has one, then `top_limit`, the
-    least depth at which the exact derivatives are finite in float64)."""
+    r"""Return the energies at which `compute_df` inverts a component.
+
+    The energies are the relative energies :math:`Q` at which `compute_df`
+    evaluates the DF :math:`F(Q)` for the given component and settings. The
+    other public functions of `pianistpy.df.gradient` hold the energies of
+    `inversion_nodes` fixed when the anisotropy parameters change.
+
+    Parameters
+    ----------
+    component : Component
+        Component on an analytic profile (not a `TruncatedProfile`).
+    settings : Settings
+        Numerical settings, the same as those given to `compute_df`.
+
+    Returns
+    -------
+    q : ndarray, shape (n,)
+        Relative energies :math:`Q`, strictly increasing, in internal
+        units.
+
+    Raises
+    ------
+    InputError
+        If the energies that `settings` places include two energies that
+        float64 cannot separate.
+    ResultError
+        If the component is Osipkov-Merritt Type II or COM, whose energies
+        are placed around a feature of a first coarse inversion, and the
+        coarse inversion finds a derivative of the auxiliary density that
+        is not finite.
+
+    See Also
+    --------
+    rows_jacobian : The DF and its derivatives at the energies of
+        `inversion_nodes`.
+    make_inversion_rows : The DF at the energies of `inversion_nodes` as a
+        JAX function.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import pianistpy as pp
+    >>> from pianistpy.df.gradient import inversion_nodes
+    >>> halo = pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=10.0))
+    >>> q = inversion_nodes(halo, pp.Settings())
+    >>> bool(np.all(np.diff(q) > 0.0))
+    True
+    """
     inv = _invert()
     profile, aniso = component.unit_profile, component.anisotropy
     feature = (
@@ -130,39 +183,114 @@ def rows_jacobian(
     q: np.ndarray | None = None,
     steps: dict[tuple, dict[str, Any]] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray], dict[str, Any]]:
-    """Return the inversion's rows and their derivatives in the component's
-    anisotropy parameters on a fixed grid.
+    r"""Return the DF at fixed energies and its derivatives in the anisotropy.
+
+    The values are the DF :math:`F(Q)` that `compute_df` makes, at the
+    relative energies `q`. The derivatives are those of :math:`F` in the
+    component's anisotropy parameters at fixed `q`. For the derivatives of
+    every array of the DF's table (the nodes below the table, the form at
+    the center and the tail), call `table_jacobian` instead.
 
     Parameters
     ----------
     component : Component
-        An analytic Method I component.
+        Component on an analytic profile (not a `TruncatedProfile`), with
+        constant, isotropic, Osipkov-Merritt Type I or Type II, or COM Type
+        I anisotropy.
     settings : Settings
-    q : array, optional
-        The grid; `inversion_nodes` where None.
+        Numerical settings, the same as those given to `compute_df`.
+    q : array-like, shape (n,), optional
+        Relative energies :math:`Q`, increasing, in internal units.
+        Default: ``None``, which means the energies that `inversion_nodes`
+        returns for `component` and `settings`.
+    steps : dict, optional
+        Dictionary that keeps the steps of the finite differences in
+        :math:`\beta_{\rm c}` between calls. A call reads the steps from
+        `steps` where `steps` holds steps for the call's profile, anisotropy
+        family, anisotropy kind, settings and form of the inversion. A call
+        otherwise measures the steps and writes them into `steps`. Passing
+        one dictionary to a sequence of calls makes every later call use the
+        steps that the first call measured. Default: ``None``, which means
+        each call measures its own steps and keeps them nowhere.
 
     Returns
     -------
-    q, f : array
-        The grid and the rows (the forward's, unchanged).
-    jac : dict
-        ``{"beta_c": dF/dbeta_c, "r_a": dF/dR_a}``, the parameters the family
-        has.
+    q : ndarray, shape (n,)
+        Relative energies :math:`Q`, in internal units: `q` as given, or
+        the energies of `inversion_nodes`.
+    f : ndarray, shape (n,)
+        DF :math:`F(Q)` at `q`, as `compute_df` makes it, in internal units.
+    jac : dict of ndarray
+        Derivatives of :math:`F` at `q`, each with the shape of `q`, in
+        internal units. The key ``"beta_c"`` holds
+        :math:`\partial F/\partial\beta_{\rm c}` and the key ``"r_a"`` holds
+        :math:`\partial F/\partial R_{\rm a}`, for the parameters that the
+        anisotropy family has.
     record : dict
-        How the exponent's part was taken (``"central"`` or ``"one-sided"``),
-        its steps, the kernel's accuracy and its Richardson residual max
-        ``|E(d) - E(d/2)|`` over the column's scale max ``|dF/dbeta_c|`` and,
-        one-sided, the two sides' spread over the same scale. The accuracy
-        is one maximum over the whole column, whose entries can span some
-        thirty decades (the largest near the center), so the steps suit the
-        largest entries; an entry far below them is differenced at the same
-        steps.
+        Description of the finite differences in :math:`\beta_{\rm c}`. The
+        record is an empty dict for an Osipkov-Merritt component, which has
+        no parameter :math:`\beta_{\rm c}`. The entry ``"exponent"`` is
+        ``"central"`` where the form of the inversion on one side of
+        :math:`\beta_{\rm c}` equals the form on the other side, and
+        ``"one-sided"`` at a :math:`\beta_{\rm c}`
+        where the form changes (such as :math:`\beta_{\rm c} = 0` or a
+        half-integer :math:`\beta_{\rm c}`). The entry ``"steps"`` holds the
+        steps, ``"pilots"`` the trial steps from which the steps were
+        derived, ``"regions"`` the widths in :math:`\beta_{\rm c}` over which
+        the form does not change, and ``"measured"`` whether the call
+        measured the steps instead of reading them from `steps`. The entry
+        ``"accuracy"`` is the inversion's own accuracy, the change of the
+        operator's values when the number of quadrature nodes doubles. The
+        entry ``"residual"`` is the Richardson residual
+        :math:`\max|E(d) - E(d/2)|` of the finite differences at the step
+        :math:`d`. A one-sided record also holds ``"sides"``, the number of
+        sides (2), and ``"spread"``, the largest difference between the
+        derivatives from the two sides. The entries ``"accuracy"``,
+        ``"residual"`` and ``"spread"`` are relative to
+        :math:`\max|\partial F/\partial\beta_{\rm c}|` over `q`, so the
+        relative error of an entry of :math:`\partial F/\partial\beta_{\rm c}`
+        far below that maximum can exceed ``"residual"``.
 
     Raises
     ------
     InputError
-        Where the component is not analytic, or a COM Type II, or its
-        family has no parameter.
+        If `component` is on a `TruncatedProfile`.
+    InputError
+        If the anisotropy is COM Type II, whose interior point at the
+        potential :math:`P(R_{\rm a})` moves with both parameters.
+    ResultError
+        If a derivative of the auxiliary density is not finite at `q`.
+
+    See Also
+    --------
+    inversion_nodes : The energies at which `compute_df` evaluates the DF.
+    make_inversion_rows : The DF at fixed energies as a JAX function of the
+        parameters.
+    table_jacobian : The derivatives of every array of the DF's table.
+
+    Notes
+    -----
+    Each derivative is :math:`T_b` applied to the closed-form derivative of
+    the source :math:`g`. The derivative in :math:`\beta_{\rm c}` adds the
+    finite differences of the operator :math:`T_b` in :math:`b`.
+
+    A call inverts the component once for :math:`F` and once per parameter.
+    In :math:`\beta_{\rm c}`, a call also inverts the component at every
+    point of the finite differences, at `settings` and at twice the
+    quadrature nodes of `settings`.
+
+    References
+    ----------
+    Notes Eq. (T:7.1).
+
+    Examples
+    --------
+    >>> import pianistpy as pp
+    >>> from pianistpy.df.gradient import rows_jacobian
+    >>> halo = pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=10.0))
+    >>> q, f, jac, record = rows_jacobian(halo, pp.Settings())
+    >>> sorted(jac), jac["r_a"].shape == q.shape, record
+    (['r_a'], True, {})
     """
     inv = _invert()
     aniso = component.anisotropy
@@ -192,7 +320,9 @@ def rows_jacobian(
         held["aux"] = aux
         return aux
 
-    f = np.asarray(inv._rows(component, settings, pair, q, capture)[0], np.float64)
+    f = np.asarray(
+        inv._rows(component, settings, pair, q, capture, deriv=False)[0], np.float64
+    )
     orders = held["aux"].orders
     jac: dict[str, np.ndarray] = {}
     record: dict[str, Any] = {}
@@ -200,7 +330,9 @@ def rows_jacobian(
         src = ParameterDerivs(profile, b, family, r_a, max(2, orders[-1]), wrt=theta)
         rows = source_rows(src, q, orders)
         jac[theta] = np.asarray(
-            inv._rows(component, settings, pair, q, lambda *_, _r=rows: _r)[0],
+            inv._rows(
+                component, settings, pair, q, lambda *_, _r=rows: _r, deriv=False
+            )[0],
             np.float64,
         )
     if "beta_c" in params:
@@ -214,11 +346,18 @@ def rows_jacobian(
 
 
 def _region(b, s, key=None):
-    r"""The length w of (0, w] over which the form ``key`` (the inversion's,
-    `_form_key`, by default) at b + s x stays the one just beside b, short of
-    the next half-integer :math:`\beta_{\rm c}` (the local closed form, whose
-    neighbors share its key) and of :math:`\beta_{\rm c} = 1`: doubling, then
-    bisection on the key."""
+    r"""Return the width w of the interval (0, w] of offsets x over which the
+    form ``key(b + s x)`` equals the form ``key(b + s BESIDE)`` just beside b.
+
+    ``key`` defaults to `_form_key`, the form of the inversion, and s is the
+    side (+1 or -1). The width is found by doubling x from BESIDE and then
+    by 40 bisection steps on the form. The width is capped at the distance
+    from b to the next half-integer :math:`\beta_{\rm c}` on side s,
+    because the closed form at a kernel exponent of 0 holds only at a
+    half-integer :math:`\beta_{\rm c}`, the forms on the two sides of a
+    half-integer have one key, and doubling and bisection would therefore
+    step over the half-integer. Every offset x counted in the width keeps
+    b + s x below :math:`\beta_{\rm c} = 1`."""
     key = _form_key if key is None else key
     half = math.floor(b - 0.5) + 1.5 - b if s > 0 else b - math.ceil(b - 0.5) + 0.5
     x0 = BESIDE
@@ -239,20 +378,27 @@ def _region(b, s, key=None):
 
 
 def _finer(settings: Settings) -> Settings:
-    """The settings with the inversion's nodes doubled: the kernel's accuracy
-    is the rows' change from the settings' rule to this one."""
+    """Return ``settings`` with the inversion's ``n_nodes`` doubled.
+
+    The kernel's accuracy at ``settings`` is the change of the rows from
+    ``settings`` to the returned settings."""
     groups: dict[str, Any] = {g: dict(v) for g, v in settings.overrides.items()}
     groups["inversion"] = {
         **groups.get("inversion", {}),
         "n_nodes": 2 * int(settings.inversion["n_nodes"]),
     }
-    return Settings(quick=settings.tier == "quick", **groups)
+    return Settings(quick=settings.level == "quick", **groups)
 
 
 def _exponent_part(component, settings, q, b, r_a, orders, steps=None):
-    """E_b[g]: d/db of T_b with the rows held at b (the orders of both
-    neighbors' forms, j - 1 to j + 3), by `_table_difference` with the
-    kernel's accuracy from the rows at twice the nodes, and its record."""
+    """Return E_b[g], the derivative of the operator T_b in b at a fixed
+    source g, and the record of its finite differences.
+
+    The source rows are held at their values at b, for the orders
+    max(j - 1, 0) to j + 3, with j the order of the inversion's form at b.
+    The orders max(j - 1, 0) to j + 3 cover the forms on both sides of b.
+    `_table_difference` takes the finite differences, with the kernel's
+    accuracy measured against the rows at twice the nodes (`_finer`)."""
     inv = _invert()
     profile, family = component.unit_profile, component.anisotropy.family
     ext = tuple(range(orders[0], orders[-1] + 2))
@@ -265,7 +411,9 @@ def _exponent_part(component, settings, q, b, r_a, orders, steps=None):
     def t(bb, s=settings):
         c = _with(component, bb, component.anisotropy.r_a)
         pair = potential_density_pair((c,))
-        return np.asarray(inv._rows(c, s, pair, q, lambda *_: held)[0], np.float64)
+        return np.asarray(
+            inv._rows(c, s, pair, q, lambda *_: held, deriv=False)[0], np.float64
+        )
 
     member = ("rows", profile, family, component.anisotropy.kind, settings)
     return _table_difference(
@@ -276,11 +424,94 @@ def _exponent_part(component, settings, q, b, r_a, orders, steps=None):
 def make_inversion_rows(
     component: Component, settings: Settings, q: np.ndarray | None = None
 ) -> tuple[Any, tuple[str, ...], np.ndarray]:
-    """Return ``(rows, params, q)``: ``rows(theta)`` is the inversion's rows on
-    the fixed grid q as a JAX function of the component's anisotropy
-    parameters (``params``, in that order) with a custom VJP. The forward is
-    `invert._rows` through a host callback (the forward's numbers), the
-    backward the rule (`rows_jacobian`) at the same parameters."""
+    r"""Return the DF at fixed energies as a JAX function of the anisotropy.
+
+    The returned function maps the anisotropy parameters :math:`\theta` to
+    the DF :math:`F(Q)` that `compute_df` makes at the relative energies
+    `q`. The reverse-mode derivative of the returned function at each
+    :math:`\theta` is the derivative that `rows_jacobian` returns at that
+    :math:`\theta`. For the derivatives as arrays, call `rows_jacobian`
+    instead.
+
+    Parameters
+    ----------
+    component : Component
+        Component on an analytic profile (not a `TruncatedProfile`), with
+        constant, isotropic, Osipkov-Merritt Type I or Type II, or COM Type
+        I anisotropy. The anisotropy parameters of `component` are the
+        point at which the steps of the finite differences in
+        :math:`\beta_{\rm c}` are measured.
+    settings : Settings
+        Numerical settings, the same as those given to `compute_df`.
+    q : array-like, shape (n,), optional
+        Relative energies :math:`Q`, increasing, in internal units.
+        Default: ``None``, which means the energies that `inversion_nodes`
+        returns for `component` and `settings`.
+
+    Returns
+    -------
+    rows : callable
+        Function ``rows(theta)``. The argument ``theta`` is an array of the
+        parameter values in the order of `params`. The value is a JAX array
+        of shape (n,) that holds :math:`F(Q)` at `q`, in internal units.
+        ``jax.grad`` and ``jax.vjp`` differentiate ``rows``.
+    params : tuple of str
+        Names of the anisotropy parameters in ``theta``: ``("beta_c",)``,
+        ``("r_a",)`` or ``("beta_c", "r_a")``.
+    q : ndarray, shape (n,)
+        Relative energies :math:`Q`, in internal units: `q` as given, or the
+        energies of `inversion_nodes`.
+
+    Raises
+    ------
+    InputError
+        If the anisotropy is COM Type II.
+    InputError
+        If `q` is ``None`` and the energies that `settings` places include
+        two energies that float64 cannot separate.
+    ResultError
+        If `q` is ``None``, the component is Osipkov-Merritt Type II or
+        COM, and the coarse inversion that places the energies finds a
+        derivative of the auxiliary density that is not finite.
+
+    See Also
+    --------
+    rows_jacobian : The DF at fixed energies and its derivatives as arrays.
+    make_inversion_table : Every array of the DF's table as a JAX function.
+    inversion_nodes : The energies at which `compute_df` evaluates the DF.
+
+    Notes
+    -----
+    Each call of ``rows`` inverts the component again at the new
+    parameters, at the energies `q`. Each derivative of ``rows`` calls
+    `rows_jacobian`, which raises InputError for a component on a
+    `TruncatedProfile`.
+
+    The steps of the finite differences in :math:`\beta_{\rm c}` are
+    measured once, at the parameters of `component`, and are used at every
+    ``theta``. The derivative at one ``theta`` therefore does not depend on
+    the values of ``theta`` in earlier calls.
+
+    References
+    ----------
+    Notes Eq. (T:7.1).
+
+    Examples
+    --------
+    >>> import jax
+    >>> import numpy as np
+    >>> import pianistpy as pp
+    >>> from pianistpy.df.gradient import make_inversion_rows
+    >>> halo = pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=10.0))
+    >>> rows, params, q = make_inversion_rows(halo, pp.Settings())
+    >>> params
+    ('r_a',)
+    >>> theta = np.array([10.0])
+    >>> rows(theta).shape == q.shape
+    True
+    >>> jax.grad(lambda t: rows(t)[-1])(theta).shape
+    (1,)
+    """
     import jax
     import jax.numpy as jnp
 
@@ -301,10 +532,13 @@ def make_inversion_rows(
     def host_f(theta):
         c = at(theta)
         pair = potential_density_pair((c,))
-        return np.asarray(inv._rows(c, settings, pair, q)[0], dtype=np.float64)
+        return np.asarray(
+            inv._rows(c, settings, pair, q, deriv=False)[0], dtype=np.float64
+        )
 
-    # the exponent's steps, measured at the component's own parameters and
-    # carried to every theta, so a gradient never depends on the calls before
+    # The steps of the finite differences in beta_c are measured at the
+    # component's own parameters and reused at every theta, so that the
+    # derivative at one theta does not depend on the theta of earlier calls.
     steps: dict[tuple, dict[str, Any]] = {}
     own = np.array([getattr(a0, p) for p in params], dtype=np.float64)
 
@@ -355,7 +589,8 @@ def _floor_key(b: float) -> tuple[int, bool]:
 
 
 class _Shifted:
-    """The closed forms g + e dg: `ExactDerivs`' and `ParameterDerivs`'."""
+    """The closed-form source g + e dg, with g an `ExactDerivs` and dg the
+    `ParameterDerivs` of the same profile, for a fixed shift e."""
 
     def __init__(self, base: Any, d: Any, e: float) -> None:
         self.base, self.d, self.e = base, d, e
@@ -372,11 +607,17 @@ class _Shifted:
 
 
 def _along(component, settings, pair, q, aux, rows):
-    """The operator's derivative along the source dg (``rows``) at g
-    (``aux``): (T_b[g + e dg] - T_b[g - e dg]) / 2e on F and dF/dK. The
-    operator reads a source row in ln g where it is positive throughout and in
-    g otherwise, so T_b[dg] itself is not its derivative where g is read in
-    ln g; e keeps every positive row positive, ``e |dg| <= 1e-6 g``."""
+    r"""Return the derivative of the operator T_b at the source g (``aux``)
+    along the source derivative dg (``rows``), stacked for F and dF/dQ.
+
+    The derivative is the central difference
+    (T_b[g + e dg] - T_b[g - e dg]) / (2 e). T_b[dg] differs from the
+    central difference because the operator interpolates a source row in
+    ln g where the row is positive at every energy, and in g otherwise. The
+    shift e is the largest shift for which
+    :math:`e\, |{\rm d}g| \le 10^{-6}\, g` holds on every row of g that is
+    positive at every energy, so that every such row of g stays positive
+    under the shift; e is 1 where dg is 0 on all such rows."""
     inv = _invert()
     pos = np.all(aux.values[0] > 0.0, axis=1)
     ratio = (
@@ -400,8 +641,9 @@ def _along(component, settings, pair, q, aux, rows):
 
 
 def _max_abs(x: Any) -> float:
-    """max |x| over x's finite entries (a table's rows hold NaN where it has
-    no value), 0 where it has none."""
+    """Return the largest |x| over the finite entries of x, or 0 where x has
+    no finite entry. Entries that are not finite are skipped because a
+    table's rows hold NaN where the table has no value."""
     a = np.abs(np.asarray(x, dtype=np.float64))
     a = a[np.isfinite(a)]
     return float(np.max(a)) if a.size else 0.0
@@ -415,30 +657,52 @@ def _table_difference(
     finer: Any = None,
     store: dict[tuple, dict[str, Any]] | None = None,
 ) -> tuple[np.ndarray, dict[str, Any]]:
-    """d/db of t(b) by its own values at b +- d, at a step set by measurement,
-    and its record (absolute values).
+    """Return the derivative dt/db of the function t at b by finite
+    differences of t, and the record of the finite differences in absolute
+    values.
 
-    acc is t's accuracy: its change to ``finer`` (t at a finer rule) where
-    given, else its rounding. Central (the form ``key`` the same at b and just
-    beside it on both sides, n != 0), the Richardson quotient over d and d/2
-    has the rounding term 3 acc / d and the truncation term d^4 |F5| / 480;
-    their balance gives d^5 = 360 acc / |F5|, with F5 = d^5 t / db^5 from the
-    Richardson residual at a pilot step, half the form's region: |E(h) -
-    E(h/2)| = |F5| h^4 / 512. One-sided (the corners), the Richardson
-    combination of the second-order quotients over d and d/2 has 12 acc / d
-    and d^3 |F4| / 24, so d^4 = 96 acc / |F4|, with |E(h) - E(h/2)| =
-    7 |F4| h^3 / 192 at a pilot step of a quarter of the side's region.
+    The rounding of t(b) is the double-precision epsilon times max |t(b)|.
+    The accuracy acc of t is the larger of the rounding of t(b) and
+    max |t(b) - finer(b)|, with ``finer(b)`` the value of t at a finer
+    quadrature, where ``finer`` is given; acc is the rounding of t(b) where
+    ``finer`` is None.
 
-    With a ``member`` (hashable, t's member without its anisotropy
-    parameters) and a ``store`` (a dict the caller holds), acc and the
-    steps are read from the store where it has them, each step held inside
-    the form's region at the new b, and measured and written to it where it
-    has not: the caller measures them once, at its own parameters, and
-    passes the store with every later call (a chain's next parameters).
-    Without a store they are measured at each call. The record carries the steps, the
-    pilots and the regions they lie in, acc, whether this call measured them,
-    the Richardson residual max |E(d) - E(d/2)| at the step taken (one-sided,
-    the larger side's) and, with both sides, their spread max |E_+ - E_-|."""
+    The central case holds where the form ``key`` at b equals the form just
+    beside b on both sides and the second entry of ``key(b)``, which marks
+    an exponent n = 0, is false. In the central case, the Richardson
+    quotient E(d) over the steps d and d/2 has the rounding term 3 acc / d
+    and the truncation term d^4 |F5| / 480, with F5 = d^5 t / db^5. The sum
+    of the two terms is least at d^5 = 360 acc / |F5|. |F5| follows from
+    the Richardson residual at a pilot step h equal to half the smaller of
+    the two sides' regions (`_region`): |E(h) - E(h/2)| = |F5| h^4 / 512.
+
+    The one-sided case holds at every other b: where the form changes at b
+    on one side, or where the exponent n at b is 0. In the one-sided case,
+    the Richardson combination of the second-order one-sided quotients over
+    d and d/2 has the rounding term 12 acc / d and the truncation term
+    d^3 |F4| / 24, with F4 = d^4 t / db^4. The sum of the two terms is least
+    at d^4 = 96 acc / |F4|. |F4| follows from
+    |E(h) - E(h/2)| = 7 |F4| h^3 / 192 at a pilot step h equal to a quarter
+    of the side's region. The one-sided derivative is the mean of the
+    derivatives from the two sides. In both cases, no measured step exceeds
+    its pilot step.
+
+    ``member`` is a hashable description of t without its anisotropy
+    parameters, and ``store`` is a dictionary that the caller holds. With
+    both given, acc and the steps are read from ``store`` where ``store``
+    holds them for ``member``, the name of ``key``, the form at b and the
+    case, and are measured and written into ``store`` otherwise. A step
+    read from ``store`` is capped at half the region at the new b in the
+    central case, and at a quarter of the side's region at the new b in the
+    one-sided case. Without ``store``, the steps are measured at each call.
+
+    The record holds the case (``"exponent"``), the steps, the pilot steps,
+    the regions, acc, whether the call measured the steps, and the
+    Richardson residual
+    max |E(d) - E(d/2)| at the step d taken (in the one-sided case, the
+    larger residual of the two sides). The one-sided record also holds the
+    number of sides and the spread max |E_+ - E_-| between the derivatives
+    E_+ and E_- of the two sides."""
     k0 = key(b)
     central = not k0[1] and all(key(b + s * BESIDE) == k0 for s in (1.0, -1.0))
     cache = (
@@ -533,9 +797,15 @@ def _table_rows(
     q: np.ndarray,
     steps: dict[tuple, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    r"""The rows (F and dF/dK), their pieces, and their derivatives in each
-    parameter: the operator's derivative along the mixed rows (`_along`) and,
-    in :math:`\beta_{\rm c}`, its exponent's part on both F and dF/dK."""
+    r"""Return the rows F and dF/dQ, the parts of the inversion from which
+    the DF's table is built, and the derivatives of the rows in each
+    parameter.
+
+    The derivative in each parameter is the operator's derivative along the
+    derivative of the source in that parameter (`ParameterDerivs`, `_along`).
+    The derivative in :math:`\beta_{\rm c}` adds E_b[g], the operator's own
+    derivative in b at a fixed source, on both F and dF/dQ
+    (`_table_difference`)."""
     inv = _invert()
     family = component.anisotropy.family
     params = PARAMETERS[family]
@@ -588,9 +858,16 @@ def _table_rows(
 
 
 def _center_jvp(component: Component, theta: str) -> tuple[float, float]:
-    r"""d kappa and d A of the center's regular branch (`central`): kappa = s0 -
-    nu, A = N'(b) C cu^-s0 Gamma(nu - s0) / Gamma(-s0), s0 = (2b - gamma)/(2 -
-    gamma), nu = 3/2 - b; neither depends on :math:`R_{\rm a}`."""
+    r"""Return d kappa / d theta and d ln A / d theta for the center's
+    regular branch (`central`).
+
+    The exponent is kappa = s0 - nu and the amplitude is
+    A = N'(b) C cu^-s0 Gamma(nu - s0) / Gamma(-s0), with
+    N'(b) = 2^b / ((2 pi)^(3/2) Gamma(1 - b)), s0 = (2 b - gamma) / (2 - gamma),
+    nu = 3/2 - b, cu = C / ((2 - gamma) (3 - gamma)), b the central
+    anisotropy, gamma the inner slope of the density and C the profile's
+    density normalization ``rho_norm``. Neither kappa nor A depends on
+    :math:`R_{\rm a}`, so both derivatives are 0 for theta = ``"r_a"``."""
     if theta != "beta_c":
         return 0.0, 0.0
     profile = component.unit_profile
@@ -611,14 +888,20 @@ def _center_jvp(component: Component, theta: str) -> tuple[float, float]:
 
 
 def _lstsq_jvp(m, y, c, dm, dy):
-    """dc of c = argmin |M c - y| for dM and dy."""
+    """Return the change dc of the least-squares solution c = argmin |M c - y|
+    for the changes dM of M and dy of y."""
     r = y - m @ c
     dc = np.linalg.lstsq(m, dy - dm @ c, rcond=None)[0]
     return dc + np.linalg.solve(m.T @ m, dm.T @ r)
 
 
 def _patch_jvp(qa, fa, dfa, kappa, dkappa, amplitude, damp, patch):
-    """d(a_anchor, b, d) of `top_patch` with its window and branch held."""
+    """Return the derivatives of the coefficients (a_anchor, b, d) of the
+    form above the anchor (`top_patch`), with the fit window
+    ``patch.fit_window`` and the closed-form choice ``patch.closed_form``
+    held at their values in ``patch``. The depth below the central
+    potential is u = 1 - Q, the central potential being 1 in internal
+    units."""
     u_all = 1.0 - qa
     u_anc = 1.0 - float(qa[-1])
     f_anchor, df_anchor = float(fa[-1]), float(dfa[-1])
@@ -663,7 +946,8 @@ def _patch_jvp(qa, fa, dfa, kappa, dkappa, amplitude, damp, patch):
 
 
 def _below_jvp(component, settings, parts, below, theta, steps=None):
-    """d F and d(dF/dK) at the nodes below the written floor."""
+    """Return the derivatives of F and of dF/dQ in theta at the nodes below
+    the written floor, and the record of the finite differences in b."""
     floor, aux, dsrc = parts["floor"], parts["aux"], parts["dsrc"][theta]
     m, n, pref, p_min = (
         int(floor["m"]),
@@ -736,9 +1020,29 @@ def _child_checked(component: Component) -> tuple[str, tuple[str, ...]]:
 
 
 def _dfactor(family: str, b: float, r_a: float, r: np.ndarray, theta: str) -> tuple:
-    """d g / d theta of the factor ``g = R^(2 beta_c) u^s``,
-    ``u = 1 +- R^2 / r_a^2``, and its R-derivatives to order 3, on R: closed
-    forms."""
+    """Return d g / d theta of the inverse anisotropy factor
+    g (`inverse_factor_expr`) and the derivatives of d g / d theta in R of
+    orders 1 to 3, in closed form at the radii r. The factor is
+    ``g = R^(2 beta_c)`` for the constant and isotropic families and
+    ``g = R^(2 beta_c) u^s`` otherwise, with ``u = 1 + R^2 / r_a^2`` for
+    Type I, ``u = 1 - R^2 / r_a^2`` for Type II, ``s = 1`` for OM and
+    ``s = 1 - beta_c`` for COM."""
+    import sympy
+
+    rs, bs, a_s, derivs = _dfactor_exprs(family, theta)
+    out = []
+    for d in derivs:
+        fn = sympy.lambdify(rs, d.subs({bs: b, a_s: r_a}), "numpy")
+        out.append(np.asarray(fn(r) * np.ones_like(r), dtype=np.float64))
+    return tuple(out)
+
+
+@cache
+def _dfactor_exprs(family: str, theta: str) -> tuple:
+    """Return the sympy symbols ``(R, b, r_a)`` and the derivatives of
+    d g / d theta in R of orders 0 to 3 as sympy expressions, with g the
+    inverse anisotropy factor (`_dfactor`). The expressions are formed once
+    per anisotropy family and parameter."""
     import sympy
 
     from ..anisotropy.factor import inverse_factor_expr
@@ -747,18 +1051,17 @@ def _dfactor(family: str, b: float, r_a: float, r: np.ndarray, theta: str) -> tu
     bs = sympy.Symbol("b", real=True)
     g = inverse_factor_expr(rs, family, bs, a_s)
     dg = sympy.diff(g, bs if theta == "beta_c" else a_s)
-    out = []
-    for k in range(4):
-        fn = sympy.lambdify(rs, sympy.diff(dg, rs, k).subs({bs: b, a_s: r_a}), "numpy")
-        out.append(np.asarray(fn(r) * np.ones_like(r), dtype=np.float64))
-    return tuple(out)
+    return rs, bs, a_s, tuple(sympy.diff(dg, rs, k) for k in range(4))
 
 
 def _dual_series(profile, bce: float, m_typ: str, r_a: float, theta: str, x_max: float):
-    """`rho_aux_series` with each coefficient's derivative in theta carried as
-    a dual part: [(s, C_s, d C_s, d s)]. The series of R(t) does not depend on
-    theta; theta enters through ``q = 2 beta_c - gamma``, the factor's exponent
-    ``1 - beta_c`` and ``R_a^-2``."""
+    """Return the inner series of the auxiliary density (`rho_aux_series`)
+    with the derivative of each term in theta, as a sorted list of tuples
+    (s, C_s, d C_s / d theta, d s / d theta).
+
+    The series of the radius R in the depth does not depend on theta. Theta
+    enters only through ``q = 2 beta_c - gamma``, the factor's exponent
+    ``1 - beta_c`` and the coefficient ``R_a^-2``."""
     from .central import TOL_EXACT_BRANCH
 
     a, br, g = (
@@ -848,9 +1151,13 @@ def _dual_series(profile, bce: float, m_typ: str, r_a: float, theta: str, x_max:
 
 
 def _center_jac(component: Component, theta: str) -> tuple[np.ndarray, np.ndarray]:
-    """The stated center's numbers the lookup reads above the table (kappa,
-    the amplitude, and where stated the next exponent and coefficient) and
-    their derivatives in theta, in closed form (the regular branch)."""
+    """Return the numbers of the center's closed form that the lookup reads
+    above the table, and their derivatives in theta in closed form, on the
+    regular branch.
+
+    The numbers are the exponent kappa, the amplitude, and, where the
+    center's next term is a power or a logarithm times a power
+    (``next_form``), the next term's exponent and coefficient."""
     from math import factorial
 
     from scipy.special import gamma as gamma_function
@@ -896,16 +1203,27 @@ def _center_jac(component: Component, theta: str) -> tuple[np.ndarray, np.ndarra
 
 
 def _child_forward(component: Component, settings: Settings, held: dict[str, Any]):
-    """The child's leaves at its own parameters on the grid and kept nodes
-    held (``held``: ``q``, ``keep`` and the parent's inputs)."""
+    """Return the arrays of a Method II child's table (log_df, edge_law where
+    the floor has a law, and center) at the child's own parameters.
+
+    ``held`` holds what stays fixed: the grid ``q``, the kept nodes
+    ``keep`` and the parent's inputs."""
     tab = _tabulated()
+    aniso = component.anisotropy
+    sources = tab.factor_sources(
+        _held_density(held, tab._pair(aniso)[3]),
+        aniso.family,
+        float(aniso.beta_c),
+        float(aniso.r_a),
+    )
     made = tab.child_rows(
         held["q"],
         held["parent_df"],
         held["parent_rows"],
         held["parent_r_a"],
-        component.anisotropy,
+        aniso,
         settings,
+        sources=sources,
     )
     f = np.asarray(made["f"], dtype=np.float64)[held["keep"]]
     with np.errstate(divide="ignore"):
@@ -918,18 +1236,19 @@ def _child_forward(component: Component, settings: Settings, held: dict[str, Any
 
 
 def _child_key(b: float) -> tuple[int, bool, int]:
-    r"""The child rows' form in :math:`\beta_{\rm c}`, as `_table_difference`
-    reads a key: the kernel's order, whether a side has no central quotient (a
-    half-integer kernel or a floor pair with n = 0), and the floor's order."""
+    r"""Return the form of a child's rows at :math:`\beta_{\rm c} = b`, as
+    `_table_difference` reads a key: the kernel's order, whether b has no
+    central quotient (a kernel exponent of 0 or a floor pair with n = 0),
+    and the floor's order."""
     j, half = _form_key(b)
     m, n_zero = _floor_key(b)
     return j, half or n_zero, m
 
 
 def _child_held(component: Component, settings: Settings) -> dict[str, Any]:
-    """The child's solve at its own parameters (`tabulated_df`), and what the
-    rule holds of it: the grid ``q``, the kept nodes ``keep`` and the
-    parent's inputs."""
+    """Solve a Method II child at its own parameters (`tabulated_df`) and
+    return what the derivatives hold fixed: the grid ``q``, the kept nodes
+    ``keep`` (the finite rows) and the parent's inputs."""
     tab = _tabulated()
     _, _, _, _, _, inversion, rows = tab.tabulated_df(component, settings)
     if inversion.critical_band:
@@ -945,15 +1264,41 @@ def _child_held(component: Component, settings: Settings) -> dict[str, Any]:
     )
 
 
+def _held_density(held: dict[str, Any], order: int) -> dict[str, Any]:
+    """Return the parent's part of the child's sources on the held grid
+    (`parent_density`) at the given order. The parent's part does not
+    depend on the child's parameters, so the parent's part is formed once
+    per order and kept in ``held``."""
+    formed = held.setdefault("density", {})
+    if order not in formed:
+        rows = held["parent_rows"]
+        formed[order] = _tabulated().parent_density(
+            held["q"],
+            float(np.asarray(rows["Psi"], dtype=np.float64)[0]),
+            order,
+            held["parent_df"],
+            rows,
+            held["parent_r_a"],
+        )
+    return formed[order]
+
+
 def _child_jacobian(
     component: Component,
     settings: Settings,
     held: dict[str, Any] | None = None,
     steps: dict[tuple, dict[str, Any]] | None = None,
+    placement: bool = True,
 ) -> tuple[dict[str, np.ndarray], dict[str, dict[str, np.ndarray]], dict[str, Any]]:
-    """`table_jacobian` for a component on a truncated profile (Method II):
-    the parent held, the grid and the kept nodes held (``held``, by default
-    the solve's at the component's own parameters)."""
+    """Return `table_jacobian`'s values, derivatives and record for a
+    component on a truncated profile (Method II).
+
+    The parent is held fixed. The grid and the kept nodes are read from
+    ``held``, whose default is the grid and the kept nodes of the solve at
+    the component's own parameters (`_child_held`). The record's entry
+    ``"grid"`` (`_placement`) costs a coarse inversion for OM Type II and
+    COM Type I; with ``placement`` false, the record has no entry
+    ``"grid"``."""
     tab = _tabulated()
     family, params = _child_checked(component)
     aniso = component.anisotropy
@@ -968,8 +1313,7 @@ def _child_jacobian(
     b = 0.0 if family.startswith("OM") else float(aniso.beta_c)
     r_a = float(aniso.r_a)
     _, _, j, order, _, _ = tab._pair(aniso)
-    p_top = float(np.asarray(parent_rows["Psi"], dtype=np.float64)[0])
-    density = tab.parent_density(q, p_top, order, parent_df, parent_rows, parent_r_a)
+    density = _held_density(held, order)
     src = tab.factor_sources(density, family, b, r_a)
     made = tab.child_rows(
         q, parent_df, parent_rows, parent_r_a, aniso, settings, sources=src
@@ -991,7 +1335,9 @@ def _child_jacobian(
     values["center"], _ = _center_jac(component, params[0])
     read = sorted({order, j})
     jac: dict[str, dict[str, np.ndarray]] = {}
-    record: dict[str, Any] = {"grid": _placement(component, settings, held), "rows": {}}
+    record: dict[str, Any] = {"rows": {}}
+    if placement:
+        record["grid"] = _placement(component, settings, held)
     for theta in params:
         dsrc = tab.factor_sources(
             density,
@@ -1000,7 +1346,9 @@ def _child_jacobian(
             r_a,
             factor=_dfactor(family, b, r_a, density["r"], theta),
         )
-        # the operator's derivative along the sources' derivative
+        # The operator's derivative along the sources' derivative is a central
+        # difference with the shift e, which keeps every positive source row
+        # positive (e |dsrc| <= 1e-6 src), as in `_along`.
         pos = [k for k in read if np.all(src["aux"][k] > 0.0)]
         ratio = max(
             (float(np.max(np.abs(dsrc["aux"][k]) / src["aux"][k])) for k in pos),
@@ -1039,9 +1387,12 @@ def _child_jacobian(
             d_f = d_f + ex[0][keep]
         out = dict(log_df=d_f / (f * _LN10))
         if law:
-            # C_q is linear in a_q, itself linear in (g, g_p) at the floor node;
-            # in beta_c, d ln C_q = ln 2 + psi(1 - b) - psi(q - 1/2 + b) at
-            # held a_q, and p = 1 + beta_c
+            # The edge law's coefficient C_q is linear in a_q, and a_q is linear
+            # in the floor node's (g, g_p), so the floor record of the source
+            # derivative gives dC_q. In beta_c at a fixed a_q, C_q also gains
+            # d ln C_q = ln 2 + psi(1 - b) - psi(q - 1/2 + b), with psi the
+            # digamma function, q = 5/2 for C_0 and q = 7/2 for C_1, and the
+            # law's power p = 1 + beta_c gains dp = 1.
             d_law = tab.floor_record(q, dsrc, aniso)["law"]
             d_c = np.array([d_law["C0"], d_law["C1"]])
             if on_b:
@@ -1058,9 +1409,13 @@ def _child_jacobian(
 
 
 def _placement(component: Component, settings: Settings, held: dict[str, Any]):
-    r"""Where the child's grid is placed: the family's zone center
-    (:math:`\Psi(R_{\rm a})` for OM I, the pilot's feature for OM II and COM I)
-    and its nodes."""
+    r"""Return where a child's grid is placed: the number of nodes, the
+    number of kept nodes, and the energy around which the grid's zones are
+    placed. The energy around which the zones are placed is the potential
+    :math:`P(R_{\rm a})`
+    (``psi_r_a``) for OM Type I and the feature energy of a coarse
+    inversion (``q_feature``) for OM Type II and COM Type I; the other
+    families have no such entry."""
     tab = _tabulated()
     aniso, unit = component.anisotropy, component.unit_profile
     out: dict[str, Any] = dict(nodes=int(held["q"].size), kept=int(held["keep"].sum()))
@@ -1086,41 +1441,147 @@ def table_jacobian(
     q: np.ndarray | None = None,
     steps: dict[tuple, dict[str, Any]] | None = None,
 ) -> tuple[dict[str, np.ndarray], dict[str, dict[str, np.ndarray]], dict[str, Any]]:
-    """Return the DF table's values and their derivatives in the component's
-    anisotropy parameters, the forward's grid and discrete choices held.
+    r"""Return the arrays of the DF's table and their derivatives in the anisotropy.
+
+    The values are the arrays of the table that `compute_df` makes for the
+    component. The derivatives are those of each array in the component's
+    anisotropy parameters, with the energies and every discrete choice of
+    the table held at the component's own parameters. The discrete choices
+    are the placement of the energies, the form of the inversion, the
+    anchor of the form at the center and the nodes kept. For the DF at the
+    energies of the inversion alone, call `rows_jacobian` instead.
 
     Parameters
     ----------
     component : Component
-        An analytic Method I component.
+        Component with constant, isotropic, Osipkov-Merritt Type I or Type
+        II, or COM Type I anisotropy, on an analytic profile or on a
+        `TruncatedProfile` (Method II).
     settings : Settings
-    q : array, optional
-        The grid; `inversion_nodes` where None.
+        Numerical settings, the same as those given to `compute_df`.
+    q : array-like, shape (n,), optional
+        Relative energies :math:`Q`, increasing, in internal units, for a
+        component on an analytic profile. Default: ``None``, which means
+        the energies that `inversion_nodes` returns for `component` and
+        `settings`. A component on a `TruncatedProfile` takes the energies
+        of its own solve and accepts only ``None``.
     steps : dict, optional
-        The caller's store of the exponent's measured steps
-        (`_table_difference`): read where it has them, filled where it has
-        not; without one they are measured at this call.
+        Dictionary that keeps the steps of the finite differences in
+        :math:`\beta_{\rm c}` between calls, as in `rows_jacobian`.
+        Default: ``None``, which means each call measures its own steps and
+        keeps them nowhere.
 
     Returns
     -------
-    values : dict
-        The table as `inversion_df` makes it, as arrays: ``k``, ``log_df``,
-        ``log_df_slope`` (the rows; zero derivative where a Type II DF is
-        outside its support), and where the table has them ``k_below``,
-        ``log_df_below``, ``log_df_slope_below``; the form above the anchor
-        ``central`` (kappa, a_anchor, b, d) and the tail ``tail`` (A, a, k).
-    jac : dict
-        ``{theta: {key: d value / d theta}}`` for the keys of values but the
-        energies.
+    values : dict of ndarray
+        Arrays of the table, in internal units. For a component on an
+        analytic profile, ``k`` holds the energies of the table,
+        ``log_df`` the base-10 logarithm of the DF at ``k``, and
+        ``log_df_slope`` the slope :math:`{\rm d}\log_{10} F/{\rm d}\ln Q`
+        at ``k``. Where the table has nodes below its first energy,
+        ``k_below``, ``log_df_below`` and ``log_df_slope_below`` hold the
+        energy, the logarithm of the DF and the slope at those nodes. Where
+        the table has a closed form above its anchor,
+        :math:`F = a_{\rm anchor} (u/u_{\rm anchor})^\kappa + b + d\,u` in
+        the depth :math:`u = 1 - Q`, ``central`` holds the array
+        :math:`(\kappa, a_{\rm anchor}, b, d)`. Where the table has a tail
+        below its lowest node, ``tail`` holds the tail's exponent,
+        amplitude and logarithmic exponent. For a component on a
+        `TruncatedProfile`, the keys are ``k``, ``log_df``, ``edge_law``
+        (the power and the two coefficients of the edge law below the
+        floor, where the component has one) and ``center`` (the exponent
+        and the amplitude of the center's closed form, and the next term's
+        exponent and coefficient where the center's form states them).
+    jac : dict of dict of ndarray
+        Derivatives ``jac[name][key]`` of ``values[key]`` in the parameter
+        ``name`` (``"beta_c"`` or ``"r_a"``), for every key of `values`
+        except the energies ``k`` and ``k_below``, each with the shape of
+        ``values[key]``. Where a Type II DF is outside its support, the
+        derivatives of ``log_df`` and ``log_df_slope`` are 0.
     record : dict
-        The exponent's part of the rows (``"rows"``) and of the nodes below
-        the floor (``"below"``), as `rows_jacobian` states it.
+        Description of the finite differences in :math:`\beta_{\rm c}`,
+        with the entries of the record of `rows_jacobian` in absolute
+        values, not relative ones. For a component on an analytic profile,
+        ``record["rows"]`` describes the finite differences of the DF and
+        its slope at the energies of the inversion, and ``record["below"]``,
+        where present, describes the finite differences at the nodes below
+        the table. For a component
+        on a `TruncatedProfile`, ``record["rows"]`` describes the finite
+        differences of the DF, and ``record["grid"]`` states the number of
+        energies, the number of energies kept, and the energy around which
+        the energies are placed.
 
     Raises
     ------
     InputError
-        As `rows_jacobian`; and where the form above the anchor is used and
-        the center is not on its regular branch (the critical band).
+        If the anisotropy is COM Type II, whose interior point at the
+        potential :math:`P(R_{\rm a})` moves with both parameters.
+    InputError
+        If `component` is on an analytic profile and the DF's center lies
+        on the critical branch, where the inner slope :math:`\gamma` of the
+        density equals :math:`2\beta_{\rm c}`, with a divergent center of a
+        Type I model or with a closed form above the anchor.
+    InputError
+        If `component` is on a `TruncatedProfile` and the DF's center is
+        not on the regular branch :math:`\gamma > 2\beta_{\rm c}`, or the
+        solve of `component` finds the center in the band of
+        :math:`\beta_{\rm c}` around the critical branch.
+    InputError
+        If `q` is given for a component on a `TruncatedProfile`.
+    InputError
+        If `component` is on a `TruncatedProfile` that Method II does not
+        invert. Method II does not invert a profile that carries no DF of
+        its own model, a profile whose model's anisotropy is neither
+        isotropic nor Osipkov-Merritt Type I, a component whose
+        :math:`\beta_{\rm c}` needs sources of an order above 3, or a Type
+        II component whose :math:`R_{\rm a}` does not lie outside the
+        profile's edge.
+    AccuracyError
+        If a value of the DF inside the table is not finite or is 0, or
+        exceeds :math:`10^{300}` where no closed form covers the center.
+    AccuracyError
+        If the tail's logarithmic exponent below the floor is not finite.
+    UnphysicalModelError
+        If `component` is on a `TruncatedProfile` whose model is truncated
+        but not spatially finite.
+    ResultError
+        If a derivative of the auxiliary density is not finite at the
+        energies, or if the DF of a component on a `TruncatedProfile` has a
+        defective band at the top of its energies.
+
+    See Also
+    --------
+    make_inversion_table : The arrays of the DF's table as a JAX function
+        of the parameters.
+    rows_jacobian : The DF and its derivatives at the energies of the
+        inversion.
+    inversion_nodes : The energies at which `compute_df` evaluates the DF.
+
+    Notes
+    -----
+    The derivative of each array of the table follows by the chain rule
+    from the derivatives of the DF at the energies of the inversion and
+    from the closed-form derivatives of the center's exponent and
+    amplitude.
+
+    A call costs several inversions of the component, as `rows_jacobian`
+    does, and for a component on a `TruncatedProfile` one solve of the
+    component in addition.
+
+    References
+    ----------
+    Notes Eq. (T:7.1).
+
+    Examples
+    --------
+    >>> import pianistpy as pp
+    >>> from pianistpy.df.gradient import table_jacobian
+    >>> halo = pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=10.0))
+    >>> values, jac, record = table_jacobian(halo, pp.Settings())
+    >>> sorted(jac)
+    ['r_a']
+    >>> jac["r_a"]["log_df"].shape == values["log_df"].shape
+    True
     """
     if isinstance(component.profile, TruncatedProfile):
         if q is not None:
@@ -1240,13 +1701,102 @@ def _at(component: Component, params: tuple[str, ...]) -> Any:
 def make_inversion_table(
     component: Component, settings: Settings, q: np.ndarray | None = None
 ) -> tuple[Any, tuple[str, ...], dict[str, np.ndarray]]:
-    """Return ``(table, params, values)``: ``table(theta)`` is the DF table's
-    values (`table_jacobian`'s, but the energies) as a JAX function of the
-    component's anisotropy parameters with a custom VJP; ``values`` the
-    table at the component's own parameters, energies included. The forward
-    is `inversion_df`'s table through a host callback, the backward the rule.
-    The grid and the forward's discrete choices are those at the component's
-    parameters."""
+    r"""Return the arrays of the DF's table as a JAX function of the anisotropy.
+
+    The returned function maps the anisotropy parameters :math:`\theta` to
+    the arrays of the table that `compute_df` makes. The energies of the
+    table and the set of its arrays are held at the component's own
+    parameters. The other discrete choices of the table, the anchor of the
+    form at the center and the nodes kept, are made again at each
+    :math:`\theta`, except that a component on a `TruncatedProfile` also
+    holds the nodes kept at the component's own parameters. The
+    reverse-mode derivative of the returned function at
+    each :math:`\theta` is the derivative that `table_jacobian` returns at
+    that :math:`\theta`. For the derivatives as arrays, call
+    `table_jacobian` instead.
+
+    Parameters
+    ----------
+    component : Component
+        Component with constant, isotropic, Osipkov-Merritt Type I or Type
+        II, or COM Type I anisotropy, on an analytic profile or on a
+        `TruncatedProfile` (Method II).
+    settings : Settings
+        Numerical settings, the same as those given to `compute_df`.
+    q : array-like, shape (n,), optional
+        Relative energies :math:`Q`, increasing, in internal units, for a
+        component on an analytic profile. Default: ``None``, which means
+        the energies that `inversion_nodes` returns for `component` and
+        `settings`. A component on a `TruncatedProfile` takes the energies
+        of its own solve, and `q` is not used.
+
+    Returns
+    -------
+    table : callable
+        Function ``table(theta)``. The argument ``theta`` is an array of the
+        parameter values in the order of `params`. The value is a dict of
+        JAX arrays with every key of `table_jacobian`'s ``values`` except
+        the energies ``k`` and ``k_below``. ``jax.grad`` and ``jax.vjp``
+        differentiate ``table``.
+    params : tuple of str
+        Names of the anisotropy parameters in ``theta``: ``("beta_c",)``,
+        ``("r_a",)`` or ``("beta_c", "r_a")``.
+    values : dict of ndarray
+        Arrays of the table at the component's own parameters, energies
+        included, as `table_jacobian` returns them.
+
+    Raises
+    ------
+    InputError
+        If the anisotropy is COM Type II, or the DF's center lies on a
+        branch that `table_jacobian` rejects.
+    InputError
+        If `component` is on a `TruncatedProfile` that Method II does not
+        invert, as in `table_jacobian`.
+    AccuracyError
+        If a value of the DF inside the table is not finite, is 0 or
+        exceeds :math:`10^{300}`, or the tail's logarithmic exponent below
+        the floor is not finite.
+    UnphysicalModelError
+        If `component` is on a `TruncatedProfile` whose model is truncated
+        but not spatially finite.
+    ResultError
+        If a derivative of the auxiliary density is not finite at the
+        energies, or if the DF of a component on a `TruncatedProfile` has a
+        defective band at the top of its energies.
+
+    See Also
+    --------
+    table_jacobian : The arrays of the DF's table and their derivatives as
+        arrays.
+    make_inversion_rows : The DF at the energies of the inversion as a JAX
+        function.
+
+    Notes
+    -----
+    The call computes the table and its derivatives once, at the
+    component's own parameters. Each call of ``table`` inverts the
+    component again at the new parameters, with the held energies. Each
+    derivative of ``table`` calls `table_jacobian`. The steps of the finite
+    differences in :math:`\beta_{\rm c}` are measured once, at the
+    component's own parameters, and are used at every ``theta``.
+
+    References
+    ----------
+    Notes Eq. (T:7.1).
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import pianistpy as pp
+    >>> from pianistpy.df.gradient import make_inversion_table
+    >>> halo = pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy(r_a=10.0))
+    >>> table, params, values = make_inversion_table(halo, pp.Settings())
+    >>> params
+    ('r_a',)
+    >>> "k" in values, "k" in table(np.array([10.0]))
+    (True, False)
+    """
     import jax
     import jax.numpy as jnp
 
@@ -1257,8 +1807,9 @@ def make_inversion_table(
     if q is None:
         q = inversion_nodes(component, settings)
     q = np.asarray(q, dtype=np.float64)
-    # the exponent's steps, measured here at the component's own parameters
-    # and carried to every theta, so a gradient never depends on the calls before
+    # The steps of the finite differences in beta_c are measured here at the
+    # component's own parameters and reused at every theta, so that the
+    # derivative at one theta does not depend on the theta of earlier calls.
     steps: dict[tuple, dict[str, Any]] = {}
     values, _, _ = table_jacobian(component, settings, q, steps)
     keys = [k for k in values if not k.startswith("k")]
@@ -1314,16 +1865,19 @@ def make_inversion_table(
 def _make_child_table(
     component: Component, settings: Settings
 ) -> tuple[Any, tuple[str, ...], dict[str, np.ndarray]]:
-    """`make_inversion_table` for a child on a truncated profile: the grid
-    and the kept nodes held at the component's own parameters."""
+    """Return `make_inversion_table`'s function, parameters and values for a
+    component on a truncated profile (Method II), with the grid and the
+    kept nodes held at the component's own parameters."""
     import jax
     import jax.numpy as jnp
 
     _, params = _child_checked(component)
     held = _child_held(component, settings)
-    # the steps measured at the component's own parameters (make_inversion_table)
+    # The steps of the finite differences in beta_c are measured at the
+    # component's own parameters and reused at every theta, as in
+    # `make_inversion_table`.
     steps: dict[tuple, dict[str, Any]] = {}
-    values, _, _ = _child_jacobian(component, settings, held, steps)
+    values, _, _ = _child_jacobian(component, settings, held, steps, placement=False)
     keys = [k for k in values if k != "k"]
     at = _at(component, params)
 
@@ -1332,7 +1886,7 @@ def _make_child_table(
         return {k: np.asarray(out[k], np.float64) for k in keys}
 
     def host_j(theta):
-        _, jac, _ = _child_jacobian(at(theta), settings, held, steps)
+        _, jac, _ = _child_jacobian(at(theta), settings, held, steps, placement=False)
         return {k: np.stack([jac[p][k] for p in params]) for k in keys}
 
     shape_f = {k: jax.ShapeDtypeStruct(values[k].shape, jnp.float64) for k in keys}

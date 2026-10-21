@@ -1,4 +1,13 @@
-"""Tests of the DF lookup against closed forms."""
+r"""Tests of the DF lookup `log10_df` and `evaluate_lookup` against closed
+forms.
+
+The tests build a DF table of the power law :math:`F = \mathcal{K}^q` on the
+energy :math:`\mathcal{K}`, with :math:`q` = ``Q_EXPONENT``, and asymptotic
+forms whose closed forms are known. The lookup is compared with the closed
+forms inside the table, above the table (the form at the center, written in
+the depth :math:`u = P_0 - \mathcal{K}`) and below the table (the rule below
+the table's lowest node).
+"""
 
 import dataclasses
 
@@ -15,13 +24,21 @@ from pianistpy.df.stages import AsymptoticForm, DfTable
 from pianistpy.exceptions import ResultError
 
 P_0 = 1.0
-# a power law F = K^q: log10 F is linear in ln K, which the cubic Hermite reproduces
+# For the power law F = K^q, log10 F is linear in ln K, and the lookup's cubic
+# Hermite interpolation in ln K reproduces a linear function exactly.
 Q_EXPONENT = 1.5
 
 
 def _table(slopes=True, k_below=False):
+    r"""Return the table of F = K^q on 200 energies from :math:`10^{-3}` to 0.9.
+
+    With ``slopes=False``, the slope column is NaN and the table states that
+    it holds no exact slopes. With ``k_below=True``, the table also holds 29
+    nodes of the same power law from :math:`10^{-5}` up to, and excluding,
+    :math:`10^{-3}`.
+    """
     k = np.geomspace(1e-3, 0.9, 200)
-    # d log10 F / d ln K of F = K^q is q / ln 10 on every node
+    # The slope d log10 F / d ln K of F = K^q is q / ln 10 at every node.
     slope = np.full(k.shape, Q_EXPONENT / np.log(10.0) if slopes else np.nan)
     below = {}
     if k_below:
@@ -44,6 +61,9 @@ def _table(slopes=True, k_below=False):
 
 
 def _form(**fields):
+    """Return an asymptotic form with ``P_0`` = 1, an analytic form at the
+    center and a zero DF below the table, with ``fields`` replacing any of
+    those defaults."""
     base = dict(
         p_0=P_0,
         central_label=("test",),
@@ -67,6 +87,10 @@ def _form(**fields):
 
 @pytest.mark.parametrize("slopes", [True, False])
 def test_inside_the_table_a_power_law_is_reproduced(slopes):
+    """Inside the table, the lookup reproduces log10 F of the power law to an
+    absolute difference of at most :math:`10^{-13}`, with
+    the table's exact slopes and with the slopes of the spline through the
+    nodes."""
     table = _table(slopes=slopes)
     k = np.geomspace(1e-3, 0.9, 1001)
     np.testing.assert_allclose(
@@ -75,11 +99,18 @@ def test_inside_the_table_a_power_law_is_reproduced(slopes):
 
 
 def test_the_nodes_are_returned_exactly():
+    """At the table's nodes, the lookup returns the tabulated values bit for
+    bit."""
     table = _table()
     assert np.array_equal(log10_df(table, _form(), table.k[0]), table.log_df[0])
 
 
 def test_the_nodes_below_the_table_continue_it():
+    r"""Check the lookup between the nodes below the table.
+
+    Between the nodes from :math:`10^{-5}` to :math:`10^{-3}`, the lookup
+    reproduces log10 F of the power law to an absolute difference of at most
+    :math:`10^{-13}`."""
     table = _table(k_below=True)
     k = np.geomspace(1e-5, 1e-3, 301)
     np.testing.assert_allclose(
@@ -88,12 +119,22 @@ def test_the_nodes_below_the_table_continue_it():
 
 
 def test_zero_outside_the_support():
+    """The lookup returns minus infinity, the logarithm of a zero DF, at
+    energies at or below zero, at or above ``P_0``, and below the table where
+    the rule below the table is a zero DF."""
     table = _table()
     k = np.array([-1.0, 0.0, 1e-4, P_0, 2.0])
     assert np.all(log10_df(table, _form(), k) == -np.inf)
 
 
 def _above_closed_form(kind, s, amplitude, log_coefficient, u):
+    """Return log10 F of the form at the center at depths ``u``.
+
+    The form joins the table's top value ``F_top`` at the depth ``u_top`` of
+    the table's top node: ``F_top + amplitude (u^s - u_top^s)`` for the
+    ``"power"`` form, ``F_top + log_coefficient ln(u_top / u)`` for the
+    ``"log"`` form, and ``F_top`` for any other form.
+    """
     k_top = 0.9
     df_top = k_top**Q_EXPONENT
     u_top = P_0 - k_top
@@ -114,6 +155,9 @@ def _above_closed_form(kind, s, amplitude, log_coefficient, u):
     ],
 )
 def test_above_the_table_the_center_form(kind, s, amplitude, log_coefficient):
+    r"""Above the table's top node, the lookup reproduces the closed form of the
+    form at the center to an absolute difference of at most :math:`10^{-13}` in log10 F,
+    for the power, logarithmic and analytic forms."""
     form = _form(
         central_form=(kind,),
         central_exponent=(s,),
@@ -121,7 +165,8 @@ def test_above_the_table_the_center_form(kind, s, amplitude, log_coefficient):
         central_log_coefficient=(log_coefficient,),
     )
     k = P_0 - np.geomspace(0.1, 1e-9, 200)[1:]
-    # the closed form at the u the energies hold, P_0 - k
+    # The closed form is evaluated at the depths u = P_0 - k that the
+    # energies k hold.
     np.testing.assert_allclose(
         log10_df(_table(), form, k),
         _above_closed_form(kind, s, amplitude, log_coefficient, P_0 - k),
@@ -138,6 +183,9 @@ def test_above_the_table_the_center_form(kind, s, amplitude, log_coefficient):
     ],
 )
 def test_below_the_table_the_rule(rule, coefficients, closed_form):
+    r"""Below the table's lowest node, the lookup reproduces the closed form of
+    the Taylor rule and of the edge law to a relative difference of at most
+    :math:`10^{-14}` in log10 F."""
     form = _form(below_floor=(rule,), below_floor_coefficients=(coefficients,))
     k = np.geomspace(1e-12, 1e-3, 100)[:-1]
     np.testing.assert_allclose(
@@ -146,6 +194,9 @@ def test_below_the_table_the_rule(rule, coefficients, closed_form):
 
 
 def test_below_the_table_the_tail():
+    r"""Below the table's lowest node, down to K = :math:`10^{-300}`, the lookup
+    reproduces the tail ``A K^-a ln(e_0 / K)^-b`` to a relative difference of
+    at most :math:`10^{-14}` in log10 F."""
     amplitude, a, b, e_0 = 0.7, 0.4, 1.0, 1.0
     form = _form(
         below_floor=("tail",),
@@ -160,12 +211,18 @@ def test_below_the_table_the_tail():
 
 
 def test_a_signed_table_is_refused():
+    """A table that holds the signs of a DF that is negative somewhere makes
+    the lookup raise ResultError, since a negative DF has no logarithm."""
     table = dataclasses.replace(_table(), sign=np.ones((1, 200), dtype=np.int8))
     with pytest.raises(ResultError):
         log10_df(table, _form(), np.array([0.5]))
 
 
 def test_the_kernel_is_the_host_function():
+    r"""The lookup compiled by ``jax.jit`` with ``jax.numpy`` returns infinite
+    values at the same energies as the NumPy lookup, and finite values that
+    differ from the NumPy values by at most :math:`10^{-13}`, inside, above and below
+    the table."""
     jax = pytest.importorskip("jax")
     jax.config.update("jax_enable_x64", True)
     form = _form(
@@ -191,9 +248,12 @@ def test_the_kernel_is_the_host_function():
 
 
 def _steep_top_table():
-    """``F = u^-2`` in the depth ``u = P_0 - K``, tabulated up to ``u = 1e-7``
-    below the top; each node's depth is formed from its K (exact there), so the table's
-    values and slopes are the closed form's at the nodes themselves."""
+    r"""Return the table of ``F = u^-2`` in the depth ``u = P_0 - K``, on 4000
+    nodes from ``u = 0.5`` to ``u = :math:`10^{-7}```.
+
+    Each node's depth is formed from the node's energy K, so the table's
+    values and slopes are the closed form's at the nodes.
+    """
     k = np.unique(P_0 - np.geomspace(0.5, 1e-7, 4000))
     u = P_0 - k
     return DfTable(
@@ -207,6 +267,8 @@ def _steep_top_table():
 
 
 def test_the_entry_by_the_depth_is_the_entry_by_the_energy_where_no_depth_is_held():
+    """`evaluate_lookup` given a depth of NaN at every energy returns, bit for
+    bit, the values of `evaluate_lookup` given the energies alone."""
     table = _table(k_below=True)
     arrays, kinds = prepare_lookup(table, _form())
     k = np.concatenate(
@@ -219,9 +281,14 @@ def test_the_entry_by_the_depth_is_the_entry_by_the_energy_where_no_depth_is_hel
 
 
 def test_by_the_depth_the_top_cells_read_the_depth_itself():
-    # near the top a caller holds u exactly where K = P_0 - u has lost it: at
-    # u = 1e-6, one ulp of K is 1.1e-10 of u, so by the energy F moves in steps
-    # of K; by the depth it is the closed form to rounding
+    r"""Near the table's top, the lookup by the depth u reproduces the closed
+    form ``F = u^-2`` to an absolute difference of at most :math:`10^{-14}` in log10 F,
+    while the lookup by the energy ``K = P_0 - u`` differs from the closed
+    form by more than :math:`10^{-12}`."""
+    # Near the top, a caller holds u exactly, while K = P_0 - u has lost most
+    # of u's digits. At u = 1e-6, one unit in the last place of K is 1.1e-10
+    # of u, so the lookup by the energy moves in steps of that size; the
+    # lookup by the depth is the closed form to rounding.
     arrays, kinds = prepare_lookup(_steep_top_table(), _form())
     node = int(np.argmin(np.abs((P_0 - arrays.k[: int(arrays.n)]) - 1e-6)))
     u_node = P_0 - float(arrays.k[node])
@@ -234,8 +301,13 @@ def test_by_the_depth_the_top_cells_read_the_depth_itself():
 
 
 def test_by_the_depth_a_depth_below_half_an_ulp_of_p_0_reads_the_center_form():
-    # P_0 - u rounds to P_0 below u = 5.55e-17; by the depth the form
-    # is still read there, by the energy P_0 itself is where F ends
+    """For depths u below half a unit in the last place of ``P_0`` = 1, the
+    lookup by the depth reads the form at the center, while the lookup by the
+    energy ``P_0 - u`` returns minus infinity."""
+    # Below u = 5.55e-17, half a unit in the last place of P_0 = 1, the energy
+    # P_0 - u rounds to P_0. The lookup by the depth still reads the form at
+    # the center there, while the lookup by the energy returns minus infinity,
+    # the value at P_0.
     form = _form(
         central_form=("power",), central_exponent=(-2.5,), central_amplitude=(1e-3,)
     )
@@ -246,12 +318,15 @@ def test_by_the_depth_a_depth_below_half_an_ulp_of_p_0_reads_the_center_form():
         by_u, _above_closed_form("power", -2.5, 1e-3, np.nan, u), rtol=1e-14
     )
     assert np.all(np.isneginf(evaluate_lookup(arrays, kinds, P_0 - u[:3])))
-    # at and beyond P_0 nothing, by either entry
+    # At a depth of zero or below, the DF is zero by either entry.
     for u_end in (0.0, -1e-17):
         assert np.isneginf(evaluate_lookup(arrays, kinds, P_0, u=np.array([u_end])))[0]
 
 
 def test_two_models_of_the_same_shapes_share_one_compiled_lookup():
+    r"""Two tables with the same array shapes and form kinds but different
+    values reuse one compilation of `evaluate_lookup` under ``jax.jit``, and
+    each compiled result matches the NumPy lookup to at most :math:`10^{-13}`."""
     jax = pytest.importorskip("jax")
     jnp = jax.numpy
     kernel = jax.jit(evaluate_lookup, static_argnames=("kinds", "xp"))
@@ -281,5 +356,8 @@ def test_two_models_of_the_same_shapes_share_one_compiled_lookup():
     ],
 )
 def test_a_form_it_is_not_given_is_refused(fields):
+    """A form at the center or a rule below the table of a kind the lookup
+    does not know, or a form that states no next term at the center for the
+    component, makes the lookup raise ResultError."""
     with pytest.raises(ResultError):
         log10_df(_table(), _form(**fields), np.array([0.5]))

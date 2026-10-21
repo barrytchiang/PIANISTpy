@@ -1,4 +1,4 @@
-"""Tests of the truncated profile's own evaluation."""
+"""Tests of the evaluation of `TruncatedProfile` between and beyond its nodes."""
 
 import math
 
@@ -15,7 +15,11 @@ ROWS_PER_DECADE = 200
 
 
 def _untruncated(profile=HERNQUIST, decades=(-4.0, 4.0)):
-    """The rows of an analytic profile, as an untruncated model's table."""
+    """Return an untruncated profile tabulated from an analytic profile.
+
+    The nodes are uniform in log r over the given decades, with
+    ROWS_PER_DECADE nodes per decade.
+    """
     r = np.geomspace(
         10.0 ** decades[0],
         10.0 ** decades[1],
@@ -38,17 +42,22 @@ def _untruncated(profile=HERNQUIST, decades=(-4.0, 4.0)):
 
 
 def _finite(q=2.5, r_t=2.0, n=2000):
-    """A spatially finite profile with its edge row: a Kepler exterior joined
-    to a power-law interior, so that every row is consistent with its slopes."""
+    """Return a spatially finite test profile with an edge node.
+
+    The profile is a sphere of constant density, total mass 1 and radius
+    `r_t`, on `n` nodes from r = :math:`10^{-3}` to r = `r_t`. The last node
+    is the edge node, with zero potential and zero density. The argument `q`
+    is the edge exponent of the single component.
+    """
     r = np.geomspace(1e-3, r_t, n)
-    # a constant-density sphere inside r_t with p = 0 at the edge, in the
-    # profile's unit: dM/dr = r^2 rho and dp/dr = -M/r^2
+    # A sphere of constant density rho_0 inside r_t, with p = 0 at r_t, in
+    # the profile's units, where dM/dr = r**2 rho and dp/dr = -M / r**2.
     mass_t = 1.0
     rho_0 = 3.0 * mass_t / r_t**3
     mass = rho_0 * r**3 / 3.0
     p = rho_0 * (r_t**2 - r**2) / 6.0
     rho = np.full(n, rho_0)
-    # the last row is the edge: p = 0, rho = 0, r = r_t
+    # The last node is the edge node: p = 0 and rho = 0 at r = r_t.
     rho[-1] = 0.0
     p[-1] = 0.0
     return TruncatedProfile(
@@ -69,14 +78,16 @@ def _finite(q=2.5, r_t=2.0, n=2000):
 
 def test_an_untruncated_profile_evaluates_its_closed_forms_between_the_rows():
     profile = _untruncated()
-    r = np.geomspace(1.1e-4, 0.9e4, 301) * 1.0137  # off the rows
+    # The factor 1.0137 moves the radii off the nodes.
+    r = np.geomspace(1.1e-4, 0.9e4, 301) * 1.0137
     assert_allclose(profile.potential(r), HERNQUIST.p(r), rtol=1e-9)
     assert_allclose(profile.mass(r), HERNQUIST.mass(r), rtol=1e-9)
     assert_allclose(profile.density(r)[0], HERNQUIST.rho(r), rtol=1e-7)
 
 
 def test_the_rows_are_reproduced_to_rounding():
-    # the interpolants pass through the rows; the logarithm and back costs ulps
+    # The interpolants pass through the nodes. Taking the logarithm and the
+    # exponential back costs a few units in the last place.
     profile = _untruncated()
     assert_allclose(profile.potential(profile.r), profile.p_trunc, rtol=1e-14)
     assert_allclose(profile.mass(profile.r), profile.mass_trunc, rtol=1e-14)
@@ -116,15 +127,16 @@ def test_a_finite_profile_reads_its_last_interval_by_the_edge_forms():
         rtol=1e-13,
     )
     assert_allclose(profile.radius(kepler), r, rtol=1e-14)
-    # at and beyond the edge
+    # At and beyond the edge.
     assert profile.potential(profile.r_t) == 0.0
     assert np.all(profile.density(np.array([profile.r_t, 3.0]))[0] == 0.0)
     assert profile.mass(3.0) == profile.mass_t
     assert profile.radius(0.0) == profile.r_t
     assert profile.radius(-1.0) == profile.r_t
-    # inside, the rows are read by the interpolants (the logarithm of the
-    # potential steepens toward the edge, where the rows of this test are
-    # coarse; a real profile is dense there)
+    # Inside half the edge radius, the interpolants give the constant-density
+    # potential and mass to 1e-9. The test stops at half the edge radius,
+    # because the logarithm of the potential steepens toward the edge, where
+    # the nodes of this test profile are too coarse for 1e-9.
     r_in = np.geomspace(2e-3, 0.5 * profile.r_t, 40)
     assert_allclose(profile.potential(r_in), (4.0 - r_in**2) / 16.0, rtol=1e-9)
     assert_allclose(profile.mass(r_in), 3.0 / 8.0 * r_in**3 / 3.0, rtol=1e-9)
@@ -143,8 +155,8 @@ def test_the_edge_row_invariant_is_checked():
 
 
 def test_a_profile_without_its_edge_row_is_read_to_its_last_row():
-    # the working code's products end at a small positive potential: no edge
-    # row, and the interpolants reach the last row
+    # A spatially finite profile whose last node has a positive potential has
+    # no edge node, and the interpolants reach the last node.
     profile = _finite()
     fields = _fields(profile)
     keep = slice(0, -1)
@@ -169,8 +181,9 @@ def test_the_tables_hold_what_the_methods_evaluate():
         assert tables.has_edge_row == profile.has_edge_row
         n = tables.log_r.size
         assert n == profile.r.size - (1 if profile.has_edge_row else 0)
-        # inside the interior rows: beyond the last one a finite profile reads
-        # its Kepler form, which the bare Hermite does not
+        # The radii lie inside the interior nodes, because beyond the last
+        # interior node a profile with an edge node evaluates the Kepler form,
+        # which the Hermite interpolant of the tables does not hold.
         r = np.geomspace(profile.r[1] * 1.0003, profile.r[n - 1] / 1.0003, 25)
         log_p, _ = hermite(np.log(r), tables.log_r, tables.log_p, tables.log_p_slope)
         assert_allclose(np.exp(log_p), profile.potential(r), rtol=1e-14)
@@ -178,7 +191,7 @@ def test_the_tables_hold_what_the_methods_evaluate():
             np.log(r), tables.log_r_all, tables.log_mass, tables.log_mass_slope
         )
         assert_allclose(np.exp(log_m), profile.mass(r), rtol=1e-14)
-        # the density spline's coefficients, highest power first, per interval
+        # The density spline's coefficients, highest power first, per interval.
         i = np.clip(
             np.searchsorted(tables.log_r, np.log(r), side="right") - 1, 0, n - 2
         )
@@ -205,6 +218,7 @@ def test_the_anisotropy_of_the_source_is_stated():
 
 
 def _fields(profile):
+    """Return the dataclass fields of a profile as a dictionary."""
     import dataclasses
 
     return {

@@ -1,4 +1,4 @@
-"""Tests of the particle writers for simulation codes and text."""
+"""Tests of the GAMER, Gadget and text particle writers."""
 
 import h5py
 import numpy as np
@@ -155,7 +155,8 @@ def test_text_has_the_header_and_reads_back_to_its_digits(tmp_path):
     assert head[6] == "# units: " + units
     rows = [line for line in lines if not line.startswith("#")]
     assert len(rows) == len(particles)
-    # every field is 25 characters wide with 14 digits after the point
+    # Every text field is 25 characters wide with 14 digits after the decimal
+    # point.
     assert rows[0][:25].strip() == f"{particles.mass[0]:.14e}"
     assert rows[0][25:50].strip() == f"{particles.position[0, 0]:.14e}"
     back = np.loadtxt(path)

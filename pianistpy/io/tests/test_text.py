@@ -1,4 +1,4 @@
-"""Tests of the fixed-width text tables."""
+"""Tests of the fixed-width text tables that `write_table` writes."""
 
 import numpy as np
 import pytest

@@ -1,4 +1,4 @@
-"""Tests of the JAX PCHIP interpolant against SciPy's and closed forms."""
+"""Tests of the JAX PCHIP interpolant against SciPy's PCHIP and closed forms."""
 
 import jax.numpy as jnp
 import numpy as np
