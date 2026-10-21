@@ -22,7 +22,9 @@ shows one of three outcomes:
   :class:`~pianistpy.AccuracyError` where the package cannot compute the model to the required accuracy. The
   exception's full message is in the cell's tooltip and in the CSV.
 - **excluded**, where the model violates the Cusp Slope–Central Anisotropy theorem
-  (`An & Evans 2006b <https://doi.org/10.1086/501040>`__), which requires :math:`\gamma \ge 2\beta_{\rm c}`. The model is still
+  (`An & Evans 2006b <https://doi.org/10.1086/501040>`__), which requires the inner slope of the density
+  profile, :math:`\gamma`, to be at least twice the central velocity anisotropy, :math:`\beta_{\rm c}` (i.e.,
+  :math:`\gamma \ge 2\beta_{\rm c}`). The model is still
   computed and recorded in the CSV.
 
 The distribution function of an untruncated Type II model is defined only at energies above
