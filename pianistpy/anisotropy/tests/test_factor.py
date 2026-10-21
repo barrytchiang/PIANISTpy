@@ -46,11 +46,13 @@ def test_factor_in_jax_equals_the_numpy_value():
     anisotropy = Anisotropy(beta_c=-0.25, r_a=10.0)
     g_np = anisotropy.factor(R)
     g_jax = np.asarray(anisotropy.factor(jax.numpy.asarray(R), xp=jax.numpy))
-    # On the CPU, the jax.numpy factor must equal the NumPy factor to the bit.
-    # On any other platform, such as the GPU, the platform's own rounding is
-    # allowed: the two factors may differ by up to 2 ulp of the NumPy factor.
+    # The jax.numpy factor and the NumPy factor evaluate the same closed form,
+    # and XLA's own rounding of it (its fused operations differ by CPU model and
+    # by device) is allowed: the two factors may differ by up to 2 ulp of the
+    # NumPy factor, on every platform. (On the release's reference CPU the two
+    # are equal to the bit; another CPU model gave 1 ulp.)
     platform = jax.default_backend()
-    ulps = 0 if platform == "cpu" else 2
+    ulps = 2
     off = np.abs(g_jax - g_np) / np.spacing(np.abs(g_np))
     assert np.all(off <= ulps), f"on {platform}: {off.max():.0f} ulp, {ulps} allowed"
 

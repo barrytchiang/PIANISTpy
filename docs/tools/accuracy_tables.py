@@ -120,7 +120,8 @@ COLUMNS = [
         'what the grid expects of the model: "value" (a result is served), "value: not '
         'physical" (a result is served for a model that is not a physical '
         "equilibrium), "
-        "\"value: the parent's DF within 1e-6, read by the package's rule\" (a "
+        "\"value: the Method I model's DF within 1e-6, read by the package's rule\" "
+        "(a "
         "Method II model whose distribution function equals its Method I model's), "
         "or a refusal with the error the package raises (its kind, then the opening "
         "words of its message)",
@@ -631,13 +632,24 @@ def write(docs: str) -> None:
     releases_rst.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
+# The grid's expectation text for a Method II model whose DF equals its Method I
+# model's, in the files' words (the ledger writes "parent", a word the public text
+# does not use; the label is the only thing that changes).
+LABELS = {
+    "value: the parent's DF within 1e-6, read by the package's rule": (
+        "value: the Method I model's DF within 1e-6, read by the package's rule"
+    ),
+}
+
+
 def _source_row(row: dict) -> dict:
     """A grid row under the ledger's keys, whether it comes from the ledger (the
     settings level under ``tier_requested``) or from a published file (the columns
     under their published names)."""
     back = {name: src for name, src, _ in COLUMNS}
     out = {}
-    for k, v in row.items():
+    for k, raw in row.items():
+        v = LABELS.get(raw, raw)
         if k == "tier_requested":
             out["settings"] = v
         else:
@@ -704,7 +716,7 @@ def import_grid(version: str, members: str, grid: str, *reruns: str) -> int:
     )
     _, mem = _read(Path(members))
     back = {name: src for name, src, _ in MEMBER_COLUMNS}
-    mem = [{back.get(k, k): v for k, v in m.items()} for m in mem]
+    mem = [{back.get(k, k): LABELS.get(v, v) for k, v in m.items()} for m in mem]
     buf = io.StringIO()
     buf.write("\n".join(_header("members", meta, MEMBER_COLUMNS)) + "\n")
     w = csv.writer(buf, lineterminator="\n")
