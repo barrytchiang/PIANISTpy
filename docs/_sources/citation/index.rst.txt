@@ -1,8 +1,6 @@
 Citation
 ========
 
-How to cite PIANISTpy, and the terms under which it is distributed.
-
 .. toctree::
    :maxdepth: 1
 

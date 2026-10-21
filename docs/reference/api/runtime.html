@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Runtime options &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Runtime options &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,10 +42,12 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/runtime';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/logo.png"/>
@@ -57,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="runtime.md">
@@ -117,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -136,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -178,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -230,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
@@ -286,7 +284,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Functions by subpackage</a></li>
@@ -311,29 +309,56 @@
   <section id="runtime-options">
 <h1>Runtime options<a class="headerlink" href="#runtime-options" title="Link to this heading">#</a></h1>
 <p>Module <code class="docutils literal notranslate"><span class="pre">pianistpy.runtime</span></code></p>
-<p id="module-pianistpy.runtime">Runtime options of the session: verbosity, timing and the number of cores.</p>
-<p>None of these changes a number, and none is part of the identity of a
-result. Each is set once for the session, by a call or by an environment
-variable, and no function of the package takes it as an argument.</p>
+<p id="module-pianistpy.runtime">Options of the Python session: the messages printed, the stage times, the
+number of cores, the hardware JAX runs on, and JAX’s compilation cache.</p>
+<p>A user sets each option once for the session, by a call such as
+<code class="docutils literal notranslate"><span class="pre">pp.set_verbosity(&quot;info&quot;)</span></code> or <code class="docutils literal notranslate"><span class="pre">pp.set_cores(8)</span></code>, or by an environment
+variable read when the package is imported: <code class="docutils literal notranslate"><span class="pre">PIANISTPY_VERBOSITY</span></code>,
+<code class="docutils literal notranslate"><span class="pre">PIANISTPY_TIMING</span></code>, <code class="docutils literal notranslate"><span class="pre">PIANISTPY_CORES</span></code>, <code class="docutils literal notranslate"><span class="pre">PIANISTPY_PLATFORM</span></code> and
+<code class="docutils literal notranslate"><span class="pre">PIANISTPY_COMPILATION_CACHE</span></code>. No option changes a computed number, and no
+option is part of a result’s identity. No computation of the package takes
+a runtime option as an argument.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.runtime.Timing">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">Timing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.Timing" title="Link to this definition">#</a></dt>
-<dd><p>Wall times of the stages of one computation, and the memory they reached.</p>
+<dd><p>The elapsed time of each stage of one computation, and the largest
+memory of the process at the end of each stage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>stages</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em> of </em><em>str to float</em>) – Seconds spent in each stage, in the order the stages first ran. A
-stage that runs more than once accumulates.</p></li>
-<li><p><strong>memory</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em> of </em><em>str to int</em>) – Peak resident memory of the process, in bytes, as it stood when each
-stage last ended. The value never decreases from one stage to the
-next: a stage raised the peak if its value exceeds the one before.</p></li>
+<li><p><strong>stages</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em> of </em><em>str to float</em><em>, </em><em>optional</em>) – Each stage’s name mapped to the seconds spent in the stage, in the
+order in which the stages first ran. A stage that runs more than
+once has the sum of its times. Default: an empty dictionary.</p></li>
+<li><p><strong>memory</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em> of </em><em>str to int</em><em>, </em><em>optional</em>) – Each stage’s name mapped to the largest resident memory of the
+process, in bytes, at the last end of the stage (<cite>peak_memory</cite>).
+The largest memory never decreases from one stage to the next, so
+a stage raised the largest memory if the stage’s value exceeds the
+value of the stage before. Default: an empty dictionary.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>total</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The sum of the stage times, in seconds.</p>
+</dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.timing_record" title="pianistpy.runtime.timing_record"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timing_record</span></code></a></dt><dd><p>Collect a <cite>Timing</cite> for a block of code.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.set_timing" title="pianistpy.runtime.set_timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_timing</span></code></a></dt><dd><p>Print each result’s stage times.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">timing</span> <span class="o">=</span> <span class="n">Timing</span><span class="p">(</span><span class="n">stages</span><span class="o">=</span><span class="p">{</span><span class="s2">"inversion"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">"truncation"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">timing</span><span class="o">.</span><span class="n">total</span>
+<span class="go">1.75</span>
+</pre></div>
+</div>
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.runtime.Timing.total">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">total</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">float</span></a></span><a class="headerlink" href="#pianistpy.runtime.Timing.total" title="Link to this definition">#</a></dt>
-<dd><p>Sum of the stage times, in seconds.</p>
+<dd><p>The sum of the stage times, in seconds.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -341,10 +366,18 @@ next: a stage raised the peak if its value exceeds the one before.</p></li>
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.Timing.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Return the stage times as a plain dictionary.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank">float</a>]</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>stages</strong> – Each stage’s name mapped to the seconds spent in the stage.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a> of str to float</p>
 </dd>
 </dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Timing</span><span class="p">(</span><span class="n">stages</span><span class="o">=</span><span class="p">{</span><span class="s2">"inversion"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">})</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="go">{'inversion': 1.5}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -352,41 +385,96 @@ next: a stage raised the peak if its value exceeds the one before.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.allowed_cores">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">allowed_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.allowed_cores" title="Link to this definition">#</a></dt>
-<dd><p>Return the number of cores this process is allowed to use.</p>
-<p>Inside a batch job the scheduler’s own statement of the job’s cores is
-taken where it gives one; otherwise the cores the operating system lets
-the process run on; otherwise the cores of the machine.</p>
+<dd><p>Return the number of cores the Python process may use.</p>
+<p>The number is the first one available of three: the job’s number of
+cores as a batch scheduler states the number in its environment
+variable; the number of cores the operating system lets the process run
+on; the number of cores of the machine.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cores</strong> – The number of cores, at least 1.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_cores" title="pianistpy.runtime.set_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cores</span></code></a></dt><dd><p>Choose the number of cores the package uses.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.get_cores" title="pianistpy.runtime.get_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cores</span></code></a></dt><dd><p>The number of cores the package uses.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">allowed_cores</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.card_memory">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">card_memory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.card_memory" title="Link to this definition">#</a></dt>
-<dd><p>Return the free and the total memory of the GPU JAX runs on, in
-bytes, as the CUDA driver states them; None off a CUDA GPU.</p>
-<p>The driver is asked in the device’s primary context, the one JAX uses,
-so asking makes no context of its own. Its free memory counts what
-every process holds on the GPU, a CUDA context included, which the
-allocator’s own statistics do not.</p>
+<dd><p>Return the free memory and the total memory of the GPU that JAX
+runs on, in bytes, as the CUDA driver states them.</p>
+<p>The free memory counts the memory that every process holds on the GPU,
+including each process’s CUDA context; JAX’s allocator statistics do
+not count the contexts. The call uses the GPU’s primary context, which
+JAX also uses, so the call creates no CUDA context.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a>] | None</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>memory</strong> – The free memory and the total memory, in bytes; None if JAX does
+not run on a GPU, if the CUDA driver library cannot be loaded, or
+if the driver reports an error.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a> of (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a>) or None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.platform" title="pianistpy.runtime.platform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platform</span></code></a></dt><dd><p>The hardware JAX runs on.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.peak_memory" title="pianistpy.runtime.peak_memory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">peak_memory</span></code></a></dt><dd><p>The largest memory of the process on the host.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">memory</span> <span class="o">=</span> <span class="n">card_memory</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">memory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">memory</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">memory</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.configure_jax">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">configure_jax</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.configure_jax" title="Link to this definition">#</a></dt>
-<dd><p>Set JAX as the package needs it: 64 bits, the platform and the
-compilation cache.</p>
-<p>Called once when the package is imported. The environment variable
-<code class="docutils literal notranslate"><span class="pre">PIANISTPY_PLATFORM</span></code> names the platform (<cite>set_platform</cite>), and
-<code class="docutils literal notranslate"><span class="pre">PIANISTPY_COMPILATION_CACHE</span></code> set to <code class="docutils literal notranslate"><span class="pre">off</span></code> leaves the cache off.</p>
+<dd><p>Configure JAX for the package: 64-bit floating point, the hardware,
+and the compilation cache.</p>
+<p>The package calls <cite>configure_jax</cite> once, when the package is imported.
+The environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_PLATFORM</span></code>, if set, chooses the
+hardware (<cite>set_platform</cite>). The compilation cache is turned on in the
+folder of <cite>default_compilation_cache</cite>, unless
+<code class="docutils literal notranslate"><span class="pre">PIANISTPY_COMPILATION_CACHE</span></code> turns the cache off.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_platform" title="pianistpy.runtime.set_platform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_platform</span></code></a></dt><dd><p>Choose the hardware JAX runs on.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.set_compilation_cache" title="pianistpy.runtime.set_compilation_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_compilation_cache</span></code></a></dt><dd><p>Turn the compilation cache on or off.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">jax_enable_x64</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
@@ -395,252 +483,527 @@ compilation cache.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pianistpy.runtime.default_compilation_cache">
-<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">default_compilation_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.default_compilation_cache" title="Link to this definition">#</a></dt>
-<dd><p>Return the default folder of the compilation cache.</p>
-<p>The environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_COMPILATION_CACHE</span></code> if it is set,
-None if it is set to <code class="docutils literal notranslate"><span class="pre">off</span></code> (the cache is off), otherwise
-<code class="docutils literal notranslate"><span class="pre">~/.cache/pianistpy/jax</span></code>.</p>
+<dt class="sig sig-object py" id="pianistpy.runtime.cores_explicit">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">cores_explicit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.cores_explicit" title="Link to this definition">#</a></dt>
+<dd><p>Return whether the number of cores was set as an integer.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a> | None</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>explicit</strong> – True if the last call of <cite>set_cores</cite>, or <code class="docutils literal notranslate"><span class="pre">PIANISTPY_CORES</span></code>, gave
+an integer; False if the value is <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;half&quot;</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank">bool</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_cores" title="pianistpy.runtime.set_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cores</span></code></a></dt><dd><p>Choose the number of cores the package uses.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_cores</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cores_explicit</span><span class="p">()</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_cores</span><span class="p">(</span><span class="s2">"auto"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cores_explicit</span><span class="p">()</span>
+<span class="go">False</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="pianistpy.runtime.get_workers">
-<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">get_workers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.get_workers" title="Link to this definition">#</a></dt>
-<dd><p>Return the number of cores the current setting resolves to.</p>
+<dt class="sig sig-object py" id="pianistpy.runtime.default_compilation_cache">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">default_compilation_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.default_compilation_cache" title="Link to this definition">#</a></dt>
+<dd><p>Return the folder that the compilation cache uses by default.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>folder</strong> – None if the environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_COMPILATION_CACHE</span></code> is
+<code class="docutils literal notranslate"><span class="pre">0</span></code>, <code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">no</span></code> or <code class="docutils literal notranslate"><span class="pre">off</span></code>, which turns the cache off; the
+variable’s value, a folder’s path, if the variable has any other
+value;
+<code class="docutils literal notranslate"><span class="pre">~/.cache/pianistpy/jax</span></code> if the variable is unset.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a> or None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_compilation_cache" title="pianistpy.runtime.set_compilation_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_compilation_cache</span></code></a></dt><dd><p>Turn the compilation cache on or off.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="o">=</span> <span class="n">default_compilation_cache</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">folder</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.runtime.get_cores">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">get_cores</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.get_cores" title="Link to this definition">#</a></dt>
+<dd><p>Return the number of cores the package uses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cores</strong> – The integer last given to <cite>set_cores</cite>; for <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, the count of
+<cite>allowed_cores</cite>; for <code class="docutils literal notranslate"><span class="pre">&quot;half&quot;</span></code>, half of that count, at least 1;
+for <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, the count of <cite>allowed_cores</cite> inside a batch job and
+half of that count, at least 1, elsewhere.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_cores" title="pianistpy.runtime.set_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cores</span></code></a></dt><dd><p>Choose the number of cores the package uses.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_cores</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_cores</span><span class="p">()</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_cores</span><span class="p">(</span><span class="s2">"auto"</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.log_to_file">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">log_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'debug'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.log_to_file" title="Link to this definition">#</a></dt>
-<dd><p>Write the messages of the enclosed block to a file as well.</p>
+<dd><p>Write the package’s messages during a <code class="docutils literal notranslate"><span class="pre">with</span></code> block to a file.</p>
+<p>The file receives the messages in addition to the screen; the screen
+keeps the session’s verbosity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>path</em>) – File to append to.</p></li>
-<li><p><strong>level</strong> (<em>{&quot;quiet&quot;</em><em>, </em><em>&quot;info&quot;</em><em>, </em><em>&quot;debug&quot;}</em><em>, </em><em>optional</em>) – Lowest level written to the file.</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em> or </em><em>path-like</em>) – The file the messages are appended to. The file is created if
+<cite>path</cite> does not exist.</p></li>
+<li><p><strong>level</strong> (<em>{&quot;quiet&quot;</em><em>, </em><em>&quot;info&quot;</em><em>, </em><em>&quot;debug&quot;}</em><em>, </em><em>optional</em>) – The verbosity of the file, with the meanings of <cite>set_verbosity</cite>.
+Default: <code class="docutils literal notranslate"><span class="pre">&quot;debug&quot;</span></code>, which means every message is written.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Iterator</em></a>[None]</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>level</cite> is not <code class="docutils literal notranslate"><span class="pre">&quot;quiet&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;info&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;debug&quot;</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Iterator</em></a>[None]</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_verbosity" title="pianistpy.runtime.set_verbosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_verbosity</span></code></a></dt><dd><p>Choose the messages printed on the screen.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(),</span> <span class="s2">"run.log"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">log_to_file</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"A message for the file."</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="go">'pianistpy DEBUG: A message for the file.\n'</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.peak_memory">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">peak_memory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.peak_memory" title="Link to this definition">#</a></dt>
-<dd><p>Return the largest resident memory this process has held, in bytes.</p>
-<p>This is the memory of the host process. Memory held on a GPU is not
-part of it.</p>
+<dd><p>Return the largest resident memory of the Python process, in bytes.</p>
+<p>The value counts the memory of the Python process on the host. Memory
+held on a GPU is not counted.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>peak</strong> – The peak resident memory since the process started, or None where
-the operating system does not report it.</p>
+<dd class="field-odd"><p><strong>peak</strong> – The largest resident memory since the process started, in bytes;
+None if the operating system does not report the value.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank">int</a> or None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.Timing" title="pianistpy.runtime.Timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Timing</span></code></a></dt><dd><p>The stage times and memory of one computation.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">peak</span> <span class="o">=</span> <span class="n">peak_memory</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">peak</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">peak</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.recent_messages">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">recent_messages</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.recent_messages" title="Link to this definition">#</a></dt>
-<dd><p>Return the most recent messages of the package, oldest first.</p>
-<p>The messages are kept whatever the verbosity, so that a quiet run that
-fails can still say what it was doing.</p>
+<dd><p>Return the package’s most recent messages, oldest first.</p>
+<p>The package keeps its 50 most recent messages at every verbosity, so
+that the messages that led to an error can be read after a run at the
+verbosity <code class="docutils literal notranslate"><span class="pre">&quot;quiet&quot;</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, …]</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>messages</strong> – Each message as printed: the logger’s name, the message’s level and
+the message text.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a> of <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_verbosity" title="pianistpy.runtime.set_verbosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_verbosity</span></code></a></dt><dd><p>Choose the messages printed on the screen.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"A message kept at every verbosity."</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">recent_messages</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">'pianistpy DEBUG: A message kept at every verbosity.'</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.platform">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">platform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.platform" title="Link to this definition">#</a></dt>
-<dd><p>Return the backend JAX runs on: <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;gpu&quot;</span></code> or another.</p>
-<p>Asking initializes the backend if it is not yet.</p>
+<dd><p>Return the hardware JAX runs on.</p>
+<p>A call of <cite>platform</cite> makes JAX choose its hardware if no computation
+has chosen the hardware yet.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> – JAX’s name of the hardware: <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;gpu&quot;</span></code>, or another name
+that JAX reports.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_platform" title="pianistpy.runtime.set_platform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_platform</span></code></a></dt><dd><p>Choose the hardware JAX runs on.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">platform</span><span class="p">(),</span> <span class="nb">str</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.set_compilation_cache">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">set_compilation_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.set_compilation_cache" title="Link to this definition">#</a></dt>
-<dd><p>Turn the persistent compilation cache of JAX on or off.</p>
-<p>With the cache on, the code compiled in one run is reused by the next,
-which shortens every run after the first. It changes no number. The
-cache is on by default, its folder unbounded in size, as JAX’s own is.</p>
-<p>A bound costs time: JAX then takes a lock on the folder at every read
-and write, and scans every entry at every write. Measured on a folder of
-22,000 entries on a network file system, a test that takes 5.6 minutes
-with no bound (4.3 to 5.2 minutes with eight runs at once on the folder,
-as with the cache off) took 2 hours 8 minutes alone with a bound of
-512 MiB.</p>
+<dd><p>Turn JAX’s persistent compilation cache on or off.</p>
+<p>With the cache on, a later Python session reuses the code that an
+earlier session compiled, which shortens every session after the first.
+The cache changes no computed number. When the package is imported,
+the cache is on, in the folder of <cite>default_compilation_cache</cite>, with no
+bound on the folder’s size, unless <code class="docutils literal notranslate"><span class="pre">PIANISTPY_COMPILATION_CACHE</span></code>
+turns the cache off.</p>
+<p>A bound on the folder’s size slows every compilation: with a bound,
+JAX locks the folder at every read and every write, and scans every
+entry of the folder at every write. On a shared or network file
+system, keep the folder unbounded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a><em> or </em><em>path</em><em>, </em><em>optional</em>) – True for the default folder (<cite>default_compilation_cache</cite>, or the
-package’s own folder where the environment variable turns the cache
-off), a path for another folder, False to turn the cache off.</p></li>
-<li><p><strong>max_size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Bound on the folder in bytes, above which JAX evicts the oldest
-entries; None, the default, leaves the folder unbounded.</p></li>
+<li><p><strong>cache</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em> or </em><em>path-like</em><em>, </em><em>optional</em>) – True for the folder of <cite>default_compilation_cache</cite>, or for
+<code class="docutils literal notranslate"><span class="pre">~/.cache/pianistpy/jax</span></code> if the environment variable turns the
+cache off; a path for another folder; False to turn the cache off.
+Default: <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>max_size</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – The largest size of the folder, in bytes; above <cite>max_size</cite>, JAX
+removes the oldest entries. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the
+folder has no bound.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>folder</strong> – The folder in use, or None if the cache is off.</p>
+<dd class="field-even"><p><strong>folder</strong> – The folder the cache uses; None if the cache is off.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a> or None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.default_compilation_cache" title="pianistpy.runtime.default_compilation_cache"><code class="xref py py-obj docutils literal notranslate"><span class="pre">default_compilation_cache</span></code></a></dt><dd><p>The folder the cache uses by default.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">on</span> <span class="o">=</span> <span class="n">default_compilation_cache</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_compilation_cache</span><span class="p">(</span><span class="n">on</span><span class="p">)</span> <span class="o">==</span> <span class="n">default_compilation_cache</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.runtime.set_cores">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">set_cores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.set_cores" title="Link to this definition">#</a></dt>
+<dd><p>Set the number of cores the package uses for parallel computations.</p>
+<p>The number of cores changes no computed number: a result is the same,
+bit for bit, for every value. Each parallel process of the package runs
+one thread, so the number of cores is also the largest number of
+parallel processes. The environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_CORES</span></code> sets
+the value when the package is imported; with the variable unset, the
+value is <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>{&quot;auto&quot;</em><em>, </em><em>&quot;full&quot;</em><em>, </em><em>&quot;half&quot;}</em><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> uses every core <cite>allowed_cores</cite> counts inside a batch job
+and half of those cores, at least 1, elsewhere. <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> uses
+every core <cite>allowed_cores</cite> counts. <code class="docutils literal notranslate"><span class="pre">&quot;half&quot;</span></code> uses half of those
+cores, at least 1. A positive integer, or a string of digits, uses
+that number of cores.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>value</cite> is none of <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;half&quot;</span></code> and a
+    positive integer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.get_cores" title="pianistpy.runtime.get_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cores</span></code></a></dt><dd><p>The number of cores the package uses.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.allowed_cores" title="pianistpy.runtime.allowed_cores"><code class="xref py py-obj docutils literal notranslate"><span class="pre">allowed_cores</span></code></a></dt><dd><p>The number of cores the process may use.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_cores</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_cores</span><span class="p">()</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_cores</span><span class="p">(</span><span class="s2">"auto"</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.set_platform">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">set_platform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.set_platform" title="Link to this definition">#</a></dt>
-<dd><p>Choose the hardware JAX runs on, before the first computation.</p>
-<p>The CPU-only mode (<code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code>) is first class: every function of the
-package runs on it and gives the same numbers on every machine. It
-changes no number on a machine without a GPU; on one with a GPU the
-CPU and GPU results differ at rounding, as the provenance of each
-file records (<cite>pianistpy.io.backend_provenance</cite>).</p>
+<dd><p>Choose the hardware JAX runs on, before the session’s first
+computation.</p>
+<p>Every function of the package runs on the CPU alone (<code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code>), and
+the CPU alone gives the same numbers on every machine. On a machine
+with a GPU, results computed on the GPU and results computed on the CPU
+differ at the level of rounding; each result file records the hardware
+that computed the result.</p>
+<p>JAX chooses its hardware at the first computation of the Python process
+and keeps the choice for the rest of the process. A call of
+<cite>set_platform</cite> after the first computation does not change the
+hardware. To choose the hardware before the package is imported, set
+the environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_PLATFORM</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<em>{&quot;auto&quot;</em><em>, </em><em>&quot;cpu&quot;</em><em>, </em><em>&quot;gpu&quot;}</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> leaves JAX its own order (a GPU where one is usable);
-<code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> is the CPU-only mode; <code class="docutils literal notranslate"><span class="pre">&quot;gpu&quot;</span></code> asks for the CUDA backend
-with the CPU behind it. Any other string is handed to JAX as its
-own platform list (for example <code class="docutils literal notranslate"><span class="pre">&quot;rocm,cpu&quot;</span></code>).</p>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> leaves JAX’s own order: a usable GPU first, the CPU
+otherwise. <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code> runs on the CPU alone. <code class="docutils literal notranslate"><span class="pre">&quot;gpu&quot;</span></code> runs on a
+CUDA GPU first and on the CPU second. Any other string is passed to
+JAX as JAX’s platform list, for example <code class="docutils literal notranslate"><span class="pre">&quot;rocm,cpu&quot;</span></code>.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>name</cite> is not a non-empty string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>JAX picks its backend at the first computation of the process and
-keeps it: call this before any result is computed, or set the
-environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_PLATFORM</span></code> before the package is
-imported. A later call has no effect and is reported at <code class="docutils literal notranslate"><span class="pre">info</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.platform" title="pianistpy.runtime.platform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">platform</span></code></a></dt><dd><p>The hardware JAX runs on.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_platform</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="c">...</span>
+<span class="gr">pianistpy.exceptions.InputError</span>: <span class="n">...</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.set_timing">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">set_timing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enabled</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.set_timing" title="Link to this definition">#</a></dt>
-<dd><p>Switch the printing of stage times on or off.</p>
-<p>The times are always measured and kept with the result. This switch
-controls printing only and is independent of the verbosity. The
-environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_TIMING</span></code> sets it at import.</p>
+<dd><p>Turn the printing of each computation’s stage times on or off.</p>
+<p>The package measures the stage times of every computation and keeps
+the times with the result, whether the printing is on or off. The
+printing does not depend on the verbosity. The environment variable
+<code class="docutils literal notranslate"><span class="pre">PIANISTPY_TIMING</span></code> turns the printing on when the package is imported
+if the variable is <code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">yes</span></code> or <code class="docutils literal notranslate"><span class="pre">on</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>enabled</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a>)</p>
+<dd class="field-odd"><p><strong>enabled</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a>) – Whether the stage times are printed at the end of each computation.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.timing_enabled" title="pianistpy.runtime.timing_enabled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timing_enabled</span></code></a></dt><dd><p>Whether the stage times are printed.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.Timing" title="pianistpy.runtime.Timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Timing</span></code></a></dt><dd><p>The stage times of one computation.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_timing</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">timing_enabled</span><span class="p">()</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_timing</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.set_verbosity">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">set_verbosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.set_verbosity" title="Link to this definition">#</a></dt>
-<dd><p>Set what the package prints for the rest of the session.</p>
+<dd><p>Set which of the package’s messages are printed on the screen.</p>
+<p>The verbosity holds for the rest of the session. The verbosity changes
+no computed number. The environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_VERBOSITY</span></code>
+sets the verbosity when the package is imported; with the variable
+unset, the verbosity is <code class="docutils literal notranslate"><span class="pre">&quot;quiet&quot;</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>level</strong> (<em>{&quot;quiet&quot;</em><em>, </em><em>&quot;info&quot;</em><em>, </em><em>&quot;debug&quot;}</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;quiet&quot;</span></code> shows warnings and errors only and is the default;
-<code class="docutils literal notranslate"><span class="pre">&quot;info&quot;</span></code> adds one line per stage; <code class="docutils literal notranslate"><span class="pre">&quot;debug&quot;</span></code> adds the detail of
-each stage.</p>
+<dd class="field-odd"><p><strong>level</strong> (<em>{&quot;quiet&quot;</em><em>, </em><em>&quot;info&quot;</em><em>, </em><em>&quot;debug&quot;}</em>) – <code class="docutils literal notranslate"><span class="pre">&quot;quiet&quot;</span></code> prints warnings and errors only. <code class="docutils literal notranslate"><span class="pre">&quot;info&quot;</span></code> also prints
+one line when each stage of a computation starts, and the messages
+of results with relative error above <span class="math notranslate nohighlight">\(10^{-6}\)</span> and at most
+<span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>.</span> <code class="docutils literal notranslate"><span class="pre">&quot;debug&quot;</span></code> also prints the details of each stage.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>level</cite> is not <code class="docutils literal notranslate"><span class="pre">&quot;quiet&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;info&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;debug&quot;</span></code>.</p>
 </dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>The verbosity never changes what is computed. The environment variable
-<code class="docutils literal notranslate"><span class="pre">PIANISTPY_VERBOSITY</span></code> sets the level at import.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pianistpy.runtime.set_workers">
-<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">set_workers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.set_workers" title="Link to this definition">#</a></dt>
-<dd><p>Set how many cores the package uses for parallel work.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> (<em>{&quot;auto&quot;</em><em>, </em><em>&quot;full&quot;</em><em>, </em><em>&quot;half&quot;}</em><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>, the default, uses every allowed core inside a batch job
-and half of them anywhere else; <code class="docutils literal notranslate"><span class="pre">&quot;full&quot;</span></code> every allowed core;
-<code class="docutils literal notranslate"><span class="pre">&quot;half&quot;</span></code> half of them; an integer exactly that many.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The number of cores never changes a number: a result is the same, to
-the bit, for any value. The environment variable <code class="docutils literal notranslate"><span class="pre">PIANISTPY_WORKERS</span></code>
-sets the value at import.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.log_to_file" title="pianistpy.runtime.log_to_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_to_file</span></code></a></dt><dd><p>Write the messages of a block to a file.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.recent_messages" title="pianistpy.runtime.recent_messages"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recent_messages</span></code></a></dt><dd><p>The most recent messages at every verbosity.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_verbosity</span><span class="p">(</span><span class="s2">"info"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_verbosity</span><span class="p">(</span><span class="s2">"quiet"</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.timed">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">timed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.timed" title="Link to this definition">#</a></dt>
-<dd><p>Time one stage and announce it.</p>
+<dd><p>Time one stage of a computation in a <code class="docutils literal notranslate"><span class="pre">with</span></code> block.</p>
+<p>The stage’s start is written to the log at level INFO and the stage’s
+time at level DEBUG. Inside a <cite>timing_record</cite> block, the stage’s time
+and the process’s largest memory are added to the record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>stage</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – Name of the stage, from the fixed list of its computation.</p>
+<dd class="field-odd"><p><strong>stage</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The stage’s name.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Iterator</em></a>[None]</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.timing_record" title="pianistpy.runtime.timing_record"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timing_record</span></code></a></dt><dd><p>Collect the stage times of a block.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">timed</span><span class="p">(</span><span class="s2">"example"</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.timing_enabled">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">timing_enabled</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.timing_enabled" title="Link to this definition">#</a></dt>
-<dd><p>Return whether stage times are printed.</p>
+<dd><p>Return whether the stage times are printed at the end of each
+computation.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank">bool</a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>enabled</strong> – The value last given to <cite>set_timing</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank">bool</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.set_timing" title="pianistpy.runtime.set_timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_timing</span></code></a></dt><dd><p>Turn the printing of stage times on or off.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">timing_enabled</span><span class="p">(),</span> <span class="nb">bool</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.runtime.timing_record">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">timing_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.timing_record" title="Link to this definition">#</a></dt>
-<dd><p>Collect the stage times of the enclosed computation.</p>
+<dd><p>Collect the stage times of the computation in a <code class="docutils literal notranslate"><span class="pre">with</span></code> block.</p>
+<p>With the printing of stage times on (<cite>set_timing</cite>), the times are
+printed when the block ends.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Yields<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>timing</strong> (<em>Timing</em>) – The record that every <cite>timed</cite> stage of the block adds to.</p>
+<dd class="field-odd"><p><strong>timing</strong> (<em>Timing</em>) – The record to which each <cite>timed</cite> stage inside the block adds its
+time and memory.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterator" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Iterator</em></a>[<a class="reference internal" href="#pianistpy.runtime.Timing" title="pianistpy.runtime.Timing"><em>Timing</em></a>]</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pianistpy.runtime.workers_explicit">
-<span class="sig-prename descclassname"><span class="pre">pianistpy.runtime.</span></span><span class="sig-name descname"><span class="pre">workers_explicit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.runtime.workers_explicit" title="Link to this definition">#</a></dt>
-<dd><p>Whether the number of cores was set exactly (<cite>set_workers</cite>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank">bool</a></p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.runtime.timed" title="pianistpy.runtime.timed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">timed</span></code></a></dt><dd><p>Time one stage.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.runtime.Timing" title="pianistpy.runtime.Timing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Timing</span></code></a></dt><dd><p>The stage times of one computation.</p>
 </dd>
 </dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">timing_record</span><span class="p">()</span> <span class="k">as</span> <span class="n">record</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">timed</span><span class="p">(</span><span class="s2">"example"</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">stages</span><span class="p">)</span>
+<span class="go">['example']</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -676,21 +1039,21 @@ sets the value at import.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.allowed_cores"><code class="docutils literal notranslate"><span class="pre">allowed_cores()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.card_memory"><code class="docutils literal notranslate"><span class="pre">card_memory()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.configure_jax"><code class="docutils literal notranslate"><span class="pre">configure_jax()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.cores_explicit"><code class="docutils literal notranslate"><span class="pre">cores_explicit()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.default_compilation_cache"><code class="docutils literal notranslate"><span class="pre">default_compilation_cache()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.get_workers"><code class="docutils literal notranslate"><span class="pre">get_workers()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.get_cores"><code class="docutils literal notranslate"><span class="pre">get_cores()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.log_to_file"><code class="docutils literal notranslate"><span class="pre">log_to_file()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.peak_memory"><code class="docutils literal notranslate"><span class="pre">peak_memory()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.recent_messages"><code class="docutils literal notranslate"><span class="pre">recent_messages()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.platform"><code class="docutils literal notranslate"><span class="pre">platform()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.set_compilation_cache"><code class="docutils literal notranslate"><span class="pre">set_compilation_cache()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.set_cores"><code class="docutils literal notranslate"><span class="pre">set_cores()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.set_platform"><code class="docutils literal notranslate"><span class="pre">set_platform()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.set_timing"><code class="docutils literal notranslate"><span class="pre">set_timing()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.set_verbosity"><code class="docutils literal notranslate"><span class="pre">set_verbosity()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.set_workers"><code class="docutils literal notranslate"><span class="pre">set_workers()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.timed"><code class="docutils literal notranslate"><span class="pre">timed()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.timing_enabled"><code class="docutils literal notranslate"><span class="pre">timing_enabled()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.timing_record"><code class="docutils literal notranslate"><span class="pre">timing_record()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.runtime.workers_explicit"><code class="docutils literal notranslate"><span class="pre">workers_explicit()</span></code></a></li>
 </ul>
   </nav></div>
 

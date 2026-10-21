@@ -1,14 +1,12 @@
 PIANISTpy
 =========
 
-**P**\ article **I**\ nitial conditions with **ANIS**\ o\ **T**\ ropy: distribution functions, particle initial
-conditions and observables of spherical systems with anisotropic velocities, truncated self-consistently in
-phase space.
+**P**\ article **I**\ nitial conditions with **ANIS**\ o\ **T**\ ropy.
 
 PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in
 phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides
-distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with
-JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.
+distribution functions, particle initial conditions, radial and tangential velocity dispersion profiles and
+line-of-sight observables, with JAX-based end-to-end differentiability for gradient-based Monte Carlo inference.
 
 .. grid:: 1 2 2 4
    :gutter: 3
@@ -17,26 +15,26 @@ JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo infe
       :link: start/index
       :link-type: doc
 
-      Install, the dependencies, the quick start, the representative computing time.
+      What the package does, installation and dependencies, a quick start, and the representative computing time.
 
    .. grid-item-card:: User guide
       :link: guide/index
       :link-type: doc
 
-      One page per topic, with short examples: models, particles, observables, superposition and inference,
-      units, accuracy.
+      One page per topic, each with short code examples.
 
    .. grid-item-card:: Examples
       :link: notebooks/index
       :link-type: doc
 
-      Notebooks that run a whole job, and notebooks that reproduce the result figures of |paper|, run against this release.
+      Tutorial notebooks for generating particle initial conditions and for computing observables from a model.
 
    .. grid-item-card:: API reference
       :link: reference/index
       :link-type: doc
 
-      Every function by subpackage, the settings tables, the names and paper symbols, the technical notes.
+      Every function by subpackage, the numerical settings, the code and paper notations, the accuracy tables and the
+      technical notes.
 
 .. toctree::
    :hidden:

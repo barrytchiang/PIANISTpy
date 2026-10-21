@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Accuracy &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Accuracy &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -53,21 +53,19 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex" />
     <link rel="search" title="Search" href="../search" />
-    <link rel="next" title="Flags and refusals" href="results" />
+    <link rel="next" title="Flags and refusals" href="flags-refusals" />
     <link rel="prev" title="Units" href="units" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="accuracy.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">Accuracy</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -302,21 +298,31 @@
                   
   <section id="accuracy">
 <h1>Accuracy<a class="headerlink" href="#accuracy" title="Link to this heading">#</a></h1>
-<p>Every result carries a validation report, a short and fixed summary of the checks it passed, with its tier: a
-check within the accuracy goal (a relative error of <span class="math notranslate nohighlight">\(10^{-6}\)</span>) is silent; above the goal, within the ceiling (<span class="math notranslate nohighlight">\(10^{-4}\)</span>) or
-within the hard limit (<span class="math notranslate nohighlight">\(10^{-2}\)</span>), the result is returned with a warning in the package’s log and as an
-<code class="docutils literal notranslate"><span class="pre">AccuracyWarning</span></code> (Python’s standard filter silences or escalates it), and the flag stays with the result and with
-everything computed from it; beyond the hard limit the result is refused.</p>
-<p>The numerical settings come in two tested tiers, both held to these checks by the test suite:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>            <span class="c1"># the default tier</span>
-<span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">quick</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># a faster tier for exploration</span>
+<p>Every result carries a validation report, a fixed summary with one record per accuracy check of the result.
+The tier of a result’s report, <code class="docutils literal notranslate"><span class="pre">report.tier</span></code>, is the band of the largest relative error over the result’s own checks
+and over the results from which the result was computed:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;silent&quot;</span></code>: at most <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span> the result is returned silently;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;recorded&quot;</span></code>: above <span class="math notranslate nohighlight">\(10^{-6}\)</span> and at most <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>,</span> the result is returned without a warning, and
+the report records the error;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;warned&quot;</span></code>: above <span class="math notranslate nohighlight">\(10^{-4}\)</span> and at most <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>,</span> the result is returned with an accuracy warning.
+The accuracy warning goes to the package’s log and is issued as an <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyWarning</span></code>, which
+Python’s standard filter can silence or escalate. A result computed from a warned result has the tier
+<code class="docutils literal notranslate"><span class="pre">&quot;warned&quot;</span></code> or a higher tier;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;refused&quot;</span></code>: above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>,</span> the call raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code>, unless
+<code class="docutils literal notranslate"><span class="pre">Settings(write_anyway=True)</span></code> asks for the result anyway.</p></li>
+</ul>
+<p>The package has two tested settings levels, the default settings and the quick settings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>            <span class="c1"># the default settings</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">quick</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># the quick settings, faster, for exploration</span>
 </pre></div>
 </div>
-<p>The runtime options that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
-<a class="reference internal" href="switches"><span class="doc">Runtime options</span></a>.</p>
+<p>The runtime options (verbosity, timing, cores, compilation cache, platform) set how the package runs, and the
+<a class="reference internal" href="runtime"><span class="doc">Runtime options</span></a> page describes the runtime options. The runtime options change no computed number, except the platform. CPU-only and
+GPU results differ by less than <span class="math notranslate nohighlight">\(10^{-10}\)</span> in relative terms.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </div>
 </section>

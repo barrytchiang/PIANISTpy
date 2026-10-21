@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The prepared table &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Line-of-sight table &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -53,21 +53,19 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex" />
     <link rel="search" title="Search" href="../search" />
-    <link rel="next" title="End-to-end differentiability" href="gradient" />
-    <link rel="prev" title="Local speed distribution" href="pdf_v" />
+    <link rel="next" title="End-to-end differentiability" href="differentiability" />
+    <link rel="prev" title="Local velocity distribution" href="pdf_v" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="lostable.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -286,7 +282,7 @@
     
     <li class="breadcrumb-item"><a href="observables" class="nav-link">Observables</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">The prepared table</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Line-of-sight table</span></li>
   </ul>
 </nav>
 </div>
@@ -303,68 +299,103 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="the-prepared-table">
-<h1>The prepared table<a class="headerlink" href="#the-prepared-table" title="Link to this heading">#</a></h1>
+  <section id="line-of-sight-table">
+<h1>Line-of-sight table<a class="headerlink" href="#line-of-sight-table" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.losvd()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_los()</span></code>,
 <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_los_aperture()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_r()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_t()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.pdf_v()</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> computes once what the observables of a model read: the intrinsic dispersion profile
-(<a class="reference internal" href="sigma_r"><span class="doc">Radial velocity dispersion</span></a>), the surface density <span class="math notranslate nohighlight">\(\Sigma(R_{\rm 2D})\)</span> and the line-of-sight dispersion
-<span class="math notranslate nohighlight">\(\sigma_{\rm los}(R_{\rm 2D})\)</span> over projected radius, and the table of line-of-sight velocity distributions
-<span class="math notranslate nohighlight">\(D(R_{\rm 2D}, V_{\rm los})\)</span> (<a class="reference internal" href="losvd"><span class="doc">Line-of-sight velocity distribution</span></a>) on rows of projected radius from the center outward (where the
-rows run, below).
-Every observable then takes the table in place of the model and reads from it, so a table is the object to build
-when a model is asked for more than one observable, or for one observable many times (a fit, a grid of apertures).</p>
+<p><code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> computes, once, everything the observables of a model read:</p>
+<ul class="simple">
+<li><p>the intrinsic dispersion profile (<a class="reference internal" href="sigma_r"><span class="doc">Radial velocity dispersion</span></a>);</p></li>
+<li><p>the surface density <span class="math notranslate nohighlight">\(\Sigma(R_{\rm 2D})\)</span> and the line-of-sight dispersion
+<span class="math notranslate nohighlight">\(\sigma_{\rm los}(R_{\rm 2D})\)</span> over projected radius;</p></li>
+<li><p>the line-of-sight velocity distributions <span class="math notranslate nohighlight">\(D(R_{\rm 2D}, V_{\rm los})\)</span> (<a class="reference internal" href="losvd"><span class="doc">Line-of-sight velocity distribution</span></a>), one row per projected
+radius, from the center outward.</p></li>
+</ul>
+<p>Every observable then takes the table in place of the model and reads its values from the table. Build a table when a model is asked
+for more than one observable, or for one observable many times (a fit, a grid of apertures).</p>
 <p>As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, the dispersion inside an aperture is the surface-density weighted average of
-<span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span>; a centered circle of radius <span class="math notranslate nohighlight">\(R_{\rm ape}\)</span> gives</p>
+<span class="nobr"><span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span>.</span> A centered circle of radius <span class="math notranslate nohighlight">\(R_{\rm ape}\)</span> gives</p>
 <div class="math notranslate nohighlight">
 \[\overline{\sigma}_{\rm los}^2(R_{\rm ape}) =
 \frac{\int_0^{R_{\rm ape}} \Sigma(R_{\rm 2D})\,\sigma_{\rm los}^2(R_{\rm 2D})\,R_{\rm 2D}\,{\rm d}R_{\rm 2D}}
 {\int_0^{R_{\rm ape}} \Sigma(R_{\rm 2D})\,R_{\rm 2D}\,{\rm d}R_{\rm 2D}},\]</div>
-<p>and an offset circle or a rectangle the same average over its own area. Given the model,
-<code class="xref py py-func docutils literal notranslate"><span class="pre">sigma_los_aperture()</span></code> takes this average and reads no velocity distribution; given the table, it
-takes the second moment of the aperture’s velocity distribution, the rows of the table averaged over the aperture
-with the same weight. The two routes are independent and agree to the accuracy goal. The table’s route costs
-more than the model’s (the example below gives the times).</p>
+<p>and an offset circle or a rectangle gives the same average over its own area.
+<code class="xref py py-func docutils literal notranslate"><span class="pre">sigma_los_aperture()</span></code> computes the dispersion inside an aperture in two ways:</p>
+<ul class="simple">
+<li><p>Given the model, <code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> computes the surface-density weighted average of
+<span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span> and reads no velocity distribution.</p></li>
+<li><p>Given the table, <code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> takes the second moment of the aperture’s velocity distribution, which is
+the table’s rows averaged over the aperture with the surface density as the weight.</p></li>
+</ul>
+<p>The results on the model and on the table agree to a relative error of <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>.</span> The call on the table
+takes longer than the call on the model.</p>
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> takes a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> of one component or a superposition; a superposition holds
-one table per component (<code class="docutils literal notranslate"><span class="pre">parts</span></code>), each read with its weight. The table is computed in internal units at the
-model’s own settings and is not recomputed for another unit system: <code class="docutils literal notranslate"><span class="pre">table.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code> returns the
-same tables presented in the units of <code class="docutils literal notranslate"><span class="pre">model.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code>, and the observables read from it take and
-return quantities in those units.</p>
-<p>The rows are computed by a pool of parallel processes, which Python starts by spawning a fresh interpreter. In a
-script, build the table (or call <code class="xref py py-func docutils literal notranslate"><span class="pre">losvd()</span></code> on a model, which builds one) under
-<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>, as Python’s <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> requires; in a notebook or an interactive session
-nothing is needed.</p>
-<p>What it holds: <code class="docutils literal notranslate"><span class="pre">model</span></code>; <code class="docutils literal notranslate"><span class="pre">profile</span></code>, <code class="docutils literal notranslate"><span class="pre">projected</span></code>, <code class="docutils literal notranslate"><span class="pre">kept</span></code> and <code class="docutils literal notranslate"><span class="pre">table</span></code>, the results of its four stages;
-<code class="docutils literal notranslate"><span class="pre">validation</span></code>, its report; <code class="docutils literal notranslate"><span class="pre">parts</span></code>, one table per component.</p>
+<p><code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> takes a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> of one component or a superposition
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">superpose()</span></code>). For a superposition it holds one table per component in <code class="docutils literal notranslate"><span class="pre">parts</span></code>, and reads each
+with its component’s weight.</p>
+<p>The table is computed in internal units, at the model’s own settings. <code class="docutils literal notranslate"><span class="pre">table.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code> recomputes
+nothing. <code class="docutils literal notranslate"><span class="pre">table.to</span></code> returns the same tables presented in the units of <code class="docutils literal notranslate"><span class="pre">model.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code>, and the
+observables read from the returned table take and return quantities in those units.</p>
+<p>The rows are computed in parallel processes. In a script, build the table under <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>, as
+Python’s <code class="docutils literal notranslate"><span class="pre">multiprocessing</span></code> requires. A call of <code class="xref py py-func docutils literal notranslate"><span class="pre">losvd()</span></code> or <code class="xref py py-func docutils literal notranslate"><span class="pre">aperture_losvd()</span></code> on a
+model, and a <code class="xref py py-class docutils literal notranslate"><span class="pre">ProjectedSampler</span></code> given a model, also build a table and need the same
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code> guard. A notebook or an interactive session needs no <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>
+guard. If a parallel process ends during the computation, the call raises <code class="docutils literal notranslate"><span class="pre">pianistpy.exceptions.WorkerError</span></code> at
+once and states the cause. The usual cause is that the machine ran out of memory. Fewer cores
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">set_cores()</span></code>) lower the memory that the call uses.</p>
+<p>The table holds:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">model</span></code>, the model the table was built from;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">profile</span></code> (the intrinsic dispersion profile), <code class="docutils literal notranslate"><span class="pre">projected</span></code> (the surface density and the line-of-sight
+dispersion over projected radius), <code class="docutils literal notranslate"><span class="pre">kept</span></code> (the ranges of projected radius of the velocity quadrature) and
+<code class="docutils literal notranslate"><span class="pre">table</span></code> (the line-of-sight velocity distributions), each of the first component for a superposition;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">validation</span></code>, the table’s accuracy report;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">parts</span></code>, one table per component.</p></li>
+</ul>
 </section>
 <section id="where-the-rows-run">
 <h2>Where the rows run<a class="headerlink" href="#where-the-rows-run" title="Link to this heading">#</a></h2>
-<p>The rows end at the first row beyond which less than <code class="docutils literal notranslate"><span class="pre">losvd.outer_mass_share</span></code> of the model’s total projected
-mass lies (the accuracy goal, <span class="math notranslate nohighlight">\(10^{-6}\)</span>, by default). Inside, they start at the profile’s innermost row, unless
-<code class="docutils literal notranslate"><span class="pre">losvd.innermost_read_radius</span></code> names the smallest projected radius the table will be read at: the rows then start at
-the last row inside the radius whose disk holds the goal times the projected mass inside <code class="docutils literal notranslate"><span class="pre">innermost_read_radius</span></code>,
-and an aperture’s integral starts at that first row. Each row kept is the row the full table holds at its radius. A
-read beyond the last row or inside the first, at a point or over an aperture, is refused by name with that row’s
-radius and the setting that moves it; an aperture whose disk inside the first row carries more than the goal of its
-weight is refused with the smallest centered circle the table serves at the goal. <code class="docutils literal notranslate"><span class="pre">Settings(losvd={&quot;outer_mass_share&quot;:</span>
-<span class="pre">0})</span></code> keeps the rows to the model’s edge.</p>
+<p>The rows stop at the first row beyond which less than <code class="docutils literal notranslate"><span class="pre">losvd.outer_mass_share</span></code> of the model’s total projected
+mass lies. The default is <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>.</span> <code class="docutils literal notranslate"><span class="pre">Settings(losvd={&quot;outer_mass_share&quot;:</span> <span class="pre">0})</span></code> keeps the
+rows to the model’s edge.</p>
+<p>By default the rows start at the innermost radius of the dispersion profile. The setting
+<code class="docutils literal notranslate"><span class="pre">losvd.innermost_read_radius</span></code> sets the smallest projected radius the table will be read at. The rows then start
+at the last row inside the projected radius whose disk holds <span class="math notranslate nohighlight">\(10^{-6}\)</span> times the projected mass inside
+<code class="docutils literal notranslate"><span class="pre">innermost_read_radius</span></code>. An aperture’s integral then starts at the table’s first row. Each row kept is identical
+to the row at the same projected radius of a table built with <code class="docutils literal notranslate"><span class="pre">innermost_read_radius</span></code> and <code class="docutils literal notranslate"><span class="pre">outer_mass_share</span></code>
+set to 0.</p>
+<p>A read outside the rows raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>. For a read beyond the last row or inside the first
+row, at a point or over an aperture, the error message gives the radius of the end row and the setting that moves
+the end row (<code class="docutils literal notranslate"><span class="pre">losvd.outer_mass_share</span></code> or <code class="docutils literal notranslate"><span class="pre">losvd.innermost_read_radius</span></code>). An aperture whose part inside the
+first row carries more than <span class="math notranslate nohighlight">\(10^{-6}\)</span> of the aperture’s weight also raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>.
+The error message gives the radius of the smallest centered circle that the table computes to a relative error of
+<span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>.</span></p>
 </section>
-<section id="tiers">
-<h2>Tiers<a class="headerlink" href="#tiers" title="Link to this heading">#</a></h2>
-<p>The rows of the table are added until the table reads itself between rows within the tolerance of its settings,
-and every row is checked against two quantities computed without it. The report <code class="docutils literal notranslate"><span class="pre">table.validation</span></code> holds six
-checks, each with its relative error and the radius where it is worst: <code class="docutils literal notranslate"><span class="pre">norm</span></code>, each row’s integral against the
-surface density; <code class="docutils literal notranslate"><span class="pre">second_moment</span></code>, each row’s second moment against the projected dispersion; <code class="docutils literal notranslate"><span class="pre">unjudged</span></code>, a row
-with surface density that could not be checked (beyond the hard limit if any); <code class="docutils literal notranslate"><span class="pre">t_converged</span></code>, a row whose rule
-along the line of sight ran out of doublings before its tests passed (beyond the hard limit if any); <code class="docutils literal notranslate"><span class="pre">certificate</span></code>,
-the table’s estimate of its reading between rows; and <code class="docutils literal notranslate"><span class="pre">layer_floor</span></code>, the error at which the quadrature’s layers
-toward the point of zero angular momentum stop converging, nonzero only for an anisotropy between 1/2 and 1 at the
-center (below the goal: a floor above it is refused). The report’s tier is the worst of these and of the model’s own; a table
-above the goal says so in a warning when it is built (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>), and a table beyond the hard limit (tier “refused”)
-is refused unless its settings ask for it (<code class="docutils literal notranslate"><span class="pre">Settings(write_anyway=True)</span></code>), as an aperture’s distribution is. Intervals of projected radius where the
-table could not meet its tolerance are recorded in <code class="docutils literal notranslate"><span class="pre">table.table.r_uncertified</span></code>, and a request inside one is refused by name.</p>
+<section id="accuracy-report">
+<h2>Accuracy report<a class="headerlink" href="#accuracy-report" title="Link to this heading">#</a></h2>
+<p>The table adds rows until the interpolation between rows meets the tolerance of the model’s settings. Every row is
+checked against the surface density and the line-of-sight dispersion, both computed without the row. The report <code class="docutils literal notranslate"><span class="pre">table.validation</span></code> holds six checks, each with its relative error
+and the radius where it is worst:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">norm</span></code>: each row’s integral against the surface density;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">second_moment</span></code>: each row’s second moment against the projected dispersion;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unjudged</span></code>: infinite if a row where the surface density is positive could not be checked, and 0 otherwise;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">t_converged</span></code>: infinite if the integral of a row along the line of sight did not converge, and 0 otherwise;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">certificate</span></code>: the table’s estimate of its error between rows;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">layer_floor</span></code>: the error floor of the integration toward zero angular momentum. The floor is nonzero only for a
+central anisotropy <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> between 1/2 and 1, and a floor above <span class="math notranslate nohighlight">\(10^{-6}\)</span> raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ResultError</span></code>.</p></li>
+</ul>
+<p>The report’s tier is the band of the worst relative error among the six checks and the model’s own report
+(<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>). Building a table whose relative error is above <span class="math notranslate nohighlight">\(10^{-4}\)</span> issues an
+<code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyWarning</span></code>. A table whose relative error is above <span class="math notranslate nohighlight">\(10^{-2}\)</span> (tier <code class="docutils literal notranslate"><span class="pre">&quot;refused&quot;</span></code>)
+raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code>, unless the model’s settings set <code class="docutils literal notranslate"><span class="pre">write_anyway=True</span></code>. An aperture call
+on a table (<code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code>) warns above <span class="math notranslate nohighlight">\(10^{-4}\)</span> and raises above
+<span class="math notranslate nohighlight">\(10^{-2}\)</span> in the same way for the aperture’s distribution. <code class="docutils literal notranslate"><span class="pre">table.table.r_uncertified</span></code> records the
+intervals of projected radius where the table could not meet the table’s tolerance. A read inside one of the
+intervals in <code class="docutils literal notranslate"><span class="pre">table.table.r_uncertified</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultError</span></code>, whose message gives the
+interval.</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
@@ -377,11 +408,11 @@ table could not meet its tolerance are recorded in <code class="docutils literal
     <span class="n">settings</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">quick</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 <span class="p">)</span>
 <span class="n">table</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">LosTable</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>                     <span class="c1"># built once</span>
-<span class="n">table</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">tier</span>                          <span class="c1"># "goal", "ceiling", "warning" or "refused"</span>
+<span class="n">table</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">tier</span>                          <span class="c1"># "silent", "recorded", "warned" or "refused"</span>
 <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">check</span><span class="o">.</span><span class="n">error</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">check</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">checks</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 <span class="n">circle</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
-<span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">circle</span><span class="p">),</span> <span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">circle</span><span class="p">)</span>   <span class="c1"># the two routes</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">circle</span><span class="p">),</span> <span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">circle</span><span class="p">)</span>   <span class="c1"># on the model and on the table</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">sigma_los</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">losvd</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
 
@@ -389,10 +420,8 @@ table could not meet its tolerance are recorded in <code class="docutils literal
 <span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">physical</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">500.0</span><span class="p">))</span>                   <span class="c1"># km/s, 500 pc circle</span>
 </pre></div>
 </div>
-<p>On this example (one 32-core node, CPU), building the table takes about 4 minutes on the node’s 32 cores (43
-minutes with one). With the table built, the circle of radius 1 takes about 30 s by the table’s route with 32
-cores (6 s with one), against about 3.5 s for the model’s route, and a second aperture over the same table (the
-circle of radius 0.5) about as long again.</p>
+<p>The <a class="reference internal" href="../start/computing-time"><span class="doc">Representative computing time</span></a> page gives the time of a table’s first build and
+of the calls that read the table, measured on a workstation CPU, with a GPU, and on a laptop.</p>
 </section>
 </section>
 
@@ -421,7 +450,7 @@ circle of radius 0.5) about as long again.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments-and-units">Arguments and units</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-rows-run">Where the rows run</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tiers">Tiers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accuracy-report">Accuracy report</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>
   </nav></div>

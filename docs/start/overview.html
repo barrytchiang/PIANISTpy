@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>What PIANISTpy does &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>What PIANISTpy does &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -52,20 +52,18 @@
     <link rel="index" title="Index" href="../genindex" />
     <link rel="search" title="Search" href="../search" />
     <link rel="next" title="Install" href="install" />
-    <link rel="prev" title="Get started" href="index" />
+    <link rel="prev" title="Get started" href="overview" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="overview.md">
@@ -117,16 +115,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index">Get started</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="overview">Get started</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../guide/index">User guide</a><ul>
@@ -136,31 +134,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -178,8 +176,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -215,7 +211,7 @@
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">What PIANISTpy does</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart">Quick start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="timing">Representative computing time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computing-time">Representative computing time</a></li>
 </ul>
 </div>
 </nav></div>
@@ -256,7 +252,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index" class="nav-link">Get started</a></li>
+    <li class="breadcrumb-item"><a href="overview" class="nav-link">Get started</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">What PIANISTpy does</span></li>
   </ul>
@@ -279,28 +275,29 @@
 <h1>What PIANISTpy does<a class="headerlink" href="#what-pianistpy-does" title="Link to this heading">#</a></h1>
 <ul class="features simple">
 <li><p><a class="reference internal" href="../guide/profiles"><span class="doc">Density profiles.</span></a> Analytical double-power-law density profiles with a finite central
-potential, including the commonly used Navarro-Frenk-White, Hernquist and Plummer profiles.</p></li>
+potential, including the Navarro-Frenk-White, Hernquist and Plummer profiles.</p></li>
 <li><p><a class="reference internal" href="../guide/anisotropy"><span class="doc">Velocity anisotropy.</span></a> Isotropic, constant-anisotropy, Osipkov-Merritt and
-Cuddeford-Osipkov-Merritt models, the latter two radially (Type I) or tangentially (Type II) biased.</p></li>
+Cuddeford-Osipkov-Merritt (COM) models. The Osipkov-Merritt and COM models are radially (Type I) or tangentially
+(Type II) biased.</p></li>
 <li><p><a class="reference internal" href="../guide/df"><span class="doc">Distribution functions.</span></a> Each anisotropy model’s distribution function, inverted from the
-input density with exact symbolic expressions up to the final numerical integration, with
-<a class="reference internal" href="../reference/accuracy"><span class="doc">extensively validated numerical accuracy</span></a> and checks that it is non-negative
-(physical) and monotonic (dynamically stable).</p></li>
-<li><p><a class="reference internal" href="../guide/truncation"><span class="doc">Truncation in phase space.</span></a> Model truncation performed in phase space, such that the
-truncation boundary is fully self-consistent and in dynamical equilibrium, by two methods: one preserves the
-model’s anisotropy profile (Method I), the other gives different anisotropy models an identical truncated
-density (Method II).</p></li>
-<li><p><a class="reference internal" href="../guide/particles"><span class="doc">Particles.</span></a> Particle initial conditions with a finite, dynamically stable truncation
-boundary, drawn from the truncated distribution function, in internal, model or physical units.</p></li>
+input density with exact symbolic expressions up to the final numerical integration, with extensively validated
+numerical accuracy (<a class="reference internal" href="../reference/accuracy"><span class="doc">Accuracy tables</span></a>) and checks that the distribution function is
+non-negative (physical) and monotonic (a sufficient condition for dynamical stability).</p></li>
+<li><p><a class="reference internal" href="../guide/truncation"><span class="doc">Truncation in phase space.</span></a> Model truncation performed in phase space. The
+truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model’s anisotropy
+profile, and Method II gives different anisotropy models an identical truncated density.</p></li>
+<li><p><a class="reference internal" href="../guide/particles"><span class="doc">Particles.</span></a> Particle initial conditions drawn from the truncated distribution
+function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or
+physical units.</p></li>
 <li><p><a class="reference internal" href="../guide/observables"><span class="doc">Observables.</span></a> Radial, tangential and line-of-sight velocity dispersions,
-line-of-sight velocity distributions and their Gauss-Hermite moments, and the local 3D velocity distribution at
-any radius; projected quantities averaged over centered or offset circular and rectangular apertures.</p></li>
+line-of-sight velocity distributions and their Gauss-Hermite moments, and the local velocity distribution at a 3D
+radius. Projected quantities are averaged over centered or offset circular and rectangular apertures.</p></li>
 <li><p><a class="reference internal" href="../guide/superposition#guide-superposition"><span class="std std-ref">Superposition.</span></a> Distribution functions of different anisotropy models on one
-truncated density, linearly superposed into one equilibrium model whose anisotropy profile lies beyond the
-analytical families, such as one fitted to simulated halos.</p></li>
+truncated density, linearly superposed into one equilibrium model. The superposed model’s anisotropy profile can
+differ from every analytical family, for example an anisotropy profile fitted to simulated halos.</p></li>
 <li><p><a class="reference internal" href="../guide/superposition#guide-inference"><span class="std std-ref">Inference.</span></a> End-to-end differentiable in JAX: the likelihood of a model against
-kinematic data, and every observable, with gradients in the superposition weights, the unit scales and the
-anisotropy parameters, for gradient-based Monte Carlo inference.</p></li>
+kinematic data, with gradients in the superposition weights, the mass and length scales (<em>M</em><sub>0</sub> and
+<em>r</em><sub>0</sub>) and, for Method II components, the anisotropy parameters, for gradient-based Monte Carlo inference.</p></li>
 </ul>
 </section>
 

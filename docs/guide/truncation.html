@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Truncation in phase space &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Truncation in phase space &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="truncation.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -308,49 +304,90 @@
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Truncation</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.truncate()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.solve()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Model</span></code></p>
 <section id="method-i">
 <h2>Method I<a class="headerlink" href="#method-i" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">truncate(df,</span> <span class="pre">truncation)</span></code> returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>: the distribution function truncated at an energy,
-with the self-consistent potential-density pair that follows from it. A <code class="docutils literal notranslate"><span class="pre">Model</span></code> is by construction a physical
-and stable equilibrium; a request for which none exists is refused with <code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code>,
-which carries the distribution function for inspection.</p>
-<p>One limit is stated rather than solved: for a steep cusp at <span class="math notranslate nohighlight">\(\beta_{\rm c} = -1/2\)</span> the self-consistent center of the
-truncated model is not reached (measured on <span class="math notranslate nohighlight">\((\alpha, \beta) = (2, 4)\)</span> at <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.3\)</span>, from <span class="math notranslate nohighlight">\(\gamma = 1.735\)</span> on), and the call
-refuses it with an <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> that names the iteration’s response.</p>
-<p><code class="docutils literal notranslate"><span class="pre">Truncation</span></code> takes exactly one of three targets:</p>
+<p><code class="docutils literal notranslate"><span class="pre">truncate(df,</span> <span class="pre">truncation)</span></code> returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>, which holds the distribution function truncated at an
+energy and the self-consistent potential-density pair of the truncated distribution function. If the untruncated
+distribution function is everywhere non-negative and monotonic, the truncated distribution function inherits both
+properties, and the truncation boundary is in dynamical equilibrium. A request with no physical model raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code>, which carries the distribution function, or the model without an edge, for
+inspection.</p>
+<p>At <span class="math notranslate nohighlight">\(\beta_{\rm c} = -1/2\)</span> and a steep inner density slope <span class="nobr"><span class="math notranslate nohighlight">\(\gamma\)</span>,</span> the iteration for the center of the
+truncated model does not converge, and <code class="docutils literal notranslate"><span class="pre">truncate</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code>. For example, with
+<span class="nobr"><span class="math notranslate nohighlight">\((\alpha, \beta) = (2, 4)\)</span>,</span> <span class="math notranslate nohighlight">\(\beta_{\rm c} = -1/2\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.3\)</span>,</span> <code class="docutils literal notranslate"><span class="pre">truncate</span></code>
+raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> from <span class="math notranslate nohighlight">\(\gamma = 1.735\)</span> upward.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Truncation</span></code> takes exactly one of three inputs:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>                          <span class="c1"># the truncation energy, in internal units</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>   <span class="c1"># a target mass, in units of M_0 (model units)</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">r_t</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>                          <span class="c1"># a target radius, in units of the scale radius</span>
 </pre></div>
 </div>
-<p>A target mass is given in units of <span class="math notranslate nohighlight">\(M_0\)</span>, so it needs the concentration that defines <span class="math notranslate nohighlight">\(M_0\)</span>; a target radius and a
-truncation energy do not, and a concentration given with them is refused.</p>
-<p><code class="docutils literal notranslate"><span class="pre">solve(component,</span> <span class="pre">truncation)</span></code> runs <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> and <code class="docutils literal notranslate"><span class="pre">truncate</span></code> at once.</p>
-<p>What a model holds: the truncated distribution function, the truncated density, potential and enclosed mass on
-one radial grid (<code class="docutils literal notranslate"><span class="pre">model.profile.r</span></code>, <code class="docutils literal notranslate"><span class="pre">.rho_trunc</span></code>, <code class="docutils literal notranslate"><span class="pre">.p_trunc</span></code>, <code class="docutils literal notranslate"><span class="pre">.mass_trunc</span></code>), the truncation radius and
-the total mass, the validation report and the identity. A model that is not spatially finite is still a model:
-it says so (<code class="docutils literal notranslate"><span class="pre">spatially_finite</span></code> is false), states its radius and mass as not finite, and what needs finiteness
-asks for it by name (<a class="reference internal" href="results"><span class="doc">Flags and refusals</span></a>).</p>
-<p>A Type II model (Osipkov-Merritt or Cuddeford-Osipkov-Merritt) must end inside its anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, where its density
-<span class="math notranslate nohighlight">\(\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)\)</span> has a pole. The lower bound <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} &gt; P(R_{\rm a})\)</span> keeps the untruncated radius of the truncation
-energy inside <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, but the truncated model’s own edge lies farther out; where that edge would reach <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> the request
-is refused by name (<code class="docutils literal notranslate"><span class="pre">TYPE</span> <span class="pre">II</span> <span class="pre">EDGE</span></code>, with the potential at <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> stated), and a larger <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> brings the edge
-inside. The bound is strict, so where it sets a Type II DF’s <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> that is the next float above <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>, the
-smallest <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> the gates admit: necessary, not sufficient, since only the truncated solve places the edge.</p>
-<p>An Osipkov-Merritt Type I model with a small <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> and a low <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> can leave no edge within the solve’s radius;
-the request is refused by name (<code class="docutils literal notranslate"><span class="pre">NO</span> <span class="pre">EDGE</span></code>). On the Hernquist density at the quick settings, <span class="math notranslate nohighlight">\(R_{\rm a} = 1\)</span> is refused at
-every <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> from 0.005 to 0.3, <span class="math notranslate nohighlight">\(R_{\rm a} = 2\)</span> below <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.2\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a} = 5\)</span> below 0.03 and <span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span> at 0.005; the parents that
-build are at the ceiling tier, set by their distribution function’s <code class="docutils literal notranslate"><span class="pre">high_k_slope_mismatch</span></code> (<span class="math notranslate nohighlight">\(3.4 \times 10^{-6}\)</span>, at <span class="math notranslate nohighlight">\(\mathcal{K} = 1\)</span>).</p>
+<p>A target mass is given in units of <span class="nobr"><span class="math notranslate nohighlight">\(M_0\)</span>,</span> so it needs the concentration that defines <span class="nobr"><span class="math notranslate nohighlight">\(M_0\)</span>.</span> A target
+radius or a truncation energy needs no concentration, and a concentration given with <code class="docutils literal notranslate"><span class="pre">r_t</span></code> or <code class="docutils literal notranslate"><span class="pre">k_t</span></code> raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">solve(component,</span> <span class="pre">truncation)</span></code> runs <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> and <code class="docutils literal notranslate"><span class="pre">truncate</span></code> in one call. Without a <code class="docutils literal notranslate"><span class="pre">Truncation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">truncate</span></code> and <code class="docutils literal notranslate"><span class="pre">solve</span></code> return the untruncated model, or, for a Method II component, the model that ends at the
+edge of the truncated density that the component uses.</p>
+<p>A model holds:</p>
+<ul class="simple">
+<li><p>the truncated distribution function;</p></li>
+<li><p>the truncated density, potential and enclosed mass on one radial grid (<code class="docutils literal notranslate"><span class="pre">model.profile.r</span></code>, <code class="docutils literal notranslate"><span class="pre">.rho_trunc</span></code>,
+<code class="docutils literal notranslate"><span class="pre">.p_trunc</span></code>, <code class="docutils literal notranslate"><span class="pre">.mass_trunc</span></code>);</p></li>
+<li><p>the truncation radius and the total mass;</p></li>
+<li><p>the validation report and the identity string, a digest of the inputs, the settings and the package version.</p></li>
+</ul>
+<p>An untruncated model is not spatially finite. The untruncated model’s <code class="docutils literal notranslate"><span class="pre">spatially_finite</span></code> is false, and the
+untruncated model’s truncation radius <code class="docutils literal notranslate"><span class="pre">r_t</span></code> is infinite. A function that needs a spatially finite model, such as
+<code class="docutils literal notranslate"><span class="pre">Sampler</span></code> without <code class="docutils literal notranslate"><span class="pre">r_sample</span></code>, raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> for a model that is not spatially finite
+(<a class="reference internal" href="flags-refusals"><span class="doc">Flags and refusals</span></a>).</p>
+<section id="type-ii-models">
+<h3>Type II models<a class="headerlink" href="#type-ii-models" title="Link to this heading">#</a></h3>
+<p>A Type II model (Osipkov-Merritt or Cuddeford-Osipkov-Merritt) must end inside its anisotropy radius
+<span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>,</span> where the model’s density <span class="nobr"><span class="math notranslate nohighlight">\(\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)\)</span>,</span> with
+<span class="math notranslate nohighlight">\(\varrho_{\rm aux}\)</span> the auxiliary density, has a pole.</p>
+<ul class="simple">
+<li><p>The truncation energy must satisfy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} &gt; P(R_{\rm a})\)</span>.</span> Where this bound sets <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>,
+<code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the next floating-point number above <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>.</span></p></li>
+<li><p>The bound is necessary, not sufficient. The bound keeps inside <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> the radius at which the
+untruncated potential equals <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> but the truncated model’s own edge lies farther out than
+that radius. Where the truncated model’s edge would reach <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>,</span> <code class="docutils literal notranslate"><span class="pre">truncate</span></code> raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code> with a message that begins <code class="docutils literal notranslate"><span class="pre">TYPE</span> <span class="pre">II</span> <span class="pre">EDGE</span></code> and states the potential at
+<span class="math notranslate nohighlight">\(R_{\rm a}\)</span> or the radius of the edge. A larger <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> moves the truncated model’s edge
+inside <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</span></p></li>
+</ul>
+</section>
+<section id="osipkov-merritt-type-i-models-with-a-small-anisotropy-radius">
+<h3>Osipkov-Merritt Type I models with a small anisotropy radius<a class="headerlink" href="#osipkov-merritt-type-i-models-with-a-small-anisotropy-radius" title="Link to this heading">#</a></h3>
+<p>An Osipkov-Merritt Type I model with a small <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> and a low <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> can have no edge
+inside the largest radius at which <code class="docutils literal notranslate"><span class="pre">truncate</span></code> solves for the potential. <code class="docutils literal notranslate"><span class="pre">truncate</span></code> then raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code> with a message that begins <code class="docutils literal notranslate"><span class="pre">NO</span> <span class="pre">EDGE</span></code>. On the Hernquist density with the
+quick settings, <code class="docutils literal notranslate"><span class="pre">truncate</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code> (<code class="docutils literal notranslate"><span class="pre">NO</span> <span class="pre">EDGE</span></code>) for the following
+Osipkov-Merritt Type I models:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(R_{\rm a} = 1\)</span> at every <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> from 0.005 to 0.3;</p></li>
+<li><p><span class="math notranslate nohighlight">\(R_{\rm a} = 2\)</span> below <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.2\)</span>;</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(R_{\rm a} = 5\)</span> below <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.03\)</span>;</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span> at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.005\)</span>.</span></p></li>
+</ul>
+<p>The Osipkov-Merritt Type I models on the Hernquist density with <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> from 1 to 10 and
+<span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> from 0.005 to 0.3 that <code class="docutils literal notranslate"><span class="pre">truncate</span></code> builds have the tier <code class="docutils literal notranslate"><span class="pre">&quot;recorded&quot;</span></code>, above
+<span class="math notranslate nohighlight">\(10^{-6}\)</span> and at most <span class="math notranslate nohighlight">\(10^{-4}\)</span> (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>). The check <code class="docutils literal notranslate"><span class="pre">high_k_slope_mismatch</span></code> of the distribution
+function of each built model is <span class="nobr"><span class="math notranslate nohighlight">\(3.4 \times 10^{-6}\)</span>,</span> at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K} = 1\)</span>.</span></p>
+</section>
 </section>
 <section id="method-ii">
 <h2>Method II<a class="headerlink" href="#method-ii" title="Link to this heading">#</a></h2>
-<p>Method II gives a new anisotropy to a density that is already truncated: a component whose profile is the
-truncated profile of another model, through the same functions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">parent</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">()),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
-<span class="n">child</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">)))</span>
+<p>Method II gives a new anisotropy to a density that is already truncated. The new component takes the truncated
+profile of a Method I model as its profile. <code class="docutils literal notranslate"><span class="pre">solve</span></code>, or <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> and <code class="docutils literal notranslate"><span class="pre">truncate</span></code>, without a
+<code class="docutils literal notranslate"><span class="pre">Truncation</span></code>, build the Method II model from the new component.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">truncated</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">()),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">)))</span>
 </pre></div>
 </div>
-<p>A Method II model exists only when its anisotropy is compatible with the edge of the parent’s density; the
-condition is checked at the call and a violation is refused by name, with the admissible range stated. The
-technical notes derive it (<a class="reference internal" href="../reference/notes"><span class="doc">Technical notes</span></a>).</p>
+<p>A Method II model exists only when its anisotropy is compatible with the edge of the Method I model’s truncated
+density. Where that density goes as <span class="math notranslate nohighlight">\(\hat{P}^q\)</span> at the edge, with <span class="math notranslate nohighlight">\(\hat{P}\)</span> the Method I model’s truncated
+relative potential, which is zero at the edge, the central anisotropy of the new component must satisfy
+<span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c} &gt; 1/2 - q\)</span>.</span> A <code class="docutils literal notranslate"><span class="pre">Component</span></code> whose <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> is not above <span class="math notranslate nohighlight">\(1/2 - q\)</span> raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code> when the <code class="docutils literal notranslate"><span class="pre">Component</span></code> is created, and the error message states the bound.
+The <a class="reference internal" href="../reference/notes"><span class="doc">Technical notes</span></a> derive the condition <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c} &gt; 1/2 - q\)</span>.</span></p>
 </section>
 </section>
 
@@ -377,7 +414,11 @@ technical notes derive it (<a class="reference internal" href="../reference/note
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#method-i">Method I</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#method-i">Method I</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#type-ii-models">Type II models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#osipkov-merritt-type-i-models-with-a-small-anisotropy-radius">Osipkov-Merritt Type I models with a small anisotropy radius</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#method-ii">Method II</a></li>
 </ul>
   </nav></div>

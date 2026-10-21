@@ -2,18 +2,18 @@
 
 Source: https://pianistpy.com/docs/guide/differentiable
 
-# Differentiable observables
-
-pianistpy.Differentiable
+`pianistpy.Differentiable`
 
 ## The object
 
-pp.Differentiable(model) holds a model of one component on a truncated profile (a distribution function inverted
-on its parent’s profile, as pianistpy.truncate() makes it) and serves its observables as JAX functions of the
-component’s anisotropy, \(\theta = (\beta_{\rm c}, R_{\rm a})\), passed as theta. Each method takes \(\theta\) first and mirrors the public call of the
-same name, traceable and differentiable in \(\theta\):
+`pp.Differentiable(model)` gives the observables of a model of one component as JAX functions of the component’s
+anisotropy \(\theta = (\beta_{\rm c}, R_{\rm a})\), the central anisotropy and the anisotropy radius, passed as
+`theta`. The model is a Method II model, a distribution function inverted on the truncated profile of a Method I
+model ([Truncation in phase space](https://pianistpy.com/docs/guide/truncation)), as in the example below. Each method takes \(\theta\) as
+the first argument, returns the value of the public function of the same name on the model rebuilt at
+\(\theta\), and works under `jax.jit` and `jax.grad`:
 
-```
+```python
 d = pp.Differentiable(model)
 d.sigma_r(theta, r)                    # as pp.sigma_r(model at theta, r)
 d.sigma_t(theta, r)                    # as pp.sigma_t
@@ -22,71 +22,104 @@ d.sigma_los_aperture(theta, aperture)  # as pp.sigma_los_aperture
 d.losvd(theta, r_2d, v)                # as pp.losvd
 d.pdf_v(theta, r, v)                   # as pp.pdf_v
 d.aperture_losvd(theta, aperture, v)   # as pp.aperture_losvd
-
 ```
 
-Everything is in internal units, whatever the model’s unit system: \(\theta\), as the likelihood’s, the radii and apertures
-a method reads, and the velocities it returns. d.theta is the model’s own anisotropy.
+Every radius, velocity, aperture length and \(\theta\) that a method reads, and every value that a method
+returns, is in internal units whatever the model’s unit system, as is the anisotropy `theta` of `likelihood`.
+`d.theta` is the model’s own anisotropy.
 
-The families are those of the distribution function’s own rule (End-to-end differentiability): constant anisotropy (\(\beta_{\rm c}\); an
-isotropic or constant component’s \(R_{\rm a}\) is held at its own, infinite, value with a zero gradient), Cuddeford-Osipkov-Merritt (COM) Type I
-(\(\beta_{\rm c}\) and \(R_{\rm a}\)), Osipkov-Merritt Type I and Type II (\(R_{\rm a}\)). Refused at construction, each with an error that names it:
-COM Type II (its interior point at \(P(R_{\rm a})\) moves with both parameters), a superposition or a model of several
-components (its components are differentiated through the likelihood), a component that is not spatially finite, and
-one not on a truncated profile that carries its parent’s distribution function.
+`Differentiable` accepts an isotropic, constant-anisotropy, Osipkov-Merritt Type I or Type II, or
+Cuddeford-Osipkov-Merritt (COM) Type I component. For an isotropic or constant-anisotropy component,
+\(R_{\rm a}\) is infinite and stays at infinity at every \(\theta\), and the gradient in \(R_{\rm a}\) is
+zero. For an Osipkov-Merritt component, the gradient of `losvd`, `aperture_losvd` and `pdf_v` in
+\(\beta_{\rm c}\) is NaN. An Osipkov-Merritt component has \(\beta_{\rm c} = 0\), where the form of the
+inversion changes and the derivatives of the distribution function from the two sides of \(\beta_{\rm c} = 0\)
+differ by more than \(10^{-6}\). For an Osipkov-Merritt component, `sigma_r`, `sigma_t`, `sigma_los` and
+`sigma_los_aperture` carry the derivative in \(\beta_{\rm c}\), computed from the Jeans equation.
+
+The constructor raises `InputError`, with a message that states the cause, for:
+
+- a COM Type II component ([End-to-end differentiability](https://pianistpy.com/docs/guide/differentiability)),
+
+- a model of more than one component, such as a superposition (the components of a superposition are
+differentiated through `likelihood`),
+
+- a component that is not spatially finite,
+
+- a component not on a truncated profile that carries the distribution function of the Method I model it was built from.
 
 ## What a method computes
 
-A method’s value at \(\theta\) is the public call on the model rebuilt at \(\theta\): at the model’s own \(\theta\), the plain call’s
-own value, to the byte. Its derivative is the observable’s tangent rows in \(\theta\) on the tables’ own rows, their
-placement frozen, as the likelihood’s free components carry it: between two placements the value moves by the tables’
-tolerance, which the derivative does not carry. Over an aperture the derivative is the aperture’s integral of the
-tangent rows of the squared dispersion, on the plain call’s own nodes and weights (the integral is linear in the
-rows). The line-of-sight velocity distribution, the speed distribution and the aperture’s line-of-sight velocity
-distribution take theirs through the distribution function’s own derivative (End-to-end differentiability), their placement frozen;
-a member whose distribution function that rule refuses is named at construction, and these three methods raise with
-it. At a \(\theta\) where the model is refused the value is not a number and its gradient zero. A method is not
-differentiable in its radii.
+A method’s value at \(\theta\) is the public call on the model rebuilt at \(\theta\). At the model’s own
+\(\theta\), a method returns the value of the public call on the model itself, bit for bit. The derivative of a
+method holds fixed the radii and velocities at which the tables at \(\theta\) are tabulated, as `likelihood`
+does for a free component. Where the tabulated radii and velocities change from one \(\theta\) to another, the
+value of a method changes by up to the tolerance of the tables, and the derivative omits that change.
+
+The derivatives of `losvd`, `pdf_v` and `aperture_losvd` are taken through the derivative of the distribution
+function ([End-to-end differentiability](https://pianistpy.com/docs/guide/differentiability)), with the energies of the distribution function’s table held fixed. For a
+component whose distribution function has no derivative in the anisotropy, such as an isotropic component,
+`losvd`, `pdf_v` and `aperture_losvd` raise `InputError` with a message that states the
+reason.
+
+At a \(\theta\) where rebuilding the model raises `InputError`,
+`UnphysicalModelError`, `AccuracyError` or `ResultError`, the
+value is NaN and the gradient is zero. A method is not differentiable in the radii or velocities that the method
+reads, and the gradient in a radius or a velocity is NaN.
 
 ## The cost
 
-The first time a method meets a \(\theta\), the host rebuilds the model there: the distribution function inverted at \(\theta\)
-on the component’s truncated profile, then the dispersion profile and the projected table with their tangent rows.
-That is the cost of the likelihood’s own rebuild of a free component, about that of the plain call on the model at
-\(\theta\). The last eight \(\theta\) are kept, so the value and the gradient at one \(\theta\) share one rebuild.
+The first call of a method at a new \(\theta\) rebuilds the model at \(\theta\). The rebuild inverts the
+distribution function at \(\theta\) on the component’s truncated profile, then computes the dispersion profile
+and the table of the line-of-sight dispersion. A rebuild costs about as much as the public call on a model built at
+\(\theta\), as does the rebuild of a free component in `likelihood`. A `Differentiable` keeps the tables of
+at most eight values of \(\theta\), the model’s own \(\theta\) and the seven other values first met most
+recently, so the value and the gradient at one \(\theta\) share one rebuild.
 
-The derivative of losvd and aperture_losvd costs far more: it goes back through the rows of the line-of-sight
-table, whose transpose recomputes each row and differentiates it in \(\theta\), one row after another in the
-calling process. On a CPU node of 32 cores (AMD Ryzen Threadripper PRO 5975WX), the derivative of losvd in
-\(\beta_{\rm c}\) at one projected radius and 21 velocities takes 41 minutes with the quick settings (2474 s) and
-22 minutes with a smaller table; the derivative of the example below takes 65 s there. The rows of the table the
-read does not touch are not visited; the cost of the rows it touches is reduced in ver. 1.0.0. The values of these
-methods are not affected.
+The derivatives of `losvd` and `aperture_losvd` cost far more. The derivatives of `losvd` and
+`aperture_losvd` recompute and differentiate each row of the line-of-sight table that the call reads, and take
+minutes to hours, with the number of rows the call reads ([Release notes](https://pianistpy.com/docs/project/release-notes)).
+
+The values of `losvd` and `aperture_losvd`, without a derivative, cost only the rebuild at \(\theta\) and the
+public call of the same name.
+
+`Settings(check_rows=True)`, off by default, checks each row that the derivatives of `losvd` and
+`aperture_losvd` read. The check requires that:
+
+- each recomputed row equals the stored row, bit for bit;
+
+- the row built again one velocity at a time, each at the quadrature level that gave the velocity’s value, equals the
+recomputed row, bit for bit;
+
+- the JAX computation of the row that carries the derivative in the anisotropy equals the row to \(10^{-12}\) of
+the row’s largest value.
+
+A row that fails raises a `ResultError` that identifies the row. The gradient is the same with and without the checks. On a
+GPU the checks may fail a row, since a GPU’s order of summation does not promise the same bits. On the CPU, every row
+passes the checks.
 
 ## Example
 
-The derivative of the line-of-sight dispersion at one projected radius in \(\beta_{\rm c}\), by the rule and by a central
-difference of the same function:
+The example computes the derivative in \(\beta_{\rm c}\) of the line-of-sight dispersion at one projected radius
+twice, by `jax.grad` and by a central difference:
 
-```
+```python
 import jax
 import numpy as np
 
 import pianistpy as pp
 
-parent = pp.solve(
+truncated = pp.solve(
     pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy()), pp.Truncation(k_t=0.05)
 )
-model = pp.solve(pp.Component(parent.profile, pp.Anisotropy(beta_c=0.25)))
+model = pp.solve(pp.Component(truncated.profile, pp.Anisotropy(beta_c=0.25)))
 d = pp.Differentiable(model)
 
 rule = float(jax.grad(lambda t: d.sigma_los(t, 0.3))(d.theta)[0])
 h = np.array([1e-3, 0.0])
 difference = float(d.sigma_los(d.theta + h, 0.3) - d.sigma_los(d.theta - h, 0.3)) / 2e-3
 print(rule, difference)
-
 ```
 
-The two agree to the difference’s own error; each of the two shifted \(\theta\) is one rebuild.
-
-     On this page
+The `jax.grad` derivative and the central difference agree to the error of the central difference. Each of the two
+shifted \(\theta\) costs one rebuild.

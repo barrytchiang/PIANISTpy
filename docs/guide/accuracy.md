@@ -2,23 +2,32 @@
 
 Source: https://pianistpy.com/docs/guide/accuracy
 
-# Accuracy
+Every result carries a validation report, a fixed summary with one record per accuracy check of the result.
+The tier of a result’s report, `report.tier`, is the band of the largest relative error over the result’s own checks
+and over the results from which the result was computed:
 
-Every result carries a validation report, a short and fixed summary of the checks it passed, with its tier: a
-check within the accuracy goal (a relative error of \(10^{-6}\)) is silent; above the goal, within the ceiling (\(10^{-4}\)) or
-within the hard limit (\(10^{-2}\)), the result is returned with a warning in the package’s log and as an
-AccuracyWarning (Python’s standard filter silences or escalates it), and the flag stays with the result and with
-everything computed from it; beyond the hard limit the result is refused.
+- `"silent"`: at most \(10^{-6}\), the result is returned silently;
 
-The numerical settings come in two tested tiers, both held to these checks by the test suite:
+- `"recorded"`: above \(10^{-6}\) and at most \(10^{-4}\), the result is returned without a warning, and
+the report records the error;
 
+- `"warned"`: above \(10^{-4}\) and at most \(10^{-2}\), the result is returned with an accuracy warning.
+The accuracy warning goes to the package’s log and is issued as an `AccuracyWarning`, which
+Python’s standard filter can silence or escalate. A result computed from a warned result has the tier
+`"warned"` or a higher tier;
+
+- `"refused"`: above \(10^{-2}\), the call raises `AccuracyError`, unless
+`Settings(write_anyway=True)` asks for the result anyway.
+
+The package has two tested settings levels, the default settings and the quick settings:
+
+```python
+pp.Settings()            # the default settings
+pp.Settings(quick=True)  # the quick settings, faster, for exploration
 ```
-pp.Settings()            # the default tier
-pp.Settings(quick=True)  # a faster tier for exploration
 
-```
+The runtime options (verbosity, timing, cores, compilation cache, platform) set how the package runs, and the
+[Runtime options](https://pianistpy.com/docs/guide/runtime) page describes the runtime options. The runtime options change no computed number, except the platform. CPU-only and
+GPU results differ by less than \(10^{-10}\) in relative terms.
 
-The runtime options that set how the package runs (verbosity, timing, cores, platform) change no number; they are on
-Runtime options.
-
-Flags and refusals
+- [Flags and refusals](https://pianistpy.com/docs/guide/flags-refusals)

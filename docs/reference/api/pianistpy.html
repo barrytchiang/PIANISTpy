@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>The package &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>The package &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,10 +42,12 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/pianistpy';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/logo.png"/>
@@ -57,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="pianistpy.md">
@@ -117,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -136,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -178,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -230,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
@@ -286,7 +284,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Functions by subpackage</a></li>
@@ -308,12 +306,35 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="the-package">
-<h1>The package<a class="headerlink" href="#the-package" title="Link to this heading">#</a></h1>
-<p>Package <code class="docutils literal notranslate"><span class="pre">pianistpy</span></code></p>
-<p id="module-pianistpy">PIANISTpy: equilibrium models of anisotropic spherical systems.</p>
-<p>The public names of the package are imported from its subpackages and documented on their
-pages.</p>
+  <section id="module-pianistpy">
+<span id="the-package"></span><h1>The package<a class="headerlink" href="#module-pianistpy" title="Link to this heading">#</a></h1>
+<p>In PIANISTpy, a model (<cite>Model</cite>) is the equilibrium of one or more
+components that share one total potential, untruncated or truncated in
+phase space. A component (<cite>Component</cite>) is a density profile, such as a
+<cite>DoublePowerLaw</cite>, with a velocity anisotropy (<cite>Anisotropy</cite>). <cite>solve</cite>
+computes a model from one component: the component’s distribution
+function, and the self-consistent density, mass and potential of the
+model (<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>).</p>
+<p>Every observable is computed from a model. <cite>Sampler</cite> draws particles.
+<cite>sigma_r</cite> and <cite>sigma_t</cite> give the radial and the tangential velocity
+dispersion at 3D radii, <cite>sigma_los</cite> the line-of-sight velocity dispersion
+at projected radii, and <cite>losvd</cite> the line-of-sight velocity distribution.
+<cite>likelihood</cite> compares a model with observed data (<cite>Data</cite>).</p>
+<p>A model, a distribution function, a <cite>LosTable</cite> and a sampler each carry a
+validation report (<cite>pianistpy.validation</cite>). The report’s tier, such as
+<code class="docutils literal notranslate"><span class="pre">model.validation.tier</span></code>, is the worst band among the relative errors
+that the report’s checks measured and the tiers of the results it was
+computed from: <code class="docutils literal notranslate"><span class="pre">&quot;silent&quot;</span></code> (at most <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>),</span> <code class="docutils literal notranslate"><span class="pre">&quot;recorded&quot;</span></code>
+(at most <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>),</span> <code class="docutils literal notranslate"><span class="pre">&quot;warned&quot;</span></code> (at most <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>)</span> or
+<code class="docutils literal notranslate"><span class="pre">&quot;refused&quot;</span></code> (above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>,</span> or not a number).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">validation</span><span class="o">.</span><span class="n">tier</span>
+<span class="go">'silent'</span>
+</pre></div>
+</div>
+<p>Every public class and function of the package is documented on the page of its subpackage
+(<a class="reference internal" href="index"><span class="doc">Functions by subpackage</span></a>).</p>
 </section>
 
 

@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:4 Superposition &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>T:4 Linear superposition of Method II DFs &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="sup.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api/index">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -232,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../notes">Technical notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="truncation">T:3 Truncation</a></li>
-<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">T:4 Superposition</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="references">References</a></li>
@@ -288,12 +284,12 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="../api/index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="../notes" class="nav-link">Technical notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">T:4 Superposition</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">T:4 Linear superposition of Method II DFs</span></li>
   </ul>
 </nav>
 </div>
@@ -310,9 +306,9 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="t-4-superposition">
-<span id="tn-sec-sup"></span><h1>T:4 Superposition<a class="headerlink" href="#t-4-superposition" title="Link to this heading">#</a></h1>
-<p>Distribution functions inverted from one and the same truncated density, that is, Method II children of one parent, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, certified on its own nodes. The anisotropy profile of the superposition is given in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B74). In terms of the radial dispersions <span class="math notranslate nohighlight">\(\sigma_{r,i}^2\)</span> and the anisotropy profiles <span class="math notranslate nohighlight">\(\beta_i\)</span> of the members, with weights <span class="math notranslate nohighlight">\(c_i &gt; 0\)</span> and <span class="math notranslate nohighlight">\(\sum_i c_i = 1\)</span>, it reads</p>
+  <section id="t-4-linear-superposition-of-method-ii-dfs">
+<span id="tn-sec-sup"></span><h1>T:4 Linear superposition of Method II DFs<a class="headerlink" href="#t-4-linear-superposition-of-method-ii-dfs" title="Link to this heading">#</a></h1>
+<p>Distribution functions inverted from one and the same truncated density, that is, Method II models of one Method I model, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, checked on its own nodes. The anisotropy profile of the superposition is given in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (B74). In terms of the radial dispersions <span class="math notranslate nohighlight">\(\sigma_{r,i}^2\)</span> and the anisotropy profiles <span class="math notranslate nohighlight">\(\beta_i\)</span> of the members, with weights <span class="math notranslate nohighlight">\(c_i &gt; 0\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(\sum_i c_i = 1\)</span>,</span> it reads</p>
 <div class="math notranslate nohighlight" id="tn-eq-betasup">
 \begin{equation}
   \beta_{\rm sup}(R) = \frac{\sum_i c_i\,\beta_i(R)\,\sigma_{r,i}^2(R)}{\sum_i c_i\,\sigma_{r,i}^2(R)} .
@@ -326,10 +322,10 @@
   \tag{T:4.2}
 \end{equation}</div><p>which is a single linear constraint on the weights. In practice this is the limit that binds.</p>
 </li>
-<li><p><em>Central value.</em> <span class="math notranslate nohighlight">\(\beta_{\rm sup}(0)\)</span> equals the largest positive central anisotropy among the members in use; if all central anisotropies are negative, it is the weighted harmonic mean of their central values.</p></li>
-<li><p><em>Transition.</em> The (C)OM profiles change over about one decade in radius. A target profile that changes over a wider range is approached by mixing members with different anisotropy radii.</p></li>
+<li><p><em>Central value.</em> For a density with central slope <span class="nobr"><span class="math notranslate nohighlight">\(\gamma\)</span>,</span> and with <span class="math notranslate nohighlight">\(\beta_{\mathrm{c},i}\)</span> the central anisotropy of member <span class="math notranslate nohighlight">\(i\)</span> (zero for the isotropic and OM members), <span class="math notranslate nohighlight">\(\beta_{\rm sup}(0)\)</span> is the largest <span class="math notranslate nohighlight">\(\beta_{\mathrm{c},i}\)</span> among the members in use if one of them is at least <span class="nobr"><span class="math notranslate nohighlight">\(\gamma - 1\)</span>;</span> if all are below <span class="nobr"><span class="math notranslate nohighlight">\(\gamma - 1\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm sup}(0) = (\gamma - 1) - \left[\sum_i c_i/(\gamma - 1 - \beta_{\mathrm{c},i})\right]^{-1}\)</span>,</span> which for <span class="math notranslate nohighlight">\(\gamma = 1\)</span> is the weighted harmonic mean <span class="math notranslate nohighlight">\(\left(\sum_i c_i/\beta_{\mathrm{c},i}\right)^{-1}\)</span> of the central values.</p></li>
+<li><p><em>Transition.</em> The Type I (C)OM profiles change from <span class="math notranslate nohighlight">\(10\)</span> to <span class="math notranslate nohighlight">\(90\)</span> percent of their range between <span class="math notranslate nohighlight">\(R_\mathrm{a}/3\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(3R_\mathrm{a}\)</span>,</span> about one decade in radius; the Type II profiles fall without bound toward <span class="nobr"><span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span>.</span> A target profile that changes over a wider range is approached by mixing members with different anisotropy radii.</p></li>
 </ul>
-<p>The composite dispersions are computed from <a class="reference internal" href="#tn-eq-betasup"><span class="std std-ref">Eq. (T:4.1)</span></a> and the Jeans integral of <a class="reference internal" href="observables#tn-sec-jeans-section"><span class="std std-ref">Section T:6.1.1</span></a> without any sampling. Downstream of this section, a superposition is treated as one model: its particles are drawn through the enclosed mass of the mixture with each component’s share (<a class="reference internal" href="sampling#tn-sec-draw"><span class="std std-ref">Section T:5.3</span></a>), its projected observables are formed one component at a time and mixed by the weights (<a class="reference internal" href="observables#tn-sec-mixing"><span class="std std-ref">Section T:6.9</span></a>), and its likelihood is linear in the weights (<a class="reference internal" href="gradients#tn-sec-likelihood"><span class="std std-ref">Section T:7.4</span></a>).</p>
+<p>The composite dispersions are computed from <a class="reference internal" href="#tn-eq-betasup"><span class="std std-ref">Eq. (T:4.1)</span></a> and the Jeans integral of <a class="reference internal" href="observables#tn-sec-jeans-section"><span class="std std-ref">Section T:6.1.1</span></a> without any sampling. Downstream of this section, a superposition is treated as one model: each of its particles takes a component at random with probabilities equal to the weights and follows the enclosed mass of the mixture (<a class="reference internal" href="sampling#tn-sec-draw"><span class="std std-ref">Section T:5.3</span></a>), its projected observables are formed one component at a time and mixed by the weights (<a class="reference internal" href="observables#tn-sec-mixing"><span class="std std-ref">Section T:6.9</span></a>), and the second moments its likelihood compares with the data are linear in the normalized weights, so a new set of weights is evaluated from the members’ tabulated moments without recomputing any member (<a class="reference internal" href="gradients#tn-sec-likelihood"><span class="std std-ref">Section T:7.4</span></a>).</p>
 </section>
 
 

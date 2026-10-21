@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:1 The model: density and potential &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>T:1 The potential–density pair and the auxiliary density &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="model.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api/index">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -232,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../notes">Technical notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">T:1 The model: density and potential</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="references">References</a></li>
@@ -288,12 +284,12 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="../api/index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="../notes" class="nav-link">Technical notes</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">T:1 The model: density and potential</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">T:1 The potential–density pair and the auxiliary density</span></li>
   </ul>
 </nav>
 </div>
@@ -310,17 +306,17 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="t-1-the-model-density-and-potential">
-<span id="tn-sec-model"></span><h1>T:1 The model: density and potential<a class="headerlink" href="#t-1-the-model-density-and-potential" title="Link to this heading">#</a></h1>
-<section id="t-1-1-the-two-maps">
-<span id="tn-sec-pair"></span><h2>T:1.1 The two maps<a class="headerlink" href="#t-1-1-the-two-maps" title="Link to this heading">#</a></h2>
-<p>The potential of the double power law and its expansions are given in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Appendix A3, Eq. (A11), and Eq. (A13). Two consequences of those expansions are used below.</p>
-<p><em>Near the center</em>, <span class="math notranslate nohighlight">\(P_0 - P \propto R^{2-\gamma}\,[1 + \mathcal{O}(R^{\alpha})]\)</span>. Since <span class="math notranslate nohighlight">\(R^{\alpha} \propto (P_0-P)^{\delta}\)</span>, any function of <span class="math notranslate nohighlight">\(R\)</span> that is a series in <span class="math notranslate nohighlight">\(R^{\alpha}\)</span> is also a series in <span class="math notranslate nohighlight">\((P_0 - P)^{\delta}\)</span>:</p>
+  <section id="t-1-the-potentialdensity-pair-and-the-auxiliary-density">
+<span id="tn-sec-model"></span><h1>T:1 The potential–density pair and the auxiliary density<a class="headerlink" href="#t-1-the-potentialdensity-pair-and-the-auxiliary-density" title="Link to this heading">#</a></h1>
+<section id="t-1-1-the-potentialradius-relation-as-p-p0-and-p-0">
+<span id="tn-sec-pair"></span><h2>T:1.1 The potential–radius relation as P → P₀ and P → 0<a class="headerlink" href="#t-1-1-the-potentialradius-relation-as-p-p0-and-p-0" title="Link to this heading">#</a></h2>
+<p>The potential of the double power law is given in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A3), and its inner and outer expansions in Eq. (A11) and Eq. (A13). Two consequences of those expansions are used below.</p>
+<p><em>Near the center</em>, <span class="nobr"><span class="math notranslate nohighlight">\(P_0 - P \propto R^{2-\gamma}\,[1 + \mathcal{O}(R^{\alpha})]\)</span>.</span> Since <span class="nobr"><span class="math notranslate nohighlight">\(R^{\alpha} \propto (P_0-P)^{\delta}\)</span>,</span> any function of <span class="math notranslate nohighlight">\(R\)</span> that is a series in <span class="math notranslate nohighlight">\(R^{\alpha}\)</span> is also a series in <span class="nobr"><span class="math notranslate nohighlight">\((P_0 - P)^{\delta}\)</span>:</span></p>
 <div class="math notranslate nohighlight" id="tn-eq-inner-map">
 \begin{equation}
   R^{\alpha} \propto (P_0 - P)^{\delta}\left[1 + \mathcal{O}\!\left((P_0-P)^{\delta}\right)\right] .
   \tag{T:1.1}
-\end{equation}</div><p>The coefficients of such a series are exact, and no fit is needed. The depth <span class="math notranslate nohighlight">\(P_0 - P\)</span> is itself a series in <span class="math notranslate nohighlight">\(R^{\alpha}\)</span> with known coefficients, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A11). Inverting that series order by order gives <span class="math notranslate nohighlight">\(R = t\,[1 + S(t)]\)</span>, with <span class="math notranslate nohighlight">\(t \propto (P_0-P)^{1/(2-\gamma)}\)</span> and <span class="math notranslate nohighlight">\(S\)</span> a series in <span class="math notranslate nohighlight">\(t^{\alpha}\)</span>. Substituting this inverse into the density and into the anisotropy factor of <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> yields the coefficient of every power of <span class="math notranslate nohighlight">\(P_0 - P\)</span> as a finite sum of products of binomial coefficients. The package forms these coefficients in closed form by a power-series algebra, keeping every term up to three times the larger of <span class="math notranslate nohighlight">\(\alpha\)</span> and 2 beyond the leading power.</p>
+\end{equation}</div><p>The coefficients of such a series are exact, and no fit is needed. The depth <span class="math notranslate nohighlight">\(P_0 - P\)</span> is itself a series in <span class="math notranslate nohighlight">\(R^{\alpha}\)</span> with known coefficients, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A11). Inverting that series order by order gives <span class="nobr"><span class="math notranslate nohighlight">\(R = t\,[1 + S(t)]\)</span>,</span> with <span class="math notranslate nohighlight">\(t \propto (P_0-P)^{1/(2-\gamma)}\)</span> and <span class="math notranslate nohighlight">\(S\)</span> a series in <span class="nobr"><span class="math notranslate nohighlight">\(t^{\alpha}\)</span>.</span> Substituting this inverse into the density and into the anisotropy factor of <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}\)</span> yields the coefficient of every power <span class="math notranslate nohighlight">\(s\)</span> of <span class="math notranslate nohighlight">\(P_0 - P\)</span> as <span class="nobr"><span class="math notranslate nohighlight">\(C\,c_u^{-s}\)</span>,</span> with <span class="nobr"><span class="math notranslate nohighlight">\(c_u = C/[(2-\gamma)(3-\gamma)]\)</span>,</span> times a finite sum of products of generalized binomial coefficients, of the depth’s relative coefficients <span class="nobr"><span class="math notranslate nohighlight">\((2-\gamma)(3-\gamma)\binom{e}{k}/[(2-\gamma+k\alpha)(3-\gamma+k\alpha)]\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(e = (\gamma-\beta)/\alpha\)</span>,</span> and, for the OM and COM factors, of powers of <span class="nobr"><span class="math notranslate nohighlight">\(\pm R_\mathrm{a}^{-2}\)</span>.</span> The package forms these coefficients in closed form by a power-series algebra, keeping every term up to the power <span class="math notranslate nohighlight">\(3\max(\alpha, 2)\)</span> of <span class="math notranslate nohighlight">\(t\)</span> beyond the leading power, that is, up to <span class="math notranslate nohighlight">\((P_0-P)^{3\max(\alpha,2)/(2-\gamma)}\)</span> beyond the leading power of <span class="nobr"><span class="math notranslate nohighlight">\(P_0 - P\)</span>.</span></p>
 <p><em>At large radii</em>, the potential of an untruncated profile behaves as</p>
 <div class="math notranslate nohighlight" id="tn-eq-outer-map">
 \begin{equation}
@@ -331,24 +327,24 @@
 \end{equation}</div></section>
 <section id="t-1-2-derivatives-of-the-auxiliary-density">
 <span id="tn-sec-num-pair"></span><h2>T:1.2 Derivatives of the auxiliary density<a class="headerlink" href="#t-1-2-derivatives-of-the-auxiliary-density" title="Link to this heading">#</a></h2>
-<section id="t-1-2-1-the-operator">
-<span id="tn-sec-derivatives"></span><h3>T:1.2.1 The operator<a class="headerlink" href="#t-1-2-1-the-operator" title="Link to this heading">#</a></h3>
-<p>The inversion requires <span class="math notranslate nohighlight">\(\mathrm{d}^j\varrho_\mathrm{aux}/\mathrm{d} P^j\)</span> up to <span class="math notranslate nohighlight">\(j = m + 1\)</span>, and one order higher wherever the slope of the DF is tabulated as well. In Method I the profile is analytical and these derivatives are exact. The operator</p>
+<section id="t-1-2-1-exact-derivatives-with-respect-to-the-potential">
+<span id="tn-sec-derivatives"></span><h3>T:1.2.1 Exact derivatives with respect to the potential<a class="headerlink" href="#t-1-2-1-exact-derivatives-with-respect-to-the-potential" title="Link to this heading">#</a></h3>
+<p>The inversion with the order pair <span class="math notranslate nohighlight">\((j, n')\)</span> of <a class="reference internal" href="df#tn-eq-unified-pair"><span class="std std-ref">Eq. (T:2.16)</span></a> requires <span class="math notranslate nohighlight">\(\mathrm{d}^k\varrho_\mathrm{aux}/\mathrm{d}P^k\)</span> up to <span class="math notranslate nohighlight">\(k = j+1\)</span> <span class="nobr">(<span class="math notranslate nohighlight">\(k = j = m\)</span></span> at <span class="nobr"><span class="math notranslate nohighlight">\(n = 0\)</span>),</span> that is up to <span class="nobr"><span class="math notranslate nohighlight">\(m+1\)</span>,</span> or <span class="math notranslate nohighlight">\(m+2\)</span> for a replaced pair; Method I reads one order higher as well, as the slope of its source and as the source of the slope of the DF. In Method I the profile is analytical and these derivatives are exact. The operator</p>
 <div class="math notranslate nohighlight" id="tn-eq-dp-operator">
 \begin{equation}
   \frac{\mathrm{d}}{\mathrm{d} P} = -\frac{R^2}{M(R)}\,\frac{\mathrm{d}}{\mathrm{d} R},
   \tag{T:1.3}
-\end{equation}</div><p>with the closed-form enclosed mass <span class="math notranslate nohighlight">\(M(R)\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A7), is applied symbolically to the closed-form auxiliary density <span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}(R) = \varrho(R)\,h(R)\)</span>, where <span class="math notranslate nohighlight">\(h = R^{2\beta_\mathrm{c}}(1 \pm R^2/R_\mathrm{a}^2)^{s}\)</span> is the inverse of the anisotropy factor (<span class="math notranslate nohighlight">\(s = 1\)</span> for OM, <span class="math notranslate nohighlight">\(s = 1 - \beta_\mathrm{c}\)</span> for COM, and <span class="math notranslate nohighlight">\(s = 0\)</span> otherwise). The result is evaluated at <span class="math notranslate nohighlight">\(R(P)\)</span>, which we obtain by bisection in <span class="math notranslate nohighlight">\(\ln R\)</span> on the monotonic <span class="math notranslate nohighlight">\(P(R)\)</span> and, near the center, on the subtraction-free depth. The potential <span class="math notranslate nohighlight">\(P(R)\)</span> itself never enters in closed form. A single expression of <span class="math notranslate nohighlight">\(h\)</span> serves every occurrence of the factor in the package: the Method I sources, the Method II sources, the edge law, the density of the Poisson solve, and the parameter derivatives of <a class="reference internal" href="gradients#tn-sec-gradients"><span class="std std-ref">Section T:7</span></a>. In Method II the input is a tabulated pair, and the derivatives are integrals of the parent’s DF (<a class="reference internal" href="df#tn-sec-tabulated"><span class="std std-ref">Section T:2.6</span></a>).</p>
+\end{equation}</div><p>with the closed-form enclosed mass <span class="math notranslate nohighlight">\(M(R)\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A7), is applied symbolically to the closed-form auxiliary density <span class="nobr"><span class="math notranslate nohighlight">\(\varrho_\mathrm{aux}(R) = \varrho(R)\,h(R)\)</span>,</span> where <span class="math notranslate nohighlight">\(h = R^{2\beta_\mathrm{c}}(1 \pm R^2/R_\mathrm{a}^2)^{s}\)</span> is the inverse of the anisotropy factor <span class="nobr">(<span class="math notranslate nohighlight">\(s = 1\)</span></span> for OM, <span class="math notranslate nohighlight">\(s = 1 - \beta_\mathrm{c}\)</span> for COM, and <span class="math notranslate nohighlight">\(s = 0\)</span> otherwise). The result is evaluated at <span class="nobr"><span class="math notranslate nohighlight">\(R(P)\)</span>,</span> which we obtain by bisection in <span class="math notranslate nohighlight">\(\ln R\)</span> on the monotonic <span class="math notranslate nohighlight">\(P(R)\)</span> and, near the center, on the subtraction-free depth. The potential <span class="math notranslate nohighlight">\(P(R)\)</span> does not enter the derivatives’ expressions, which hold <span class="math notranslate nohighlight">\(M(R)\)</span> only; its closed form, <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A3), enters only through the radius <span class="math notranslate nohighlight">\(R(P)\)</span> at which they are evaluated. A single expression of <span class="math notranslate nohighlight">\(h\)</span> serves every closed-form evaluation of the factor in the package: the Method I sources, the Method II sources, the edge law, the density of the Poisson solve, and the parameter derivatives of <a class="reference internal" href="gradients#tn-sec-gradients"><span class="std std-ref">Section T:7</span></a>; the inner series of <a class="reference internal" href="#tn-sec-pair"><span class="std std-ref">Section T:1.1</span></a> and its parameter derivatives expand the same factor as a binomial series in <span class="nobr"><span class="math notranslate nohighlight">\(R^2/R_\mathrm{a}^2\)</span>,</span> and the central deficit of <a class="reference internal" href="truncation#tn-sec-fills"><span class="std std-ref">Section T:3.4</span></a> writes the factor’s logarithmic step and slope out by hand. In Method II the input is a tabulated pair, and the derivatives are integrals of the Method I model’s DF (<a class="reference internal" href="df#tn-sec-tabulated"><span class="std std-ref">Section T:2.6</span></a>).</p>
 <p>Our first design for the tabulated case was a spline of <span class="math notranslate nohighlight">\(\ln{\varrho_\mathrm{aux}}\)</span> in <span class="math notranslate nohighlight">\(P\)</span> with knots placed by the equidistribution principle (<a class="reference external" href="https://link.springer.com/book/9780387953663" rel="noopener" target="_blank">de Boor 1978</a>). Its derivatives of second and higher order carried the conditioning of the spline, which grows as the square of the ratio of its largest to its smallest knot spacing, into the inversion. The exact and integral forms replaced it.</p>
 </section>
-<section id="t-1-2-2-the-inner-series-and-where-it-is-trusted">
-<span id="tn-sec-series"></span><h3>T:1.2.2 The inner series and where it is trusted<a class="headerlink" href="#t-1-2-2-the-inner-series-and-where-it-is-trusted" title="Link to this heading">#</a></h3>
-<p>Near the center, the density, the enclosed mass, the depth, and the potential are the series of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A9), Eq. (A12), and Eq. (A11), summed term by term with no subtraction from the central value. The series is trusted out to the largest radius at which its next term, relative to the depth, stays within one tenth of the goal. This bound follows from the parameters of the profile alone, and no fixed depth is assumed. The Poisson solve of a truncated model starts from the same series, and its inner rows are filled from the series out to that join (<a class="reference internal" href="truncation#tn-sec-fills"><span class="std std-ref">Section T:3.4</span></a>).</p>
+<section id="t-1-2-2-inner-series-expansions-and-their-range-of-validity">
+<span id="tn-sec-series"></span><h3>T:1.2.2 Inner series expansions and their range of validity<a class="headerlink" href="#t-1-2-2-inner-series-expansions-and-their-range-of-validity" title="Link to this heading">#</a></h3>
+<p>Near the center, the density is its closed form, and the enclosed mass and the depth are the series of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A12) and Eq. (A11), carried to four terms in <span class="math notranslate nohighlight">\(R^{\alpha}\)</span> and summed term by term with no subtraction from the central value; the potential is <span class="math notranslate nohighlight">\(P_0\)</span> less that depth. The series is trusted out to the largest radius at which its next term, relative to the depth, stays within <span class="nobr"><span class="math notranslate nohighlight">\(10^{-7}\)</span>.</span> This bound follows from the parameters of the profile alone, and no fixed depth is assumed. The Poisson solve of a truncated model starts from the same series, and its inner rows are filled from the series out to that join (<a class="reference internal" href="truncation#tn-sec-fills"><span class="std std-ref">Section T:3.4</span></a>).</p>
 </section>
 </section>
-<section id="t-1-3-the-profile-of-a-truncated-model">
-<span id="tn-sec-profile-object"></span><h2>T:1.3 The profile of a truncated model<a class="headerlink" href="#t-1-3-the-profile-of-a-truncated-model" title="Link to this heading">#</a></h2>
-<p>The self-consistent profile of a truncated model is a table of rows (radius, potential, density, and enclosed mass), and a single object owns its reading: every stage and every reader evaluates the profile through the four functions of that object and holds no interpolant of its own. The potential and the mass are cubic Hermite interpolants in the logarithms, with the exact slopes that the rows state, <span class="math notranslate nohighlight">\(\mathrm{d}\ln P/\mathrm{d}\ln r = -M/(rP)\)</span> and <span class="math notranslate nohighlight">\(\mathrm{d}\ln M/\mathrm{d}\ln r = r^3\varrho/M\)</span> (the Poisson equation and the mass integral). The density is a cubic spline of <span class="math notranslate nohighlight">\(\ln\varrho\)</span> in <span class="math notranslate nohighlight">\(\ln r\)</span>, since the rows state no density slope. The radius at a given potential is the guarded inverse of the potential interpolant. A spatially finite profile carries its edge as its last row, where the density is zero and the radius is <span class="math notranslate nohighlight">\(R_\mathrm{t}\)</span>. On the last interval the potential takes the Kepler form <span class="math notranslate nohighlight">\(M_\mathrm{t}(1/r - 1/R_\mathrm{t})\)</span> and the density follows the edge law <span class="math notranslate nohighlight">\(\varrho_L\,(P/P_L)^{q}\)</span>, with the exponent <span class="math notranslate nohighlight">\(q\)</span> stated by the profile; beyond <span class="math notranslate nohighlight">\(R_\mathrm{t}\)</span> the potential is <span class="math notranslate nohighlight">\(M_\mathrm{t}/r\)</span> and the density is zero. Inside the first row, the interpolants continue as the power laws of the end rows. Nothing outside the domain is clipped: a radius that lies beyond the edge by a rounding error is treated as the edge, and anything further out is refused with a named reason.</p>
+<section id="t-1-3-interpolation-of-the-tabulated-truncated-profile">
+<span id="tn-sec-profile-object"></span><h2>T:1.3 Interpolation of the tabulated truncated profile<a class="headerlink" href="#t-1-3-interpolation-of-the-tabulated-truncated-profile" title="Link to this heading">#</a></h2>
+<p>The self-consistent profile of a truncated model is a table of rows (radius, potential, density, and enclosed mass), and a single object owns its reading: every stage and every reader evaluates the profile through the four functions of that object and holds no interpolant of its own. The potential and the mass are cubic Hermite interpolants in the logarithms, with the exact slopes that the rows state, <span class="math notranslate nohighlight">\(\mathrm{d}\ln P/\mathrm{d}\ln r = -M/(rP)\)</span> and <span class="math notranslate nohighlight">\(\mathrm{d}\ln M/\mathrm{d}\ln r = r^3\varrho/M\)</span> (the Poisson equation and the mass integral). The density is a cubic spline of <span class="math notranslate nohighlight">\(\ln\varrho\)</span> in <span class="nobr"><span class="math notranslate nohighlight">\(\ln r\)</span>,</span> since the rows state no density slope. The radius at a given potential is the guarded inverse of the potential interpolant. A spatially finite profile carries its edge as its last row, where the density is zero and the radius is <span class="nobr"><span class="math notranslate nohighlight">\(R_\mathrm{t}\)</span>.</span> On the last interval the potential takes the Kepler form <span class="math notranslate nohighlight">\(M_\mathrm{t}(1/r - 1/R_\mathrm{t})\)</span> and the density follows the edge law <span class="nobr"><span class="math notranslate nohighlight">\(\varrho_L\,(P/P_L)^{q}\)</span>,</span> with the exponent <span class="math notranslate nohighlight">\(q\)</span> stated by the profile; beyond <span class="math notranslate nohighlight">\(R_\mathrm{t}\)</span> the potential continues as <span class="math notranslate nohighlight">\(M_\mathrm{t}(1/r - 1/R_\mathrm{t})\)</span> and the density is zero; the package serves no reading there. Inside the first row, the interpolants continue as the power laws of the end rows. Nothing outside the domain is clipped: a radius that lies beyond the edge by a rounding error is treated as the edge, and anything further out is refused with the reason stated.</p>
 </section>
 </section>
 
@@ -375,13 +371,13 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-1-the-two-maps">T:1.1 The two maps</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-1-the-potentialradius-relation-as-p-p0-and-p-0">T:1.1 The potential–radius relation as P → P₀ and P → 0</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-2-derivatives-of-the-auxiliary-density">T:1.2 Derivatives of the auxiliary density</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-2-1-the-operator">T:1.2.1 The operator</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-2-2-the-inner-series-and-where-it-is-trusted">T:1.2.2 The inner series and where it is trusted</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-2-1-exact-derivatives-with-respect-to-the-potential">T:1.2.1 Exact derivatives with respect to the potential</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-2-2-inner-series-expansions-and-their-range-of-validity">T:1.2.2 Inner series expansions and their range of validity</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-3-the-profile-of-a-truncated-model">T:1.3 The profile of a truncated model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-1-3-interpolation-of-the-tabulated-truncated-profile">T:1.3 Interpolation of the tabulated truncated profile</a></li>
 </ul>
   </nav></div>
 

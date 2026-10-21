@@ -3,22 +3,31 @@ Density profiles
 
 :class:`pianistpy.DoublePowerLaw`
 
-An analytical double-power-law density profile with a finite central potential (an inner slope below 2), in
-its three slopes, ``DoublePowerLaw(rho_alpha, rho_beta, rho_gamma)``: the inner slope,
-the outer slope and the sharpness of the transition between them, with the scale radius and the central
-potential of the untruncated profile set to one (the internal units, :doc:`units`). The named profiles are
-presets of the same class, not classes of their own:
+``DoublePowerLaw(rho_alpha, rho_beta, rho_gamma)`` is the analytical double-power-law density profile
+:math:`\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha}`, with :math:`R` the radius in units of
+the scale radius and :math:`C` a normalization constant. The class takes three arguments:
+
+- ``rho_alpha``, the sharpness :math:`\alpha` of the transition between the inner and the outer slope, at least
+  1/2;
+- ``rho_beta``, the outer slope :math:`\beta`, greater than 2 for the profile and at least 3 for a component;
+- ``rho_gamma``, the inner slope :math:`\gamma`, with :math:`0 \leq \gamma < 2`, so that the central potential is
+  finite.
+
+In internal units (:doc:`Units <units>`), the scale radius and the central potential of a ``DoublePowerLaw``
+profile are 1. The NFW, Hernquist and Plummer profiles are parameter sets of ``DoublePowerLaw``, not classes of
+their own:
 
 .. code-block:: python
 
    pp.DoublePowerLaw.nfw()        # Navarro-Frenk-White
    pp.DoublePowerLaw.hernquist()
    pp.DoublePowerLaw.plummer()
-   pp.DoublePowerLaw(1.0, 3.0, 1.0)   # the same NFW profile by its slopes
+   pp.DoublePowerLaw(1.0, 3.0, 1.0)   # the NFW profile, given by (rho_alpha, rho_beta, rho_gamma)
 
-A profile holds its density, enclosed mass and potential as closed forms; every quantity of the package is
-computed from them by one path, and the named profiles' textbook forms are test references only.
+The methods ``rho(r)``, ``mass(r)`` and ``p(r)`` of a ``DoublePowerLaw`` profile return the density, the enclosed mass
+and the relative potential in closed form.
 
-A profile is one half of a :class:`pianistpy.Component`; the other half is its :doc:`anisotropy <anisotropy>`.
-A component takes an outer slope of 3 or more: between 2 and 3 the outer end of the inversion is not available
-in this version, and the component is refused by name (``OUTER SLOPE``).
+A component (:class:`pianistpy.Component`) of a model is a density profile together with a velocity anisotropy
+(:doc:`Velocity anisotropy <anisotropy>`). The density profile of a component needs an outer slope
+:math:`\beta \geq 3`. In ver. 1.0.0, a component whose profile has :math:`2 < \beta < 3` raises
+:class:`~pianistpy.InputError`, with a message that begins ``OUTER SLOPE``.

@@ -11,8 +11,8 @@ Gradients
 
 Module ``pianistpy.df.gradient``
 
-The distribution function's rows and table as JAX functions of the anisotropy parameters, and their Jacobians
-(:doc:`../../guide/gradient`).
+JAX functions that return the tabulated distribution function in terms of the anisotropy parameters, and the
+Jacobians of those functions (:doc:`../../guide/differentiability`).
 
 .. automodule:: pianistpy.df.gradient
    :members:

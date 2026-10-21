@@ -7,25 +7,26 @@ What PIANISTpy does
 .. rst-class:: features
 
 - :doc:`Density profiles. <../guide/profiles>` Analytical double-power-law density profiles with a finite central
-  potential, including the commonly used Navarro-Frenk-White, Hernquist and Plummer profiles.
+  potential, including the Navarro-Frenk-White, Hernquist and Plummer profiles.
 - :doc:`Velocity anisotropy. <../guide/anisotropy>` Isotropic, constant-anisotropy, Osipkov-Merritt and
-  Cuddeford-Osipkov-Merritt models, the latter two radially (Type I) or tangentially (Type II) biased.
+  Cuddeford-Osipkov-Merritt (COM) models. The Osipkov-Merritt and COM models are radially (Type I) or tangentially
+  (Type II) biased.
 - :doc:`Distribution functions. <../guide/df>` Each anisotropy model's distribution function, inverted from the
-  input density with exact symbolic expressions up to the final numerical integration, with
-  :doc:`extensively validated numerical accuracy <../reference/accuracy>` and checks that it is non-negative
-  (physical) and monotonic (dynamically stable).
-- :doc:`Truncation in phase space. <../guide/truncation>` Model truncation performed in phase space, such that the
-  truncation boundary is fully self-consistent and in dynamical equilibrium, by two methods: one preserves the
-  model's anisotropy profile (Method I), the other gives different anisotropy models an identical truncated
-  density (Method II).
-- :doc:`Particles. <../guide/particles>` Particle initial conditions with a finite, dynamically stable truncation
-  boundary, drawn from the truncated distribution function, in internal, model or physical units.
+  input density with exact symbolic expressions up to the final numerical integration, with extensively validated
+  numerical accuracy (:doc:`Accuracy tables <../reference/accuracy>`) and checks that the distribution function is
+  non-negative (physical) and monotonic (a sufficient condition for dynamical stability).
+- :doc:`Truncation in phase space. <../guide/truncation>` Model truncation performed in phase space. The
+  truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model's anisotropy
+  profile, and Method II gives different anisotropy models an identical truncated density.
+- :doc:`Particles. <../guide/particles>` Particle initial conditions drawn from the truncated distribution
+  function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or
+  physical units.
 - :doc:`Observables. <../guide/observables>` Radial, tangential and line-of-sight velocity dispersions,
-  line-of-sight velocity distributions and their Gauss-Hermite moments, and the local 3D velocity distribution at
-  any radius; projected quantities averaged over centered or offset circular and rectangular apertures.
+  line-of-sight velocity distributions and their Gauss-Hermite moments, and the local velocity distribution at a 3D
+  radius. Projected quantities are averaged over centered or offset circular and rectangular apertures.
 - :ref:`Superposition. <guide-superposition>` Distribution functions of different anisotropy models on one
-  truncated density, linearly superposed into one equilibrium model whose anisotropy profile lies beyond the
-  analytical families, such as one fitted to simulated halos.
+  truncated density, linearly superposed into one equilibrium model. The superposed model's anisotropy profile can
+  differ from every analytical family, for example an anisotropy profile fitted to simulated halos.
 - :ref:`Inference. <guide-inference>` End-to-end differentiable in JAX: the likelihood of a model against
-  kinematic data, and every observable, with gradients in the superposition weights, the unit scales and the
-  anisotropy parameters, for gradient-based Monte Carlo inference.
+  kinematic data, with gradients in the superposition weights, the mass and length scales (*M*\ :sub:`0` and
+  *r*\ :sub:`0`) and, for Method II components, the anisotropy parameters, for gradient-based Monte Carlo inference.

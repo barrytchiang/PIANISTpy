@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:7 Gradients &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>T:7 Gradients &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -54,20 +54,18 @@
     <link rel="index" title="Index" href="../../genindex" />
     <link rel="search" title="Search" href="../../search" />
     <link rel="next" title="T:8 Verification" href="verification" />
-    <link rel="prev" title="T:6 Velocity profiles and projections" href="observables" />
+    <link rel="prev" title="T:6 Velocity distributions and dispersion profiles" href="observables" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="gradients.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api/index">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -232,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../notes">Technical notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="references">References</a></li>
@@ -288,7 +284,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="../api/index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="../notes" class="nav-link">Technical notes</a></li>
@@ -312,27 +308,27 @@
                   
   <section id="t-7-gradients">
 <span id="tn-sec-gradients"></span><h1>T:7 Gradients<a class="headerlink" href="#t-7-gradients" title="Link to this heading">#</a></h1>
-<section id="t-7-1-the-inversion-s-rule">
-<span id="tn-sec-gradient-rule"></span><h2>T:7.1 The inversion’s rule<a class="headerlink" href="#t-7-1-the-inversion-s-rule" title="Link to this heading">#</a></h2>
-<p>The rows of the inversion are <span class="math notranslate nohighlight">\(F = T_b[g](q)\)</span> on a fixed grid <span class="math notranslate nohighlight">\(q\)</span>, where <span class="math notranslate nohighlight">\(T_b\)</span> is the operator of <a class="reference internal" href="df#tn-sec-num-forms"><span class="std std-ref">Section T:2.3</span></a> with its completion below the floor, applied to the source <span class="math notranslate nohighlight">\(g\)</span>, namely the rows of <span class="math notranslate nohighlight">\(\mathrm{d}^N\varrho_\mathrm{aux}/\mathrm{d} P^N\)</span>. At a fixed central anisotropy <span class="math notranslate nohighlight">\(b = \beta_\mathrm{c}\)</span>, the operator is linear in its source, so that</p>
+<section id="t-7-1-derivatives-of-the-df-with-respect-to-the-anisotropy-parameters">
+<span id="tn-sec-gradient-rule"></span><h2>T:7.1 Derivatives of the DF with respect to the anisotropy parameters<a class="headerlink" href="#t-7-1-derivatives-of-the-df-with-respect-to-the-anisotropy-parameters" title="Link to this heading">#</a></h2>
+<p>The rows of the inversion are <span class="math notranslate nohighlight">\(F = T_b[g](q)\)</span> on a fixed grid <span class="nobr"><span class="math notranslate nohighlight">\(q\)</span>,</span> where <span class="math notranslate nohighlight">\(T_b\)</span> is the operator of <a class="reference internal" href="df#tn-sec-num-forms"><span class="std std-ref">Section T:2.3</span></a> with its completion below the floor, applied to the source <span class="nobr"><span class="math notranslate nohighlight">\(g\)</span>,</span> namely the rows of <span class="nobr"><span class="math notranslate nohighlight">\(\mathrm{d}^N\varrho_\mathrm{aux}/\mathrm{d} P^N\)</span>.</span> At a fixed central anisotropy <span class="nobr"><span class="math notranslate nohighlight">\(b = \beta_\mathrm{c}\)</span>,</span> the operator is linear in its source, so that</p>
 <div class="math notranslate nohighlight" id="tn-eq-gradient-rule">
 \begin{equation}
   \frac{\partial F}{\partial {R_\mathrm{a}}} = T_b\!\left[\partial_{R_\mathrm{a}} g\right], \qquad \frac{\partial F}{\partial {\beta_\mathrm{c}}} = T_b\!\left[\partial_{b}\, g\right] + E_b[g] ,
   \tag{T:7.1}
-\end{equation}</div><p>where <span class="math notranslate nohighlight">\(\partial_\theta g\)</span> denotes the mixed derivatives at fixed <span class="math notranslate nohighlight">\(P\)</span>, formed symbolically in the same way as the derivatives of <a class="reference internal" href="model#tn-sec-derivatives"><span class="std std-ref">Section T:1.2.1</span></a>, and <span class="math notranslate nohighlight">\(E_b\)</span> is the derivative of the operator itself with respect to <span class="math notranslate nohighlight">\(b\)</span> at fixed <span class="math notranslate nohighlight">\(g\)</span>, through its prefactor and the exponent of its kernel. <span class="math notranslate nohighlight">\(E_b\)</span> has no closed form and is taken from the values of the operator at nearby <span class="math notranslate nohighlight">\(b\)</span>: a central Richardson quotient over a step and its half inside the region of one form, or the one-sided third-order combinations of both sides and their mean at a corner where the form changes on one side (half-integer <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>, or the switch of the pair). The step balances the measured accuracy of the kernel against the truncation term of the quotient. The record states the Richardson residual of the quotient and, at a corner, the spread between its two sides, both relative to the scale of the column, and the residual is read in the tiers of <a class="reference internal" href="principles#tn-sec-tiers"><span class="std std-ref">Section T:0.5</span></a>.</p>
-<p>The table that the lookup reads is a function of the rows and of closed forms in <span class="math notranslate nohighlight">\(\theta\)</span>, so its derivative is the chain rule through each piece, with every discrete choice of the forward pass held fixed: the grid, the anchor, the window of the fit, and the nodes below the written floor. The contribution of the rows is <a class="reference internal" href="#tn-eq-gradient-rule"><span class="std std-ref">Eq. (T:7.1)</span></a> along the rows. The form above the anchor is its least-squares fit linearized in the rows, with the exponent <span class="math notranslate nohighlight">\(\kappa(b)\)</span> and the amplitude <span class="math notranslate nohighlight">\(A(b)\)</span> of the center in closed form on the regular branch. The nodes below the floor are the integral, which is linear in its source, with the source’s cubic in <span class="math notranslate nohighlight">\((\ln P, \ln|g|)\)</span> linearized; in <span class="math notranslate nohighlight">\(b\)</span>, the exponent and the prefactor of the floor pair are differenced in the same way as <span class="math notranslate nohighlight">\(E_b\)</span>. The tail contributes through its amplitude, exponent, and scale from the first node below the floor. On a Method II child the parent is held fixed, and the sources of the child are the Leibniz sum of <a class="reference internal" href="df#tn-sec-tabulated"><span class="std std-ref">Section T:2.6</span></a>, whose derivative is the same sum with <span class="math notranslate nohighlight">\(\partial h/\partial\theta\)</span> in closed form; the leaves are the rows, the edge law, and the stated form of the center, each with its derivative written out. The derivative is that of the solve with its choices fixed; between two parameters at which a choice changes, the solve at the second differs from the held one by its own tolerance.</p>
+\end{equation}</div><p>where <span class="math notranslate nohighlight">\(\partial_\theta g\)</span> denotes the mixed derivatives at fixed <span class="nobr"><span class="math notranslate nohighlight">\(P\)</span>,</span> formed symbolically in the same way as the derivatives of <a class="reference internal" href="model#tn-sec-derivatives"><span class="std std-ref">Section T:1.2.1</span></a>, and <span class="math notranslate nohighlight">\(E_b\)</span> is the derivative of the operator itself with respect to <span class="math notranslate nohighlight">\(b\)</span> at fixed <span class="nobr"><span class="math notranslate nohighlight">\(g\)</span>,</span> through its prefactor and the exponent of its kernel. <span class="math notranslate nohighlight">\(E_b\)</span> has no closed form and is taken from the values of the operator at nearby <span class="nobr"><span class="math notranslate nohighlight">\(b\)</span>:</span> a central Richardson quotient over a step and its half inside the region of one form, or the one-sided third-order combinations of both sides and their mean at a corner where the form changes on one side (half-integer <span class="nobr"><span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>,</span> or the switch of the pair). The step balances the measured accuracy of the kernel against the truncation term of the quotient. The quotient’s record states the Richardson residual of the quotient and, at a corner, the spread between its two sides, both relative to the scale of the column.</p>
+<p>The table that the lookup reads is a function of the rows and of closed forms in <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>,</span> so its derivative is the chain rule through each piece, with every discrete choice of the forward pass held fixed: the grid, the anchor, the range of the fit, and the nodes below the written floor. The contribution of the rows is <a class="reference internal" href="#tn-eq-gradient-rule"><span class="std std-ref">Eq. (T:7.1)</span></a> along the rows. The form above the anchor is its least-squares fit linearized in the rows, with the exponent <span class="math notranslate nohighlight">\(\kappa(b)\)</span> and the amplitude <span class="math notranslate nohighlight">\(A(b)\)</span> of the center in closed form on the regular branch. The nodes below the floor are the integral, which is linear in its source, with the source’s cubic in <span class="math notranslate nohighlight">\((\ln P, \ln|g|)\)</span> linearized; in <span class="nobr"><span class="math notranslate nohighlight">\(b\)</span>,</span> the exponent and the prefactor of the floor pair are differenced in the same way as <span class="nobr"><span class="math notranslate nohighlight">\(E_b\)</span>.</span> The tail contributes through its amplitude, exponent, and scale from the first node below the floor. On a Method II model the Method I model is held fixed, and the sources of the Method II model are the Leibniz sum of <a class="reference internal" href="df#tn-sec-tabulated"><span class="std std-ref">Section T:2.6</span></a>, whose derivative is the same sum with <span class="math notranslate nohighlight">\(\partial h/\partial\theta\)</span> in closed form; the leaves are the rows, the edge law, and the stated form of the center, each with its derivative written out. The derivative is that of the solve with its choices fixed; between two parameters at which a choice changes, the solve at the second differs from the held one by its own tolerance.</p>
 </section>
-<section id="t-7-2-what-is-served">
-<span id="tn-sec-gradient-scope"></span><h2>T:7.2 What is served<a class="headerlink" href="#t-7-2-what-is-served" title="Link to this heading">#</a></h2>
-<p>Gradients are served for constant anisotropy (<span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>), Cuddeford Type I (<span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> and <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span>), and Osipkov-Merritt Type I and II (<span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span>). Three cases are refused, each with a named reason. The first is Cuddeford Type II, whose kernel carries the factor <span class="math notranslate nohighlight">\((P - P(R_\mathrm{a}))^{s}\)</span> with <span class="math notranslate nohighlight">\(s = 1 - \beta_\mathrm{c} - j\)</span>, an interior point that moves with <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span> and an exponent that moves with <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>, so that the derivative of the factor with respect to <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span> is not integrable at the interior point for <span class="math notranslate nohighlight">\(s \leq 0\)</span>, and the mixed rows do not carry the derivative there. The second is a center on its critical branch, where the branch itself changes with <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>. The third is a component on a profile that carries no DF of its own model. The derivative of the observables of a model with respect to <span class="math notranslate nohighlight">\((\beta_\mathrm{c}, R_\mathrm{a})\)</span> is the full derivative for a Method II model, whose profile is held fixed. A truncated Method I model is refused by name, since its profile is that of its own DF and moves with the anisotropy, so that neither the Jeans path at a fixed profile nor the DF’s path at a fixed potential carries the full derivative; an untruncated model is refused on both paths, since its edge terms read its DF.</p>
+<section id="t-7-2-anisotropy-models-and-parameters-with-derivatives-and-the-refused-cases">
+<span id="tn-sec-gradient-scope"></span><h2>T:7.2 Anisotropy models and parameters with derivatives, and the refused cases<a class="headerlink" href="#t-7-2-anisotropy-models-and-parameters-with-derivatives-and-the-refused-cases" title="Link to this heading">#</a></h2>
+<p>The rule of the DF’s table (<a class="reference internal" href="#tn-sec-gradient-rule"><span class="std std-ref">Section T:7.1</span></a>) serves constant anisotropy and an isotropic component <span class="nobr">(<span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>),</span> Cuddeford Type I <span class="nobr">(<span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span></span> and <span class="nobr"><span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span>),</span> and Osipkov-Merritt Type I and II <span class="nobr">(<span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span>).</span> The tangent rows of the second moments (<a class="reference internal" href="#tn-sec-tangent-rows"><span class="std std-ref">Section T:7.3</span></a>) are served in <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> for every family and in <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span> for every family that has it, Cuddeford Type II included, an Osipkov-Merritt model being varied in <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> as the Cuddeford model of its type at <span class="nobr"><span class="math notranslate nohighlight">\(\beta_\mathrm{c} = 0\)</span>.</span> The velocity distributions are served in the parameters of the DF’s path: <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> of a constant member, <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span> of an Osipkov-Merritt member, both of a Cuddeford Type I member; the column of a parameter that path does not take is not a number, and an isotropic member’s velocity distributions are refused with the reason stated. A member without <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span> holds it at its own, infinite, value with a zero gradient. The rule of the DF’s table refuses three cases, each with the reason stated. The first is Cuddeford Type II, whose source, the derivative of order <span class="math notranslate nohighlight">\(j\)</span> of the auxiliary density, behaves as <span class="math notranslate nohighlight">\(|P - P(R_\mathrm{a})|^{s}\)</span> with <span class="math notranslate nohighlight">\(s = 1 - \beta_\mathrm{c} - j\)</span> (<a class="reference internal" href="df#tn-eq-ra-exponent"><span class="std std-ref">Eq. (T:2.15)</span></a>), with an interior point that moves with <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span> and an exponent that moves with <span class="nobr"><span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>;</span> the derivative of that factor with respect to <span class="math notranslate nohighlight">\(R_\mathrm{a}\)</span> is not integrable at the interior point for <span class="math notranslate nohighlight">\(s &lt; 0\)</span> and is a point mass there at <span class="nobr"><span class="math notranslate nohighlight">\(s = 0\)</span>,</span> so the mixed rows do not carry the derivative, and the family is refused for both parameters. The second is a center on its critical branch, where the branch itself changes with <span class="nobr"><span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span>.</span> The third is a component on a truncated profile that carries no DF of the model it was cut from. The velocity distributions, which read the DF’s table and its derivative, refuse the same cases, and besides them an isotropic member’s <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> and a row at <span class="nobr"><span class="math notranslate nohighlight">\(\beta_\mathrm{c} = \pm 1/2\)</span>,</span> whose angle integral is taken in closed form. The second moments read no DF: their tangent rows serve a center on its critical branch and Cuddeford Type II as well; the JAX functions of the observables refuse a Cuddeford Type II component for all the observables, the second moments included, while the likelihood serves it as a free component. The derivative of the observables of a model with respect to <span class="math notranslate nohighlight">\((\beta_\mathrm{c}, R_\mathrm{a})\)</span> is the full derivative for a Method II model, whose profile is held fixed. A truncated Method I model is refused with the reason stated, since its profile is that of its own DF and moves with the anisotropy, so that neither the Jeans path at a fixed profile nor the DF’s path at a fixed potential carries the full derivative; an untruncated model is refused on both paths, since its edge terms read its DF.</p>
 </section>
-<section id="t-7-3-the-observables-tangent-rows">
-<span id="tn-sec-tangent-rows"></span><h2>T:7.3 The observables’ tangent rows<a class="headerlink" href="#t-7-3-the-observables-tangent-rows" title="Link to this heading">#</a></h2>
-<p>Each observable is served as a JAX function of <span class="math notranslate nohighlight">\(\theta = (\beta_\mathrm{c}, R_\mathrm{a})\)</span> with a custom derivative. Its value is the public call on the model rebuilt at <span class="math notranslate nohighlight">\(\theta\)</span> on the host, and its derivative is given by the tangent rows of the observable in <span class="math notranslate nohighlight">\(\theta\)</span> on the tables’ own rows, with their placement frozen. The tangent rows of the radial dispersion are the derivative of the Jeans rule <a class="reference internal" href="observables#tn-eq-jeans"><span class="std std-ref">Eq. (T:6.1)</span></a> on the same rows and nodes on the fixed profile, with the limit of the edge reading unmoved. The tangent rows of the projection are the derivative of the line-of-sight rule on the same nodes, through the derivative of the profile’s reading, and zero where the squared dispersion is clipped. The derivative of an aperture is the aperture’s integral of the tangent rows of the squared dispersion on the nodes of the plain call. The velocity distributions take their derivatives through the derivative of the DF itself: the lookup is differentiated by JAX on its own expressions, and the transpose carries a cotangent on <span class="math notranslate nohighlight">\(F\)</span> at the energies back to the numbers of the table through the three maps between them (the padded nodes, the spline slopes where a table has no exact ones, and the derived numbers of the forms), with the energies held fixed. The rows of the line-of-sight tables are recomputed level by level for their transpose and are held to the forward’s row bit for bit, which the order of summation on a GPU does not promise; a row that differs is refused by name there, whereas on the CPU every row is served. At a <span class="math notranslate nohighlight">\(\theta\)</span> where the model is refused, the value is not a number and its gradient is zero.</p>
+<section id="t-7-3-derivatives-of-the-velocity-dispersions-and-distributions">
+<span id="tn-sec-tangent-rows"></span><h2>T:7.3 Derivatives of the velocity dispersions and distributions<a class="headerlink" href="#t-7-3-derivatives-of-the-velocity-dispersions-and-distributions" title="Link to this heading">#</a></h2>
+<p>Each observable is served as a JAX function of <span class="math notranslate nohighlight">\(\theta = (\beta_\mathrm{c}, R_\mathrm{a})\)</span> with a custom derivative. Its value is the public call on the model rebuilt at <span class="math notranslate nohighlight">\(\theta\)</span> on the host, and its derivative is given by the tangent rows of the observable in <span class="math notranslate nohighlight">\(\theta\)</span> on the tables’ own rows, with their placement frozen. The tangent rows of the radial dispersion are the derivative of the Jeans rule <a class="reference internal" href="observables#tn-eq-jeans"><span class="std std-ref">Eq. (T:6.1)</span></a> on the same rows and nodes on the fixed profile, with the limit of the edge reading unmoved. The tangent rows of the projection are the derivative of the line-of-sight rule on the same nodes, through the derivative of the profile’s reading, with the surface density held, and zero where the surface density is zero. A negative squared dispersion is refused with the reason stated, never clipped, so no row of the forward is clipped and no tangent row is set to zero for that reason. The derivative of the squared dispersion over an aperture is the aperture’s integral of the tangent rows of the squared dispersion, on the nodes and weights of the plain call (the integral is linear in the rows); the derivative of the dispersion over the aperture is that over twice its value, and zero where the value is zero. The velocity distributions take their derivatives in two parts. The first is through the derivative of the DF’s table (<a class="reference internal" href="#tn-sec-gradient-rule"><span class="std std-ref">Section T:7.1</span></a>): the lookup is differentiated by JAX on its own expressions, and the transpose carries a cotangent on <span class="nobr"><span class="math notranslate nohighlight">\(F\)</span>,</span> and on its integral <span class="math notranslate nohighlight">\(G\)</span> where a row reads it, at the energies back to the numbers of the table through the three maps between them (the padded nodes, the spline slopes where a table has no exact ones, and the derived numbers of the forms), with the energies held fixed, and contracts it with the table’s derivative in <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>.</span> The second is the explicit part at a fixed table: the derivative, by JAX on a twin of the velocity plane or of the angle integral with the forward’s discrete choices held, of the distribution’s own dependence on <span class="math notranslate nohighlight">\(\theta\)</span> through the anisotropy’s factor, the augmented energy and the edges of the integration. For its transpose, each row of the line-of-sight tables that a nonzero cotangent reaches is computed once more by its own rule, with every read of <span class="math notranslate nohighlight">\(F\)</span> and <span class="math notranslate nohighlight">\(G\)</span> collected at the level from which the value of its velocity came. With the setting that checks the rows, which is off by default, the row so computed is held to the forward’s row bit for bit, and so is the row formed again level by level, and a row that differs is refused with the reason stated; the order of summation on a GPU does not promise that equality, so on a GPU the check can refuse a row that the CPU serves. Without the check, no row is compared and every row is served on either backend. At a <span class="math notranslate nohighlight">\(\theta\)</span> where the model is refused, the value is not a number and its gradient is zero.</p>
 </section>
 <section id="t-7-4-the-likelihood">
 <span id="tn-sec-likelihood"></span><h2>T:7.4 The likelihood<a class="headerlink" href="#t-7-4-the-likelihood" title="Link to this heading">#</a></h2>
-<p>The log-likelihood of a model against data is a JAX function of the weights of the components and of the mass and length scales of the model, traceable and differentiable in both, and with the anisotropy of the named free components as parameters through the tangent rows above. The observables predicted by a model are read on the host once, as tables over projected radius; a projected radius in the units of the data is <span class="math notranslate nohighlight">\(R = L\,l\,x\)</span> and a speed is <span class="math notranslate nohighlight">\(v = V(m/l)^{1/2}u\)</span>, with <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(u\)</span> in internal units, <span class="math notranslate nohighlight">\(L\)</span> and <span class="math notranslate nohighlight">\(V\)</span> the factors of the model’s units, and <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(l\)</span> the scales relative to the model’s own. For a superposed model, the composite profile for a new set of weights is one matrix-vector product over the members’ tabulated moments (<a class="reference internal" href="observables#tn-sec-mixing"><span class="std std-ref">Section T:6.9</span></a>); the likelihood is linear in the weights up to their normalization, so its gradient in the weights is exact. A refused input inside the traced function (a negative weight, a radius outside the table) gives minus infinity with a zero gradient, never an exception, so that a sampler over the parameters always sees a value. A binned distribution holds the length scale at the model’s own value and carries no gradient in it, which a caller reads as not a number rather than as a number.</p>
+<p>The log-likelihood of a model against data is a JAX function of the weights of the components and of the mass and length scales of the model, traceable and differentiable in both, and with the anisotropy of the free components as parameters through the tangent rows above. The observables predicted by a model are read on the host once, as tables over projected radius; a projected radius in the units of the data is <span class="math notranslate nohighlight">\(R = L\,l\,x\)</span> and a velocity is <span class="nobr"><span class="math notranslate nohighlight">\(v = V(m/l)^{1/2}u\)</span>,</span> with <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(u\)</span> in internal units, <span class="math notranslate nohighlight">\(L\)</span> and <span class="math notranslate nohighlight">\(V\)</span> the factors of the model’s units, and <span class="math notranslate nohighlight">\(m\)</span> and <span class="math notranslate nohighlight">\(l\)</span> the scales relative to the model’s own. For a superposed model, the composite profile for a new set of weights is one matrix-vector product over the members’ tabulated moments (<a class="reference internal" href="observables#tn-sec-mixing"><span class="std std-ref">Section T:6.9</span></a>); the second moments that the likelihood compares with the data are linear in the normalized weights, while the likelihood itself is not, and the gradient of the log-likelihood in the weights is exact because JAX differentiates the whole function. A refused input inside the traced function (a negative weight, a radius outside the table) gives minus infinity with a zero gradient, never an exception, so that a sampler over the parameters always sees a value. A binned distribution and the Gauss-Hermite moments in apertures are computed at the model’s own length scale: a length scale other than the model’s own gives minus infinity, and the gradient in the length scale is not a number for a binned distribution and zero for the moments in apertures.</p>
 </section>
 </section>
 
@@ -359,9 +355,9 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-7-1-the-inversion-s-rule">T:7.1 The inversion’s rule</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-7-2-what-is-served">T:7.2 What is served</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-7-3-the-observables-tangent-rows">T:7.3 The observables’ tangent rows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-7-1-derivatives-of-the-df-with-respect-to-the-anisotropy-parameters">T:7.1 Derivatives of the DF with respect to the anisotropy parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-7-2-anisotropy-models-and-parameters-with-derivatives-and-the-refused-cases">T:7.2 Anisotropy models and parameters with derivatives, and the refused cases</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-7-3-derivatives-of-the-velocity-dispersions-and-distributions">T:7.3 Derivatives of the velocity dispersions and distributions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#t-7-4-the-likelihood">T:7.4 The likelihood</a></li>
 </ul>
   </nav></div>

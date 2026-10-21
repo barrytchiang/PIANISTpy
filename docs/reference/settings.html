@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Settings tables &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Numerical settings &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -53,21 +53,19 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex" />
     <link rel="search" title="Search" href="../search" />
-    <link rel="next" title="Names and paper symbols" href="symbols" />
+    <link rel="next" title="Code and paper notations" href="symbols" />
     <link rel="prev" title="Numerics" href="api/numerics" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="settings.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../guide/index">User guide</a><ul>
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api/index">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="api/index">Functions by subpackage</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="symbols">Names and paper symbols</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -232,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="api/numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="symbols">Names and paper symbols</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/references">References</a></li>
@@ -288,9 +284,9 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="api/index" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Settings tables</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Numerical settings</span></li>
   </ul>
 </nav>
 </div>
@@ -307,12 +303,16 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="settings-tables">
-<h1>Settings tables<a class="headerlink" href="#settings-tables" title="Link to this heading">#</a></h1>
-<p>Every numerical setting of the package is a declared field of one group, with its value in each tested tier and
-one line on what it controls. The tables below are generated from the package’s own declaration at every build
-of this manual, so they cannot lag the code. The settings container is <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Settings</span></code>; a stage reads
-its group and nothing else; an override of an undeclared field, of the wrong type or not positive is refused.</p>
+  <section id="numerical-settings">
+<h1>Numerical settings<a class="headerlink" href="#numerical-settings" title="Link to this heading">#</a></h1>
+<p>Every numerical setting of the package is a field of <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Settings</span></code>. The tables below list each
+field, its value under the default settings and under the quick settings (<a class="reference internal" href="../guide/accuracy"><span class="doc">Accuracy</span></a>),
+and what the field controls. The fields fall in five groups, one table each: <code class="docutils literal notranslate"><span class="pre">inversion</span></code>, <code class="docutils literal notranslate"><span class="pre">truncation</span></code>,
+<code class="docutils literal notranslate"><span class="pre">sampling</span></code>, <code class="docutils literal notranslate"><span class="pre">observables</span></code> and <code class="docutils literal notranslate"><span class="pre">losvd</span></code>.</p>
+<p>An override of a field, such as <code class="docutils literal notranslate"><span class="pre">pp.Settings(inversion={&quot;n_nodes&quot;:</span> <span class="pre">256})</span></code>, raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> when the group or the field’s name is unknown. An override also
+raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> when the value has the wrong type, or when the value is not positive for a
+field that must be positive.</p>
 <section id="inversion">
 <h2><code class="docutils literal notranslate"><span class="pre">inversion</span></code><a class="headerlink" href="#inversion" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="settings-table table">
@@ -333,32 +333,32 @@ its group and nothing else; an override of an undeclared field, of the wrong typ
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_nodes</span></code></p></td>
 <td><p>500</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of the inversion integral.</p></td>
+<td><p>The number of Gauss-Legendre nodes of the integral that inverts the density into the distribution function.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_grid_rows</span></code></p></td>
 <td><p>1000</p></td>
 <td><p>same</p></td>
-<td><p>Rows of the linear middle zone of the inversion’s energy grid.</p></td>
+<td><p>The number of energies in the middle zone of the inversion’s energy grid, where the energies are spaced linearly.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_grid_tail_rows</span></code></p></td>
 <td><p>3000</p></td>
 <td><p>same</p></td>
-<td><p>Rows of each logarithmic end zone of the inversion’s energy grid, toward the floor and toward the top.</p></td>
+<td><p>The number of energies in each of the two end zones of the inversion’s energy grid, where the energies are spaced logarithmically toward the grid’s floor and toward the grid’s top.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">grid_tail_extent</span></code></p></td>
 <td><p>0.03</p></td>
 <td><p>same</p></td>
-<td><p>Extent of the energy grid’s end zones, as a fraction of the central potential.</p></td>
+<td><p>The width of each end zone of the inversion’s energy grid, as a fraction of the central potential.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">table_nodes_per_decade</span></code></p></td>
 <td><p>50</p></td>
 <td><p>same</p></td>
-<td><p>Nodes per decade of the energy grid below its floor, down to the table’s floor.</p></td>
+<td><p>The number of energies per decade below the floor of the inversion’s energy grid, down to the floor of the distribution function’s table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_floor_nodes</span></code></p></td>
 <td><p>240</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes in ln P of the completion below the table’s floor (a third of them, at least 40, near the floor).</p></td>
+<td><p>The number of Gauss-Legendre nodes, in ln P, of the integral that completes the distribution function below the table’s floor; a third of the nodes, and at least 40 nodes, lie near the floor.</p></td>
 </tr>
 </tbody>
 </table>
@@ -384,92 +384,92 @@ its group and nothing else; an override of an undeclared field, of the wrong typ
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_source_nodes</span></code></p></td>
 <td><p>500</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of each of the two intervals of the quadrature of the auxiliary density on the source grid.</p></td>
+<td><p>The number of Gauss-Legendre nodes in each of the two intervals of the quadrature that computes the auxiliary density on the source grid.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_source_rows</span></code></p></td>
 <td><p>12000</p></td>
 <td><p>same</p></td>
-<td><p>Rows of the source grid in the potential.</p></td>
+<td><p>The number of potential values of the source grid.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_source_tail_rows</span></code></p></td>
 <td><p>3000</p></td>
 <td><p>same</p></td>
-<td><p>Rows of each logarithmic tail of the source grid, toward the floor and toward the top (at most a third of the rows).</p></td>
+<td><p>The number of potential values in each logarithmic tail of the source grid, toward the grid’s floor and toward the grid’s top; each tail holds at most a third of the source grid’s potential values.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source_tail_extent</span></code></p></td>
 <td><p>0.03</p></td>
 <td><p>same</p></td>
-<td><p>Largest extent of the source grid’s tails, as a fraction of the grid’s top (the tails take at most a hundredth of the top).</p></td>
+<td><p>The largest width of each tail of the source grid, as a fraction of the grid’s top; the width used is at most a hundredth of the grid’s top.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">source_tail_floor</span></code></p></td>
 <td><p>1.20401e-08</p></td>
 <td><p>same</p></td>
-<td><p>Smallest start of the source grid’s lower tail and smallest extent of its upper tail, as fractions of the grid’s top.</p></td>
+<td><p>The smallest start of the source grid’s lower tail and the smallest width of the source grid’s upper tail, as fractions of the grid’s top.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quadrature_split</span></code></p></td>
 <td><p>0.9</p></td>
 <td><p>same</p></td>
-<td><p>Fraction of the potential where the first interval of the source quadrature ends.</p></td>
+<td><p>The fraction of the potential at which the first interval of the source quadrature ends and the second interval begins.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">quadrature_stretch</span></code></p></td>
 <td><p>2</p></td>
 <td><p>same</p></td>
-<td><p>Power k of the second interval’s map Q = P - u^k, where the kernel’s exponent is not negative.</p></td>
+<td><p>The power k of the map Q = P - u^k on the second interval of the source quadrature, where the exponent of the quadrature’s kernel is not negative.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_rtol</span></code></p></td>
 <td><p>1e-11</p></td>
 <td><p>same</p></td>
-<td><p>Relative tolerance of the Poisson integration.</p></td>
+<td><p>The relative tolerance of the integration of Poisson’s equation.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_atol</span></code></p></td>
 <td><p>1e-11</p></td>
 <td><p>same</p></td>
-<td><p>Absolute tolerance of the Poisson integration.</p></td>
+<td><p>The absolute tolerance of the integration of Poisson’s equation.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_rows_inner</span></code></p></td>
 <td><p>500</p></td>
 <td><p>same</p></td>
-<td><p>Rows of the Poisson solve’s grid inside the inner zone.</p></td>
+<td><p>The number of radii of the Poisson solve’s grid inside the inner zone.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_rows_outer</span></code></p></td>
 <td><p>59500</p></td>
 <td><p>same</p></td>
-<td><p>Rows of the Poisson solve’s grid outside the inner zone.</p></td>
+<td><p>The number of radii of the Poisson solve’s grid outside the inner zone.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">log10_r_min</span></code></p></td>
 <td><p>-9</p></td>
 <td><p>same</p></td>
-<td><p>Logarithm of the Poisson solve’s innermost radius.</p></td>
+<td><p>The base-10 logarithm of the innermost radius of the Poisson solve, in internal length units.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">log10_r_max</span></code></p></td>
 <td><p>12</p></td>
 <td><p>same</p></td>
-<td><p>Logarithm of the Poisson solve’s outermost radius; a run raises it until the potential there is below half the floor, and the result states the value it used.</p></td>
+<td><p>The base-10 logarithm of the outermost radius of the Poisson solve, in internal length units. A computation raises the outermost radius until the potential at the outermost radius is below half the floor, and the result records the value used.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">continuation_start</span></code></p></td>
 <td><p>0.01</p></td>
 <td><p>same</p></td>
-<td><p>Fraction of the central potential below which a truncated model’s last rows are re-solved on a grid geometric in R_t - r.</p></td>
+<td><p>The fraction of the central potential below which the outermost radii of a truncated model are solved again on a grid geometric in R_t - r, where R_t is the truncation radius.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">continuation_rows_per_decade</span></code></p></td>
 <td><p>1200</p></td>
 <td><p>same</p></td>
-<td><p>Rows per decade of R_t - r of the edge continuation.</p></td>
+<td><p>The number of radii per decade of R_t - r in the solve toward the truncation radius R_t.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">continuation_floor_fraction</span></code></p></td>
 <td><p>0.02</p></td>
 <td><p>same</p></td>
-<td><p>The edge continuation’s last row, as a fraction of the floor.</p></td>
+<td><p>The potential at the outermost radius of the solve toward the truncation radius, as a fraction of the floor.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">profile_bin_decades</span></code></p></td>
 <td><p>0.1</p></td>
 <td><p>same</p></td>
-<td><p>Width in decades of the potential of the profile’s row-count bins.</p></td>
+<td><p>The width, in decades of the potential, of each bin in which the profile’s radii are counted.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">profile_rows_per_decade</span></code></p></td>
 <td><p>1000</p></td>
 <td><p>same</p></td>
-<td><p>Fewest rows per decade of the potential (and of the depth) that the profile keeps at its two ends; the fills supply the rest.</p></td>
+<td><p>The smallest number of radii per decade of the potential, and per decade of the depth, that the profile keeps at the profile’s two ends; the profile’s fills supply the other radii.</p></td>
 </tr>
 </tbody>
 </table>
@@ -495,72 +495,72 @@ its group and nothing else; an override of an undeclared field, of the wrong typ
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_rows</span></code></p></td>
 <td><p>512</p></td>
 <td><p>same</p></td>
-<td><p>Rows in potential of the speed table to start from: the rows are refined until the table’s own error across rows is under the goal.</p></td>
+<td><p>The number of potential values of the velocity table at the start of the table’s refinement; the number doubles until the table’s own error across potential values is below row_error_goal or until the number reaches n_rows_max.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code></p></td>
 <td><p>4075</p></td>
 <td><p>same</p></td>
-<td><p>Most rows of the speed table: no refinement passes this count.</p></td>
+<td><p>The largest number of potential values of the velocity table; the table’s refinement stops at n_rows_max potential values.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_nodes</span></code></p></td>
 <td><p>2048</p></td>
 <td><p>512</p></td>
-<td><p>Nodes of each row of the speed table.</p></td>
+<td><p>The number of nodes at each potential value of the velocity table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_speed_intervals</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_velocity_intervals</span></code></p></td>
 <td><p>200</p></td>
 <td><p>same</p></td>
-<td><p>Intervals in the scaled speed of the distribution integrated on each row of the speed table.</p></td>
+<td><p>The number of intervals in the scaled velocity over which the velocity distribution is integrated at each potential value of the velocity table.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_gauss_legendre</span></code></p></td>
 <td><p>16</p></td>
 <td><p>8</p></td>
-<td><p>Gauss-Legendre nodes of each panel of the speed integrals.</p></td>
+<td><p>The number of Gauss-Legendre nodes of each panel of the velocity integrals.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">panels_per_decade</span></code></p></td>
 <td><p>8</p></td>
 <td><p>same</p></td>
-<td><p>Panels per decade of the local variable where the speed integrals refine toward the two ends of a row and inside each interval.</p></td>
+<td><p>The number of panels per decade of the local variable where the velocity integrals refine toward the two ends of the velocity range at one potential value and inside each interval.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">speed_low_refined</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">velocity_low_refined</span></code></p></td>
 <td><p>1e-09</p></td>
 <td><p>same</p></td>
-<td><p>Smallest scaled speed refined in panels; below it the density is its power law in the speed, integrated in closed form.</p></td>
+<td><p>The smallest scaled velocity that the velocity integrals refine in panels; below that velocity, the density follows the density’s power law in the velocity and is integrated in closed form.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_refined</span></code></p></td>
 <td><p>1e-12</p></td>
 <td><p>same</p></td>
-<td><p>Distance from the edge of the speed support, relative to the edge, down to which panels refine; below it the DF’s rule below its table is integrated in closed form.</p></td>
+<td><p>The distance from the edge of the velocity range, relative to the edge, down to which the velocity integrals refine in panels; closer to the edge, the distribution function’s form below the distribution function’s table is integrated in closed form.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">radius_edge_refined</span></code></p></td>
 <td><p>1e-10</p></td>
 <td><p>same</p></td>
-<td><p>Smallest enclosed-mass fraction beyond a radius that the radius table of a model with a sharp edge resolves in nodes; beyond it the mass follows its power law in the distance from the edge.</p></td>
+<td><p>The smallest fraction of the mass beyond a radius that the radius table of a model with a sharp edge resolves in nodes; for smaller fractions, the mass follows the mass’s power law in the distance from the edge.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_radius_nodes</span></code></p></td>
 <td><p>2048</p></td>
 <td><p>same</p></td>
-<td><p>Nodes of the radius table.</p></td>
+<td><p>The number of nodes of the radius table.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_angle_nodes</span></code></p></td>
 <td><p>1024</p></td>
 <td><p>same</p></td>
-<td><p>Nodes of each half of the angle table, uniform in the logarithm of the cumulative probability from its end.</p></td>
+<td><p>The number of nodes of each half of the angle table, spaced uniformly in the logarithm of the cumulative probability from the half’s end.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">draw_block</span></code></p></td>
 <td><p>262144</p></td>
 <td><p>same</p></td>
-<td><p>Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block’s (about 0.75 kB a particle, <span class="math notranslate nohighlight">\(2^{18}\)</span> particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.</p></td>
+<td><p>The number of particles drawn at once. A draw runs over blocks of draw_block particles, so the draw’s working memory, above the memory of the drawn particles, is the memory of one block: about 0.75 kB per particle, or about 0.2 GB for <span class="math notranslate nohighlight">\(2^{18}\)</span> particles. The drawn particles do not depend on draw_block.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">row_error_goal</span></code></p></td>
 <td><p>1e-06</p></td>
 <td><p>0.0001</p></td>
-<td><p>Error across rows at which the speed table’s refinement stops (its rows double until the table’s own error is under it, or n_rows_max is reached).</p></td>
+<td><p>The error across the potential values of the velocity table at which the table’s refinement stops: the number of potential values doubles until the table’s own error is below row_error_goal or until the number reaches n_rows_max.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tail_mass_min</span></code></p></td>
 <td><p>1e-18</p></td>
 <td><p>same</p></td>
-<td><p>Smallest tabulated cumulative probability at either end of a table: a uniform double reaches <span class="math notranslate nohighlight">\(2^{-53}\)</span>, so a draw never reads beyond it.</p></td>
+<td><p>The smallest cumulative probability tabulated at either end of a table. The smallest nonzero value of a uniform random double is <span class="nobr"><span class="math notranslate nohighlight">\(2^{-53}\)</span>,</span> which is above tail_mass_min, so a draw never reads beyond the tabulated range.</p></td>
 </tr>
 </tbody>
 </table>
@@ -586,57 +586,57 @@ its group and nothing else; an override of an undeclared field, of the wrong typ
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_radii</span></code></p></td>
 <td><p>10000</p></td>
 <td><p>500</p></td>
-<td><p>Projected radii of the projection table before its check between rows adds rows, logarithmic from the innermost row to the edge.</p></td>
+<td><p>The number of projected radii of the projection table before the table’s check between projected radii adds projected radii; the projected radii are spaced logarithmically from the innermost radius of the profile to the edge.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">profile_tolerance</span></code></p></td>
 <td><p>1e-07</p></td>
 <td><p>1e-06</p></td>
-<td><p>Relative error of sigma_r at which the radial dispersion’s rows stop being added: every interval’s midpoint reads within it. A tenth of the goal, the profile’s share of the error of what is projected from it.</p></td>
+<td><p>The relative error of sigma_r at which radii stop being added to the radial dispersion’s profile: sigma_r at the midpoint of every interval between the profile’s radii is read within profile_tolerance. The default value, <span class="nobr"><span class="math notranslate nohighlight">\(10^{-7}\)</span>,</span> is a tenth of <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>:</span> the profile’s share of the error of the quantities projected from the profile.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_profile_start</span></code></p></td>
 <td><p>100</p></td>
 <td><p>same</p></td>
-<td><p>Logarithmic radii the radial dispersion starts from, from the innermost row to the edge, before rows are added to its tolerance.</p></td>
+<td><p>The number of radii, spaced logarithmically from the innermost radius of the profile to the edge, with which the radial dispersion’s profile starts before radii are added to meet profile_tolerance.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_jeans_nodes</span></code></p></td>
 <td><p>500</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of a row’s own Jeans integral of the radial dispersion (the superposition’s); the observables’ profile sums panels between its rows instead, their nodes doubled until sigma_r moves by less than profile_tolerance.</p></td>
+<td><p>The number of Gauss-Legendre nodes of the Jeans integral of the radial dispersion at one radius, as the superposition of components computes the radial dispersion. The observables’ profile does not use n_jeans_nodes: the profile sums panels between the profile’s radii and doubles each panel’s nodes until sigma_r changes by less than profile_tolerance.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_projection_nodes</span></code></p></td>
 <td><p>500</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of each line-of-sight integral of the surface density and the projected dispersion.</p></td>
+<td><p>The number of Gauss-Legendre nodes of each line-of-sight integral of the surface density and of the projected dispersion.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_aperture_nodes</span></code></p></td>
 <td><p>100</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of each panel of an aperture’s radial integral, at least.</p></td>
+<td><p>The smallest number of Gauss-Legendre nodes of each panel of an aperture’s radial integral.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aperture_nodes_per_decade</span></code></p></td>
 <td><p>8</p></td>
 <td><p>same</p></td>
-<td><p>Nodes per decade of a panel’s span in the logarithm of the projected radius where that exceeds the minimum, rounded up to a multiple of 20.</p></td>
+<td><p>The number of nodes per decade of projected radius of a panel of an aperture’s radial integral: a panel spanning d decades takes aperture_nodes_per_decade times d nodes, rounded up to a multiple of 20, if that number exceeds n_aperture_nodes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rows_route</span></code></p></td>
 <td><p>kernel</p></td>
 <td><p>same</p></td>
-<td><p>The angle rule of the line-of-sight velocity distributions’ rows: “kernel”, the JAX kernel, or “numpy”, the reference route.</p></td>
+<td><p>The computation of the angle rule of the line-of-sight velocity distributions: “kernel” computes the angle rule with JAX, and “numpy” computes the angle rule with NumPy, as a reference.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_speed_angle_nodes</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_velocity_angle_nodes</span></code></p></td>
 <td><p>16</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of each panel of the angle integral of the local speed distribution (pdf_v), in t = cos(eta).</p></td>
+<td><p>The number of Gauss-Legendre nodes of each panel of the angle integral of the local velocity distribution (pdf_v), in t = cos(eta).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_speed_angle_panels</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_velocity_angle_panels</span></code></p></td>
 <td><p>16</p></td>
 <td><p>8</p></td>
-<td><p>Panels of that angle integral graded toward each end of each of its intervals, and of the speed integral of its norm and second moment toward each of their breaks.</p></td>
+<td><p>The number of panels of the angle integral of the local velocity distribution (pdf_v) graded toward each end of each of the integral’s intervals, and the number of panels of the velocity integral of the distribution’s norm and second moment graded toward each break of that velocity integral.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">speed_tolerance</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">velocity_tolerance</span></code></p></td>
 <td><p>1e-06</p></td>
 <td><p>0.0001</p></td>
-<td><p>Bound on the local speed distribution’s change when its angle rule’s nodes double: they double, at most three times, until the change is under it.</p></td>
+<td><p>The bound on the change of the local velocity distribution (pdf_v) when the nodes of the distribution’s angle rule double: the nodes double, at most three times, until the change is below velocity_tolerance.</p></td>
 </tr>
 </tbody>
 </table>
@@ -662,152 +662,152 @@ its group and nothing else; an override of an undeclared field, of the wrong typ
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rows_per_decade</span></code></p></td>
 <td><p>55</p></td>
 <td><p>20</p></td>
-<td><p>Base rows of the table of line-of-sight velocity distributions per decade of projected radius, from the innermost row of the profile.</p></td>
+<td><p>The number of base projected radii per decade of the table of line-of-sight velocity distributions, from the innermost radius of the profile.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_energy_nodes</span></code></p></td>
 <td><p>8</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of each panel of the energy integral of a node.</p></td>
+<td><p>The number of Gauss-Legendre nodes of each panel of the energy integral at one node of the table.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_floor_layers</span></code></p></td>
 <td><p>4</p></td>
 <td><p>2</p></td>
-<td><p>Panels of the energy integral graded toward the energy of the DF’s floor.</p></td>
+<td><p>The number of Gauss-Legendre panels of the energy integral graded toward K = 0, where the DF’s rule below its table takes over.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">energy_layer_ratio</span></code></p></td>
 <td><p>0.2</p></td>
 <td><p>same</p></td>
-<td><p>Ratio of successive graded panels of the energy integral.</p></td>
+<td><p>The ratio of the widths of successive graded panels of the energy integral.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_angle_nodes</span></code></p></td>
 <td><p>64</p></td>
 <td><p>same</p></td>
-<td><p>Gauss-Legendre nodes of the angle integral of an L factor, the most a node takes.</p></td>
+<td><p>The largest number of Gauss-Legendre nodes of the angle integral of an L factor at one node of the table.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_sightline_nodes</span></code></p></td>
 <td><p>12</p></td>
 <td><p>8</p></td>
-<td><p>Gauss-Legendre nodes of each panel of the line-of-sight integral.</p></td>
+<td><p>The number of Gauss-Legendre nodes of each panel of the line-of-sight integral.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_sightline_panels</span></code></p></td>
 <td><p>8</p></td>
 <td><p>same</p></td>
-<td><p>Panels of each interval of the support along the line of sight.</p></td>
+<td><p>The number of panels of each interval of the support along the line of sight.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sightline_panels_refined</span></code></p></td>
 <td><p>6</p></td>
 <td><p>same</p></td>
-<td><p>Doublings of the line-of-sight panels allowed before a row is recorded as not converged.</p></td>
+<td><p>The number of doublings of the line-of-sight panels allowed before a projected radius is recorded as not converged.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sightline_layer_ratio</span></code></p></td>
 <td><p>0.3</p></td>
 <td><p>same</p></td>
-<td><p>Ratio of the line-of-sight panels graded toward the axis.</p></td>
+<td><p>The ratio of the widths of successive line-of-sight panels graded toward the axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_sightline_layers</span></code></p></td>
 <td><p>4</p></td>
 <td><p>same</p></td>
-<td><p>Line-of-sight panels graded toward the axis added at each doubling.</p></td>
+<td><p>The number of line-of-sight panels graded toward the axis that each doubling adds.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_crossing_scan</span></code></p></td>
 <td><p>2001</p></td>
 <td><p>same</p></td>
-<td><p>Points of the scan for where the angular momentum vanishes.</p></td>
+<td><p>The number of points of the scan for the positions where the angular momentum vanishes.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_cumulative_nodes</span></code></p></td>
 <td><p>200001</p></td>
 <td><p>same</p></td>
-<td><p>Nodes of each of the three branches of the table of the DF’s cumulative integral.</p></td>
+<td><p>The number of nodes of each of the three branches of the table of the distribution function’s cumulative integral.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_velocity_nodes</span></code></p></td>
 <td><p>16</p></td>
 <td><p>8</p></td>
-<td><p>Gauss-Legendre nodes of each velocity sub-panel of a row.</p></td>
+<td><p>The number of Gauss-Legendre nodes of each velocity sub-panel at one projected radius.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">velocity_layer_ratio</span></code></p></td>
 <td><p>0.3</p></td>
 <td><p>same</p></td>
-<td><p>Ratio of the velocity sub-panels graded toward a break.</p></td>
+<td><p>The ratio of the widths of successive velocity sub-panels graded toward a break of the distribution.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_velocity_layers_zero</span></code></p></td>
 <td><p>12</p></td>
 <td><p>same</p></td>
-<td><p>Velocity sub-panels graded toward zero velocity.</p></td>
+<td><p>The number of velocity sub-panels graded toward zero velocity.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_velocity_layers_break</span></code></p></td>
 <td><p>8</p></td>
 <td><p>same</p></td>
-<td><p>Velocity sub-panels graded toward each break of a row.</p></td>
+<td><p>The number of velocity sub-panels graded toward each break of the distribution at one projected radius.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_break_scan</span></code></p></td>
 <td><p>4001</p></td>
 <td><p>1001</p></td>
-<td><p>Points of the coarse scan for a velocity break.</p></td>
+<td><p>The number of points of the coarse scan for a break of the distribution in velocity.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_break_zooms</span></code></p></td>
 <td><p>4</p></td>
 <td><p>same</p></td>
-<td><p>Zooms of the scan for a velocity break.</p></td>
+<td><p>The number of successive refinements of the scan for a break of the distribution in velocity.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_bisections</span></code></p></td>
 <td><p>60</p></td>
 <td><p>same</p></td>
-<td><p>Bisections of an edge of the support or of a root along a line of sight.</p></td>
+<td><p>The number of bisections that locate an edge of the support, or a root, along a line of sight.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_radius_break_layers</span></code></p></td>
 <td><p>16</p></td>
 <td><p>same</p></td>
-<td><p>Rows added toward each radius where the layout of the rows changes.</p></td>
+<td><p>The number of projected radii added toward each projected radius at which the table’s layout changes.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_radius_break_bisections</span></code></p></td>
 <td><p>40</p></td>
 <td><p>same</p></td>
-<td><p>Bisections in projected radius of a change of the layout.</p></td>
+<td><p>The number of bisections in projected radius that locate a change of the table’s layout.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_radius_break_samples</span></code></p></td>
 <td><p>3</p></td>
 <td><p>same</p></td>
-<td><p>Samples inside each interval of base rows for a change of the layout.</p></td>
+<td><p>The number of samples inside each interval between base projected radii at which a change of the table’s layout is sought.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_edge_samples</span></code></p></td>
 <td><p>10</p></td>
 <td><p>same</p></td>
-<td><p>Samples beyond the last base row toward the end of the profile.</p></td>
+<td><p>The number of samples beyond the last base projected radius toward the end of the profile.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_edge_layers</span></code></p></td>
 <td><p>16</p></td>
 <td><p>same</p></td>
-<td><p>Rows added toward the end of the table.</p></td>
+<td><p>The number of projected radii added toward the end of the table.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_stencil_rows</span></code></p></td>
 <td><p>8</p></td>
 <td><p>same</p></td>
-<td><p>Rows of the stencil that reads the table between its rows.</p></td>
+<td><p>The number of tabulated projected radii that the interpolation between the table’s projected radii reads.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n_stencil_test_rows</span></code></p></td>
 <td><p>8</p></td>
 <td><p>same</p></td>
-<td><p>Rows of the stencil whose estimate checks the table.</p></td>
+<td><p>The number of tabulated projected radii of the second interpolation, whose estimate checks the table’s interpolation.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_block_elements</span></code></p></td>
 <td><p>25000</p></td>
 <td><p>same</p></td>
-<td><p>Elements of one block of node pairs, energy nodes and angle nodes, which bounds the memory of a row.</p></td>
+<td><p>The number of elements (node pairs times energy nodes times angle nodes) computed in one block, which bounds the memory of the computation at one projected radius.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">innermost_read_radius</span></code></p></td>
 <td><p>0</p></td>
 <td><p>same</p></td>
-<td><p>The smallest projected radius the table will be read at, in the model’s internal length unit: the rows start at the last base row inside the radius whose disk holds the accuracy goal times the projected mass inside this one, and a read inside the first row is refused. 0 keeps the rows from the profile’s innermost row, the full-depth table.</p></td>
+<td><p>The smallest projected radius at which the table will be read, in the model’s internal length unit. The table starts at the last base projected radius inside the radius whose disk holds <span class="math notranslate nohighlight">\(10^{-6}\)</span> times the projected mass inside innermost_read_radius, and a read inside the table’s first projected radius raises InputError. The value 0 keeps the table’s full depth, from the innermost radius of the profile.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">outer_mass_share</span></code></p></td>
 <td><p>1e-06</p></td>
 <td><p>same</p></td>
-<td><p>Share of the total projected mass that may lie beyond the table’s last row: the rows end at the first base row beyond the radius outside which this share lies, and a read beyond the last row is refused. 0 keeps the rows to the model’s edge.</p></td>
+<td><p>The share of the total projected mass that may lie beyond the table’s last projected radius. The table ends at the first base projected radius beyond the radius outside which outer_mass_share of the projected mass lies, and a read beyond the table’s last projected radius raises InputError. The value 0 keeps the table out to the model’s edge.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Tiers: <code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">quick</span></code>. A field is overridden one at a time, <code class="docutils literal notranslate"><span class="pre">pp.Settings(inversion={'n_nodes':</span> <span class="pre">800})</span></code>; the result then records that it was made with custom settings and names the fields that differ.</p>
+<p>Settings levels: <code class="docutils literal notranslate"><span class="pre">default</span></code>, <code class="docutils literal notranslate"><span class="pre">quick</span></code>. A field is overridden by its group and its name, for example <code class="docutils literal notranslate"><span class="pre">pp.Settings(inversion={'n_nodes':</span> <span class="pre">800})</span></code>. A result computed with an overridden field records that its settings are custom, and lists the fields that differ from the settings level.</p>
 </section>
 </section>
 

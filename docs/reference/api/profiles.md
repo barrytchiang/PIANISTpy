@@ -2,508 +2,1148 @@
 
 Source: https://pianistpy.com/docs/reference/api/profiles
 
-# Density profiles
+Module `pianistpy.profiles`
 
-Module pianistpy.profiles
+Density profiles: the analytic input profile and the profile of a model.
 
-Density profiles.
+A user builds the input profile of a component with DoublePowerLaw, for
+example `pp.DoublePowerLaw.nfw()`. The self-consistent profile of a model
+is a TruncatedProfile, read as `model.profile`.
+TruncatedProfile.interpolation_tables returns the ProfileTables of a
+TruncatedProfile.
 
-class pianistpy.profiles.DoublePowerLaw(rho_alpha, rho_beta, rho_gamma)
+The input profile is the double power law
 
-Double-power-law density profile in internal units.
+\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha},\]
+
+where \(R\) is the radius in units of the scale radius \(r_0\),
+\(\varrho\) is the density in internal units, \(\alpha\) is the
+sharpness of the transition between the inner and the outer slope,
+\(\beta\) is the outer logarithmic slope, \(\gamma\) is the inner
+logarithmic slope, and \(C\) is the normalization that sets the central
+relative potential \(P(0)\) to 1. Near the center, a model’s profile
+takes the depth \(P(0) - P(R)\) from the depth’s series in
+\(R^{\alpha}\), out to the largest radius at which the series’ next
+term is at most \(10^{-7}\) of the depth. The formulas are in Notes
+Section T:1.
+
+class pianistpy.profiles.DoublePowerLaw(*rho_alpha*, *rho_beta*, *rho_gamma*)
+
+Double-power-law density profile, in internal units.
+
+The profile is the input density of a Component. Its methods return
+the density, the enclosed mass and the relative potential at
+user-specified 3D radii, in closed form. The class methods nfw,
+hernquist and plummer return three parameter sets that have names.
 
 Parameters:
 
-rho_alpha (float) – Sharpness \(\alpha\) of the transition between the inner and the
-outer slope. At least 1/2.
+- **rho_alpha** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Sharpness \(\alpha\) of the transition between the inner and the
+outer slope. Must be at least 1/2.
 
-rho_beta (float) – Outer logarithmic slope \(\beta\). Greater than 2.
+- **rho_beta** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Outer logarithmic slope \(\beta\). Must be greater than 2. A
+Component takes \(\beta \geq 3\) only.
 
-rho_gamma (float) – Inner logarithmic slope \(\gamma\), with
+- **rho_gamma** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Inner logarithmic slope \(\gamma\). Must satisfy
 \(0 \leq \gamma < 2\).
+
+Raises:
+
+[**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If \(\alpha < 1/2\), \(\beta \leq 2\), \(\gamma < 0\) or
+    \(\gamma \geq 2\).
+
+See also
+
+`Component`
+A profile with its anisotropy, the input of a model.
+
+[`TruncatedProfile`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile)
+The self-consistent profile of a model.
 
 Notes
 
-In internal units the scale radius is 1, the central potential is 1 and the
-potential vanishes at infinity:
+In internal units the scale radius \(r_0\) is 1, the central
+relative potential \(P(0)\) is 1, and \(P(R)\) vanishes as
+\(R \to \infty\). The density is
 
-\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha} .\]
+\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha},\]
 
-The lower bound on \(\gamma\) excludes a density that decreases
-toward the center; the upper bound keeps the central potential finite.
-The bound on \(\beta\) keeps the potential finite at large radii.
+with \(R\) the radius in units of \(r_0\) and \(C\) the
+normalization rho_norm. The bound \(\gamma \geq 0\) excludes a
+density that decreases toward the center. The bound \(\gamma < 2\)
+keeps the central potential finite. The bound \(\beta > 2\) keeps
+the integral of \(\varrho R\) over \(R\) from 0 to infinity
+finite, so that \(P(0)\) is finite.
 
-The named profiles are parameter sets of this one profile, built by the
-class methods nfw, hernquist and plummer. They are not separate
-implementations. Where a profile has a closed form for its mass or its
-potential, that form is used inside mass and p; the tests hold it to
-the general incomplete-Beta form.
+The profiles with names are parameter sets of the double-power-law
+profile. Where a profile with a name has a closed form for the profile’s mass or
+potential in elementary functions, mass and p evaluate the
+elementary closed form.
 
 References
 
-Chiang+(2026d), Appendix A (labels eqn:double_power_law_MT,
-eqn:double_power_law_mass, app:P_beta).
+[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (5), defines the profile. [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A6),
+gives \(C\). [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A7), gives the enclosed mass.
 
 Examples
 
-```
->>> DoublePowerLaw.nfw()
+```python
+>>> import pianistpy as pp
+>>> pp.DoublePowerLaw.nfw()
 DoublePowerLaw(rho_alpha=1.0, rho_beta=3.0, rho_gamma=1.0)
->>> DoublePowerLaw.hernquist().mass_total
+>>> pp.DoublePowerLaw.hernquist().mass_total
 1.0
->>> float(DoublePowerLaw.plummer().p(0.0))
+>>> float(pp.DoublePowerLaw.plummer().p(0.0))
 1.0
-
 ```
 
 classmethod nfw()
 
-Return the Navarro-Frenk-White profile, (1, 3, 1).
+Return the Navarro-Frenk-White profile.
+
+Returns:
+
+**profile** – The profile with
+\((\alpha, \beta, \gamma) = (1, 3, 1)\).
 
 Return type:
 
-DoublePowerLaw
+[DoublePowerLaw](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw)
+
+See also
+
+[`hernquist`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.hernquist)
+The Hernquist profile.
+
+[`plummer`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.plummer)
+The Plummer profile.
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> pp.DoublePowerLaw.nfw()
+DoublePowerLaw(rho_alpha=1.0, rho_beta=3.0, rho_gamma=1.0)
+```
 
 classmethod hernquist()
 
-Return the Hernquist profile, (1, 4, 1).
+Return the Hernquist profile.
+
+Returns:
+
+**profile** – The profile with
+\((\alpha, \beta, \gamma) = (1, 4, 1)\).
 
 Return type:
 
-DoublePowerLaw
+[DoublePowerLaw](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw)
+
+See also
+
+[`nfw`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.nfw)
+The Navarro-Frenk-White profile.
+
+[`plummer`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.plummer)
+The Plummer profile.
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> pp.DoublePowerLaw.hernquist()
+DoublePowerLaw(rho_alpha=1.0, rho_beta=4.0, rho_gamma=1.0)
+```
 
 classmethod plummer()
 
-Return the Plummer profile, (2, 5, 0).
+Return the Plummer profile.
+
+Returns:
+
+**profile** – The profile with
+\((\alpha, \beta, \gamma) = (2, 5, 0)\).
 
 Return type:
 
-DoublePowerLaw
+[DoublePowerLaw](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw)
 
-property name: str
+See also
 
-Name of the profile, or its parameters if it has none.
+[`nfw`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.nfw)
+The Navarro-Frenk-White profile.
 
-property rho_norm: float
+[`hernquist`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.hernquist)
+The Hernquist profile.
 
-Normalization \(C\) of the density, for a central potential of 1.
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> pp.DoublePowerLaw.plummer()
+DoublePowerLaw(rho_alpha=2.0, rho_beta=5.0, rho_gamma=0.0)
+```
+
+property name: [str](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+Name of the parameter set, or the three slopes if the set has no name.
+
+property rho_norm: [float](https://docs.python.org/3/builtins/functions.html#float)
+
+Normalization \(C\) of the density that sets \(P(0) = 1\).
 
 Notes
 
 \[C = \frac{\alpha\,\Gamma[(\beta-\gamma)/\alpha]}
          {\Gamma[(\beta-2)/\alpha]\,\Gamma[(2-\gamma)/\alpha]} .\]
 
-property mass_total: float
+property mass_total: [float](https://docs.python.org/3/builtins/functions.html#float)
 
-Total mass in internal units; infinite for an outer slope of 3 or less.
+Total mass in internal units, infinite for an outer slope of 3 or less.
 
-rho(r)
+rho(*r*)
 
 Return the density \(\varrho(R)\).
 
 Parameters:
 
-r (array-like) – Radius in internal units.
+**r** (*array-like*) – User-specified 3D radii \(R\), in internal units (units of
+the scale radius \(r_0\)).
 
 Returns:
 
-rho – Density in internal units, with the shape of r.
+**rho** – Density \(\varrho(R)\) in internal units, with the shape of
+r.
 
 Return type:
 
 array
 
-mass(r)
+See also
+
+[`mass`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.mass)
+The enclosed mass.
+
+[`p`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.p)
+The relative potential.
+
+Notes
+
+\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha}.\]
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> float(pp.DoublePowerLaw.hernquist().rho(1.0))
+0.25
+```
+
+mass(*r*)
 
 Return the enclosed mass \(\mathcal{M}(R)\).
 
 Parameters:
 
-r (array-like) – Radius in internal units.
+**r** (*array-like*) – User-specified 3D radii \(R\), in internal units (units of
+the scale radius \(r_0\)).
 
 Returns:
 
-mass – Enclosed mass in internal units, with the shape of r.
+**mass** – Enclosed mass \(\mathcal{M}(R)\) in internal units, with the
+shape of r. The mass is the integral of
+\(\varrho R^2\) over \(R\) from 0 to r, that is,
+\(1/(4\pi)\) times the integral of the density over the
+volume.
 
 Return type:
 
 array
 
+See also
+
+[`mass_total`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.mass_total)
+The total mass.
+
+[`rho`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.rho)
+The density.
+
+[`p`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.p)
+The relative potential.
+
 Notes
 
-With \(z = R^\alpha/(1+R^\alpha)\),
+With \(z = R^\alpha/(1+R^\alpha)\) and the incomplete Beta
+function \(B(z; a, b)\),
 
 \[\mathcal{M}(R) = \frac{C}{\alpha}\,
     B\!\left(z;\,\frac{3-\gamma}{\alpha},\,\frac{\beta-3}{\alpha}\right) .\]
 
-p(r)
+For \(\beta = 3\) the second argument of \(B\) is zero, and
+the mass is evaluated from a logarithm and a series. For
+\(\beta < 3\) the second argument is negative, and the analytic
+continuation of the formula is evaluated in arbitrary precision.
+
+References
+
+[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A7).
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> float(pp.DoublePowerLaw.hernquist().mass(1.0))
+0.25
+```
+
+p(*r*)
 
 Return the relative potential \(P(R)\).
 
 Parameters:
 
-r (array-like) – Radius in internal units.
+**r** (*array-like*) – User-specified 3D radii \(R\), in internal units (units of
+the scale radius \(r_0\)).
 
 Returns:
 
-p – Relative potential in internal units, with the shape of r. It is 1
-at the center and vanishes at infinity.
+**p** – Relative potential \(P(R)\) in internal units, with the shape
+of r. \(P(0) = 1\), and \(P(R)\) vanishes as
+\(R \to \infty\).
 
 Return type:
 
 array
 
+See also
+
+[`depth_inner`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.depth_inner)
+The depth \(P(0) - P(R)\) near the center.
+
+[`mass`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.mass)
+The enclosed mass.
+
+[`rho`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.rho)
+The density.
+
 Notes
 
-With \(z = R^\alpha/(1+R^\alpha)\), \(a_2 = (2-\gamma)/\alpha\)
-and \(b_2 = (\beta-2)/\alpha\),
+With \(z = R^\alpha/(1+R^\alpha)\), \(a_2 = (2-\gamma)/\alpha\),
+\(b_2 = (\beta-2)/\alpha\), the Beta function \(B(a, b)\) and
+the incomplete Beta function \(B(z; a, b)\),
 
 \[P(R) = \frac{\mathcal{M}(R)}{R}
      + \frac{C}{\alpha}\left[B(a_2, b_2) - B(z;\,a_2, b_2)\right] .\]
 
-depth_inner(r, terms=4)
+References
 
-Return the depth \(u = P(0) - P(R)\) near the center, with no
-subtraction, and the series’ own truncation estimate.
+[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A3).
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> float(pp.DoublePowerLaw.hernquist().p(1.0))
+0.5
+```
+
+depth_inner(*r*, *terms=4*)
+
+Return the depth \(u = P(0) - P(R)\) near the center, from its series.
+
+The depth is summed term by term from its series in
+\(R^{\alpha}\), with no subtraction from \(P(0)\), so the
+depth keeps its relative precision where \(u\) is small.
+depth_inner also returns the size of the series’ next term
+relative to the depth, as an estimate of the truncation error of
+the sum.
 
 Parameters:
 
-r (array-like) – Radius in internal units.
+- **r** (*array-like*) – User-specified 3D radii \(R\), in internal units (units of
+the scale radius \(r_0\)).
 
-terms (int, optional) – Number of terms of the series.
+- **terms** ([*int*](https://docs.python.org/3/builtins/functions.html#int)*, **optional*) – Number of terms of the series summed. Must be at least 1.
+Default: `4`, which means the first four terms.
 
 Returns:
 
-u (array) – The depth from the first terms terms.
+- **u** (*array*) – Depth \(u\) from the first terms terms, in internal units,
+with the shape of r. Infinite at \(R \geq 1\), where the
+series in \(R^{\alpha}\) does not converge.
 
-bound (array) – The magnitude of the next term relative to u, per point;
-infinite where u is not positive.
+- **bound** (*array*) – Magnitude of the series’ next term divided by u, with the shape
+of r. Infinite where u is not positive or not finite.
 
 Return type:
 
-tuple[Any, Any]
+[tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[*Any*](https://docs.python.org/3/library/typing.html#typing.Any), [*Any*](https://docs.python.org/3/library/typing.html#typing.Any)]
+
+See also
+
+[`p`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.p)
+The relative potential in closed form.
 
 Notes
 
-A density term \(C\binom{e}{k}R^{-\gamma+k\alpha}\),
-\(e = (\gamma-\beta)/\alpha\), contributes
+The density term \(C\binom{e}{k}R^{-\gamma+k\alpha}\), with
+\(e = (\gamma-\beta)/\alpha\), contributes the term
 \(C\binom{e}{k}R^{2-\gamma+k\alpha}/[(2-\gamma+k\alpha)(3-\gamma+k\alpha)]\)
-to the depth, term by term.
+to the depth.
+
+References
+
+[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A11), gives the first two terms of the series.
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> u, bound = pp.DoublePowerLaw.hernquist().depth_inner([1e-3, 2.0])
+>>> round(float(u[0]), 9)
+0.000999001
+>>> bool(bound[1] == float("inf"))
+True
+```
 
 to_dict()
 
 Return the profile as a plain dictionary.
 
-Return type:
+Returns:
 
-dict[str, Any]
-
-classmethod from_dict(record)
-
-Build the profile from its dictionary form.
-
-Parameters:
-
-record (Mapping[str, Any])
+**record** – The key `"profile"` with the value `"double_power_law"`, and
+the keys `"rho_alpha"`, `"rho_beta"` and `"rho_gamma"` with
+the three slopes. from_dict builds the profile back from the
+dictionary.
 
 Return type:
 
-DoublePowerLaw
+[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
-class pianistpy.profiles.ProfileTables(log_r, log_p, log_p_slope, log_r_all, log_mass, log_mass_slope, log_rho_coefficients, has_edge_row, r_last, p_last, rho_last, r_t, mass_t, edge_exponent)
+See also
 
-The arrays a kernel reads a TruncatedProfile from.
+[`from_dict`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.from_dict)
+The profile from its dictionary.
 
-They are the numbers TruncatedProfile.potential, density, mass and
-radius evaluate, laid out for a kernel that takes them as traced
-arguments: the cubic Hermite in the logarithms on the interior rows and
-the edge’s closed forms beyond them.
+Examples
 
-Parameters:
+```python
+>>> import pianistpy as pp
+>>> record = pp.DoublePowerLaw.hernquist().to_dict()
+>>> record["profile"], record["rho_beta"]
+('double_power_law', 4.0)
+```
 
-log_r (array, shape (n_interior,)) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
-an edge row).
+classmethod from_dict(*record*)
 
-log_p (array, shape (n_interior,)) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
-an edge row).
-
-log_p_slope (array, shape (n_interior,)) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
-an edge row).
-
-log_r_all (array, shape (n,)) – ln r, ln M and d ln M / d ln r at every row.
-
-log_mass (array, shape (n,)) – ln r, ln M and d ln M / d ln r at every row.
-
-log_mass_slope (array, shape (n,)) – ln r, ln M and d ln M / d ln r at every row.
-
-log_rho_coefficients (array, shape (n_components, 4, n_interior - 1)) – The coefficients of the cubic spline of ln rho in ln r on each
-interval, highest power first, in the interval’s own ln r offset.
-
-has_edge_row (bool) – Whether the profile carries its edge as its last row; the fields
-below are read only then.
-
-r_last (float) – Radius and potential of the last interior row.
-
-p_last (float) – Radius and potential of the last interior row.
-
-rho_last (array, shape (n_components,)) – Density of each component there.
-
-r_t (float) – Truncation radius and total mass.
-
-mass_t (float) – Truncation radius and total mass.
-
-edge_exponent (array, shape (n_components,)) – Exponent q of each component’s density at the edge.
-
-class pianistpy.profiles.TruncatedProfile(r, p_trunc, rho_trunc, mass_trunc, k_t, r_t, mass_t, spatially_finite, source, source_anisotropy, model, edge_exponent, u_trunc=<factory>, central_deficit=(), override_r=nan, override_r_end=nan, override_rows=0, override_rule='none', origin=<factory>, df_k=<factory>, df_log_f=<factory>, df_slope=<factory>, df_taylor=(), model_level=None)
-
-The self-consistent profile of a truncated model.
-
-It is the profile of a model, and it can be the profile of a component
-of another model: a component given the truncated profile of a parent
-model and a new anisotropy is Method II of Chiang+(2026d).
-
-Two profiles are equal where they belong to the same model: the identity
-of a model determines its profile.
-
-The profile evaluates itself: potential, density, mass and
-radius are the one reading of the rows that every stage of the
-package takes, in place of an interpolant of its own. Between the rows
-the potential and the mass are cubic Hermite interpolants in the
-logarithms with the exact slopes the rows state (the Poisson equation
-gives \(\mathrm{d}\ln\mathcal{P}/\mathrm{d}\ln r = -M/(r\mathcal{P})\)
-and \(\mathrm{d}\ln M/\mathrm{d}\ln r = r^3\rho/M\)); the density
-of each component is a cubic spline in the logarithms, since the rows
-state no density slope. On the last interval of a spatially finite
-profile whose last row is its edge (\(\mathcal{P} = 0\) at r_t),
-the potential is the Kepler form \(M_t(1/r - 1/r_t)\) and the
-density follows the edge law \(\rho \propto \mathcal{P}^q\) with
-the stated edge_exponent; beyond r_t the potential is \(M_t/r\)
-and the density zero. Inside the first row and, for a profile without
-an edge, beyond the last, the interpolants continue as the power laws
-of the end rows.
+Return the profile that a dictionary from to_dict describes.
 
 Parameters:
 
-r (array, shape (n,)) – Radius, strictly increasing.
+**record** (*mapping*) – The dictionary that to_dict returns. The keys `"rho_alpha"`,
+`"rho_beta"` and `"rho_gamma"` are read; other keys are
+ignored.
 
-p_trunc (array, shape (n,)) – Total relative potential of the truncated model.
+Returns:
 
-rho_trunc (array, shape (n_components, n)) – Density of each component.
+**profile** – The profile with the slopes of record.
 
-mass_trunc (array, shape (n,)) – Total enclosed mass, in the unit of DoublePowerLaw.mass (the
-Hernquist profile’s total is 1); 4 pi times it is the integral of
-the density over the volume.
+Return type:
 
-k_t (float) – Truncation energy.
+[DoublePowerLaw](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw)
 
-r_t (float) – Truncation radius and total mass; infinite where the model is not
+Raises:
+
+[**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a slope in record lies outside its admissible range (see
+    DoublePowerLaw).
+
+See also
+
+[`to_dict`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.to_dict)
+The dictionary of a profile.
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> record = {"rho_alpha": 1.0, "rho_beta": 3.0, "rho_gamma": 1.0}
+>>> pp.DoublePowerLaw.from_dict(record).name
+'NFW'
+```
+
+class pianistpy.profiles.ProfileTables(*log_r*, *log_p*, *log_p_slope*, *log_r_all*, *log_mass*, *log_mass_slope*, *log_rho_coefficients*, *has_edge_row*, *r_last*, *p_last*, *rho_last*, *r_t*, *mass_t*, *edge_exponent*)
+
+Arrays from which a JAX function evaluates a TruncatedProfile.
+
+The arrays are the numbers from which TruncatedProfile.potential,
+TruncatedProfile.density, TruncatedProfile.mass and
+TruncatedProfile.radius evaluate the profile, laid out so that a JAX
+function takes them as arguments and is differentiable in them. A node
+is one tabulated radius of the profile. An interior node is any node
+other than the edge node of a spatially finite profile.
+
+Parameters:
+
+- **log_r** (*array**, **shape** (**n_interior**,**)*) – \(\ln R\) at the interior nodes, with \(R\) the radius in
+internal units.
+
+- **log_p** (*array**, **shape** (**n_interior**,**)*) – \(\ln P\) at the interior nodes, with \(P\) the relative
+potential in internal units.
+
+- **log_p_slope** (*array**, **shape** (**n_interior**,**)*) – \(\mathrm{d}\ln P/\mathrm{d}\ln R\) at the interior nodes.
+
+- **log_r_all** (*array**, **shape** (**n**,**)*) – \(\ln R\) at every node.
+
+- **log_mass** (*array**, **shape** (**n**,**)*) – \(\ln \mathcal{M}\) at every node, with \(\mathcal{M}\) the
+enclosed mass in internal units.
+
+- **log_mass_slope** (*array**, **shape** (**n**,**)*) – \(\mathrm{d}\ln \mathcal{M}/\mathrm{d}\ln R\) at every node.
+
+- **log_rho_coefficients** (*array**, **shape** (**n_components**, **4**, **n_interior - 1**)*) – Coefficients of the cubic spline of \(\ln\varrho\) in
+\(\ln R\) for each component and each interval between interior
+nodes, highest power first, as polynomials in the offset of
+\(\ln R\) from the interval’s lower node.
+
+- **has_edge_row** ([*bool*](https://docs.python.org/3/builtins/functions.html#bool)) – Whether the last node of the profile is its edge node.
+
+- **r_last** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Radius of the last interior node, in internal units.
+
+- **p_last** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Relative potential at the last interior node, in internal units.
+
+- **rho_last** (*array**, **shape** (**n_components**,**)*) – Density of each component at the last interior node, in internal
+units.
+
+- **r_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation radius \(R_{\rm t}\), in internal units. Infinite
+where has_edge_row is False.
+
+- **mass_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Total mass \(\mathcal{M}_{\rm t}\), in internal units. Infinite
+where has_edge_row is False.
+
+- **edge_exponent** (*array**, **shape** (**n_components**,**)*) – Exponent \(q\) of each component’s density at the edge,
+\(\varrho \propto P^q\). Empty where the model has no edge.
+
+See also
+
+[`TruncatedProfile.interpolation_tables`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.interpolation_tables)
+The arrays of a profile.
+
+[`TruncatedProfile`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile)
+The profile the arrays evaluate.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> tables = profile.interpolation_tables()
+>>> tables.log_r.shape, tables.log_rho_coefficients.shape
+((601,), (1, 4, 600))
+>>> tables.has_edge_row
+False
+```
+
+class pianistpy.profiles.TruncatedProfile(*r*, *p_trunc*, *rho_trunc*, *mass_trunc*, *k_t*, *r_t*, *mass_t*, *spatially_finite*, *source*, *source_anisotropy*, *model*, *edge_exponent*, *u_trunc=<factory>*, *central_deficit=()*, *override_r=nan*, *override_r_end=nan*, *override_rows=0*, *override_rule='none'*, *origin=<factory>*, *df_k=<factory>*, *df_log_f=<factory>*, *df_slope=<factory>*, *df_taylor=()*, *model_level=None*)
+
+Self-consistent profile of a model, tabulated at radii called nodes.
+
+The profile of a model is `model.profile`. A component given the
+profile of a parent model and a new anisotropy is Method II of
+[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Appendix B2.2. The methods potential, density,
+mass and radius evaluate the profile between the nodes.
+
+Two profiles are equal if the identity strings model of the two
+profiles are equal, because the identity of a model determines its
+profile.
+
+Parameters:
+
+- **r** (*array**, **shape** (**n**,**)*) – Radius \(R\) of each node, in internal units. The radii are
+positive and strictly increasing, and there are at least two.
+
+- **p_trunc** (*array**, **shape** (**n**,**)*) – Total relative potential \(P\) of the model at each node, in
+internal units.
+
+- **rho_trunc** (*array**, **shape** (**n_components**, **n**)*) – Density \(\varrho\) of each component at each node, in internal
+units.
+
+- **mass_trunc** (*array**, **shape** (**n**,**)*) – Total enclosed mass \(\mathcal{M}\) at each node, in internal
+units, the unit of DoublePowerLaw.mass, in which the total mass of
+the Hernquist profile is 1. \(4\pi\) times mass_trunc is the
+integral of the density over the volume.
+
+- **k_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation energy \(\mathcal{K}_{\rm t}\), in internal units.
+
+- **r_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation radius \(R_{\rm t}\), in internal units. Infinite
+where the model is not spatially finite.
+
+- **mass_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Total mass \(\mathcal{M}_{\rm t}\), in internal units. Infinite
+where the model is not spatially finite.
+
+- **spatially_finite** ([*bool*](https://docs.python.org/3/builtins/functions.html#bool)) – Whether the density reaches zero at a finite radius with a finite
+total mass. A spatially finite profile whose last node has
+`p_trunc == 0` holds its edge as that last node, the edge node.
+The edge node’s density is zero and its radius is r_t.
+
+- **source** ([*DoublePowerLaw*](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw)) – The analytic profile of the first component of the model. The scale
+radius and the central potential of source define the internal
+units of the arrays.
+
+- **source_anisotropy** ([*Anisotropy*](https://pianistpy.com/docs/reference/api/anisotropy#pianistpy.anisotropy.Anisotropy)) – The anisotropy of the first component in the model the profile
+belongs to. A component built on the profile (Method II) reads its
+parent’s anisotropy from source_anisotropy.
+
+- **model** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – Identity string of the model the profile belongs to.
+
+- **edge_exponent** ([*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*float*](https://docs.python.org/3/builtins/functions.html#float)) – Exponent \(q\) of each component’s density at the edge of the
+model, \(\varrho \propto P^q\). Empty where the model is not
 spatially finite.
 
-mass_t (float) – Truncation radius and total mass; infinite where the model is not
-spatially finite.
+- **u_trunc** (*array**, **shape** (**n**,**)**, **optional*) – Depth \(u\), the central potential less the potential, at each
+node, in internal units. Near the center p_trunc has lost the
+digits of the depth, and u_trunc keeps them. Default: an empty
+array, which means the depth was not stored.
 
-spatially_finite (bool) – Whether the density reaches zero at a finite radius with a finite
-total mass. A spatially finite profile whose last row has
-p_trunc == 0 carries its edge as that row, and then the row’s
-density is zero and its radius is r_t.
+- **central_deficit** ([*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – For each component, the coefficients \((D_0, D_1, \ldots, D_4)\)
+of the Taylor series \(D_0 - D_1 u + D_2 u^2 - \ldots\) in the
+depth \(u\) of the central augmented density of the orbits that
+the truncation removed. A record that holds only \(D_0\) and
+\(D_1\) is the linear form of the deficit. Default: `()`,
+which means the deficit was not recorded.
 
-source (DoublePowerLaw) – The analytic profile of the first component of the model: its scale
-radius and its central potential are the internal units the arrays
-are in.
+- **override_r** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – Inner radius of the range in which a closed form of the profile
+replaced the solution of the Poisson equation, in internal units.
+Default: NaN, which means no node was replaced.
 
-source_anisotropy (Anisotropy) – The anisotropy of that component in the model the profile belongs
-to. A component built on this profile (Method II) reads here what
-its parent was.
+- **override_r_end** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – Outer radius of the range in which a closed form replaced the
+solution of the Poisson equation, in internal units. Default: NaN,
+which means no node was replaced.
 
-model (str) – Identity string of the model the profile belongs to.
+- **override_rows** ([*int*](https://docs.python.org/3/builtins/functions.html#int)*, **optional*) – Number of nodes that a closed form replaced. Default: `0`, which
+means no node was replaced.
 
-model_level (int or None) – The tier level of that model’s report (ValidationReport.level),
-written by truncate, so that a component built on this profile
-(Method II) takes it as its parents’ tier. None where it was not
-recorded (a profile made otherwise, or read from a file written
-before it was): read as level 0.
+- **override_rule** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)*, **optional*) – Name of the closed form that replaced the nodes. Default:
+`"none"`, which means no node was replaced.
 
-edge_exponent (tuple of float) – Exponent \(q\) of each component’s density at the edge of the
-model, \(\rho \propto \mathcal{P}^q\); empty where the model
-is not spatially finite and has no edge.
+- **origin** (*array** of **int8**, **shape** (**n**,**)**, **optional*) – Source of each node, as a code from 0 to 6. The code is 0 for the
+solution of the Poisson equation, 1 for the continuation of the
+Poisson solution to the edge, 2 for the radius at which the
+potential reaches zero, 3 for a node filled in at the inner end, 4
+for a node filled in at the outer end, 5 for a closed-form outer
+node and 6 for the edge node. Default: an empty array, which means
+the sources were not recorded.
 
-u_trunc (array, shape (n,)) – The central potential less the potential, p_trunc[0] + u_trunc[0]
-less p_trunc, kept exact where p_trunc is close to it: near the
-center p_trunc alone has lost the digits of the difference that the
-DF’s singular center is read in. Empty where not computed.
+- **df_k** (*array**, **shape** (**n_components**, **m**)**, **optional*) – Energies \(\mathcal{K}\) of the DF table of the model the
+profile belongs to, in internal units. A component built on the
+profile (Method II) computes its own DF from the parent’s DF table.
+Default: an empty array, which means the table was not recorded.
 
-central_deficit (tuple of tuple of float) – For each component, (D_0, D_1, …): the central auxiliary density
-of the orbits the truncation removed as its Taylor series in the
-depth u, D_0 - D_1 u + D_2 u^2 - … (D_0 to D_4 as made; a record
-of D_0 and D_1 alone reads as the linear deficit). Empty where not
-recorded.
+- **df_log_f** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\log_{10} F\) at the energies df_k, with \(F\) the DF in
+internal units. Default: an empty array, which means the table was
+not recorded.
 
-override_r (float) – Radii between which the closed-form profile replaced the rows of
-the solve; NaN where no row was replaced.
+- **df_slope** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\mathrm{d}\log_{10} F/\mathrm{d}\ln\mathcal{K}\) at the
+energies df_k. Default: an empty array, which means the table was
+not recorded.
 
-override_r_end (float) – Radii between which the closed-form profile replaced the rows of
-the solve; NaN where no row was replaced.
+- **df_taylor** ([*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – For each component, the coefficients \((F_1, F_2,
+\mathcal{K}_{\rm s})\) of the model’s DF near the edge:
+\(F = F_1 \mathcal{K} + F_2 \mathcal{K}^2/2\) for
+\(\mathcal{K}\) below \(\mathcal{K}_{\rm s}\). Default:
+`()`, which means the coefficients were not recorded.
 
-df_k (array, shape (n_components, m)) – The DF table of the model the profile belongs to: the energies,
-log10 F and its slope d log10 F / d ln K (NaN where not exact), as
-truncate made them. A component built on this profile (Method II)
-reads its sources from the integral of this DF. Empty where not
-recorded.
+- **model_level** ([*int*](https://docs.python.org/3/builtins/functions.html#int)* or **None**, **optional*) – Level of the validation report of the model the profile belongs to
+(ValidationReport.level), set by the call that made the model. A
+component built on the profile (Method II) takes model_level as
+the level of its parent. Default: `None`, which means the level
+was not recorded and is read as level 0.
 
-df_log_f (array, shape (n_components, m)) – The DF table of the model the profile belongs to: the energies,
-log10 F and its slope d log10 F / d ln K (NaN where not exact), as
-truncate made them. A component built on this profile (Method II)
-reads its sources from the integral of this DF. Empty where not
-recorded.
+Raises:
 
-df_slope (array, shape (n_components, m)) – The DF table of the model the profile belongs to: the energies,
-log10 F and its slope d log10 F / d ln K (NaN where not exact), as
-truncate made them. A component built on this profile (Method II)
-reads its sources from the integral of this DF. Empty where not
-recorded.
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the radii are fewer than two, not positive or not strictly
+    increasing.
 
-df_taylor (tuple of tuple of float) – For each component, the model’s Taylor edge (F_1, F_2, K_switch):
-F = F_1 K + F_2 K^2 / 2 below K_switch. Empty where not recorded.
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If p_trunc or mass_trunc does not have one value per radius, or
+    rho_trunc does not have the shape (n_components, n).
 
-override_rows (int) – Number of rows replaced there.
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If a spatially finite profile does not give the edge exponent of
+    every component.
 
-override_rule (str) – What replaced them, "none" where nothing did.
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the edge node does not have zero density or does not lie at
+    r_t.
 
-origin (array of int8, shape (n,)) – Where each row comes from, a code of
-pianistpy.df.truncation.ORIGINS (the main solve, the edge
-continuation, the floor event, the fills, the closed-form outer rows,
-the edge row): the profile’s checks read each row’s tolerance from it.
-Empty where not recorded.
+See also
 
-property has_edge_row: bool
+`truncate`
+The call that makes a model and its profile.
 
-Whether the last row is the edge of a spatially finite profile.
+`Component`
+A component built on a profile (Method II).
 
-property r_table_max: float
+[`DoublePowerLaw`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw)
+The analytic profile of a component.
 
-the outer end of the table, which is
-the edge of a spatially finite model.
+Notes
 
-Type:
+Between the nodes, \(\ln P\) and \(\ln \mathcal{M}\) are cubic
+polynomials in \(\ln R\) that match the values and the slopes at
+the two nodes of each interval. The slopes are exact, from the Poisson
+equation and the mass integral:
 
-The radius of the last row
+\[\frac{\mathrm{d}\ln P}{\mathrm{d}\ln R} = -\frac{\mathcal{M}}{R P},
+\qquad
+\frac{\mathrm{d}\ln \mathcal{M}}{\mathrm{d}\ln R}
+= \frac{R^3\varrho}{\mathcal{M}},\]
 
-property mass_at_r_table_max: float
+with \(\varrho\) the total density. The logarithm of each
+component’s density is a cubic spline in \(\ln R\). On the last
+interval of a profile with an edge node, the potential is the Kepler
+form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\), and each
+component’s density is \(\varrho_L (P/P_L)^q\), with
+\(\varrho_L\) and \(P_L\) the values at the last interior node
+and \(q\) from edge_exponent. At and beyond \(R_{\rm t}\), the
+relative potential and the density are zero, and the enclosed mass is
+\(\mathcal{M}_{\rm t}\). Inside the first node, and beyond the last
+node of a profile without an edge node, \(P\) and
+\(\mathcal{M}\) continue as the power laws of the end nodes.
 
-mass_trunc at the last row.
+References
+
+Notes Section T:1.3.
+
+Examples
+
+The example builds the untruncated Hernquist profile on 601 nodes
+directly; a model’s profile is `model.profile`.
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> round(float(profile.potential(1.5)), 6)
+0.4
+```
+
+property has_edge_row: [bool](https://docs.python.org/3/builtins/functions.html#bool)
+
+Whether the last node is the edge node of a spatially finite profile.
+
+property r_table_max: [float](https://docs.python.org/3/builtins/functions.html#float)
+
+Radius of the last node, in internal units; r_t at an edge node.
+
+property mass_at_r_table_max: [float](https://docs.python.org/3/builtins/functions.html#float)
+
+Enclosed mass mass_trunc at the last node, in internal units.
 
 interpolation_tables()
 
-Return the arrays a kernel reads this profile from.
+Return the arrays from which a JAX function evaluates the profile.
 
-A kernel that evaluates them as potential, density, mass and
-radius do gives the same numbers; the arrays are traced arguments
-of the kernel, never closed over.
+A JAX function that applies the formulas of potential, density,
+mass and radius to the arrays returns the values of those four
+methods. Such a JAX function takes the arrays as arguments and is
+differentiable in the arrays.
+
+Returns:
+
+**tables** – The logarithms of the potential and of the mass and their slopes
+at the nodes, the coefficients of each component’s density
+spline, and the values at the last interior node and at the edge.
 
 Return type:
 
-ProfileTables
+[ProfileTables](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.ProfileTables)
 
-potential(r)
+Raises:
 
-Return the relative potential at radii r.
+[**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the potential or a density at an interior node is not
+    positive, or the enclosed mass at a node is not positive.
+
+See also
+
+[`ProfileTables`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.ProfileTables)
+The arrays and their meaning.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> profile.interpolation_tables().log_r.shape
+(601,)
+```
+
+potential(*r*)
+
+Return the relative potential \(P(R)\).
 
 Parameters:
 
-r (Any)
+**r** (*array-like*) – User-specified 3D radii \(R\), positive, in internal units.
+
+Returns:
+
+**p** – Relative potential \(P(R)\) in internal units, with the
+shape of r. For a profile with an edge node, \(P\) is the
+Kepler form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\) beyond
+the last interior node and zero at and beyond \(R_{\rm t}\).
 
 Return type:
 
-Any
+ndarray
 
-density(r)
+Raises:
 
-Return the density of each component at radii r.
+[**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the potential at an interior node is not positive.
 
-The result has one row per component and one column per radius.
+See also
+
+[`radius`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.radius)
+The radius at a given potential.
+
+[`potential_log_slope`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.potential_log_slope)
+The logarithmic slope of the potential.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> round(float(profile.potential(1.0)), 6)
+0.5
+```
+
+density(*r*)
+
+Return the density \(\varrho(R)\) of each component.
 
 Parameters:
 
-r (Any)
+**r** (*array-like**, **shape** (**m**,**)*) – User-specified 3D radii \(R\), positive, in internal units.
+
+Returns:
+
+**rho** – Density of each component in internal units. For a profile with
+an edge node, the density is zero at and beyond
+\(R_{\rm t}\).
 
 Return type:
 
-Any
+ndarray, shape (n_components, m)
 
-mass(r)
+Raises:
 
-Return the total enclosed mass at radii r.
+[**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If a density or, for a profile with an edge node, the potential
+    at an interior node is not positive.
+
+See also
+
+[`mass`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.mass)
+The enclosed mass.
+
+[`potential`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.potential)
+The relative potential.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> rho = profile.density([0.5, 1.0])
+>>> rho.shape, round(float(rho[0, 1]), 6)
+((1, 2), 0.25)
+```
+
+mass(*r*)
+
+Return the total enclosed mass \(\mathcal{M}(R)\).
 
 Parameters:
 
-r (Any)
+**r** (*array-like*) – User-specified 3D radii \(R\), positive, in internal units.
+
+Returns:
+
+**mass** – Enclosed mass \(\mathcal{M}(R)\) in internal units (the unit
+of mass_trunc), with the shape of r. For a spatially finite
+profile, the mass is mass_t at and beyond r_t.
 
 Return type:
 
-Any
+ndarray
 
-potential_log_slope(r)
+Raises:
 
-Return \(d\ln P / d\ln r\) at radii r, from the profile’s own
-representation.
+[**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the enclosed mass at a node is not positive.
 
-The slope is exact in the rows’ quantities: \(dP/dr = -M/r^2\)
-(the Poisson equation in the profile’s unit), so
-\(d\ln P/d\ln r = -M/(r P)\) with mass and potential read as
-every consumer reads them. The knots of the representation are the
-rows r; between two rows the slope is smooth.
+See also
+
+[`density`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.density)
+The density of each component.
+
+[`potential`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.potential)
+The relative potential.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> round(float(profile.mass(1.0)), 6)
+0.25
+```
+
+potential_log_slope(*r*)
+
+Return the logarithmic slope \(\mathrm{d}\ln P/\mathrm{d}\ln R\).
+
+The Poisson equation \(\mathrm{d}P/\mathrm{d}R =
+-\mathcal{M}/R^2\) gives \(\mathrm{d}\ln P/\mathrm{d}\ln R =
+-\mathcal{M}/(R P)\). The slope is evaluated from mass and
+potential with no further approximation. The slope is continuous
+in \(R\) between the nodes.
 
 Parameters:
 
-r (Any)
+**r** (*array-like*) – User-specified 3D radii \(R\), positive, in internal units.
+
+Returns:
+
+**slope** – \(\mathrm{d}\ln P/\mathrm{d}\ln R\), dimensionless, with the
+shape of r.
 
 Return type:
 
-Any
+ndarray
 
-potential_log_slope_derivative(r)
+Raises:
 
-Return \(d(d\ln P/d\ln r)/dr\) at radii r, exact in the rows’
-quantities.
+[**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the potential at an interior node or the enclosed mass at a
+    node is not positive.
 
-With \(q = -M/(rP)\), \(dM/dr = r^2 \varrho\) (the total
-density of the components) and \(dP/dr = -M/r^2\):
-\(dq/dr = -(r^3 \varrho P - M P + M^2/r) / (r^2 P^2)\). Beyond the
-edge the density is zero and the same form holds on the Kepler
-potential.
+See also
+
+[`potential_log_slope_derivative`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.potential_log_slope_derivative)
+The derivative of the slope in \(R\).
+
+[`potential`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.potential)
+The relative potential.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> round(float(profile.potential_log_slope(1.0)), 6)
+-0.5
+```
+
+potential_log_slope_derivative(*r*)
+
+Return the derivative in \(R\) of the potential’s logarithmic slope.
+
+With \(s = -\mathcal{M}/(R P)\) the logarithmic slope of the
+potential, \(\mathrm{d}\mathcal{M}/\mathrm{d}R = R^2 \varrho\)
+(\(\varrho\) the total density of the components) and
+\(\mathrm{d}P/\mathrm{d}R = -\mathcal{M}/R^2\), the derivative is
+
+\[\frac{\mathrm{d}s}{\mathrm{d}R} = -\frac{R^3 \varrho P
+- \mathcal{M} P + \mathcal{M}^2/R}{R^2 P^2},\]
+
+evaluated from mass, potential and density with no further
+approximation.
 
 Parameters:
 
-r (Any)
+**r** (*array-like*) – User-specified 3D radii \(R\), positive, in internal units.
+
+Returns:
+
+**derivative** – \(\mathrm{d}s/\mathrm{d}R\) in internal units (inverse units
+of \(r_0\)), with the shape of r.
 
 Return type:
 
-Any
+ndarray
 
-radius(p)
+Raises:
 
-Return the radii at which the potential takes the values p.
+[**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the potential or a density at an interior node, or the
+    enclosed mass at a node, is not positive.
 
-Values above the central potential are refused; a value of zero or
-below is the truncation radius of a spatially finite profile.
+See also
+
+[`potential_log_slope`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.potential_log_slope)
+The logarithmic slope of the potential.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> round(float(profile.potential_log_slope_derivative(1.0)), 6)
+-0.25
+```
+
+radius(*p*)
+
+Return the radius \(R\) at which the potential takes the value p.
 
 Parameters:
 
-p (Any)
+**p** (*array-like*) – User-specified relative potentials \(P\), in internal units,
+at most p_trunc at the first node. For a profile with an edge
+node, a value of zero or below gives r_t. For a profile
+without an edge node, a value of zero or below gives the radius
+of the last node.
+
+Returns:
+
+**r** – Radius \(R\) in internal units, with the shape of p.
 
 Return type:
 
-Any
+ndarray
+
+Raises:
+
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a value of p is above p_trunc at the first node.
+
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the potential at an interior node is not positive.
+
+See also
+
+[`potential`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile.potential)
+The potential at a given radius.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> round(float(profile.radius(0.5)), 6)
+1.0
+```
 
 to_dict()
 
-Return what identifies the profile, as a plain dictionary.
+Return the record that identifies the profile, as a plain dictionary.
 
-The arrays are not part of it: the identity of the model determines
-them, and a file holds them beside this record.
+The arrays of the profile are not in the record. The identity of
+the model determines the arrays, and a file stores the arrays
+beside the record.
+
+Returns:
+
+**record** – The key `"profile"` with the value `"truncated"`, the key
+`"model"` with the identity string of the model, and the keys
+`"source"` and `"source_anisotropy"` with the dictionaries of
+source and source_anisotropy.
 
 Return type:
 
-dict[str, Any]
+[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
-     On this page
+See also
+
+[`DoublePowerLaw.to_dict`](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.DoublePowerLaw.to_dict)
+The dictionary of the source profile.
+
+Examples
+
+```python
+>>> import numpy as np
+>>> import pianistpy as pp
+>>> from pianistpy.profiles import TruncatedProfile
+>>> hernquist = pp.DoublePowerLaw.hernquist()
+>>> r = np.geomspace(1e-3, 1e3, 601)
+>>> profile = TruncatedProfile(
+...     r=r, p_trunc=hernquist.p(r), rho_trunc=hernquist.rho(r)[np.newaxis, :],
+...     mass_trunc=hernquist.mass(r), k_t=0.0, r_t=np.inf, mass_t=1.0,
+...     spatially_finite=False, source=hernquist,
+...     source_anisotropy=pp.Anisotropy(), model="hernquist", edge_exponent=(),
+... )
+>>> sorted(profile.to_dict())
+['model', 'profile', 'source', 'source_anisotropy']
+```

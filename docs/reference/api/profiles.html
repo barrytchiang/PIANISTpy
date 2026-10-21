@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Density profiles &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Density profiles &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="profiles.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -232,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
@@ -288,7 +284,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Functions by subpackage</a></li>
@@ -313,90 +309,187 @@
   <section id="density-profiles">
 <h1>Density profiles<a class="headerlink" href="#density-profiles" title="Link to this heading">#</a></h1>
 <p>Module <code class="docutils literal notranslate"><span class="pre">pianistpy.profiles</span></code></p>
-<p id="module-pianistpy.profiles">Density profiles.</p>
+<p id="module-pianistpy.profiles">Density profiles: the analytic input profile and the profile of a model.</p>
+<p>A user builds the input profile of a component with <cite>DoublePowerLaw</cite>, for
+example <code class="docutils literal notranslate"><span class="pre">pp.DoublePowerLaw.nfw()</span></code>. The self-consistent profile of a model
+is a <cite>TruncatedProfile</cite>, read as <code class="docutils literal notranslate"><span class="pre">model.profile</span></code>.
+<cite>TruncatedProfile.interpolation_tables</cite> returns the <cite>ProfileTables</cite> of a
+<cite>TruncatedProfile</cite>.</p>
+<p>The input profile is the double power law</p>
+<div class="math notranslate nohighlight">
+\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha},\]</div>
+<p>where <span class="math notranslate nohighlight">\(R\)</span> is the radius in units of the scale radius <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>,</span>
+<span class="math notranslate nohighlight">\(\varrho\)</span> is the density in internal units, <span class="math notranslate nohighlight">\(\alpha\)</span> is the
+sharpness of the transition between the inner and the outer slope,
+<span class="math notranslate nohighlight">\(\beta\)</span> is the outer logarithmic slope, <span class="math notranslate nohighlight">\(\gamma\)</span> is the inner
+logarithmic slope, and <span class="math notranslate nohighlight">\(C\)</span> is the normalization that sets the central
+relative potential <span class="math notranslate nohighlight">\(P(0)\)</span> to 1. Near the center, a model’s profile
+takes the depth <span class="math notranslate nohighlight">\(P(0) - P(R)\)</span> from the depth’s series in
+<span class="nobr"><span class="math notranslate nohighlight">\(R^{\alpha}\)</span>,</span> out to the largest radius at which the series’ next
+term is at most <span class="math notranslate nohighlight">\(10^{-7}\)</span> of the depth. The formulas are in Notes
+Section T:1.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.profiles.</span></span><span class="sig-name descname"><span class="pre">DoublePowerLaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rho_alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_gamma</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw" title="Link to this definition">#</a></dt>
-<dd><p>Double-power-law density profile in internal units.</p>
+<dd><p>Double-power-law density profile, in internal units.</p>
+<p>The profile is the input density of a <cite>Component</cite>. Its methods return
+the density, the enclosed mass and the relative potential at
+user-specified 3D radii, in closed form. The class methods <cite>nfw</cite>,
+<cite>hernquist</cite> and <cite>plummer</cite> return three parameter sets that have names.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>rho_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Sharpness <span class="math notranslate nohighlight">\(\alpha\)</span> of the transition between the inner and the
-outer slope. At least 1/2.</p></li>
-<li><p><strong>rho_beta</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Outer logarithmic slope <span class="math notranslate nohighlight">\(\beta\)</span>. Greater than 2.</p></li>
-<li><p><strong>rho_gamma</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Inner logarithmic slope <span class="math notranslate nohighlight">\(\gamma\)</span>, with
-<span class="math notranslate nohighlight">\(0 \leq \gamma &lt; 2\)</span>.</p></li>
+outer slope. Must be at least 1/2.</p></li>
+<li><p><strong>rho_beta</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Outer logarithmic slope <span class="nobr"><span class="math notranslate nohighlight">\(\beta\)</span>.</span> Must be greater than 2. A
+<cite>Component</cite> takes <span class="math notranslate nohighlight">\(\beta \geq 3\)</span> only.</p></li>
+<li><p><strong>rho_gamma</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Inner logarithmic slope <span class="nobr"><span class="math notranslate nohighlight">\(\gamma\)</span>.</span> Must satisfy
+<span class="nobr"><span class="math notranslate nohighlight">\(0 \leq \gamma &lt; 2\)</span>.</span></p></li>
 </ul>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <span class="nobr"><span class="math notranslate nohighlight">\(\alpha &lt; 1/2\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(\beta \leq 2\)</span>,</span> <span class="math notranslate nohighlight">\(\gamma &lt; 0\)</span> or
+    <span class="nobr"><span class="math notranslate nohighlight">\(\gamma \geq 2\)</span>.</span></p>
+</dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component</span></code></dt><dd><p>A profile with its anisotropy, the input of a model.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile" title="pianistpy.profiles.TruncatedProfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TruncatedProfile</span></code></a></dt><dd><p>The self-consistent profile of a model.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
-<p>In internal units the scale radius is 1, the central potential is 1 and the
-potential vanishes at infinity:</p>
+<p>In internal units the scale radius <span class="math notranslate nohighlight">\(r_0\)</span> is 1, the central
+relative potential <span class="math notranslate nohighlight">\(P(0)\)</span> is 1, and <span class="math notranslate nohighlight">\(P(R)\)</span> vanishes as
+<span class="nobr"><span class="math notranslate nohighlight">\(R \to \infty\)</span>.</span> The density is</p>
 <div class="math notranslate nohighlight">
-\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha} .\]</div>
-<p>The lower bound on <span class="math notranslate nohighlight">\(\gamma\)</span> excludes a density that decreases
-toward the center; the upper bound keeps the central potential finite.
-The bound on <span class="math notranslate nohighlight">\(\beta\)</span> keeps the potential finite at large radii.</p>
-<p>The named profiles are parameter sets of this one profile, built by the
-class methods <cite>nfw</cite>, <cite>hernquist</cite> and <cite>plummer</cite>. They are not separate
-implementations. Where a profile has a closed form for its mass or its
-potential, that form is used inside <cite>mass</cite> and <cite>p</cite>; the tests hold it to
-the general incomplete-Beta form.</p>
+\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha},\]</div>
+<p>with <span class="math notranslate nohighlight">\(R\)</span> the radius in units of <span class="math notranslate nohighlight">\(r_0\)</span> and <span class="math notranslate nohighlight">\(C\)</span> the
+normalization <cite>rho_norm</cite>. The bound <span class="math notranslate nohighlight">\(\gamma \geq 0\)</span> excludes a
+density that decreases toward the center. The bound <span class="math notranslate nohighlight">\(\gamma &lt; 2\)</span>
+keeps the central potential finite. The bound <span class="math notranslate nohighlight">\(\beta &gt; 2\)</span> keeps
+the integral of <span class="math notranslate nohighlight">\(\varrho R\)</span> over <span class="math notranslate nohighlight">\(R\)</span> from 0 to infinity
+finite, so that <span class="math notranslate nohighlight">\(P(0)\)</span> is finite.</p>
+<p>The profiles with names are parameter sets of the double-power-law
+profile. Where a profile with a name has a closed form for the profile’s mass or
+potential in elementary functions, <cite>mass</cite> and <cite>p</cite> evaluate the
+elementary closed form.</p>
 <p class="rubric">References</p>
-<p>Chiang+(2026d), Appendix A (labels <code class="docutils literal notranslate"><span class="pre">eqn:double_power_law_MT</span></code>,
-<code class="docutils literal notranslate"><span class="pre">eqn:double_power_law_mass</span></code>, <code class="docutils literal notranslate"><span class="pre">app:P_beta</span></code>).</p>
+<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (5), defines the profile. <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A6),
+gives <span class="nobr"><span class="math notranslate nohighlight">\(C\)</span>.</span> <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A7), gives the enclosed mass.</p>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">()</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">()</span>
 <span class="go">DoublePowerLaw(rho_alpha=1.0, rho_beta=3.0, rho_gamma=1.0)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">mass_total</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">mass_total</span>
 <span class="go">1.0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span>
 <span class="go">1.0</span>
 </pre></div>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.nfw">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">nfw</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.nfw" title="Link to this definition">#</a></dt>
-<dd><p>Return the Navarro-Frenk-White profile, <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">3,</span> <span class="pre">1)</span></code>.</p>
+<dd><p>Return the Navarro-Frenk-White profile.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.core.DoublePowerLaw"><em>DoublePowerLaw</em></a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>profile</strong> – The profile with
+<span class="nobr"><span class="math notranslate nohighlight">\((\alpha, \beta, \gamma) = (1, 3, 1)\)</span>.</span></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.DoublePowerLaw">DoublePowerLaw</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.hernquist" title="pianistpy.profiles.DoublePowerLaw.hernquist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hernquist</span></code></a></dt><dd><p>The Hernquist profile.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.plummer" title="pianistpy.profiles.DoublePowerLaw.plummer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plummer</span></code></a></dt><dd><p>The Plummer profile.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">()</span>
+<span class="go">DoublePowerLaw(rho_alpha=1.0, rho_beta=3.0, rho_gamma=1.0)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.hernquist">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">hernquist</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.hernquist" title="Link to this definition">#</a></dt>
-<dd><p>Return the Hernquist profile, <code class="docutils literal notranslate"><span class="pre">(1,</span> <span class="pre">4,</span> <span class="pre">1)</span></code>.</p>
+<dd><p>Return the Hernquist profile.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.core.DoublePowerLaw"><em>DoublePowerLaw</em></a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>profile</strong> – The profile with
+<span class="nobr"><span class="math notranslate nohighlight">\((\alpha, \beta, \gamma) = (1, 4, 1)\)</span>.</span></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.DoublePowerLaw">DoublePowerLaw</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.nfw" title="pianistpy.profiles.DoublePowerLaw.nfw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nfw</span></code></a></dt><dd><p>The Navarro-Frenk-White profile.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.plummer" title="pianistpy.profiles.DoublePowerLaw.plummer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plummer</span></code></a></dt><dd><p>The Plummer profile.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="go">DoublePowerLaw(rho_alpha=1.0, rho_beta=4.0, rho_gamma=1.0)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.plummer">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">plummer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.plummer" title="Link to this definition">#</a></dt>
-<dd><p>Return the Plummer profile, <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">5,</span> <span class="pre">0)</span></code>.</p>
+<dd><p>Return the Plummer profile.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.core.DoublePowerLaw"><em>DoublePowerLaw</em></a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>profile</strong> – The profile with
+<span class="nobr"><span class="math notranslate nohighlight">\((\alpha, \beta, \gamma) = (2, 5, 0)\)</span>.</span></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.DoublePowerLaw">DoublePowerLaw</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.nfw" title="pianistpy.profiles.DoublePowerLaw.nfw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nfw</span></code></a></dt><dd><p>The Navarro-Frenk-White profile.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.hernquist" title="pianistpy.profiles.DoublePowerLaw.hernquist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hernquist</span></code></a></dt><dd><p>The Hernquist profile.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()</span>
+<span class="go">DoublePowerLaw(rho_alpha=2.0, rho_beta=5.0, rho_gamma=0.0)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.name">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">str</span></a></span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.name" title="Link to this definition">#</a></dt>
-<dd><p>Name of the profile, or its parameters if it has none.</p>
+<dd><p>Name of the parameter set, or the three slopes if the set has no name.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.rho_norm">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rho_norm</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">float</span></a></span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.rho_norm" title="Link to this definition">#</a></dt>
-<dd><p>Normalization <span class="math notranslate nohighlight">\(C\)</span> of the density, for a central potential of 1.</p>
+<dd><p>Normalization <span class="math notranslate nohighlight">\(C\)</span> of the density that sets <span class="nobr"><span class="math notranslate nohighlight">\(P(0) = 1\)</span>.</span></p>
 <p class="rubric">Notes</p>
 <div class="math notranslate nohighlight">
 \[C = \frac{\alpha\,\Gamma[(\beta-\gamma)/\alpha]}
@@ -406,89 +499,169 @@ the general incomplete-Beta form.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.mass_total">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mass_total</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">float</span></a></span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.mass_total" title="Link to this definition">#</a></dt>
-<dd><p>Total mass in internal units; infinite for an outer slope of 3 or less.</p>
+<dd><p>Total mass in internal units, infinite for an outer slope of 3 or less.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.rho">
 <span class="sig-name descname"><span class="pre">rho</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.rho" title="Link to this definition">#</a></dt>
-<dd><p>Return the density <span class="math notranslate nohighlight">\(\varrho(R)\)</span>.</p>
+<dd><p>Return the density <span class="nobr"><span class="math notranslate nohighlight">\(\varrho(R)\)</span>.</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – Radius in internal units.</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> in internal units (units of
+the scale radius <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>).</span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>rho</strong> – Density in internal units, with the shape of <cite>r</cite>.</p>
+<dd class="field-even"><p><strong>rho</strong> – Density <span class="math notranslate nohighlight">\(\varrho(R)\)</span> in internal units, with the shape of
+<cite>r</cite>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.mass" title="pianistpy.profiles.DoublePowerLaw.mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass</span></code></a></dt><dd><p>The enclosed mass.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.p" title="pianistpy.profiles.DoublePowerLaw.p"><code class="xref py py-obj docutils literal notranslate"><span class="pre">p</span></code></a></dt><dd><p>The relative potential.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<div class="math notranslate nohighlight">
+\[\varrho(R) = C\,R^{-\gamma}\,(1 + R^{\alpha})^{(\gamma-\beta)/\alpha}.\]</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+<span class="go">0.25</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.mass">
 <span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.mass" title="Link to this definition">#</a></dt>
-<dd><p>Return the enclosed mass <span class="math notranslate nohighlight">\(\mathcal{M}(R)\)</span>.</p>
+<dd><p>Return the enclosed mass <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}(R)\)</span>.</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – Radius in internal units.</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> in internal units (units of
+the scale radius <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>).</span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>mass</strong> – Enclosed mass in internal units, with the shape of <cite>r</cite>.</p>
+<dd class="field-even"><p><strong>mass</strong> – Enclosed mass <span class="math notranslate nohighlight">\(\mathcal{M}(R)\)</span> in internal units, with the
+shape of <cite>r</cite>. The mass is the integral of
+<span class="math notranslate nohighlight">\(\varrho R^2\)</span> over <span class="math notranslate nohighlight">\(R\)</span> from 0 to <cite>r</cite>, that is,
+<span class="math notranslate nohighlight">\(1/(4\pi)\)</span> times the integral of the density over the
+volume.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.mass_total" title="pianistpy.profiles.DoublePowerLaw.mass_total"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass_total</span></code></a></dt><dd><p>The total mass.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.rho" title="pianistpy.profiles.DoublePowerLaw.rho"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rho</span></code></a></dt><dd><p>The density.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.p" title="pianistpy.profiles.DoublePowerLaw.p"><code class="xref py py-obj docutils literal notranslate"><span class="pre">p</span></code></a></dt><dd><p>The relative potential.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
-<p>With <span class="math notranslate nohighlight">\(z = R^\alpha/(1+R^\alpha)\)</span>,</p>
+<p>With <span class="math notranslate nohighlight">\(z = R^\alpha/(1+R^\alpha)\)</span> and the incomplete Beta
+function <span class="nobr"><span class="math notranslate nohighlight">\(B(z; a, b)\)</span>,</span></p>
 <div class="math notranslate nohighlight">
 \[\mathcal{M}(R) = \frac{C}{\alpha}\,
     B\!\left(z;\,\frac{3-\gamma}{\alpha},\,\frac{\beta-3}{\alpha}\right) .\]</div>
+<p>For <span class="math notranslate nohighlight">\(\beta = 3\)</span> the second argument of <span class="math notranslate nohighlight">\(B\)</span> is zero, and
+the mass is evaluated from a logarithm and a series. For
+<span class="math notranslate nohighlight">\(\beta &lt; 3\)</span> the second argument is negative, and the analytic
+continuation of the formula is evaluated in arbitrary precision.</p>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A7).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+<span class="go">0.25</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.p">
 <span class="sig-name descname"><span class="pre">p</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.p" title="Link to this definition">#</a></dt>
-<dd><p>Return the relative potential <span class="math notranslate nohighlight">\(P(R)\)</span>.</p>
+<dd><p>Return the relative potential <span class="nobr"><span class="math notranslate nohighlight">\(P(R)\)</span>.</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – Radius in internal units.</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> in internal units (units of
+the scale radius <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>).</span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>p</strong> – Relative potential in internal units, with the shape of <cite>r</cite>. It is 1
-at the center and vanishes at infinity.</p>
+<dd class="field-even"><p><strong>p</strong> – Relative potential <span class="math notranslate nohighlight">\(P(R)\)</span> in internal units, with the shape
+of <cite>r</cite>. <span class="nobr"><span class="math notranslate nohighlight">\(P(0) = 1\)</span>,</span> and <span class="math notranslate nohighlight">\(P(R)\)</span> vanishes as
+<span class="nobr"><span class="math notranslate nohighlight">\(R \to \infty\)</span>.</span></p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>array</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.depth_inner" title="pianistpy.profiles.DoublePowerLaw.depth_inner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">depth_inner</span></code></a></dt><dd><p>The depth <span class="math notranslate nohighlight">\(P(0) - P(R)\)</span> near the center.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.mass" title="pianistpy.profiles.DoublePowerLaw.mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass</span></code></a></dt><dd><p>The enclosed mass.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.rho" title="pianistpy.profiles.DoublePowerLaw.rho"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rho</span></code></a></dt><dd><p>The density.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
-<p>With <span class="math notranslate nohighlight">\(z = R^\alpha/(1+R^\alpha)\)</span>, <span class="math notranslate nohighlight">\(a_2 = (2-\gamma)/\alpha\)</span>
-and <span class="math notranslate nohighlight">\(b_2 = (\beta-2)/\alpha\)</span>,</p>
+<p>With <span class="nobr"><span class="math notranslate nohighlight">\(z = R^\alpha/(1+R^\alpha)\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(a_2 = (2-\gamma)/\alpha\)</span>,</span>
+<span class="nobr"><span class="math notranslate nohighlight">\(b_2 = (\beta-2)/\alpha\)</span>,</span> the Beta function <span class="math notranslate nohighlight">\(B(a, b)\)</span> and
+the incomplete Beta function <span class="nobr"><span class="math notranslate nohighlight">\(B(z; a, b)\)</span>,</span></p>
 <div class="math notranslate nohighlight">
 \[P(R) = \frac{\mathcal{M}(R)}{R}
      + \frac{C}{\alpha}\left[B(a_2, b_2) - B(z;\,a_2, b_2)\right] .\]</div>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A3).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+<span class="go">0.5</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.depth_inner">
 <span class="sig-name descname"><span class="pre">depth_inner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.depth_inner" title="Link to this definition">#</a></dt>
-<dd><p>Return the depth <span class="math notranslate nohighlight">\(u = P(0) - P(R)\)</span> near the center, with no
-subtraction, and the series’ own truncation estimate.</p>
+<dd><p>Return the depth <span class="math notranslate nohighlight">\(u = P(0) - P(R)\)</span> near the center, from its series.</p>
+<p>The depth is summed term by term from its series in
+<span class="nobr"><span class="math notranslate nohighlight">\(R^{\alpha}\)</span>,</span> with no subtraction from <span class="nobr"><span class="math notranslate nohighlight">\(P(0)\)</span>,</span> so the
+depth keeps its relative precision where <span class="math notranslate nohighlight">\(u\)</span> is small.
+<cite>depth_inner</cite> also returns the size of the series’ next term
+relative to the depth, as an estimate of the truncation error of
+the sum.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>array-like</em>) – Radius in internal units.</p></li>
-<li><p><strong>terms</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – Number of terms of the series.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> in internal units (units of
+the scale radius <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>).</span></p></li>
+<li><p><strong>terms</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – Number of terms of the series summed. Must be at least 1.
+Default: <code class="docutils literal notranslate"><span class="pre">4</span></code>, which means the first four terms.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>u</strong> (<em>array</em>) – The depth from the first <cite>terms</cite> terms.</p></li>
-<li><p><strong>bound</strong> (<em>array</em>) – The magnitude of the next term relative to <cite>u</cite>, per point;
-infinite where <cite>u</cite> is not positive.</p></li>
+<li><p><strong>u</strong> (<em>array</em>) – Depth <span class="math notranslate nohighlight">\(u\)</span> from the first <cite>terms</cite> terms, in internal units,
+with the shape of <cite>r</cite>. Infinite at <span class="nobr"><span class="math notranslate nohighlight">\(R \geq 1\)</span>,</span> where the
+series in <span class="math notranslate nohighlight">\(R^{\alpha}\)</span> does not converge.</p></li>
+<li><p><strong>bound</strong> (<em>array</em>) – Magnitude of the series’ next term divided by <cite>u</cite>, with the shape
+of <cite>r</cite>. Infinite where <cite>u</cite> is not positive or not finite.</p></li>
 </ul>
 </p>
 </dd>
@@ -496,11 +669,29 @@ infinite where <cite>u</cite> is not positive.</p></li>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank">tuple</a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>]</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.p" title="pianistpy.profiles.DoublePowerLaw.p"><code class="xref py py-obj docutils literal notranslate"><span class="pre">p</span></code></a></dt><dd><p>The relative potential in closed form.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
-<p>A density term <span class="math notranslate nohighlight">\(C\binom{e}{k}R^{-\gamma+k\alpha}\)</span>,
-<span class="math notranslate nohighlight">\(e = (\gamma-\beta)/\alpha\)</span>, contributes
+<p>The density term <span class="nobr"><span class="math notranslate nohighlight">\(C\binom{e}{k}R^{-\gamma+k\alpha}\)</span>,</span> with
+<span class="nobr"><span class="math notranslate nohighlight">\(e = (\gamma-\beta)/\alpha\)</span>,</span> contributes the term
 <span class="math notranslate nohighlight">\(C\binom{e}{k}R^{2-\gamma+k\alpha}/[(2-\gamma+k\alpha)(3-\gamma+k\alpha)]\)</span>
-to the depth, term by term.</p>
+to the depth.</p>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A11), gives the first two terms of the series.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="p">,</span> <span class="n">bound</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">depth_inner</span><span class="p">([</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">9</span><span class="p">)</span>
+<span class="go">0.000999001</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bool</span><span class="p">(</span><span class="n">bound</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -508,24 +699,67 @@ to the depth, term by term.</p>
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.to_dict" title="Link to this definition">#</a></dt>
 <dd><p>Return the profile as a plain dictionary.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>]</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> – The key <code class="docutils literal notranslate"><span class="pre">&quot;profile&quot;</span></code> with the value <code class="docutils literal notranslate"><span class="pre">&quot;double_power_law&quot;</span></code>, and
+the keys <code class="docutils literal notranslate"><span class="pre">&quot;rho_alpha&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;rho_beta&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;rho_gamma&quot;</span></code> with
+the three slopes. <cite>from_dict</cite> builds the profile back from the
+dictionary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.from_dict" title="pianistpy.profiles.DoublePowerLaw.from_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code></a></dt><dd><p>The profile from its dictionary.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record</span><span class="p">[</span><span class="s2">"profile"</span><span class="p">],</span> <span class="n">record</span><span class="p">[</span><span class="s2">"rho_beta"</span><span class="p">]</span>
+<span class="go">('double_power_law', 4.0)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.DoublePowerLaw.from_dict">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.DoublePowerLaw.from_dict" title="Link to this definition">#</a></dt>
-<dd><p>Build the profile from its dictionary form.</p>
+<dd><p>Return the profile that a dictionary from <cite>to_dict</cite> describes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>record</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a><em>]</em>)</p>
+<dd class="field-odd"><p><strong>record</strong> (<em>mapping</em>) – The dictionary that <cite>to_dict</cite> returns. The keys <code class="docutils literal notranslate"><span class="pre">&quot;rho_alpha&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;rho_beta&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;rho_gamma&quot;</span></code> are read; other keys are
+ignored.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.core.DoublePowerLaw"><em>DoublePowerLaw</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>profile</strong> – The profile with the slopes of <cite>record</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.DoublePowerLaw">DoublePowerLaw</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a slope in <cite>record</cite> lies outside its admissible range (see
+    <cite>DoublePowerLaw</cite>).</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.to_dict" title="pianistpy.profiles.DoublePowerLaw.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a></dt><dd><p>The dictionary of a profile.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"rho_alpha"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"rho_beta"</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">"rho_gamma"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">record</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+<span class="go">'NFW'</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -533,284 +767,636 @@ to the depth, term by term.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.profiles.ProfileTables">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.profiles.</span></span><span class="sig-name descname"><span class="pre">ProfileTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_p_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_r_all</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mass_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_rho_coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_edge_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_exponent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.ProfileTables" title="Link to this definition">#</a></dt>
-<dd><p>The arrays a kernel reads a <cite>TruncatedProfile</cite> from.</p>
-<p>They are the numbers <cite>TruncatedProfile.potential</cite>, <cite>density</cite>, <cite>mass</cite> and
-<cite>radius</cite> evaluate, laid out for a kernel that takes them as traced
-arguments: the cubic Hermite in the logarithms on the interior rows and
-the edge’s closed forms beyond them.</p>
+<dd><p>Arrays from which a JAX function evaluates a <cite>TruncatedProfile</cite>.</p>
+<p>The arrays are the numbers from which <cite>TruncatedProfile.potential</cite>,
+<cite>TruncatedProfile.density</cite>, <cite>TruncatedProfile.mass</cite> and
+<cite>TruncatedProfile.radius</cite> evaluate the profile, laid out so that a JAX
+function takes them as arguments and is differentiable in them. A node
+is one tabulated radius of the profile. An interior node is any node
+other than the edge node of a spatially finite profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_r</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_interior</em><em>,</em><em>)</em>) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
-an edge row).</p></li>
-<li><p><strong>log_p</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_interior</em><em>,</em><em>)</em>) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
-an edge row).</p></li>
-<li><p><strong>log_p_slope</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_interior</em><em>,</em><em>)</em>) – ln r, ln P and d ln P / d ln r at the interior rows (every row but
-an edge row).</p></li>
-<li><p><strong>log_r_all</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – ln r, ln M and d ln M / d ln r at every row.</p></li>
-<li><p><strong>log_mass</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – ln r, ln M and d ln M / d ln r at every row.</p></li>
-<li><p><strong>log_mass_slope</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – ln r, ln M and d ln M / d ln r at every row.</p></li>
-<li><p><strong>log_rho_coefficients</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>4</em><em>, </em><em>n_interior - 1</em><em>)</em>) – The coefficients of the cubic spline of ln rho in ln r on each
-interval, highest power first, in the interval’s own ln r offset.</p></li>
-<li><p><strong>has_edge_row</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a>) – Whether the profile carries its edge as its last row; the fields
-below are read only then.</p></li>
-<li><p><strong>r_last</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Radius and potential of the last interior row.</p></li>
-<li><p><strong>p_last</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Radius and potential of the last interior row.</p></li>
-<li><p><strong>rho_last</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – Density of each component there.</p></li>
-<li><p><strong>r_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation radius and total mass.</p></li>
-<li><p><strong>mass_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation radius and total mass.</p></li>
-<li><p><strong>edge_exponent</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – Exponent q of each component’s density at the edge.</p></li>
+<li><p><strong>log_r</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_interior</em><em>,</em><em>)</em>) – <span class="math notranslate nohighlight">\(\ln R\)</span> at the interior nodes, with <span class="math notranslate nohighlight">\(R\)</span> the radius in
+internal units.</p></li>
+<li><p><strong>log_p</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_interior</em><em>,</em><em>)</em>) – <span class="math notranslate nohighlight">\(\ln P\)</span> at the interior nodes, with <span class="math notranslate nohighlight">\(P\)</span> the relative
+potential in internal units.</p></li>
+<li><p><strong>log_p_slope</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_interior</em><em>,</em><em>)</em>) – <span class="math notranslate nohighlight">\(\mathrm{d}\ln P/\mathrm{d}\ln R\)</span> at the interior nodes.</p></li>
+<li><p><strong>log_r_all</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – <span class="math notranslate nohighlight">\(\ln R\)</span> at every node.</p></li>
+<li><p><strong>log_mass</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – <span class="math notranslate nohighlight">\(\ln \mathcal{M}\)</span> at every node, with <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> the
+enclosed mass in internal units.</p></li>
+<li><p><strong>log_mass_slope</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – <span class="math notranslate nohighlight">\(\mathrm{d}\ln \mathcal{M}/\mathrm{d}\ln R\)</span> at every node.</p></li>
+<li><p><strong>log_rho_coefficients</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>4</em><em>, </em><em>n_interior - 1</em><em>)</em>) – Coefficients of the cubic spline of <span class="math notranslate nohighlight">\(\ln\varrho\)</span> in
+<span class="math notranslate nohighlight">\(\ln R\)</span> for each component and each interval between interior
+nodes, highest power first, as polynomials in the offset of
+<span class="math notranslate nohighlight">\(\ln R\)</span> from the interval’s lower node.</p></li>
+<li><p><strong>has_edge_row</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a>) – Whether the last node of the profile is its edge node.</p></li>
+<li><p><strong>r_last</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Radius of the last interior node, in internal units.</p></li>
+<li><p><strong>p_last</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Relative potential at the last interior node, in internal units.</p></li>
+<li><p><strong>rho_last</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – Density of each component at the last interior node, in internal
+units.</p></li>
+<li><p><strong>r_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation radius <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>,</span> in internal units. Infinite
+where <cite>has_edge_row</cite> is False.</p></li>
+<li><p><strong>mass_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Total mass <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}\)</span>,</span> in internal units. Infinite
+where <cite>has_edge_row</cite> is False.</p></li>
+<li><p><strong>edge_exponent</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – Exponent <span class="math notranslate nohighlight">\(q\)</span> of each component’s density at the edge,
+<span class="nobr"><span class="math notranslate nohighlight">\(\varrho \propto P^q\)</span>.</span> Empty where the model has no edge.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.interpolation_tables" title="pianistpy.profiles.TruncatedProfile.interpolation_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TruncatedProfile.interpolation_tables</span></code></a></dt><dd><p>The arrays of a profile.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile" title="pianistpy.profiles.TruncatedProfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TruncatedProfile</span></code></a></dt><dd><p>The profile the arrays evaluate.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">interpolation_tables</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span><span class="o">.</span><span class="n">log_r</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">tables</span><span class="o">.</span><span class="n">log_rho_coefficients</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">((601,), (1, 4, 600))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tables</span><span class="o">.</span><span class="n">has_edge_row</span>
+<span class="go">False</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.profiles.</span></span><span class="sig-name descname"><span class="pre">TruncatedProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_trunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatially_finite</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_anisotropy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_exponent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_trunc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">central_deficit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_r_end</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">nan</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_rows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">override_rule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_log_f</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_slope</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile" title="Link to this definition">#</a></dt>
-<dd><p>The self-consistent profile of a truncated model.</p>
-<p>It is the profile of a model, and it can be the profile of a component
-of another model: a component given the truncated profile of a parent
-model and a new anisotropy is Method II of Chiang+(2026d).</p>
-<p>Two profiles are equal where they belong to the same model: the identity
-of a model determines its profile.</p>
-<p>The profile evaluates itself: <cite>potential</cite>, <cite>density</cite>, <cite>mass</cite> and
-<cite>radius</cite> are the one reading of the rows that every stage of the
-package takes, in place of an interpolant of its own. Between the rows
-the potential and the mass are cubic Hermite interpolants in the
-logarithms with the exact slopes the rows state (the Poisson equation
-gives <span class="math notranslate nohighlight">\(\mathrm{d}\ln\mathcal{P}/\mathrm{d}\ln r = -M/(r\mathcal{P})\)</span>
-and <span class="math notranslate nohighlight">\(\mathrm{d}\ln M/\mathrm{d}\ln r = r^3\rho/M\)</span>); the density
-of each component is a cubic spline in the logarithms, since the rows
-state no density slope. On the last interval of a spatially finite
-profile whose last row is its edge (<span class="math notranslate nohighlight">\(\mathcal{P} = 0\)</span> at <cite>r_t</cite>),
-the potential is the Kepler form <span class="math notranslate nohighlight">\(M_t(1/r - 1/r_t)\)</span> and the
-density follows the edge law <span class="math notranslate nohighlight">\(\rho \propto \mathcal{P}^q\)</span> with
-the stated <cite>edge_exponent</cite>; beyond <cite>r_t</cite> the potential is <span class="math notranslate nohighlight">\(M_t/r\)</span>
-and the density zero. Inside the first row and, for a profile without
-an edge, beyond the last, the interpolants continue as the power laws
-of the end rows.</p>
+<dd><p>Self-consistent profile of a model, tabulated at radii called nodes.</p>
+<p>The profile of a model is <code class="docutils literal notranslate"><span class="pre">model.profile</span></code>. A component given the
+profile of a parent model and a new anisotropy is Method II of
+<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Appendix B2.2. The methods <cite>potential</cite>, <cite>density</cite>,
+<cite>mass</cite> and <cite>radius</cite> evaluate the profile between the nodes.</p>
+<p>Two profiles are equal if the identity strings <cite>model</cite> of the two
+profiles are equal, because the identity of a model determines its
+profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>r</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Radius, strictly increasing.</p></li>
-<li><p><strong>p_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Total relative potential of the truncated model.</p></li>
-<li><p><strong>rho_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>n</em><em>)</em>) – Density of each component.</p></li>
-<li><p><strong>mass_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Total enclosed mass, in the unit of <cite>DoublePowerLaw.mass</cite> (the
-Hernquist profile’s total is 1); 4 pi times it is the integral of
-the density over the volume.</p></li>
-<li><p><strong>k_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation energy.</p></li>
-<li><p><strong>r_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation radius and total mass; infinite where the model is not
-spatially finite.</p></li>
-<li><p><strong>mass_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation radius and total mass; infinite where the model is not
-spatially finite.</p></li>
+<li><p><strong>r</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Radius <span class="math notranslate nohighlight">\(R\)</span> of each node, in internal units. The radii are
+positive and strictly increasing, and there are at least two.</p></li>
+<li><p><strong>p_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Total relative potential <span class="math notranslate nohighlight">\(P\)</span> of the model at each node, in
+internal units.</p></li>
+<li><p><strong>rho_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>n</em><em>)</em>) – Density <span class="math notranslate nohighlight">\(\varrho\)</span> of each component at each node, in internal
+units.</p></li>
+<li><p><strong>mass_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Total enclosed mass <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> at each node, in internal
+units, the unit of <cite>DoublePowerLaw.mass</cite>, in which the total mass of
+the Hernquist profile is 1. <span class="math notranslate nohighlight">\(4\pi\)</span> times <cite>mass_trunc</cite> is the
+integral of the density over the volume.</p></li>
+<li><p><strong>k_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation energy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> in internal units.</p></li>
+<li><p><strong>r_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation radius <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>,</span> in internal units. Infinite
+where the model is not spatially finite.</p></li>
+<li><p><strong>mass_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Total mass <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}\)</span>,</span> in internal units. Infinite
+where the model is not spatially finite.</p></li>
 <li><p><strong>spatially_finite</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a>) – Whether the density reaches zero at a finite radius with a finite
-total mass. A spatially finite profile whose last row has
-<code class="docutils literal notranslate"><span class="pre">p_trunc</span> <span class="pre">==</span> <span class="pre">0</span></code> carries its edge as that row, and then the row’s
-density is zero and its radius is <cite>r_t</cite>.</p></li>
-<li><p><strong>source</strong> (<a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.DoublePowerLaw"><em>DoublePowerLaw</em></a>) – The analytic profile of the first component of the model: its scale
-radius and its central potential are the internal units the arrays
-are in.</p></li>
-<li><p><strong>source_anisotropy</strong> (<a class="reference internal" href="anisotropy#pianistpy.anisotropy.Anisotropy" title="pianistpy.anisotropy.Anisotropy"><em>Anisotropy</em></a>) – The anisotropy of that component in the model the profile belongs
-to. A component built on this profile (Method II) reads here what
-its parent was.</p></li>
+total mass. A spatially finite profile whose last node has
+<code class="docutils literal notranslate"><span class="pre">p_trunc</span> <span class="pre">==</span> <span class="pre">0</span></code> holds its edge as that last node, the edge node.
+The edge node’s density is zero and its radius is <cite>r_t</cite>.</p></li>
+<li><p><strong>source</strong> (<a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.DoublePowerLaw"><em>DoublePowerLaw</em></a>) – The analytic profile of the first component of the model. The scale
+radius and the central potential of <cite>source</cite> define the internal
+units of the arrays.</p></li>
+<li><p><strong>source_anisotropy</strong> (<a class="reference internal" href="anisotropy#pianistpy.anisotropy.Anisotropy" title="pianistpy.anisotropy.Anisotropy"><em>Anisotropy</em></a>) – The anisotropy of the first component in the model the profile
+belongs to. A component built on the profile (Method II) reads its
+parent’s anisotropy from <cite>source_anisotropy</cite>.</p></li>
 <li><p><strong>model</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – Identity string of the model the profile belongs to.</p></li>
-<li><p><strong>model_level</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em> or </em><em>None</em>) – The tier level of that model’s report (<cite>ValidationReport.level</cite>),
-written by <cite>truncate</cite>, so that a component built on this profile
-(Method II) takes it as its parents’ tier. None where it was not
-recorded (a profile made otherwise, or read from a file written
-before it was): read as level 0.</p></li>
 <li><p><strong>edge_exponent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Exponent <span class="math notranslate nohighlight">\(q\)</span> of each component’s density at the edge of the
-model, <span class="math notranslate nohighlight">\(\rho \propto \mathcal{P}^q\)</span>; empty where the model
-is not spatially finite and has no edge.</p></li>
-<li><p><strong>u_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – The central potential less the potential, p_trunc[0] + u_trunc[0]
-less p_trunc, kept exact where p_trunc is close to it: near the
-center p_trunc alone has lost the digits of the difference that the
-DF’s singular center is read in. Empty where not computed.</p></li>
-<li><p><strong>central_deficit</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – For each component, (D_0, D_1, …): the central auxiliary density
-of the orbits the truncation removed as its Taylor series in the
-depth u, D_0 - D_1 u + D_2 u^2 - … (D_0 to D_4 as made; a record
-of D_0 and D_1 alone reads as the linear deficit). Empty where not
-recorded.</p></li>
-<li><p><strong>override_r</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Radii between which the closed-form profile replaced the rows of
-the solve; NaN where no row was replaced.</p></li>
-<li><p><strong>override_r_end</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Radii between which the closed-form profile replaced the rows of
-the solve; NaN where no row was replaced.</p></li>
-<li><p><strong>df_k</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em>) – The DF table of the model the profile belongs to: the energies,
-log10 F and its slope d log10 F / d ln K (NaN where not exact), as
-<cite>truncate</cite> made them. A component built on this profile (Method II)
-reads its sources from the integral of this DF. Empty where not
-recorded.</p></li>
-<li><p><strong>df_log_f</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em>) – The DF table of the model the profile belongs to: the energies,
-log10 F and its slope d log10 F / d ln K (NaN where not exact), as
-<cite>truncate</cite> made them. A component built on this profile (Method II)
-reads its sources from the integral of this DF. Empty where not
-recorded.</p></li>
-<li><p><strong>df_slope</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em>) – The DF table of the model the profile belongs to: the energies,
-log10 F and its slope d log10 F / d ln K (NaN where not exact), as
-<cite>truncate</cite> made them. A component built on this profile (Method II)
-reads its sources from the integral of this DF. Empty where not
-recorded.</p></li>
-<li><p><strong>df_taylor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – For each component, the model’s Taylor edge (F_1, F_2, K_switch):
-F = F_1 K + F_2 K^2 / 2 below K_switch. Empty where not recorded.</p></li>
-<li><p><strong>override_rows</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – Number of rows replaced there.</p></li>
-<li><p><strong>override_rule</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – What replaced them, <code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code> where nothing did.</p></li>
-<li><p><strong>origin</strong> (<em>array</em><em> of </em><em>int8</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – Where each row comes from, a code of
-<cite>pianistpy.df.truncation.ORIGINS</cite> (the main solve, the edge
-continuation, the floor event, the fills, the closed-form outer rows,
-the edge row): the profile’s checks read each row’s tolerance from it.
-Empty where not recorded.</p></li>
+model, <span class="nobr"><span class="math notranslate nohighlight">\(\varrho \propto P^q\)</span>.</span> Empty where the model is not
+spatially finite.</p></li>
+<li><p><strong>u_trunc</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Depth <span class="nobr"><span class="math notranslate nohighlight">\(u\)</span>,</span> the central potential less the potential, at each
+node, in internal units. Near the center <cite>p_trunc</cite> has lost the
+digits of the depth, and <cite>u_trunc</cite> keeps them. Default: an empty
+array, which means the depth was not stored.</p></li>
+<li><p><strong>central_deficit</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – For each component, the coefficients <span class="math notranslate nohighlight">\((D_0, D_1, \ldots, D_4)\)</span>
+of the Taylor series <span class="math notranslate nohighlight">\(D_0 - D_1 u + D_2 u^2 - \ldots\)</span> in the
+depth <span class="math notranslate nohighlight">\(u\)</span> of the central augmented density of the orbits that
+the truncation removed. A record that holds only <span class="math notranslate nohighlight">\(D_0\)</span> and
+<span class="math notranslate nohighlight">\(D_1\)</span> is the linear form of the deficit. Default: <code class="docutils literal notranslate"><span class="pre">()</span></code>,
+which means the deficit was not recorded.</p></li>
+<li><p><strong>override_r</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Inner radius of the range in which a closed form of the profile
+replaced the solution of the Poisson equation, in internal units.
+Default: NaN, which means no node was replaced.</p></li>
+<li><p><strong>override_r_end</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Outer radius of the range in which a closed form replaced the
+solution of the Poisson equation, in internal units. Default: NaN,
+which means no node was replaced.</p></li>
+<li><p><strong>override_rows</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – Number of nodes that a closed form replaced. Default: <code class="docutils literal notranslate"><span class="pre">0</span></code>, which
+means no node was replaced.</p></li>
+<li><p><strong>override_rule</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em>, </em><em>optional</em>) – Name of the closed form that replaced the nodes. Default:
+<code class="docutils literal notranslate"><span class="pre">&quot;none&quot;</span></code>, which means no node was replaced.</p></li>
+<li><p><strong>origin</strong> (<em>array</em><em> of </em><em>int8</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Source of each node, as a code from 0 to 6. The code is 0 for the
+solution of the Poisson equation, 1 for the continuation of the
+Poisson solution to the edge, 2 for the radius at which the
+potential reaches zero, 3 for a node filled in at the inner end, 4
+for a node filled in at the outer end, 5 for a closed-form outer
+node and 6 for the edge node. Default: an empty array, which means
+the sources were not recorded.</p></li>
+<li><p><strong>df_k</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – Energies <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> of the DF table of the model the
+profile belongs to, in internal units. A component built on the
+profile (Method II) computes its own DF from the parent’s DF table.
+Default: an empty array, which means the table was not recorded.</p></li>
+<li><p><strong>df_log_f</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – <span class="math notranslate nohighlight">\(\log_{10} F\)</span> at the energies <cite>df_k</cite>, with <span class="math notranslate nohighlight">\(F\)</span> the DF in
+internal units. Default: an empty array, which means the table was
+not recorded.</p></li>
+<li><p><strong>df_slope</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – <span class="math notranslate nohighlight">\(\mathrm{d}\log_{10} F/\mathrm{d}\ln\mathcal{K}\)</span> at the
+energies <cite>df_k</cite>. Default: an empty array, which means the table was
+not recorded.</p></li>
+<li><p><strong>df_taylor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – For each component, the coefficients <span class="math notranslate nohighlight">\((F_1, F_2,
+\mathcal{K}_{\rm s})\)</span> of the model’s DF near the edge:
+<span class="math notranslate nohighlight">\(F = F_1 \mathcal{K} + F_2 \mathcal{K}^2/2\)</span> for
+<span class="math notranslate nohighlight">\(\mathcal{K}\)</span> below <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm s}\)</span>.</span> Default:
+<code class="docutils literal notranslate"><span class="pre">()</span></code>, which means the coefficients were not recorded.</p></li>
+<li><p><strong>model_level</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Level of the validation report of the model the profile belongs to
+(<cite>ValidationReport.level</cite>), set by the call that made the model. A
+component built on the profile (Method II) takes <cite>model_level</cite> as
+the level of its parent. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the level
+was not recorded and is read as level 0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the radii are fewer than two, not positive or not strictly
+    increasing.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If <cite>p_trunc</cite> or <cite>mass_trunc</cite> does not have one value per radius, or
+    <cite>rho_trunc</cite> does not have the shape (n_components, n).</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a spatially finite profile does not give the edge exponent of
+    every component.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the edge node does not have zero density or does not lie at
+    <cite>r_t</cite>.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">truncate</span></code></dt><dd><p>The call that makes a model and its profile.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">Component</span></code></dt><dd><p>A component built on a profile (Method II).</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw" title="pianistpy.profiles.DoublePowerLaw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DoublePowerLaw</span></code></a></dt><dd><p>The analytic profile of a component.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Between the nodes, <span class="math notranslate nohighlight">\(\ln P\)</span> and <span class="math notranslate nohighlight">\(\ln \mathcal{M}\)</span> are cubic
+polynomials in <span class="math notranslate nohighlight">\(\ln R\)</span> that match the values and the slopes at
+the two nodes of each interval. The slopes are exact, from the Poisson
+equation and the mass integral:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d}\ln P}{\mathrm{d}\ln R} = -\frac{\mathcal{M}}{R P},
+\qquad
+\frac{\mathrm{d}\ln \mathcal{M}}{\mathrm{d}\ln R}
+= \frac{R^3\varrho}{\mathcal{M}},\]</div>
+<p>with <span class="math notranslate nohighlight">\(\varrho\)</span> the total density. The logarithm of each
+component’s density is a cubic spline in <span class="nobr"><span class="math notranslate nohighlight">\(\ln R\)</span>.</span> On the last
+interval of a profile with an edge node, the potential is the Kepler
+form <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\)</span>,</span> and each
+component’s density is <span class="nobr"><span class="math notranslate nohighlight">\(\varrho_L (P/P_L)^q\)</span>,</span> with
+<span class="math notranslate nohighlight">\(\varrho_L\)</span> and <span class="math notranslate nohighlight">\(P_L\)</span> the values at the last interior node
+and <span class="math notranslate nohighlight">\(q\)</span> from <cite>edge_exponent</cite>. At and beyond <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>,</span> the
+relative potential and the density are zero, and the enclosed mass is
+<span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}\)</span>.</span> Inside the first node, and beyond the last
+node of a profile without an edge node, <span class="math notranslate nohighlight">\(P\)</span> and
+<span class="math notranslate nohighlight">\(\mathcal{M}\)</span> continue as the power laws of the end nodes.</p>
+<p class="rubric">References</p>
+<p>Notes Section T:1.3.</p>
+<p class="rubric">Examples</p>
+<p>The example builds the untruncated Hernquist profile on 601 nodes
+directly; a model’s profile is <code class="docutils literal notranslate"><span class="pre">model.profile</span></code>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="go">0.4</span>
+</pre></div>
+</div>
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.has_edge_row">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">has_edge_row</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">bool</span></a></span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.has_edge_row" title="Link to this definition">#</a></dt>
-<dd><p>Whether the last row is the edge of a spatially finite profile.</p>
+<dd><p>Whether the last node is the edge node of a spatially finite profile.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.r_table_max">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">r_table_max</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">float</span></a></span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.r_table_max" title="Link to this definition">#</a></dt>
-<dd><p>the outer end of the table, which is
-the edge of a spatially finite model.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The radius of the last row</p>
-</dd>
-</dl>
+<dd><p>Radius of the last node, in internal units; <cite>r_t</cite> at an edge node.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.mass_at_r_table_max">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mass_at_r_table_max</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">float</span></a></span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.mass_at_r_table_max" title="Link to this definition">#</a></dt>
-<dd><p><cite>mass_trunc</cite> at the last row.</p>
+<dd><p>Enclosed mass <cite>mass_trunc</cite> at the last node, in internal units.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.interpolation_tables">
 <span class="sig-name descname"><span class="pre">interpolation_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.interpolation_tables" title="Link to this definition">#</a></dt>
-<dd><p>Return the arrays a kernel reads this profile from.</p>
-<p>A kernel that evaluates them as <cite>potential</cite>, <cite>density</cite>, <cite>mass</cite> and
-<cite>radius</cite> do gives the same numbers; the arrays are traced arguments
-of the kernel, never closed over.</p>
+<dd><p>Return the arrays from which a JAX function evaluates the profile.</p>
+<p>A JAX function that applies the formulas of <cite>potential</cite>, <cite>density</cite>,
+<cite>mass</cite> and <cite>radius</cite> to the arrays returns the values of those four
+methods. Such a JAX function takes the arrays as arguments and is
+differentiable in the arrays.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.profiles.ProfileTables" title="pianistpy.profiles.truncated.ProfileTables"><em>ProfileTables</em></a></p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tables</strong> – The logarithms of the potential and of the mass and their slopes
+at the nodes, the coefficients of each component’s density
+spline, and the values at the last interior node and at the edge.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pianistpy.profiles.ProfileTables" title="pianistpy.profiles.ProfileTables">ProfileTables</a></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the potential or a density at an interior node is not
+    positive, or the enclosed mass at a node is not positive.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.ProfileTables" title="pianistpy.profiles.ProfileTables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ProfileTables</span></code></a></dt><dd><p>The arrays and their meaning.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span><span class="o">.</span><span class="n">interpolation_tables</span><span class="p">()</span><span class="o">.</span><span class="n">log_r</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(601,)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.potential">
 <span class="sig-name descname"><span class="pre">potential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.potential" title="Link to this definition">#</a></dt>
-<dd><p>Return the relative potential at radii <cite>r</cite>.</p>
+<dd><p>Return the relative potential <span class="nobr"><span class="math notranslate nohighlight">\(P(R)\)</span>.</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>)</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> positive, in internal units.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>p</strong> – Relative potential <span class="math notranslate nohighlight">\(P(R)\)</span> in internal units, with the
+shape of <cite>r</cite>. For a profile with an edge node, <span class="math notranslate nohighlight">\(P\)</span> is the
+Kepler form <span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\)</span> beyond
+the last interior node and zero at and beyond <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>.</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the potential at an interior node is not positive.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.radius" title="pianistpy.profiles.TruncatedProfile.radius"><code class="xref py py-obj docutils literal notranslate"><span class="pre">radius</span></code></a></dt><dd><p>The radius at a given potential.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.potential_log_slope" title="pianistpy.profiles.TruncatedProfile.potential_log_slope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potential_log_slope</span></code></a></dt><dd><p>The logarithmic slope of the potential.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="go">0.5</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.density">
 <span class="sig-name descname"><span class="pre">density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.density" title="Link to this definition">#</a></dt>
-<dd><p>Return the density of each component at radii <cite>r</cite>.</p>
-<p>The result has one row per component and one column per radius.</p>
+<dd><p>Return the density <span class="math notranslate nohighlight">\(\varrho(R)\)</span> of each component.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>)</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>m</em><em>,</em><em>)</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> positive, in internal units.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>rho</strong> – Density of each component in internal units. For a profile with
+an edge node, the density is zero at and beyond
+<span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>.</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray, shape (n_components, m)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a density or, for a profile with an edge node, the potential
+    at an interior node is not positive.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.mass" title="pianistpy.profiles.TruncatedProfile.mass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mass</span></code></a></dt><dd><p>The enclosed mass.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.potential" title="pianistpy.profiles.TruncatedProfile.potential"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potential</span></code></a></dt><dd><p>The relative potential.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">density</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rho</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">rho</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="go">((1, 2), 0.25)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.mass">
 <span class="sig-name descname"><span class="pre">mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.mass" title="Link to this definition">#</a></dt>
-<dd><p>Return the total enclosed mass at radii <cite>r</cite>.</p>
+<dd><p>Return the total enclosed mass <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}(R)\)</span>.</span></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>)</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> positive, in internal units.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>mass</strong> – Enclosed mass <span class="math notranslate nohighlight">\(\mathcal{M}(R)\)</span> in internal units (the unit
+of <cite>mass_trunc</cite>), with the shape of <cite>r</cite>. For a spatially finite
+profile, the mass is <cite>mass_t</cite> at and beyond <cite>r_t</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the enclosed mass at a node is not positive.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.density" title="pianistpy.profiles.TruncatedProfile.density"><code class="xref py py-obj docutils literal notranslate"><span class="pre">density</span></code></a></dt><dd><p>The density of each component.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.potential" title="pianistpy.profiles.TruncatedProfile.potential"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potential</span></code></a></dt><dd><p>The relative potential.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="go">0.25</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.potential_log_slope">
 <span class="sig-name descname"><span class="pre">potential_log_slope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.potential_log_slope" title="Link to this definition">#</a></dt>
-<dd><p>Return <span class="math notranslate nohighlight">\(d\ln P / d\ln r\)</span> at radii <cite>r</cite>, from the profile’s own
-representation.</p>
-<p>The slope is exact in the rows’ quantities: <span class="math notranslate nohighlight">\(dP/dr = -M/r^2\)</span>
-(the Poisson equation in the profile’s unit), so
-<span class="math notranslate nohighlight">\(d\ln P/d\ln r = -M/(r P)\)</span> with <cite>mass</cite> and <cite>potential</cite> read as
-every consumer reads them. The knots of the representation are the
-rows <cite>r</cite>; between two rows the slope is smooth.</p>
+<dd><p>Return the logarithmic slope <span class="nobr"><span class="math notranslate nohighlight">\(\mathrm{d}\ln P/\mathrm{d}\ln R\)</span>.</span></p>
+<p>The Poisson equation <span class="math notranslate nohighlight">\(\mathrm{d}P/\mathrm{d}R =
+-\mathcal{M}/R^2\)</span> gives <span class="nobr"><span class="math notranslate nohighlight">\(\mathrm{d}\ln P/\mathrm{d}\ln R =
+-\mathcal{M}/(R P)\)</span>.</span> The slope is evaluated from <cite>mass</cite> and
+<cite>potential</cite> with no further approximation. The slope is continuous
+in <span class="math notranslate nohighlight">\(R\)</span> between the nodes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>)</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> positive, in internal units.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>slope</strong> – <span class="nobr"><span class="math notranslate nohighlight">\(\mathrm{d}\ln P/\mathrm{d}\ln R\)</span>,</span> dimensionless, with the
+shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the potential at an interior node or the enclosed mass at a
+    node is not positive.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.potential_log_slope_derivative" title="pianistpy.profiles.TruncatedProfile.potential_log_slope_derivative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potential_log_slope_derivative</span></code></a></dt><dd><p>The derivative of the slope in <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>.</span></p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.potential" title="pianistpy.profiles.TruncatedProfile.potential"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potential</span></code></a></dt><dd><p>The relative potential.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">potential_log_slope</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="go">-0.5</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.potential_log_slope_derivative">
 <span class="sig-name descname"><span class="pre">potential_log_slope_derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.potential_log_slope_derivative" title="Link to this definition">#</a></dt>
-<dd><p>Return <span class="math notranslate nohighlight">\(d(d\ln P/d\ln r)/dr\)</span> at radii <cite>r</cite>, exact in the rows’
-quantities.</p>
-<p>With <span class="math notranslate nohighlight">\(q = -M/(rP)\)</span>, <span class="math notranslate nohighlight">\(dM/dr = r^2 \varrho\)</span> (the total
-density of the components) and <span class="math notranslate nohighlight">\(dP/dr = -M/r^2\)</span>:
-<span class="math notranslate nohighlight">\(dq/dr = -(r^3 \varrho P - M P + M^2/r) / (r^2 P^2)\)</span>. Beyond the
-edge the density is zero and the same form holds on the Kepler
-potential.</p>
+<dd><p>Return the derivative in <span class="math notranslate nohighlight">\(R\)</span> of the potential’s logarithmic slope.</p>
+<p>With <span class="math notranslate nohighlight">\(s = -\mathcal{M}/(R P)\)</span> the logarithmic slope of the
+potential, <span class="math notranslate nohighlight">\(\mathrm{d}\mathcal{M}/\mathrm{d}R = R^2 \varrho\)</span>
+<span class="nobr">(<span class="math notranslate nohighlight">\(\varrho\)</span></span> the total density of the components) and
+<span class="nobr"><span class="math notranslate nohighlight">\(\mathrm{d}P/\mathrm{d}R = -\mathcal{M}/R^2\)</span>,</span> the derivative is</p>
+<div class="math notranslate nohighlight">
+\[\frac{\mathrm{d}s}{\mathrm{d}R} = -\frac{R^3 \varrho P
+- \mathcal{M} P + \mathcal{M}^2/R}{R^2 P^2},\]</div>
+<p>evaluated from <cite>mass</cite>, <cite>potential</cite> and <cite>density</cite> with no further
+approximation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>r</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>)</p>
+<dd class="field-odd"><p><strong>r</strong> (<em>array-like</em>) – User-specified 3D radii <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span> positive, in internal units.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>derivative</strong> – <span class="math notranslate nohighlight">\(\mathrm{d}s/\mathrm{d}R\)</span> in internal units (inverse units
+of <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>),</span> with the shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the potential or a density at an interior node, or the
+    enclosed mass at a node, is not positive.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.potential_log_slope" title="pianistpy.profiles.TruncatedProfile.potential_log_slope"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potential_log_slope</span></code></a></dt><dd><p>The logarithmic slope of the potential.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">potential_log_slope_derivative</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="go">-0.25</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.radius">
 <span class="sig-name descname"><span class="pre">radius</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.radius" title="Link to this definition">#</a></dt>
-<dd><p>Return the radii at which the potential takes the values <cite>p</cite>.</p>
-<p>Values above the central potential are refused; a value of zero or
-below is the truncation radius of a spatially finite profile.</p>
+<dd><p>Return the radius <span class="math notranslate nohighlight">\(R\)</span> at which the potential takes the value <cite>p</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>p</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>)</p>
+<dd class="field-odd"><p><strong>p</strong> (<em>array-like</em>) – User-specified relative potentials <span class="nobr"><span class="math notranslate nohighlight">\(P\)</span>,</span> in internal units,
+at most <cite>p_trunc</cite> at the first node. For a profile with an edge
+node, a value of zero or below gives <cite>r_t</cite>. For a profile
+without an edge node, a value of zero or below gives the radius
+of the last node.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>r</strong> – Radius <span class="math notranslate nohighlight">\(R\)</span> in internal units, with the shape of <cite>p</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a value of <cite>p</cite> is above <cite>p_trunc</cite> at the first node.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the potential at an interior node is not positive.</p></li>
+</ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.TruncatedProfile.potential" title="pianistpy.profiles.TruncatedProfile.potential"><code class="xref py py-obj docutils literal notranslate"><span class="pre">potential</span></code></a></dt><dd><p>The potential at a given radius.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">radius</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.profiles.TruncatedProfile.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.TruncatedProfile.to_dict" title="Link to this definition">#</a></dt>
-<dd><p>Return what identifies the profile, as a plain dictionary.</p>
-<p>The arrays are not part of it: the identity of the model determines
-them, and a file holds them beside this record.</p>
+<dd><p>Return the record that identifies the profile, as a plain dictionary.</p>
+<p>The arrays of the profile are not in the record. The identity of
+the model determines the arrays, and a file stores the arrays
+beside the record.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank">str</a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)" rel="noopener" target="_blank"><em>Any</em></a>]</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> – The key <code class="docutils literal notranslate"><span class="pre">&quot;profile&quot;</span></code> with the value <code class="docutils literal notranslate"><span class="pre">&quot;truncated&quot;</span></code>, the key
+<code class="docutils literal notranslate"><span class="pre">&quot;model&quot;</span></code> with the identity string of the model, and the keys
+<code class="docutils literal notranslate"><span class="pre">&quot;source&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;source_anisotropy&quot;</span></code> with the dictionaries of
+<cite>source</cite> and <cite>source_anisotropy</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.profiles.DoublePowerLaw.to_dict" title="pianistpy.profiles.DoublePowerLaw.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DoublePowerLaw.to_dict</span></code></a></dt><dd><p>The dictionary of the source profile.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.profiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">TruncatedProfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hernquist</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">,</span> <span class="mi">601</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">profile</span> <span class="o">=</span> <span class="n">TruncatedProfile</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">r</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">p_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">rho_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">rho</span><span class="p">(</span><span class="n">r</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:],</span>
+<span class="gp">... </span>    <span class="n">mass_trunc</span><span class="o">=</span><span class="n">hernquist</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">k_t</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">r_t</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">spatially_finite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">hernquist</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">source_anisotropy</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(),</span> <span class="n">model</span><span class="o">=</span><span class="s2">"hernquist"</span><span class="p">,</span> <span class="n">edge_exponent</span><span class="o">=</span><span class="p">(),</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+<span class="go">['model', 'profile', 'source', 'source_anisotropy']</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>

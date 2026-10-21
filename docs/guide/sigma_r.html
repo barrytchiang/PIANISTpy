@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Radial velocity dispersion &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Radial velocity dispersion &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="sigma_r.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -306,31 +302,41 @@
   <section id="radial-velocity-dispersion">
 <h1>Radial velocity dispersion<a class="headerlink" href="#radial-velocity-dispersion" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_r()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">sigma_r(source,</span> <span class="pre">r)</span></code> returns the intrinsic radial velocity dispersion <span class="math notranslate nohighlight">\(\sigma_{\rm r}\)</span> at 3D radii: the second
-moment of the radial velocity over the model’s distribution function at a fixed radius. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, it is
-the velocity moment of the augmented density <span class="math notranslate nohighlight">\(\varrho_{\rm aug}(P, R)\)</span> taken at the potential of the radius,</p>
+<p><code class="docutils literal notranslate"><span class="pre">sigma_r(source,</span> <span class="pre">r)</span></code> returns the intrinsic radial velocity dispersion <span class="math notranslate nohighlight">\(\sigma_{\rm r}\)</span> at user-specified 3D radii.
+<span class="math notranslate nohighlight">\(\sigma_{\rm r}^2\)</span> is the second moment of the radial velocity over the model’s distribution function at a
+fixed radius. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, <span class="math notranslate nohighlight">\(\sigma_{\rm r}^2\)</span> is the velocity moment of the augmented density
+<span class="nobr"><span class="math notranslate nohighlight">\(\varrho_{\rm aug}\)</span>,</span> integrated over the energy <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> up to the relative potential
+<span class="math notranslate nohighlight">\(P = P(R)\)</span> at the radius <span class="nobr"><span class="math notranslate nohighlight">\(R\)</span>,</span></p>
 <div class="math notranslate nohighlight">
 \[\sigma_{\rm r}^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,
-{\rm d}\mathcal{K}, \qquad P = P(R),\]</div>
-<p>which for the anisotropy models of the package, whose augmented density separates as
-<span class="math notranslate nohighlight">\(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\)</span>, is the Jeans integral of <span class="math notranslate nohighlight">\(\varrho_{\rm aux}\)</span>
-over the potential. The radius <span class="math notranslate nohighlight">\(R\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a> is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the package.</p>
+{\rm d}\mathcal{K}, \qquad P = P(R).\]</div>
+<p>For the anisotropy models of the package, the augmented density separates as
+<span class="nobr"><span class="math notranslate nohighlight">\(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\)</span>,</span> with <span class="math notranslate nohighlight">\(\varrho_{\rm aux}\)</span> the auxiliary density
+and <span class="math notranslate nohighlight">\(g\)</span> the anisotropy factor (<code class="docutils literal notranslate"><span class="pre">Anisotropy.factor</span></code>). <span class="math notranslate nohighlight">\(\sigma_{\rm r}^2\)</span> is then the Jeans integral of
+<span class="math notranslate nohighlight">\(\varrho_{\rm aux}\)</span> over the potential. The radius <span class="math notranslate nohighlight">\(R\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a> is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the package.</p>
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> (one component, or a superposition) or its prepared
-<code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>, which holds the same intrinsic profile. <code class="docutils literal notranslate"><span class="pre">r</span></code> is an array of radii in the model’s
-unit system: internal units by default (the scale radius is 1), parsecs (a float or an Astropy quantity) after
-<code class="docutils literal notranslate"><span class="pre">model.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code>. The result has the shape of <code class="docutils literal notranslate"><span class="pre">r</span></code>, in the model’s velocity unit (km/s in the
-physical system).</p>
-<p>Of a superposition, whose components share one density, the second moments add with the weights:
-<span class="math notranslate nohighlight">\(\sigma_{\rm r}^2 = \sum_k w_k \sigma_{{\rm r},k}^2\)</span>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> (one component, or a superposition) or the model’s
+line-of-sight table (<code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>), which holds the same intrinsic profile.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code> is an array of 3D radii in the model’s unit system. In the internal and the model systems, the unit of <code class="docutils literal notranslate"><span class="pre">r</span></code>
+is the scale radius. After <code class="docutils literal notranslate"><span class="pre">model.to(&quot;physical&quot;,</span> <span class="pre">...)</span></code>, <code class="docutils literal notranslate"><span class="pre">r</span></code> is in parsecs, or an Astropy quantity of any
+length unit.</p></li>
+<li><p>The result has the shape of <code class="docutils literal notranslate"><span class="pre">r</span></code>, in the model’s velocity unit (km/s in the physical system).</p></li>
+</ul>
+<p>The members of a superposition, Method II models on one truncated density, share that density, so the members’ second moments
+add with the weights:
+<span class="nobr"><span class="math notranslate nohighlight">\(\sigma_{\rm r}^2 = \sum_k w_k \sigma_{{\rm r},k}^2\)</span>.</span></p>
 </section>
-<section id="tiers">
-<h2>Tiers<a class="headerlink" href="#tiers" title="Link to this heading">#</a></h2>
-<p>The profile is tabulated once per model in radius, with rows added until every interval between rows reads
-within <code class="docutils literal notranslate"><span class="pre">profile_tolerance</span></code> at its midpoint (<span class="math notranslate nohighlight">\(10^{-7}\)</span> at the default tier, <span class="math notranslate nohighlight">\(10^{-6}\)</span> at the quick tier; a tenth of the
-goal, the profile’s share of the error of what is projected from it). A model beyond the hard limit is refused
-unless its settings ask for it (<code class="docutils literal notranslate"><span class="pre">write_anyway</span></code>), as for every observable (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>).</p>
+<section id="accuracy">
+<h2>Accuracy<a class="headerlink" href="#accuracy" title="Link to this heading">#</a></h2>
+<p>The profile is tabulated in radius once per model. Radii are added to the profile until <span class="math notranslate nohighlight">\(\sigma_{\rm r}\)</span> at
+the midpoint of every interval between the profile’s radii is within a relative <code class="docutils literal notranslate"><span class="pre">profile_tolerance</span></code>:
+<span class="math notranslate nohighlight">\(10^{-7}\)</span> with the default settings and <span class="math notranslate nohighlight">\(10^{-6}\)</span> with <code class="docutils literal notranslate"><span class="pre">Settings(quick=True)</span></code>. The default value of
+<code class="docutils literal notranslate"><span class="pre">profile_tolerance</span></code>, <span class="nobr"><span class="math notranslate nohighlight">\(10^{-7}\)</span>,</span> is a tenth of <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span> so the profile adds little to the error of the
+projected quantities computed from the profile. As for every observable, a model whose relative error is above
+<span class="math notranslate nohighlight">\(10^{-2}\)</span> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code>, unless the model’s settings set <code class="docutils literal notranslate"><span class="pre">write_anyway=True</span></code>
+(<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>).</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
@@ -377,7 +383,7 @@ unless its settings ask for it (<code class="docutils literal notranslate"><span
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments-and-units">Arguments and units</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tiers">Tiers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accuracy">Accuracy</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>
   </nav></div>

@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PIANISTpy</title>
 <meta name="description" content="PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, with differentiable observables in JAX.">
-<!-- PRE-RELEASE: the two lines below are removed at 1.0.0 -->
-<meta name="robots" content="noindex, nofollow">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="docs/_static/fonts/LibreFranklin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="docs/_static/fonts/SourceSerif4.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="docs/_static/fonts/LibreBaskerville.woff2">
@@ -74,16 +72,16 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href=".">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul>
-<li class="toctree-l1"><a class="reference internal" href="docs/start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="docs/start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="docs/start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="docs/guide/index">User guide</a><ul>
@@ -93,31 +91,31 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
 <li class="toctree-l2"><a class="reference internal" href="docs/guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="docs/notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="docs/notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="docs/reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="docs/reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="docs/reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="docs/project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="docs/project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="docs/project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="docs/project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="docs/citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="docs/project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="docs/project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/project/license">License and authors</a></li>
 </ul>
@@ -133,8 +131,6 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
   </div>
 </header>
 
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
-
 <!-- /band -->
 
 <main class="wrap">
@@ -143,7 +139,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
     <img src="docs/_static/logo.png" alt="PIANISTpy logo">
     <div class="hero-text">
       <h1>Anisotropic spherical models, truncated in phase space</h1>
-      <p class="lead">PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides distribution functions, particle initial conditions, various velocity profiles and line-of-sight observables, with JAX-based end-to-end differentiability for rapid gradient-based Monte Carlo inference.</p>
+      <p class="lead">PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides distribution functions, particle initial conditions, radial and tangential velocity dispersion profiles and line-of-sight observables, with JAX-based end-to-end differentiability for gradient-based Monte Carlo inference.</p>
     </div>
   </section>
 
@@ -151,23 +147,23 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
     <div class="cards">
       <div class="card">
         <h3>Install</h3>
-        <p><code>pip install pianistpy</code>. Python 3.11 or later. Runs on the CPU everywhere, with optional GPU acceleration.</p>
+        <p><code>pip install pianistpy</code>. Python 3.11 or later. PIANISTpy runs on the CPU on Linux, macOS and Windows, and on a CUDA GPU under Linux.</p>
         <a href="docs/start/install">Dependencies and platforms &rarr;</a>
       </div>
       <div class="card">
         <h3>Quick start</h3>
-        <p>From an input density profile and anisotropy model to the distribution function, a phase-space-truncated model, particle initial conditions and velocity observables, in a few lines.</p>
+        <p>A few lines of code go from an input density profile and an anisotropy model to the distribution function, a model truncated in phase space, particle initial conditions and velocity observables.</p>
         <a href="docs/start/quickstart">Run the example &rarr;</a>
       </div>
       <div class="card">
         <h3>Examples</h3>
-        <p>Jupyter notebooks with worked examples for each feature, and reproductions of the figures in the initial release paper.</p>
-        <a href="docs/notebooks/">Open the examples &rarr;</a>
+        <p>Jupyter notebooks for generating particle initial conditions and for computing observables from a model.</p>
+        <a href="docs/notebooks/">Examples &rarr;</a>
       </div>
       <div class="card">
         <h3>Accuracy</h3>
-        <p>The accuracy tier of each model in the release's accuracy grid, with every refusal named.</p>
-        <a href="docs/reference/accuracy">See the accuracy tables &rarr;</a>
+        <p>For each model of a fixed grid, the relative error of the density computed back from the distribution function, and the tier that the result reports, or the exception that the package raises for a model that the package does not build.</p>
+        <a href="docs/reference/accuracy">Accuracy tables &rarr;</a>
       </div>
     </div>
   </section>
@@ -176,38 +172,38 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
     <h2>What PIANISTpy does</h2>
     <!-- The list is the one on docs/start/overview.rst, written in by assemble_site. -->
     <ul class="features">
-      <li><a href="docs/guide/profiles"><b>Density profiles.</b></a> Analytical double-power-law density profiles with a finite central potential, including the commonly used Navarro-Frenk-White, Hernquist and Plummer profiles.</li>
-      <li><a href="docs/guide/anisotropy"><b>Velocity anisotropy.</b></a> Isotropic, constant-anisotropy, Osipkov-Merritt and Cuddeford-Osipkov-Merritt models, the latter two radially (Type I) or tangentially (Type II) biased.</li>
-      <li><a href="docs/guide/df"><b>Distribution functions.</b></a> Each anisotropy model’s distribution function, inverted from the input density with exact symbolic expressions up to the final numerical integration, with <a class="reference internal" href="docs/reference/accuracy"><span class="doc">extensively validated numerical accuracy</span></a> and checks that it is non-negative (physical) and monotonic (dynamically stable).</li>
-      <li><a href="docs/guide/truncation"><b>Truncation in phase space.</b></a> Model truncation performed in phase space, such that the truncation boundary is fully self-consistent and in dynamical equilibrium, by two methods: one preserves the model’s anisotropy profile (Method I), the other gives different anisotropy models an identical truncated density (Method II).</li>
-      <li><a href="docs/guide/particles"><b>Particles.</b></a> Particle initial conditions with a finite, dynamically stable truncation boundary, drawn from the truncated distribution function, in internal, model or physical units.</li>
-      <li><a href="docs/guide/observables"><b>Observables.</b></a> Radial, tangential and line-of-sight velocity dispersions, line-of-sight velocity distributions and their Gauss-Hermite moments, and the local 3D velocity distribution at any radius; projected quantities averaged over centered or offset circular and rectangular apertures.</li>
-      <li><a href="docs/guide/superposition#guide-superposition"><b>Superposition.</b></a> Distribution functions of different anisotropy models on one truncated density, linearly superposed into one equilibrium model whose anisotropy profile lies beyond the analytical families, such as one fitted to simulated halos.</li>
-      <li><a href="docs/guide/superposition#guide-inference"><b>Inference.</b></a> End-to-end differentiable in JAX: the likelihood of a model against kinematic data, and every observable, with gradients in the superposition weights, the unit scales and the anisotropy parameters, for gradient-based Monte Carlo inference.</li>
+      <li><a href="docs/guide/profiles"><b>Density profiles.</b></a> Analytical double-power-law density profiles with a finite central potential, including the Navarro-Frenk-White, Hernquist and Plummer profiles.</li>
+      <li><a href="docs/guide/anisotropy"><b>Velocity anisotropy.</b></a> Isotropic, constant-anisotropy, Osipkov-Merritt and Cuddeford-Osipkov-Merritt (COM) models. The Osipkov-Merritt and COM models are radially (Type I) or tangentially (Type II) biased.</li>
+      <li><a href="docs/guide/df"><b>Distribution functions.</b></a> Each anisotropy model’s distribution function, inverted from the input density with exact symbolic expressions up to the final numerical integration, with extensively validated numerical accuracy (<a class="reference internal" href="docs/reference/accuracy"><span class="doc">Accuracy tables</span></a>) and checks that the distribution function is non-negative (physical) and monotonic (a sufficient condition for dynamical stability).</li>
+      <li><a href="docs/guide/truncation"><b>Truncation in phase space.</b></a> Model truncation performed in phase space. The truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model’s anisotropy profile, and Method II gives different anisotropy models an identical truncated density.</li>
+      <li><a href="docs/guide/particles"><b>Particles.</b></a> Particle initial conditions drawn from the truncated distribution function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or physical units.</li>
+      <li><a href="docs/guide/observables"><b>Observables.</b></a> Radial, tangential and line-of-sight velocity dispersions, line-of-sight velocity distributions and their Gauss-Hermite moments, and the local velocity distribution at a 3D radius. Projected quantities are averaged over centered or offset circular and rectangular apertures.</li>
+      <li><a href="docs/guide/superposition#guide-superposition"><b>Superposition.</b></a> Distribution functions of different anisotropy models on one truncated density, linearly superposed into one equilibrium model. The superposed model’s anisotropy profile can differ from every analytical family, for example an anisotropy profile fitted to simulated halos.</li>
+      <li><a href="docs/guide/superposition#guide-inference"><b>Inference.</b></a> End-to-end differentiable in JAX: the likelihood of a model against kinematic data, with gradients in the superposition weights, the mass and length scales (<em>M</em><sub>0</sub> and <em>r</em><sub>0</sub>) and, for Method II components, the anisotropy parameters, for gradient-based Monte Carlo inference.</li>
     </ul>
   </section>
 
   <section id="releases">
-    <h2>Release notes (ver. 0.9.9)</h2>
-    <p><b>Ver. 0.9.9</b>, the code of <a href="https://pianistpy.com/docs/project/citing">Chiang, van den Bosch and Schive (2026d), MNRAS</a>, submitted (henceforth <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>). Over ver. 0.9.0 it adds a report of the numerical accuracy with every result, on the CPU and on the GPU, the observables as calls of their own (<code>sigma_r</code>, <code>sigma_t</code>, <code>losvd</code>, <code>aperture_losvd</code>, <code>pdf_v</code>), ranged draws, and gradients in the anisotropy parameters. Ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list. The dependencies, standard and minimum, are listed with each release.</p>
-    <p><a href="docs/project/changelog">All releases: what is new, changed and fixed &rarr;</a></p>
+    <h2>Release notes (ver. 1.0.0)</h2>
+    <p><b>Ver. 1.0.0</b> is the initial public release of PIANISTpy, described in <a href="https://pianistpy.com/docs/project/citing">Chiang, van den Bosch and Schive (2026d), MNRAS submitted</a>, henceforth <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>. Ver. 1.0.0 provides the distribution functions and their truncation, particle sampling with draws restricted to a user-specified range of radii or velocities, the observables (<code>sigma_r</code>, <code>sigma_t</code>, <code>sigma_los</code>, <code>losvd</code>, <code>aperture_losvd</code>, <code>pdf_v</code>), a report of the numerical accuracy with every result, and gradients in the superposition weights, the mass and length scales and, for Method II components, the anisotropy parameters. Ver. 1.0.0 runs on the CPU and, with a CUDA build of JAX under Linux, on the GPU. The dependencies, standard and minimum, are listed on the <a href="docs/start/install">Install</a> page.</p>
+    <p><a href="docs/project/release-notes">Release notes &rarr;</a></p>
   </section>
 
   <section id="paper">
     <h2>Citation</h2>
-    <p>PIANISTpy is described in <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>. The citation entry, the arXiv link and the software DOI are added with ver. 1.0.0.</p>
+    <p>PIANISTpy is described in <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>.</p>
     <p><a href="docs/project/citing">How to cite &rarr;</a></p>
   </section>
 
   <footer>
-    PIANISTpy is written and maintained by Barry T. Chiang (Yale University). BSD 3-Clause license.
+    PIANISTpy is written and maintained by Barry T. Chiang (Yale University) and is released under the BSD 3-Clause License.
     <a href="https://github.com/barrytchiang/PIANISTpy" rel="noopener" target="_blank">Source on GitHub</a> &middot;
     <a href="https://pypi.org/project/pianistpy/" rel="noopener" target="_blank">PyPI</a> &middot;
     <a href="docs/project/contributing">Contributing</a>
   </footer>
 </main>
 
-<div class="site-foot"><div class="wrap">&copy; 2026 Barry T. Chiang &middot; <a href="docs/">Documentation</a></div></div>
+<div class="site-foot"><div class="wrap">&copy; 2026 Barry T. Chiang</div></div>
 
 </body>
 </html>

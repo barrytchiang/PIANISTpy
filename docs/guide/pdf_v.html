@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Local speed distribution &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Local velocity distribution &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -53,21 +53,19 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex" />
     <link rel="search" title="Search" href="../search" />
-    <link rel="next" title="The prepared table" href="lostable" />
+    <link rel="next" title="Line-of-sight table" href="lostable" />
     <link rel="prev" title="Line-of-sight velocity distribution in an aperture" href="aperture_losvd" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="pdf_v.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -286,7 +282,7 @@
     
     <li class="breadcrumb-item"><a href="observables" class="nav-link">Observables</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Local speed distribution</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Local velocity distribution</span></li>
   </ul>
 </nav>
 </div>
@@ -303,44 +299,58 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="local-speed-distribution">
-<h1>Local speed distribution<a class="headerlink" href="#local-speed-distribution" title="Link to this heading">#</a></h1>
+  <section id="local-velocity-distribution">
+<h1>Local velocity distribution<a class="headerlink" href="#local-velocity-distribution" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.pdf_v()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">pdf_v(source,</span> <span class="pre">r,</span> <span class="pre">v)</span></code> returns the local speed distribution <span class="math notranslate nohighlight">\(p(V\,|\,R)\)</span> at 3D radii: the probability density
-of the speed <span class="math notranslate nohighlight">\(V = |\mathbf{V}|\)</span> of the tracers at a distance <span class="math notranslate nohighlight">\(R\)</span> from the center. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, the
-density at a radius is split into the velocity angle <span class="math notranslate nohighlight">\(\varphi\)</span> and the speed,</p>
+<p><code class="docutils literal notranslate"><span class="pre">pdf_v(source,</span> <span class="pre">r,</span> <span class="pre">v)</span></code> returns the local velocity distribution <span class="math notranslate nohighlight">\(p(V\,|\,R)\)</span> at user-specified 3D radii.
+<span class="math notranslate nohighlight">\(p(V\,|\,R)\)</span> is the probability density of the velocity <span class="math notranslate nohighlight">\(V = |\mathbf{V}|\)</span> of the model’s mass at the
+distance <span class="math notranslate nohighlight">\(R\)</span> from the center. As in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, the density at a radius is written as an integral over the angle
+<span class="math notranslate nohighlight">\(\varphi\)</span> between the velocity and the radial direction, with the angle density <span class="nobr"><span class="math notranslate nohighlight">\(p_\varphi\)</span>,</span> and over
+the velocity magnitude, with its density <span class="nobr"><span class="math notranslate nohighlight">\(p_V\)</span>,</span></p>
 <div class="math notranslate nohighlight">
 \[\varrho(R) = 2\pi \int_0^\pi {\rm d}\varphi\; p_\varphi(\varphi\,|\,R)
 \int_0^{V_{\rm esc}(R)} {\rm d}V\; p_V(V\,|\,R, \varphi),
 \qquad V_{\rm esc}(R) = \sqrt{2P(R)},\]</div>
-<p>and the speed distribution is the inner density integrated over the angle, normalized by <span class="math notranslate nohighlight">\(\varrho(R)\)</span>:</p>
+<p>and the velocity distribution is the product <span class="math notranslate nohighlight">\(p_\varphi\,p_V\)</span> integrated over the angle and multiplied by
+<span class="nobr"><span class="math notranslate nohighlight">\(2\pi/\varrho(R)\)</span>:</span></p>
 <div class="math notranslate nohighlight">
 \[p(V\,|\,R) = \frac{2\pi}{\varrho(R)} \int_0^\pi p_\varphi(\varphi\,|\,R)\, p_V(V\,|\,R, \varphi)\,{\rm d}\varphi .\]</div>
-<p>It integrates to one over <span class="math notranslate nohighlight">\(V \geq 0\)</span>. Its support ends at the escape speed <span class="math notranslate nohighlight">\(V_{\rm esc}(R)\)</span> for an
-isotropic, constant-anisotropy or Type I model; a Type II model holds orbits of negative energy as well, and its
-speeds reach <span class="math notranslate nohighlight">\(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\)</span>. The radius <span class="math notranslate nohighlight">\(R\)</span> of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a> is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the
-package.</p>
+<p><span class="math notranslate nohighlight">\(p(V\,|\,R)\)</span> integrates to one over <span class="nobr"><span class="math notranslate nohighlight">\(V \geq 0\)</span>.</span> For an isotropic, constant-anisotropy or Type I model,
+the support of <span class="math notranslate nohighlight">\(p(V\,|\,R)\)</span> ends at the escape velocity <span class="nobr"><span class="math notranslate nohighlight">\(V_{\rm esc}(R)\)</span>.</span> A Type II model also holds
+unbound orbits, and the velocities of a Type II model reach <span class="nobr"><span class="math notranslate nohighlight">\(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\)</span>.</span> For a Type
+II model, a radius at or beyond the anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>. The
+radius <span class="math notranslate nohighlight">\(R\)</span> of
+<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a> is <code class="docutils literal notranslate"><span class="pre">r</span></code> in the package.</p>
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> or its prepared <code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>, whose intrinsic second
-moments the distribution is checked against. <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> are arrays that broadcast against each other: radii
-in the model’s unit of length (internal units by default, parsecs or an Astropy quantity in the physical system)
-and speeds in its unit of velocity (km/s in the physical system). The result has their broadcast shape, per unit
-velocity of the model’s unit system, and is zero at negative speeds and beyond the end of the support.</p>
-<p>Of a superposition, the components are mixed by their density at the radius,
-<span class="math notranslate nohighlight">\(p = \sum_k w_k \varrho_k p_k / \sum_k w_k \varrho_k\)</span>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> or the model’s line-of-sight table (<code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> are arrays that broadcast against each other. <code class="docutils literal notranslate"><span class="pre">r</span></code> holds radii in the model’s unit of length:
+internal units by default, parsecs or an Astropy quantity in the physical system. <code class="docutils literal notranslate"><span class="pre">v</span></code> holds velocities in the
+model’s unit of velocity (km/s in the physical system).</p></li>
+<li><p>The result has the broadcast shape of <code class="docutils literal notranslate"><span class="pre">r</span></code> and <code class="docutils literal notranslate"><span class="pre">v</span></code> and is a probability density per unit velocity of the
+model’s unit system. The result is zero at negative velocities and beyond the end of the support.</p></li>
+</ul>
+<p>For a superposition, the components are mixed by their density at the radius,
+<span class="nobr"><span class="math notranslate nohighlight">\(p = \sum_k w_k \varrho_k p_k / \sum_k w_k \varrho_k\)</span>.</span></p>
 </section>
-<section id="tiers">
-<h2>Tiers<a class="headerlink" href="#tiers" title="Link to this heading">#</a></h2>
-<p>Each radius asked for is computed once, with three checks: the norm of the distribution against the density, its
-second moment against <span class="math notranslate nohighlight">\(\sigma_{\rm r}^2 (3 - 2\beta_\sigma)\)</span> from <a class="reference internal" href="sigma_r"><span class="doc">Radial velocity dispersion</span></a>, and the change of the
-distribution when the nodes of its angle rule double. The nodes double, at most three times, until that change is
-under <code class="docutils literal notranslate"><span class="pre">speed_tolerance</span></code> (the goal <span class="math notranslate nohighlight">\(10^{-6}\)</span> at the default tier, the ceiling <span class="math notranslate nohighlight">\(10^{-4}\)</span> at the quick tier). A distribution
-above the goal is returned with a warning; one beyond the hard limit is refused with an
-<code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> unless the model’s settings ask for it (<code class="docutils literal notranslate"><span class="pre">write_anyway</span></code>). The stage behind the
-call, <a class="reference internal" href="../reference/api/observables#pianistpy.observables.stages.speed_distribution" title="pianistpy.observables.stages.speed_distribution"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.observables.stages.speed_distribution()</span></code></a>, returns the distribution at one radius with its
-record, its escape speed, the end of its support and, for a Type II model, the share of it beyond the escape
-speed (<code class="docutils literal notranslate"><span class="pre">unbound_fraction</span></code>).</p>
+<section id="accuracy">
+<h2>Accuracy<a class="headerlink" href="#accuracy" title="Link to this heading">#</a></h2>
+<p>Each distinct radius is computed once, with three checks:</p>
+<ul class="simple">
+<li><p>the norm of the distribution against the density;</p></li>
+<li><p>the second moment of the distribution against <span class="math notranslate nohighlight">\(\sigma_{\rm r}^2 (3 - 2\beta_\sigma)\)</span> from <a class="reference internal" href="sigma_r"><span class="doc">Radial velocity dispersion</span></a>;</p></li>
+<li><p>the change of the distribution when the number of nodes of the distribution’s angle integral doubles.</p></li>
+</ul>
+<p>The number of nodes of the angle integral doubles, at most three times, until the change of the distribution is
+under <code class="docutils literal notranslate"><span class="pre">velocity_tolerance</span></code>: <span class="math notranslate nohighlight">\(10^{-6}\)</span> with the default settings, <span class="math notranslate nohighlight">\(10^{-4}\)</span> with <code class="docutils literal notranslate"><span class="pre">Settings(quick=True)</span></code>.
+A distribution whose relative error is above <span class="math notranslate nohighlight">\(10^{-4}\)</span> is returned with an
+<code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyWarning</span></code>. A distribution whose relative error is above <span class="math notranslate nohighlight">\(10^{-2}\)</span> raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code>, unless the model’s settings set <code class="docutils literal notranslate"><span class="pre">write_anyway=True</span></code>.</p>
+<p><a class="reference internal" href="../reference/api/observables#pianistpy.observables.stages.velocity_distribution" title="pianistpy.observables.stages.velocity_distribution"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.observables.stages.velocity_distribution()</span></code></a> returns the velocity distribution of a one-component model at
+one radius, in internal units in every unit system. The returned object also holds the record of the distribution’s
+checks, the escape velocity, the end of the distribution’s support and the share of the distribution above the escape
+velocity (<code class="docutils literal notranslate"><span class="pre">unbound_fraction</span></code>, nonzero only for a Type II model).</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
@@ -352,9 +362,9 @@ speed (<code class="docutils literal notranslate"><span class="pre">unbound_frac
     <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.05</span><span class="p">),</span>
     <span class="n">settings</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">quick</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">,</span> <span class="mi">1401</span><span class="p">)</span>                           <span class="c1"># past the escape speed at every r here</span>
-<span class="n">p</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">pdf_v</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">]]),</span> <span class="n">v</span><span class="p">)</span>   <span class="c1"># (3, 1401): radii by speeds</span>
-<span class="n">p</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>                              <span class="c1"># each about one</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">,</span> <span class="mi">1401</span><span class="p">)</span>                           <span class="c1"># beyond the escape velocity at each of the three radii</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">pdf_v</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">]]),</span> <span class="n">v</span><span class="p">)</span>   <span class="c1"># (3, 1401): radii by velocities</span>
+<span class="n">p</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>                              <span class="c1"># one at each radius, to the accuracy of the sum on this grid</span>
 
 <span class="n">physical</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"physical"</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">mass_0</span><span class="o">=</span><span class="mf">1e9</span><span class="p">,</span> <span class="n">r_0</span><span class="o">=</span><span class="mf">500.0</span><span class="p">)</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">pdf_v</span><span class="p">(</span><span class="n">physical</span><span class="p">,</span> <span class="mf">500.0</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">50.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">])</span>             <span class="c1"># per km/s, at 500 pc</span>
@@ -387,7 +397,7 @@ speed (<code class="docutils literal notranslate"><span class="pre">unbound_frac
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments-and-units">Arguments and units</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tiers">Tiers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accuracy">Accuracy</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>
   </nav></div>

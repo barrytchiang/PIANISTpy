@@ -2,56 +2,32 @@
 
 Source: https://pianistpy.com/docs/project/contributing
 
-# Contributing
-
-Bug reports, questions and proposed changes are welcome on the
-issue tracker.
-
-## Reporting a problem
-
-Please include the version (pianistpy.__version__), the inputs that reproduce the problem (the profile, the
-anisotropy, the truncation and the settings) and the full error message. An error raised by the package ends with
-its most recent log messages; please keep them in the report. For a result that came with an accuracy warning,
-please include its validation report.
-
-## Setting up
-
-```
-git clone https://github.com/barrytchiang/PIANISTpy.git
-cd PIANISTpy
-python -m pip install -e .
-python -m pip install pytest ruff mypy
-
-```
+Please use the [issue tracker](https://github.com/barrytchiang/PIANISTpy/issues) of the GitHub repository for
+bug reports, questions and proposed changes. A bug report should include the version (`pianistpy.__version__`),
+the inputs that reproduce the problem, and the full error message with the last log lines before the error. A
+report of an accuracy warning also includes the result’s validation report.
 
 ## Before proposing a change
 
-Read STYLE_GUIDE.md in the repository. It covers the names, the docstrings, the units, the numerical rules
-and the checklist that every change is held to.
+- Read the [style guide](https://github.com/barrytchiang/PIANISTpy/blob/main/STYLE_GUIDE.md). The style guide covers the names, the docstrings, the units, the
+numerical rules and the checklist that every change is held to.
 
-Run the formatter and the linter (ruff format, ruff check, mypy).
+- Run the formatter, the linter and the type checker with `python -m ruff format pianistpy`,
+`python -m ruff check pianistpy` and `python -m mypy`.
 
-Run the tests, which include the examples in the docstrings (python -m pytest).
-
-Add a test for the change: a new function comes with a test of its result against an independent
-reference, a closed form, a limit, or an identity that the result must satisfy.
+- Add a test for the change. A new function comes with a test of its result against an independent
+reference: a closed form, a limit, or an identity that the result must satisfy.
 
 ## Rules for pull requests
 
-One quantity, one function. Each quantity is computed by exactly one function; a second route to the same
-number replaces the first rather than sitting beside it.
+- **Validate before filing.** A contributor should validate the changes with the test suite and the accuracy
+checks, under both the default and the quick settings, and, for a change to a computation that runs on the GPU,
+separately in the CPU-only mode and with the GPU enabled. The runtime options (verbosity, timing, number of
+cores, compilation cache) must leave every result unchanged.
 
-No silent changes to results. A change that moves a result beyond rounding states the size of the move and
-its reason.
+- **State every changed result.** If a code edit alters any result of the validation tests beyond rounding, the
+pull request should state explicitly each result that changed and by how much.
 
-Runtime options leave results unchanged. Verbosity, timing and the number of cores never alter what is
-computed.
-
-Accuracy is verified, not assumed. A numerical setting joins a tested tier only after passing that tier’s
-checks.
-
-LLM-assisted development. Code written with the help of large language models is permitted and
-encouraged. The contributor must review every change, and the pull request description itself, thoroughly
-before submitting; a pull request that shows it was not reviewed this way is rejected outright.
-
-     On this page
+- **LLM-assisted development.** Code written by or with the assistance of large language models is permitted. The
+contributor must review every code change, every test added or changed, and the pull request description. A
+pull request whose code, tests and description the contributor has not reviewed may be rejected.

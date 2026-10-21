@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Install &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Install &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="install.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index">Get started</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="overview">Get started</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="overview">What PIANISTpy does</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../guide/index">User guide</a><ul>
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -217,7 +213,7 @@
 <li class="toctree-l1"><a class="reference internal" href="overview">What PIANISTpy does</a></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart">Quick start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="timing">Representative computing time</a></li>
+<li class="toctree-l1"><a class="reference internal" href="computing-time">Representative computing time</a></li>
 </ul>
 </div>
 </nav></div>
@@ -258,7 +254,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="index" class="nav-link">Get started</a></li>
+    <li class="breadcrumb-item"><a href="overview" class="nav-link">Get started</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Install</span></li>
   </ul>
@@ -283,16 +279,18 @@
 </pre></div>
 </div>
 <p>PIANISTpy needs Python 3.11 or later and runs on Linux, macOS and Windows.</p>
-<p>The test suite is installed with the package. To run it on an installation:</p>
+<p>To check an installation, run the package’s tests:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pianistpy[test]"</span>
 pytest<span class="w"> </span>--pyargs<span class="w"> </span>pianistpy
 </pre></div>
 </div>
+<p>For a shorter check, <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--pyargs</span> <span class="pre">pianistpy</span> <span class="pre">-m</span> <span class="pre">&quot;not</span> <span class="pre">slow&quot;</span></code> skips the slowest tests, which carry the marker
+<code class="docutils literal notranslate"><span class="pre">slow</span></code>.</p>
 <section id="dependencies">
 <h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h2>
-<p>The dependencies are installed by pip with the package. Two lists are kept with every release: the versions the
-release was developed and tested with, and the oldest versions of the listed dependencies that pass the full test
-suite together.</p>
+<p>The dependencies are installed by pip with the package. The Standard column of the table gives the version of each
+dependency that the release was tested with. The Minimum column gives the oldest version of each dependency, and the
+minimum versions together pass the full test suite.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 24.0%" />
@@ -349,20 +347,21 @@ suite together.</p>
 </tbody>
 </table>
 </div>
-<p>This standard list is the systematically tested environment, which can differ from the default package versions
-that pip installs by taking the newest version of each dependency that PIANISTpy allows. To reproduce the tested
-environment, manual specifications of each dependent package version during installation may be required. JAX
-0.10.2 and later are not allowed by PIANISTpy, because one test of the suite fails on 0.10.2.</p>
+<p>By default, pip installs the newest version of each dependency that PIANISTpy allows. The newest allowed version can
+differ from the Standard version, the version of the tested environment. To reproduce the tested environment, install
+each dependency at its Standard version, for example <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">&quot;jax==0.9.2&quot;</span></code>. In ver. 1.0.0, PIANISTpy requires a
+JAX version below 0.10.2.</p>
 </section>
 <section id="cpu-and-gpu">
 <h2>CPU and GPU<a class="headerlink" href="#cpu-and-gpu" title="Link to this heading">#</a></h2>
-<p>PIANISTpy runs on the CPU with the default installation. With a CUDA build of JAX installed, it automatically
-becomes GPU-enabled for the GPU-implemented features, with no manual setting needed in PIANISTpy. JAX’s CUDA builds
-are for Linux only, so macOS runs the CPU-only mode. A native Windows Python also runs the CPU-only mode; on
-Windows the GPU is reached through the Windows Subsystem for Linux (or a Linux virtual machine). Results on the
-GPU and the CPU agree to better than <span class="math notranslate nohighlight">\(10^{-10}\)</span> in relative terms, and the accuracy goal holds on both. To
-choose the CPU or the GPU explicitly, see <a class="reference internal" href="../guide/switches"><span class="doc">Runtime options</span></a>.</p>
-<p>In ver. 1.0.0, only the particle sampler (its speed table and the draw) uses the GPU.</p>
+<p>PIANISTpy runs on the CPU with the default installation. With a CUDA build of JAX installed, PIANISTpy runs
+every step that has a GPU implementation on the GPU, with no setting in PIANISTpy. The
+<a class="reference internal" href="computing-time"><span class="doc">Representative computing time</span></a> page shows which steps run on the GPU. JAX’s CUDA builds are
+for Linux only, so macOS runs the CPU-only mode. A native Windows Python also runs the CPU-only mode. On Windows,
+PIANISTpy reaches the GPU through the Windows Subsystem for Linux or a Linux virtual machine. Results on the GPU and
+on the CPU agree to better than <span class="math notranslate nohighlight">\(10^{-10}\)</span> in relative terms, and every accuracy check holds on the GPU and on
+the CPU. To
+choose the CPU or the GPU explicitly, see <a class="reference internal" href="../guide/runtime"><span class="doc">Runtime options</span></a>.</p>
 </section>
 </section>
 

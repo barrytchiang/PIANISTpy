@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Observables &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Observables &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,10 +42,12 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/observables';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -57,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="observables.md">
@@ -117,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -136,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -178,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -225,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -302,9 +300,10 @@
 <h1>Observables<a class="headerlink" href="#observables" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_los()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_los_aperture()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.aperture_losvd()</span></code>,
 <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Aperture</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code></p>
-<p>Observables are functions of a model. A single request computes only what it needs; for repeated requests on one
-model, the prepared object <code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> tabulates the line-of-sight velocity distributions once and every
-observable reads from it.</p>
+<p>Observables are functions of a model. Given a model, <code class="docutils literal notranslate"><span class="pre">losvd</span></code> and <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> build the model’s
+line-of-sight table (<code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>) at every call. For repeated requests on one model, build
+<code class="docutils literal notranslate"><span class="pre">LosTable(model)</span></code> once. A <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> tabulates the line-of-sight velocity distributions of the model, and every
+observable accepts the <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> in place of the model.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sigma</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">sigma_los</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>        <span class="c1"># at projected radii</span>
 
 <span class="n">circle</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">r_ape</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r_off</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
@@ -318,33 +317,49 @@ observable reads from it.</p>
 <span class="n">pp</span><span class="o">.</span><span class="n">aperture_losvd</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">circle</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>    <span class="c1"># the distribution in the aperture</span>
 </pre></div>
 </div>
-<p>An <code class="docutils literal notranslate"><span class="pre">Aperture</span></code> is circular or rectangular, centered or offset, the rectangle at an angle; every aperture call
-takes the same object. The intrinsic radial and tangential dispersions and the line-of-sight velocity
-distribution itself are available in the same way; their public names are listed in the
-<a class="reference internal" href="../reference/api/observables"><span class="doc">API reference</span></a>. The distribution’s Gauss-Hermite moments (<code class="docutils literal notranslate"><span class="pre">h3</span></code>, <code class="docutils literal notranslate"><span class="pre">h4</span></code>)
-enter the inference as data (<a class="reference internal" href="../reference/api/inference#pianistpy.inference.Data" title="pianistpy.inference.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.inference.Data</span></code></a>); they are not an observable call of their own.</p>
-<p>Pairs of projected radius and line-of-sight velocity are drawn by <code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code> on an annulus and, if
-given, in a window of velocity, exactly conditioned: the radius carries the window’s share of the distribution
-at each radius, for every anisotropy. The ranges and the pairs are in the source’s unit system, as for the other
-observables; the tables it builds carry their errors in its report.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.observables</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProjectedSampler</span>
-
-<span class="n">sampler</span> <span class="o">=</span> <span class="n">ProjectedSampler</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">R_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="n">v_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">))</span>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/projection_configurations.png"><img alt="A truncated spherical system seen in projection, with a radial line (a), an offset rotated rectangle (b) and an offset circle (c)." src="../_images/projection_configurations.png" style="width: 360px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">The projection configurations of a spherical system truncated at <span class="math notranslate nohighlight">\(R_{\rm t}\)</span> (dashed circle), from
+<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Fig. 14. (a) The projected radial profile along the line of sight, as for a slit of negligible width.
+(b) The average over a rectangular aperture of sides <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> (<code class="docutils literal notranslate"><span class="pre">side_x</span></code>, <code class="docutils literal notranslate"><span class="pre">side_y</span></code>), whose
+center lies at the projected distance <code class="docutils literal notranslate"><span class="pre">r_off</span></code> from the center of the system, on a line at the angle
+<span class="math notranslate nohighlight">\(\theta\)</span> (<code class="docutils literal notranslate"><span class="pre">angle</span></code>) to the rectangle’s <span class="math notranslate nohighlight">\(x\)</span> side, as for a slit of finite width. (c) The average
+over a circular aperture, centered or offset, as for fiber-fed observations.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>An <code class="docutils literal notranslate"><span class="pre">Aperture</span></code> is a circle or a rectangle, centered or offset. A rectangle also takes an <code class="docutils literal notranslate"><span class="pre">angle</span></code>, in radians,
+between the rectangle’s x axis and the line through the center of the model and the center of the rectangle.
+<code class="docutils literal notranslate"><span class="pre">sigma_los_aperture</span></code> and <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> take the same <code class="docutils literal notranslate"><span class="pre">Aperture</span></code> object. <code class="docutils literal notranslate"><span class="pre">sigma_r</span></code>, <code class="docutils literal notranslate"><span class="pre">sigma_t</span></code>, <code class="docutils literal notranslate"><span class="pre">losvd</span></code>
+and <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code> also take a model or the model’s line-of-sight table as the first argument. The
+<a class="reference internal" href="../reference/api/observables"><span class="doc">Observables</span></a> page of the API reference lists every call. The Gauss-Hermite
+moments <span class="math notranslate nohighlight">\(h_3\)</span> and <span class="math notranslate nohighlight">\(h_4\)</span> of the line-of-sight velocity distribution have no top-level call. The inference
+takes <span class="math notranslate nohighlight">\(h_3\)</span> and <span class="math notranslate nohighlight">\(h_4\)</span> as data (<a class="reference internal" href="../reference/api/inference#pianistpy.inference.Data" title="pianistpy.inference.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.inference.Data</span></code></a>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code> draws pairs of projected radius and line-of-sight velocity on an annulus and, if given, in a
+user-specified range of line-of-sight velocity. For every anisotropy model, the draw is conditioned exactly on the
+velocity range. At each projected radius, the distribution of the projected radius is weighted by the share of the
+line-of-sight velocity distribution inside the velocity range. The ranges and the drawn pairs are in the unit system
+of the model or the line-of-sight table given to <code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code>, as for the other observables. The attribute
+<code class="docutils literal notranslate"><span class="pre">validation</span></code> of a <code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code> is the validation report of the draw.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sampler</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">ProjectedSampler</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">R_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="n">v_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">))</span>
 <span class="n">pairs</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># pairs.r_2d, pairs.v_los, pairs.mass</span>
 </pre></div>
 </div>
-<p>An aperture of arbitrary shape is not an exact route: the notebook of the same name shows how a mask on
-projected draws gives it, with the statistical error printed beside every number (<a class="reference internal" href="../notebooks/index"><span class="doc">Examples</span></a>).</p>
-<p>One page per call, each with its definition, its arguments and units, the tiers it reports and an example:</p>
+<p>Observables over an aperture of any other shape can be estimated by Monte Carlo. Draw pairs with
+<code class="docutils literal notranslate"><span class="pre">ProjectedSampler</span></code> on an annulus that encloses the aperture, give each pair a uniformly random position angle
+(the model is spherical), and keep the pairs inside the aperture. Sums over the kept pairs, each with its mass
+(<code class="docutils literal notranslate"><span class="pre">pairs.mass</span></code>), give the aperture’s mass, dispersion and velocity distribution, with a statistical error that
+falls as the inverse square root of the number of pairs.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sigma_r">Radial velocity dispersion (sigma_r)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </div>

@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Line-of-sight velocity distribution in an aperture &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Line-of-sight velocity distribution in an aperture &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -53,21 +53,19 @@
     <link rel="icon" href="../_static/logo.png"/>
     <link rel="index" title="Index" href="../genindex" />
     <link rel="search" title="Search" href="../search" />
-    <link rel="next" title="Local speed distribution" href="pdf_v" />
+    <link rel="next" title="Local velocity distribution" href="pdf_v" />
     <link rel="prev" title="Line-of-sight velocity distribution" href="losvd" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="aperture_losvd.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -306,37 +302,52 @@
   <section id="line-of-sight-velocity-distribution-in-an-aperture">
 <h1>Line-of-sight velocity distribution in an aperture<a class="headerlink" href="#line-of-sight-velocity-distribution-in-an-aperture" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.aperture_losvd()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Aperture</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.LosTable</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">aperture_losvd(source,</span> <span class="pre">aperture,</span> <span class="pre">v)</span></code> returns the line-of-sight velocity distribution of the tracers inside an
-aperture: the distribution at each projected radius (<a class="reference internal" href="losvd"><span class="doc">Line-of-sight velocity distribution</span></a>) averaged over the aperture with the surface
-density,</p>
+<p><code class="docutils literal notranslate"><span class="pre">aperture_losvd(source,</span> <span class="pre">aperture,</span> <span class="pre">v)</span></code> returns the line-of-sight velocity distribution of the model’s mass inside
+an aperture. <span class="math notranslate nohighlight">\(\overline{D}\)</span> is the line-of-sight velocity distribution <span class="math notranslate nohighlight">\(D\)</span> at each projected radius
+(<a class="reference internal" href="losvd"><span class="doc">Line-of-sight velocity distribution</span></a>), averaged over the aperture with the surface density as the weight:</p>
 <div class="math notranslate nohighlight">
 \[\overline{D}(V_{\rm los}) = \frac{\int_{\rm aperture} \Sigma(R_{\rm 2D})\, D(R_{\rm 2D}, V_{\rm los})\,{\rm d}A}
 {\int_{\rm aperture} \Sigma(R_{\rm 2D})\,{\rm d}A}.\]</div>
-<p>It is even in <span class="math notranslate nohighlight">\(V_{\rm los}\)</span>, integrates to one over all <span class="math notranslate nohighlight">\(V_{\rm los}\)</span>, and is zero beyond the escape
-velocity along the line of sight. Its second moment is the dispersion inside the aperture,
-<span class="math notranslate nohighlight">\(\overline{\sigma}_{\rm los}^2\)</span> (<code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_los_aperture()</span></code> given the same table).</p>
+<p>The distribution is even in <span class="math notranslate nohighlight">\(V_{\rm los}\)</span> and integrates to one over all <span class="nobr"><span class="math notranslate nohighlight">\(V_{\rm los}\)</span>.</span>
+<span class="math notranslate nohighlight">\(\overline{D}\)</span> is zero at every <span class="math notranslate nohighlight">\(|V_{\rm los}|\)</span> above the largest velocity that the distribution function
+reaches on the lines of sight through the aperture. The second moment of <span class="math notranslate nohighlight">\(\overline{D}\)</span> is the squared
+dispersion inside the aperture, <span class="nobr"><span class="math notranslate nohighlight">\(\overline{\sigma}_{\rm los}^2\)</span>.</span> Given the same <code class="docutils literal notranslate"><span class="pre">LosTable</span></code>,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.sigma_los_aperture()</span></code> returns <span class="nobr"><span class="math notranslate nohighlight">\(\overline{\sigma}_{\rm los}\)</span>.</span></p>
 <section id="arguments-and-units">
 <h2>Arguments and units<a class="headerlink" href="#arguments-and-units" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> or its prepared <code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>; given a model, its table
-is built first, so for more than one call build the table once (<a class="reference internal" href="lostable"><span class="doc">The prepared table</span></a>). <code class="docutils literal notranslate"><span class="pre">aperture</span></code> is an
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Aperture</span></code>, circular or rectangular, centered or offset (<a class="reference internal" href="observables"><span class="doc">Observables</span></a>), its lengths in the
-model’s unit of length. <code class="docutils literal notranslate"><span class="pre">v</span></code> is an array of line-of-sight velocities in the model’s unit of velocity (km/s in the
-physical system); the result has its shape, per unit velocity of the model’s unit system.</p>
-<p>Of a superposition, each component’s distribution in the aperture is summed with its weight times its projected
-mass inside the aperture, <span class="math notranslate nohighlight">\(\overline{D} = \sum_k w_k M_k \overline{D}_k / \sum_k w_k M_k\)</span>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span></code> is a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> or the model’s line-of-sight table (<code class="xref py py-class docutils literal notranslate"><span class="pre">LosTable</span></code>).
+Given a model, <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> builds the model’s <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> at every call. For more than one call, build
+the <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> once (<a class="reference internal" href="lostable"><span class="doc">Line-of-sight table</span></a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aperture</span></code> is an <code class="xref py py-class docutils literal notranslate"><span class="pre">Aperture</span></code>: circular or rectangular, centered or offset (<a class="reference internal" href="observables"><span class="doc">Observables</span></a>).
+The aperture’s lengths are in the model’s unit of length.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code> is an array of line-of-sight velocities in the model’s unit of velocity (km/s in the physical system).</p></li>
+</ul>
+<p>The result has the shape of <code class="docutils literal notranslate"><span class="pre">v</span></code> and is a probability density per unit velocity of the model’s unit system.</p>
+<p>For a superposition, the call sums the components’ distributions in the aperture. The distribution of component
+<span class="math notranslate nohighlight">\(k\)</span> is weighted by the component’s weight <span class="math notranslate nohighlight">\(w_k\)</span> times the component’s projected mass <span class="math notranslate nohighlight">\(M_k\)</span> inside
+the aperture:
+<span class="nobr"><span class="math notranslate nohighlight">\(\overline{D} = \sum_k w_k M_k \overline{D}_k / \sum_k w_k M_k\)</span>.</span></p>
 </section>
-<section id="tiers">
-<h2>Tiers<a class="headerlink" href="#tiers" title="Link to this heading">#</a></h2>
-<p>The distribution is computed on panels in velocity, refined until its norm and its second moment agree with the
-table’s rows, and at any velocity it is read by each panel’s polynomial through its own nodes. Its second moment is
-checked against the aperture’s dispersion from the projected tables, which reads no velocity distribution, so the
-tier is the worse of that check and the table’s own (<a class="reference internal" href="lostable"><span class="doc">The prepared table</span></a>); a distribution above the goal says so in a
-warning.</p>
-<p>A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford-Osipkov-Merritt (COM) Type I
-anisotropy (<span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.25\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span>) in a centered circle of radius 0.05 in the scale radius, the
-quick tier’s second moment differs from the default tier’s by <span class="math notranslate nohighlight">\(6.7 \times 10^{-6}\)</span> of it, and its own check reports <span class="math notranslate nohighlight">\(6.2 \times 10^{-6}\)</span> (above
-the goal, with a warning); in a circle of radius 1 the two differ by <span class="math notranslate nohighlight">\(1.5 \times 10^{-6}\)</span>. At the default tier the check reports
-<span class="math notranslate nohighlight">\(1.0 \times 10^{-7}\)</span> and <span class="math notranslate nohighlight">\(6.4 \times 10^{-8}\)</span>. The quick tier’s table took a quarter of the default’s time.</p>
+<section id="accuracy-report">
+<h2>Accuracy report<a class="headerlink" href="#accuracy-report" title="Link to this heading">#</a></h2>
+<p>The report of <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> checks the second moment of <span class="math notranslate nohighlight">\(\overline{D}\)</span> against
+<span class="math notranslate nohighlight">\(\overline{\sigma}_{\rm los}^2\)</span> computed from the projected dispersion, without the velocity distributions. The
+tier of the result is the worse of the aperture’s check and the tier of the <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> (<a class="reference internal" href="lostable"><span class="doc">Line-of-sight table</span></a>).
+<code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> issues an <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyWarning</span></code> if the relative error of <span class="math notranslate nohighlight">\(\overline{D}\)</span> or
+of the <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> is above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>.</span></p>
+<p>The quick settings lose the most accuracy in a small aperture. Take an NFW halo of concentration 30 with a
+Cuddeford-Osipkov-Merritt (COM) Type I anisotropy <span class="nobr">(<span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.25\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span>):</span></p>
+<ul class="simple">
+<li><p>In a centered circle of radius 0.05 scale radii, the second moment with the quick settings differs from the
+second moment with the default settings by a relative <span class="nobr"><span class="math notranslate nohighlight">\(6.7 \times 10^{-6}\)</span>.</span> The check of the
+quick-settings result reports <span class="math notranslate nohighlight">\(6.2 \times 10^{-6}\)</span> (tier <code class="docutils literal notranslate"><span class="pre">&quot;recorded&quot;</span></code>). With the default settings the
+check reports <span class="nobr"><span class="math notranslate nohighlight">\(1.0 \times 10^{-7}\)</span>.</span></p></li>
+<li><p>In a circle of radius 1 scale radius, the second moments with the quick and with the default settings differ by
+a relative <span class="nobr"><span class="math notranslate nohighlight">\(1.5 \times 10^{-6}\)</span>.</span> With the default settings the check reports <span class="nobr"><span class="math notranslate nohighlight">\(6.4 \times 10^{-8}\)</span>.</span></p></li>
+</ul>
+<p>For this NFW model, the quick settings build the <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> in about a quarter of the time that the default
+settings take.</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
@@ -354,7 +365,7 @@ the goal, with a warning); in a circle of radius 1 the two differ by <span class
 <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3001</span><span class="p">)</span>
 <span class="n">d</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">aperture_losvd</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">circle</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>       <span class="c1"># shape (3001,)</span>
 <span class="n">dv</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">d</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">dv</span>                                   <span class="c1"># one, to the grid's rule</span>
+<span class="n">d</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">dv</span>                                   <span class="c1"># one, to the accuracy of the sum on this grid</span>
 <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">v</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">dv</span><span class="p">),</span> <span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">circle</span><span class="p">)</span>
 
 <span class="n">pp</span><span class="o">.</span><span class="n">aperture_losvd</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">r_ape</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r_off</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span> <span class="n">v</span><span class="p">)</span>   <span class="c1"># an offset circle</span>
@@ -387,7 +398,7 @@ the goal, with a warning); in a circle of radius 1 the two differ by <span class
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arguments-and-units">Arguments and units</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tiers">Tiers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accuracy-report">Accuracy report</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
 </ul>
   </nav></div>

@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Superposition and inference &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Superposition and inference &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,10 +42,12 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'guide/superposition';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../_static/logo.png"/>
@@ -57,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="superposition.md">
@@ -117,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -136,31 +136,31 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -178,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -225,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -303,22 +301,31 @@
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.superpose()</span></code>, <a class="reference internal" href="../reference/api/inference#module-pianistpy.inference" title="pianistpy.inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pianistpy.inference</span></code></a></p>
 <section id="superposition">
 <span id="guide-superposition"></span><h2>Superposition<a class="headerlink" href="#superposition" title="Link to this heading">#</a></h2>
-<p>Distribution functions inverted from one truncated density (Method II children of one parent), combined with
-positive weights that sum to one, are one equilibrium model in that density. <code class="docutils literal notranslate"><span class="pre">superpose</span></code> returns it as a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>, so everything downstream (particles, observables, files) takes it unchanged.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">members</span> <span class="o">=</span> <span class="p">{</span><span class="n">child_a</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="n">child_b</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">child_c</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>   <span class="c1"># Method II children of one parent</span>
+<p>Method II models built on the truncated density of one Method I model
+(<a class="reference internal" href="truncation"><span class="doc">Truncation in phase space</span></a>) share that density. The distribution functions of those Method II models, combined with
+positive weights that sum to one, form one equilibrium model in that truncated density. <code class="docutils literal notranslate"><span class="pre">superpose</span></code> returns the combined model as a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>, which <code class="docutils literal notranslate"><span class="pre">Sampler</span></code>, the observables, <code class="docutils literal notranslate"><span class="pre">likelihood</span></code> and <code class="docutils literal notranslate"><span class="pre">write</span></code> take as any other model.
+<code class="docutils literal notranslate"><span class="pre">Differentiable</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> for a combined model, whose components are differentiated
+through <code class="docutils literal notranslate"><span class="pre">likelihood</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">members</span> <span class="o">=</span> <span class="p">{</span><span class="n">model_a</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="n">model_b</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">model_c</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>   <span class="c1"># Method II models on one truncated density</span>
 <span class="n">composite</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">superpose</span><span class="p">(</span><span class="n">members</span><span class="p">)</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">Sampler</span><span class="p">(</span><span class="n">composite</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The shared density is enforced: members on different truncated profiles are refused. The weights are normalized;
-a sum away from one is normalized with a warning.</p>
+<p><code class="docutils literal notranslate"><span class="pre">superpose</span></code> takes a mapping of two or more Method II models on one truncated density, the members, to the members’
+weights.
+<code class="docutils literal notranslate"><span class="pre">superpose</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> when a weight is not positive and finite, or when the members
+are built on different truncated profiles or with different settings or units. The weights are normalized to sum to
+one, and a warning goes to the package’s log when the sum of the weights differs from one by more than
+<span class="nobr"><span class="math notranslate nohighlight">\(10^{-10}\)</span>.</span></p>
 </section>
 <section id="inference">
 <span id="guide-inference"></span><h2>Inference<a class="headerlink" href="#inference" title="Link to this heading">#</a></h2>
-<p><a class="reference internal" href="../reference/api/inference#module-pianistpy.inference" title="pianistpy.inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pianistpy.inference</span></code></a> gives the log-likelihood of a model against data as a JAX function of the
-components’ weights and the scales of the units, linear in the weights up to their normalization, so its
-gradient with respect to the weights is exact and cheap.</p>
+<p><a class="reference internal" href="../reference/api/inference#module-pianistpy.inference" title="pianistpy.inference"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pianistpy.inference</span></code></a> gives the log-likelihood of a model against data as a JAX function. The function’s arguments
+are the weights of the components, the mass scale and the length scale in the units of the data, and, for the
+components listed in <code class="docutils literal notranslate"><span class="pre">free=</span></code>, the anisotropy <span class="nobr"><span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span>.</span> Each modeled dispersion is a
+ratio of two sums that are linear in the weights, so the gradient with respect to the weights is exact and needs no
+new table.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">likelihood</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"sigma_los"</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">sigma_obs</span><span class="p">,</span> <span class="n">r_2d</span><span class="o">=</span><span class="n">radii</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">sigma_err</span><span class="p">,</span> <span class="n">unit_system</span><span class="o">=</span><span class="s2">"physical"</span><span class="p">)</span>
@@ -326,10 +333,14 @@ gradient with respect to the weights is exact and cheap.</p>
 <span class="n">loglike</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>                       <span class="c1"># a JAX scalar; jax.grad(loglike)(weights) is its gradient</span>
 </pre></div>
 </div>
-<p>The members’ observables are computed once, in <code class="docutils literal notranslate"><span class="pre">likelihood</span></code>; each call of the returned function costs a
-fraction of a millisecond. A refused input inside the traced function (negative weights, a radius outside the
-table) gives minus infinity, never an exception, so a sampler over the weights sees a value.</p>
-<p>What the likelihood is differentiable in, through which observables, and at what accuracy: <a class="reference internal" href="gradient"><span class="doc">End-to-end differentiability</span></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">likelihood</span></code> computes the tables of the observables of each component once. Each later call of the returned
+function takes a fraction of a millisecond, except a call at a new anisotropy of a free component, which first
+rebuilds the free component’s tables. An invalid argument of the returned function, such as a negative weight, a
+scale that is not positive, or a length scale that moves a data radius inside the innermost tabulated radius,
+gives minus infinity, not an exception, so a Monte Carlo sampler over the weights always receives a value.
+A model and data that cannot be compared raise <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> in <code class="docutils literal notranslate"><span class="pre">likelihood</span></code> itself, never in a
+call of the returned function.</p>
+<p><a class="reference internal" href="differentiability"><span class="doc">End-to-end differentiability</span></a> states what the likelihood is differentiable in, through which observables, and at what accuracy.</p>
 </section>
 </section>
 

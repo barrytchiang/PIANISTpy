@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Distribution functions &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Distribution functions &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="df.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -306,26 +302,35 @@
   <section id="distribution-functions">
 <h1>Distribution functions<a class="headerlink" href="#distribution-functions" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.compute_df()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.DistributionFunction</span></code></p>
-<p><code class="docutils literal notranslate"><span class="pre">compute_df(component)</span></code> returns the untruncated distribution function of a component, from the analytic
-inversion of its density, as a <code class="xref py py-class docutils literal notranslate"><span class="pre">DistributionFunction</span></code>. This is a mathematical object: it is
-returned whether or not it is everywhere non-negative and monotonic, and it records where it is not, together
-with the smallest truncation value above which it is. It is also the base of Method I truncation, so a scan over
-truncations of one model reuses one inversion.</p>
+<p><code class="docutils literal notranslate"><span class="pre">compute_df(component)</span></code> returns the untruncated distribution function of a component as a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">DistributionFunction</span></code>. <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> computes the distribution function by the analytic inversion
+of the density. <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> returns the distribution function even where the distribution function is negative or
+not monotonic, and the result states the energies at which the distribution function is negative or not monotonic.
+The attribute <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the lowest truncation energy that <code class="docutils literal notranslate"><span class="pre">truncate</span></code> accepts. <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is zero when the
+distribution function is non-negative and non-decreasing everywhere and the model is not a Type II model. One result serves every Method I truncation of the
+same component, so a scan over
+truncation energies needs one <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> call.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">halo</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=</span><span class="mf">0.25</span><span class="p">))</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">halo</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A distribution function from elsewhere, a fitting function or another code’s output, is validated the same way:
-<code class="docutils literal notranslate"><span class="pre">DistributionFunction.from_function(component,</span> <span class="pre">f)</span></code> takes <code class="docutils literal notranslate"><span class="pre">f(k,</span> <span class="pre">depth)</span></code>, which returns the DF (not its
-logarithm) at an array of energies in internal units and their depths below the center,
-<span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> (<code class="docutils literal notranslate"><span class="pre">depth</span></code>), as the grid carries it (a fit in the depth near the center reads it there; a function of the
-energy alone may ignore it), tabulates it on the energy grid <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> places for that component
-and settings, and continues it beyond the table, signs it and validates it against the density exactly as the
-inversion’s own table. The function gives F only, so the table has no derivative column: its slopes are the
-spline’s through F, and the report states that its slope column is not judged. The file stores the table, not
-the function, and records the function’s name; a value that is not finite is refused, with the first such
-energy. Truncation needs the inversion’s rows, which a distribution function from a function does not carry:
-<code class="docutils literal notranslate"><span class="pre">truncate</span></code> refuses it, by name.</p>
+<p><code class="docutils literal notranslate"><span class="pre">DistributionFunction.from_function(component,</span> <span class="pre">f)</span></code> validates a distribution function from elsewhere, such as a
+fitting function or the output of another code, with the checks of <code class="docutils literal notranslate"><span class="pre">compute_df</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">f(k,</span> <span class="pre">depth)</span></code> takes an array of energies <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> in internal units and the array of their depths
+below the center, <span class="nobr"><span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span>.</span> It returns the distribution function <span class="math notranslate nohighlight">\(F\)</span> at each energy, not
+its logarithm. The depth carries no rounding error at every energy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K} \ge 1/2\)</span>,</span> so a fit written in
+the depth near the center can use <code class="docutils literal notranslate"><span class="pre">depth</span></code>. A function of the energy alone may ignore <code class="docutils literal notranslate"><span class="pre">depth</span></code>.</p></li>
+<li><p>The function is tabulated on the energy grid that <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> uses for the same component and settings. The
+table is then continued beyond its ends, checked for sign and validated against the density, as for
+<code class="docutils literal notranslate"><span class="pre">compute_df</span></code>.</p></li>
+<li><p>The function gives <span class="math notranslate nohighlight">\(F\)</span> only, so the validation report marks its check of the table’s logarithmic slope,
+<code class="docutils literal notranslate"><span class="pre">slope_column</span></code>, as <code class="docutils literal notranslate"><span class="pre">&quot;not</span> <span class="pre">judged&quot;</span></code>.</p></li>
+<li><p>A file written from the result stores the table and the function’s name, not the function.</p></li>
+<li><p>A value that is not finite raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>, which states the first such energy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">truncate</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> for a distribution function from <code class="docutils literal notranslate"><span class="pre">from_function</span></code>, because a
+truncation needs values of the inversion that a distribution function from <code class="docutils literal notranslate"><span class="pre">from_function</span></code> does not carry.</p></li>
+</ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">beta</span>
 
@@ -335,12 +340,18 @@ energy. Truncation needs the inversion’s rows, which a distribution function f
 <span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DistributionFunction</span><span class="o">.</span><span class="n">from_function</span><span class="p">(</span><span class="n">plummer</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">k</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">k</span><span class="o">**</span><span class="mf">3.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>What the result holds: the tabulated distribution function on its energy grid with its logarithmic slope, the
-asymptotic form at the center and at the outer end (how the function continues beyond the table), the sign
-report, the inputs and the settings it was computed from, its validation report and its identity. A result can
-be written to a file and read back equal (<a class="reference internal" href="files"><span class="doc">Input and output</span></a>).</p>
-<p>A distribution function is not yet a model: only a <a class="reference internal" href="truncation"><span class="doc">truncated model</span></a> can be sampled or
-projected.</p>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DistributionFunction</span></code> holds:</p>
+<ul class="simple">
+<li><p>the distribution function tabulated on its energy grid, with its logarithmic slope;</p></li>
+<li><p>the asymptotic forms of the distribution function at the center and at the outer end, which continue the
+distribution function beyond the table;</p></li>
+<li><p>where it is negative or not monotonic, and <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>;</p></li>
+<li><p>the inputs and the settings it was computed from;</p></li>
+<li><p>its validation report and its identity string, a digest of the inputs, the settings and the package version.</p></li>
+</ul>
+<p>A result can be written to a file and read back equal (<a class="reference internal" href="input-output"><span class="doc">Input and output</span></a>). Only a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> can be
+sampled or projected, and <code class="docutils literal notranslate"><span class="pre">truncate</span></code> builds the model from a distribution function
+(<a class="reference internal" href="truncation"><span class="doc">Truncation in phase space</span></a>).</p>
 </section>
 
 

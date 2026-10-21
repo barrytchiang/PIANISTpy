@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Particles &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Particles &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../_static/searchtools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script src="../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="particles.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../reference/index">API reference</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -227,20 +223,20 @@
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local speed distribution (pdf_v)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="lostable">The prepared table (LosTable)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="gradient">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiability">End-to-end differentiability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="results">Flags and refusals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="files">Input and output (write, read)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="switches">Runtime options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
 </ul>
 </div>
 </nav></div>
@@ -303,11 +299,12 @@
   <section id="particles">
 <h1>Particles<a class="headerlink" href="#particles" title="Link to this heading">#</a></h1>
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Sampler</span></code>, <a class="reference internal" href="../reference/api/particles#pianistpy.particles.Particles" title="pianistpy.particles.Particles"><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.particles.Particles</span></code></a></p>
-<p><code class="docutils literal notranslate"><span class="pre">Sampler(model)</span></code> prepares the sampling tables of a model once; <code class="docutils literal notranslate"><span class="pre">.sample(n,</span> <span class="pre">seed)</span></code> then returns <code class="docutils literal notranslate"><span class="pre">n</span></code>
-equal-mass particles as a <code class="docutils literal notranslate"><span class="pre">Particles</span></code> result, with positions, velocities, masses and component labels in
-memory. The draw is by inversion, with no rejection step, and is reproducible particle by particle: each
-particle is determined by the seed, its component and its index, independently of the hardware and of the
-number of particles requested.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Sampler(model)</span></code> builds the sampling tables of a model once. <code class="docutils literal notranslate"><span class="pre">sampler.sample(n,</span> <span class="pre">seed)</span></code> then returns <code class="docutils literal notranslate"><span class="pre">n</span></code>
+equal-mass particles in memory, as a <code class="docutils literal notranslate"><span class="pre">Particles</span></code> object that holds positions, velocities, masses and component
+labels in the model’s unit system. The draw is reproducible particle by particle. Each particle depends only on the
+seed, the particle’s component and the particle’s index, not on the hardware or on <code class="docutils literal notranslate"><span class="pre">n</span></code>. One call of <code class="docutils literal notranslate"><span class="pre">sample</span></code>
+returns at most <span class="math notranslate nohighlight">\(2^{31} - 1\)</span> particles. A larger number of particles is drawn in several calls with distinct
+seeds.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sampler</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Sampler</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 <span class="n">particles</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10_000_000</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">particles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"halo.h5"</span><span class="p">)</span>                     <span class="c1"># the native HDF5 layout</span>
@@ -316,41 +313,68 @@ number of particles requested.</p>
 <span class="n">particles</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"halo.txt"</span><span class="p">,</span> <span class="n">layout</span><span class="o">=</span><span class="s2">"text"</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The layouts: the native HDF5 file, read back by <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.read()</span></code>; the particle file of
-<a class="reference external" href="https://academic.oup.com/mnras/article/481/4/4815/5106358" rel="noopener" target="_blank">GAMER</a>; a Gadget HDF5
-initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
-it with what it wrote before returning. A writer for another simulation code is one registered function.</p>
-<p>A model that is not spatially finite needs an explicit sampling radius; the sampler holds the mass inside it
-(<code class="docutils literal notranslate"><span class="pre">Sampler.radius_table.mass_sample</span></code>, in internal units).</p>
-<p><code class="docutils literal notranslate"><span class="pre">Sampler(model,</span> <span class="pre">r_range=(r_lo,</span> <span class="pre">r_hi))</span></code> draws every particle between two radii, in internal units, inside the
-sampling. The draw is the model’s own conditioned on the range, not a selection after a full draw: each
-particle’s radius number is taken between the mass fractions of <code class="docutils literal notranslate"><span class="pre">r_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">r_hi</span></code>, so every particle lands in
-the range, and the particles carry the range’s mass. A superposition is drawn in the range by its components’
-weights, which the range leaves unchanged.</p>
-<p><code class="docutils literal notranslate"><span class="pre">Sampler.speeds(r,</span> <span class="pre">seed,</span> <span class="pre">v_range=(v_lo,</span> <span class="pre">v_hi))</span></code> draws one speed at each given radius from the model’s speed
-distribution at that radius conditioned on the window, in internal units, and returns with the speeds the fraction
-of the distribution at each radius that the window holds. <code class="docutils literal notranslate"><span class="pre">v_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">v_hi</span></code> are floats, one window for every
-radius, or arrays that broadcast against <code class="docutils literal notranslate"><span class="pre">r</span></code>, a window at each radius (a grid in units of each radius’s escape
-speed is one call per grid speed). Each speed number is taken between the speed table’s own
-numbers for <code class="docutils literal notranslate"><span class="pre">v_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">v_hi</span></code>, so every speed lands in the window; a window wider than the escape speed draws the
-speeds of <code class="docutils literal notranslate"><span class="pre">sample</span></code> at the same seed. A superposition takes each component by its share of the window. The window is
-drawn for a constant anisotropy only: with a finite anisotropy radius the speed carries a factor of the drawn angle,
-so the window couples to the angle, and such a model is refused.</p>
-<section id="where-the-speed-table-reaches-its-tier">
-<h2>Where the speed table reaches its tier<a class="headerlink" href="#where-the-speed-table-reaches-its-tier" title="Link to this heading">#</a></h2>
-<p>A model whose distribution function is non-negative is not thereby samplable at every tier. The speed table’s
-rows are refined until the error across them is under the goal or their count reaches <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code>; the table’s
-report carries that error, and a table beyond the hard limit is refused (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>). Close to the smallest
-anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a,min}\)</span> (<code class="docutils literal notranslate"><span class="pre">r_a_min</span></code>) at which an Osipkov-Merritt or Cuddeford-Osipkov-Merritt (COM) Type I distribution function is
-non-negative, the rows reach <code class="docutils literal notranslate"><span class="pre">n_rows_max</span></code> first and the error grows steeply as <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> falls toward
-<span class="math notranslate nohighlight">\(R_{\rm a,min}\)</span>. Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
-default tier, the error crosses the ceiling and the hard limit at:</p>
+<p>The layouts are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;native&quot;</span></code> (the default): the package’s own HDF5 file, read back by <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.read()</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;gamer&quot;</span></code>: the particle file of <a class="reference external" href="https://doi.org/10.1093/mnras/sty2586" rel="noopener" target="_blank">GAMER</a>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;gadget&quot;</span></code>: an HDF5 initial condition in the Gadget snapshot format 3;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;text&quot;</span></code>: fixed-width text, with the units in its header.</p></li>
+</ul>
+<p>Every writer reads the file back before returning, and raises <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultError</span></code> if the file differs
+from the particles written. A layout for another simulation code is added by one function decorated with
+<code class="docutils literal notranslate"><span class="pre">pianistpy.particles.register_particle_writer</span></code>.</p>
+<p>A model that is not spatially finite needs an explicit sampling radius, <code class="docutils literal notranslate"><span class="pre">Sampler(model,</span> <span class="pre">r_sample=...)</span></code>, in
+internal units. The particles then carry the mass inside that radius (<code class="docutils literal notranslate"><span class="pre">Sampler.radius_table.mass_sample</span></code>, in
+internal units).</p>
+<section id="particles-in-a-range-of-radii">
+<h2>Particles in a range of radii<a class="headerlink" href="#particles-in-a-range-of-radii" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Sampler(model,</span> <span class="pre">r_range=(r_lo,</span> <span class="pre">r_hi))</span></code> draws every particle between two radii, in internal units, with
+<span class="math notranslate nohighlight">\(0 \le r_{\rm lo} &lt; r_{\rm hi}\)</span> and <span class="math notranslate nohighlight">\(r_{\rm hi}\)</span> at most the outer radius of the sampling. Each
+particle’s radius is drawn from the model’s enclosed mass restricted to the range, not selected from a full draw.
+Every particle lies between <span class="math notranslate nohighlight">\(r_{\rm lo}\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(r_{\rm hi}\)</span>,</span> and the particles together carry the model’s
+mass between <span class="math notranslate nohighlight">\(r_{\rm lo}\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(r_{\rm hi}\)</span>.</span> For a superposition, each component’s share of the particles
+between <span class="math notranslate nohighlight">\(r_{\rm lo}\)</span> and <span class="math notranslate nohighlight">\(r_{\rm hi}\)</span> is the component’s weight, because the components share one
+density.</p>
+</section>
+<section id="constrained-velocity-draws">
+<h2>Constrained velocity draws<a class="headerlink" href="#constrained-velocity-draws" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Sampler.velocities(r,</span> <span class="pre">seed,</span> <span class="pre">v_range=(v_lo,</span> <span class="pre">v_hi))</span></code> draws one velocity at each given radius, in internal units, from the
+model’s velocity distribution at that radius conditioned on the range. <code class="docutils literal notranslate"><span class="pre">Sampler.velocities</span></code> returns the velocities and, at
+each radius, the fraction of the distribution inside the range. Where the range holds none of the distribution, the velocity is NaN.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">v_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">v_hi</span></code> are floats, for one range at every radius, or arrays that broadcast against <code class="docutils literal notranslate"><span class="pre">r</span></code>, for a
+range at each radius. For example, a range from 0.5 to 0.6 times the escape velocity at each radius is one call,
+with <code class="docutils literal notranslate"><span class="pre">v_lo</span></code> and <code class="docutils literal notranslate"><span class="pre">v_hi</span></code> given as arrays over <code class="docutils literal notranslate"><span class="pre">r</span></code>. A grid of such ranges in units of the escape velocity takes
+one call per range.</p></li>
+<li><p>Every velocity lies in the range. A range from 0 to at least the escape velocity at every radius gives the velocities that
+<code class="docutils literal notranslate"><span class="pre">sample</span></code> draws from the same random numbers at the same seed.</p></li>
+<li><p>For a superposition, the component of each velocity is drawn with a probability proportional to the component’s
+weight times the component’s fraction of velocities in the range.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sampler.velocities</span></code> takes isotropic and constant-anisotropy models only. A model with a finite anisotropy radius
+raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>, because with a finite anisotropy radius the velocity depends on the drawn
+velocity angle.</p></li>
+</ul>
+</section>
+<section id="sampling-accuracy-near-the-smallest-anisotropy-radius">
+<h2>Sampling accuracy near the smallest anisotropy radius<a class="headerlink" href="#sampling-accuracy-near-the-smallest-anisotropy-radius" title="Link to this heading">#</a></h2>
+<p>A model whose distribution function is non-negative cannot always be sampled to <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>.</span> The velocity table
+of a <code class="docutils literal notranslate"><span class="pre">Sampler</span></code> is refined until the table’s error is below the setting <code class="docutils literal notranslate"><span class="pre">sampling[&quot;row_error_goal&quot;]</span></code>
+<span class="nobr">(<span class="math notranslate nohighlight">\(10^{-6}\)</span></span> with the default settings, <span class="math notranslate nohighlight">\(10^{-4}\)</span> with the quick settings) or until the table holds
+<code class="docutils literal notranslate"><span class="pre">sampling[&quot;n_rows_max&quot;]</span></code> potential values. The validation report <code class="docutils literal notranslate"><span class="pre">Sampler.validation</span></code> records the velocity table’s
+error, and a velocity-table error above <span class="math notranslate nohighlight">\(10^{-2}\)</span> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>).</p>
+<p>Let <span class="math notranslate nohighlight">\(R_{\rm a,min}\)</span> be the smallest anisotropy radius at which an Osipkov-Merritt (OM) or
+Cuddeford-Osipkov-Merritt (COM) Type I distribution function is non-negative. Close to <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a,min}\)</span>,</span> the
+velocity table reaches <code class="docutils literal notranslate"><span class="pre">sampling[&quot;n_rows_max&quot;]</span></code> potential values before the table’s error falls below
+<code class="docutils literal notranslate"><span class="pre">sampling[&quot;row_error_goal&quot;]</span></code>, and the error grows steeply as <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> falls toward
+<span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a,min}\)</span>.</span> For a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) with the
+default settings, the velocity table’s error crosses <span class="math notranslate nohighlight">\(10^{-4}\)</span> and <span class="math notranslate nohighlight">\(10^{-2}\)</span> at the following ratios
+<span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}/R_{\rm a,min}\)</span>:</span></p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>model</p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span></p></th>
-<th class="head"><p>ceiling <span class="math notranslate nohighlight">\(10^{-4}\)</span> at <span class="math notranslate nohighlight">\(R_{\rm a}/R_{\rm a,min}\)</span></p></th>
-<th class="head"><p>hard limit <span class="math notranslate nohighlight">\(10^{-2}\)</span> at <span class="math notranslate nohighlight">\(R_{\rm a}/R_{\rm a,min}\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(10^{-4}\)</span> at <span class="math notranslate nohighlight">\(R_{\rm a}/R_{\rm a,min}\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(10^{-2}\)</span> at <span class="math notranslate nohighlight">\(R_{\rm a}/R_{\rm a,min}\)</span></p></th>
 </tr>
 </thead>
 <tbody>
@@ -397,11 +421,15 @@ default tier, the error crosses the ceiling and the hard limit at:</p>
 </tbody>
 </table>
 </div>
-<p>Above the first ratio the table is within the ceiling; between the two it is returned with a warning; below the
-second it is refused. At <span class="math notranslate nohighlight">\(\beta_{\rm c} = 1/2\)</span> the distribution function is non-negative at every <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>, and the
-table is beyond the hard limit at every <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> up to 0.32 scale radii. A constant-anisotropy model is within the
-ceiling up to <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.4\)</span> (row error <span class="math notranslate nohighlight">\(6 \times 10^{-5}\)</span>) and above it at <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.45\)</span> (<span class="math notranslate nohighlight">\(4 \times 10^{-4}\)</span>). These bounds are
-measured, not imposed: each table’s own report is the verdict.</p>
+<p>Above the ratio for <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>,</span> the velocity table’s error is below <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>.</span> Between the ratio for
+<span class="math notranslate nohighlight">\(10^{-4}\)</span> and the ratio for <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>,</span> <code class="docutils literal notranslate"><span class="pre">Sampler</span></code> issues an <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyWarning</span></code>. Below
+the ratio for <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>,</span> <code class="docutils literal notranslate"><span class="pre">Sampler</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code>. At <span class="math notranslate nohighlight">\(\beta_{\rm c} = 1/2\)</span>
+the distribution function is non-negative at every <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>,</span> but the velocity table’s error is above
+<span class="math notranslate nohighlight">\(10^{-2}\)</span> at every <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> up to 0.32 scale radii. The velocity table of a constant-anisotropy model has an error below
+<span class="math notranslate nohighlight">\(10^{-4}\)</span> up to <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.4\)</span> <span class="math notranslate nohighlight">\((6 \times 10^{-5})\)</span> and above <span class="math notranslate nohighlight">\(10^{-4}\)</span> at
+<span class="math notranslate nohighlight">\(\beta_{\rm c} = 0.45\)</span> <span class="nobr"><span class="math notranslate nohighlight">\((4 \times 10^{-4})\)</span>.</span> The package sets no limit on <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> or
+<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> for sampling. The tier of each <code class="docutils literal notranslate"><span class="pre">Sampler</span></code>’s validation report sets whether the <code class="docutils literal notranslate"><span class="pre">Sampler</span></code>
+issues an <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyWarning</span></code> or raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code>.</p>
 </section>
 </section>
 
@@ -428,7 +456,9 @@ measured, not imposed: each table’s own report is the verdict.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-the-speed-table-reaches-its-tier">Where the speed table reaches its tier</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#particles-in-a-range-of-radii">Particles in a range of radii</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constrained-velocity-draws">Constrained velocity draws</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-accuracy-near-the-smallest-anisotropy-radius">Sampling accuracy near the smallest anisotropy radius</a></li>
 </ul>
   </nav></div>
 

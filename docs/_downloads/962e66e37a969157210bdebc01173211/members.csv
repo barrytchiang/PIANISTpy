@@ -1,0 +1,595 @@
+# PIANISTpy accuracy grid, ver. 1.0.0: the list of the grid's models.
+# One row is one model: its place in the tables of the Accuracy tables page (table, row, column), its parameters, and the outcome the grid expects of it.
+# Columns: https://pianistpy.com/docs/reference/accuracy#the-downloadable-files
+# model: the model's key, as in the grid files
+# table: the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation energy, 4 limiting cases (the page's sections)
+# row: the key of the model's row in that table, as the page labels it
+# column: the key of the model's column in that table, as the page labels it
+# alpha: the transition sharpness of the double power law
+# beta: the outer slope of the double power law
+# gamma: the inner slope of the double power law
+# anisotropy model: the velocity anisotropy model, as in the grid files
+# beta_c: the central velocity anisotropy
+# r_a: the anisotropy radius in scale radii; blank where the model has none
+# truncation method: 1 or 2, as in the grid files
+# k_t: the truncation energy as a fraction of the central potential; blank for an untruncated model
+# source model: for a Method II model, the Method I model it is built on; blank otherwise
+# expected outcome: what the grid expects of the model, as in the grid files
+model,table,row,column,alpha,beta,gamma,anisotropy model,beta_c,r_a,truncation method,k_t,source model,expected outcome
+T1_g0_b3_iso,1,g0_b3,iso,1,3,0,iso,0.0,,1,,,value
+T1_g0_b3_b-0.50,1,g0_b3,b-0.50,1,3,0,constant,-0.5,,1,,,value
+T1_g0_b3_b-0.25,1,g0_b3,b-0.25,1,3,0,constant,-0.25,,1,,,value
+T1_g0_b3_b+0.25,1,g0_b3,b+0.25,1,3,0,constant,0.25,,1,,,value: not physical
+T1_g0_b3_b+0.50,1,g0_b3,b+0.50,1,3,0,constant,0.5,,1,,,value: not physical
+T1_g0_b3_OMI_Ra10,1,g0_b3,OMI_Ra10,1,3,0,OM_I,0.0,10,1,,,value
+T1_g0_b3_OMII_Ra10,1,g0_b3,OMII_Ra10,1,3,0,OM_II,0.0,10,1,,,value: not physical
+T1_g0_b3_COMI_b-0.25_Ra10,1,g0_b3,COMI_b-0.25_Ra10,1,3,0,COM_I,-0.25,10,1,,,value
+T1_g0_b3_COMI_b+0.25_Ra10,1,g0_b3,COMI_b+0.25_Ra10,1,3,0,COM_I,0.25,10,1,,,value: not physical
+T1_g0_b3_COMII_b-0.25_Ra10,1,g0_b3,COMII_b-0.25_Ra10,1,3,0,COM_II,-0.25,10,1,,,value: not physical
+T1_g0.5_b3_iso,1,g0.5_b3,iso,1,3,0.5,iso,0.0,,1,,,value
+T1_g0.5_b3_b-0.50,1,g0.5_b3,b-0.50,1,3,0.5,constant,-0.5,,1,,,value
+T1_g0.5_b3_b-0.25,1,g0.5_b3,b-0.25,1,3,0.5,constant,-0.25,,1,,,value
+T1_g0.5_b3_b+0.25,1,g0.5_b3,b+0.25,1,3,0.5,constant,0.25,,1,,,value
+T1_g0.5_b3_b+0.50,1,g0.5_b3,b+0.50,1,3,0.5,constant,0.5,,1,,,value: not physical
+T1_g0.5_b3_OMI_Ra10,1,g0.5_b3,OMI_Ra10,1,3,0.5,OM_I,0.0,10,1,,,value
+T1_g0.5_b3_OMII_Ra10,1,g0.5_b3,OMII_Ra10,1,3,0.5,OM_II,0.0,10,1,,,value: not physical
+T1_g0.5_b3_COMI_b-0.25_Ra10,1,g0.5_b3,COMI_b-0.25_Ra10,1,3,0.5,COM_I,-0.25,10,1,,,value
+T1_g0.5_b3_COMI_b+0.25_Ra10,1,g0.5_b3,COMI_b+0.25_Ra10,1,3,0.5,COM_I,0.25,10,1,,,value
+T1_g0.5_b3_COMII_b-0.25_Ra10,1,g0.5_b3,COMII_b-0.25_Ra10,1,3,0.5,COM_II,-0.25,10,1,,,value: not physical
+T1_g1_b3_iso,1,g1_b3,iso,1,3,1,iso,0.0,,1,,,value
+T1_g1_b3_b-0.50,1,g1_b3,b-0.50,1,3,1,constant,-0.5,,1,,,value
+T1_g1_b3_b-0.25,1,g1_b3,b-0.25,1,3,1,constant,-0.25,,1,,,value
+T1_g1_b3_b+0.25,1,g1_b3,b+0.25,1,3,1,constant,0.25,,1,,,value
+T1_g1_b3_b+0.50,1,g1_b3,b+0.50,1,3,1,constant,0.5,,1,,,value
+T1_g1_b3_OMI_Ra10,1,g1_b3,OMI_Ra10,1,3,1,OM_I,0.0,10,1,,,value
+T1_g1_b3_OMII_Ra10,1,g1_b3,OMII_Ra10,1,3,1,OM_II,0.0,10,1,,,value: not physical
+T1_g1_b3_COMI_b-0.25_Ra10,1,g1_b3,COMI_b-0.25_Ra10,1,3,1,COM_I,-0.25,10,1,,,value
+T1_g1_b3_COMI_b+0.25_Ra10,1,g1_b3,COMI_b+0.25_Ra10,1,3,1,COM_I,0.25,10,1,,,value
+T1_g1_b3_COMII_b-0.25_Ra10,1,g1_b3,COMII_b-0.25_Ra10,1,3,1,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.5_b3_iso,1,g1.5_b3,iso,1,3,1.5,iso,0.0,,1,,,value
+T1_g1.5_b3_b-0.50,1,g1.5_b3,b-0.50,1,3,1.5,constant,-0.5,,1,,,value
+T1_g1.5_b3_b-0.25,1,g1.5_b3,b-0.25,1,3,1.5,constant,-0.25,,1,,,value
+T1_g1.5_b3_b+0.25,1,g1.5_b3,b+0.25,1,3,1.5,constant,0.25,,1,,,value
+T1_g1.5_b3_b+0.50,1,g1.5_b3,b+0.50,1,3,1.5,constant,0.5,,1,,,value
+T1_g1.5_b3_OMI_Ra10,1,g1.5_b3,OMI_Ra10,1,3,1.5,OM_I,0.0,10,1,,,value
+T1_g1.5_b3_OMII_Ra10,1,g1.5_b3,OMII_Ra10,1,3,1.5,OM_II,0.0,10,1,,,value: not physical
+T1_g1.5_b3_COMI_b-0.25_Ra10,1,g1.5_b3,COMI_b-0.25_Ra10,1,3,1.5,COM_I,-0.25,10,1,,,value
+T1_g1.5_b3_COMI_b+0.25_Ra10,1,g1.5_b3,COMI_b+0.25_Ra10,1,3,1.5,COM_I,0.25,10,1,,,value
+T1_g1.5_b3_COMII_b-0.25_Ra10,1,g1.5_b3,COMII_b-0.25_Ra10,1,3,1.5,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.9_b3_iso,1,g1.9_b3,iso,1,3,1.9,iso,0.0,,1,,,value
+T1_g1.9_b3_b-0.50,1,g1.9_b3,b-0.50,1,3,1.9,constant,-0.5,,1,,,value
+T1_g1.9_b3_b-0.25,1,g1.9_b3,b-0.25,1,3,1.9,constant,-0.25,,1,,,value
+T1_g1.9_b3_b+0.25,1,g1.9_b3,b+0.25,1,3,1.9,constant,0.25,,1,,,value
+T1_g1.9_b3_b+0.50,1,g1.9_b3,b+0.50,1,3,1.9,constant,0.5,,1,,,value
+T1_g1.9_b3_OMI_Ra10,1,g1.9_b3,OMI_Ra10,1,3,1.9,OM_I,0.0,10,1,,,value
+T1_g1.9_b3_OMII_Ra10,1,g1.9_b3,OMII_Ra10,1,3,1.9,OM_II,0.0,10,1,,,value: not physical
+T1_g1.9_b3_COMI_b-0.25_Ra10,1,g1.9_b3,COMI_b-0.25_Ra10,1,3,1.9,COM_I,-0.25,10,1,,,value
+T1_g1.9_b3_COMI_b+0.25_Ra10,1,g1.9_b3,COMI_b+0.25_Ra10,1,3,1.9,COM_I,0.25,10,1,,,value
+T1_g1.9_b3_COMII_b-0.25_Ra10,1,g1.9_b3,COMII_b-0.25_Ra10,1,3,1.9,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.99_b3_iso,1,g1.99_b3,iso,1,3,1.99,iso,0.0,,1,,,value
+T1_g1.99_b3_b-0.50,1,g1.99_b3,b-0.50,1,3,1.99,constant,-0.5,,1,,,value
+T1_g1.99_b3_b-0.25,1,g1.99_b3,b-0.25,1,3,1.99,constant,-0.25,,1,,,value
+T1_g1.99_b3_b+0.25,1,g1.99_b3,b+0.25,1,3,1.99,constant,0.25,,1,,,value
+T1_g1.99_b3_b+0.50,1,g1.99_b3,b+0.50,1,3,1.99,constant,0.5,,1,,,value
+T1_g1.99_b3_OMI_Ra10,1,g1.99_b3,OMI_Ra10,1,3,1.99,OM_I,0.0,10,1,,,value
+T1_g1.99_b3_OMII_Ra10,1,g1.99_b3,OMII_Ra10,1,3,1.99,OM_II,0.0,10,1,,,refusal: AccuracyError: rows of the inversion inside the table exceed the DF's ceiling 10^300
+T1_g1.99_b3_COMI_b-0.25_Ra10,1,g1.99_b3,COMI_b-0.25_Ra10,1,3,1.99,COM_I,-0.25,10,1,,,value
+T1_g1.99_b3_COMI_b+0.25_Ra10,1,g1.99_b3,COMI_b+0.25_Ra10,1,3,1.99,COM_I,0.25,10,1,,,value
+T1_g1.99_b3_COMII_b-0.25_Ra10,1,g1.99_b3,COMII_b-0.25_Ra10,1,3,1.99,COM_II,-0.25,10,1,,,value: not physical
+T1_g0_b4_iso,1,g0_b4,iso,1,4,0,iso,0.0,,1,,,value
+T1_g0_b4_b-0.50,1,g0_b4,b-0.50,1,4,0,constant,-0.5,,1,,,value
+T1_g0_b4_b-0.25,1,g0_b4,b-0.25,1,4,0,constant,-0.25,,1,,,value
+T1_g0_b4_b+0.25,1,g0_b4,b+0.25,1,4,0,constant,0.25,,1,,,value: not physical
+T1_g0_b4_b+0.50,1,g0_b4,b+0.50,1,4,0,constant,0.5,,1,,,value: not physical
+T1_g0_b4_OMI_Ra10,1,g0_b4,OMI_Ra10,1,4,0,OM_I,0.0,10,1,,,value
+T1_g0_b4_OMII_Ra10,1,g0_b4,OMII_Ra10,1,4,0,OM_II,0.0,10,1,,,value: not physical
+T1_g0_b4_COMI_b-0.25_Ra10,1,g0_b4,COMI_b-0.25_Ra10,1,4,0,COM_I,-0.25,10,1,,,value
+T1_g0_b4_COMI_b+0.25_Ra10,1,g0_b4,COMI_b+0.25_Ra10,1,4,0,COM_I,0.25,10,1,,,value: not physical
+T1_g0_b4_COMII_b-0.25_Ra10,1,g0_b4,COMII_b-0.25_Ra10,1,4,0,COM_II,-0.25,10,1,,,value: not physical
+T1_g0.5_b4_iso,1,g0.5_b4,iso,1,4,0.5,iso,0.0,,1,,,value
+T1_g0.5_b4_b-0.50,1,g0.5_b4,b-0.50,1,4,0.5,constant,-0.5,,1,,,value
+T1_g0.5_b4_b-0.25,1,g0.5_b4,b-0.25,1,4,0.5,constant,-0.25,,1,,,value
+T1_g0.5_b4_b+0.25,1,g0.5_b4,b+0.25,1,4,0.5,constant,0.25,,1,,,value
+T1_g0.5_b4_b+0.50,1,g0.5_b4,b+0.50,1,4,0.5,constant,0.5,,1,,,value: not physical
+T1_g0.5_b4_OMI_Ra10,1,g0.5_b4,OMI_Ra10,1,4,0.5,OM_I,0.0,10,1,,,value
+T1_g0.5_b4_OMII_Ra10,1,g0.5_b4,OMII_Ra10,1,4,0.5,OM_II,0.0,10,1,,,value: not physical
+T1_g0.5_b4_COMI_b-0.25_Ra10,1,g0.5_b4,COMI_b-0.25_Ra10,1,4,0.5,COM_I,-0.25,10,1,,,value
+T1_g0.5_b4_COMI_b+0.25_Ra10,1,g0.5_b4,COMI_b+0.25_Ra10,1,4,0.5,COM_I,0.25,10,1,,,value
+T1_g0.5_b4_COMII_b-0.25_Ra10,1,g0.5_b4,COMII_b-0.25_Ra10,1,4,0.5,COM_II,-0.25,10,1,,,value: not physical
+T1_g1_b4_iso,1,g1_b4,iso,1,4,1,iso,0.0,,1,,,value
+T1_g1_b4_b-0.50,1,g1_b4,b-0.50,1,4,1,constant,-0.5,,1,,,value
+T1_g1_b4_b-0.25,1,g1_b4,b-0.25,1,4,1,constant,-0.25,,1,,,value
+T1_g1_b4_b+0.25,1,g1_b4,b+0.25,1,4,1,constant,0.25,,1,,,value
+T1_g1_b4_b+0.50,1,g1_b4,b+0.50,1,4,1,constant,0.5,,1,,,value
+T1_g1_b4_OMI_Ra10,1,g1_b4,OMI_Ra10,1,4,1,OM_I,0.0,10,1,,,value
+T1_g1_b4_OMII_Ra10,1,g1_b4,OMII_Ra10,1,4,1,OM_II,0.0,10,1,,,value: not physical
+T1_g1_b4_COMI_b-0.25_Ra10,1,g1_b4,COMI_b-0.25_Ra10,1,4,1,COM_I,-0.25,10,1,,,value
+T1_g1_b4_COMI_b+0.25_Ra10,1,g1_b4,COMI_b+0.25_Ra10,1,4,1,COM_I,0.25,10,1,,,value
+T1_g1_b4_COMII_b-0.25_Ra10,1,g1_b4,COMII_b-0.25_Ra10,1,4,1,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.5_b4_iso,1,g1.5_b4,iso,1,4,1.5,iso,0.0,,1,,,value
+T1_g1.5_b4_b-0.50,1,g1.5_b4,b-0.50,1,4,1.5,constant,-0.5,,1,,,value
+T1_g1.5_b4_b-0.25,1,g1.5_b4,b-0.25,1,4,1.5,constant,-0.25,,1,,,value
+T1_g1.5_b4_b+0.25,1,g1.5_b4,b+0.25,1,4,1.5,constant,0.25,,1,,,value
+T1_g1.5_b4_b+0.50,1,g1.5_b4,b+0.50,1,4,1.5,constant,0.5,,1,,,value
+T1_g1.5_b4_OMI_Ra10,1,g1.5_b4,OMI_Ra10,1,4,1.5,OM_I,0.0,10,1,,,value
+T1_g1.5_b4_OMII_Ra10,1,g1.5_b4,OMII_Ra10,1,4,1.5,OM_II,0.0,10,1,,,value: not physical
+T1_g1.5_b4_COMI_b-0.25_Ra10,1,g1.5_b4,COMI_b-0.25_Ra10,1,4,1.5,COM_I,-0.25,10,1,,,value
+T1_g1.5_b4_COMI_b+0.25_Ra10,1,g1.5_b4,COMI_b+0.25_Ra10,1,4,1.5,COM_I,0.25,10,1,,,value
+T1_g1.5_b4_COMII_b-0.25_Ra10,1,g1.5_b4,COMII_b-0.25_Ra10,1,4,1.5,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.9_b4_iso,1,g1.9_b4,iso,1,4,1.9,iso,0.0,,1,,,value
+T1_g1.9_b4_b-0.50,1,g1.9_b4,b-0.50,1,4,1.9,constant,-0.5,,1,,,value
+T1_g1.9_b4_b-0.25,1,g1.9_b4,b-0.25,1,4,1.9,constant,-0.25,,1,,,value
+T1_g1.9_b4_b+0.25,1,g1.9_b4,b+0.25,1,4,1.9,constant,0.25,,1,,,value
+T1_g1.9_b4_b+0.50,1,g1.9_b4,b+0.50,1,4,1.9,constant,0.5,,1,,,value
+T1_g1.9_b4_OMI_Ra10,1,g1.9_b4,OMI_Ra10,1,4,1.9,OM_I,0.0,10,1,,,value
+T1_g1.9_b4_OMII_Ra10,1,g1.9_b4,OMII_Ra10,1,4,1.9,OM_II,0.0,10,1,,,value: not physical
+T1_g1.9_b4_COMI_b-0.25_Ra10,1,g1.9_b4,COMI_b-0.25_Ra10,1,4,1.9,COM_I,-0.25,10,1,,,value
+T1_g1.9_b4_COMI_b+0.25_Ra10,1,g1.9_b4,COMI_b+0.25_Ra10,1,4,1.9,COM_I,0.25,10,1,,,value
+T1_g1.9_b4_COMII_b-0.25_Ra10,1,g1.9_b4,COMII_b-0.25_Ra10,1,4,1.9,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.99_b4_iso,1,g1.99_b4,iso,1,4,1.99,iso,0.0,,1,,,value
+T1_g1.99_b4_b-0.50,1,g1.99_b4,b-0.50,1,4,1.99,constant,-0.5,,1,,,value
+T1_g1.99_b4_b-0.25,1,g1.99_b4,b-0.25,1,4,1.99,constant,-0.25,,1,,,value
+T1_g1.99_b4_b+0.25,1,g1.99_b4,b+0.25,1,4,1.99,constant,0.25,,1,,,value
+T1_g1.99_b4_b+0.50,1,g1.99_b4,b+0.50,1,4,1.99,constant,0.5,,1,,,value
+T1_g1.99_b4_OMI_Ra10,1,g1.99_b4,OMI_Ra10,1,4,1.99,OM_I,0.0,10,1,,,value
+T1_g1.99_b4_OMII_Ra10,1,g1.99_b4,OMII_Ra10,1,4,1.99,OM_II,0.0,10,1,,,refusal: AccuracyError: rows of the inversion inside the table exceed the DF's ceiling 10^300
+T1_g1.99_b4_COMI_b-0.25_Ra10,1,g1.99_b4,COMI_b-0.25_Ra10,1,4,1.99,COM_I,-0.25,10,1,,,value
+T1_g1.99_b4_COMI_b+0.25_Ra10,1,g1.99_b4,COMI_b+0.25_Ra10,1,4,1.99,COM_I,0.25,10,1,,,value
+T1_g1.99_b4_COMII_b-0.25_Ra10,1,g1.99_b4,COMII_b-0.25_Ra10,1,4,1.99,COM_II,-0.25,10,1,,,value: not physical
+T1_g0_b5_iso,1,g0_b5,iso,1,5,0,iso,0.0,,1,,,value
+T1_g0_b5_b-0.50,1,g0_b5,b-0.50,1,5,0,constant,-0.5,,1,,,value
+T1_g0_b5_b-0.25,1,g0_b5,b-0.25,1,5,0,constant,-0.25,,1,,,value
+T1_g0_b5_b+0.25,1,g0_b5,b+0.25,1,5,0,constant,0.25,,1,,,value: not physical
+T1_g0_b5_b+0.50,1,g0_b5,b+0.50,1,5,0,constant,0.5,,1,,,value: not physical
+T1_g0_b5_OMI_Ra10,1,g0_b5,OMI_Ra10,1,5,0,OM_I,0.0,10,1,,,value
+T1_g0_b5_OMII_Ra10,1,g0_b5,OMII_Ra10,1,5,0,OM_II,0.0,10,1,,,value: not physical
+T1_g0_b5_COMI_b-0.25_Ra10,1,g0_b5,COMI_b-0.25_Ra10,1,5,0,COM_I,-0.25,10,1,,,value
+T1_g0_b5_COMI_b+0.25_Ra10,1,g0_b5,COMI_b+0.25_Ra10,1,5,0,COM_I,0.25,10,1,,,value: not physical
+T1_g0_b5_COMII_b-0.25_Ra10,1,g0_b5,COMII_b-0.25_Ra10,1,5,0,COM_II,-0.25,10,1,,,value: not physical
+T1_g0.5_b5_iso,1,g0.5_b5,iso,1,5,0.5,iso,0.0,,1,,,value
+T1_g0.5_b5_b-0.50,1,g0.5_b5,b-0.50,1,5,0.5,constant,-0.5,,1,,,value
+T1_g0.5_b5_b-0.25,1,g0.5_b5,b-0.25,1,5,0.5,constant,-0.25,,1,,,value
+T1_g0.5_b5_b+0.25,1,g0.5_b5,b+0.25,1,5,0.5,constant,0.25,,1,,,value
+T1_g0.5_b5_b+0.50,1,g0.5_b5,b+0.50,1,5,0.5,constant,0.5,,1,,,value: not physical
+T1_g0.5_b5_OMI_Ra10,1,g0.5_b5,OMI_Ra10,1,5,0.5,OM_I,0.0,10,1,,,value
+T1_g0.5_b5_OMII_Ra10,1,g0.5_b5,OMII_Ra10,1,5,0.5,OM_II,0.0,10,1,,,value: not physical
+T1_g0.5_b5_COMI_b-0.25_Ra10,1,g0.5_b5,COMI_b-0.25_Ra10,1,5,0.5,COM_I,-0.25,10,1,,,value
+T1_g0.5_b5_COMI_b+0.25_Ra10,1,g0.5_b5,COMI_b+0.25_Ra10,1,5,0.5,COM_I,0.25,10,1,,,value
+T1_g0.5_b5_COMII_b-0.25_Ra10,1,g0.5_b5,COMII_b-0.25_Ra10,1,5,0.5,COM_II,-0.25,10,1,,,value: not physical
+T1_g1_b5_iso,1,g1_b5,iso,1,5,1,iso,0.0,,1,,,value
+T1_g1_b5_b-0.50,1,g1_b5,b-0.50,1,5,1,constant,-0.5,,1,,,value
+T1_g1_b5_b-0.25,1,g1_b5,b-0.25,1,5,1,constant,-0.25,,1,,,value
+T1_g1_b5_b+0.25,1,g1_b5,b+0.25,1,5,1,constant,0.25,,1,,,value
+T1_g1_b5_b+0.50,1,g1_b5,b+0.50,1,5,1,constant,0.5,,1,,,value
+T1_g1_b5_OMI_Ra10,1,g1_b5,OMI_Ra10,1,5,1,OM_I,0.0,10,1,,,value
+T1_g1_b5_OMII_Ra10,1,g1_b5,OMII_Ra10,1,5,1,OM_II,0.0,10,1,,,value: not physical
+T1_g1_b5_COMI_b-0.25_Ra10,1,g1_b5,COMI_b-0.25_Ra10,1,5,1,COM_I,-0.25,10,1,,,value
+T1_g1_b5_COMI_b+0.25_Ra10,1,g1_b5,COMI_b+0.25_Ra10,1,5,1,COM_I,0.25,10,1,,,value
+T1_g1_b5_COMII_b-0.25_Ra10,1,g1_b5,COMII_b-0.25_Ra10,1,5,1,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.5_b5_iso,1,g1.5_b5,iso,1,5,1.5,iso,0.0,,1,,,value
+T1_g1.5_b5_b-0.50,1,g1.5_b5,b-0.50,1,5,1.5,constant,-0.5,,1,,,value
+T1_g1.5_b5_b-0.25,1,g1.5_b5,b-0.25,1,5,1.5,constant,-0.25,,1,,,value
+T1_g1.5_b5_b+0.25,1,g1.5_b5,b+0.25,1,5,1.5,constant,0.25,,1,,,value
+T1_g1.5_b5_b+0.50,1,g1.5_b5,b+0.50,1,5,1.5,constant,0.5,,1,,,value
+T1_g1.5_b5_OMI_Ra10,1,g1.5_b5,OMI_Ra10,1,5,1.5,OM_I,0.0,10,1,,,value
+T1_g1.5_b5_OMII_Ra10,1,g1.5_b5,OMII_Ra10,1,5,1.5,OM_II,0.0,10,1,,,value: not physical
+T1_g1.5_b5_COMI_b-0.25_Ra10,1,g1.5_b5,COMI_b-0.25_Ra10,1,5,1.5,COM_I,-0.25,10,1,,,value
+T1_g1.5_b5_COMI_b+0.25_Ra10,1,g1.5_b5,COMI_b+0.25_Ra10,1,5,1.5,COM_I,0.25,10,1,,,value
+T1_g1.5_b5_COMII_b-0.25_Ra10,1,g1.5_b5,COMII_b-0.25_Ra10,1,5,1.5,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.9_b5_iso,1,g1.9_b5,iso,1,5,1.9,iso,0.0,,1,,,value
+T1_g1.9_b5_b-0.50,1,g1.9_b5,b-0.50,1,5,1.9,constant,-0.5,,1,,,value
+T1_g1.9_b5_b-0.25,1,g1.9_b5,b-0.25,1,5,1.9,constant,-0.25,,1,,,value
+T1_g1.9_b5_b+0.25,1,g1.9_b5,b+0.25,1,5,1.9,constant,0.25,,1,,,value
+T1_g1.9_b5_b+0.50,1,g1.9_b5,b+0.50,1,5,1.9,constant,0.5,,1,,,value
+T1_g1.9_b5_OMI_Ra10,1,g1.9_b5,OMI_Ra10,1,5,1.9,OM_I,0.0,10,1,,,value
+T1_g1.9_b5_OMII_Ra10,1,g1.9_b5,OMII_Ra10,1,5,1.9,OM_II,0.0,10,1,,,value: not physical
+T1_g1.9_b5_COMI_b-0.25_Ra10,1,g1.9_b5,COMI_b-0.25_Ra10,1,5,1.9,COM_I,-0.25,10,1,,,value
+T1_g1.9_b5_COMI_b+0.25_Ra10,1,g1.9_b5,COMI_b+0.25_Ra10,1,5,1.9,COM_I,0.25,10,1,,,value
+T1_g1.9_b5_COMII_b-0.25_Ra10,1,g1.9_b5,COMII_b-0.25_Ra10,1,5,1.9,COM_II,-0.25,10,1,,,value: not physical
+T1_g1.99_b5_iso,1,g1.99_b5,iso,1,5,1.99,iso,0.0,,1,,,value
+T1_g1.99_b5_b-0.50,1,g1.99_b5,b-0.50,1,5,1.99,constant,-0.5,,1,,,value
+T1_g1.99_b5_b-0.25,1,g1.99_b5,b-0.25,1,5,1.99,constant,-0.25,,1,,,value
+T1_g1.99_b5_b+0.25,1,g1.99_b5,b+0.25,1,5,1.99,constant,0.25,,1,,,value
+T1_g1.99_b5_b+0.50,1,g1.99_b5,b+0.50,1,5,1.99,constant,0.5,,1,,,value
+T1_g1.99_b5_OMI_Ra10,1,g1.99_b5,OMI_Ra10,1,5,1.99,OM_I,0.0,10,1,,,value
+T1_g1.99_b5_OMII_Ra10,1,g1.99_b5,OMII_Ra10,1,5,1.99,OM_II,0.0,10,1,,,refusal: AccuracyError: rows of the inversion inside the table exceed the DF's ceiling 10^300
+T1_g1.99_b5_COMI_b-0.25_Ra10,1,g1.99_b5,COMI_b-0.25_Ra10,1,5,1.99,COM_I,-0.25,10,1,,,value
+T1_g1.99_b5_COMI_b+0.25_Ra10,1,g1.99_b5,COMI_b+0.25_Ra10,1,5,1.99,COM_I,0.25,10,1,,,value
+T1_g1.99_b5_COMII_b-0.25_Ra10,1,g1.99_b5,COMII_b-0.25_Ra10,1,5,1.99,COM_II,-0.25,10,1,,,value: not physical
+T1_plummer_iso,1,plummer,iso,2,5,0,iso,0.0,,1,,,value
+T1_plummer_b-0.50,1,plummer,b-0.50,2,5,0,constant,-0.5,,1,,,value
+T1_plummer_b-0.25,1,plummer,b-0.25,2,5,0,constant,-0.25,,1,,,value
+T1_plummer_b+0.25,1,plummer,b+0.25,2,5,0,constant,0.25,,1,,,value: not physical
+T1_plummer_b+0.50,1,plummer,b+0.50,2,5,0,constant,0.5,,1,,,value: not physical
+T1_plummer_OMI_Ra10,1,plummer,OMI_Ra10,2,5,0,OM_I,0.0,10,1,,,value
+T1_plummer_OMII_Ra10,1,plummer,OMII_Ra10,2,5,0,OM_II,0.0,10,1,,,value: not physical
+T1_plummer_COMI_b-0.25_Ra10,1,plummer,COMI_b-0.25_Ra10,2,5,0,COM_I,-0.25,10,1,,,value
+T1_plummer_COMI_b+0.25_Ra10,1,plummer,COMI_b+0.25_Ra10,2,5,0,COM_I,0.25,10,1,,,value: not physical
+T1_plummer_COMII_b-0.25_Ra10,1,plummer,COMII_b-0.25_Ra10,2,5,0,COM_II,-0.25,10,1,,,value: not physical
+T2_nfw_OM_I_Ra0.3,2,nfw_OM_I,Ra0.3,1,3,1,OM_I,0.0,0.3,1,,,"refused: the package's tier (top_form, slope_column)"
+T2_nfw_OM_I_Ra1,2,nfw_OM_I,Ra1,1,3,1,OM_I,0.0,1,1,,,value
+T2_nfw_OM_I_Ra3,2,nfw_OM_I,Ra3,1,3,1,OM_I,0.0,3,1,,,value
+T2_nfw_OM_I_Ra10,2,nfw_OM_I,Ra10,1,3,1,OM_I,0.0,10,1,,,value
+T2_nfw_OM_I_Ra30,2,nfw_OM_I,Ra30,1,3,1,OM_I,0.0,30,1,,,value
+T2_nfw_OM_I_Ra100,2,nfw_OM_I,Ra100,1,3,1,OM_I,0.0,100,1,,,value
+T2_nfw_OM_I_Ra1000,2,nfw_OM_I,Ra1000,1,3,1,OM_I,0.0,1000,1,,,value
+T2_nfw_OM_II_Ra0.3,2,nfw_OM_II,Ra0.3,1,3,1,OM_II,0.0,0.3,1,,,value: not physical
+T2_nfw_OM_II_Ra1,2,nfw_OM_II,Ra1,1,3,1,OM_II,0.0,1,1,,,value: not physical
+T2_nfw_OM_II_Ra3,2,nfw_OM_II,Ra3,1,3,1,OM_II,0.0,3,1,,,value: not physical
+T2_nfw_OM_II_Ra10,2,nfw_OM_II,Ra10,1,3,1,OM_II,0.0,10,1,,,value: not physical
+T2_nfw_OM_II_Ra30,2,nfw_OM_II,Ra30,1,3,1,OM_II,0.0,30,1,,,value: not physical
+T2_nfw_OM_II_Ra100,2,nfw_OM_II,Ra100,1,3,1,OM_II,0.0,100,1,,,value: not physical
+T2_nfw_OM_II_Ra1000,2,nfw_OM_II,Ra1000,1,3,1,OM_II,0.0,1000,1,,,value: not physical
+T2_nfw_COM_I_Ra0.3,2,nfw_COM_I,Ra0.3,1,3,1,COM_I,-0.25,0.3,1,,,"refused: the package's tier (top_form, slope_column)"
+T2_nfw_COM_I_Ra1,2,nfw_COM_I,Ra1,1,3,1,COM_I,-0.25,1,1,,,value
+T2_nfw_COM_I_Ra3,2,nfw_COM_I,Ra3,1,3,1,COM_I,-0.25,3,1,,,value
+T2_nfw_COM_I_Ra10,2,nfw_COM_I,Ra10,1,3,1,COM_I,-0.25,10,1,,,value
+T2_nfw_COM_I_Ra30,2,nfw_COM_I,Ra30,1,3,1,COM_I,-0.25,30,1,,,value
+T2_nfw_COM_I_Ra100,2,nfw_COM_I,Ra100,1,3,1,COM_I,-0.25,100,1,,,value
+T2_nfw_COM_I_Ra1000,2,nfw_COM_I,Ra1000,1,3,1,COM_I,-0.25,1000,1,,,value
+T2_nfw_COM_II_Ra0.3,2,nfw_COM_II,Ra0.3,1,3,1,COM_II,-0.25,0.3,1,,,value: not physical
+T2_nfw_COM_II_Ra1,2,nfw_COM_II,Ra1,1,3,1,COM_II,-0.25,1,1,,,value: not physical
+T2_nfw_COM_II_Ra3,2,nfw_COM_II,Ra3,1,3,1,COM_II,-0.25,3,1,,,value: not physical
+T2_nfw_COM_II_Ra10,2,nfw_COM_II,Ra10,1,3,1,COM_II,-0.25,10,1,,,value: not physical
+T2_nfw_COM_II_Ra30,2,nfw_COM_II,Ra30,1,3,1,COM_II,-0.25,30,1,,,value: not physical
+T2_nfw_COM_II_Ra100,2,nfw_COM_II,Ra100,1,3,1,COM_II,-0.25,100,1,,,value: not physical
+T2_nfw_COM_II_Ra1000,2,nfw_COM_II,Ra1000,1,3,1,COM_II,-0.25,1000,1,,,value: not physical
+T2_cored_OM_I_Ra0.3,2,cored_OM_I,Ra0.3,1,4,0,OM_I,0.0,0.3,1,,,"refused: the package's tier (top_form, slope_column)"
+T2_cored_OM_I_Ra1,2,cored_OM_I,Ra1,1,4,0,OM_I,0.0,1,1,,,value
+T2_cored_OM_I_Ra3,2,cored_OM_I,Ra3,1,4,0,OM_I,0.0,3,1,,,value
+T2_cored_OM_I_Ra10,2,cored_OM_I,Ra10,1,4,0,OM_I,0.0,10,1,,,value
+T2_cored_OM_I_Ra30,2,cored_OM_I,Ra30,1,4,0,OM_I,0.0,30,1,,,value
+T2_cored_OM_I_Ra100,2,cored_OM_I,Ra100,1,4,0,OM_I,0.0,100,1,,,value
+T2_cored_OM_I_Ra1000,2,cored_OM_I,Ra1000,1,4,0,OM_I,0.0,1000,1,,,value
+T2_cored_OM_II_Ra0.3,2,cored_OM_II,Ra0.3,1,4,0,OM_II,0.0,0.3,1,,,value: not physical
+T2_cored_OM_II_Ra1,2,cored_OM_II,Ra1,1,4,0,OM_II,0.0,1,1,,,value: not physical
+T2_cored_OM_II_Ra3,2,cored_OM_II,Ra3,1,4,0,OM_II,0.0,3,1,,,value: not physical
+T2_cored_OM_II_Ra10,2,cored_OM_II,Ra10,1,4,0,OM_II,0.0,10,1,,,value: not physical
+T2_cored_OM_II_Ra30,2,cored_OM_II,Ra30,1,4,0,OM_II,0.0,30,1,,,value: not physical
+T2_cored_OM_II_Ra100,2,cored_OM_II,Ra100,1,4,0,OM_II,0.0,100,1,,,value: not physical
+T2_cored_OM_II_Ra1000,2,cored_OM_II,Ra1000,1,4,0,OM_II,0.0,1000,1,,,value: not physical
+T2_cored_COM_I_Ra0.3,2,cored_COM_I,Ra0.3,1,4,0,COM_I,-0.25,0.3,1,,,"refused: the package's tier (top_form, slope_column)"
+T2_cored_COM_I_Ra1,2,cored_COM_I,Ra1,1,4,0,COM_I,-0.25,1,1,,,value
+T2_cored_COM_I_Ra3,2,cored_COM_I,Ra3,1,4,0,COM_I,-0.25,3,1,,,value
+T2_cored_COM_I_Ra10,2,cored_COM_I,Ra10,1,4,0,COM_I,-0.25,10,1,,,value
+T2_cored_COM_I_Ra30,2,cored_COM_I,Ra30,1,4,0,COM_I,-0.25,30,1,,,value
+T2_cored_COM_I_Ra100,2,cored_COM_I,Ra100,1,4,0,COM_I,-0.25,100,1,,,value
+T2_cored_COM_I_Ra1000,2,cored_COM_I,Ra1000,1,4,0,COM_I,-0.25,1000,1,,,value
+T2_cored_COM_II_Ra0.3,2,cored_COM_II,Ra0.3,1,4,0,COM_II,-0.25,0.3,1,,,value: not physical
+T2_cored_COM_II_Ra1,2,cored_COM_II,Ra1,1,4,0,COM_II,-0.25,1,1,,,value: not physical
+T2_cored_COM_II_Ra3,2,cored_COM_II,Ra3,1,4,0,COM_II,-0.25,3,1,,,value: not physical
+T2_cored_COM_II_Ra10,2,cored_COM_II,Ra10,1,4,0,COM_II,-0.25,10,1,,,value: not physical
+T2_cored_COM_II_Ra30,2,cored_COM_II,Ra30,1,4,0,COM_II,-0.25,30,1,,,value: not physical
+T2_cored_COM_II_Ra100,2,cored_COM_II,Ra100,1,4,0,COM_II,-0.25,100,1,,,value: not physical
+T2_cored_COM_II_Ra1000,2,cored_COM_II,Ra1000,1,4,0,COM_II,-0.25,1000,1,,,value: not physical
+T2_steep_OM_I_Ra0.3,2,steep_OM_I,Ra0.3,1,4,1.5,OM_I,0.0,0.3,1,,,value
+T2_steep_OM_I_Ra1,2,steep_OM_I,Ra1,1,4,1.5,OM_I,0.0,1,1,,,value
+T2_steep_OM_I_Ra3,2,steep_OM_I,Ra3,1,4,1.5,OM_I,0.0,3,1,,,value
+T2_steep_OM_I_Ra10,2,steep_OM_I,Ra10,1,4,1.5,OM_I,0.0,10,1,,,value
+T2_steep_OM_I_Ra30,2,steep_OM_I,Ra30,1,4,1.5,OM_I,0.0,30,1,,,value
+T2_steep_OM_I_Ra100,2,steep_OM_I,Ra100,1,4,1.5,OM_I,0.0,100,1,,,value
+T2_steep_OM_I_Ra1000,2,steep_OM_I,Ra1000,1,4,1.5,OM_I,0.0,1000,1,,,value
+T2_steep_OM_II_Ra0.3,2,steep_OM_II,Ra0.3,1,4,1.5,OM_II,0.0,0.3,1,,,value: not physical
+T2_steep_OM_II_Ra1,2,steep_OM_II,Ra1,1,4,1.5,OM_II,0.0,1,1,,,value: not physical
+T2_steep_OM_II_Ra3,2,steep_OM_II,Ra3,1,4,1.5,OM_II,0.0,3,1,,,value: not physical
+T2_steep_OM_II_Ra10,2,steep_OM_II,Ra10,1,4,1.5,OM_II,0.0,10,1,,,value: not physical
+T2_steep_OM_II_Ra30,2,steep_OM_II,Ra30,1,4,1.5,OM_II,0.0,30,1,,,value: not physical
+T2_steep_OM_II_Ra100,2,steep_OM_II,Ra100,1,4,1.5,OM_II,0.0,100,1,,,value: not physical
+T2_steep_OM_II_Ra1000,2,steep_OM_II,Ra1000,1,4,1.5,OM_II,0.0,1000,1,,,value: not physical
+T2_steep_COM_I_Ra0.3,2,steep_COM_I,Ra0.3,1,4,1.5,COM_I,-0.25,0.3,1,,,value
+T2_steep_COM_I_Ra1,2,steep_COM_I,Ra1,1,4,1.5,COM_I,-0.25,1,1,,,value
+T2_steep_COM_I_Ra3,2,steep_COM_I,Ra3,1,4,1.5,COM_I,-0.25,3,1,,,value
+T2_steep_COM_I_Ra10,2,steep_COM_I,Ra10,1,4,1.5,COM_I,-0.25,10,1,,,value
+T2_steep_COM_I_Ra30,2,steep_COM_I,Ra30,1,4,1.5,COM_I,-0.25,30,1,,,value
+T2_steep_COM_I_Ra100,2,steep_COM_I,Ra100,1,4,1.5,COM_I,-0.25,100,1,,,value
+T2_steep_COM_I_Ra1000,2,steep_COM_I,Ra1000,1,4,1.5,COM_I,-0.25,1000,1,,,value
+T2_steep_COM_II_Ra0.3,2,steep_COM_II,Ra0.3,1,4,1.5,COM_II,-0.25,0.3,1,,,value: not physical
+T2_steep_COM_II_Ra1,2,steep_COM_II,Ra1,1,4,1.5,COM_II,-0.25,1,1,,,value: not physical
+T2_steep_COM_II_Ra3,2,steep_COM_II,Ra3,1,4,1.5,COM_II,-0.25,3,1,,,value: not physical
+T2_steep_COM_II_Ra10,2,steep_COM_II,Ra10,1,4,1.5,COM_II,-0.25,10,1,,,value: not physical
+T2_steep_COM_II_Ra30,2,steep_COM_II,Ra30,1,4,1.5,COM_II,-0.25,30,1,,,value: not physical
+T2_steep_COM_II_Ra100,2,steep_COM_II,Ra100,1,4,1.5,COM_II,-0.25,100,1,,,value: not physical
+T2_steep_COM_II_Ra1000,2,steep_COM_II,Ra1000,1,4,1.5,COM_II,-0.25,1000,1,,,value: not physical
+T3_nfw_iso_M1_kt0.5,3,nfw_iso_M1,kt0.5,1,3,1,iso,0.0,,1,0.5,,value
+T3_nfw_iso_M1_kt0.2,3,nfw_iso_M1,kt0.2,1,3,1,iso,0.0,,1,0.2,,value
+T3_nfw_iso_M1_kt0.05,3,nfw_iso_M1,kt0.05,1,3,1,iso,0.0,,1,0.05,,value
+T3_nfw_iso_M1_kt0.01,3,nfw_iso_M1,kt0.01,1,3,1,iso,0.0,,1,0.01,,value
+T3_nfw_iso_M1_kt0.002,3,nfw_iso_M1,kt0.002,1,3,1,iso,0.0,,1,0.002,,value
+T3_nfw_iso_M2_kt0.5,3,nfw_iso_M2,kt0.5,1,3,1,iso,0.0,,2,0.5,nfw iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.2,3,nfw_iso_M2,kt0.2,1,3,1,iso,0.0,,2,0.2,nfw iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.05,3,nfw_iso_M2,kt0.05,1,3,1,iso,0.0,,2,0.05,nfw iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.01,3,nfw_iso_M2,kt0.01,1,3,1,iso,0.0,,2,0.01,nfw iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_iso_M2_kt0.002,3,nfw_iso_M2,kt0.002,1,3,1,iso,0.0,,2,0.002,nfw iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_nfw_b-0.50_M1_kt0.5,3,nfw_b-0.50_M1,kt0.5,1,3,1,constant,-0.5,,1,0.5,,value
+T3_nfw_b-0.50_M1_kt0.2,3,nfw_b-0.50_M1,kt0.2,1,3,1,constant,-0.5,,1,0.2,,value
+T3_nfw_b-0.50_M1_kt0.05,3,nfw_b-0.50_M1,kt0.05,1,3,1,constant,-0.5,,1,0.05,,value
+T3_nfw_b-0.50_M1_kt0.01,3,nfw_b-0.50_M1,kt0.01,1,3,1,constant,-0.5,,1,0.01,,value
+T3_nfw_b-0.50_M1_kt0.002,3,nfw_b-0.50_M1,kt0.002,1,3,1,constant,-0.5,,1,0.002,,value
+T3_nfw_b-0.50_M2_kt0.5,3,nfw_b-0.50_M2,kt0.5,1,3,1,constant,-0.5,,2,0.5,nfw iso k_t 0.5,value
+T3_nfw_b-0.50_M2_kt0.2,3,nfw_b-0.50_M2,kt0.2,1,3,1,constant,-0.5,,2,0.2,nfw iso k_t 0.2,value
+T3_nfw_b-0.50_M2_kt0.05,3,nfw_b-0.50_M2,kt0.05,1,3,1,constant,-0.5,,2,0.05,nfw iso k_t 0.05,value
+T3_nfw_b-0.50_M2_kt0.01,3,nfw_b-0.50_M2,kt0.01,1,3,1,constant,-0.5,,2,0.01,nfw iso k_t 0.01,value
+T3_nfw_b-0.50_M2_kt0.002,3,nfw_b-0.50_M2,kt0.002,1,3,1,constant,-0.5,,2,0.002,nfw iso k_t 0.002,value
+T3_nfw_b+0.25_M1_kt0.5,3,nfw_b+0.25_M1,kt0.5,1,3,1,constant,0.25,,1,0.5,,value
+T3_nfw_b+0.25_M1_kt0.2,3,nfw_b+0.25_M1,kt0.2,1,3,1,constant,0.25,,1,0.2,,value
+T3_nfw_b+0.25_M1_kt0.05,3,nfw_b+0.25_M1,kt0.05,1,3,1,constant,0.25,,1,0.05,,value
+T3_nfw_b+0.25_M1_kt0.01,3,nfw_b+0.25_M1,kt0.01,1,3,1,constant,0.25,,1,0.01,,value
+T3_nfw_b+0.25_M1_kt0.002,3,nfw_b+0.25_M1,kt0.002,1,3,1,constant,0.25,,1,0.002,,value
+T3_nfw_b+0.25_M2_kt0.5,3,nfw_b+0.25_M2,kt0.5,1,3,1,constant,0.25,,2,0.5,nfw iso k_t 0.5,value
+T3_nfw_b+0.25_M2_kt0.2,3,nfw_b+0.25_M2,kt0.2,1,3,1,constant,0.25,,2,0.2,nfw iso k_t 0.2,value
+T3_nfw_b+0.25_M2_kt0.05,3,nfw_b+0.25_M2,kt0.05,1,3,1,constant,0.25,,2,0.05,nfw iso k_t 0.05,value
+T3_nfw_b+0.25_M2_kt0.01,3,nfw_b+0.25_M2,kt0.01,1,3,1,constant,0.25,,2,0.01,nfw iso k_t 0.01,value
+T3_nfw_b+0.25_M2_kt0.002,3,nfw_b+0.25_M2,kt0.002,1,3,1,constant,0.25,,2,0.002,nfw iso k_t 0.002,value
+T3_nfw_OMI_Ra10_M1_kt0.5,3,nfw_OMI_Ra10_M1,kt0.5,1,3,1,OM_I,0.0,10,1,0.5,,value
+T3_nfw_OMI_Ra10_M1_kt0.2,3,nfw_OMI_Ra10_M1,kt0.2,1,3,1,OM_I,0.0,10,1,0.2,,value
+T3_nfw_OMI_Ra10_M1_kt0.05,3,nfw_OMI_Ra10_M1,kt0.05,1,3,1,OM_I,0.0,10,1,0.05,,refusal: UnphysicalModelError: NO EDGE
+T3_nfw_OMI_Ra10_M1_kt0.01,3,nfw_OMI_Ra10_M1,kt0.01,1,3,1,OM_I,0.0,10,1,0.01,,refusal: UnphysicalModelError: Z GATE
+T3_nfw_OMI_Ra10_M1_kt0.002,3,nfw_OMI_Ra10_M1,kt0.002,1,3,1,OM_I,0.0,10,1,0.002,,refusal: UnphysicalModelError: Z GATE
+T3_nfw_OMI_Ra10_M2_kt0.5,3,nfw_OMI_Ra10_M2,kt0.5,1,3,1,OM_I,0.0,10,2,0.5,nfw iso k_t 0.5,value
+T3_nfw_OMI_Ra10_M2_kt0.2,3,nfw_OMI_Ra10_M2,kt0.2,1,3,1,OM_I,0.0,10,2,0.2,nfw iso k_t 0.2,value
+T3_nfw_OMI_Ra10_M2_kt0.05,3,nfw_OMI_Ra10_M2,kt0.05,1,3,1,OM_I,0.0,10,2,0.05,nfw iso k_t 0.05,value
+T3_nfw_OMI_Ra10_M2_kt0.01,3,nfw_OMI_Ra10_M2,kt0.01,1,3,1,OM_I,0.0,10,2,0.01,nfw iso k_t 0.01,value
+T3_nfw_OMI_Ra10_M2_kt0.002,3,nfw_OMI_Ra10_M2,kt0.002,1,3,1,OM_I,0.0,10,2,0.002,nfw iso k_t 0.002,value
+T3_nfw_OMII_Ra10_M1_kt0.5,3,nfw_OMII_Ra10_M1,kt0.5,1,3,1,OM_II,0.0,10,1,0.5,,value
+T3_nfw_OMII_Ra10_M1_kt0.2,3,nfw_OMII_Ra10_M1,kt0.2,1,3,1,OM_II,0.0,10,1,0.2,,refusal: UnphysicalModelError: DOMAIN
+T3_nfw_OMII_Ra10_M1_kt0.05,3,nfw_OMII_Ra10_M1,kt0.05,1,3,1,OM_II,0.0,10,1,0.05,,refusal: UnphysicalModelError: DOMAIN
+T3_nfw_OMII_Ra10_M1_kt0.01,3,nfw_OMII_Ra10_M1,kt0.01,1,3,1,OM_II,0.0,10,1,0.01,,refusal: UnphysicalModelError: DOMAIN
+T3_nfw_OMII_Ra10_M1_kt0.002,3,nfw_OMII_Ra10_M1,kt0.002,1,3,1,OM_II,0.0,10,1,0.002,,refusal: UnphysicalModelError: DOMAIN
+T3_nfw_OMII_Ra10_M2_kt0.5,3,nfw_OMII_Ra10_M2,kt0.5,1,3,1,OM_II,0.0,10,2,0.5,nfw iso k_t 0.5,value
+T3_nfw_OMII_Ra10_M2_kt0.2,3,nfw_OMII_Ra10_M2,kt0.2,1,3,1,OM_II,0.0,10,2,0.2,nfw iso k_t 0.2,refusal: InputError: needs its parent's edge inside r_a
+T3_nfw_OMII_Ra10_M2_kt0.05,3,nfw_OMII_Ra10_M2,kt0.05,1,3,1,OM_II,0.0,10,2,0.05,nfw iso k_t 0.05,refusal: InputError: needs its parent's edge inside r_a
+T3_nfw_OMII_Ra10_M2_kt0.01,3,nfw_OMII_Ra10_M2,kt0.01,1,3,1,OM_II,0.0,10,2,0.01,nfw iso k_t 0.01,refusal: InputError: needs its parent's edge inside r_a
+T3_nfw_OMII_Ra10_M2_kt0.002,3,nfw_OMII_Ra10_M2,kt0.002,1,3,1,OM_II,0.0,10,2,0.002,nfw iso k_t 0.002,refusal: InputError: needs its parent's edge inside r_a
+T3_nfw_COMI_b-0.25_Ra10_M1_kt0.5,3,nfw_COMI_b-0.25_Ra10_M1,kt0.5,1,3,1,COM_I,-0.25,10,1,0.5,,value
+T3_nfw_COMI_b-0.25_Ra10_M1_kt0.2,3,nfw_COMI_b-0.25_Ra10_M1,kt0.2,1,3,1,COM_I,-0.25,10,1,0.2,,value
+T3_nfw_COMI_b-0.25_Ra10_M1_kt0.05,3,nfw_COMI_b-0.25_Ra10_M1,kt0.05,1,3,1,COM_I,-0.25,10,1,0.05,,refusal: UnphysicalModelError: NO EDGE
+T3_nfw_COMI_b-0.25_Ra10_M1_kt0.01,3,nfw_COMI_b-0.25_Ra10_M1,kt0.01,1,3,1,COM_I,-0.25,10,1,0.01,,refusal: UnphysicalModelError: Z GATE
+T3_nfw_COMI_b-0.25_Ra10_M1_kt0.002,3,nfw_COMI_b-0.25_Ra10_M1,kt0.002,1,3,1,COM_I,-0.25,10,1,0.002,,refusal: UnphysicalModelError: Z GATE
+T3_nfw_COMI_b-0.25_Ra10_M2_kt0.5,3,nfw_COMI_b-0.25_Ra10_M2,kt0.5,1,3,1,COM_I,-0.25,10,2,0.5,nfw iso k_t 0.5,value
+T3_nfw_COMI_b-0.25_Ra10_M2_kt0.2,3,nfw_COMI_b-0.25_Ra10_M2,kt0.2,1,3,1,COM_I,-0.25,10,2,0.2,nfw iso k_t 0.2,value
+T3_nfw_COMI_b-0.25_Ra10_M2_kt0.05,3,nfw_COMI_b-0.25_Ra10_M2,kt0.05,1,3,1,COM_I,-0.25,10,2,0.05,nfw iso k_t 0.05,value
+T3_nfw_COMI_b-0.25_Ra10_M2_kt0.01,3,nfw_COMI_b-0.25_Ra10_M2,kt0.01,1,3,1,COM_I,-0.25,10,2,0.01,nfw iso k_t 0.01,value
+T3_nfw_COMI_b-0.25_Ra10_M2_kt0.002,3,nfw_COMI_b-0.25_Ra10_M2,kt0.002,1,3,1,COM_I,-0.25,10,2,0.002,nfw iso k_t 0.002,value
+T3_hern_iso_M1_kt0.5,3,hern_iso_M1,kt0.5,1,4,1,iso,0.0,,1,0.5,,value
+T3_hern_iso_M1_kt0.2,3,hern_iso_M1,kt0.2,1,4,1,iso,0.0,,1,0.2,,value
+T3_hern_iso_M1_kt0.05,3,hern_iso_M1,kt0.05,1,4,1,iso,0.0,,1,0.05,,value
+T3_hern_iso_M1_kt0.01,3,hern_iso_M1,kt0.01,1,4,1,iso,0.0,,1,0.01,,value
+T3_hern_iso_M1_kt0.002,3,hern_iso_M1,kt0.002,1,4,1,iso,0.0,,1,0.002,,value
+T3_hern_iso_M2_kt0.5,3,hern_iso_M2,kt0.5,1,4,1,iso,0.0,,2,0.5,hern iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.2,3,hern_iso_M2,kt0.2,1,4,1,iso,0.0,,2,0.2,hern iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.05,3,hern_iso_M2,kt0.05,1,4,1,iso,0.0,,2,0.05,hern iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.01,3,hern_iso_M2,kt0.01,1,4,1,iso,0.0,,2,0.01,hern iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_iso_M2_kt0.002,3,hern_iso_M2,kt0.002,1,4,1,iso,0.0,,2,0.002,hern iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_hern_b-0.50_M1_kt0.5,3,hern_b-0.50_M1,kt0.5,1,4,1,constant,-0.5,,1,0.5,,value
+T3_hern_b-0.50_M1_kt0.2,3,hern_b-0.50_M1,kt0.2,1,4,1,constant,-0.5,,1,0.2,,value
+T3_hern_b-0.50_M1_kt0.05,3,hern_b-0.50_M1,kt0.05,1,4,1,constant,-0.5,,1,0.05,,value
+T3_hern_b-0.50_M1_kt0.01,3,hern_b-0.50_M1,kt0.01,1,4,1,constant,-0.5,,1,0.01,,value
+T3_hern_b-0.50_M1_kt0.002,3,hern_b-0.50_M1,kt0.002,1,4,1,constant,-0.5,,1,0.002,,value
+T3_hern_b-0.50_M2_kt0.5,3,hern_b-0.50_M2,kt0.5,1,4,1,constant,-0.5,,2,0.5,hern iso k_t 0.5,value
+T3_hern_b-0.50_M2_kt0.2,3,hern_b-0.50_M2,kt0.2,1,4,1,constant,-0.5,,2,0.2,hern iso k_t 0.2,value
+T3_hern_b-0.50_M2_kt0.05,3,hern_b-0.50_M2,kt0.05,1,4,1,constant,-0.5,,2,0.05,hern iso k_t 0.05,value
+T3_hern_b-0.50_M2_kt0.01,3,hern_b-0.50_M2,kt0.01,1,4,1,constant,-0.5,,2,0.01,hern iso k_t 0.01,value
+T3_hern_b-0.50_M2_kt0.002,3,hern_b-0.50_M2,kt0.002,1,4,1,constant,-0.5,,2,0.002,hern iso k_t 0.002,value
+T3_hern_b+0.25_M1_kt0.5,3,hern_b+0.25_M1,kt0.5,1,4,1,constant,0.25,,1,0.5,,value
+T3_hern_b+0.25_M1_kt0.2,3,hern_b+0.25_M1,kt0.2,1,4,1,constant,0.25,,1,0.2,,value
+T3_hern_b+0.25_M1_kt0.05,3,hern_b+0.25_M1,kt0.05,1,4,1,constant,0.25,,1,0.05,,value
+T3_hern_b+0.25_M1_kt0.01,3,hern_b+0.25_M1,kt0.01,1,4,1,constant,0.25,,1,0.01,,value
+T3_hern_b+0.25_M1_kt0.002,3,hern_b+0.25_M1,kt0.002,1,4,1,constant,0.25,,1,0.002,,value
+T3_hern_b+0.25_M2_kt0.5,3,hern_b+0.25_M2,kt0.5,1,4,1,constant,0.25,,2,0.5,hern iso k_t 0.5,value
+T3_hern_b+0.25_M2_kt0.2,3,hern_b+0.25_M2,kt0.2,1,4,1,constant,0.25,,2,0.2,hern iso k_t 0.2,value
+T3_hern_b+0.25_M2_kt0.05,3,hern_b+0.25_M2,kt0.05,1,4,1,constant,0.25,,2,0.05,hern iso k_t 0.05,value
+T3_hern_b+0.25_M2_kt0.01,3,hern_b+0.25_M2,kt0.01,1,4,1,constant,0.25,,2,0.01,hern iso k_t 0.01,value
+T3_hern_b+0.25_M2_kt0.002,3,hern_b+0.25_M2,kt0.002,1,4,1,constant,0.25,,2,0.002,hern iso k_t 0.002,value
+T3_hern_OMI_Ra10_M1_kt0.5,3,hern_OMI_Ra10_M1,kt0.5,1,4,1,OM_I,0.0,10,1,0.5,,value
+T3_hern_OMI_Ra10_M1_kt0.2,3,hern_OMI_Ra10_M1,kt0.2,1,4,1,OM_I,0.0,10,1,0.2,,value
+T3_hern_OMI_Ra10_M1_kt0.05,3,hern_OMI_Ra10_M1,kt0.05,1,4,1,OM_I,0.0,10,1,0.05,,value
+T3_hern_OMI_Ra10_M1_kt0.01,3,hern_OMI_Ra10_M1,kt0.01,1,4,1,OM_I,0.0,10,1,0.01,,value
+T3_hern_OMI_Ra10_M1_kt0.002,3,hern_OMI_Ra10_M1,kt0.002,1,4,1,OM_I,0.0,10,1,0.002,,refusal: UnphysicalModelError: NO EDGE
+T3_hern_OMI_Ra10_M2_kt0.5,3,hern_OMI_Ra10_M2,kt0.5,1,4,1,OM_I,0.0,10,2,0.5,hern iso k_t 0.5,value
+T3_hern_OMI_Ra10_M2_kt0.2,3,hern_OMI_Ra10_M2,kt0.2,1,4,1,OM_I,0.0,10,2,0.2,hern iso k_t 0.2,value
+T3_hern_OMI_Ra10_M2_kt0.05,3,hern_OMI_Ra10_M2,kt0.05,1,4,1,OM_I,0.0,10,2,0.05,hern iso k_t 0.05,value
+T3_hern_OMI_Ra10_M2_kt0.01,3,hern_OMI_Ra10_M2,kt0.01,1,4,1,OM_I,0.0,10,2,0.01,hern iso k_t 0.01,value
+T3_hern_OMI_Ra10_M2_kt0.002,3,hern_OMI_Ra10_M2,kt0.002,1,4,1,OM_I,0.0,10,2,0.002,hern iso k_t 0.002,value
+T3_hern_OMII_Ra10_M1_kt0.5,3,hern_OMII_Ra10_M1,kt0.5,1,4,1,OM_II,0.0,10,1,0.5,,value
+T3_hern_OMII_Ra10_M1_kt0.2,3,hern_OMII_Ra10_M1,kt0.2,1,4,1,OM_II,0.0,10,1,0.2,,value
+T3_hern_OMII_Ra10_M1_kt0.05,3,hern_OMII_Ra10_M1,kt0.05,1,4,1,OM_II,0.0,10,1,0.05,,refusal: UnphysicalModelError: DOMAIN
+T3_hern_OMII_Ra10_M1_kt0.01,3,hern_OMII_Ra10_M1,kt0.01,1,4,1,OM_II,0.0,10,1,0.01,,refusal: UnphysicalModelError: DOMAIN
+T3_hern_OMII_Ra10_M1_kt0.002,3,hern_OMII_Ra10_M1,kt0.002,1,4,1,OM_II,0.0,10,1,0.002,,refusal: UnphysicalModelError: DOMAIN
+T3_hern_OMII_Ra10_M2_kt0.5,3,hern_OMII_Ra10_M2,kt0.5,1,4,1,OM_II,0.0,10,2,0.5,hern iso k_t 0.5,value
+T3_hern_OMII_Ra10_M2_kt0.2,3,hern_OMII_Ra10_M2,kt0.2,1,4,1,OM_II,0.0,10,2,0.2,hern iso k_t 0.2,value
+T3_hern_OMII_Ra10_M2_kt0.05,3,hern_OMII_Ra10_M2,kt0.05,1,4,1,OM_II,0.0,10,2,0.05,hern iso k_t 0.05,refusal: InputError: needs its parent's edge inside r_a
+T3_hern_OMII_Ra10_M2_kt0.01,3,hern_OMII_Ra10_M2,kt0.01,1,4,1,OM_II,0.0,10,2,0.01,hern iso k_t 0.01,refusal: InputError: needs its parent's edge inside r_a
+T3_hern_OMII_Ra10_M2_kt0.002,3,hern_OMII_Ra10_M2,kt0.002,1,4,1,OM_II,0.0,10,2,0.002,hern iso k_t 0.002,refusal: InputError: needs its parent's edge inside r_a
+T3_hern_COMI_b-0.25_Ra10_M1_kt0.5,3,hern_COMI_b-0.25_Ra10_M1,kt0.5,1,4,1,COM_I,-0.25,10,1,0.5,,value
+T3_hern_COMI_b-0.25_Ra10_M1_kt0.2,3,hern_COMI_b-0.25_Ra10_M1,kt0.2,1,4,1,COM_I,-0.25,10,1,0.2,,value
+T3_hern_COMI_b-0.25_Ra10_M1_kt0.05,3,hern_COMI_b-0.25_Ra10_M1,kt0.05,1,4,1,COM_I,-0.25,10,1,0.05,,value
+T3_hern_COMI_b-0.25_Ra10_M1_kt0.01,3,hern_COMI_b-0.25_Ra10_M1,kt0.01,1,4,1,COM_I,-0.25,10,1,0.01,,value
+T3_hern_COMI_b-0.25_Ra10_M1_kt0.002,3,hern_COMI_b-0.25_Ra10_M1,kt0.002,1,4,1,COM_I,-0.25,10,1,0.002,,refusal: UnphysicalModelError: NO EDGE
+T3_hern_COMI_b-0.25_Ra10_M2_kt0.5,3,hern_COMI_b-0.25_Ra10_M2,kt0.5,1,4,1,COM_I,-0.25,10,2,0.5,hern iso k_t 0.5,value
+T3_hern_COMI_b-0.25_Ra10_M2_kt0.2,3,hern_COMI_b-0.25_Ra10_M2,kt0.2,1,4,1,COM_I,-0.25,10,2,0.2,hern iso k_t 0.2,value
+T3_hern_COMI_b-0.25_Ra10_M2_kt0.05,3,hern_COMI_b-0.25_Ra10_M2,kt0.05,1,4,1,COM_I,-0.25,10,2,0.05,hern iso k_t 0.05,value
+T3_hern_COMI_b-0.25_Ra10_M2_kt0.01,3,hern_COMI_b-0.25_Ra10_M2,kt0.01,1,4,1,COM_I,-0.25,10,2,0.01,hern iso k_t 0.01,value
+T3_hern_COMI_b-0.25_Ra10_M2_kt0.002,3,hern_COMI_b-0.25_Ra10_M2,kt0.002,1,4,1,COM_I,-0.25,10,2,0.002,hern iso k_t 0.002,value
+T3_cored_iso_M1_kt0.5,3,cored_iso_M1,kt0.5,1,4,0,iso,0.0,,1,0.5,,value
+T3_cored_iso_M1_kt0.2,3,cored_iso_M1,kt0.2,1,4,0,iso,0.0,,1,0.2,,value
+T3_cored_iso_M1_kt0.05,3,cored_iso_M1,kt0.05,1,4,0,iso,0.0,,1,0.05,,value
+T3_cored_iso_M1_kt0.01,3,cored_iso_M1,kt0.01,1,4,0,iso,0.0,,1,0.01,,value
+T3_cored_iso_M1_kt0.002,3,cored_iso_M1,kt0.002,1,4,0,iso,0.0,,1,0.002,,value
+T3_cored_iso_M2_kt0.5,3,cored_iso_M2,kt0.5,1,4,0,iso,0.0,,2,0.5,cored iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.2,3,cored_iso_M2,kt0.2,1,4,0,iso,0.0,,2,0.2,cored iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.05,3,cored_iso_M2,kt0.05,1,4,0,iso,0.0,,2,0.05,cored iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.01,3,cored_iso_M2,kt0.01,1,4,0,iso,0.0,,2,0.01,cored iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_iso_M2_kt0.002,3,cored_iso_M2,kt0.002,1,4,0,iso,0.0,,2,0.002,cored iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_cored_b-0.50_M1_kt0.5,3,cored_b-0.50_M1,kt0.5,1,4,0,constant,-0.5,,1,0.5,,value
+T3_cored_b-0.50_M1_kt0.2,3,cored_b-0.50_M1,kt0.2,1,4,0,constant,-0.5,,1,0.2,,value
+T3_cored_b-0.50_M1_kt0.05,3,cored_b-0.50_M1,kt0.05,1,4,0,constant,-0.5,,1,0.05,,value
+T3_cored_b-0.50_M1_kt0.01,3,cored_b-0.50_M1,kt0.01,1,4,0,constant,-0.5,,1,0.01,,value
+T3_cored_b-0.50_M1_kt0.002,3,cored_b-0.50_M1,kt0.002,1,4,0,constant,-0.5,,1,0.002,,value
+T3_cored_b-0.50_M2_kt0.5,3,cored_b-0.50_M2,kt0.5,1,4,0,constant,-0.5,,2,0.5,cored iso k_t 0.5,refusal: AccuracyError: The truncated model's DF does not meet its own checks: the top_form
+T3_cored_b-0.50_M2_kt0.2,3,cored_b-0.50_M2,kt0.2,1,4,0,constant,-0.5,,2,0.2,cored iso k_t 0.2,refusal: AccuracyError: The truncated model's DF does not meet its own checks: the top_form
+T3_cored_b-0.50_M2_kt0.05,3,cored_b-0.50_M2,kt0.05,1,4,0,constant,-0.5,,2,0.05,cored iso k_t 0.05,value
+T3_cored_b-0.50_M2_kt0.01,3,cored_b-0.50_M2,kt0.01,1,4,0,constant,-0.5,,2,0.01,cored iso k_t 0.01,value
+T3_cored_b-0.50_M2_kt0.002,3,cored_b-0.50_M2,kt0.002,1,4,0,constant,-0.5,,2,0.002,cored iso k_t 0.002,value
+T3_cored_b+0.25_M1_kt0.5,3,cored_b+0.25_M1,kt0.5,1,4,0,constant,0.25,,1,0.5,,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M1_kt0.2,3,cored_b+0.25_M1,kt0.2,1,4,0,constant,0.25,,1,0.2,,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M1_kt0.05,3,cored_b+0.25_M1,kt0.05,1,4,0,constant,0.25,,1,0.05,,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M1_kt0.01,3,cored_b+0.25_M1,kt0.01,1,4,0,constant,0.25,,1,0.01,,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M1_kt0.002,3,cored_b+0.25_M1,kt0.002,1,4,0,constant,0.25,,1,0.002,,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M2_kt0.5,3,cored_b+0.25_M2,kt0.5,1,4,0,constant,0.25,,2,0.5,cored iso k_t 0.5,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M2_kt0.2,3,cored_b+0.25_M2,kt0.2,1,4,0,constant,0.25,,2,0.2,cored iso k_t 0.2,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M2_kt0.05,3,cored_b+0.25_M2,kt0.05,1,4,0,constant,0.25,,2,0.05,cored iso k_t 0.05,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M2_kt0.01,3,cored_b+0.25_M2,kt0.01,1,4,0,constant,0.25,,2,0.01,cored iso k_t 0.01,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_b+0.25_M2_kt0.002,3,cored_b+0.25_M2,kt0.002,1,4,0,constant,0.25,,2,0.002,cored iso k_t 0.002,refusal: UnphysicalModelError: CENTRAL VALIDITY
+T3_cored_OMI_Ra10_M1_kt0.5,3,cored_OMI_Ra10_M1,kt0.5,1,4,0,OM_I,0.0,10,1,0.5,,value
+T3_cored_OMI_Ra10_M1_kt0.2,3,cored_OMI_Ra10_M1,kt0.2,1,4,0,OM_I,0.0,10,1,0.2,,value
+T3_cored_OMI_Ra10_M1_kt0.05,3,cored_OMI_Ra10_M1,kt0.05,1,4,0,OM_I,0.0,10,1,0.05,,value
+T3_cored_OMI_Ra10_M1_kt0.01,3,cored_OMI_Ra10_M1,kt0.01,1,4,0,OM_I,0.0,10,1,0.01,,refusal: UnphysicalModelError: NO EDGE
+T3_cored_OMI_Ra10_M1_kt0.002,3,cored_OMI_Ra10_M1,kt0.002,1,4,0,OM_I,0.0,10,1,0.002,,refusal: UnphysicalModelError: NO EDGE
+T3_cored_OMI_Ra10_M2_kt0.5,3,cored_OMI_Ra10_M2,kt0.5,1,4,0,OM_I,0.0,10,2,0.5,cored iso k_t 0.5,value
+T3_cored_OMI_Ra10_M2_kt0.2,3,cored_OMI_Ra10_M2,kt0.2,1,4,0,OM_I,0.0,10,2,0.2,cored iso k_t 0.2,value
+T3_cored_OMI_Ra10_M2_kt0.05,3,cored_OMI_Ra10_M2,kt0.05,1,4,0,OM_I,0.0,10,2,0.05,cored iso k_t 0.05,value
+T3_cored_OMI_Ra10_M2_kt0.01,3,cored_OMI_Ra10_M2,kt0.01,1,4,0,OM_I,0.0,10,2,0.01,cored iso k_t 0.01,value
+T3_cored_OMI_Ra10_M2_kt0.002,3,cored_OMI_Ra10_M2,kt0.002,1,4,0,OM_I,0.0,10,2,0.002,cored iso k_t 0.002,value
+T3_cored_OMII_Ra10_M1_kt0.5,3,cored_OMII_Ra10_M1,kt0.5,1,4,0,OM_II,0.0,10,1,0.5,,value
+T3_cored_OMII_Ra10_M1_kt0.2,3,cored_OMII_Ra10_M1,kt0.2,1,4,0,OM_II,0.0,10,1,0.2,,refusal: UnphysicalModelError: TYPE II EDGE
+T3_cored_OMII_Ra10_M1_kt0.05,3,cored_OMII_Ra10_M1,kt0.05,1,4,0,OM_II,0.0,10,1,0.05,,refusal: UnphysicalModelError: DOMAIN
+T3_cored_OMII_Ra10_M1_kt0.01,3,cored_OMII_Ra10_M1,kt0.01,1,4,0,OM_II,0.0,10,1,0.01,,refusal: UnphysicalModelError: DOMAIN
+T3_cored_OMII_Ra10_M1_kt0.002,3,cored_OMII_Ra10_M1,kt0.002,1,4,0,OM_II,0.0,10,1,0.002,,refusal: UnphysicalModelError: DOMAIN
+T3_cored_OMII_Ra10_M2_kt0.5,3,cored_OMII_Ra10_M2,kt0.5,1,4,0,OM_II,0.0,10,2,0.5,cored iso k_t 0.5,value
+T3_cored_OMII_Ra10_M2_kt0.2,3,cored_OMII_Ra10_M2,kt0.2,1,4,0,OM_II,0.0,10,2,0.2,cored iso k_t 0.2,refusal: InputError: needs its parent's edge inside r_a
+T3_cored_OMII_Ra10_M2_kt0.05,3,cored_OMII_Ra10_M2,kt0.05,1,4,0,OM_II,0.0,10,2,0.05,cored iso k_t 0.05,refusal: InputError: needs its parent's edge inside r_a
+T3_cored_OMII_Ra10_M2_kt0.01,3,cored_OMII_Ra10_M2,kt0.01,1,4,0,OM_II,0.0,10,2,0.01,cored iso k_t 0.01,refusal: InputError: needs its parent's edge inside r_a
+T3_cored_OMII_Ra10_M2_kt0.002,3,cored_OMII_Ra10_M2,kt0.002,1,4,0,OM_II,0.0,10,2,0.002,cored iso k_t 0.002,refusal: InputError: needs its parent's edge inside r_a
+T3_cored_COMI_b-0.25_Ra10_M1_kt0.5,3,cored_COMI_b-0.25_Ra10_M1,kt0.5,1,4,0,COM_I,-0.25,10,1,0.5,,value
+T3_cored_COMI_b-0.25_Ra10_M1_kt0.2,3,cored_COMI_b-0.25_Ra10_M1,kt0.2,1,4,0,COM_I,-0.25,10,1,0.2,,value
+T3_cored_COMI_b-0.25_Ra10_M1_kt0.05,3,cored_COMI_b-0.25_Ra10_M1,kt0.05,1,4,0,COM_I,-0.25,10,1,0.05,,value
+T3_cored_COMI_b-0.25_Ra10_M1_kt0.01,3,cored_COMI_b-0.25_Ra10_M1,kt0.01,1,4,0,COM_I,-0.25,10,1,0.01,,refusal: UnphysicalModelError: NO EDGE
+T3_cored_COMI_b-0.25_Ra10_M1_kt0.002,3,cored_COMI_b-0.25_Ra10_M1,kt0.002,1,4,0,COM_I,-0.25,10,1,0.002,,refusal: UnphysicalModelError: NO EDGE
+T3_cored_COMI_b-0.25_Ra10_M2_kt0.5,3,cored_COMI_b-0.25_Ra10_M2,kt0.5,1,4,0,COM_I,-0.25,10,2,0.5,cored iso k_t 0.5,refusal: AccuracyError: The truncated model's DF does not meet its own checks: the top_form
+T3_cored_COMI_b-0.25_Ra10_M2_kt0.2,3,cored_COMI_b-0.25_Ra10_M2,kt0.2,1,4,0,COM_I,-0.25,10,2,0.2,cored iso k_t 0.2,value
+T3_cored_COMI_b-0.25_Ra10_M2_kt0.05,3,cored_COMI_b-0.25_Ra10_M2,kt0.05,1,4,0,COM_I,-0.25,10,2,0.05,cored iso k_t 0.05,value
+T3_cored_COMI_b-0.25_Ra10_M2_kt0.01,3,cored_COMI_b-0.25_Ra10_M2,kt0.01,1,4,0,COM_I,-0.25,10,2,0.01,cored iso k_t 0.01,value
+T3_cored_COMI_b-0.25_Ra10_M2_kt0.002,3,cored_COMI_b-0.25_Ra10_M2,kt0.002,1,4,0,COM_I,-0.25,10,2,0.002,cored iso k_t 0.002,value
+T3_steep_iso_M1_kt0.5,3,steep_iso_M1,kt0.5,1,4,1.5,iso,0.0,,1,0.5,,value
+T3_steep_iso_M1_kt0.2,3,steep_iso_M1,kt0.2,1,4,1.5,iso,0.0,,1,0.2,,value
+T3_steep_iso_M1_kt0.05,3,steep_iso_M1,kt0.05,1,4,1.5,iso,0.0,,1,0.05,,value
+T3_steep_iso_M1_kt0.01,3,steep_iso_M1,kt0.01,1,4,1.5,iso,0.0,,1,0.01,,value
+T3_steep_iso_M1_kt0.002,3,steep_iso_M1,kt0.002,1,4,1.5,iso,0.0,,1,0.002,,value
+T3_steep_iso_M2_kt0.5,3,steep_iso_M2,kt0.5,1,4,1.5,iso,0.0,,2,0.5,steep iso k_t 0.5,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.2,3,steep_iso_M2,kt0.2,1,4,1.5,iso,0.0,,2,0.2,steep iso k_t 0.2,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.05,3,steep_iso_M2,kt0.05,1,4,1.5,iso,0.0,,2,0.05,steep iso k_t 0.05,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.01,3,steep_iso_M2,kt0.01,1,4,1.5,iso,0.0,,2,0.01,steep iso k_t 0.01,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_iso_M2_kt0.002,3,steep_iso_M2,kt0.002,1,4,1.5,iso,0.0,,2,0.002,steep iso k_t 0.002,"value: the parent's DF within 1e-6, read by the package's rule"
+T3_steep_b-0.50_M1_kt0.5,3,steep_b-0.50_M1,kt0.5,1,4,1.5,constant,-0.5,,1,0.5,,value
+T3_steep_b-0.50_M1_kt0.2,3,steep_b-0.50_M1,kt0.2,1,4,1.5,constant,-0.5,,1,0.2,,value
+T3_steep_b-0.50_M1_kt0.05,3,steep_b-0.50_M1,kt0.05,1,4,1.5,constant,-0.5,,1,0.05,,value
+T3_steep_b-0.50_M1_kt0.01,3,steep_b-0.50_M1,kt0.01,1,4,1.5,constant,-0.5,,1,0.01,,value
+T3_steep_b-0.50_M1_kt0.002,3,steep_b-0.50_M1,kt0.002,1,4,1.5,constant,-0.5,,1,0.002,,value
+T3_steep_b-0.50_M2_kt0.5,3,steep_b-0.50_M2,kt0.5,1,4,1.5,constant,-0.5,,2,0.5,steep iso k_t 0.5,value
+T3_steep_b-0.50_M2_kt0.2,3,steep_b-0.50_M2,kt0.2,1,4,1.5,constant,-0.5,,2,0.2,steep iso k_t 0.2,value
+T3_steep_b-0.50_M2_kt0.05,3,steep_b-0.50_M2,kt0.05,1,4,1.5,constant,-0.5,,2,0.05,steep iso k_t 0.05,value
+T3_steep_b-0.50_M2_kt0.01,3,steep_b-0.50_M2,kt0.01,1,4,1.5,constant,-0.5,,2,0.01,steep iso k_t 0.01,value
+T3_steep_b-0.50_M2_kt0.002,3,steep_b-0.50_M2,kt0.002,1,4,1.5,constant,-0.5,,2,0.002,steep iso k_t 0.002,value
+T3_steep_b+0.25_M1_kt0.5,3,steep_b+0.25_M1,kt0.5,1,4,1.5,constant,0.25,,1,0.5,,value
+T3_steep_b+0.25_M1_kt0.2,3,steep_b+0.25_M1,kt0.2,1,4,1.5,constant,0.25,,1,0.2,,value
+T3_steep_b+0.25_M1_kt0.05,3,steep_b+0.25_M1,kt0.05,1,4,1.5,constant,0.25,,1,0.05,,value
+T3_steep_b+0.25_M1_kt0.01,3,steep_b+0.25_M1,kt0.01,1,4,1.5,constant,0.25,,1,0.01,,value
+T3_steep_b+0.25_M1_kt0.002,3,steep_b+0.25_M1,kt0.002,1,4,1.5,constant,0.25,,1,0.002,,value
+T3_steep_b+0.25_M2_kt0.5,3,steep_b+0.25_M2,kt0.5,1,4,1.5,constant,0.25,,2,0.5,steep iso k_t 0.5,value
+T3_steep_b+0.25_M2_kt0.2,3,steep_b+0.25_M2,kt0.2,1,4,1.5,constant,0.25,,2,0.2,steep iso k_t 0.2,value
+T3_steep_b+0.25_M2_kt0.05,3,steep_b+0.25_M2,kt0.05,1,4,1.5,constant,0.25,,2,0.05,steep iso k_t 0.05,value
+T3_steep_b+0.25_M2_kt0.01,3,steep_b+0.25_M2,kt0.01,1,4,1.5,constant,0.25,,2,0.01,steep iso k_t 0.01,value
+T3_steep_b+0.25_M2_kt0.002,3,steep_b+0.25_M2,kt0.002,1,4,1.5,constant,0.25,,2,0.002,steep iso k_t 0.002,value
+T3_steep_OMI_Ra10_M1_kt0.5,3,steep_OMI_Ra10_M1,kt0.5,1,4,1.5,OM_I,0.0,10,1,0.5,,value
+T3_steep_OMI_Ra10_M1_kt0.2,3,steep_OMI_Ra10_M1,kt0.2,1,4,1.5,OM_I,0.0,10,1,0.2,,value
+T3_steep_OMI_Ra10_M1_kt0.05,3,steep_OMI_Ra10_M1,kt0.05,1,4,1.5,OM_I,0.0,10,1,0.05,,value
+T3_steep_OMI_Ra10_M1_kt0.01,3,steep_OMI_Ra10_M1,kt0.01,1,4,1.5,OM_I,0.0,10,1,0.01,,value
+T3_steep_OMI_Ra10_M1_kt0.002,3,steep_OMI_Ra10_M1,kt0.002,1,4,1.5,OM_I,0.0,10,1,0.002,,refusal: UnphysicalModelError: NO EDGE
+T3_steep_OMI_Ra10_M2_kt0.5,3,steep_OMI_Ra10_M2,kt0.5,1,4,1.5,OM_I,0.0,10,2,0.5,steep iso k_t 0.5,value
+T3_steep_OMI_Ra10_M2_kt0.2,3,steep_OMI_Ra10_M2,kt0.2,1,4,1.5,OM_I,0.0,10,2,0.2,steep iso k_t 0.2,value
+T3_steep_OMI_Ra10_M2_kt0.05,3,steep_OMI_Ra10_M2,kt0.05,1,4,1.5,OM_I,0.0,10,2,0.05,steep iso k_t 0.05,value
+T3_steep_OMI_Ra10_M2_kt0.01,3,steep_OMI_Ra10_M2,kt0.01,1,4,1.5,OM_I,0.0,10,2,0.01,steep iso k_t 0.01,value
+T3_steep_OMI_Ra10_M2_kt0.002,3,steep_OMI_Ra10_M2,kt0.002,1,4,1.5,OM_I,0.0,10,2,0.002,steep iso k_t 0.002,value
+T3_steep_OMII_Ra10_M1_kt0.5,3,steep_OMII_Ra10_M1,kt0.5,1,4,1.5,OM_II,0.0,10,1,0.5,,value
+T3_steep_OMII_Ra10_M1_kt0.2,3,steep_OMII_Ra10_M1,kt0.2,1,4,1.5,OM_II,0.0,10,1,0.2,,value
+T3_steep_OMII_Ra10_M1_kt0.05,3,steep_OMII_Ra10_M1,kt0.05,1,4,1.5,OM_II,0.0,10,1,0.05,,refusal: UnphysicalModelError: TYPE II EDGE
+T3_steep_OMII_Ra10_M1_kt0.01,3,steep_OMII_Ra10_M1,kt0.01,1,4,1.5,OM_II,0.0,10,1,0.01,,refusal: UnphysicalModelError: DOMAIN
+T3_steep_OMII_Ra10_M1_kt0.002,3,steep_OMII_Ra10_M1,kt0.002,1,4,1.5,OM_II,0.0,10,1,0.002,,refusal: UnphysicalModelError: DOMAIN
+T3_steep_OMII_Ra10_M2_kt0.5,3,steep_OMII_Ra10_M2,kt0.5,1,4,1.5,OM_II,0.0,10,2,0.5,steep iso k_t 0.5,value
+T3_steep_OMII_Ra10_M2_kt0.2,3,steep_OMII_Ra10_M2,kt0.2,1,4,1.5,OM_II,0.0,10,2,0.2,steep iso k_t 0.2,value
+T3_steep_OMII_Ra10_M2_kt0.05,3,steep_OMII_Ra10_M2,kt0.05,1,4,1.5,OM_II,0.0,10,2,0.05,steep iso k_t 0.05,refusal: InputError: needs its parent's edge inside r_a
+T3_steep_OMII_Ra10_M2_kt0.01,3,steep_OMII_Ra10_M2,kt0.01,1,4,1.5,OM_II,0.0,10,2,0.01,steep iso k_t 0.01,refusal: InputError: needs its parent's edge inside r_a
+T3_steep_OMII_Ra10_M2_kt0.002,3,steep_OMII_Ra10_M2,kt0.002,1,4,1.5,OM_II,0.0,10,2,0.002,steep iso k_t 0.002,refusal: InputError: needs its parent's edge inside r_a
+T3_steep_COMI_b-0.25_Ra10_M1_kt0.5,3,steep_COMI_b-0.25_Ra10_M1,kt0.5,1,4,1.5,COM_I,-0.25,10,1,0.5,,value
+T3_steep_COMI_b-0.25_Ra10_M1_kt0.2,3,steep_COMI_b-0.25_Ra10_M1,kt0.2,1,4,1.5,COM_I,-0.25,10,1,0.2,,value
+T3_steep_COMI_b-0.25_Ra10_M1_kt0.05,3,steep_COMI_b-0.25_Ra10_M1,kt0.05,1,4,1.5,COM_I,-0.25,10,1,0.05,,value
+T3_steep_COMI_b-0.25_Ra10_M1_kt0.01,3,steep_COMI_b-0.25_Ra10_M1,kt0.01,1,4,1.5,COM_I,-0.25,10,1,0.01,,value
+T3_steep_COMI_b-0.25_Ra10_M1_kt0.002,3,steep_COMI_b-0.25_Ra10_M1,kt0.002,1,4,1.5,COM_I,-0.25,10,1,0.002,,refusal: UnphysicalModelError: NO EDGE
+T3_steep_COMI_b-0.25_Ra10_M2_kt0.5,3,steep_COMI_b-0.25_Ra10_M2,kt0.5,1,4,1.5,COM_I,-0.25,10,2,0.5,steep iso k_t 0.5,value
+T3_steep_COMI_b-0.25_Ra10_M2_kt0.2,3,steep_COMI_b-0.25_Ra10_M2,kt0.2,1,4,1.5,COM_I,-0.25,10,2,0.2,steep iso k_t 0.2,value
+T3_steep_COMI_b-0.25_Ra10_M2_kt0.05,3,steep_COMI_b-0.25_Ra10_M2,kt0.05,1,4,1.5,COM_I,-0.25,10,2,0.05,steep iso k_t 0.05,value
+T3_steep_COMI_b-0.25_Ra10_M2_kt0.01,3,steep_COMI_b-0.25_Ra10_M2,kt0.01,1,4,1.5,COM_I,-0.25,10,2,0.01,steep iso k_t 0.01,value
+T3_steep_COMI_b-0.25_Ra10_M2_kt0.002,3,steep_COMI_b-0.25_Ra10_M2,kt0.002,1,4,1.5,COM_I,-0.25,10,2,0.002,steep iso k_t 0.002,value
+T4_g0_b4_bc=gamma/2,4,g0_b4,bc=gamma/2,1,4,0,iso,0.0,,1,,,value
+T4_g0_b4_bc=-0.5+1e-7,4,g0_b4,bc=-0.5+1e-7,1,4,0,constant,-0.4999999,,1,,,value
+T4_g0_b4_bc=-1,4,g0_b4,bc=-1,1,4,0,constant,-1.0,,1,,,value
+T4_g0_b4_bc=-1.5,4,g0_b4,bc=-1.5,1,4,0,constant,-1.5,,1,,,value
+T4_g0_b4_bc=+0.75,4,g0_b4,bc=+0.75,1,4,0,constant,0.75,,1,,,value: not physical
+T4_g0_b4_OMI_Ra0.3_kt0.01,4,g0_b4,OMI_Ra0.3_kt0.01,1,4,0,OM_I,0.0,0.3,1,0.01,,refusal: UnphysicalModelError: Z GATE
+T4_g0_b4_bc=-0.5_kt0.3,4,g0_b4,bc=-0.5_kt0.3,1,4,0,constant,-0.5,,1,0.3,,value
+T4_g0.5_b4_bc=gamma/2,4,g0.5_b4,bc=gamma/2,1,4,0.5,constant,0.25,,1,,,value
+T4_g0.5_b4_bc=-0.5+1e-7,4,g0.5_b4,bc=-0.5+1e-7,1,4,0.5,constant,-0.4999999,,1,,,value
+T4_g0.5_b4_bc=-1,4,g0.5_b4,bc=-1,1,4,0.5,constant,-1.0,,1,,,value
+T4_g0.5_b4_bc=-1.5,4,g0.5_b4,bc=-1.5,1,4,0.5,constant,-1.5,,1,,,value
+T4_g0.5_b4_bc=+0.75,4,g0.5_b4,bc=+0.75,1,4,0.5,constant,0.75,,1,,,value: not physical
+T4_g0.5_b4_OMI_Ra0.3_kt0.01,4,g0.5_b4,OMI_Ra0.3_kt0.01,1,4,0.5,OM_I,0.0,0.3,1,0.01,,refusal: UnphysicalModelError: Z GATE
+T4_g0.5_b4_bc=-0.5_kt0.3,4,g0.5_b4,bc=-0.5_kt0.3,1,4,0.5,constant,-0.5,,1,0.3,,value
+T4_g1_b4_bc=gamma/2,4,g1_b4,bc=gamma/2,1,4,1,constant,0.5,,1,,,value
+T4_g1_b4_bc=-0.5+1e-7,4,g1_b4,bc=-0.5+1e-7,1,4,1,constant,-0.4999999,,1,,,value
+T4_g1_b4_bc=-1,4,g1_b4,bc=-1,1,4,1,constant,-1.0,,1,,,value
+T4_g1_b4_bc=-1.5,4,g1_b4,bc=-1.5,1,4,1,constant,-1.5,,1,,,value
+T4_g1_b4_bc=+0.75,4,g1_b4,bc=+0.75,1,4,1,constant,0.75,,1,,,value: not physical
+T4_g1_b4_OMI_Ra0.3_kt0.01,4,g1_b4,OMI_Ra0.3_kt0.01,1,4,1,OM_I,0.0,0.3,1,0.01,,refusal: UnphysicalModelError: Z GATE
+T4_g1_b4_bc=-0.5_kt0.3,4,g1_b4,bc=-0.5_kt0.3,1,4,1,constant,-0.5,,1,0.3,,value
+T4_g1.5_b4_bc=gamma/2,4,g1.5_b4,bc=gamma/2,1,4,1.5,constant,0.75,,1,,,value
+T4_g1.5_b4_bc=-0.5+1e-7,4,g1.5_b4,bc=-0.5+1e-7,1,4,1.5,constant,-0.4999999,,1,,,value
+T4_g1.5_b4_bc=-1,4,g1.5_b4,bc=-1,1,4,1.5,constant,-1.0,,1,,,value
+T4_g1.5_b4_bc=-1.5,4,g1.5_b4,bc=-1.5,1,4,1.5,constant,-1.5,,1,,,value
+T4_g1.5_b4_bc=+0.75,4,g1.5_b4,bc=+0.75,1,4,1.5,constant,0.75,,1,,,value
+T4_g1.5_b4_OMI_Ra0.3_kt0.01,4,g1.5_b4,OMI_Ra0.3_kt0.01,1,4,1.5,OM_I,0.0,0.3,1,0.01,,refusal: UnphysicalModelError: Z GATE
+T4_g1.5_b4_bc=-0.5_kt0.3,4,g1.5_b4,bc=-0.5_kt0.3,1,4,1.5,constant,-0.5,,1,0.3,,value
+T4_g1.9_b4_bc=gamma/2,4,g1.9_b4,bc=gamma/2,1,4,1.9,constant,0.95,,1,,,value
+T4_g1.9_b4_bc=-0.5+1e-7,4,g1.9_b4,bc=-0.5+1e-7,1,4,1.9,constant,-0.4999999,,1,,,value
+T4_g1.9_b4_bc=-1,4,g1.9_b4,bc=-1,1,4,1.9,constant,-1.0,,1,,,value
+T4_g1.9_b4_bc=-1.5,4,g1.9_b4,bc=-1.5,1,4,1.9,constant,-1.5,,1,,,value
+T4_g1.9_b4_bc=+0.75,4,g1.9_b4,bc=+0.75,1,4,1.9,constant,0.75,,1,,,value
+T4_g1.9_b4_OMI_Ra0.3_kt0.01,4,g1.9_b4,OMI_Ra0.3_kt0.01,1,4,1.9,OM_I,0.0,0.3,1,0.01,,refusal: UnphysicalModelError: Z GATE
+T4_g1.9_b4_bc=-0.5_kt0.3,4,g1.9_b4,bc=-0.5_kt0.3,1,4,1.9,constant,-0.5,,1,0.3,,refusal: AccuracyError: the lowered center's map is not defined at delta_1
+T4_g1.99_b4_bc=gamma/2,4,g1.99_b4,bc=gamma/2,1,4,1.99,constant,0.995,,1,,,refusal: UnphysicalModelError: CENTRAL SERIES
+T4_g1.99_b4_bc=-0.5+1e-7,4,g1.99_b4,bc=-0.5+1e-7,1,4,1.99,constant,-0.4999999,,1,,,value
+T4_g1.99_b4_bc=-1,4,g1.99_b4,bc=-1,1,4,1.99,constant,-1.0,,1,,,value
+T4_g1.99_b4_bc=-1.5,4,g1.99_b4,bc=-1.5,1,4,1.99,constant,-1.5,,1,,,value
+T4_g1.99_b4_bc=+0.75,4,g1.99_b4,bc=+0.75,1,4,1.99,constant,0.75,,1,,,value
+T4_g1.99_b4_OMI_Ra0.3_kt0.01,4,g1.99_b4,OMI_Ra0.3_kt0.01,1,4,1.99,OM_I,0.0,0.3,1,0.01,,refusal: InputError: the series deficit at r0 = 1.000e-09 exceeds half the potential well (gamma = 1.990): the central resolution asked for is not representable
+T4_g1.99_b4_bc=-0.5_kt0.3,4,g1.99_b4,bc=-0.5_kt0.3,1,4,1.99,constant,-0.5,,1,0.3,,refusal: InputError: the series deficit at r0 = 1.000e-09 exceeds half the potential well (gamma = 1.990): the central resolution asked for is not representable
+T4_plummer_bc=gamma/2,4,plummer,bc=gamma/2,2,5,0,iso,0.0,,1,,,value
+T4_plummer_bc=-0.5+1e-7,4,plummer,bc=-0.5+1e-7,2,5,0,constant,-0.4999999,,1,,,value
+T4_plummer_bc=-1,4,plummer,bc=-1,2,5,0,constant,-1.0,,1,,,value
+T4_plummer_bc=-1.5,4,plummer,bc=-1.5,2,5,0,constant,-1.5,,1,,,value
+T4_plummer_bc=+0.75,4,plummer,bc=+0.75,2,5,0,constant,0.75,,1,,,value: not physical
+T4_plummer_OMI_Ra0.3_kt0.01,4,plummer,OMI_Ra0.3_kt0.01,2,5,0,OM_I,0.0,0.3,1,0.01,,refusal: UnphysicalModelError: CENTRAL SIGN
+T4_plummer_bc=-0.5_kt0.3,4,plummer,bc=-0.5_kt0.3,2,5,0,constant,-0.5,,1,0.3,,value
+T4_g2_b4_bc=gamma/2,4,g2_b4,bc=gamma/2,1,4,2,constant,1.0,,1,,,refusal: InputError: rho_gamma must satisfy 0 <= rho_gamma < 2
+T4_g2_b4_bc=-0.5+1e-7,4,g2_b4,bc=-0.5+1e-7,1,4,2,constant,-0.4999999,,1,,,refusal: InputError: rho_gamma must satisfy 0 <= rho_gamma < 2
+T4_g2_b4_bc=-1,4,g2_b4,bc=-1,1,4,2,constant,-1.0,,1,,,refusal: InputError: rho_gamma must satisfy 0 <= rho_gamma < 2
+T4_g2_b4_bc=-1.5,4,g2_b4,bc=-1.5,1,4,2,constant,-1.5,,1,,,refusal: InputError: rho_gamma must satisfy 0 <= rho_gamma < 2
+T4_g2_b4_bc=+0.75,4,g2_b4,bc=+0.75,1,4,2,constant,0.75,,1,,,refusal: InputError: rho_gamma must satisfy 0 <= rho_gamma < 2
+T4_g2_b4_OMI_Ra0.3_kt0.01,4,g2_b4,OMI_Ra0.3_kt0.01,1,4,2,OM_I,0.0,0.3,1,0.01,,refusal: InputError: rho_gamma must satisfy 0 <= rho_gamma < 2
+T4_g2_b4_bc=-0.5_kt0.3,4,g2_b4,bc=-0.5_kt0.3,1,4,2,constant,-0.5,,1,0.3,,refusal: InputError: rho_gamma must satisfy 0 <= rho_gamma < 2
+T4_g1_b2.5_bc=gamma/2,4,g1_b2.5,bc=gamma/2,1,2.5,1,constant,0.5,,1,,,refusal: InputError: OUTER SLOPE
+T4_g1_b2.5_bc=-0.5+1e-7,4,g1_b2.5,bc=-0.5+1e-7,1,2.5,1,constant,-0.4999999,,1,,,refusal: InputError: OUTER SLOPE
+T4_g1_b2.5_bc=-1,4,g1_b2.5,bc=-1,1,2.5,1,constant,-1.0,,1,,,refusal: InputError: OUTER SLOPE
+T4_g1_b2.5_bc=-1.5,4,g1_b2.5,bc=-1.5,1,2.5,1,constant,-1.5,,1,,,refusal: InputError: OUTER SLOPE
+T4_g1_b2.5_bc=+0.75,4,g1_b2.5,bc=+0.75,1,2.5,1,constant,0.75,,1,,,refusal: InputError: OUTER SLOPE
+T4_g1_b2.5_OMI_Ra0.3_kt0.01,4,g1_b2.5,OMI_Ra0.3_kt0.01,1,2.5,1,OM_I,0.0,0.3,1,0.01,,refusal: InputError: OUTER SLOPE
+T4_g1_b2.5_bc=-0.5_kt0.3,4,g1_b2.5,bc=-0.5_kt0.3,1,2.5,1,constant,-0.5,,1,0.3,,refusal: InputError: OUTER SLOPE

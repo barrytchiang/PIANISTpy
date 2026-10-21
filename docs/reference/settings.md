@@ -1,13 +1,16 @@
-# Settings tables
+# Numerical settings
 
 Source: https://pianistpy.com/docs/reference/settings
 
-# Settings tables
+Every numerical setting of the package is a field of `pianistpy.Settings`. The tables below list each
+field, its value under the default settings and under the quick settings ([Accuracy](https://pianistpy.com/docs/guide/accuracy)),
+and what the field controls. The fields fall in five groups, one table each: `inversion`, `truncation`,
+`sampling`, `observables` and `losvd`.
 
-Every numerical setting of the package is a declared field of one group, with its value in each tested tier and
-one line on what it controls. The tables below are generated from the package’s own declaration at every build
-of this manual, so they cannot lag the code. The settings container is pianistpy.Settings; a stage reads
-its group and nothing else; an override of an undeclared field, of the wrong type or not positive is refused.
+An override of a field, such as `pp.Settings(inversion={"n_nodes": 256})`, raises
+`InputError` when the group or the field’s name is unknown. An override also
+raises `InputError` when the value has the wrong type, or when the value is not positive for a
+field that must be positive.
 
 ## inversion
 
@@ -19,53 +22,53 @@ Quick
 
 What it controls
 
-n_nodes
+`n_nodes`
 
 500
 
 same
 
-Gauss-Legendre nodes of the inversion integral.
+The number of Gauss-Legendre nodes of the integral that inverts the density into the distribution function.
 
-n_grid_rows
+`n_grid_rows`
 
 1000
 
 same
 
-Rows of the linear middle zone of the inversion’s energy grid.
+The number of energies in the middle zone of the inversion’s energy grid, where the energies are spaced linearly.
 
-n_grid_tail_rows
+`n_grid_tail_rows`
 
 3000
 
 same
 
-Rows of each logarithmic end zone of the inversion’s energy grid, toward the floor and toward the top.
+The number of energies in each of the two end zones of the inversion’s energy grid, where the energies are spaced logarithmically toward the grid’s floor and toward the grid’s top.
 
-grid_tail_extent
+`grid_tail_extent`
 
 0.03
 
 same
 
-Extent of the energy grid’s end zones, as a fraction of the central potential.
+The width of each end zone of the inversion’s energy grid, as a fraction of the central potential.
 
-table_nodes_per_decade
+`table_nodes_per_decade`
 
 50
 
 same
 
-Nodes per decade of the energy grid below its floor, down to the table’s floor.
+The number of energies per decade below the floor of the inversion’s energy grid, down to the floor of the distribution function’s table.
 
-n_floor_nodes
+`n_floor_nodes`
 
 240
 
 same
 
-Gauss-Legendre nodes in ln P of the completion below the table’s floor (a third of them, at least 40, near the floor).
+The number of Gauss-Legendre nodes, in ln P, of the integral that completes the distribution function below the table’s floor; a third of the nodes, and at least 40 nodes, lie near the floor.
 
 ## truncation
 
@@ -77,149 +80,149 @@ Quick
 
 What it controls
 
-n_source_nodes
+`n_source_nodes`
 
 500
 
 same
 
-Gauss-Legendre nodes of each of the two intervals of the quadrature of the auxiliary density on the source grid.
+The number of Gauss-Legendre nodes in each of the two intervals of the quadrature that computes the auxiliary density on the source grid.
 
-n_source_rows
+`n_source_rows`
 
 12000
 
 same
 
-Rows of the source grid in the potential.
+The number of potential values of the source grid.
 
-n_source_tail_rows
+`n_source_tail_rows`
 
 3000
 
 same
 
-Rows of each logarithmic tail of the source grid, toward the floor and toward the top (at most a third of the rows).
+The number of potential values in each logarithmic tail of the source grid, toward the grid’s floor and toward the grid’s top; each tail holds at most a third of the source grid’s potential values.
 
-source_tail_extent
+`source_tail_extent`
 
 0.03
 
 same
 
-Largest extent of the source grid’s tails, as a fraction of the grid’s top (the tails take at most a hundredth of the top).
+The largest width of each tail of the source grid, as a fraction of the grid’s top; the width used is at most a hundredth of the grid’s top.
 
-source_tail_floor
+`source_tail_floor`
 
 1.20401e-08
 
 same
 
-Smallest start of the source grid’s lower tail and smallest extent of its upper tail, as fractions of the grid’s top.
+The smallest start of the source grid’s lower tail and the smallest width of the source grid’s upper tail, as fractions of the grid’s top.
 
-quadrature_split
+`quadrature_split`
 
 0.9
 
 same
 
-Fraction of the potential where the first interval of the source quadrature ends.
+The fraction of the potential at which the first interval of the source quadrature ends and the second interval begins.
 
-quadrature_stretch
+`quadrature_stretch`
 
 2
 
 same
 
-Power k of the second interval’s map Q = P - u^k, where the kernel’s exponent is not negative.
+The power k of the map Q = P - u^k on the second interval of the source quadrature, where the exponent of the quadrature’s kernel is not negative.
 
-ode_rtol
-
-1e-11
-
-same
-
-Relative tolerance of the Poisson integration.
-
-ode_atol
+`ode_rtol`
 
 1e-11
 
 same
 
-Absolute tolerance of the Poisson integration.
+The relative tolerance of the integration of Poisson’s equation.
 
-n_rows_inner
+`ode_atol`
+
+1e-11
+
+same
+
+The absolute tolerance of the integration of Poisson’s equation.
+
+`n_rows_inner`
 
 500
 
 same
 
-Rows of the Poisson solve’s grid inside the inner zone.
+The number of radii of the Poisson solve’s grid inside the inner zone.
 
-n_rows_outer
+`n_rows_outer`
 
 59500
 
 same
 
-Rows of the Poisson solve’s grid outside the inner zone.
+The number of radii of the Poisson solve’s grid outside the inner zone.
 
-log10_r_min
+`log10_r_min`
 
 -9
 
 same
 
-Logarithm of the Poisson solve’s innermost radius.
+The base-10 logarithm of the innermost radius of the Poisson solve, in internal length units.
 
-log10_r_max
+`log10_r_max`
 
 12
 
 same
 
-Logarithm of the Poisson solve’s outermost radius; a run raises it until the potential there is below half the floor, and the result states the value it used.
+The base-10 logarithm of the outermost radius of the Poisson solve, in internal length units. A computation raises the outermost radius until the potential at the outermost radius is below half the floor, and the result records the value used.
 
-continuation_start
+`continuation_start`
 
 0.01
 
 same
 
-Fraction of the central potential below which a truncated model’s last rows are re-solved on a grid geometric in R_t - r.
+The fraction of the central potential below which the outermost radii of a truncated model are solved again on a grid geometric in R_t - r, where R_t is the truncation radius.
 
-continuation_rows_per_decade
+`continuation_rows_per_decade`
 
 1200
 
 same
 
-Rows per decade of R_t - r of the edge continuation.
+The number of radii per decade of R_t - r in the solve toward the truncation radius R_t.
 
-continuation_floor_fraction
+`continuation_floor_fraction`
 
 0.02
 
 same
 
-The edge continuation’s last row, as a fraction of the floor.
+The potential at the outermost radius of the solve toward the truncation radius, as a fraction of the floor.
 
-profile_bin_decades
+`profile_bin_decades`
 
 0.1
 
 same
 
-Width in decades of the potential of the profile’s row-count bins.
+The width, in decades of the potential, of each bin in which the profile’s radii are counted.
 
-profile_rows_per_decade
+`profile_rows_per_decade`
 
 1000
 
 same
 
-Fewest rows per decade of the potential (and of the depth) that the profile keeps at its two ends; the fills supply the rest.
+The smallest number of radii per decade of the potential, and per decade of the depth, that the profile keeps at the profile’s two ends; the profile’s fills supply the other radii.
 
 ## sampling
 
@@ -231,117 +234,117 @@ Quick
 
 What it controls
 
-n_rows
+`n_rows`
 
 512
 
 same
 
-Rows in potential of the speed table to start from: the rows are refined until the table’s own error across rows is under the goal.
+The number of potential values of the velocity table at the start of the table’s refinement; the number doubles until the table’s own error across potential values is below row_error_goal or until the number reaches n_rows_max.
 
-n_rows_max
+`n_rows_max`
 
 4075
 
 same
 
-Most rows of the speed table: no refinement passes this count.
+The largest number of potential values of the velocity table; the table’s refinement stops at n_rows_max potential values.
 
-n_nodes
+`n_nodes`
 
 2048
 
 512
 
-Nodes of each row of the speed table.
+The number of nodes at each potential value of the velocity table.
 
-n_speed_intervals
+`n_velocity_intervals`
 
 200
 
 same
 
-Intervals in the scaled speed of the distribution integrated on each row of the speed table.
+The number of intervals in the scaled velocity over which the velocity distribution is integrated at each potential value of the velocity table.
 
-n_gauss_legendre
+`n_gauss_legendre`
 
 16
 
 8
 
-Gauss-Legendre nodes of each panel of the speed integrals.
+The number of Gauss-Legendre nodes of each panel of the velocity integrals.
 
-panels_per_decade
+`panels_per_decade`
 
 8
 
 same
 
-Panels per decade of the local variable where the speed integrals refine toward the two ends of a row and inside each interval.
+The number of panels per decade of the local variable where the velocity integrals refine toward the two ends of the velocity range at one potential value and inside each interval.
 
-speed_low_refined
+`velocity_low_refined`
 
 1e-09
 
 same
 
-Smallest scaled speed refined in panels; below it the density is its power law in the speed, integrated in closed form.
+The smallest scaled velocity that the velocity integrals refine in panels; below that velocity, the density follows the density’s power law in the velocity and is integrated in closed form.
 
-edge_refined
+`edge_refined`
 
 1e-12
 
 same
 
-Distance from the edge of the speed support, relative to the edge, down to which panels refine; below it the DF’s rule below its table is integrated in closed form.
+The distance from the edge of the velocity range, relative to the edge, down to which the velocity integrals refine in panels; closer to the edge, the distribution function’s form below the distribution function’s table is integrated in closed form.
 
-radius_edge_refined
+`radius_edge_refined`
 
 1e-10
 
 same
 
-Smallest enclosed-mass fraction beyond a radius that the radius table of a model with a sharp edge resolves in nodes; beyond it the mass follows its power law in the distance from the edge.
+The smallest fraction of the mass beyond a radius that the radius table of a model with a sharp edge resolves in nodes; for smaller fractions, the mass follows the mass’s power law in the distance from the edge.
 
-n_radius_nodes
+`n_radius_nodes`
 
 2048
 
 same
 
-Nodes of the radius table.
+The number of nodes of the radius table.
 
-n_angle_nodes
+`n_angle_nodes`
 
 1024
 
 same
 
-Nodes of each half of the angle table, uniform in the logarithm of the cumulative probability from its end.
+The number of nodes of each half of the angle table, spaced uniformly in the logarithm of the cumulative probability from the half’s end.
 
-draw_block
+`draw_block`
 
 262144
 
 same
 
-Particles drawn at once: a draw runs over blocks of this many, so its working memory is one block’s (about 0.75 kB a particle, \(2^{18}\) particles about 0.2 GB) above its outputs, whatever the count; the particles are the same at any block size.
+The number of particles drawn at once. A draw runs over blocks of draw_block particles, so the draw’s working memory, above the memory of the drawn particles, is the memory of one block: about 0.75 kB per particle, or about 0.2 GB for \(2^{18}\) particles. The drawn particles do not depend on draw_block.
 
-row_error_goal
+`row_error_goal`
 
 1e-06
 
 0.0001
 
-Error across rows at which the speed table’s refinement stops (its rows double until the table’s own error is under it, or n_rows_max is reached).
+The error across the potential values of the velocity table at which the table’s refinement stops: the number of potential values doubles until the table’s own error is below row_error_goal or until the number reaches n_rows_max.
 
-tail_mass_min
+`tail_mass_min`
 
 1e-18
 
 same
 
-Smallest tabulated cumulative probability at either end of a table: a uniform double reaches \(2^{-53}\), so a draw never reads beyond it.
+The smallest cumulative probability tabulated at either end of a table. The smallest nonzero value of a uniform random double is \(2^{-53}\), which is above tail_mass_min, so a draw never reads beyond the tabulated range.
 
 ## observables
 
@@ -353,93 +356,93 @@ Quick
 
 What it controls
 
-n_radii
+`n_radii`
 
 10000
 
 500
 
-Projected radii of the projection table before its check between rows adds rows, logarithmic from the innermost row to the edge.
+The number of projected radii of the projection table before the table’s check between projected radii adds projected radii; the projected radii are spaced logarithmically from the innermost radius of the profile to the edge.
 
-profile_tolerance
+`profile_tolerance`
 
 1e-07
 
 1e-06
 
-Relative error of sigma_r at which the radial dispersion’s rows stop being added: every interval’s midpoint reads within it. A tenth of the goal, the profile’s share of the error of what is projected from it.
+The relative error of sigma_r at which radii stop being added to the radial dispersion’s profile: sigma_r at the midpoint of every interval between the profile’s radii is read within profile_tolerance. The default value, \(10^{-7}\), is a tenth of \(10^{-6}\): the profile’s share of the error of the quantities projected from the profile.
 
-n_profile_start
-
-100
-
-same
-
-Logarithmic radii the radial dispersion starts from, from the innermost row to the edge, before rows are added to its tolerance.
-
-n_jeans_nodes
-
-500
-
-same
-
-Gauss-Legendre nodes of a row’s own Jeans integral of the radial dispersion (the superposition’s); the observables’ profile sums panels between its rows instead, their nodes doubled until sigma_r moves by less than profile_tolerance.
-
-n_projection_nodes
-
-500
-
-same
-
-Gauss-Legendre nodes of each line-of-sight integral of the surface density and the projected dispersion.
-
-n_aperture_nodes
+`n_profile_start`
 
 100
 
 same
 
-Gauss-Legendre nodes of each panel of an aperture’s radial integral, at least.
+The number of radii, spaced logarithmically from the innermost radius of the profile to the edge, with which the radial dispersion’s profile starts before radii are added to meet profile_tolerance.
 
-aperture_nodes_per_decade
+`n_jeans_nodes`
+
+500
+
+same
+
+The number of Gauss-Legendre nodes of the Jeans integral of the radial dispersion at one radius, as the superposition of components computes the radial dispersion. The observables’ profile does not use n_jeans_nodes: the profile sums panels between the profile’s radii and doubles each panel’s nodes until sigma_r changes by less than profile_tolerance.
+
+`n_projection_nodes`
+
+500
+
+same
+
+The number of Gauss-Legendre nodes of each line-of-sight integral of the surface density and of the projected dispersion.
+
+`n_aperture_nodes`
+
+100
+
+same
+
+The smallest number of Gauss-Legendre nodes of each panel of an aperture’s radial integral.
+
+`aperture_nodes_per_decade`
 
 8
 
 same
 
-Nodes per decade of a panel’s span in the logarithm of the projected radius where that exceeds the minimum, rounded up to a multiple of 20.
+The number of nodes per decade of projected radius of a panel of an aperture’s radial integral: a panel spanning d decades takes aperture_nodes_per_decade times d nodes, rounded up to a multiple of 20, if that number exceeds n_aperture_nodes.
 
-rows_route
+`rows_route`
 
 kernel
 
 same
 
-The angle rule of the line-of-sight velocity distributions’ rows: “kernel”, the JAX kernel, or “numpy”, the reference route.
+The computation of the angle rule of the line-of-sight velocity distributions: “kernel” computes the angle rule with JAX, and “numpy” computes the angle rule with NumPy, as a reference.
 
-n_speed_angle_nodes
+`n_velocity_angle_nodes`
 
 16
 
 same
 
-Gauss-Legendre nodes of each panel of the angle integral of the local speed distribution (pdf_v), in t = cos(eta).
+The number of Gauss-Legendre nodes of each panel of the angle integral of the local velocity distribution (pdf_v), in t = cos(eta).
 
-n_speed_angle_panels
+`n_velocity_angle_panels`
 
 16
 
 8
 
-Panels of that angle integral graded toward each end of each of its intervals, and of the speed integral of its norm and second moment toward each of their breaks.
+The number of panels of the angle integral of the local velocity distribution (pdf_v) graded toward each end of each of the integral’s intervals, and the number of panels of the velocity integral of the distribution’s norm and second moment graded toward each break of that velocity integral.
 
-speed_tolerance
+`velocity_tolerance`
 
 1e-06
 
 0.0001
 
-Bound on the local speed distribution’s change when its angle rule’s nodes double: they double, at most three times, until the change is under it.
+The bound on the change of the local velocity distribution (pdf_v) when the nodes of the distribution’s angle rule double: the nodes double, at most three times, until the change is below velocity_tolerance.
 
 ## losvd
 
@@ -451,238 +454,236 @@ Quick
 
 What it controls
 
-rows_per_decade
+`rows_per_decade`
 
 55
 
 20
 
-Base rows of the table of line-of-sight velocity distributions per decade of projected radius, from the innermost row of the profile.
+The number of base projected radii per decade of the table of line-of-sight velocity distributions, from the innermost radius of the profile.
 
-n_energy_nodes
+`n_energy_nodes`
 
 8
 
 same
 
-Gauss-Legendre nodes of each panel of the energy integral of a node.
+The number of Gauss-Legendre nodes of each panel of the energy integral at one node of the table.
 
-n_floor_layers
+`n_floor_layers`
 
 4
 
 2
 
-Panels of the energy integral graded toward the energy of the DF’s floor.
+The number of Gauss-Legendre panels of the energy integral graded toward K = 0, where the DF’s rule below its table takes over.
 
-energy_layer_ratio
+`energy_layer_ratio`
 
 0.2
 
 same
 
-Ratio of successive graded panels of the energy integral.
+The ratio of the widths of successive graded panels of the energy integral.
 
-n_angle_nodes
+`n_angle_nodes`
 
 64
 
 same
 
-Gauss-Legendre nodes of the angle integral of an L factor, the most a node takes.
+The largest number of Gauss-Legendre nodes of the angle integral of an L factor at one node of the table.
 
-n_sightline_nodes
+`n_sightline_nodes`
 
 12
 
 8
 
-Gauss-Legendre nodes of each panel of the line-of-sight integral.
+The number of Gauss-Legendre nodes of each panel of the line-of-sight integral.
 
-n_sightline_panels
+`n_sightline_panels`
 
 8
 
 same
 
-Panels of each interval of the support along the line of sight.
+The number of panels of each interval of the support along the line of sight.
 
-sightline_panels_refined
+`sightline_panels_refined`
 
 6
 
 same
 
-Doublings of the line-of-sight panels allowed before a row is recorded as not converged.
+The number of doublings of the line-of-sight panels allowed before a projected radius is recorded as not converged.
 
-sightline_layer_ratio
+`sightline_layer_ratio`
 
 0.3
 
 same
 
-Ratio of the line-of-sight panels graded toward the axis.
+The ratio of the widths of successive line-of-sight panels graded toward the axis.
 
-n_sightline_layers
+`n_sightline_layers`
 
 4
 
 same
 
-Line-of-sight panels graded toward the axis added at each doubling.
+The number of line-of-sight panels graded toward the axis that each doubling adds.
 
-n_crossing_scan
+`n_crossing_scan`
 
 2001
 
 same
 
-Points of the scan for where the angular momentum vanishes.
+The number of points of the scan for the positions where the angular momentum vanishes.
 
-n_cumulative_nodes
+`n_cumulative_nodes`
 
 200001
 
 same
 
-Nodes of each of the three branches of the table of the DF’s cumulative integral.
+The number of nodes of each of the three branches of the table of the distribution function’s cumulative integral.
 
-n_velocity_nodes
+`n_velocity_nodes`
 
 16
 
 8
 
-Gauss-Legendre nodes of each velocity sub-panel of a row.
+The number of Gauss-Legendre nodes of each velocity sub-panel at one projected radius.
 
-velocity_layer_ratio
+`velocity_layer_ratio`
 
 0.3
 
 same
 
-Ratio of the velocity sub-panels graded toward a break.
+The ratio of the widths of successive velocity sub-panels graded toward a break of the distribution.
 
-n_velocity_layers_zero
+`n_velocity_layers_zero`
 
 12
 
 same
 
-Velocity sub-panels graded toward zero velocity.
+The number of velocity sub-panels graded toward zero velocity.
 
-n_velocity_layers_break
+`n_velocity_layers_break`
 
 8
 
 same
 
-Velocity sub-panels graded toward each break of a row.
+The number of velocity sub-panels graded toward each break of the distribution at one projected radius.
 
-n_break_scan
+`n_break_scan`
 
 4001
 
 1001
 
-Points of the coarse scan for a velocity break.
+The number of points of the coarse scan for a break of the distribution in velocity.
 
-n_break_zooms
+`n_break_zooms`
 
 4
 
 same
 
-Zooms of the scan for a velocity break.
+The number of successive refinements of the scan for a break of the distribution in velocity.
 
-n_bisections
+`n_bisections`
 
 60
 
 same
 
-Bisections of an edge of the support or of a root along a line of sight.
+The number of bisections that locate an edge of the support, or a root, along a line of sight.
 
-n_radius_break_layers
+`n_radius_break_layers`
 
 16
 
 same
 
-Rows added toward each radius where the layout of the rows changes.
+The number of projected radii added toward each projected radius at which the table’s layout changes.
 
-n_radius_break_bisections
+`n_radius_break_bisections`
 
 40
 
 same
 
-Bisections in projected radius of a change of the layout.
+The number of bisections in projected radius that locate a change of the table’s layout.
 
-n_radius_break_samples
+`n_radius_break_samples`
 
 3
 
 same
 
-Samples inside each interval of base rows for a change of the layout.
+The number of samples inside each interval between base projected radii at which a change of the table’s layout is sought.
 
-n_edge_samples
+`n_edge_samples`
 
 10
 
 same
 
-Samples beyond the last base row toward the end of the profile.
+The number of samples beyond the last base projected radius toward the end of the profile.
 
-n_edge_layers
+`n_edge_layers`
 
 16
 
 same
 
-Rows added toward the end of the table.
+The number of projected radii added toward the end of the table.
 
-n_stencil_rows
-
-8
-
-same
-
-Rows of the stencil that reads the table between its rows.
-
-n_stencil_test_rows
+`n_stencil_rows`
 
 8
 
 same
 
-Rows of the stencil whose estimate checks the table.
+The number of tabulated projected radii that the interpolation between the table’s projected radii reads.
 
-n_block_elements
+`n_stencil_test_rows`
+
+8
+
+same
+
+The number of tabulated projected radii of the second interpolation, whose estimate checks the table’s interpolation.
+
+`n_block_elements`
 
 25000
 
 same
 
-Elements of one block of node pairs, energy nodes and angle nodes, which bounds the memory of a row.
+The number of elements (node pairs times energy nodes times angle nodes) computed in one block, which bounds the memory of the computation at one projected radius.
 
-innermost_read_radius
+`innermost_read_radius`
 
 0
 
 same
 
-The smallest projected radius the table will be read at, in the model’s internal length unit: the rows start at the last base row inside the radius whose disk holds the accuracy goal times the projected mass inside this one, and a read inside the first row is refused. 0 keeps the rows from the profile’s innermost row, the full-depth table.
+The smallest projected radius at which the table will be read, in the model’s internal length unit. The table starts at the last base projected radius inside the radius whose disk holds \(10^{-6}\) times the projected mass inside innermost_read_radius, and a read inside the table’s first projected radius raises InputError. The value 0 keeps the table’s full depth, from the innermost radius of the profile.
 
-outer_mass_share
+`outer_mass_share`
 
 1e-06
 
 same
 
-Share of the total projected mass that may lie beyond the table’s last row: the rows end at the first base row beyond the radius outside which this share lies, and a read beyond the last row is refused. 0 keeps the rows to the model’s edge.
+The share of the total projected mass that may lie beyond the table’s last projected radius. The table ends at the first base projected radius beyond the radius outside which outer_mass_share of the projected mass lies, and a read beyond the table’s last projected radius raises InputError. The value 0 keeps the table out to the model’s edge.
 
-Tiers: default, quick. A field is overridden one at a time, pp.Settings(inversion={'n_nodes': 800}); the result then records that it was made with custom settings and names the fields that differ.
-
-     On this page
+Settings levels: `default`, `quick`. A field is overridden by its group and its name, for example `pp.Settings(inversion={'n_nodes': 800})`. A result computed with an overridden field records that its settings are custom, and lists the fields that differ from the settings level.

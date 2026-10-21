@@ -1,5 +1,4 @@
 How to cite
 ===========
 
-Please cite the initial release paper, |paper-full| (henceforth |paper|), in work that uses PIANISTpy. The
-citation entry, the arXiv link and the DOI of the software release are added with ver. 1.0.0.
+Please cite the initial release paper, |paper-full|, henceforth |paper|, in work that uses PIANISTpy.

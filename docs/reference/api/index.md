@@ -2,39 +2,37 @@
 
 Source: https://pianistpy.com/docs/reference/api/
 
-# Functions by subpackage
+Docstrings cite two documents by number. An equation, section or figure of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) is cited as
+“Chiang+(2026d), Eq. (B9)”, “Chiang+(2026d), Section 2.1” or “Chiang+(2026d), Fig. 14”. An equation,
+section or table of the [Technical notes](https://pianistpy.com/docs/reference/notes) is cited by its number, which carries the
+prefix “T:”, for example “Eq. (T:2.4)”, “Section T:2.3.1” or “Table T:2.1”.
 
-Docstrings cite two documents. An equation of Chiang+(2026d) is cited by its own label in that paper,
-for example “Chiang+(2026d), Eq. (B9)”. An equation, section or table of the technical notes is cited by its number, which carries the prefix “T:”, together with a fixed key in brackets, for
-example “Eq. (T:2.4) [conditions]”, “Section T:2.3.1 [df-form]” or “Table T:2.1 [critical]”; the key is the
-item’s label and does not change when the notes are revised and a number moves.
+- [The package](https://pianistpy.com/docs/reference/api/pianistpy)
 
-The package
+- [Density profiles](https://pianistpy.com/docs/reference/api/profiles)
 
-Density profiles
+- [Velocity anisotropy](https://pianistpy.com/docs/reference/api/anisotropy)
 
-Velocity anisotropy
+- [Distribution functions and models](https://pianistpy.com/docs/reference/api/df)
 
-Distribution functions and models
+- [Particles](https://pianistpy.com/docs/reference/api/particles)
 
-Particles
+- [Observables](https://pianistpy.com/docs/reference/api/observables)
 
-Observables
+- [Superposition](https://pianistpy.com/docs/reference/api/superposition)
 
-Superposition
+- [Inference](https://pianistpy.com/docs/reference/api/inference)
 
-Inference
+- [Units](https://pianistpy.com/docs/reference/api/units)
 
-Units
+- [Results and files](https://pianistpy.com/docs/reference/api/io)
 
-Results and files
+- [Settings](https://pianistpy.com/docs/reference/api/settings)
 
-Settings
+- [Validation](https://pianistpy.com/docs/reference/api/validation)
 
-Validation
+- [Exceptions](https://pianistpy.com/docs/reference/api/exceptions)
 
-Exceptions
+- [Runtime options](https://pianistpy.com/docs/reference/api/runtime)
 
-Runtime options
-
-Numerics
+- [Numerics](https://pianistpy.com/docs/reference/api/numerics)

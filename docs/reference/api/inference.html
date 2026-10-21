@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Inference &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Inference &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="inference.md">
@@ -119,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -138,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -180,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -232,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
@@ -288,7 +284,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Functions by subpackage</a></li>
@@ -313,68 +309,153 @@
   <section id="inference">
 <h1>Inference<a class="headerlink" href="#inference" title="Link to this heading">#</a></h1>
 <p>Module <code class="docutils literal notranslate"><span class="pre">pianistpy.inference</span></code></p>
-<p id="module-pianistpy.inference">The log-likelihood of a model against data.</p>
+<p id="module-pianistpy.inference">The log-likelihood of a model against measured data.</p>
+<p>A user stores each set of measurements in a <cite>Data</cite> and calls <cite>likelihood</cite> on
+a model and the data. <cite>likelihood</cite> computes the projected tables of the
+model once and returns a <cite>Likelihood</cite>, a JAX function of the component
+weights, of the mass and length scales and, for the Method II components
+chosen as free, of the anisotropy parameters. <cite>log_likelihood</cite> returns the value of the
+log-likelihood at the model’s own weights and scales.</p>
+<p>For measured values <span class="nobr"><span class="math notranslate nohighlight">\(d\)</span>,</span> model values <span class="math notranslate nohighlight">\(m\)</span> and the covariance
+matrix <span class="math notranslate nohighlight">\(C\)</span> of the errors (diagonal, with <span class="nobr"><span class="math notranslate nohighlight">\(C_{ii} = e_i^2\)</span>,</span> for
+independent errors <span class="nobr"><span class="math notranslate nohighlight">\(e_i\)</span>),</span> the log-likelihood of one <cite>Data</cite> is</p>
+<div class="math notranslate nohighlight">
+\[\ln \mathcal{L} = -\frac{1}{2} (d - m)^{\rm T} C^{-1} (d - m)
+- \frac{1}{2} \ln \det (2 \pi C),\]</div>
+<p>and the log-likelihoods of several <cite>Data</cite> are summed. Notes Section T:7.4
+derives the likelihood.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.inference.Data">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.inference.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_2d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apertures</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'internal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_edges</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.inference.Data" title="Link to this definition">#</a></dt>
 <dd><p>Measurements of one observable, with their errors.</p>
+<p>A <cite>Data</cite> holds one set of measured values, the projected radii,
+apertures or 3D radius at which the values were measured, and the
+errors of the values. <cite>likelihood</cite> compares a model with one <cite>Data</cite> or
+with several.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>observable</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – One of <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>,
-<code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code>. What was
-measured: the line-of-sight dispersion at projected radii, or
-averaged over apertures (weighted by the surface density); or a
-binned distribution of velocity: the line-of-sight velocity
-distribution at one projected radius or in one aperture, or the
-local speed distribution at one 3D radius; or a Gauss-Hermite
-moment of the line-of-sight velocity distribution at projected radii
-or inside apertures (<cite>gauss_hermite_moments</cite>; dimensionless).</p></li>
-<li><p><strong>values</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – The measured values. For a binned distribution, the share of the
-distribution inside the window <code class="docutils literal notranslate"><span class="pre">[v_edges[0],</span> <span class="pre">v_edges[-1]]</span></code> that
-falls in each bin.</p></li>
-<li><p><strong>r_2d</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – The projected radii, for <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los&quot;</span></code> and for moments at radii;
-one radius for <code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>.</p></li>
-<li><p><strong>apertures</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="observables#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a><em>, </em><em>optional</em>) – The apertures, for <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code> and for moments over
-apertures, their lengths in the units of the data; one aperture for
-<code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code>.</p></li>
-<li><p><strong>errors</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – The standard deviations of independent errors.</p></li>
-<li><p><strong>covariance</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>, </em><em>n</em><em>)</em><em>, </em><em>optional</em>) – The covariance of the errors, in place of <cite>errors</cite>.</p></li>
-<li><p><strong>unit_system</strong> (<em>{&quot;internal&quot;</em><em>, </em><em>&quot;model&quot;</em><em>, </em><em>&quot;physical&quot;}</em>) – The units of the data: in the physical system radii in parsecs and
-speeds in kilometers per second. A model is compared in the same
-system.</p></li>
-<li><p><strong>v_edges</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n + 1</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – The edges of the bins of a binned distribution, increasing; speeds
-of <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> not negative.</p></li>
-<li><p><strong>r</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>1</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – The 3D radius of <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code>.</p></li>
+<li><p><strong>observable</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The measured quantity, one of seven observables. <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los&quot;</span></code>
+is the line-of-sight velocity dispersion <span class="math notranslate nohighlight">\(\sigma_{\rm los}\)</span>
+at user-specified projected radii. <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code> is
+<span class="math notranslate nohighlight">\(\sigma_{\rm los}\)</span> averaged over each aperture with the
+surface density as the weight.
+<code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code> is the binned line-of-sight velocity distribution at one
+projected radius, and <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code> the binned line-of-sight
+velocity distribution in one aperture. <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> is the binned
+local velocity distribution at one 3D radius. <code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code> are
+the Gauss-Hermite moments <span class="math notranslate nohighlight">\(h_3\)</span> and <span class="math notranslate nohighlight">\(h_4\)</span> of the
+line-of-sight velocity distribution at user-specified projected
+radii or in apertures.</p></li>
+<li><p><strong>values</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em>) – The measured values. A value of <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code> is a dispersion in the velocity unit of
+<cite>unit_system</cite>. A value of <code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> is the fraction of the distribution inside the
+user-specified range <code class="docutils literal notranslate"><span class="pre">[v_edges[0],</span> <span class="pre">v_edges[-1]]</span></code> that falls in one
+bin. A value of <code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code> is dimensionless.</p></li>
+<li><p><strong>r_2d</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – User-specified projected radii <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm 2D}\)</span>,</span> positive, in the
+length unit of <cite>unit_system</cite>: one projected radius per value for
+<code class="docutils literal notranslate"><span class="pre">&quot;sigma_los&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code>, and one projected radius for
+<code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means no projected radii, as
+<code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> take.</p></li>
+<li><p><strong>apertures</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="observables#pianistpy.observables.Aperture" title="pianistpy.observables.Aperture"><em>Aperture</em></a><em>, </em><em>optional</em>) – The apertures, with lengths in the length unit of <cite>unit_system</cite>: one
+aperture per value for <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code>, and one aperture for <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code>. Default:
+<code class="docutils literal notranslate"><span class="pre">()</span></code>, which means no apertures.</p></li>
+<li><p><strong>errors</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – The standard deviation of the error of each value, positive, for
+independent errors. Exactly one of <cite>errors</cite> and <cite>covariance</cite> is
+given. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means <cite>covariance</cite> gives the errors.</p></li>
+<li><p><strong>covariance</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>, </em><em>n</em><em>)</em><em>, </em><em>optional</em>) – The covariance matrix of the errors, symmetric. <cite>likelihood</cite>
+requires the covariance matrix to be positive definite as well.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means <cite>errors</cite> gives the errors.</p></li>
+<li><p><strong>unit_system</strong> (<em>{&quot;internal&quot;</em><em>, </em><em>&quot;model&quot;</em><em>, </em><em>&quot;physical&quot;}</em><em>, </em><em>optional</em>) – The unit system of the data. In the physical system a length is in
+parsecs and a velocity in kilometers per second. <cite>likelihood</cite>
+compares a model only in the unit system of the data. Default:
+<code class="docutils literal notranslate"><span class="pre">&quot;internal&quot;</span></code>, which means internal units.</p></li>
+<li><p><strong>v_edges</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n + 1</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – The bin edges of <code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code>,
+increasing, in the velocity unit of <cite>unit_system</cite>. The first edge of
+<code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> is not negative. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means no bins;
+<code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> require <cite>v_edges</cite>.</p></li>
+<li><p><strong>r</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>1</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – The 3D radius of <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code>, positive, in the length unit of
+<cite>unit_system</cite>. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means no 3D radius;
+<code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> requires <cite>r</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>observable</cite> is not one of the seven observables, or
+    <cite>unit_system</cite> is not one of the three unit systems.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>values</cite> is not a non-empty one-dimensional array.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a field that <cite>observable</cite> requires (<cite>r_2d</cite>, <cite>apertures</cite>,
+    <cite>v_edges</cite> or <cite>r</cite>) is missing, has the wrong length or holds a
+    radius that is not positive, or if a field that <cite>observable</cite> does
+    not take is given.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>v_edges</cite> is not increasing, or the first edge of <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> is
+    negative.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If both <cite>errors</cite> and <cite>covariance</cite> are given or neither is given, if
+    an error is not positive, or if <cite>covariance</cite> is not a symmetric
+    matrix of n rows and n columns.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">likelihood</span></code></a></dt><dd><p>The log-likelihood of a model against one or several <cite>Data</cite>.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.inference.log_likelihood" title="pianistpy.inference.log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood</span></code></a></dt><dd><p>The log-likelihood at the model’s own weights and scales.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">Aperture</span></code></dt><dd><p>An aperture of <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code>.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">"sigma_los"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.30</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="n">r_2d</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">unit_system</span>
+<span class="go">'internal'</span>
+</pre></div>
+</div>
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.inference.Data.identity">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">identity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">str</span></a></span><a class="headerlink" href="#pianistpy.inference.Data.identity" title="Link to this definition">#</a></dt>
-<dd><p>a digest of everything it holds.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The identity string of the data</p>
-</dd>
-</dl>
+<dd><p>The identity string of the data, a digest of every field of the data.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pianistpy.inference.Data.write">
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.inference.Data.write" title="Link to this definition">#</a></dt>
-<dd><p>Write the data to a file; <cite>pianistpy.read</cite> reads it back.</p>
+<dd><p>Write the data to an HDF5 file, which <cite>pianistpy.read</cite> reads back.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.15)" rel="noopener" target="_blank"><em>PathLike</em></a>)</p></li>
-<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a>)</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em> or </em><em>path-like</em>) – The path of the HDF5 file to write.</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace an existing file at <cite>path</cite>. Default:
+<code class="docutils literal notranslate"><span class="pre">False</span></code>, which means an existing file at <cite>path</cite> raises
+<cite>InputError</cite>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a file exists at <cite>path</cite> and <cite>overwrite</cite> is false.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the written file does not read back as the data.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">pianistpy.read</span></code></dt><dd><p>Read a result file, a file of <cite>Data</cite> included.</p>
+</dd>
+</dl>
+</div>
 </dd></dl>
 
 </dd></dl>
@@ -383,24 +464,37 @@ of <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot
 <dt class="sig sig-object py" id="pianistpy.inference.Likelihood">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.inference.</span></span><span class="sig-name descname"><span class="pre">Likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">velocity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">members</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">readings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.inference.Likelihood" title="Link to this definition">#</a></dt>
 <dd><p>The log-likelihood of a model against data, as a JAX function.</p>
-<p>Built by <cite>likelihood</cite>. Called with the weights of the components and the
-scales of the units, it returns the Gaussian log-likelihood, traceable
-and differentiable in both.</p>
+<p><cite>likelihood</cite> builds a <cite>Likelihood</cite>. A call of a <cite>Likelihood</cite> with the
+component weights, the mass and length scales and, for free components,
+the anisotropy parameters returns the Gaussian log-likelihood. JAX can
+compile the call and differentiate the call in each argument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>tables</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – The projected table of each component, read in JAX.</p></li>
-<li><p><strong>blocks</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Each <cite>Data</cite>, prepared.</p></li>
-<li><p><strong>weights</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – The model’s own weights (its components’ masses).</p></li>
-<li><p><strong>scale</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The model’s own mass and length scales in the data’s units.</p></li>
-<li><p><strong>velocity</strong> (<em>length</em><em>,</em>) – The factors of the data’s units at the model’s own scales.</p></li>
-<li><p><strong>r_max</strong> (<em>r_min</em><em>,</em>) – The innermost and outermost projected radius of the tables, in
-internal units.</p></li>
-<li><p><strong>free</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – The components whose anisotropy
-(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>) is a parameter.</p></li>
-<li><p><strong>theta</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_free</em><em>, </em><em>2</em><em>)</em>) – Their own (<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>), in internal units.</p></li>
-<li><p><strong>members</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Their tables at any theta, on the host.</p></li>
-<li><p><strong>readings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Their <span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span> readings as JAX functions of theta.</p></li>
+<li><p><strong>blocks</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Each <cite>Data</cite> of dispersions or Gauss-Hermite moments, prepared.</p></li>
+<li><p><strong>weights</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – The model’s own component weights, which are the masses of the
+components.</p></li>
+<li><p><strong>scale</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>2</em><em>,</em><em>)</em>) – The model’s own mass scale and length scale, in the units of the
+data.</p></li>
+<li><p><strong>length</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The length factor <span class="math notranslate nohighlight">\(L\)</span> of the unit system of the data at the
+model’s own scales.</p></li>
+<li><p><strong>velocity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The velocity factor <span class="math notranslate nohighlight">\(V\)</span> of the unit system of the data at the
+model’s own scales.</p></li>
+<li><p><strong>r_min</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The innermost projected radius of the tables, in internal units.</p></li>
+<li><p><strong>r_max</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The outermost projected radius of the tables, in internal units.</p></li>
+<li><p><strong>free</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a>) – The indices of the components whose anisotropy parameters
+<span class="nobr">(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>)</span> are parameters of the
+likelihood.</p></li>
+<li><p><strong>theta</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_free</em><em>, </em><em>2</em><em>)</em>) – The model’s own <span class="nobr">(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>)</span> of each
+free component, in internal units.</p></li>
+<li><p><strong>members</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – The free components, each with the tables computed at every
+anisotropy at which the <cite>Likelihood</cite> has been called.</p></li>
+<li><p><strong>readings</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – The squared line-of-sight dispersion <span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span> of
+each free component, as a JAX function of the component’s
+anisotropy parameters.</p></li>
+<li><p><strong>binned</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a>) – Each <cite>Data</cite> of <code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code>,
+prepared.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
@@ -421,93 +515,265 @@ internal units.</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">likelihood</span></code></a></dt><dd><p>Build the <cite>Likelihood</cite> of a model against data.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.inference.log_likelihood" title="pianistpy.inference.log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood</span></code></a></dt><dd><p>The log-likelihood at the model’s own weights and scales.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Data</span></code></a></dt><dd><p>The measurements a <cite>Likelihood</cite> compares with.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">"sigma_los"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.30</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="n">r_2d</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">like</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">likelihood</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bool</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">like</span><span class="p">())</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"-inf"</span><span class="p">))</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">like</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">]))</span>
+<span class="go">-inf</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.inference.likelihood">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.inference.</span></span><span class="sig-name descname"><span class="pre">likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.inference.likelihood" title="Link to this definition">#</a></dt>
-<dd><p>Return the log-likelihood of a model against data, prepared.</p>
-<p>The projected table of each component is computed here, once; the
-returned function reads them in JAX. A model or data that cannot be
-compared are refused here, with an exception.</p>
+<dd><p>Return the log-likelihood of a model against data, as a JAX function.</p>
+<p><cite>likelihood</cite> computes the projected table of each component once and
+returns a <cite>Likelihood</cite>, which reads the tables in JAX at every call. A
+model and data that cannot be compared raise an exception in
+<cite>likelihood</cite>, never in a call of the returned <cite>Likelihood</cite>. For one
+value at the model’s own weights and scales, call <cite>log_likelihood</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference internal" href="df#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – A model of one component, or a superposition (<cite>superpose</cite>), in the
 unit system of the data.</p></li>
-<li><p><strong>data</strong> (<a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a><em> or </em><em>sequence</em><em> of </em><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a>) – The measurements; their log-likelihoods are summed.</p></li>
-<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings of the observables; the model’s by default.</p></li>
-<li><p><strong>free</strong> (<em>sequence</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – The components whose anisotropy
-(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>, <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>) is a parameter of the
-likelihood (its <code class="docutils literal notranslate"><span class="pre">theta</span></code>): each a spatially finite model on a
-truncated profile (a DF inverted on its parent’s profile). An
-isotropic or constant member’s <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> is free and its
-<span class="math notranslate nohighlight">\(R_{\rm a}\)</span> column is held at its own value (infinite), with a
-zero gradient: the family has no <span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a><em> or </em><em>sequence</em><em> of </em><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a>) – The measurements. The log-likelihoods of several <cite>Data</cite> are summed.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – The numerical settings of the observables. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which
+means the model’s own settings.</p></li>
+<li><p><strong>free</strong> (<em>sequence</em><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)" rel="noopener" target="_blank"><em>int</em></a><em>, </em><em>optional</em>) – The indices of the components whose anisotropy parameters
+<span class="nobr">(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>)</span> become the parameter
+<code class="docutils literal notranslate"><span class="pre">theta</span></code> of the returned <cite>Likelihood</cite>. Each free component is a
+spatially finite Method II model: a DF computed on the truncated
+profile of another model, where the truncated profile carries the
+DF of the other model.
+For an isotropic or constant-anisotropy component,
+<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> is free and the <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> column stays
+at the component’s own value, infinity, with a zero gradient,
+because the isotropic and constant-anisotropy models have no
+anisotropy radius. Default: <code class="docutils literal notranslate"><span class="pre">()</span></code>, which means no anisotropy
+parameter is a parameter of the likelihood.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>likelihood</strong></p>
+<dd class="field-even"><p><strong>likelihood</strong> – The log-likelihood as a JAX function of the component weights, the
+mass and length scales and, for the components in <cite>free</cite>, the
+anisotropy parameters. A call of the <cite>Likelihood</cite> without arguments
+returns the value at the model’s own weights and scales, the value
+<cite>log_likelihood</cite> returns.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#pianistpy.inference.Likelihood" title="pianistpy.inference.Likelihood">Likelihood</a></p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>model</cite> is not a <cite>Model</cite>, or <cite>model</cite> has several components and
+    is not a superposition.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>data</cite> is empty or holds an object that is not a <cite>Data</cite>.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the data are in several unit systems, or in a unit system other
+    than the unit system of <cite>model</cite> (<cite>Model.to</cite> presents a model in
+    another unit system).</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>free</cite> repeats a component index or lists a component index that
+    <cite>model</cite> does not have.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a free component is not spatially finite, is not a DF on a
+    truncated profile that carries the DF of another model, or has an
+    anisotropy model with neither a <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> nor an
+    <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</span></p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>free</cite> is given together with binned distributions or
+    Gauss-Hermite moments.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the projected tables of the components differ in the innermost
+    tabulated radius, the outermost tabulated radius or the edge radius.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a projected radius of <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los&quot;</span></code> data lies inside the
+    innermost or beyond the outermost projected radius of the model’s
+    table. The likelihood does not extrapolate the table.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If Gauss-Hermite moments at projected radii are given on a
+    superposition, or a projected radius of the moments lies outside the
+    projected radii of the model’s table of moments. A superposition
+    takes Gauss-Hermite moments in apertures only.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If an aperture encloses no tabulated surface density, or if the disk
+    inside the innermost tabulated projected radius carries more than
+    <span class="math notranslate nohighlight">\(10^{-6}\)</span> of the aperture’s weight.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the 3D radius of <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code> data lies outside the profile or,
+    for a Type II model, at or beyond the anisotropy radius.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><strong>AccuracyError</strong></a> – If the error of a component’s accuracy check exceeds
+    <span class="math notranslate nohighlight">\(10^{-2}\)</span> and the component’s settings do not set
+    <code class="docutils literal notranslate"><span class="pre">write_anyway=True</span></code>.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><strong>AccuracyError</strong></a> – If the projection gives a negative squared line-of-sight dispersion.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a table of velocity distributions fails the table’s own
+    consistency check (for binned distributions and Gauss-Hermite
+    moments).</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.WorkerError" title="pianistpy.exceptions.WorkerError"><strong>WorkerError</strong></a> – If a parallel process ends while a table of velocity distributions
+    is computed (for binned distributions and Gauss-Hermite moments).</p></li>
+</ul>
+</dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.inference.log_likelihood" title="pianistpy.inference.log_likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">log_likelihood</span></code></a></dt><dd><p>The log-likelihood at the model’s own weights and scales.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.inference.Likelihood" title="pianistpy.inference.Likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Likelihood</span></code></a></dt><dd><p>The JAX function <cite>likelihood</cite> returns.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Data</span></code></a></dt><dd><p>The measurements a model is compared with.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">superpose</span></code></dt><dd><p>A superposition of models that share one density.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
-<p>Each measurement is the surface-density weighted mean of
-<span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span> over its nodes, <code class="docutils literal notranslate"><span class="pre">sum_j</span> <span class="pre">q_ij</span> <span class="pre">Sigma(x_j)</span>
-<span class="pre">sigma^2(x_j)</span> <span class="pre">/</span> <span class="pre">sum_j</span> <span class="pre">q_ij</span> <span class="pre">Sigma(x_j)</span></code>: for a projected radius one node,
-for an aperture the nodes and weights of <cite>aperture_dispersion</cite>. On a
-superposition each component’s table is its member’s own, on the shared
-density, and the two sums are mixed by the weights (<cite>mixture</cite>): the
-measurement is a ratio of two sums linear in the weights. A scale
-of length other than the model’s own moves the nodes (<code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">=</span> <span class="pre">R</span> <span class="pre">/</span> <span class="pre">(L</span> <span class="pre">l)</span></code>)
-and keeps their weights, a change of variable to the data’s radius in
-which the aperture is fixed.</p>
-<p>A free component’s tables at a theta are built on the host when the
-function first meets it: its DF on its truncated profile (refused there,
-the function is minus infinity), then the two tables, their rows placed
-at that theta. The gradient in theta is that of the reading on those rows
-(their placement frozen); between placements the value moves within the
-tables’ tolerance. An untruncated component is not free: its edge terms
-read its DF.</p>
-<p>A Gauss-Hermite moment (<code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code>) over an aperture is that of
-the mixture’s distribution in the aperture, the components’ own
-(<cite>aperture_losvd</cite>, each on its velocity nodes, mirrored to both signs)
-weighted by weight and projected mass, with its own mean and dispersion
-as <cite>gauss_hermite_moments</cite> takes them: traced in the weights; the mass
-scale leaves it. Its distributions are read at the model’s own radii, so
-the length scale is held there (until a traced reader of each member’s
-distribution in radius lands). Moments at projected radii
-are read on a model of one component from its moments’ table
-(<cite>gauss_hermite_table</cite>, <cite>read_traced</cite>) at the radii the length scale
-moves, so they are traced in it too. Neither is served with a free
-component: its distributions are read at its own theta.</p>
+<p>Each dispersion measurement <span class="math notranslate nohighlight">\(i\)</span> is the mean of
+<span class="math notranslate nohighlight">\(\sigma_{\rm los}^2\)</span> over the measurement’s nodes <span class="nobr"><span class="math notranslate nohighlight">\(x_j\)</span>,</span>
+weighted by the node weights <span class="math notranslate nohighlight">\(q_{ij}\)</span> and the surface density
+<span class="nobr"><span class="math notranslate nohighlight">\(\Sigma\)</span>,</span></p>
+<div class="math notranslate nohighlight">
+\[\sigma_i^2 = \frac{\sum_j q_{ij}\, \Sigma(x_j)\,
+\sigma_{\rm los}^2(x_j)}{\sum_j q_{ij}\, \Sigma(x_j)}.\]</div>
+<p>A projected radius has one node, the projected radius itself. An
+aperture has the nodes and weights of <cite>sigma_los_aperture</cite>. On a
+superposition, each component’s table is the component’s own table on
+the shared density, and the component weights mix the numerator and
+the denominator of <span class="math notranslate nohighlight">\(\sigma_i^2\)</span> (<cite>mixture</cite>), so each measurement
+is a ratio of two sums linear in the weights. A length scale <span class="math notranslate nohighlight">\(l\)</span>
+other than the model’s own length scale moves each node to
+<span class="math notranslate nohighlight">\(x_j = R_j / (L\,l)\)</span> and keeps the node weights <span class="nobr"><span class="math notranslate nohighlight">\(q_{ij}\)</span>:</span>
+the move is a change of variable to the projected radius of the data,
+in which the aperture is fixed.</p>
+<p>A free component’s tables at an anisotropy <span class="math notranslate nohighlight">\(\theta\)</span> are computed
+at the first call of the <cite>Likelihood</cite> at <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>:</span> first the
+component’s DF on the component’s truncated profile, then the
+component’s two projected tables, with the tabulated radii placed for
+<span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>.</span> Where the DF cannot be built at <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>,</span> the
+<cite>Likelihood</cite> returns minus infinity. The gradient in <span class="math notranslate nohighlight">\(\theta\)</span> is
+the gradient of the reading at the placed radii, with the placed radii
+held fixed. Between two placements of the radii, the value changes by
+no more than the tolerance of the tables. An untruncated component
+cannot be free, because the edge terms of an untruncated component read
+the component’s DF.</p>
+<p>A Gauss-Hermite moment (<code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code>) in an aperture is the
+moment of the mixture’s velocity distribution in the aperture. The
+mixture’s distribution is the sum of the components’ distributions
+(<cite>aperture_losvd</cite>), each weighted by the component weight and the
+component’s projected mass, and the moment is taken about the
+mixture’s own mean velocity, in units of the mixture’s own dispersion.
+A moment in an aperture is differentiable in the weights and does not
+depend on the mass scale. The distributions in apertures are computed
+at the model’s own radii, so the length scale stays at the model’s own
+length scale. A Gauss-Hermite moment at a projected radius is read on a
+model of one component from a table of the model’s moments over
+projected radius, at the projected radius that the length scale moves,
+so a moment at a projected radius is also differentiable in the length
+scale. Neither kind of Gauss-Hermite moment is taken together with a
+free component.</p>
+<p>Each call of <cite>likelihood</cite> computes the projected table of every
+component. For many evaluations on one model, call <cite>likelihood</cite> once
+and call the returned <cite>Likelihood</cite> many times.</p>
+<p class="rubric">References</p>
+<p>Notes Section T:7.4.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">"sigma_los"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.30</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="n">r_2d</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">like</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">likelihood</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">like</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(1,)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bool</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">like</span><span class="p">())</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"-inf"</span><span class="p">))</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.inference.log_likelihood">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.inference.</span></span><span class="sig-name descname"><span class="pre">log_likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.inference.log_likelihood" title="Link to this definition">#</a></dt>
 <dd><p>Return the Gaussian log-likelihood of a model against data.</p>
+<p><cite>log_likelihood</cite> returns one number, the value of <cite>likelihood</cite> at the
+model’s own component weights and scales. For many evaluations, or for
+gradients, call <cite>likelihood</cite> once and call the returned <cite>Likelihood</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<a class="reference internal" href="df#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – The model, in the unit system of the data.</p></li>
-<li><p><strong>data</strong> (<a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a><em> or </em><em>sequence</em><em> of </em><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a>) – The measurements; their log-likelihoods are summed.</p></li>
-<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings of the observables; the model’s by default.</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="df#pianistpy.df.Model" title="pianistpy.df.Model"><em>Model</em></a>) – A model of one component, or a superposition (<cite>superpose</cite>), in the
+unit system of the data.</p></li>
+<li><p><strong>data</strong> (<a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a><em> or </em><em>sequence</em><em> of </em><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><em>Data</em></a>) – The measurements. The log-likelihoods of several <cite>Data</cite> are summed.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – The numerical settings of the observables. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which
+means the model’s own settings.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>log_likelihood</strong></p>
+<dd class="field-even"><p><strong>log_likelihood</strong> – The Gaussian log-likelihood at the model’s own component weights
+and scales, summed over the data. The value is minus infinity where
+the nodes of a measurement carry no surface density or where a
+projected radius of the data lies inside the innermost tabulated
+projected radius.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank">float</a></p>
 </dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>model</cite> and <cite>data</cite> cannot be compared, under each condition the
+    Raises section of <cite>likelihood</cite> lists for <cite>InputError</cite>.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><strong>AccuracyError</strong></a> – If the error of a component’s accuracy check exceeds
+    <span class="math notranslate nohighlight">\(10^{-2}\)</span> and the component’s settings do not set
+    <code class="docutils literal notranslate"><span class="pre">write_anyway=True</span></code>, or if the projection gives a negative squared
+    line-of-sight dispersion.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a table of velocity distributions fails the table’s own
+    consistency check (for binned distributions and Gauss-Hermite
+    moments).</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.WorkerError" title="pianistpy.exceptions.WorkerError"><strong>WorkerError</strong></a> – If a parallel process ends while a table of velocity distributions
+    is computed (for binned distributions and Gauss-Hermite moments).</p></li>
+</ul>
+</dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-obj docutils literal notranslate"><span class="pre">likelihood</span></code></a></dt><dd><p>The log-likelihood as a JAX function of the parameters.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.inference.Data" title="pianistpy.inference.Data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Data</span></code></a></dt><dd><p>The measurements a model is compared with.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
-<p>With residuals <code class="docutils literal notranslate"><span class="pre">r</span></code> of the measured values against the model’s, and
-errors <code class="docutils literal notranslate"><span class="pre">e</span></code> or a covariance <code class="docutils literal notranslate"><span class="pre">C</span></code>, <code class="docutils literal notranslate"><span class="pre">-r^T</span> <span class="pre">C^-1</span> <span class="pre">r</span> <span class="pre">/</span> <span class="pre">2</span> <span class="pre">-</span> <span class="pre">ln</span> <span class="pre">det(2</span> <span class="pre">pi</span> <span class="pre">C)</span> <span class="pre">/</span> <span class="pre">2</span></code>.
-The value of <cite>likelihood</cite> at the model’s own weights and scales.</p>
+<p>For residuals <span class="math notranslate nohighlight">\(r\)</span> of the measured values minus the model’s values
+and the covariance matrix <span class="math notranslate nohighlight">\(C\)</span> of the errors (diagonal, with
+<span class="nobr"><span class="math notranslate nohighlight">\(C_{ii} = e_i^2\)</span>,</span> for independent errors <span class="nobr"><span class="math notranslate nohighlight">\(e_i\)</span>),</span></p>
+<div class="math notranslate nohighlight">
+\[\ln \mathcal{L} = -\frac{1}{2} r^{\rm T} C^{-1} r
+- \frac{1}{2} \ln \det (2 \pi C).\]</div>
+<p class="rubric">References</p>
+<p>Notes Section T:7.4.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_likelihood</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">"sigma_los"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.30</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">],</span> <span class="n">r_2d</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">value</span> <span class="o">=</span> <span class="n">log_likelihood</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>

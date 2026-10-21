@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>End-to-end differentiability &#8212; PIANISTpy ver. 1.0.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'guide/differentiability';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/logo.png"/>
+    <link rel="index" title="Index" href="../genindex" />
+    <link rel="search" title="Search" href="../search" />
+    <link rel="next" title="Differentiable observables" href="differentiable" />
+    <link rel="prev" title="Line-of-sight table" href="lostable" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+
+
+<link rel="alternate" type="text/markdown" href="differentiability.md">
+
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/fonts/LibreFranklin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/fonts/SourceSerif4.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/fonts/LibreBaskerville.woff2">
+
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  
+
+  
+
+<!-- band -->
+<header id="pst-header" class="site d-print-none">
+  <div class="site-in">
+    <div class="site-top">
+      <a class="site-title" href="../../">PIANISTpy</a>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+    </div>
+    <nav class="site-nav" aria-label="Site">
+      
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../start/overview">Get started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../start/overview">What PIANISTpy does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/quickstart">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../start/computing-time">Representative computing time</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="particles">Particles (Sampler)</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="observables">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="accuracy">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime">Runtime options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/api/index">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../reference/api/index">Functions by subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/symbols">Code and paper notations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/accuracy">Accuracy tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference/notes">Technical notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/release-notes">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/accuracy">Accuracy by release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/upcoming-features">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../project/citing">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../project/citing">How to cite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../project/license">License and authors</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="site-icons">
+        <a href="../search" title="Search" aria-label="Search"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg></a>
+        <a href="https://github.com/barrytchiang/PIANISTpy" title="GitHub" aria-label="GitHub" rel="noopener" target="_blank"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+        <a href="https://pypi.org/project/pianistpy/" title="PyPI" aria-label="PyPI" rel="noopener" target="_blank"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6zM286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3zM167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4zm-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3z"/></svg></a>
+        <!-- manual-only -->
+        <button type="button" class="site-toggle sidebar-toggle primary-toggle" aria-label="Pages of this tab"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></button>
+        <!-- /manual-only -->
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- /band -->
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><div class="sidebar-logo">
+  <a href="../../"><img src="../_static/logo.png" alt="PIANISTpy"></a>
+</div></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="User guide">
+  <p class="bd-links__title" role="heading" aria-level="1">User guide</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="models">Models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="profiles">Density profiles (DoublePowerLaw)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="anisotropy">Velocity anisotropy (Anisotropy, Component)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="df">Distribution functions (compute_df)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="truncation">Truncation in phase space (truncate, solve)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="particles">Particles (Sampler)</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="observables">Observables</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="sigma_r">Radial velocity dispersion (sigma_r)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="losvd">Line-of-sight velocity distribution (losvd)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aperture_losvd">Line-of-sight velocity distribution in an aperture (aperture_losvd)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf_v">Local velocity distribution (pdf_v)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lostable">Line-of-sight table (LosTable)</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">End-to-end differentiability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differentiable">Differentiable observables (Differentiable)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="superposition">Superposition and inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="units">Units</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="accuracy">Accuracy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="flags-refusals">Flags and refusals</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="input-output">Input and output (write, read)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime">Runtime options</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="observables" class="nav-link">Observables</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">End-to-end differentiability</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="end-to-end-differentiability">
+<h1>End-to-end differentiability<a class="headerlink" href="#end-to-end-differentiability" title="Link to this heading">#</a></h1>
+<p><a class="reference internal" href="../reference/api/inference#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.inference.likelihood()</span></code></a>, <a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.make_inversion_table" title="pianistpy.df.gradient.make_inversion_table"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.make_inversion_table()</span></code></a>,
+<a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.table_jacobian" title="pianistpy.df.gradient.table_jacobian"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.table_jacobian()</span></code></a>, <a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.make_inversion_rows()</span></code></a>,
+<a class="reference internal" href="../reference/api/df#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.df.gradient.rows_jacobian()</span></code></a></p>
+<section id="what-is-differentiable">
+<h2>What is differentiable<a class="headerlink" href="#what-is-differentiable" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>The likelihood.</strong> The log-likelihood that <a class="reference internal" href="../reference/api/inference#pianistpy.inference.likelihood" title="pianistpy.inference.likelihood"><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.inference.likelihood()</span></code></a> returns is a JAX function of
+the components’ weights and of the model’s mass and length scales, which JAX traces and differentiates in each
+weight and each scale. With <code class="docutils literal notranslate"><span class="pre">free=</span></code>, the anisotropy <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> of each component listed in
+<code class="docutils literal notranslate"><span class="pre">free</span></code> is also a parameter of the log-likelihood (see <a class="reference internal" href="#which-models">Which models</a> below and the
+<a class="reference internal" href="../reference/api/inference"><span class="doc">Inference</span></a> page). With <code class="docutils literal notranslate"><span class="pre">free=</span></code>, data of the binned distributions
+(<code class="docutils literal notranslate"><span class="pre">&quot;losvd&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;losvd_aperture&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;pdf_v&quot;</span></code>) or of the Gauss-Hermite moments (<code class="docutils literal notranslate"><span class="pre">&quot;h3&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;h4&quot;</span></code>) raise
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>.</p></li>
+<li><p><strong>The observables.</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Differentiable</span></code> provides the observables of a one-component model as JAX
+functions of the component’s anisotropy <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> (<a class="reference internal" href="differentiable"><span class="doc">Differentiable observables</span></a>).</p></li>
+<li><p><strong>The distribution function.</strong> The derivative of the distribution function in the central anisotropy
+<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and the anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is available at the inversion’s energies and for
+the full table (see <a class="reference internal" href="#the-distribution-function">The distribution function</a> below).</p></li>
+</ul>
+<p>The derivative of the distribution function is available for the following anisotropy models, with their parameters:</p>
+<ul class="simple">
+<li><p>isotropic and constant anisotropy <span class="nobr"><span class="math notranslate nohighlight">\((\beta_{\rm c})\)</span>,</span></p></li>
+<li><p>Cuddeford-Osipkov-Merritt (COM) Type I <span class="nobr">(<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span></span> and <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>),</span></p></li>
+<li><p>Osipkov-Merritt Type I and Type II <span class="nobr"><span class="math notranslate nohighlight">\((R_{\rm a})\)</span>.</span></p></li>
+</ul>
+<p>The following cases raise <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>:</p>
+<ul class="simple">
+<li><p>COM Type II. The COM Type II inversion has an interior point at the potential <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>,</span> which moves
+with both <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,</span> so the derivative is not integrable at <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>.</span>
+The log-likelihood of <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;sigma_los_aperture&quot;</span></code> data still has a derivative in the anisotropy
+of a free COM Type II component, computed from the Jeans equation. <code class="xref py py-class docutils literal notranslate"><span class="pre">Differentiable</span></code> raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> for a COM Type II component. The distribution function of a COM Type II component
+and the observables read from the distribution function (<code class="docutils literal notranslate"><span class="pre">losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code>) have no
+derivative.</p></li>
+<li><p>A distribution function whose center lies on the critical branch, where the inner slope <span class="math notranslate nohighlight">\(\gamma\)</span> of the
+density equals <span class="math notranslate nohighlight">\(2\beta_{\rm c}\)</span> and the form of the center changes with <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>.</span></p></li>
+<li><p>A component on a truncated profile that does not carry the distribution function of the model the profile was
+taken from.</p></li>
+</ul>
+</section>
+<section id="which-models">
+<h2>Which models<a class="headerlink" href="#which-models" title="Link to this heading">#</a></h2>
+<p>The anisotropy is a parameter, through <code class="docutils literal notranslate"><span class="pre">likelihood</span></code> with <code class="docutils literal notranslate"><span class="pre">free=</span></code> and through <code class="docutils literal notranslate"><span class="pre">pp.Differentiable</span></code>, only for a
+Method II model: a component whose distribution function is inverted on another model’s truncated profile. The
+truncated profile is held fixed, so the profile and the potential do not change with the anisotropy, and the
+derivative is complete. Other models raise <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>:</p>
+<ul class="simple">
+<li><p>A Method I truncated model. The truncated profile of a Method I model follows from the model’s own distribution
+function, so the truncated profile changes with <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</span> Ver. 1.0.0 does not
+compute the derivative of the truncated profile in the anisotropy.</p></li>
+<li><p>An untruncated model, or a model that is not spatially finite.</p></li>
+</ul>
+</section>
+<section id="the-distribution-function">
+<h2>The distribution function<a class="headerlink" href="#the-distribution-function" title="Link to this heading">#</a></h2>
+<p>The derivative of the distribution function is available in two forms:</p>
+<ul class="simple">
+<li><p>the rows (the distribution function on the inversion’s energy grid), through <code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code> and
+<code class="docutils literal notranslate"><span class="pre">rows_jacobian</span></code>, for a component on its own analytic profile only;</p></li>
+<li><p>the table, as the lookup reads it, through <code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code> and <code class="docutils literal notranslate"><span class="pre">table_jacobian</span></code>. The derivative covers
+every array of the table: the rows (<code class="docutils literal notranslate"><span class="pre">log_df</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df_slope</span></code>), the nodes below the table’s first energy
+(<code class="docutils literal notranslate"><span class="pre">log_df_below</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df_slope_below</span></code>), the closed form at the center (<code class="docutils literal notranslate"><span class="pre">central</span></code>) and the tail (<code class="docutils literal notranslate"><span class="pre">tail</span></code>).
+For a Method II component, the arrays are the rows (<code class="docutils literal notranslate"><span class="pre">log_df</span></code>), the power law at the lowest energies
+(<code class="docutils literal notranslate"><span class="pre">edge_law</span></code>) and the closed form at the center (<code class="docutils literal notranslate"><span class="pre">center</span></code>).</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code> and <code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code> each return a JAX function of the anisotropy parameters, the
+names of the parameters (<code class="docutils literal notranslate"><span class="pre">params</span></code>), and the energies or the table at the component’s own parameters. The value of
+the returned function is the result of <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_df()</span></code> at the given parameters, computed on the CPU.
+The derivative of the returned function is the package’s analytic derivative (Eq. (T:7.1) of the
+<a class="reference internal" href="../reference/notes"><span class="doc">Technical notes</span></a>). The <code class="docutils literal notranslate"><span class="pre">*_jacobian</span></code> functions return the values and their derivatives
+as arrays.</p>
+<p>Both returned functions hold the energies at the component’s own parameters. The function that
+<code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code> returns makes the anchor of the closed form at the center and the nodes kept again at each
+new parameter value, except that a component on a truncated profile also holds the nodes kept at the component’s
+own parameters. The derivative is thus the derivative of the table that <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_df()</span></code> returns at the
+given parameters, on the held energies. Where a discrete choice would change between two parameter values, the value
+of the returned function differs from a new <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_df()</span></code> call by up to the tolerance of the
+inversion.</p>
+</section>
+<section id="accuracy-and-the-record">
+<h2>Accuracy and the record<a class="headerlink" href="#accuracy-and-the-record" title="Link to this heading">#</a></h2>
+<p>The derivative is exact except for the derivative of the inversion’s operator in <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>.</span> The
+derivative of the operator in <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> has no closed form and is taken by finite differences of the
+operator’s values at nearby <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>.</span> <code class="docutils literal notranslate"><span class="pre">rows_jacobian</span></code> and <code class="docutils literal notranslate"><span class="pre">table_jacobian</span></code> return a record of the
+finite differences:</p>
+<ul class="simple">
+<li><p>the kind of difference: central (a Richardson quotient) where the inversion’s form is the same on both sides of
+<span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,</span> or one-sided at a <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> where the form changes (integer and half-integer
+<span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>);</span></p></li>
+<li><p>the step of the difference;</p></li>
+<li><p>the Richardson residual of the quotient and, for a one-sided difference, the spread between the derivatives from
+the two sides, relative to the largest <span class="math notranslate nohighlight">\(|\partial F/\partial\beta_{\rm c}|\)</span> in the record of
+<code class="docutils literal notranslate"><span class="pre">rows_jacobian</span></code> and absolute in the record of <code class="docutils literal notranslate"><span class="pre">table_jacobian</span></code>;</p></li>
+<li><p>for a component on a truncated profile, where the component’s energy grid is placed.</p></li>
+</ul>
+<p>The Richardson residual is the accuracy of the derivative, read against the thresholds <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span>
+<span class="math notranslate nohighlight">\(10^{-4}\)</span> and <span class="math notranslate nohighlight">\(10^{-2}\)</span> of the validation reports (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>). Where the difference is central, the
+residual is below <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>.</span> At the isotropic value <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c} = 0\)</span>,</span> the difference is one-sided, and
+the residual is about <span class="math notranslate nohighlight">\(10^{-5}\)</span> of the largest derivative, between <span class="math notranslate nohighlight">\(10^{-6}\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>.</span> The
+record gives the residual. A gradient at <span class="math notranslate nohighlight">\(\beta_{\rm c} = 0\)</span> is usable at an error of about <span class="nobr"><span class="math notranslate nohighlight">\(10^{-5}\)</span>.</span>
+For a gradient with an error below <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span> take a <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> away from 0, where the difference
+is central.</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<p>The derivative of <span class="math notranslate nohighlight">\(\log_{10} F\)</span> at one node of a Hernquist component’s table, by the analytic derivative and by
+a central difference of the same function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.df.gradient</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_inversion_table</span>
+
+<span class="n">halo</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=</span><span class="mf">0.25</span><span class="p">))</span>
+<span class="n">table</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">make_inversion_table</span><span class="p">(</span><span class="n">halo</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">())</span>
+<span class="n">node</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="s2">"k"</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">))</span>  <span class="c1"># the first node at or above K = 0.5</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log_df</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">table</span><span class="p">(</span><span class="n">theta</span><span class="p">)[</span><span class="s2">"log_df"</span><span class="p">][</span><span class="n">node</span><span class="p">]</span>
+
+
+<span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.25</span><span class="p">])</span>  <span class="c1"># params == ("beta_c",)</span>
+<span class="n">rule</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">log_df</span><span class="p">)(</span><span class="n">theta</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">h</span> <span class="o">=</span> <span class="mf">1e-3</span>
+<span class="n">difference</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">log_df</span><span class="p">(</span><span class="n">theta</span> <span class="o">+</span> <span class="n">h</span><span class="p">)</span> <span class="o">-</span> <span class="n">log_df</span><span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="n">h</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">h</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">difference</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The analytic derivative and the central difference agree to the error of the central difference, of order
+<span class="math notranslate nohighlight">\(h^2\)</span> times the third derivative. The table is made once. Each
+call of <code class="docutils literal notranslate"><span class="pre">table</span></code> solves the inversion again at the new parameters, on the held grid.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-differentiable">What is differentiable</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-models">Which models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-distribution-function">The distribution function</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accuracy-and-the-record">Accuracy and the record</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Barry T. Chiang.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/" rel="noopener" target="_blank">Sphinx</a> 9.0.4.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

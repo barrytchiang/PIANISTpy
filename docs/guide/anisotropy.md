@@ -2,32 +2,31 @@
 
 Source: https://pianistpy.com/docs/guide/anisotropy
 
-# Velocity anisotropy
+`pianistpy.Anisotropy`, `pianistpy.Component`
 
-pianistpy.Anisotropy, pianistpy.Component
+One class, `Anisotropy(beta_c, r_a, kind)`, covers every analytical anisotropy model of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing):
 
-One class covers every analytical anisotropy model of Chiang+(2026d), Anisotropy(beta_c, r_a, kind):
+- the default, `Anisotropy()`, is isotropic;
 
-the default, Anisotropy(), is isotropy;
+- a nonzero central anisotropy `beta_c` alone, with \(\beta_{\rm c} < 1\), gives constant anisotropy;
 
-a finite beta_c alone, in (-infinity, 1), gives constant anisotropy;
+- a finite anisotropy radius `r_a` gives the Osipkov-Merritt model (with `beta_c = 0`) or the
+Cuddeford-Osipkov-Merritt (COM) model (with a nonzero `beta_c`). `kind="I"` (the default) is radially biased,
+`kind="II"` tangentially biased.
 
-a finite anisotropy radius r_a gives the Osipkov-Merritt model (with beta_c = 0) or the
-Cuddeford-Osipkov-Merritt (COM) model (with beta_c given), radially biased with kind="I" or tangentially
-biased with kind="II".
+The anisotropy model is chosen by exact comparison of the parameters. `beta_c=0.0` gives the isotropic model, and
+`beta_c=1e-12` gives a constant-anisotropy model. The attribute `Anisotropy.model` gives the anisotropy model:
+`"isotropic"`, `"constant"`, `"om"` or `"com"`. Results are continuous across \(\beta_{\rm c} = 0\) and
+across an infinite \(R_{\rm a}\). A model with \(\beta_{\rm c} = 10^{-12}\) agrees with the isotropic model
+within the accuracy of the settings ([Accuracy](https://pianistpy.com/docs/guide/accuracy)).
 
-The comparison at the interface is exact: beta_c=0.0 is isotropic, beta_c=1e-12 is a constant-anisotropy
-model, and the object reports which model it is. The general path is continuous through every special value, so
-a model a hair away from one agrees with the model at it to the accuracy the tier states.
-
-```
+```python
 pp.Anisotropy()                           # isotropic
 pp.Anisotropy(beta_c=0.25)                # constant anisotropy
 pp.Anisotropy(r_a=10.0, kind="I")         # Osipkov-Merritt, radially biased
 pp.Anisotropy(beta_c=-0.25, r_a=10.0)     # COM, Type I by default
-
 ```
 
-Component(profile, anisotropy) joins a density profile and an anisotropy into the input of the inversion.
-The first release covers one component per model; several components in one potential are the planned next
-extension (Upcoming features).
+`Component(profile, anisotropy)` joins a density profile and an anisotropy. A `Component` is the input of
+`compute_df()` and `solve()`. In ver. 1.0.0, `compute_df` and `solve` take one
+component. Several components in one potential are among the [Upcoming features](https://pianistpy.com/docs/project/upcoming-features).

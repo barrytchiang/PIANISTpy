@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Exceptions &#8212; PIANISTpy ver. 0.9.9</title>
+    <title>Exceptions &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=a1b407ed" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
     <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -42,10 +42,12 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=78e02b37"></script>
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'reference/api/exceptions';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/logo.png"/>
@@ -57,15 +59,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.9.9" />
+  <meta name="docsearch:version" content="1.0.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script src="../../searchindex.js"></script>
   
-
-<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="alternate" type="text/markdown" href="exceptions.md">
@@ -117,16 +117,16 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 0.9.9</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
       <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../start/index">Get started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../start/timing">Representative computing time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
@@ -136,31 +136,31 @@
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/files">Input and output (write, read)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/switches">Runtime options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../notebooks/index">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/particles">Generate particle initial conditions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/observables">Compute observables from a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="../index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index">API reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index">Functions by subpackage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../notes">Technical notes</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../project/index">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../project/changelog">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../project/roadmap">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="../../citation/index">Citation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
 </ul>
@@ -178,8 +178,6 @@
     </nav>
   </div>
 </header>
-
-<div class="site-banner"><div class="banner">Pre-release: ver. 0.9.9 is the code of <a href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>; ver. 1.0.0 follows with the citation entry, the DOI of the software release and the changes its release notes list.</div></div>
 
 <!-- /band -->
 
@@ -230,17 +228,17 @@
 <li class="toctree-l2"><a class="reference internal" href="numerics">Numerics</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="../settings">Settings tables</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../symbols">Names and paper symbols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../settings">Numerical settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../symbols">Code and paper notations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../accuracy">Accuracy tables</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/principles">T:0 Principles and conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The model: density and potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/df">T:2 The distribution function</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/sampling">T:5 Particle sampling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity profiles and projections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/gradients">T:7 Gradients</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/verification">T:8 Verification</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../technical-notes/references">References</a></li>
@@ -286,7 +284,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="../index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="index" class="nav-link">API reference</a></li>
     
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Functions by subpackage</a></li>
@@ -311,41 +309,100 @@
   <section id="exceptions">
 <h1>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">#</a></h1>
 <p>Module <code class="docutils literal notranslate"><span class="pre">pianistpy.exceptions</span></code></p>
-<p id="module-pianistpy.exceptions">Exceptions and warnings raised by PIANISTpy.</p>
+<p id="module-pianistpy.exceptions">The exception classes and warning classes of PIANISTpy.</p>
+<p>Every error the package raises is an instance of <cite>PianistpyError</cite>. Every
+warning the package issues is an instance of <cite>PianistpyWarning</cite>.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.AccuracyError">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">AccuracyError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.AccuracyError" title="Link to this definition">#</a></dt>
-<dd><p>Raised when a result misses the hard accuracy limit, or cannot be
-resolved at the settings’ resolution.</p>
+<dd><p>Raised when a result’s relative error is above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>.</span></p>
+<p>AccuracyError is also raised when the resolution of the settings cannot
+resolve the result. An AccuracyError raised after the result is built
+carries the result. With <code class="docutils literal notranslate"><span class="pre">Settings(write_anyway=True)</span></code>, the call
+returns such a result, with its validation report, and raises no
+AccuracyError.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The check that failed, its error and where.</p></li>
-<li><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em>, </em><em>optional</em>) – The result that was refused, complete with its validation report,
-where the refusal came after it was built, so that it can be inspected
-without a second computation (<code class="docutils literal notranslate"><span class="pre">Settings(write_anyway=True)</span></code> returns
-it instead).</p></li>
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The check the result fails, the relative error of the failed check,
+and the position where the failed check’s relative error occurs.</p></li>
+<li><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em>, </em><em>optional</em>) – The result, with its validation report. The user can inspect the
+attached result without computing the result a second time.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means no result is attached.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em> or </em><em>None</em>) – The refused result, or None where the refusal came inside a stage.</p>
+<dd class="field-even"><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em> or </em><em>None</em>) – The result passed as <cite>result</cite>. None where the AccuracyError is
+raised before the result exists.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.AccuracyWarning" title="pianistpy.exceptions.AccuracyWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AccuracyWarning</span></code></a></dt><dd><p>Issued when a result’s relative error is above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>.</span></p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.exceptions.PianistpyError" title="pianistpy.exceptions.PianistpyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PianistpyError</span></code></a></dt><dd><p>Base class of every error raised by PIANISTpy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">issubclass</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">AccuracyError</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">PianistpyError</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.AccuracyWarning">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">AccuracyWarning</span></span><a class="headerlink" href="#pianistpy.exceptions.AccuracyWarning" title="Link to this definition">#</a></dt>
-<dd><p>Issued when a result lies between the stated accuracy and the hard limit.</p>
+<dd><p>Issued when a result’s relative error is above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>.</span></p>
+<p>A result with a relative error above <span class="math notranslate nohighlight">\(10^{-4}\)</span> and at most
+<span class="math notranslate nohighlight">\(10^{-2}\)</span> has the validation report tier <code class="docutils literal notranslate"><span class="pre">&quot;warned&quot;</span></code>. A result
+with a relative error above <span class="math notranslate nohighlight">\(10^{-2}\)</span> also issues AccuracyWarning
+when <code class="docutils literal notranslate"><span class="pre">Settings(write_anyway=True)</span></code> lets the call return the result.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AccuracyError</span></code></a></dt><dd><p>Raised when a result’s relative error is above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>.</span></p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">issubclass</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">AccuracyWarning</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">PianistpyWarning</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.InputError">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">InputError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.InputError" title="Link to this definition">#</a></dt>
-<dd><p>Raised when an input parameter is outside its admissible range.</p>
+<dd><p>Raised when a call does not accept one of its inputs.</p>
+<p>A call raises InputError for an input of the wrong type, an input
+outside its valid range, or an input inconsistent with another input of
+the same call. The message of an InputError identifies the input and the rule
+the input breaks. InputError is a subclass of <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.PianistpyError" title="pianistpy.exceptions.PianistpyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PianistpyError</span></code></a></dt><dd><p>Base class of every error raised by PIANISTpy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="n">pp</span><span class="o">.</span><span class="n">InputError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">))</span>
+<span class="go">InputError True</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a>)</p>
@@ -362,9 +419,10 @@ it instead).</p></li>
 <dd><p>Base class of every error raised by PIANISTpy.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Variables<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>recent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The most recent messages of the package when the error was raised,
-oldest first. They are kept whatever the verbosity, so that a quiet
-run that fails can still say what it was doing.</p>
+<dd class="field-odd"><p><strong>recent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The most recent messages of the package at the moment the error is
+raised, oldest first. The package keeps the recent messages at every
+verbosity setting. A run with its messages silenced therefore still
+reports, in <cite>recent</cite>, the steps the run took before the error.</p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a>)</p>
@@ -373,23 +431,65 @@ run that fails can still say what it was doing.</p>
 <dd class="field-odd"><p>None</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.PianistpyWarning" title="pianistpy.exceptions.PianistpyWarning"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PianistpyWarning</span></code></a></dt><dd><p>Base class of every warning issued by PIANISTpy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">issubclass</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">InputError</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">PianistpyError</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.PianistpyWarning">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">PianistpyWarning</span></span><a class="headerlink" href="#pianistpy.exceptions.PianistpyWarning" title="Link to this definition">#</a></dt>
 <dd><p>Base class of every warning issued by PIANISTpy.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.PianistpyError" title="pianistpy.exceptions.PianistpyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PianistpyError</span></code></a></dt><dd><p>Base class of every error raised by PIANISTpy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">issubclass</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">PianistpyWarning</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.ResultError">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">ResultError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.ResultError" title="Link to this definition">#</a></dt>
-<dd><p>Raised when a result is not what it is taken for.</p>
-<p>A file that does not hold the result it is taken for: an unknown format
-version, a data digest that does not match the stored arrays, a parent
-whose identity differs from the one the file records, a file that does
-not read back as written. Or a stage’s output that fails a structural
-check the next stage needs: rows that are not finite or not increasing.</p>
+<dd><p>Raised when a result fails a check of its integrity.</p>
+<p>Reading a file raises ResultError in three cases: the file’s format
+version is unknown; the file’s data digest does not match the arrays
+stored in the file; or the parent of the stored result differs from the
+parent the file records. Writing a file raises ResultError when the
+written file does not read back as written. A computation raises
+ResultError when an intermediate result fails a check that the next
+step of the computation needs, such as values that are not finite or
+radii that do not increase.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.PianistpyError" title="pianistpy.exceptions.PianistpyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PianistpyError</span></code></a></dt><dd><p>Base class of every error raised by PIANISTpy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">issubclass</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">ResultError</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">PianistpyError</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a>)</p>
@@ -403,20 +503,74 @@ check the next stage needs: rows that are not finite or not increasing.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="pianistpy.exceptions.UnphysicalModelError">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">UnphysicalModelError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.UnphysicalModelError" title="Link to this definition">#</a></dt>
-<dd><p>Raised when no valid equilibrium exists for the requested model.</p>
+<dd><p>Raised when the requested model has no valid equilibrium.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The condition that failed and the values involved.</p></li>
-<li><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em>, </em><em>optional</em>) – The distribution function that was computed before the model was
-refused, so that it can be inspected without a second computation.</p></li>
+<li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – The condition the model fails and the values of the quantities in
+the failed condition.</p></li>
+<li><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em>, </em><em>optional</em>) – The distribution function computed before the error is raised. The
+user can inspect the attached distribution function without
+computing the distribution function a second time. Default:
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, which means no distribution function is attached.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Variables<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em> or </em><em>None</em>) – The distribution function attached to the refusal.</p>
+<dd class="field-even"><p><strong>result</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a><em> or </em><em>None</em>) – The distribution function passed as <cite>result</cite>, or None.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.PianistpyError" title="pianistpy.exceptions.PianistpyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PianistpyError</span></code></a></dt><dd><p>Base class of every error raised by PIANISTpy.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AccuracyError</span></code></a></dt><dd><p>Raised when a result’s relative error is above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>.</span></p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">issubclass</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">UnphysicalModelError</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">PianistpyError</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="pianistpy.exceptions.WorkerError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.exceptions.</span></span><span class="sig-name descname"><span class="pre">WorkerError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.exceptions.WorkerError" title="Link to this definition">#</a></dt>
+<dd><p>Raised when a parallel process ends before finishing its task.</p>
+<p>A call raises WorkerError as soon as the call finds one of its parallel
+processes ended. The call does not wait for the lost task’s result. The
+usual cause of a WorkerError is a lack of memory. The operating system
+ends a process when the machine runs out of memory. Fewer cores lower
+the memory a call uses. The number of cores is set by <cite>set_cores</cite> or by
+the environment variable
+<code class="docutils literal notranslate"><span class="pre">PIANISTPY_CORES</span></code>. WorkerError is a subclass of <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>.</p>
+<p>Under a JAX transformation such as <code class="docutils literal notranslate"><span class="pre">jax.grad</span></code>, the caller receives
+<code class="docutils literal notranslate"><span class="pre">jax.errors.JaxRuntimeError</span></code> with the message of the WorkerError.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.exceptions.PianistpyError" title="pianistpy.exceptions.PianistpyError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PianistpyError</span></code></a></dt><dd><p>Base class of every error raised by PIANISTpy.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">PianistpyError</span><span class="p">,</span> <span class="n">WorkerError</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">issubclass</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">,</span> <span class="n">PianistpyError</span><span class="p">),</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">WorkerError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">)</span>
+<span class="go">(True, True)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)" rel="noopener" target="_blank"><em>object</em></a>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -453,6 +607,7 @@ refused, so that it can be inspected without a second computation.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.exceptions.PianistpyWarning"><code class="docutils literal notranslate"><span class="pre">PianistpyWarning</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.exceptions.ResultError"><code class="docutils literal notranslate"><span class="pre">ResultError</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.exceptions.UnphysicalModelError"><code class="docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.exceptions.WorkerError"><code class="docutils literal notranslate"><span class="pre">WorkerError</span></code></a></li>
 </ul>
   </nav></div>
 

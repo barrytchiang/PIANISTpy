@@ -2,23 +2,21 @@
 
 Source: https://pianistpy.com/docs/guide/
 
-# User guide
+Each page of the User guide covers one topic. Every class and function name on a User guide page links to the entry of
+that class or function on the [Functions by subpackage](https://pianistpy.com/docs/reference/api/index) pages.
 
-One page per topic, each with the classes and functions it uses; every name links to its entry in the
-API reference.
+- [Models](https://pianistpy.com/docs/guide/models)
 
-Models
+- [Particles (Sampler)](https://pianistpy.com/docs/guide/particles)
 
-Particles (Sampler)
+- [Observables](https://pianistpy.com/docs/guide/observables)
 
-Observables
+- [Superposition and inference](https://pianistpy.com/docs/guide/superposition)
 
-Superposition and inference
+- [Units](https://pianistpy.com/docs/guide/units)
 
-Units
+- [Accuracy](https://pianistpy.com/docs/guide/accuracy)
 
-Accuracy
+- [Input and output (write, read)](https://pianistpy.com/docs/guide/input-output)
 
-Input and output (write, read)
-
-Runtime options
+- [Runtime options](https://pianistpy.com/docs/guide/runtime)

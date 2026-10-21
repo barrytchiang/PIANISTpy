@@ -1,9 +1,10 @@
 Quick start
 ===========
 
-The example of |paper|, Fig. 3: an NFW halo with a concentration of 10 and a constant velocity anisotropy of 0.25,
-truncated in phase space such that the total final mass equals the untruncated virial mass, scaled physically to
-the Milky Way mass.
+The example below builds an NFW halo of concentration 10 with a constant velocity anisotropy of 0.25. Method I
+(:doc:`Truncation in phase space <../guide/truncation>`) truncates the halo in phase space so that the truncated mass
+equals the virial mass of the untruncated halo. The model is then given in physical units, with a virial mass of
+:math:`10^{12}\,M_\odot`, about the mass of the Milky Way, and a scale radius of 20 kpc.
 
 .. code-block:: python
 
@@ -16,7 +17,7 @@ the Milky Way mass.
    # the untruncated distribution function
    df = pp.compute_df(halo)
 
-   # Method I: truncate it so that the truncated mass equals the virial mass of the
+   # Method I: truncate the distribution function so that the truncated mass equals the virial mass of the
    # untruncated NFW halo of concentration 10 (the mass inside 10 scale radii)
    model = pp.truncate(df, pp.Truncation(mass_t=1.0, concentration=10))
 
@@ -30,7 +31,6 @@ the Milky Way mass.
    # the line-of-sight velocity dispersion at three projected radii
    sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
 
-``pp.solve(halo, truncation)`` runs the two steps at once.
+``pp.solve(halo, pp.Truncation(mass_t=1.0, concentration=10))`` runs ``compute_df`` and ``truncate`` in one call.
 
-See :ref:`Examples <notebooks-paper>` for self-contained Jupyter notebooks to reproduce the result figures shown in
-|paper|.
+The :doc:`Examples <../notebooks/index>` page shows self-contained Jupyter tutorial notebooks.

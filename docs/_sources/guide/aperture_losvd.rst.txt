@@ -3,45 +3,59 @@ Line-of-sight velocity distribution in an aperture
 
 :func:`pianistpy.aperture_losvd`, :class:`pianistpy.Aperture`, :class:`pianistpy.LosTable`
 
-``aperture_losvd(source, aperture, v)`` returns the line-of-sight velocity distribution of the tracers inside an
-aperture: the distribution at each projected radius (:doc:`losvd`) averaged over the aperture with the surface
-density,
+``aperture_losvd(source, aperture, v)`` returns the line-of-sight velocity distribution of the model's mass inside
+an aperture. :math:`\overline{D}` is the line-of-sight velocity distribution :math:`D` at each projected radius
+(:doc:`losvd`), averaged over the aperture with the surface density as the weight:
 
 .. math::
 
    \overline{D}(V_{\rm los}) = \frac{\int_{\rm aperture} \Sigma(R_{\rm 2D})\, D(R_{\rm 2D}, V_{\rm los})\,{\rm d}A}
    {\int_{\rm aperture} \Sigma(R_{\rm 2D})\,{\rm d}A}.
 
-It is even in :math:`V_{\rm los}`, integrates to one over all :math:`V_{\rm los}`, and is zero beyond the escape
-velocity along the line of sight. Its second moment is the dispersion inside the aperture,
-:math:`\overline{\sigma}_{\rm los}^2` (:func:`pianistpy.sigma_los_aperture` given the same table).
+The distribution is even in :math:`V_{\rm los}` and integrates to one over all :math:`V_{\rm los}`.
+:math:`\overline{D}` is zero at every :math:`|V_{\rm los}|` above the largest velocity that the distribution function
+reaches on the lines of sight through the aperture. The second moment of :math:`\overline{D}` is the squared
+dispersion inside the aperture, :math:`\overline{\sigma}_{\rm los}^2`. Given the same ``LosTable``,
+:func:`pianistpy.sigma_los_aperture` returns :math:`\overline{\sigma}_{\rm los}`.
 
 Arguments and units
 -------------------
 
-``source`` is a :class:`~pianistpy.Model` or its prepared :class:`~pianistpy.LosTable`; given a model, its table
-is built first, so for more than one call build the table once (:doc:`lostable`). ``aperture`` is an
-:class:`~pianistpy.Aperture`, circular or rectangular, centered or offset (:doc:`observables`), its lengths in the
-model's unit of length. ``v`` is an array of line-of-sight velocities in the model's unit of velocity (km/s in the
-physical system); the result has its shape, per unit velocity of the model's unit system.
+- ``source`` is a :class:`~pianistpy.Model` or the model's line-of-sight table (:class:`~pianistpy.LosTable`).
+  Given a model, ``aperture_losvd`` builds the model's ``LosTable`` at every call. For more than one call, build
+  the ``LosTable`` once (:doc:`lostable`).
+- ``aperture`` is an :class:`~pianistpy.Aperture`: circular or rectangular, centered or offset (:doc:`observables`).
+  The aperture's lengths are in the model's unit of length.
+- ``v`` is an array of line-of-sight velocities in the model's unit of velocity (km/s in the physical system).
 
-Of a superposition, each component's distribution in the aperture is summed with its weight times its projected
-mass inside the aperture, :math:`\overline{D} = \sum_k w_k M_k \overline{D}_k / \sum_k w_k M_k`.
+The result has the shape of ``v`` and is a probability density per unit velocity of the model's unit system.
 
-Tiers
------
+For a superposition, the call sums the components' distributions in the aperture. The distribution of component
+:math:`k` is weighted by the component's weight :math:`w_k` times the component's projected mass :math:`M_k` inside
+the aperture:
+:math:`\overline{D} = \sum_k w_k M_k \overline{D}_k / \sum_k w_k M_k`.
 
-The distribution is computed on panels in velocity, refined until its norm and its second moment agree with the
-table's rows, and at any velocity it is read by each panel's polynomial through its own nodes. Its second moment is
-checked against the aperture's dispersion from the projected tables, which reads no velocity distribution, so the
-tier is the worse of that check and the table's own (:doc:`lostable`); a distribution above the goal says so in a
-warning.
+Accuracy report
+---------------
 
-A small aperture costs the quick tier the most. Measured on an NFW halo of concentration 30 with a Cuddeford-Osipkov-Merritt (COM) Type I
-anisotropy (:math:`\beta_{\rm c} = -0.25`, :math:`R_{\rm a} = 10`) in a centered circle of radius 0.05 in the scale radius, the
-quick tier's second moment differs from the default tier's by :math:`6.7 \times 10^{-6}` of it, and its own check reports :math:`6.2 \times 10^{-6}` (above
-the goal, with a warning); in a circle of radius 1 the two differ by :math:`1.5 \times 10^{-6}`. At the default tier the check reports
-:math:`1.0 \times 10^{-7}` and :math:`6.4 \times 10^{-8}`. The quick tier's table took a quarter of the default's time.
+The report of ``aperture_losvd`` checks the second moment of :math:`\overline{D}` against
+:math:`\overline{\sigma}_{\rm los}^2` computed from the projected dispersion, without the velocity distributions. The
+tier of the result is the worse of the aperture's check and the tier of the ``LosTable`` (:doc:`lostable`).
+``aperture_losvd`` issues an :class:`~pianistpy.AccuracyWarning` if the relative error of :math:`\overline{D}` or
+of the ``LosTable`` is above :math:`10^{-4}`.
+
+The quick settings lose the most accuracy in a small aperture. Take an NFW halo of concentration 30 with a
+Cuddeford-Osipkov-Merritt (COM) Type I anisotropy (:math:`\beta_{\rm c} = -0.25`, :math:`R_{\rm a} = 10`):
+
+- In a centered circle of radius 0.05 scale radii, the second moment with the quick settings differs from the
+  second moment with the default settings by a relative :math:`6.7 \times 10^{-6}`. The check of the
+  quick-settings result reports :math:`6.2 \times 10^{-6}` (tier ``"recorded"``). With the default settings the
+  check reports :math:`1.0 \times 10^{-7}`.
+- In a circle of radius 1 scale radius, the second moments with the quick and with the default settings differ by
+  a relative :math:`1.5 \times 10^{-6}`. With the default settings the check reports :math:`6.4 \times 10^{-8}`.
+
+For this NFW model, the quick settings build the ``LosTable`` in about a quarter of the time that the default
+settings take.
 
 Example
 -------
@@ -62,7 +76,7 @@ Example
    v = np.linspace(-1.5, 1.5, 3001)
    d = pp.aperture_losvd(table, circle, v)       # shape (3001,)
    dv = v[1] - v[0]
-   d.sum() * dv                                   # one, to the grid's rule
+   d.sum() * dv                                   # one, to the accuracy of the sum on this grid
    np.sqrt((v**2 * d).sum() * dv), pp.sigma_los_aperture(table, circle)
 
    pp.aperture_losvd(table, pp.Aperture.circle(r_ape=1.0, r_off=10.0), v)   # an offset circle

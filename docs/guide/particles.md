@@ -2,67 +2,96 @@
 
 Source: https://pianistpy.com/docs/guide/particles
 
-# Particles
+`pianistpy.Sampler`, [`pianistpy.particles.Particles`](https://pianistpy.com/docs/reference/api/particles#pianistpy.particles.Particles)
 
-pianistpy.Sampler, pianistpy.particles.Particles
+`Sampler(model)` builds the sampling tables of a model once. `sampler.sample(n, seed)` then returns `n`
+equal-mass particles in memory, as a `Particles` object that holds positions, velocities, masses and component
+labels in the model’s unit system. The draw is reproducible particle by particle. Each particle depends only on the
+seed, the particle’s component and the particle’s index, not on the hardware or on `n`. One call of `sample`
+returns at most \(2^{31} - 1\) particles. A larger number of particles is drawn in several calls with distinct
+seeds.
 
-Sampler(model) prepares the sampling tables of a model once; .sample(n, seed) then returns n
-equal-mass particles as a Particles result, with positions, velocities, masses and component labels in
-memory. The draw is by inversion, with no rejection step, and is reproducible particle by particle: each
-particle is determined by the seed, its component and its index, independently of the hardware and of the
-number of particles requested.
-
-```
+```python
 sampler = pp.Sampler(model)
 particles = sampler.sample(10_000_000, seed=1)
 particles.write("halo.h5")                     # the native HDF5 layout
 particles.write("halo_gamer.bin", layout="gamer")
 particles.write("halo_gadget.hdf5", layout="gadget")
 particles.write("halo.txt", layout="text")
-
 ```
 
-The layouts: the native HDF5 file, read back by pianistpy.read(); the particle file of
-GAMER; a Gadget HDF5
-initial condition; fixed-width text with the units in its header. Every writer reads its file back and compares
-it with what it wrote before returning. A writer for another simulation code is one registered function.
+The layouts are:
 
-A model that is not spatially finite needs an explicit sampling radius; the sampler holds the mass inside it
-(Sampler.radius_table.mass_sample, in internal units).
+- `"native"` (the default): the package’s own HDF5 file, read back by `pianistpy.read()`;
 
-Sampler(model, r_range=(r_lo, r_hi)) draws every particle between two radii, in internal units, inside the
-sampling. The draw is the model’s own conditioned on the range, not a selection after a full draw: each
-particle’s radius number is taken between the mass fractions of r_lo and r_hi, so every particle lands in
-the range, and the particles carry the range’s mass. A superposition is drawn in the range by its components’
-weights, which the range leaves unchanged.
+- `"gamer"`: the particle file of [GAMER](https://doi.org/10.1093/mnras/sty2586);
 
-Sampler.speeds(r, seed, v_range=(v_lo, v_hi)) draws one speed at each given radius from the model’s speed
-distribution at that radius conditioned on the window, in internal units, and returns with the speeds the fraction
-of the distribution at each radius that the window holds. v_lo and v_hi are floats, one window for every
-radius, or arrays that broadcast against r, a window at each radius (a grid in units of each radius’s escape
-speed is one call per grid speed). Each speed number is taken between the speed table’s own
-numbers for v_lo and v_hi, so every speed lands in the window; a window wider than the escape speed draws the
-speeds of sample at the same seed. A superposition takes each component by its share of the window. The window is
-drawn for a constant anisotropy only: with a finite anisotropy radius the speed carries a factor of the drawn angle,
-so the window couples to the angle, and such a model is refused.
+- `"gadget"`: an HDF5 initial condition in the Gadget snapshot format 3;
 
-## Where the speed table reaches its tier
+- `"text"`: fixed-width text, with the units in its header.
 
-A model whose distribution function is non-negative is not thereby samplable at every tier. The speed table’s
-rows are refined until the error across them is under the goal or their count reaches n_rows_max; the table’s
-report carries that error, and a table beyond the hard limit is refused (Accuracy). Close to the smallest
-anisotropy radius \(R_{\rm a,min}\) (r_a_min) at which an Osipkov-Merritt or Cuddeford-Osipkov-Merritt (COM) Type I distribution function is
-non-negative, the rows reach n_rows_max first and the error grows steeply as \(R_{\rm a}\) falls toward
-\(R_{\rm a,min}\). Measured on a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) at the
-default tier, the error crosses the ceiling and the hard limit at:
+Every writer reads the file back before returning, and raises `ResultError` if the file differs
+from the particles written. A layout for another simulation code is added by one function decorated with
+`pianistpy.particles.register_particle_writer`.
+
+A model that is not spatially finite needs an explicit sampling radius, `Sampler(model, r_sample=...)`, in
+internal units. The particles then carry the mass inside that radius (`Sampler.radius_table.mass_sample`, in
+internal units).
+
+## Particles in a range of radii
+
+`Sampler(model, r_range=(r_lo, r_hi))` draws every particle between two radii, in internal units, with
+\(0 \le r_{\rm lo} < r_{\rm hi}\) and \(r_{\rm hi}\) at most the outer radius of the sampling. Each
+particle’s radius is drawn from the model’s enclosed mass restricted to the range, not selected from a full draw.
+Every particle lies between \(r_{\rm lo}\) and \(r_{\rm hi}\), and the particles together carry the model’s
+mass between \(r_{\rm lo}\) and \(r_{\rm hi}\). For a superposition, each component’s share of the particles
+between \(r_{\rm lo}\) and \(r_{\rm hi}\) is the component’s weight, because the components share one
+density.
+
+## Constrained velocity draws
+
+`Sampler.velocities(r, seed, v_range=(v_lo, v_hi))` draws one velocity at each given radius, in internal units, from the
+model’s velocity distribution at that radius conditioned on the range. `Sampler.velocities` returns the velocities and, at
+each radius, the fraction of the distribution inside the range. Where the range holds none of the distribution, the velocity is NaN.
+
+- `v_lo` and `v_hi` are floats, for one range at every radius, or arrays that broadcast against `r`, for a
+range at each radius. For example, a range from 0.5 to 0.6 times the escape velocity at each radius is one call,
+with `v_lo` and `v_hi` given as arrays over `r`. A grid of such ranges in units of the escape velocity takes
+one call per range.
+
+- Every velocity lies in the range. A range from 0 to at least the escape velocity at every radius gives the velocities that
+`sample` draws from the same random numbers at the same seed.
+
+- For a superposition, the component of each velocity is drawn with a probability proportional to the component’s
+weight times the component’s fraction of velocities in the range.
+
+- `Sampler.velocities` takes isotropic and constant-anisotropy models only. A model with a finite anisotropy radius
+raises `InputError`, because with a finite anisotropy radius the velocity depends on the drawn
+velocity angle.
+
+## Sampling accuracy near the smallest anisotropy radius
+
+A model whose distribution function is non-negative cannot always be sampled to \(10^{-6}\). The velocity table
+of a `Sampler` is refined until the table’s error is below the setting `sampling["row_error_goal"]`
+(\(10^{-6}\) with the default settings, \(10^{-4}\) with the quick settings) or until the table holds
+`sampling["n_rows_max"]` potential values. The validation report `Sampler.validation` records the velocity table’s
+error, and a velocity-table error above \(10^{-2}\) raises `AccuracyError` ([Accuracy](https://pianistpy.com/docs/guide/accuracy)).
+
+Let \(R_{\rm a,min}\) be the smallest anisotropy radius at which an Osipkov-Merritt (OM) or
+Cuddeford-Osipkov-Merritt (COM) Type I distribution function is non-negative. Close to \(R_{\rm a,min}\), the
+velocity table reaches `sampling["n_rows_max"]` potential values before the table’s error falls below
+`sampling["row_error_goal"]`, and the error grows steeply as \(R_{\rm a}\) falls toward
+\(R_{\rm a,min}\). For a truncated NFW density of concentration 10 (truncation radius 31.9 scale radii) with the
+default settings, the velocity table’s error crosses \(10^{-4}\) and \(10^{-2}\) at the following ratios
+\(R_{\rm a}/R_{\rm a,min}\):
 
 model
 
 \(\beta_{\rm c}\)
 
-ceiling \(10^{-4}\) at \(R_{\rm a}/R_{\rm a,min}\)
+\(10^{-4}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
-hard limit \(10^{-2}\) at \(R_{\rm a}/R_{\rm a,min}\)
+\(10^{-2}\) at \(R_{\rm a}/R_{\rm a,min}\)
 
 COM I
 
@@ -128,10 +157,12 @@ above 1.23
 
 1.02
 
-Above the first ratio the table is within the ceiling; between the two it is returned with a warning; below the
-second it is refused. At \(\beta_{\rm c} = 1/2\) the distribution function is non-negative at every \(R_{\rm a}\), and the
-table is beyond the hard limit at every \(R_{\rm a}\) up to 0.32 scale radii. A constant-anisotropy model is within the
-ceiling up to \(\beta_{\rm c} = 0.4\) (row error \(6 \times 10^{-5}\)) and above it at \(\beta_{\rm c} = 0.45\) (\(4 \times 10^{-4}\)). These bounds are
-measured, not imposed: each table’s own report is the verdict.
-
-     On this page
+Above the ratio for \(10^{-4}\), the velocity table’s error is below \(10^{-4}\). Between the ratio for
+\(10^{-4}\) and the ratio for \(10^{-2}\), `Sampler` issues an `AccuracyWarning`. Below
+the ratio for \(10^{-2}\), `Sampler` raises `AccuracyError`. At \(\beta_{\rm c} = 1/2\)
+the distribution function is non-negative at every \(R_{\rm a}\), but the velocity table’s error is above
+\(10^{-2}\) at every \(R_{\rm a}\) up to 0.32 scale radii. The velocity table of a constant-anisotropy model has an error below
+\(10^{-4}\) up to \(\beta_{\rm c} = 0.4\) \((6 \times 10^{-5})\) and above \(10^{-4}\) at
+\(\beta_{\rm c} = 0.45\) \((4 \times 10^{-4})\). The package sets no limit on \(R_{\rm a}\) or
+\(\beta_{\rm c}\) for sampling. The tier of each `Sampler`’s validation report sets whether the `Sampler`
+issues an `AccuracyWarning` or raises `AccuracyError`.

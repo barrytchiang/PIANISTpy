@@ -116,12 +116,12 @@ table.acc .acc-word, table.acc .acc-note { font-style: italic; color: var(--site
 table.acc .acc-note { white-space: normal; font-size: 11.5px; }
 table.acc .acc-name { white-space: normal; font-size: 12px; }
 table.acc .acc-flag { color: #A6192E; font-weight: 700; }
-table.acc td.acc-ceiling { background: #F7F1DC; }
-table.acc td.acc-warning { background: #FBE6CF; }
+table.acc td.acc-recorded { background: #F7F1DC; }
+table.acc td.acc-warned { background: #FBE6CF; }
 table.acc td.acc-refused { background: #F6D9D9; }
 table.acc td.acc-refusal { background: #EFEFEF; }
-html[data-theme="dark"] table.acc td.acc-ceiling { background: #3A3520; }
-html[data-theme="dark"] table.acc td.acc-warning { background: #46321C; }
+html[data-theme="dark"] table.acc td.acc-recorded { background: #3A3520; }
+html[data-theme="dark"] table.acc td.acc-warned { background: #46321C; }
 html[data-theme="dark"] table.acc td.acc-refused { background: #4A2525; }
 html[data-theme="dark"] table.acc td.acc-refusal { background: #2E2E2E; }
 html[data-theme="dark"] table.acc .acc-flag { color: #F08A96; }
@@ -140,8 +140,14 @@ html[data-theme="dark"] table.acc .acc-flag { color: #F08A96; }
 }
 
 /* The install page's chain table: a cell whose stage the code pins to the CPU shows its number grayed. */
-table.chain-table td:has(.pinned) { background: #EFEFEF; color: var(--site-gray); }
-html[data-theme="dark"] table.chain-table td:has(.pinned) { background: #2E2E2E; }
+/* the computing-time table: a stage without GPU acceleration is a blacked-out cell in the GPU column;
+   its words stay for screen readers only */
+table.chain-table td:has(.nogpu) { background: #222222; }
+html[data-theme="dark"] table.chain-table td:has(.nogpu) { background: #000000; }
+table.chain-table .nogpu { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* "What PIANISTpy does": each feature's name, a link to its guide page, in bold as on the landing page. */
 ul.features > li > p > a:first-child { font-weight: 700; }
+
+/* An inline formula and the punctuation that touches it stay on one line (assemble_site.glue_math). */
+.nobr { white-space: nowrap; }

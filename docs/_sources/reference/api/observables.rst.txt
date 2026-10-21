@@ -6,11 +6,12 @@ Module ``pianistpy.observables``
 .. automodule:: pianistpy.observables
    :members:
 
-The speed distribution's stage
-------------------------------
+Velocity distribution at one radius
+-----------------------------------
 
 Module ``pianistpy.observables.stages``
 
-The stage behind :func:`pianistpy.observables.pdf_v`, at one radius, with its record (:doc:`../../guide/pdf_v`).
+``velocity_distribution`` computes the local velocity distribution at one radius, with its accuracy report;
+:func:`pianistpy.observables.pdf_v` computes the same distribution at many radii (:doc:`../../guide/pdf_v`).
 
-.. autofunction:: pianistpy.observables.stages.speed_distribution
+.. autofunction:: pianistpy.observables.stages.velocity_distribution

@@ -2,15 +2,14 @@
 
 Source: https://pianistpy.com/docs/guide/models
 
-# Models
+A model (`Model`) is an equilibrium of one or more components, untruncated or truncated in phase
+space. Each component is a density profile with a velocity anisotropy, and the model holds the distribution
+function of each component. A model is built in the four main steps below.
 
-A model is built in four steps, one page each: a density profile, a velocity anisotropy on it, the distribution
-function of that pair, and the truncation in phase space that makes the finite equilibrium.
+- [Density profiles (DoublePowerLaw)](https://pianistpy.com/docs/guide/profiles)
 
-Density profiles (DoublePowerLaw)
+- [Velocity anisotropy (Anisotropy, Component)](https://pianistpy.com/docs/guide/anisotropy)
 
-Velocity anisotropy (Anisotropy, Component)
+- [Distribution functions (compute_df)](https://pianistpy.com/docs/guide/df)
 
-Distribution functions (compute_df)
-
-Truncation in phase space (truncate, solve)
+- [Truncation in phase space (truncate, solve)](https://pianistpy.com/docs/guide/truncation)

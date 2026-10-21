@@ -1,8 +1,8 @@
 User guide
 ==========
 
-One page per topic, each with the classes and functions it uses; every name links to its entry in the
-:doc:`API reference <../reference/api/index>`.
+Each page of the User guide covers one topic. Every class and function name on a User guide page links to the entry of
+that class or function on the :doc:`Functions by subpackage <../reference/api/index>` pages.
 
 .. toctree::
    :maxdepth: 1
@@ -13,5 +13,5 @@ One page per topic, each with the classes and functions it uses; every name link
    superposition
    units
    accuracy
-   Input and output (write, read) <files>
-   Runtime options <switches>
+   Input and output (write, read) <input-output>
+   Runtime options <runtime>
