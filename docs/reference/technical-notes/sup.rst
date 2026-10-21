@@ -1,9 +1,9 @@
 .. _tn-sec-sup:
 
-T:4 Superposition
-=================
+T:4 Linear superposition of Method II DFs
+=========================================
 
-Distribution functions inverted from one and the same truncated density, that is, Method II children of one parent, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, checked on its own nodes. The anisotropy profile of the superposition is given in |paper|, Eq. (B74). In terms of the radial dispersions :math:`\sigma_{r,i}^2` and the anisotropy profiles :math:`\beta_i` of the members, with weights :math:`c_i > 0` and :math:`\sum_i c_i = 1`, it reads
+Distribution functions inverted from one and the same truncated density, that is, Method II models of one Method I model, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, checked on its own nodes. The anisotropy profile of the superposition is given in |paper|, Eq. (B74). In terms of the radial dispersions :math:`\sigma_{r,i}^2` and the anisotropy profiles :math:`\beta_i` of the members, with weights :math:`c_i > 0` and :math:`\sum_i c_i = 1`, it reads
 
 .. _tn-eq-betasup:
 

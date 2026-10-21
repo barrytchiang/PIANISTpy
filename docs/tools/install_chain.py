@@ -11,8 +11,9 @@ table the chain builds, losvd at R = 1 with 201 velocities over -1.5 to 1.5,
 aperture_losvd on the circle at those velocities, sigma_los_aperture again (the two
 routes side by side),
 the Gauss-Hermite moments at 10 radii log-spaced over 0.05 to 5, pdf_v at the 10 radii
-at V = 0.3, the velocity distribution at r = 1, and Differentiable's sigma_los gradient at
-R = 1. No row times a table build. Lengths and velocities are in the model's internal
+at V = 0.3, the velocity distribution at r = 1, and Differentiable's sigma_los
+gradient at R = 1. No row times a table build. Lengths and velocities are in the
+model's internal
 units (the concentration sets only the physical units, so it does not change a wall
 time). Two of the rows use internal functions, which the package does not export: the
 velocity distribution (`pianistpy.observables.stages.velocity_distribution`) and the
@@ -490,11 +491,11 @@ def run(
 # paper; the page sets the symbols and the units in math.
 LABELS = {
     "1. parent DF: compute_df (NFW, isotropic)": (
-        "1. Parent DF: compute_df (NFW, isotropic)"
+        "1. Untruncated DF: compute_df (NFW, isotropic)"
     ),
     "2. Method I truncation (K_t 0.05)": "2. Method I truncation (K_t = 0.05)",
     "3. constant beta_c 0.2 child, Method II (compute_df, truncate)": (
-        "3. Child at constant beta_c = 0.2, Method II (compute_df, truncate)"
+        "3. Method II model at constant beta_c = 0.2 (compute_df, truncate)"
     ),
     "4. Sampler(child): the velocity table": "4. Sampler: the velocity table",
     "5. sample(1e7)": "5. Drawing 10^7 particles",
@@ -613,7 +614,7 @@ def table(paths: list[str]) -> None:
         print()
     print("LosTable rows: " + ", ".join(str(leg["rows"]) for leg in legs))
     print(
-        "The child's report band under the default settings: "
+        "The Method II model's report band under the default settings: "
         + ", ".join(str(leg["tier"]) for leg in legs)
     )
     for leg in legs:

@@ -13,9 +13,9 @@
 # r_a: the anisotropy radius in scale radii; blank where the model has none
 # truncation method: 1 or 2, as in the grid files
 # k_t: the truncation energy as a fraction of the central potential; blank for an untruncated model
-# parent: for a Method II child, the parent model; blank otherwise
+# source model: for a Method II model, the Method I model it is built on; blank otherwise
 # expected outcome: what the grid expects of the model, as in the grid files
-model,table,row,column,alpha,beta,gamma,anisotropy model,beta_c,r_a,truncation method,k_t,parent,expected outcome
+model,table,row,column,alpha,beta,gamma,anisotropy model,beta_c,r_a,truncation method,k_t,source model,expected outcome
 T1_g0_b3_iso,1,g0_b3,iso,1,3,0,iso,0.0,,1,,,value
 T1_g0_b3_b-0.50,1,g0_b3,b-0.50,1,3,0,constant,-0.5,,1,,,value
 T1_g0_b3_b-0.25,1,g0_b3,b-0.25,1,3,0,constant,-0.25,,1,,,value

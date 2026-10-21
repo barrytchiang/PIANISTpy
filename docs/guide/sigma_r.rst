@@ -29,7 +29,7 @@ Arguments and units
   length unit.
 - The result has the shape of ``r``, in the model's velocity unit (km/s in the physical system).
 
-The members of a superposition, Method II models of one parent, share one density, so the members' second moments
+The members of a superposition, Method II models on one truncated density, share that density, so the members' second moments
 add with the weights:
 :math:`\sigma_{\rm r}^2 = \sum_k w_k \sigma_{{\rm r},k}^2`.
 

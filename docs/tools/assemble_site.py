@@ -201,6 +201,26 @@ def external_in_new_tab(text: str) -> str:
     return ANCHOR.sub(tab, text)
 
 
+INLINE_MATH = re.compile(
+    r'([(\[]?)(<span class="math notranslate nohighlight">.*?</span>)([,.;:!?)\]]*)',
+    re.S,
+)
+
+
+def glue_math(text: str) -> str:
+    """An inline formula and the bracket before it or the punctuation after it stay on
+    one line: MathJax renders each formula as a box, and a line may otherwise break
+    between the box and a following comma or semicolon (span ``nobr``, custom.css)."""
+
+    def glue(m: re.Match) -> str:
+        before, formula, after = m.groups()
+        if not before and not after:
+            return formula
+        return f'<span class="nobr">{before}{formula}{after}</span>'
+
+    return INLINE_MATH.sub(glue, text)
+
+
 BAND = re.compile(r"<!-- band -->.*?<!-- /band -->", re.S)
 MANUAL_ONLY = re.compile(r"\s*<!-- manual-only -->.*?<!-- /manual-only -->", re.S)
 HREF = re.compile(r'href="([^"]*)"')
@@ -501,7 +521,7 @@ def main(source: str, root: str) -> int:
             tabbed = retarget(text, "index.html", at_root)
         else:
             tabbed = retarget(text, page.relative_to(manual).as_posix(), tabs)
-        tabbed = external_in_new_tab(tabbed)
+        tabbed = glue_math(external_in_new_tab(tabbed))
         if tabbed != text:
             page.write_text(tabbed, encoding="utf-8")
     print(f"site assembled at {site}: {len(full)} pages twinned")

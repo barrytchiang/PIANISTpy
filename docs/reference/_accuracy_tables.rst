@@ -381,7 +381,7 @@ Truncation energy
 
 .. raw:: html
 
-   <p class="acc-lead">Four profiles as parents under six anisotropy models of the main grid, each truncated by Method I and by Method II (rows), with the truncation energy from <span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.5}\)</span> to 0.002 (columns).</p>
+   <p class="acc-lead">Four profiles as Method I models under six anisotropy models of the main grid, each truncated by Method I and by Method II (rows), with the truncation energy from <span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.5}\)</span> to 0.002 (columns).</p>
    <div class="acc-wrap"><table class="acc"><thead><tr><th></th>
    <th scope="col"><span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.5}\)</span></th>
    <th scope="col"><span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.2}\)</span></th>
@@ -732,7 +732,7 @@ Limiting cases
 
 .. raw:: html
 
-   <p class="acc-lead">Anisotropies and truncations at the edges of the supported range (columns): the limit of the Cusp Slope-Central Anisotropy theorem (An &amp; Evans 2006b), the degenerate and steep constant anisotropies, and a small anisotropy radius inside a deep truncation. The rows include an outer slope of 2.5, which the package refuses.</p>
+   <p class="acc-lead">Anisotropies and truncations at the edges of the supported range (columns): the limit of the Cusp Slope-Central Anisotropy theorem (<a href="https://doi.org/10.1086/501040">An &amp; Evans 2006b</a>), the degenerate and steep constant anisotropies, and a small anisotropy radius inside a deep truncation. The rows include an outer slope of 2.5, which the package refuses.</p>
    <div class="acc-wrap"><table class="acc"><thead><tr><th></th>
    <th scope="col"><span class="math notranslate nohighlight">\({\beta_{\rm c} = \gamma/2}\)</span></th>
    <th scope="col"><span class="math notranslate nohighlight">\({\beta_{\rm c} = -1/2 + 10^{-7}}\)</span></th>

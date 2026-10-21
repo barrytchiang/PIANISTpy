@@ -1,19 +1,19 @@
 .. _tn-sec-observables:
 
-T:6 Velocity profiles and projections
-=====================================
+T:6 Velocity distributions and dispersion profiles
+==================================================
 
 An observable is a function of a model, and a request builds only the stages it needs: a second moment builds the dispersion profile and the projected table, over all their rows, and no table of velocity distributions. Two routes exist: the second moments follow from the density and the potential, and, on a model that is not spatially finite, from the DF below the table's lowest potential, whereas the velocity distributions follow from the DF. The second route reads the first's surface density and projected dispersion only to place its first and last rows, to decide which breaks of its velocity panels it keeps, and to check its rows, so the two routes check each other. The prepared table of a model holds both routes and reads from them.
 
 .. _tn-sec-num-sup:
 
-T:6.1 Intrinsic moments
------------------------
+T:6.1 3D velocity dispersion profiles
+-------------------------------------
 
 .. _tn-sec-jeans-section:
 
-T:6.1.1 The Jeans integral
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:6.1.1 The radial velocity dispersion from the Jeans equation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For each component, the radial dispersion follows from the Jeans equation in the form
 
@@ -31,15 +31,15 @@ with the member's own :math:`\varrho_\mathrm{aux}`; the part of the integral bel
 
 .. _tn-sec-projection:
 
-T:6.2 Projection
-----------------
+T:6.2 Surface density and line-of-sight velocity dispersion
+-----------------------------------------------------------
 
 The surface density and the line-of-sight dispersion, |paper|, Eqs. (B47) and (B46), come from a single line-of-sight rule with a single density, on two panels in the depth along the line of sight, at projected radii spaced logarithmically from the innermost row to a fixed fraction of the last row. Rows are added until the table reads itself between rows to within the certificate's tolerance, :math:`10^{-8}`: at the midpoint of every interval the value read is compared with a row computed there, and a midpoint that misses becomes a row; the rows also stop when two rounds running do not halve the worst miss, and the certificate then records the end as stalled. On a spatially finite model, the surface density is read as :math:`\Sigma = (R_\mathrm{t}^2 - R^2)^{1/2} h`, the factor exact and :math:`\ln h` a cubic in :math:`x = \ln[R/(1 - R/R_\mathrm{t})]`, which goes as :math:`\ln R` far inside and as :math:`\ln R_\mathrm{t} - \ln(1 - R/R_\mathrm{t})` toward the edge, so that a power law of :math:`h` in :math:`R_\mathrm{t} - R` is a straight line in :math:`x`; the squared dispersion is read in :math:`\ln R`. A projected radius inside the innermost row or beyond the last is refused, with the row and what places it stated; a negative squared dispersion, from the rule at a row or read between rows, is refused as well.
 
 .. _tn-sec-aperture:
 
-T:6.3 Apertures
----------------
+T:6.3 Aperture-averaged velocity dispersions
+--------------------------------------------
 
 The dispersion inside an aperture is the surface-density weighted average of :math:`\sigma_{\rm los}^2`, |paper|, Eq. (B50). For an axisymmetric integrand every aperture reduces to a one-dimensional integral, :math:`\int f(R)\,\mathrm{arc}(R)\,R\,\mathrm{d} R`, where :math:`\mathrm{arc}(R)` is the angular measure of the circle of radius :math:`R` that lies inside the aperture. A centered circle takes a Gauss-Legendre rule in :math:`\ln R` from the first row of the table, with at least a stated number of nodes and more per decade of its span. An offset circle has a full-circle core and a band of its own, the band under an end-point map in :math:`R - R_{\rm off}` where it is narrow. A rectangle takes one panel between consecutive breaks of its arc, each with at least a stated number of Gauss-Legendre nodes and more per decade of its span. Above :math:`R_\mathrm{t}/\sqrt{2}`, where the factors :math:`R` and :math:`v` of the measure :math:`R\,\mathrm{d} R = -v\,\mathrm{d} v` are equal, a panel is taken in :math:`v = (R_\mathrm{t}^2 - R^2)^{1/2}`, in which the integrand carries the edge factor :math:`v` as a smooth factor; the narrow band of an offset circle is the exception and stays one panel in :math:`R - R_{\rm off}`. An aperture that encloses no tabulated surface density, or whose disk inside the first row carries more than a stated share of its weight, is refused with the reason stated. That disk is estimated from the slope :math:`s = -\mathrm{d}\ln\Sigma/\mathrm{d}\ln R` between the first two rows, as the power law :math:`\Sigma_0 (R/R_0)^{-s}` continued inward, which holds :math:`\Sigma_0 R_0^2/(2 - s)`; the estimate is finite only for :math:`s < 2`, and a slope at or above 2 is refused.
 
@@ -68,21 +68,21 @@ A general-purpose integrator applied to the same integral, as in AGAMA (`Vasilie
 
 .. _tn-sec-losvd-table:
 
-T:6.5 The table of rows and its certificate
--------------------------------------------
+T:6.5 Tabulating the line-of-sight velocity distribution over projected radius
+------------------------------------------------------------------------------
 
 The base rows are placed at a stated number per decade of projected radius. The base rows run from the first row of the profile to :math:`0.9999` of the radius where the rows end (the last row of the profile, or the radius where the potential reaches the DF's floor where the DF is zero below it). By default the table keeps the rows of that grid, with the rows added toward each R-break and toward the end, out to the first row at or beyond the radius outside which :math:`10^{-6}` of the total projected mass lies; the rows beyond it are not computed, and a read beyond the last kept row, including a read at a single point, is refused, the refusal stating the radius of that row and the setting that moves it. A table whose rows reach the end is read up to the end. The inner end is kept at full depth by default. A user who will read the table only outside a stated projected radius may give that radius, and the rows then start where the projected mass inside the first row falls below :math:`10^{-6}` times the projected mass inside the stated radius; a read inside the first row is refused in the same words. Rows are added toward each R-break (each radius where the layout of the panels changes and each radius where a break merged by the lattice crosses one of its nodes), toward the end, and into any stretch between R-breaks that holds fewer than six rows; a row that its nodes cannot resolve is dropped. Rows are then added at the middle of each interval between two neighboring rows of one stretch (in the stencil's variable) where the stencil of a stated number of rows and the stencil of two rows fewer differ by more than :math:`10^{-8}` in the second moment or :math:`10^{-7}` of the row's largest value pointwise, round by round, until no interval fails, a round no longer halves the worst, or no failing interval can take a row; the same estimate is taken in the gap between each true end of a stretch and its nearest row. An interval that cannot be closed is recorded with its reason, and a request inside it is refused with that reason stated. An interval of a stretch of fewer than four rows is not checked; the table counts it and reads it with the rows the stretch holds. The certificate of the table is its last estimate of its reading between rows, the worst over the intervals in units of their tolerances; the report states it times the larger tolerance, :math:`10^{-7}`, a bound on both estimates. The estimate in the end gaps is recorded beside it. The rows are computed in a pool of processes, as many as the cores set, each process computing one row at a time. The report of the table (:ref:`Section T:8.1 <tn-sec-reports>`) carries the worst norm and second moment over the rows, the rows that could not be judged, the rows whose depth rule did not converge, the certificate, and the floor of the layers at the point of zero angular momentum where :math:`\beta_\mathrm{c}` lies between :math:`1/2` and :math:`1`.
 
 .. _tn-sec-aperture-losvd:
 
-T:6.6 The distribution in an aperture
--------------------------------------
+T:6.6 The aperture-averaged line-of-sight velocity distribution
+---------------------------------------------------------------
 
 The distribution inside an aperture is the surface-density weighted average of the rows over the aperture, |paper|, Eqs. (B58) and (B59). No row is computed for it. The rows are read at the radii of the aperture's rule (:ref:`Section T:6.3 <tn-sec-aperture>`), with every break of a row followed as a function of radius, and each radius is scanned once. The result is formed on its own panels in :math:`V`, with breaks at zero, at the smallest and the largest value of each row break over the aperture, and at the top; a velocity that meets a break curve inside the aperture takes the radii where the curve equals it as breaks of its radial rule. The output rule refines itself, bisecting each sub-panel wider than half the widest, until its norm and its second moment agree with those of the rows' own rule (each row integrated on its own nodes) to one hundredth of :math:`10^{-6}`, until its widest sub-panel is no wider than the narrowest it began with, or until a round moves them by less than that; the end is recorded. At any velocity, the distribution is the polynomial of its panel through the panel's own nodes, namely the Legendre series of the antiderivative of the quadrature, so that it integrates exactly as the quadrature does. Its second moment is checked against the dispersion of the aperture from the projected tables, which reads no distribution.
 
 .. _tn-sec-gauss-hermite:
 
-T:6.7 Gauss-Hermite moments
+T:6.7 Gauss–Hermite moments
 ---------------------------
 
 With :math:`y = (V - V_*)/\sigma_*`, where :math:`V_*` and :math:`\sigma_*` are the mean and the dispersion of the distribution itself, the moments of |paper|, Eq. (B63) are
@@ -120,8 +120,8 @@ where :math:`b` is :math:`\beta_\mathrm{c}` for the constant and COM classes and
 
 .. _tn-sec-mixing:
 
-T:6.9 Superposed models
------------------------
+T:6.9 Velocity distributions and dispersions of a linear superposition
+----------------------------------------------------------------------
 
 A superposed model (:ref:`Section T:4 <tn-sec-sup>`) is projected one component at a time, each on its own tables, and the components are then combined with their weights. The members share one surface density, so the projected second moment is linear in the weights,
 

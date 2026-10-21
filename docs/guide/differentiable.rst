@@ -8,7 +8,7 @@ The object
 
 ``pp.Differentiable(model)`` gives the observables of a model of one component as JAX functions of the component's
 anisotropy :math:`\theta = (\beta_{\rm c}, R_{\rm a})`, the central anisotropy and the anisotropy radius, passed as
-``theta``. The model is a Method II model, a distribution function inverted on the truncated profile of a parent
+``theta``. The model is a Method II model, a distribution function inverted on the truncated profile of a Method I
 model (:doc:`Truncation in phase space <truncation>`), as in the example below. Each method takes :math:`\theta` as
 the first argument, returns the value of the public function of the same name on the model rebuilt at
 :math:`\theta`, and works under ``jax.jit`` and ``jax.grad``:
@@ -43,7 +43,7 @@ The constructor raises :class:`~pianistpy.InputError`, with a message that state
 - a model of more than one component, such as a superposition (the components of a superposition are
   differentiated through ``likelihood``),
 - a component that is not spatially finite,
-- a component not on a truncated profile that carries its parent's distribution function.
+- a component not on a truncated profile that carries the distribution function of the Method I model it was built from.
 
 What a method computes
 ----------------------
@@ -108,10 +108,10 @@ twice, by ``jax.grad`` and by a central difference:
 
    import pianistpy as pp
 
-   parent = pp.solve(
+   truncated = pp.solve(
        pp.Component(pp.DoublePowerLaw.hernquist(), pp.Anisotropy()), pp.Truncation(k_t=0.05)
    )
-   model = pp.solve(pp.Component(parent.profile, pp.Anisotropy(beta_c=0.25)))
+   model = pp.solve(pp.Component(truncated.profile, pp.Anisotropy(beta_c=0.25)))
    d = pp.Differentiable(model)
 
    rule = float(jax.grad(lambda t: d.sigma_los(t, 0.3))(d.theta)[0])

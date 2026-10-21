@@ -148,3 +148,6 @@ table.chain-table .nogpu { position: absolute; width: 1px; height: 1px; overflow
 
 /* "What PIANISTpy does": each feature's name, a link to its guide page, in bold as on the landing page. */
 ul.features > li > p > a:first-child { font-weight: 700; }
+
+/* An inline formula and the punctuation that touches it stay on one line (assemble_site.glue_math). */
+.nobr { white-space: nowrap; }

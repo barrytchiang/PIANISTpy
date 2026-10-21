@@ -4,9 +4,8 @@ Representative computing time
 =============================
 
 The tables below give the computing time of each step of one PIANISTpy workflow, from a density profile to the
-observables. The example truncates an isotropic NFW halo by Method I, and the truncated halo is the parent. Method II
-then builds a model with a constant velocity anisotropy of 0.2 on the truncated density of the parent, and that model is
-the child (:doc:`Truncation in phase space <../guide/truncation>`). Each time in the tables is the time of a repeated
+observables. The example truncates an isotropic NFW halo by Method I. Method II then builds a model with a constant velocity
+anisotropy of 0.2 on the truncated density of that Method I model (:doc:`Truncation in phase space <../guide/truncation>`). Each time in the tables is the time of a repeated
 call. The first call of a session takes longer due to JAX compilation, as does the first aperture call on a
 table (14.7 s on spock's CPU). The times were measured with the default settings on two machines. The first machine
 is the `spock GPU cluster <https://github.com/calab-ntu/gpu-cluster/wiki/System-Overview#spock>`__ of
@@ -30,7 +29,7 @@ Building a model
      - spock, CPU
      - spock, CPU + GPU
      - Laptop, CPU
-   * - 1\. Parent DF: ``compute_df`` (NFW, isotropic)
+   * - 1\. Untruncated DF: ``compute_df`` (NFW, isotropic)
      - 6.17 s
      - 5.43 s
      - 12.7 s
@@ -38,8 +37,8 @@ Building a model
      - 4.34 s
      - :nogpu:`no GPU acceleration`
      - 11.2 s
-   * - | 3\. Child at constant :math:`\beta_{\rm c} = 0.2`,
-       | Method II (``compute_df``, ``truncate``)
+   * - | 3\. Method II model at constant :math:`\beta_{\rm c} = 0.2`
+       | (``compute_df``, ``truncate``)
      - 3.41 s
      - :nogpu:`no GPU acceleration`
      - 10.1 s

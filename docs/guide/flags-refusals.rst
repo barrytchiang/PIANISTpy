@@ -19,9 +19,9 @@ A model is always a valid equilibrium
 ``truncate`` and ``solve`` return a :class:`~pianistpy.Model` only where one exists. A request with no physical
 equilibrium raises :class:`~pianistpy.UnphysicalModelError`. The exception's ``result`` attribute holds the
 distribution function, or the model without an edge where the truncation gives no edge, so the distribution
-function need not be recomputed. A Method II ``Component`` takes the truncated density of a parent, a truncated
-Method I model. A Method II ``Component`` whose central anisotropy
-:math:`\beta_{\rm c}` violates the existence condition at the parent's edge raises
+function need not be recomputed. A Method II ``Component`` takes the truncated density of a Method I model. A Method
+II ``Component`` whose central anisotropy :math:`\beta_{\rm c}` violates the existence condition at the edge of that
+truncated density raises
 :class:`~pianistpy.UnphysicalModelError` when the ``Component`` is created. The message states the bound that
 :math:`\beta_{\rm c}` must exceed.
 
@@ -44,9 +44,9 @@ act as follows:
 A distribution function that diverges at the truncation energy
 --------------------------------------------------------------
 
-A Method II child, the Method II model built on a parent's truncated density, whose central anisotropy
-:math:`\beta_{\rm c}` lies more than 1 below the parent's :math:`\beta_{\rm c}` has a distribution function that diverges, integrably, at the truncation
-energy. The package returns the child model and writes a warning to the package's log. The warning gives the
+A Method II model whose central anisotropy :math:`\beta_{\rm c}` lies more than 1 below the :math:`\beta_{\rm c}` of
+the Method I model whose truncated density the Method II model uses has a distribution function that diverges,
+integrably, at the truncation energy. The package returns the Method II model and writes a warning to the package's log. The warning gives the
 exponent and says the model is a valid equilibrium of finite density whose stability is not established.
 
 One component

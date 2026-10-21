@@ -11,7 +11,7 @@ The columns of the grid files, in their order:
 ``settings level``
    the settings level of the run: "default" or "quick" (the two tested levels of pianistpy.Settings)
 ``truncation method``
-   1 where the distribution function is inverted from the model's own density (Method I, with or without a truncation); 2 where the model is a Method II child, the distribution function inverted from its parent's truncated density
+   1 where the distribution function is inverted from the model's own density (Method I, with or without a truncation); 2 where the model is a Method II model, the distribution function inverted from the truncated density of a Method I model
 ``anisotropy model``
    the velocity anisotropy model: "iso" (isotropic), "constant" (constant anisotropy :math:`\beta_{\rm c}`), "OM_I" and "OM_II" (Osipkov-Merritt of Type I and Type II), "COM_I" and "COM_II" (Cuddeford-Osipkov-Merritt of Type I and Type II)
 ``alpha``
@@ -26,10 +26,10 @@ The columns of the grid files, in their order:
    the anisotropy radius in scale radii; blank for the isotropic and the constant-anisotropy models
 ``k_t``
    the truncation energy as a fraction of the central potential; blank for an untruncated model
-``parent``
-   for a Method II child, the parent model (its profile, anisotropy model and truncation energy); blank otherwise
+``source model``
+   for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation energy); blank otherwise
 ``expected outcome``
-   what the grid expects of the model: "value" (a result is served), "value: not physical" (a result is served for a model that is not a physical equilibrium), "value: the parent's DF within :math:`10^{-6}`, read by the package's rule" (a child whose distribution function equals its parent's), or a refusal with the error the package raises (its kind, then the opening words of its message)
+   what the grid expects of the model: "value" (a result is served), "value: not physical" (a result is served for a model that is not a physical equilibrium), "value: the parent's DF within :math:`10^{-6}`, read by the package's rule" (a Method II model whose distribution function equals its Method I model's), or a refusal with the error the package raises (its kind, then the opening words of its message)
 ``physical``
    whether the model is a physical equilibrium by the grid's own criteria: True, False, or blank where the model is refused before the criteria apply; a result can be served for a model that is not physical
 ``outcome``
@@ -105,7 +105,7 @@ The columns of the model list, in their order:
    1 or 2, as in the grid files
 ``k_t``
    the truncation energy as a fraction of the central potential; blank for an untruncated model
-``parent``
-   for a Method II child, the parent model; blank otherwise
+``source model``
+   for a Method II model, the Method I model it is built on; blank otherwise
 ``expected outcome``
    what the grid expects of the model, as in the grid files

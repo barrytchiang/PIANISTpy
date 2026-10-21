@@ -8,20 +8,21 @@ Superposition and inference
 Superposition
 -------------
 
-Method II models of one parent (:doc:`Truncation in phase space <truncation>`) share the parent's truncated
-density. The distribution functions of Method II models of one parent, combined with positive weights that sum to
-one, form one equilibrium model in the parent's truncated density. ``superpose`` returns the combined model as a
+Method II models built on the truncated density of one Method I model
+(:doc:`Truncation in phase space <truncation>`) share that density. The distribution functions of those Method II models, combined with
+positive weights that sum to one, form one equilibrium model in that truncated density. ``superpose`` returns the combined model as a
 :class:`~pianistpy.Model`, which ``Sampler``, the observables, ``likelihood`` and ``write`` take as any other model.
 ``Differentiable`` raises :class:`~pianistpy.InputError` for a combined model, whose components are differentiated
 through ``likelihood``.
 
 .. code-block:: python
 
-   members = {child_a: 0.6, child_b: 0.3, child_c: 0.1}   # Method II models of one parent
+   members = {model_a: 0.6, model_b: 0.3, model_c: 0.1}   # Method II models on one truncated density
    composite = pp.superpose(members)
    pp.Sampler(composite).sample(1_000_000, seed=1)
 
-``superpose`` takes a mapping of two or more Method II models of one parent, the members, to the members' weights.
+``superpose`` takes a mapping of two or more Method II models on one truncated density, the members, to the members'
+weights.
 ``superpose`` raises :class:`~pianistpy.InputError` when a weight is not positive and finite, or when the members
 are built on different truncated profiles or with different settings or units. The weights are normalized to sum to
 one, and a warning goes to the package's log when the sum of the weights differs from one by more than

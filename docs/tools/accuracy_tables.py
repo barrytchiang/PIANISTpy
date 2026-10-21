@@ -76,7 +76,8 @@ COLUMNS = [
         "method",
         "1 where the distribution function is inverted from the model's own density "
         "(Method I, with or without a truncation); 2 where the model is a Method II "
-        "child, the distribution function inverted from its parent's truncated density",
+        "model, the distribution function inverted from the truncated density of a "
+        "Method I model",
     ),
     (
         "anisotropy model",
@@ -107,10 +108,11 @@ COLUMNS = [
         "untruncated model",
     ),
     (
+        "source model",
         "parent",
-        "parent",
-        "for a Method II child, the parent model (its profile, anisotropy model and "
-        "truncation energy); blank otherwise",
+        "for a Method II model, the Method I model whose truncated density it is "
+        "built on (its profile, anisotropy model and truncation energy); blank "
+        "otherwise",
     ),
     (
         "expected outcome",
@@ -118,9 +120,10 @@ COLUMNS = [
         'what the grid expects of the model: "value" (a result is served), "value: not '
         'physical" (a result is served for a model that is not a physical '
         "equilibrium), "
-        "\"value: the parent's DF within 1e-6, read by the package's rule\" (a child "
-        "whose distribution function equals its parent's), or a refusal with the error "
-        "the package raises (its kind, then the opening words of its message)",
+        "\"value: the parent's DF within 1e-6, read by the package's rule\" (a "
+        "Method II model whose distribution function equals its Method I model's), "
+        "or a refusal with the error the package raises (its kind, then the opening "
+        "words of its message)",
     ),
     (
         "physical",
@@ -258,7 +261,11 @@ MEMBER_COLUMNS = [
         "the truncation energy as a fraction of the central potential; blank for an "
         "untruncated model",
     ),
-    ("parent", "parent", "for a Method II child, the parent model; blank otherwise"),
+    (
+        "source model",
+        "parent",
+        "for a Method II model, the Method I model it is built on; blank otherwise",
+    ),
     (
         "expected outcome",
         "expected",
@@ -290,7 +297,8 @@ SECTIONS = {
     "3": (
         "Truncation energy",
         "Variations of the main grid",
-        "Four profiles as parents under six anisotropy models of the main grid, "
+        "Four profiles as Method I models under six anisotropy models of the main "
+        "grid, "
         "each truncated by Method I and by Method II (rows), with the truncation "
         "energy from \x00\\mathcal{K}_{\\rm t} = 0.5\x01 to 0.002 (columns).",
     ),
@@ -444,6 +452,14 @@ def _cell(member: dict, result: dict) -> str:
     return f'<td class="acc-{tier}">{nums}{word}{note}{flag}</td>'
 
 
+def _lead_html(lead: str) -> str:
+    """A table's lead as HTML, the theorem's citation linked to the paper (rule 15b)."""
+    return _html(lead).replace(
+        "(An &amp; Evans 2006b)",
+        '(<a href="https://doi.org/10.1086/501040">An &amp; Evans 2006b</a>)',
+    )
+
+
 def _table(number: str, members: list[dict], grid: dict) -> str:
     cells = [m for m in members if m["table"] == number]
     rows = list(dict.fromkeys(m["row"] for m in cells))
@@ -451,7 +467,7 @@ def _table(number: str, members: list[dict], grid: dict) -> str:
     at = {(m["row"], m["column"]): m for m in cells}
     lead = SECTIONS[number][2]
     out = [
-        f'<p class="acc-lead">{_html(lead)}</p>',
+        f'<p class="acc-lead">{_lead_html(lead)}</p>',
         '<div class="acc-wrap"><table class="acc"><thead><tr><th></th>',
     ]
     out += [f'<th scope="col">{_html(_words(c))}</th>' for c in cols]

@@ -1,0 +1,47 @@
+# Publishes a release to PyPI through PyPI's trusted publishing, with the files'
+# attestations (PyPI then shows the files as verified, with their provenance).
+# Runs when a GitHub release is published, or by hand on a tag. Nothing else
+# triggers it, so no push sends a notification.
+name: publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The release tag to build and publish (for example v1.0.0)"
+        required: true
+        default: "v1.0.0"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+      - uses: actions/setup-python@v5.3.0
+        with:
+          python-version: "3.12"
+      - name: Build
+        run: |
+          python -m pip install build
+          python -m build
+      - uses: actions/upload-artifact@v4.4.3
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4.1.8
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@v1.12.4

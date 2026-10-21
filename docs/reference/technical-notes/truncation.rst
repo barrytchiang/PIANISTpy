@@ -28,7 +28,7 @@ T:3.1 Type II models beyond the anisotropy radius
 
 which equals :math:`w^{1-\beta_\mathrm{c}}` where :math:`1 - \beta_\mathrm{c}` is an odd integer and differs from it in sign beyond :math:`R_\mathrm{a}` where it is an even integer, is odd in :math:`w`, and reduces to the OM form at :math:`\beta_\mathrm{c} = 0`. The continuation is requested through an explicit argument in the symbolic form of the Method I inversion alone; every other reading of the factor at or beyond :math:`R_\mathrm{a}` is refused with the reason stated. The adopted convention is recorded in the product file.
 
-*The support.* An untruncated Type II model is defined only inside :math:`R_\mathrm{a}`, so its DF is returned over :math:`\mathcal{K} > P(R_\mathrm{a})` only. The table keeps its fixed grid, the rows at and below :math:`P(R_\mathrm{a})` hold no value, and the record states the first row of the support. The values that the inversion forms below :math:`P(R_\mathrm{a})` belong to the continuation rather than to the model, whatever their sign; they are used by the inversion above :math:`P(R_\mathrm{a})`, which depends on them non-locally; the table does not carry them, and they are kept only among the inversion's rows as made, which the truncation reads. The gates on the sign and on the last minimum of :math:`F_\mathcal{K}` are evaluated on the support, and the lowest admissible truncation value is :math:`\max(\mathcal{K}_0, \mathcal{K}_{\min}, P(R_\mathrm{a}))`, below which the truncated DF would read the continuation; it is necessary but not sufficient for :math:`R_\mathrm{t} < R_\mathrm{a}`, which the truncated solve decides (:ref:`Section T:3.5 <tn-sec-gate>`). The anisotropy object declares the edge of its domain (:math:`R_\mathrm{a}` for Type II, none otherwise); the support and the gates read that edge and not the Type. The same bound holds for a Method II child whose anisotropy is of Type II: a child whose :math:`R_\mathrm{a}` does not lie beyond the parent's edge is refused before the inversion.
+*The support.* An untruncated Type II model is defined only inside :math:`R_\mathrm{a}`, so its DF is returned over :math:`\mathcal{K} > P(R_\mathrm{a})` only. The table keeps its fixed grid, the rows at and below :math:`P(R_\mathrm{a})` hold no value, and the record states the first row of the support. The values that the inversion forms below :math:`P(R_\mathrm{a})` belong to the continuation rather than to the model, whatever their sign; they are used by the inversion above :math:`P(R_\mathrm{a})`, which depends on them non-locally; the table does not carry them, and they are kept only among the inversion's rows as made, which the truncation reads. The gates on the sign and on the last minimum of :math:`F_\mathcal{K}` are evaluated on the support, and the lowest admissible truncation value is :math:`\max(\mathcal{K}_0, \mathcal{K}_{\min}, P(R_\mathrm{a}))`, below which the truncated DF would read the continuation; it is necessary but not sufficient for :math:`R_\mathrm{t} < R_\mathrm{a}`, which the truncated solve decides (:ref:`Section T:3.5 <tn-sec-gate>`). The anisotropy object declares the edge of its domain (:math:`R_\mathrm{a}` for Type II, none otherwise); the support and the gates read that edge and not the Type. The same bound holds for a Method II model whose anisotropy is of Type II: a model whose :math:`R_\mathrm{a}` does not lie beyond the Method I model's edge is refused before the inversion.
 
 *What the convention can and cannot change.* Every DF of the form :math:`\hat F(\hat{\mathcal{K}})\,L^{-2\beta_\mathrm{c}}` in the Type II variable has the COM Type II anisotropy profile, and the truncated density is computed from :math:`\hat F`. The convention therefore affects neither the anisotropy profile nor the self-consistency of a Method I model. What it selects is which truncated density the model has, and under Method I that density is an output. For that density the DF is unique. The effect of the convention on the truncated density exceeds :math:`10^{-6}` (:ref:`Section T:0.5 <tn-sec-tiers>`).
 
@@ -36,8 +36,8 @@ Method II inverts the truncated pair, which lies within :math:`R_\mathrm{a}`, a
 
 .. _tn-sec-num-truncation:
 
-T:3.2 The truncated DF and the Poisson source
----------------------------------------------
+T:3.2 The truncated DF and its density
+--------------------------------------
 
 From the table that the inversion leaves, the truncation energy, and the settings, the truncated DF :math:`F(\mathcal{K} + \mathcal{K}_\mathrm{t}) - F(\mathcal{K}_\mathrm{t})` is formed on the source grid, together with its Taylor form at the edge and the edge integral that joins the form to the table. The auxiliary density
 
@@ -55,49 +55,49 @@ with :math:`C(\beta_\mathrm{c}) = 2\pi^{3/2}\Gamma(1-\beta_\mathrm{c})/\Gamma(3/
 
 .. _tn-sec-num-tail:
 
-T:3.2.1 The tail of the DF in the density integral
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:3.2.1 The low-energy tail of the DF in the density integral
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The source quadrature runs for truncated models only: an untruncated model takes the closed forms of its source profile (:ref:`Section T:3.7 <tn-sec-trust>`), and a truncated DF vanishes at its lower end, so no tail term enters.
 
 .. _tn-sec-poisson:
 
-T:3.3 The Poisson solve
------------------------
+T:3.3 Solving the truncated Poisson equation
+--------------------------------------------
 
 The truncated Poisson equation, |paper|, Eq. (B28), is integrated outward in :math:`s = \ln r` as a first-order system in :math:`[\Phi,\; W = r\,\mathrm{d}\Phi/\mathrm{d} r,\; u = P_0 - \Phi]`, under a relative tolerance of :math:`10^{-11}` and no absolute tolerance (the edge continuation in :math:`\ln\Phi`, also relative-only), starting from the series of the cusp (:ref:`Section T:1.2.2 <tn-sec-series>`). The right-hand side is the density of |paper|, Eq. (B29), read from the source table of :ref:`Section T:3.2 <tn-sec-num-truncation>`. The solve ends at the event where :math:`\Phi` reaches the floor, which is the edge of a spatially finite model, or else at the outer radius; the last rows of a truncated model are re-solved on a grid geometric in :math:`R_\mathrm{t} - r`, and the row at the floor is the crossing of the event. A request whose solve reaches no edge within its radius is refused with the reason stated. The solve is a serial integration, and it runs on the CPU on every device (:ref:`Section T:0.5 <tn-sec-tiers>`).
 
 .. _tn-sec-fills:
 
-T:3.4 The fills and the rows of the profile
--------------------------------------------
+T:3.4 Completing the truncated profile toward the center and the truncation radius
+----------------------------------------------------------------------------------
 
 The rows of the solve are sparse where the potential approaches the floor and where it approaches the center, so both ends are filled to the row density of the profile: at least a stated number of rows per decade of the potential and of the depth, in bins of a stated width, over the profile's own span. The inner end is the inner series of :ref:`Section T:1.2.2 <tn-sec-series>`, lowered by the central deficit where the model carries one, out to the depth to which the series is trusted (on a lowered model, moved inward to where the series and the rows of the solve agree); between that join and the threshold of the fill, the solve's own interpolant is used. The outer end takes the radius by a log-log interpolation of the solve's rows in the potential and the density likewise down to a fixed anchor, :math:`3.6\times10^{-7}P_0`, below which the density follows the power law of the two rows above the anchor and, below the Taylor switch, the closed form of the edge. The profile keeps every filled row that is finite, with positive density and the potential at or above the floor, the inner series rows inside the solve's first radius included; a spatially finite model ends with one edge row at :math:`\Phi = 0`, at the radius where the Kepler exterior of its last row reaches zero; a profile that reaches no edge is read to its last row.
 
 .. _tn-sec-gate:
 
-T:3.5 The gates on the truncation energy
-----------------------------------------
+T:3.5 The lowest admissible truncation value
+--------------------------------------------
 
 The truncated DF of |paper|, Eq. (B27) is non-negative and non-decreasing when the untruncated DF is non-decreasing above the truncation energy; the code asks in addition that the untruncated DF be non-negative there. From the computed untruncated DF on its support, the code takes the energy of its highest negative row and the end of its last decrease (by a relative amount above :math:`10^{-5}`), and it accepts a truncation energy at or above the larger of the two and, for a Type II model, strictly above :math:`P(R_\mathrm{a})` (:ref:`Section T:3.1 <tn-sec-typeII>`). The bound at :math:`P(R_\mathrm{a})` is necessary but not sufficient: only the truncated solve places the edge, and a solve whose edge lies at or beyond :math:`R_\mathrm{a}` is refused afterward with an error of its own, TYPE II EDGE. A truncation that no model can carry is refused before any stage runs: a cusp shallower than :math:`2\beta_\mathrm{c}(0)` at the center, where the DF is negative there for every truncation (`An & Evans 2006b <https://doi.org/10.1086/501040>`__); a degenerate central series whose table the host floor alone would cut (:ref:`Section T:2.5.1 <tn-sec-top-limit>`); and a central DF that tends to a negative value, to minus infinity or to zero from below.
 
 .. _tn-sec-target:
 
-T:3.6 A target mass or a target radius
---------------------------------------
+T:3.6 Finding the truncation value for a target mass or truncation radius
+-------------------------------------------------------------------------
 
 Under Method I the untruncated DF does not depend on the truncation, so it is inverted once, and every evaluation of a target costs one truncated solve. The search runs on :math:`x = \ln{\mathcal{K}_\mathrm{t}}` for a target :math:`v = M_\mathrm{t}` or :math:`v = R_\mathrm{t}`, in four stages: deeper truncation from a probe until the model is admissible; a bracket by secant steps in :math:`(\ln{\mathcal{K}_\mathrm{t}}, \ln v)` toward the target, by at most a factor of 16 per step, until one admissible model lies on each side; where a step lands outside the admissible set, its boundary, namely the :math:`\mathcal{K}_\mathrm{t}` at which :math:`R_\mathrm{t}` reaches its limit, found by regula falsi on :math:`1/R_\mathrm{t}` at the cap, and at :math:`R_\mathrm{a}`, where no model beyond it is finite, by secant steps on :math:`1/R_\mathrm{t}` with bisection in :math:`\ln\mathcal{K}_\mathrm{t}`; and finally the Illinois form of regula falsi on :math:`(\ln{\mathcal{K}_\mathrm{t}}, \ln(v/\text{target}))` until :math:`|v/\text{target} - 1|` is within :math:`10^{-6}`. A value of :math:`\mathcal{K}_\mathrm{t}` is admissible when its solve succeeds, the model is spatially finite, :math:`R_\mathrm{t}` is within the cap and, for Type II, inside :math:`R_\mathrm{a}`, and :math:`\mathcal{K}_\mathrm{t}` lies at or above the gates and at or below :math:`0.9` of the central potential; on the admissible set both targets decrease with :math:`\mathcal{K}_\mathrm{t}`. When no admissible model reaches the target, the request is refused with the reason stated and the value reached at the limit that binds; the solve takes no fallback.
 
 .. _tn-sec-trust:
 
-T:3.7 The radius of trust of an untruncated product
----------------------------------------------------
+T:3.7 The closed-form profile of an untruncated model
+-----------------------------------------------------
 
 An untruncated model solves no Poisson equation: its rows are the closed forms of the source profile's density, potential and mass, geometric in :math:`R` at the stated rows per decade from the innermost radius to where :math:`P` falls below the floor, with rows added at the centers of the row-count bins of the potential and of the depth, and its depth near the center is the inner series. It carries no integration constant, so its radius of trust is infinite at every tier, recorded as such, and its table is not cut. Truncated products are not cut either.
 
 .. _tn-sec-model-checks:
 
-T:3.8 What a model checks
--------------------------
+T:3.8 Checks of the self-consistency of a model
+-----------------------------------------------
 
 Each check is read on the rows of the profile through the profile object of :ref:`Section T:1.3 <tn-sec-profile-object>`, so a model from a run and a model from a file are checked alike. The Poisson residual is Poisson's equation in integral form on every interval between consecutive rows, including the edge row, :math:`\Phi(r_a) - \Phi(r_b) = \int M/r^2\,\mathrm{d} r` and :math:`M(r_b) - M(r_a) = \int \varrho\,r^2\,\mathrm{d} r`, each relative to the larger of its two rows, widened on the floor event's row by the root finder's tolerance of the event over the solve's relative tolerance. The round trip compares the density that the model's own DF gives at a row, :math:`\varrho = g(R)\,C(\beta_\mathrm{c})\int_0^{\Phi} F(Q)\,[2(\Phi - Q)]^{1/2-\beta_\mathrm{c}}\,\mathrm{d} Q`, with :math:`g` the anisotropy's factor of |paper|, Eq. (B44), with :math:`F` read through the lookup, against the density of the row. It is evaluated at the rows nearest to each half-decade of radius and at every row from the last of those to the edge, so that the check reads what a dense read would read. The row density is the count of rows per bin that the fills keep; it is silent where every bin is full and refused at any shortfall.

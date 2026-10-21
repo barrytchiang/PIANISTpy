@@ -32,7 +32,7 @@ radius or a truncation energy needs no concentration, and a concentration given 
 
 ``solve(component, truncation)`` runs ``compute_df`` and ``truncate`` in one call. Without a ``Truncation``,
 ``truncate`` and ``solve`` return the untruncated model, or, for a Method II component, the model that ends at the
-parent's edge.
+edge of the truncated density that the component uses.
 
 A model holds:
 
@@ -86,16 +86,16 @@ Method II
 ---------
 
 Method II gives a new anisotropy to a density that is already truncated. The new component takes the truncated
-profile of another model (the parent) as its profile. ``solve``, or ``compute_df`` and ``truncate``, without a
-``Truncation``, build the Method II model (the child) from the new component.
+profile of a Method I model as its profile. ``solve``, or ``compute_df`` and ``truncate``, without a
+``Truncation``, build the Method II model from the new component.
 
 .. code-block:: python
 
-   parent = pp.solve(pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy()), pp.Truncation(k_t=0.2))
-   child = pp.solve(pp.Component(parent.profile, pp.Anisotropy(beta_c=-0.25)))
+   truncated = pp.solve(pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy()), pp.Truncation(k_t=0.2))
+   model = pp.solve(pp.Component(truncated.profile, pp.Anisotropy(beta_c=-0.25)))
 
-A Method II model exists only when its anisotropy is compatible with the edge of the parent's density. Where
-the parent's density goes as :math:`\hat{P}^q` at the parent's edge, with :math:`\hat{P}` the parent's truncated
+A Method II model exists only when its anisotropy is compatible with the edge of the Method I model's truncated
+density. Where that density goes as :math:`\hat{P}^q` at the edge, with :math:`\hat{P}` the Method I model's truncated
 relative potential, which is zero at the edge, the central anisotropy of the new component must satisfy
 :math:`\beta_{\rm c} > 1/2 - q`. A ``Component`` whose :math:`\beta_{\rm c}` is not above :math:`1/2 - q` raises
 :class:`~pianistpy.UnphysicalModelError` when the ``Component`` is created, and the error message states the bound.

@@ -54,13 +54,13 @@ Three consequences follow.
 
 .. _tn-sec-num-sampling:
 
-T:5.2 The table of velocities
------------------------------
+T:5.2 Tabulated inverse CDFs
+----------------------------
 
 .. _tn-sec-velocity-table:
 
-T:5.2.1 The rows
-~~~~~~~~~~~~~~~~
+T:5.2.1 The velocity table
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By :ref:`Eq. (T:5.3) <tn-eq-factorized>`, the scaled velocity :math:`x` has a distribution that depends on :math:`P` alone. One table therefore serves the whole model. Its rows are indexed by the potential, uniform in :math:`\ln[P/(P_0 - P)]` from the profile's lowest positive potential to the profile's largest potential below :math:`P_0`, with one guard row beyond each end, and no grid in radius or in angle is needed; where the DF's support ends at the DF table's lowest energy :math:`\mathcal{K}_0`, the lowest row is raised to :math:`10^3\,\mathcal{K}_0` if that potential lies higher, and the table is refused if more than :math:`10^{-6}` of the model's mass lies below the lowest row. Each row stores the inverse of the cumulative distribution :math:`\mathcal{U}(x)` in logit variables,
 
@@ -92,8 +92,8 @@ A row is built from the mass of the density on the panels of a velocity grid, re
 
 .. _tn-sec-radius-angle:
 
-T:5.2.2 The radius and the angle
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:5.2.2 The radius and the velocity angle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The radius is drawn from the inverse of the enclosed-mass fraction :math:`\mathcal{U} = M(R)/M(R_{\rm e})`, tabulated in the same logit variables with :math:`R` in place of :math:`x` and the outer radius of the sampling, :math:`R_{\rm e}`, in place of :math:`x_{\rm e}`. Its slope follows from :math:`\mathrm{d}\mathcal{U}/\mathrm{d} R = 4\pi R^2\varrho/M(R_{\rm e})`, exact at the profile's radii; between those radii :math:`\ln(\mathrm{d}\mathcal{U}/\mathrm{d} R)` is interpolated linearly in :math:`s`, and beyond the first and the last radius the slope is the slope at the end radius. The mass fraction is exact at the profile's radii when the edge is the truncation radius or a profile radius; at a sharp edge between two profile radii, :math:`M(R_{\rm e})` is interpolated linearly in :math:`\ln M` against :math:`\ln R`. The variables are power laws at both ends whether the edge is smooth (the truncation radius) or sharp (a radius given by the user); at a sharp edge the last interval is refined at halved distances from the edge. The angle of an anisotropic model needs no table in radius. By :ref:`Eq. (T:5.3) <tn-eq-factorized>`, :math:`p(\varphi|R) \propto \sin^{1-2\beta_\mathrm{c}}\!\varphi\,f^{-\nu}`, and the substitution
 
@@ -111,8 +111,8 @@ with the upper sign for Type I and the lower sign for Type II, turns it into a
 
 .. _tn-sec-draw:
 
-T:5.3 The draw
---------------
+T:5.3 Drawing particles by inverse-CDF sampling
+-----------------------------------------------
 
 Every variable is drawn by inversion, and nothing is rejected. The random numbers of particle :math:`i` depend only on the seed and :math:`i`: the key of particle :math:`i` is folded from the seed and the component index 0 and then from :math:`i`, and each variable takes its own channel of that key. The random numbers of particle :math:`i` are the same on every machine and backend; on one machine and backend, the first :math:`n` particles of a larger draw, made in blocks of any size, are the same particles to the bit, and another backend gives the same particles up to the rounding of the arithmetic. The potential at a particle is the profile's own (:ref:`Section T:1.3 <tn-sec-profile-object>`), never a linear interpolation on a table. A draw is made in blocks of a stated size, so that its working memory is that of one block, whatever the total count. A particle of a superposed model (:ref:`Section T:4 <tn-sec-sup>`) takes its component from a separate channel of the particle's key, with probabilities equal to the weights, and is drawn from that component's tables; because the members share one density, the particle's radius follows the enclosed mass of the mixture.
 
@@ -120,7 +120,7 @@ A draw bounded to a range of radii takes the uniform variate between the radius 
 
 .. _tn-sec-particle-checks:
 
-T:5.4 What a draw checks
-------------------------
+T:5.4 Checks of the drawn particles and of the written files
+------------------------------------------------------------
 
 Every particle must lie inside the phase-space support of the DF of its component. The bound is checked on the draw's own variables, the scaled velocity and its distance from the edge of the support, which hold it exactly; the velocity is then checked against the bound from which it was built, :math:`V^2 + \sigma\,\xi\,V_t^2 \leq 2P` with :math:`\xi = (R/R_\mathrm{a})^2` and :math:`\sigma = +1` for Type I and :math:`\sigma = -1` for Type II (:math:`\xi = 0` for a constant anisotropy), to within the rounding floor :math:`\epsilon\,(1 + \xi)`, where :math:`\epsilon` is the spacing of doubles at 1. If any particle fails either check, the draw raises ``AccuracyError``; no particle is discarded or redrawn, and ``write_anyway`` does not override the check. Each of the package's four writers reads its file back and compares the file with what the writer wrote, bit for bit after the cast to the file's type (for the text layout, against the value as printed with 14 digits after the decimal point); a writer added with ``register_particle_writer`` is not checked.

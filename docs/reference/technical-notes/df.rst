@@ -5,8 +5,8 @@ T:2 The distribution function
 
 .. _tn-sec-forms:
 
-T:2.1 The inversion
--------------------
+T:2.1 The two forms of the inversion and the forward relation
+-------------------------------------------------------------
 
 |paper| gives the inversion in two forms: with the derivative outside the integral, Eq. (B22), and with the derivative inside the integral together with a surface term at :math:`P = 0`, Eq. (B9). The second form follows from the first by one integration by parts and is simpler to evaluate. The integration by parts requires that
 
@@ -53,8 +53,8 @@ T:2.2 Asymptotic behavior of the DF
 
 .. _tn-sec-center:
 
-T:2.2.1 The center: the singular part of one power-law term
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.2.1 The limit P → P₀: the contribution of one power-law term
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Consider a single term :math:`\varrho_\mathrm{aux} \supset A_s\,(P_0 - P)^{s}` of the expansion of :math:`\varrho_\mathrm{aux}` about the center. Its :math:`(m+1)`-th derivative is :math:`(-1)^{m+1} A_s\,[\Gamma(s+1)/\Gamma(s-m)]\,(P_0-P)^{s-m-1}`. With :math:`t = \mathcal{K} - P`, the integral of |paper|, Eq. (B9) becomes :math:`\int_0^{\mathcal{K}} t^{-n} (u+t)^{s-m-1}\,\mathrm{d} t`, whose behavior as :math:`u \to 0` follows from the Mellin-type integral
 
@@ -104,8 +104,8 @@ Since the inversion is linear, every power in the expansion of :math:`\varrho_\m
 
 .. _tn-sec-regular:
 
-T:2.2.2 The regular branch, :math:`\gamma > 2\beta_\mathrm{c}`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.2.2 The central DF for γ > 2β_c
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The leading term of :math:`\varrho_\mathrm{aux}` is :math:`A\,(P_0-P)^{s_0}` with :math:`s_0 = (2\beta_\mathrm{c} - \gamma)/(2-\gamma) < 0`. :ref:`Eq. (T:2.5) <tn-eq-singular>` reproduces the exponent :math:`\kappa` of |paper|, Eq. (B36) and supplies its amplitude,
 
@@ -125,8 +125,8 @@ As :math:`\gamma \to 2\beta_\mathrm{c}`, the amplitude vanishes linearly, :math:
 
 .. _tn-sec-critical:
 
-T:2.2.3 The critical branch, :math:`\gamma = 2\beta_\mathrm{c}`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.2.3 The central DF in the boundary case γ = 2β_c
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By :ref:`Eq. (T:1.1) <tn-eq-inner-map>`, :math:`\varrho_\mathrm{aux} = C_1 + C_2\,(P_0-P)^{\delta} + \dots`: for constant anisotropy it is a series in :math:`(P_0-P)^{\delta}`; for OM (:math:`\gamma = 0`) the factor :math:`1 \pm R^2/R_\mathrm{a}^2` adds the powers :math:`(P_0-P)^{1 + j\delta}`, :math:`j \geq 0`, of which the integer power drops out and the others lie above :math:`\delta`. The constant term has :math:`s = 0` and no singular part. The next term has :math:`s = \delta` and the exponent :math:`\kappa' = \delta - \nu` of |paper|, Eq. (B37). :ref:`Table T:2.1 <tn-tab-critical>` lists the cases; its last four rows assume that :math:`\delta` is not an integer.
 
@@ -164,8 +164,8 @@ In the row :math:`\kappa' > 0`, :math:`n \neq 0`, the constant :math:`F_\mathcal
 
 .. _tn-sec-com-center:
 
-T:2.2.4 COM models
-~~~~~~~~~~~~~~~~~~
+T:2.2.4 The central DF of COM models
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For COM models, the factor :math:`(1 \pm R^2/R_\mathrm{a}^2)^{1-\beta_\mathrm{c}}` of :math:`\varrho_\mathrm{aux}` contributes a series in :math:`R^2 \propto (P_0-P)^{2/(2-\gamma)}`. The expansion of :math:`\varrho_\mathrm{aux}` then contains the powers
 
@@ -185,8 +185,8 @@ Where the modification applies, the exponent is :math:`2/(2-\gamma) - \nu`, whic
 
 .. _tn-sec-nfw-half:
 
-T:2.2.5 The NFW profile at :math:`\beta_\mathrm{c} = 1/2`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.2.5 The closed-form DF of the NFW profile at β_c = 1/2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 With :math:`\varrho = 1/[R(1+R)^2]` and :math:`P = \ln(1+R)/R`, :ref:`Eq. (T:2.2) <tn-eq-local>` gives
 
@@ -216,8 +216,8 @@ so the central DF is finite, :math:`F_\mathcal{K}(P_0) = 2/\pi^2`.
 
 .. _tn-sec-outer:
 
-T:2.2.6 The outer end, :math:`P = 0`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.2.6 The limit P → 0
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Let :math:`\varrho_\mathrm{aux} \propto P^{\,y}` as :math:`P \to 0`, where :math:`y` is not a non-negative integer smaller than :math:`m`. Then :math:`\mathrm{d}^m\varrho_\mathrm{aux}/\mathrm{d} P^m \propto P^{\,y-m}`, and the surface term of |paper|, Eq. (B9)
 
@@ -272,8 +272,8 @@ At :math:`\beta = 3` the constant-anisotropy surface term still vanishes. For (C
 
 .. _tn-sec-tail:
 
-T:2.2.7 The tail of the DF and its density
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.2.7 The low-energy tail of the DF and its contribution to the density
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For an untruncated (C)OM Type I model with :math:`\beta > 3`, :ref:`Eq. (T:2.12) <tn-eq-y>` and |paper|, Eq. (B25) give a power-law tail,
 
@@ -303,8 +303,8 @@ where :math:`B(x; p, r) = \int_0^x t^{p-1}(1-t)^{r-1}\,\mathrm{d} t` is the inco
 
 .. _tn-sec-Ra:
 
-T:2.2.8 The anisotropy radius of a Type II model
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.2.8 Behavior of the inversion at the anisotropy radius of a Type II model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For Type II models, :math:`\varrho_\mathrm{aux} \propto w^{1-\beta_\mathrm{c}}` as :math:`w \equiv 1 - R^2/R_\mathrm{a}^2 \to 0`, and :math:`w` is linear in :math:`P - P(R_\mathrm{a})` there. Hence
 
@@ -322,13 +322,13 @@ which diverges at :math:`P(R_\mathrm{a})` for :math:`n < 1/2`. The divergence is
 
 .. _tn-sec-num-forms:
 
-T:2.3 The form of every row
----------------------------
+T:2.3 Evaluating the inversion at each tabulated energy
+-------------------------------------------------------
 
 .. _tn-sec-df-form:
 
-T:2.3.1 The order pair and the choice of form
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.3.1 Choice of the derivative order and of the inversion form
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The form of the inversion is fixed from the model parameters alone, before any integral is evaluated.
 
@@ -358,8 +358,8 @@ Applying the same operator one derivative higher gives :math:`\mathrm{d} F_\math
 
 .. _tn-sec-floor:
 
-T:2.3.2 The floor of the table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.3.2 The lowest tabulated energy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The table of :math:`\varrho_\mathrm{aux}` and its derivatives starts at a floor :math:`q_0 > 0`, not at :math:`P = 0`. Splitting the integral of the general form at :math:`q_0` and integrating its upper part by parts gives, with no assumption about the behavior at :math:`P = 0`,
 
@@ -377,8 +377,8 @@ where :math:`\varrho_\mathrm{aux}^{(j)} \equiv {\mathrm{d}}^j\varrho_\mathrm{aux
 
 .. _tn-sec-split:
 
-T:2.3.3 The general form on a split
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.3.3 Splitting the integral of the general form
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Rows that use the general form (:ref:`Section T:2.3.1 <tn-sec-df-form>`) split the integral at an interior point :math:`c < \mathcal{K}`. Below :math:`c` the derivative is taken under the integral sign; above :math:`c` the integral is integrated by parts:
 
@@ -396,8 +396,8 @@ The right-hand side requires :math:`\varrho_\mathrm{aux}^{(j)}` only on :math:`[
 
 .. _tn-sec-quadrature:
 
-T:2.3.4 Quadrature
-~~~~~~~~~~~~~~~~~~
+T:2.3.4 Quadrature of the inversion integral
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each row is integrated on three sub-intervals: from the floor to one tenth of the split point, on Gauss-Legendre nodes in :math:`\ln P`; from there to the split point, on Gauss-Legendre nodes in :math:`P`; and from the split point to :math:`\mathcal{K}`, where the kernel is singular. The split point is :math:`c = 0.9\,\mathcal{K}` on the rows of :math:`F_\mathcal{K}` that use the surface form, and the largest grid energy at or below :math:`0.9\,\mathcal{K}` on the rows of :math:`\mathrm{d}F_\mathcal{K}/\mathrm{d}\mathcal{K}`, on every row of a replaced pair and on the rows of an unbounded outer end. On the rows above the interior point of a COM Type II model, :math:`c = \max(0.9\,\mathcal{K}, [P(R_\mathrm{a}) + \mathcal{K}]/2)`, moved down to the largest grid energy at or below it where that energy lies at least halfway from :math:`P(R_\mathrm{a})` to :math:`c`, and the stretch below :math:`c` is the two Gauss-Jacobi pieces of :ref:`Section T:2.3.3 <tn-sec-split>` in place of the first two sub-intervals. On the last sub-interval the integration variable is :math:`v`, with
 
@@ -434,20 +434,20 @@ The DF is tabulated on a grid of energies in five zones, from the floor to the g
 
 .. _tn-sec-num-beyond:
 
-T:2.5 Beyond the table
-----------------------
+T:2.5 The distribution function outside the tabulated energies
+--------------------------------------------------------------
 
 .. _tn-sec-top-limit:
 
-T:2.5.1 Where the rows end
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.5.1 The highest tabulated energy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The inversion's rows reach the last energy of the grid, a gap of :math:`10^{-9}` below :math:`P_0`, unless the exact derivatives required by the inversion cannot be formed that deep, or the host floor or the DF's ceiling stops them first (below). Each term :math:`C_s u^{s}` of the central series of :math:`\varrho_\mathrm{aux}` gives :math:`\mathrm{d}^N\varrho_\mathrm{aux}/\mathrm{d} P^N = (-1)^N C_s\, s(s-1)\cdots(s-N+1)\,u^{s-N}`, which exceeds the largest double below :math:`u = (|C_s\,s\cdots(s-N+1)|/\mathrm{DBL\_MAX})^{1/(N-s)}` for :math:`s < N`. The largest such depth over the terms and over the orders that the form needs is the top limit of the table, and it is zero where no term grows. The rows end at the shallowest of three depths: that depth, the depth at the smallest radius whose square the host represents (:ref:`Section T:0.4 <tn-sec-host>`), and, where the center's closed form is a power :math:`A\,u^{\kappa}` with :math:`\kappa < 0` and :math:`A > 0` on the regular or the critical divergent branch of an isotropic, constant-anisotropy or Type I model, the depth at which that form reaches the package's ceiling :math:`10^{300}` on the DF; the closed form of the center owns the energies above. Where no closed form covers the top, a row above the ceiling is refused with an error that states the ceiling and the first such row. Where the leading exponent of the series vanishes (:math:`\gamma = 2\beta_\mathrm{c}` at the center), there is no closed form to join to, and a model whose host floor alone would cut its table is refused with the reason stated.
 
 .. _tn-sec-top:
 
-T:2.5.2 Above the top of the table
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.5.2 Between the highest tabulated energy and P₀
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The table of :math:`F_\mathcal{K}` ends at a top node, a small depth :math:`u_{\rm top}` below the center. Between that node and the center, the DF is continued by its central form, :ref:`Section T:2.2.1 <tn-sec-center>` to :ref:`Section T:2.2.4 <tn-sec-com-center>`, which is computed from the model alone and stored with the table. The stored form consists of the leading singular term :math:`S_1(u)` and the next one, :math:`S_2(u)`, each a power or a logarithm with the coefficient of :ref:`Eq. (T:2.5) <tn-eq-singular>` or :ref:`Eq. (T:2.6) <tn-eq-log>`. The coefficients of :math:`\varrho_\mathrm{aux}` that they need come from the exact expansion of :ref:`Section T:1.1 <tn-sec-pair>`, carried to the second power that is not a non-negative integer. No exponent is fitted to the table, and the amplitude is the closed form wherever the center states one.
 
@@ -473,45 +473,45 @@ The stored form is tested against the table that it continues. Across the top de
 
 .. _tn-sec-below-floor:
 
-T:2.5.3 Below the floor
-~~~~~~~~~~~~~~~~~~~~~~~
+T:2.5.3 Below the lowest tabulated energy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Below its first energy, the DF follows a stated rule that is recorded with the table: the tail :math:`A\,\mathcal{K}^{-a}[\ln(E_0/\mathcal{K})]^{-b}` of :ref:`Eq. (T:2.13) <tn-eq-tail-exponent>` for an untruncated model whose exponent :math:`a` is positive, with :math:`E_0 = P_0` and with :math:`A` and :math:`b` chosen so that the tail joins the lowest node below the written floor in value and in logarithmic slope (:math:`b = 0`, and the join in value only, where those nodes carry no slope, or where there are none, at the written floor); the Taylor form :math:`F_1\mathcal{K} + F_2\mathcal{K}^2/2` of a truncated Method I model at its edge, together with the energy up to which it holds; the edge law :math:`\mathcal{K}^{p}(C_0 + C_1\mathcal{K})` of a Method II child (:ref:`Section T:2.6.1 <tn-sec-edge-law>`); or zero. The integral of the rule from zero up to an energy below the table is the same set of numbers in closed form, so a density integral never truncates the DF at its table.
+Below its first energy, the DF follows a stated rule that is recorded with the table: the tail :math:`A\,\mathcal{K}^{-a}[\ln(E_0/\mathcal{K})]^{-b}` of :ref:`Eq. (T:2.13) <tn-eq-tail-exponent>` for an untruncated model whose exponent :math:`a` is positive, with :math:`E_0 = P_0` and with :math:`A` and :math:`b` chosen so that the tail joins the lowest node below the written floor in value and in logarithmic slope (:math:`b = 0`, and the join in value only, where those nodes carry no slope, or where there are none, at the written floor); the Taylor form :math:`F_1\mathcal{K} + F_2\mathcal{K}^2/2` of a truncated Method I model at its edge, together with the energy up to which it holds; the edge law :math:`\mathcal{K}^{p}(C_0 + C_1\mathcal{K})` of a Method II model (:ref:`Section T:2.6.1 <tn-sec-edge-law>`); or zero. The integral of the rule from zero up to an energy below the table is the same set of numbers in closed form, so a density integral never truncates the DF at its table.
 
 .. _tn-sec-lookup:
 
-T:2.5.4 The lookup
-~~~~~~~~~~~~~~~~~~
+T:2.5.4 Interpolation between tabulated energies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Inside the table, the base-10 logarithm of the DF is the cubic Hermite interpolant in :math:`\ln{\mathcal{K}}` through the nodes with the exact slope column. Where a table carries no exact slopes (a DF from a function, :ref:`Section T:2.7 <tn-sec-from-function>`, and a component on a tabulated pair, :ref:`Section T:2.6 <tn-sec-tabulated>`), the slopes are those of the not-a-knot spline through the nodes. The lookup has two entry points, by the energy and by the depth :math:`u = P_0 - \mathcal{K}`, and a caller asks by whichever argument it holds exactly. For example, a velocity draw near the top holds the depth :math:`u = (P_0 - \Psi) + \Psi x^2` exactly, whereas the energy :math:`\Psi(1 - x^2)` formed in doubles loses it. In the entry by :math:`u`, the cell position is formed from :math:`u_i - u` with :math:`u_i = P_0 - \mathcal{K}_i`, which is exact for :math:`\mathcal{K}_i \geq P_0/2`, and the form above the table is read at :math:`u` itself. The nodes and every number of the forms are arrays, so that under JAX the table is a traced argument, and two tables with the same node bucket and the same kinds of forms share one compiled function.
 
 .. _tn-sec-df-checks:
 
-T:2.5.5 What a table states about itself
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.5.5 Checks stored with the table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A table is written together with its checks: the stated slope column against the table's own :math:`F`, the stated center against the top decade of the table, and the joins of the forms below the floor with the bottom row. A reader refuses a table whose slope column or stated center fails beyond :math:`10^{-2}`, or whose forms below the floor miss the bottom row beyond :math:`10^{-6}`. The sign report states where the DF is negative and the smallest truncation above which it is not (:ref:`Section T:3.5 <tn-sec-gate>`). The validity certificate is a closed form: from the model, the central exponent and the closed-form amplitude, it states whether the columns of the table are representable in double precision, judged at the table's own top row (the anchor, or the shallowest of the gap, the top limit, the host floor and the DF's ceiling); a component on a tabulated pair carries none.
 
 .. _tn-sec-tabulated:
 
-T:2.6 A component on a tabulated pair (Method II)
--------------------------------------------------
+T:2.6 Method II: inversion of a truncated potential–density pair
+----------------------------------------------------------------
 
-Method II is not a second pipeline. A component whose profile is the truncated profile of another model runs through the same stages; the source of the derivatives differs, and so do four steps: no slope column is made, a defective band at the top is refused rather than repaired, the stretch below the floor has the closed form below, and at :math:`\beta_\mathrm{c} = 1/2` on a parent with :math:`\gamma = \alpha = 1` the top rows are a closed-form band. The integral of the parent's DF is its augmented density, the density itself for an isotropic parent and :math:`h_\mathrm{p}\,\hat\varrho`, :math:`h_\mathrm{p} = 1 + R^2/R_{\mathrm{a},\mathrm{p}}^2`, for an OM Type I parent:
+Method II is not a second pipeline. A component whose profile is the truncated profile of another model runs through the same stages; the source of the derivatives differs, and so do four steps: no slope column is made, a defective band at the top is refused rather than repaired, the stretch below the floor has the closed form below, and at :math:`\beta_\mathrm{c} = 1/2` on a Method I model with :math:`\gamma = \alpha = 1` the top rows are a closed-form band. The integral of the Method I model's DF is its augmented density, the density itself for an isotropic Method I model and :math:`h_\mathrm{I}\,\hat\varrho`, :math:`h_\mathrm{I} = 1 + R^2/R_{\mathrm{a},\mathrm{I}}^2`, for an OM Type I Method I model:
 
-.. _tn-eq-parent-density:
+.. _tn-eq-method1-density:
 
 .. math::
    :nowrap:
 
    \begin{equation}
-     h_\mathrm{p}\,\hat\varrho(P) = 4\pi\sqrt{2}\int_0^{P} F(\mathcal{K})\,(P - \mathcal{K})^{1/2}\,\mathrm{d}\mathcal{K} ,
+     h_\mathrm{I}\,\hat\varrho(P) = 4\pi\sqrt{2}\int_0^{P} F(\mathcal{K})\,(P - \mathcal{K})^{1/2}\,\mathrm{d}\mathcal{K} ,
      \tag{T:2.22}
    \end{equation}
 
-so its derivatives with respect to :math:`P` are integrals of the DF and of its derivatives against :math:`(P - \mathcal{K})^{-1/2}`, with the boundary term :math:`F_1 P^{-1/2}` at order three, evaluated from the parent's table, its exact slope column, and its Taylor edge; the second derivative of the DF at order three is the derivative of the monotone cubic through the slope column, the only spline that is differentiated. The auxiliary density of the child is :math:`\varrho_\mathrm{aux} = h(R)\,\hat\varrho` with the child's own factor, and its derivatives follow by the Leibniz rule with :math:`\mathrm{d} R/\mathrm{d} P` taken from the rows. Orders up to three are served, the third only where the parent states its Taylor edge. An isotropic or OM Type I parent is served, and a Type II child must have its :math:`R_\mathrm{a}` beyond the parent's edge.
+so its derivatives with respect to :math:`P` are integrals of the DF and of its derivatives against :math:`(P - \mathcal{K})^{-1/2}`, with the boundary term :math:`F_1 P^{-1/2}` at order three, evaluated from the Method I model's table, its exact slope column, and its Taylor edge; the second derivative of the DF at order three is the derivative of the monotone cubic through the slope column, the only spline that is differentiated. The auxiliary density of the Method II model is :math:`\varrho_\mathrm{aux} = h(R)\,\hat\varrho` with the Method II model's own factor, and its derivatives follow by the Leibniz rule with :math:`\mathrm{d} R/\mathrm{d} P` taken from the rows. Orders up to three are served, the third only where the Method I model states its Taylor edge. An isotropic or OM Type I Method I model is served, and a Method II model of Type II must have its :math:`R_\mathrm{a}` beyond the Method I model's edge.
 
-The grid is the five-zone grid of :ref:`Section T:2.4 <tn-sec-grid>` on the first potential of the parent, compact, with no extension below the floor, since the support of the child ends at the parent's edge. The stretch below the floor has a closed form. For each power :math:`P^{q}` of the two-term edge expansion of :math:`\varrho_\mathrm{aux}` (:ref:`Section T:2.6.1 <tn-sec-edge-law>`), with :math:`a = q - m_f`, :math:`b = 1 - n_f`, and :math:`x = q_0/\mathcal{K}`,
+The grid is the five-zone grid of :ref:`Section T:2.4 <tn-sec-grid>` on the first potential of the Method I model, compact, with no extension below the floor, since the support of the Method II model ends at the Method I model's edge. The stretch below the floor has a closed form. For each power :math:`P^{q}` of the two-term edge expansion of :math:`\varrho_\mathrm{aux}` (:ref:`Section T:2.6.1 <tn-sec-edge-law>`), with :math:`a = q - m_f`, :math:`b = 1 - n_f`, and :math:`x = q_0/\mathcal{K}`,
 
 .. _tn-eq-method2-floor-tail:
 
@@ -523,16 +523,16 @@ The grid is the five-zone grid of :ref:`Section T:2.4 <tn-sec-grid>` on the firs
      \tag{T:2.23}
    \end{equation}
 
-is the exact contribution of :math:`[0, q_0]` to the row at :math:`\mathcal{K}`, relative to the boundary form that the kernel carries, and the boundary term is the sources' own value of :math:`\varrho_\mathrm{aux}^{(m_f)}` at the floor node: the parent's derivatives there (in closed form from its Taylor edge where the node lies below the switch), its density from its rows, and the child's factor, by the Leibniz rule.
+is the exact contribution of :math:`[0, q_0]` to the row at :math:`\mathcal{K}`, relative to the boundary form that the kernel carries, and the boundary term is the sources' own value of :math:`\varrho_\mathrm{aux}^{(m_f)}` at the floor node: the Method I model's derivatives there (in closed form from its Taylor edge where the node lies below the switch), its density from its rows, and the Method II model's factor, by the Leibniz rule.
 
-At :math:`\beta_\mathrm{c} = 1/2` on a parent with :math:`\gamma = \alpha = 1`, the inversion is a derivative whose two terms are both of order :math:`1/u` toward the center, so the rows there carry the parent's accuracy multiplied by :math:`C/[2(\beta - 1)\,u]`, with :math:`\hat\varrho \simeq C/R` at the center (:math:`1/(4u)` for NFW, :math:`1/(3u)` for Hernquist). Above an anchor, the rows are the closed form :math:`F = A\sum_{k \leq 4} a_k u^{k}` with :math:`A = 1/(2\pi^2)` (:ref:`Section T:2.2.5 <tn-sec-nfw-half>`), which is exact in the truncation through the parent's central deficit. The anchor is the smaller of the series' own range at :math:`10^{-6}` and the top zone of the grid, and the median relative deviation of the computed rows from the form over the outermost decade inside it, on at least ten rows, must be within :math:`10^{-6}`; otherwise the anchor steps inward one decade at a time until it is, and where no decade is, the rows stand as computed and the record says so.
+At :math:`\beta_\mathrm{c} = 1/2` on a Method I model with :math:`\gamma = \alpha = 1`, the inversion is a derivative whose two terms are both of order :math:`1/u` toward the center, so the rows there carry the Method I model's accuracy multiplied by :math:`C/[2(\beta - 1)\,u]`, with :math:`\hat\varrho \simeq C/R` at the center (:math:`1/(4u)` for NFW, :math:`1/(3u)` for Hernquist). Above an anchor, the rows are the closed form :math:`F = A\sum_{k \leq 4} a_k u^{k}` with :math:`A = 1/(2\pi^2)` (:ref:`Section T:2.2.5 <tn-sec-nfw-half>`), which is exact in the truncation through the Method I model's central deficit. The anchor is the smaller of the series' own range at :math:`10^{-6}` and the top zone of the grid, and the median relative deviation of the computed rows from the form over the outermost decade inside it, on at least ten rows, must be within :math:`10^{-6}`; otherwise the anchor steps inward one decade at a time until it is, and where no decade is, the rows stand as computed and the record says so.
 
 .. _tn-sec-edge-law:
 
-T:2.6.1 The edge of a Method II child
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+T:2.6.1 The Method II DF at the truncation boundary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A density that ends as :math:`P^{q}` at its edge has a DF of central anisotropy :math:`\beta_\mathrm{c}` if and only if :math:`\beta_\mathrm{c} > 1/2 - q`, and the DF then behaves as :math:`\mathcal{K}^{\,q - 3/2 + \beta_\mathrm{c}}` there. This statement holds for every profile and every anisotropy model of the package, and a child that violates it is refused before any stage runs, with the admissible range stated. Below the parent's switch energy, the parent's DF is its Taylor form :math:`F_1\mathcal{K} + F_2\mathcal{K}^2/2`, so the parent's augmented density near the edge is :math:`4\pi\sqrt{2}\,[\tfrac{4}{15}F_1 P^{5/2} + \tfrac{8}{105}F_2 P^{7/2}]` to the order kept. The child's augmented density, with :math:`h = h_\mathrm{t} + H_1 P`, :math:`H_1 = h'(R_\mathrm{t})\,R'(P)`, and :math:`R' = -R_\mathrm{t}^2/M_\mathrm{t}`, is then
+A density that ends as :math:`P^{q}` at its edge has a DF of central anisotropy :math:`\beta_\mathrm{c}` if and only if :math:`\beta_\mathrm{c} > 1/2 - q`, and the DF then behaves as :math:`\mathcal{K}^{\,q - 3/2 + \beta_\mathrm{c}}` there. This statement holds for every profile and every anisotropy model of the package, and a Method II model that violates it is refused before any stage runs, with the admissible range stated. Below the Method I model's switch energy, the Method I model's DF is its Taylor form :math:`F_1\mathcal{K} + F_2\mathcal{K}^2/2`, so the Method I model's augmented density near the edge is :math:`4\pi\sqrt{2}\,[\tfrac{4}{15}F_1 P^{5/2} + \tfrac{8}{105}F_2 P^{7/2}]` to the order kept. The Method II model's augmented density, with :math:`h = h_\mathrm{t} + H_1 P`, :math:`H_1 = h'(R_\mathrm{t})\,R'(P)`, and :math:`R' = -R_\mathrm{t}^2/M_\mathrm{t}`, is then
 
 .. _tn-eq-edge-expansion:
 
@@ -544,11 +544,11 @@ A density that ends as :math:`P^{q}` at its edge has a DF of central anisotropy 
      \tag{T:2.24}
    \end{equation}
 
-Each power inverts to a power, so the child's DF below its switch is the edge law :math:`\mathcal{K}^{p}(C_0 + C_1\mathcal{K})` with :math:`p = 1 + \beta_\mathrm{c}`, and the same coefficients give the floor terms of :ref:`Eq. (T:2.23) <tn-eq-method2-floor-tail>`.
+Each power inverts to a power, so the Method II model's DF below its switch is the edge law :math:`\mathcal{K}^{p}(C_0 + C_1\mathcal{K})` with :math:`p = 1 + \beta_\mathrm{c}`, and the same coefficients give the floor terms of :ref:`Eq. (T:2.23) <tn-eq-method2-floor-tail>`.
 
 .. _tn-sec-from-function:
 
-T:2.7 A distribution function from a function
----------------------------------------------
+T:2.7 A distribution function supplied as input
+-----------------------------------------------
 
 A DF obtained elsewhere, from a fitting function or from the output of another code, is checked in the same way. Its values on the energy grid that the inversion would place for the component enter at the point where the rows of the inversion would enter, and everything downstream is unchanged: the forms beyond the table, the sign report, the checks and the result's record, which carries no inversion record and no rows. Such a table has no exact slope column, which its report states, and a value that is not finite is refused, with the first such energy stated. Truncation needs the rows of the inversion, which such a table does not carry, and it is refused with the reason stated.
