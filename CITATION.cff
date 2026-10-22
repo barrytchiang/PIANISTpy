@@ -9,6 +9,10 @@ license: BSD-3-Clause
 version: 1.0.0
 date-released: "2026-10-21"
 url: "https://pianistpy.com"
+identifiers:
+  - type: other
+    value: "arXiv:2610.28758"
+    description: "The initial release paper, Chiang, van den Bosch and Schive (2026d)"
 repository-code: "https://github.com/barrytchiang/PIANISTpy"
 preferred-citation:
   type: article
@@ -24,3 +28,4 @@ preferred-citation:
   journal: Monthly Notices of the Royal Astronomical Society
   year: 2026
   status: submitted
+  url: "https://arxiv.org/abs/2610.28758"

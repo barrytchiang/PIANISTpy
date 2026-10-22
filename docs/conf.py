@@ -141,12 +141,12 @@ html_theme_options = {
 # PAPER_STATUS, henceforth PAPER"; every other mention is the short form. Pages write
 # |paper| (the linked short form), |paper-full| (the linked full form and its status) or
 # |paper-name| (the short form as plain text, for headings); the landing page's
-# @PAPER...@ fields are set by assemble_site from these lines. Until the arXiv entry
-# exists the link is the citation page.
+# @PAPER...@ fields are set by assemble_site from these lines. The link is the arXiv
+# entry until the journal DOI exists.
 PAPER = "Chiang+(2026d)"
 PAPER_FULL = "Chiang, van den Bosch and Schive (2026d), MNRAS"
-PAPER_STATUS = "submitted"
-PAPER_URL = "https://pianistpy.com/docs/project/citing"
+PAPER_STATUS = "submitted, arXiv:2610.28758"
+PAPER_URL = "https://arxiv.org/abs/2610.28758"
 rst_epilog = (
     f".. |paper| replace:: `{PAPER} <{PAPER_URL}>`__\n"
     f".. |paper-full| replace:: `{PAPER_FULL} {PAPER_STATUS} <{PAPER_URL}>`__\n"

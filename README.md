@@ -17,7 +17,7 @@
 
 PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides distribution functions, particle initial conditions, radial and tangential velocity dispersion profiles and line-of-sight observables, with JAX-based end-to-end differentiability for gradient-based Monte Carlo inference.
 
-**Ver. 1.0.0** is the initial public release of PIANISTpy, described in [Chiang, van den Bosch and Schive (2026d), MNRAS submitted](https://pianistpy.com/docs/project/citing), henceforth [Chiang+(2026d)](https://pianistpy.com/docs/project/citing).
+**Ver. 1.0.0** is the initial public release of PIANISTpy, described in [Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758](https://arxiv.org/abs/2610.28758), henceforth [Chiang+(2026d)](https://arxiv.org/abs/2610.28758).
 
 ## What PIANISTpy does
 
@@ -96,7 +96,7 @@ sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
 
 ## How to cite
 
-Please cite the initial release paper, [Chiang, van den Bosch and Schive (2026d), MNRAS submitted](https://pianistpy.com/docs/project/citing), henceforth [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), in work that uses PIANISTpy.
+Please cite the initial release paper, [Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758](https://arxiv.org/abs/2610.28758), henceforth [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), in work that uses PIANISTpy.
 
 ## License
 
