@@ -21,7 +21,7 @@ with the upper sign for Type I and the lower sign for Type II, and
 with an infinite \(R_{\rm a}\), and the isotropic model is the
 constant-anisotropy model with \(\beta_{\rm c} = 0\). The factor
 \(g(R)\) that relates the augmented density to the auxiliary density is
-given in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44).
+given in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44).
 
 class pianistpy.anisotropy.Anisotropy(*beta_c=0.0*, *r_a=inf*, *kind='I'*)
 
@@ -98,7 +98,7 @@ across \(\beta_{\rm c} = 0\) and across an infinite
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44).
 
 Examples
 
@@ -161,7 +161,7 @@ The largest radius where the factor is defined.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44).
 
 Examples
 
@@ -177,7 +177,7 @@ property model: [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 `"isotropic"`, `"constant"`, `"om"` or `"com"`.
 
-The names are those of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The name does not include the
+The names are those of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The name does not include the
 type, which is in kind.
 
 See also

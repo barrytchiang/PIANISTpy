@@ -1568,7 +1568,7 @@ densities \(\varrho_k\) and velocity distributions \(p_k\),
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 5.1 and Eq. (B38).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 5.1 and Eq. (B38).
 Notes Section T:6.8 (the local velocity distribution).
 
 Examples
@@ -2094,7 +2094,7 @@ distribution diverges at \(V_*\), and the divergence is integrable.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B38). [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B39). [Chiang+(2026d)](https://pianistpy.com/docs/project/citing),
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B38). [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B39). [Chiang+(2026d)](https://arxiv.org/abs/2610.28758),
 Eq. (B40). Notes Eq. (T:6.4).
 
 Examples

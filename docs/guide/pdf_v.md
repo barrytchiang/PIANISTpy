@@ -6,7 +6,7 @@ Source: https://pianistpy.com/docs/guide/pdf_v
 
 `pdf_v(source, r, v)` returns the local velocity distribution \(p(V\,|\,R)\) at user-specified 3D radii.
 \(p(V\,|\,R)\) is the probability density of the velocity \(V = |\mathbf{V}|\) of the model’s mass at the
-distance \(R\) from the center. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), the density at a radius is written as an integral over the angle
+distance \(R\) from the center. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), the density at a radius is written as an integral over the angle
 \(\varphi\) between the velocity and the radial direction, with the angle density \(p_\varphi\), and over
 the velocity magnitude, with its density \(p_V\),
 
@@ -24,7 +24,7 @@ the support of \(p(V\,|\,R)\) ends at the escape velocity \(V_{\rm esc}(R)\). A 
 unbound orbits, and the velocities of a Type II model reach \(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\). For a Type
 II model, a radius at or beyond the anisotropy radius \(R_{\rm a}\) raises `InputError`. The
 radius \(R\) of
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing) is `r` in the package.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758) is `r` in the package.
 
 ## Arguments and units
 

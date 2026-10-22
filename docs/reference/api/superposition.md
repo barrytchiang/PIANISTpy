@@ -120,8 +120,8 @@ velocity anisotropy of component \(k\).
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B43), [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44) and
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B74).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B43), [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44) and
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B74).
 
 Examples
 
@@ -212,7 +212,7 @@ The weighted sum of per-component quantities.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Appendix B5; Notes Section T:4.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Appendix B5; Notes Section T:4.
 
 Examples
 

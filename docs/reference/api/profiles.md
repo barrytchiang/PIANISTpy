@@ -82,8 +82,8 @@ elementary closed form.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (5), defines the profile. [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A6),
-gives \(C\). [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A7), gives the enclosed mass.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (5), defines the profile. [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A6),
+gives \(C\). [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A7), gives the enclosed mass.
 
 Examples
 
@@ -286,7 +286,7 @@ continuation of the formula is evaluated in arbitrary precision.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A7).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A7).
 
 Examples
 
@@ -337,7 +337,7 @@ the incomplete Beta function \(B(z; a, b)\),
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A3).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A3).
 
 Examples
 
@@ -393,7 +393,7 @@ to the depth.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A11), gives the first two terms of the series.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A11), gives the first two terms of the series.
 
 Examples
 
@@ -558,7 +558,7 @@ Self-consistent profile of a model, tabulated at radii called nodes.
 
 The profile of a model is `model.profile`. A component given the
 profile of a parent model and a new anisotropy is Method II of
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Appendix B2.2. The methods potential, density,
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Appendix B2.2. The methods potential, density,
 mass and radius evaluate the profile between the nodes.
 
 Two profiles are equal if the identity strings model of the two

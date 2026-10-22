@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/guide/anisotropy
 
 `pianistpy.Anisotropy`, `pianistpy.Component`
 
-One class, `Anisotropy(beta_c, r_a, kind)`, covers every analytical anisotropy model of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing):
+One class, `Anisotropy(beta_c, r_a, kind)`, covers every analytical anisotropy model of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758):
 
 - the default, `Anisotropy()`, is isotropic;
 

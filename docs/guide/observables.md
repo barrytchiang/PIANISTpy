@@ -27,7 +27,7 @@ pp.aperture_losvd(table, circle, [0.0, 0.1, 0.2])    # the distribution in the a
 [](https://pianistpy.com/docs/_images/projection_configurations.png)
 
 The projection configurations of a spherical system truncated at \(R_{\rm t}\) (dashed circle), from
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Fig. 14. (a) The projected radial profile along the line of sight, as for a slit of negligible width.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Fig. 14. (a) The projected radial profile along the line of sight, as for a slit of negligible width.
 (b) The average over a rectangular aperture of sides \(x\) and \(y\) (`side_x`, `side_y`), whose
 center lies at the projected distance `r_off` from the center of the system, on a line at the angle
 \(\theta\) (`angle`) to the rectangle’s \(x\) side, as for a slit of finite width. (c) The average

@@ -7,7 +7,7 @@ The features listed below are planned or under development for releases after ve
 - Generalization of the self-consistent models to systems of several components that share one truncated
 potential, and to tracer populations in a fixed potential.
 
-- The test problem of the isolated \(N\)-body runs of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) as a
+- The test problem of the isolated \(N\)-body runs of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) as a
 [GAMER](https://doi.org/10.1093/mnras/sty2586) test problem, with its analysis and plotting scripts.
 
 - `losvd` and `aperture_losvd` on a `Model` that compute only the part of the line-of-sight table that the

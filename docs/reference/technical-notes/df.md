@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/reference/technical-notes/df
 
 ## T:2.1 The two forms of the inversion and the forward relation
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing) gives the inversion in two forms: with the derivative outside the integral, Eq. (B22), and with the derivative inside the integral together with a surface term at \(P = 0\), Eq. (B9). The second form follows from the first by one integration by parts and is simpler to evaluate. The integration by parts requires that
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758) gives the inversion in two forms: with the derivative outside the integral, Eq. (B22), and with the derivative inside the integral together with a surface term at \(P = 0\), Eq. (B9). The second form follows from the first by one integration by parts and is simpler to evaluate. The integration by parts requires that
 
 \begin{equation}
   \frac{\mathrm{d}^m\varrho_\mathrm{aux}}{\mathrm{d} P^m}\ \text{continuous on}\ [0, \mathcal{K}] \qquad\text{and}\qquad \int_0^{\mathcal{K}}\left|\frac{\mathrm{d}^{m+1}\varrho_\mathrm{aux}}{\mathrm{d} P^{m+1}}\right|(\mathcal{K}-P)^{-n}\,\mathrm{d} P < \infty .
@@ -29,7 +29,7 @@ The forward relation is a Volterra equation whose lower limit lies at \(P = 0\),
 
 ### T:2.2.1 The limit P → P₀: the contribution of one power-law term
 
-Consider a single term \(\varrho_\mathrm{aux} \supset A_s\,(P_0 - P)^{s}\) of the expansion of \(\varrho_\mathrm{aux}\) about the center. Its \((m+1)\)-th derivative is \((-1)^{m+1} A_s\,[\Gamma(s+1)/\Gamma(s-m)]\,(P_0-P)^{s-m-1}\). With \(t = \mathcal{K} - P\), the integral of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B9) becomes \(\int_0^{\mathcal{K}} t^{-n} (u+t)^{s-m-1}\,\mathrm{d} t\), whose behavior as \(u \to 0\) follows from the Mellin-type integral
+Consider a single term \(\varrho_\mathrm{aux} \supset A_s\,(P_0 - P)^{s}\) of the expansion of \(\varrho_\mathrm{aux}\) about the center. Its \((m+1)\)-th derivative is \((-1)^{m+1} A_s\,[\Gamma(s+1)/\Gamma(s-m)]\,(P_0-P)^{s-m-1}\). With \(t = \mathcal{K} - P\), the integral of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B9) becomes \(\int_0^{\mathcal{K}} t^{-n} (u+t)^{s-m-1}\,\mathrm{d} t\), whose behavior as \(u \to 0\) follows from the Mellin-type integral
 
 \begin{equation}
   \int_0^{\infty} t^{a-1}(u+t)^{-b}\,\mathrm{d} t = u^{a-b}\,\frac{\Gamma(a)\,\Gamma(b-a)}{\Gamma(b)},
@@ -59,7 +59,7 @@ Since the inversion is linear, every power in the expansion of \(\varrho_\mathrm
 
 ### T:2.2.2 The central DF for γ > 2β_c
 
-The leading term of \(\varrho_\mathrm{aux}\) is \(A\,(P_0-P)^{s_0}\) with \(s_0 = (2\beta_\mathrm{c} - \gamma)/(2-\gamma) < 0\). [Eq. (T:2.5)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-singular) reproduces the exponent \(\kappa\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B36) and supplies its amplitude,
+The leading term of \(\varrho_\mathrm{aux}\) is \(A\,(P_0-P)^{s_0}\) with \(s_0 = (2\beta_\mathrm{c} - \gamma)/(2-\gamma) < 0\). [Eq. (T:2.5)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-singular) reproduces the exponent \(\kappa\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B36) and supplies its amplitude,
 
 \begin{equation}
   F_\mathcal{K} \simeq \frac{2^{\beta_\mathrm{c}}}{(2\pi)^{3/2}\,\Gamma(1-\beta_\mathrm{c})}\,A\,\frac{\Gamma(\nu - s_0)}{\Gamma(-s_0)}\,u^{\kappa},
@@ -71,7 +71,7 @@ As \(\gamma \to 2\beta_\mathrm{c}\), the amplitude vanishes linearly, \(\Gamma(\
 
 ### T:2.2.3 The central DF in the boundary case γ = 2β_c
 
-By [Eq. (T:1.1)](https://pianistpy.com/docs/reference/technical-notes/model#tn-eq-inner-map), \(\varrho_\mathrm{aux} = C_1 + C_2\,(P_0-P)^{\delta} + \dots\): for constant anisotropy it is a series in \((P_0-P)^{\delta}\); for OM (\(\gamma = 0\)) the factor \(1 \pm R^2/R_\mathrm{a}^2\) adds the powers \((P_0-P)^{1 + j\delta}\), \(j \geq 0\), of which the integer power drops out and the others lie above \(\delta\). The constant term has \(s = 0\) and no singular part. The next term has \(s = \delta\) and the exponent \(\kappa' = \delta - \nu\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B37). [Table T:2.1](https://pianistpy.com/docs/reference/technical-notes/df#tn-tab-critical) lists the cases; its last four rows assume that \(\delta\) is not an integer.
+By [Eq. (T:1.1)](https://pianistpy.com/docs/reference/technical-notes/model#tn-eq-inner-map), \(\varrho_\mathrm{aux} = C_1 + C_2\,(P_0-P)^{\delta} + \dots\): for constant anisotropy it is a series in \((P_0-P)^{\delta}\); for OM (\(\gamma = 0\)) the factor \(1 \pm R^2/R_\mathrm{a}^2\) adds the powers \((P_0-P)^{1 + j\delta}\), \(j \geq 0\), of which the integer power drops out and the others lie above \(\delta\). The constant term has \(s = 0\) and no singular part. The next term has \(s = \delta\) and the exponent \(\kappa' = \delta - \nu\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B37). [Table T:2.1](https://pianistpy.com/docs/reference/technical-notes/df#tn-tab-critical) lists the cases; its last four rows assume that \(\delta\) is not an integer.
 
 Table T:2.1. The central DF in the critical case \(\gamma = 2\beta_\mathrm{c}\), for constant anisotropy and OM models.
 
@@ -111,9 +111,9 @@ vanishing
 
 \(\propto u^{\kappa'}\)
 
-In the row \(\kappa' > 0\), \(n \neq 0\), the constant \(F_\mathcal{K}(P_0)\) is the non-local integral of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B9) at \(\mathcal{K} = P_0\); it is finite and may have either sign, and \(F_\mathcal{K} - F_\mathcal{K}(P_0) = \mathcal{O}(u^{\min(\kappa', 1)})\), with a factor \(\ln u\) at \(\kappa' = 1\).
+In the row \(\kappa' > 0\), \(n \neq 0\), the constant \(F_\mathcal{K}(P_0)\) is the non-local integral of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B9) at \(\mathcal{K} = P_0\); it is finite and may have either sign, and \(F_\mathcal{K} - F_\mathcal{K}(P_0) = \mathcal{O}(u^{\min(\kappa', 1)})\), with a factor \(\ln u\) at \(\kappa' = 1\).
 
-- *Sign.* With \(C_2 < 0\), the divergence is toward negative values for \(1 < \delta < \nu\), and also for \(\kappa' = 0\) with \(\beta_\mathrm{c} < 1/2\). Such models are unphysical even though they satisfy [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (12).
+- *Sign.* With \(C_2 < 0\), the divergence is toward negative values for \(1 < \delta < \nu\), and also for \(\kappa' = 0\) with \(\beta_\mathrm{c} < 1/2\). Such models are unphysical even though they satisfy [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (12).
 
 - *The finite case at* \(\kappa' = 0\)*.* This case requires \(\delta = \nu\) to be an integer. Within \(0 \leq \gamma < 2\) it occurs only for \(\alpha = 1\), \(\gamma = 1\), \(\beta_\mathrm{c} = 1/2\), which includes the NFW and Hernquist profiles.
 
@@ -149,7 +149,7 @@ so the central DF is finite, \(F_\mathcal{K}(P_0) = 2/\pi^2\).
 
 ### T:2.2.6 The limit P → 0
 
-Let \(\varrho_\mathrm{aux} \propto P^{\,y}\) as \(P \to 0\), where \(y\) is not a non-negative integer smaller than \(m\). Then \(\mathrm{d}^m\varrho_\mathrm{aux}/\mathrm{d} P^m \propto P^{\,y-m}\), and the surface term of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B9)
+Let \(\varrho_\mathrm{aux} \propto P^{\,y}\) as \(P \to 0\), where \(y\) is not a non-negative integer smaller than \(m\). Then \(\mathrm{d}^m\varrho_\mathrm{aux}/\mathrm{d} P^m \propto P^{\,y-m}\), and the surface term of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B9)
 
 \begin{equation}
   \text{vanishes for}\ y > m, \qquad \text{is finite for}\ y = m, \qquad \text{diverges for}\ y < m .
@@ -201,7 +201,7 @@ At \(\beta = 3\) the constant-anisotropy surface term still vanishes. For (C)OM 
 
 ### T:2.2.7 The low-energy tail of the DF and its contribution to the density
 
-For an untruncated (C)OM Type I model with \(\beta > 3\), [Eq. (T:2.12)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-y) and [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B25) give a power-law tail,
+For an untruncated (C)OM Type I model with \(\beta > 3\), [Eq. (T:2.12)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-y) and [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B25) give a power-law tail,
 
 \begin{equation}
   F_\mathcal{K}(\mathcal{K}) \simeq A\,\mathcal{K}^{-a} \quad (\mathcal{K} \to 0), \qquad a = \nu - (\beta - 2) = \tfrac{7}{2} - \beta_\mathrm{c} - \beta ,
@@ -213,7 +213,7 @@ which diverges for \(a > 0\); a profile with an outer slope of exactly 3 carries
   \varrho_\mathrm{aux}^{\rm tail}(P) = \frac{2\pi^{3/2}\,\Gamma(1-\beta_\mathrm{c})}{\Gamma(3/2-\beta_\mathrm{c})}\; 2^{\,\nu-1} A\, P^{\,\nu-a}\; B\!\left(\frac{q}{P};\, 1-a,\, \nu\right),
   \tag{T:2.14}
 \end{equation}
-where \(B(x; p, r) = \int_0^x t^{p-1}(1-t)^{r-1}\,\mathrm{d} t\) is the incomplete Beta function. The integral converges for \(a < 1\). For \(a \geq 1\) the density integral diverges at \(\mathcal{K} = 0\), and the untruncated model does not exist; a truncated model does exist, since the truncated DF of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B27) vanishes at its lower end.
+where \(B(x; p, r) = \int_0^x t^{p-1}(1-t)^{r-1}\,\mathrm{d} t\) is the incomplete Beta function. The integral converges for \(a < 1\). For \(a \geq 1\) the density integral diverges at \(\mathcal{K} = 0\), and the untruncated model does not exist; a truncated model does exist, since the truncated DF of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B27) vanishes at its lower end.
 
 ### T:2.2.8 Behavior of the inversion at the anisotropy radius of a Type II model
 
@@ -237,7 +237,7 @@ The form of the inversion is fixed from the model parameters alone, before any i
   (j, n') = (m+1,\; n-1),
   \tag{T:2.16}
 \end{equation}
-so that the kernel exponent always satisfies \(|n'| \leq 1/2\); otherwise \((j, n') = (m, n)\). With the higher order, the surface term can diverge as \(P \to 0\) ([Section T:2.2.6](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-outer)) and cancel against the integral, so a replaced pair is evaluated in the general form, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B22), on every row.
+so that the kernel exponent always satisfies \(|n'| \leq 1/2\); otherwise \((j, n') = (m, n)\). With the higher order, the surface term can diverge as \(P \to 0\) ([Section T:2.2.6](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-outer)) and cancel against the integral, so a replaced pair is evaluated in the general form, [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B22), on every row.
 
 - *Half-integer* \(\beta_\mathrm{c}\)*.* For \(n = 0\) the closed form of [Eq. (T:2.2)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-local) is used, and no quadrature is performed.
 

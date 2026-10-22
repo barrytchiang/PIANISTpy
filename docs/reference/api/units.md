@@ -438,7 +438,7 @@ by \((4\pi C q)^{-1}\).
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 2.1 and Eq. (6).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 2.1 and Eq. (6).
 
 Examples
 

@@ -10,7 +10,7 @@ At radius \(R\), let \(V\) be the velocity and \(\varphi\) the angle between the
   Q_\mp = P - \tfrac{1}{2}\,f\,V^2, \qquad f(R, \varphi) \equiv 1 \pm \frac{R^2}{R_\mathrm{a}^2}\sin^2\varphi ,
   \tag{T:5.1}
 \end{equation}
-with the upper sign for Type I and the lower sign for Type II; \(f = 1\) for constant anisotropy. The probability density of \((V, \varphi)\) at \(R\), which follows from [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eqs. (B38) to (B40), is \(\propto V^{2-2\beta_\mathrm{c}}\sin^{1-2\beta_\mathrm{c}}\!\varphi\;F_\mathcal{K}(P - \tfrac12 f V^2)\). In the variable
+with the upper sign for Type I and the lower sign for Type II; \(f = 1\) for constant anisotropy. The probability density of \((V, \varphi)\) at \(R\), which follows from [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eqs. (B38) to (B40), is \(\propto V^{2-2\beta_\mathrm{c}}\sin^{1-2\beta_\mathrm{c}}\!\varphi\;F_\mathcal{K}(P - \tfrac12 f V^2)\). In the variable
 
 \begin{equation}
   x \equiv V\sqrt{\frac{f}{2P}} \in [0, 1]

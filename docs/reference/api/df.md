@@ -18,14 +18,14 @@ The DF of every anisotropy model of the package has the separable form
 \[F(\mathcal{K}, \mathcal{L}) = F_{\mathcal{K}}(\mathcal{K})\,
 \mathcal{L}^{-2\beta_{\rm c}}\]
 
-([Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (8)). \(\mathcal{K}\) is the energy-like
+([Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (8)). \(\mathcal{K}\) is the energy-like
 variable in internal units, with \(0 \le \mathcal{K} \le 1\).
 \(\mathcal{K}\) is the relative energy \(Z\) for a constant
 anisotropy, and \(\mathcal{K}\) is \(\mathcal{Q}_\pm\) for an
 Osipkov-Merritt (OM) or Cuddeford-Osipkov-Merritt (COM) model.
 \(\mathcal{L}\) is the angular momentum in internal units, and
 \(\beta_{\rm c}\) is the central anisotropy. A truncation at the
-energy \(\mathcal{K}_{\rm t}\) (Method I of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing)) gives the truncated DF
+energy \(\mathcal{K}_{\rm t}\) (Method I of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)) gives the truncated DF
 
 \[\hat{F}(\hat{\mathcal{K}}, \mathcal{L}) =
 F(\hat{\mathcal{K}} + \mathcal{K}_{\rm t}, \mathcal{L})
@@ -42,7 +42,7 @@ DF against the model’s density included, unless the settings set
 AccuracyWarning if a check of the returned result’s validation report
 lies above \(10^{-4}\).
 
-The derivation is in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1, and the numerical method
+The derivation is in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1, and the numerical method
 in Notes Section T:2.
 
 class pianistpy.df.Component(*profile*, *anisotropy=<factory>*, *mass=1.0*, *name='component'*)
@@ -54,7 +54,7 @@ model of one component is a sequence of length one. compute_df and
 solve accept a model of one component.
 
 A component whose profile is the TruncatedProfile of another model
-(`parent.profile`) is Method II of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The Method II
+(`parent.profile`) is Method II of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Method II
 component has the density of the parent model in the parent model’s
 potential, with the component’s own anisotropy.
 
@@ -106,7 +106,7 @@ The velocity anisotropy of a component.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1 and Appendix B2.2.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1 and Appendix B2.2.
 
 Examples
 
@@ -270,7 +270,7 @@ An equilibrium model.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (8). Notes Section T:2.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (8). Notes Section T:2.
 
 Examples
 
@@ -608,7 +608,7 @@ The untruncated DF of a component.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1. Notes Section T:3.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1. Notes Section T:3.
 
 Examples
 
@@ -863,7 +863,7 @@ Truncation of a model’s distribution function (Method I).
 A truncation shifts the distribution function (DF) in energy by the
 truncation energy \(\mathcal{K}_{\rm t}\) and lowers the DF by the
 DF’s value at \(\mathcal{K}_{\rm t}\), which gives a model of finite
-mass and finite radius (Method I of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing)). The truncation is given
+mass and finite radius (Method I of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)). The truncation is given
 by exactly one of three inputs: the truncation energy k_t, a target
 mass mass_t or a target radius r_t. A target mass is given together
 with the concentration that defines the unit of the target mass.
@@ -928,7 +928,7 @@ the untruncated DF, \(\mathcal{K}\) the energy-like variable and
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (9). Notes Section T:3.6.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (9). Notes Section T:3.6.
 
 Examples
 
@@ -1089,7 +1089,7 @@ in internal units. The result tabulates
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (8). Notes Section T:2.1.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (8). Notes Section T:2.1.
 
 Examples
 
@@ -1155,7 +1155,7 @@ A density profile with its velocity anisotropy.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1.
 
 Examples
 
@@ -1174,7 +1174,7 @@ With a Truncation, the model’s DF is the untruncated DF shifted in
 energy by the truncation energy \(\mathcal{K}_{\rm t}\) and lowered
 by the untruncated DF’s value at \(\mathcal{K}_{\rm t}\), which
 gives a model of finite mass and finite radius (Method I of
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing)). Without a truncation, the untruncated DF is the
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758)). Without a truncation, the untruncated DF is the
 model’s DF. An untruncated DF is a valid equilibrium only if
 DistributionFunction.is_physical is true.
 
@@ -1274,7 +1274,7 @@ Poisson’s equation with the density of \(\hat{F}\), from
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eqs. (9), (10) and (11). Notes Section T:3.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eqs. (9), (10) and (11). Notes Section T:3.
 
 Examples
 

@@ -379,8 +379,8 @@ profile. Where a profile with a name has a closed form for the profile’s mass 
 potential in elementary functions, <cite>mass</cite> and <cite>p</cite> evaluate the
 elementary closed form.</p>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (5), defines the profile. <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A6),
-gives <span class="nobr"><span class="math notranslate nohighlight">\(C\)</span>.</span> <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A7), gives the enclosed mass.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (5), defines the profile. <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (A6),
+gives <span class="nobr"><span class="math notranslate nohighlight">\(C\)</span>.</span> <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (A7), gives the enclosed mass.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">()</span>
@@ -582,7 +582,7 @@ the mass is evaluated from a logarithm and a series. For
 <span class="math notranslate nohighlight">\(\beta &lt; 3\)</span> the second argument is negative, and the analytic
 continuation of the formula is evaluated in arbitrary precision.</p>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A7).</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (A7).</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">mass</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
@@ -628,7 +628,7 @@ the incomplete Beta function <span class="nobr"><span class="math notranslate no
 \[P(R) = \frac{\mathcal{M}(R)}{R}
      + \frac{C}{\alpha}\left[B(a_2, b_2) - B(z;\,a_2, b_2)\right] .\]</div>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A3).</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (A3).</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">float</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">p</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
@@ -683,7 +683,7 @@ of <cite>r</cite>. Infinite where <cite>u</cite> is not positive or not finite.<
 <span class="math notranslate nohighlight">\(C\binom{e}{k}R^{2-\gamma+k\alpha}/[(2-\gamma+k\alpha)(3-\gamma+k\alpha)]\)</span>
 to the depth.</p>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (A11), gives the first two terms of the series.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (A11), gives the first two terms of the series.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="p">,</span> <span class="n">bound</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()</span><span class="o">.</span><span class="n">depth_inner</span><span class="p">([</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span>
@@ -841,7 +841,7 @@ where <cite>has_edge_row</cite> is False.</p></li>
 <dd><p>Self-consistent profile of a model, tabulated at radii called nodes.</p>
 <p>The profile of a model is <code class="docutils literal notranslate"><span class="pre">model.profile</span></code>. A component given the
 profile of a parent model and a new anisotropy is Method II of
-<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Appendix B2.2. The methods <cite>potential</cite>, <cite>density</cite>,
+<a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Appendix B2.2. The methods <cite>potential</cite>, <cite>density</cite>,
 <cite>mass</cite> and <cite>radius</cite> evaluate the profile between the nodes.</p>
 <p>Two profiles are equal if the identity strings <cite>model</cite> of the two
 profiles are equal, because the identity of a model determines its

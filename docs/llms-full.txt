@@ -192,7 +192,7 @@ sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
 `pp.solve(halo, pp.Truncation(mass_t=1.0, concentration=10))` runs `compute_df` and `truncate` in one call.
 
 The [Examples](https://pianistpy.com/docs/notebooks/index) page shows self-contained Jupyter tutorial notebooks, and the notebooks
-that reproduce the result figures of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing).
+that reproduce the result figures of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758).
 
 
 ---
@@ -490,7 +490,7 @@ Source: https://pianistpy.com/docs/guide/anisotropy
 
 `pianistpy.Anisotropy`, `pianistpy.Component`
 
-One class, `Anisotropy(beta_c, r_a, kind)`, covers every analytical anisotropy model of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing):
+One class, `Anisotropy(beta_c, r_a, kind)`, covers every analytical anisotropy model of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758):
 
 - the default, `Anisotropy()`, is isotropic;
 
@@ -903,7 +903,7 @@ pp.aperture_losvd(table, circle, [0.0, 0.1, 0.2])    # the distribution in the a
 [](https://pianistpy.com/docs/_images/projection_configurations.png)
 
 The projection configurations of a spherical system truncated at \(R_{\rm t}\) (dashed circle), from
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Fig. 14. (a) The projected radial profile along the line of sight, as for a slit of negligible width.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Fig. 14. (a) The projected radial profile along the line of sight, as for a slit of negligible width.
 (b) The average over a rectangular aperture of sides \(x\) and \(y\) (`side_x`, `side_y`), whose
 center lies at the projected distance `r_off` from the center of the system, on a line at the angle
 \(\theta\) (`angle`) to the rectangle’s \(x\) side, as for a slit of finite width. (c) The average
@@ -962,7 +962,7 @@ Source: https://pianistpy.com/docs/guide/sigma_r
 
 `sigma_r(source, r)` returns the intrinsic radial velocity dispersion \(\sigma_{\rm r}\) at user-specified 3D radii.
 \(\sigma_{\rm r}^2\) is the second moment of the radial velocity over the model’s distribution function at a
-fixed radius. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), \(\sigma_{\rm r}^2\) is the velocity moment of the augmented density
+fixed radius. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(\sigma_{\rm r}^2\) is the velocity moment of the augmented density
 \(\varrho_{\rm aug}\), integrated over the energy \(\mathcal{K}\) up to the relative potential
 \(P = P(R)\) at the radius \(R\),
 
@@ -972,7 +972,7 @@ fixed radius. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing),
 For the anisotropy models of the package, the augmented density separates as
 \(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\), with \(\varrho_{\rm aux}\) the auxiliary density
 and \(g\) the anisotropy factor (`Anisotropy.factor`). \(\sigma_{\rm r}^2\) is then the Jeans integral of
-\(\varrho_{\rm aux}\) over the potential. The radius \(R\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) is `r` in the package.
+\(\varrho_{\rm aux}\) over the potential. The radius \(R\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) is `r` in the package.
 
 ## Arguments and units
 
@@ -1030,7 +1030,7 @@ Source: https://pianistpy.com/docs/guide/sigma_t
 `sigma_t(source, r)` returns the intrinsic tangential velocity dispersion \(\sigma_{\rm t}\) at user-specified 3D radii.
 \(\sigma_{\rm t}^2\) is the sum of the squared dispersions of the two tangential velocity components,
 \(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2\), with \(\theta\) and \(\phi\) the polar and the
-azimuthal directions. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), \(\sigma_{\rm t}^2\) is the tangential velocity moment of the augmented
+azimuthal directions. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(\sigma_{\rm t}^2\) is the tangential velocity moment of the augmented
 density,
 
 \[\sigma_{\rm t}^2(R) = \frac{2}{\varrho_{\rm aug}(P, R)} \int_0^{P}
@@ -1085,7 +1085,7 @@ Source: https://pianistpy.com/docs/guide/losvd
 
 `losvd(source, r_2d, v)` returns the line-of-sight velocity distribution \(D(R_{\rm 2D}, V_{\rm los})\) at
 user-specified projected radii. \(D\) is the probability density of the line-of-sight velocity of the model’s
-mass seen at a projected distance \(R_{\rm 2D}\) from the center. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), \(D\) is the distribution
+mass seen at a projected distance \(R_{\rm 2D}\) from the center. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(D\) is the distribution
 function \(F(\mathcal{Z}, L)\), with \(L\) the angular momentum, integrated over the line of sight up to the
 truncation radius \(R_{\rm t}\) and over the two plane-of-sky velocity components \(V_{\perp 1}\) and
 \(V_{\perp 2}\), and divided by the surface density \(\Sigma\),
@@ -1244,7 +1244,7 @@ Source: https://pianistpy.com/docs/guide/pdf_v
 
 `pdf_v(source, r, v)` returns the local velocity distribution \(p(V\,|\,R)\) at user-specified 3D radii.
 \(p(V\,|\,R)\) is the probability density of the velocity \(V = |\mathbf{V}|\) of the model’s mass at the
-distance \(R\) from the center. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), the density at a radius is written as an integral over the angle
+distance \(R\) from the center. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), the density at a radius is written as an integral over the angle
 \(\varphi\) between the velocity and the radial direction, with the angle density \(p_\varphi\), and over
 the velocity magnitude, with its density \(p_V\),
 
@@ -1262,7 +1262,7 @@ the support of \(p(V\,|\,R)\) ends at the escape velocity \(V_{\rm esc}(R)\). A 
 unbound orbits, and the velocities of a Type II model reach \(V_{\rm esc}/\sqrt{1 - R^2/R_{\rm a}^2}\). For a Type
 II model, a radius at or beyond the anisotropy radius \(R_{\rm a}\) raises `InputError`. The
 radius \(R\) of
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing) is `r` in the package.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758) is `r` in the package.
 
 ## Arguments and units
 
@@ -1341,7 +1341,7 @@ radius, from the center outward.
 Every observable then takes the table in place of the model and reads its values from the table. Build a table when a model is asked
 for more than one observable, or for one observable many times (a fit, a grid of apertures).
 
-As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), the dispersion inside an aperture is the surface-density weighted average of
+As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), the dispersion inside an aperture is the surface-density weighted average of
 \(\sigma_{\rm los}^2\). A centered circle of radius \(R_{\rm ape}\) gives
 
 \[\overline{\sigma}_{\rm los}^2(R_{\rm ape}) =
@@ -2189,7 +2189,7 @@ pp.sigma_los_aperture(
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/
 
-Each notebook reproduces one or more result figures of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) with the released package, and computes every number
+Each notebook reproduces one or more result figures of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) with the released package, and computes every number
 it shows in its own cells.
 
 - [Distribution functions of the NFW families](https://pianistpy.com/docs/notebooks/chiang2026d/fig04_05_06)
@@ -6886,7 +6886,7 @@ The published Fig. C2 was drawn from four stored tables of the cumulative distri
 
 Source: https://pianistpy.com/docs/notebooks/gamer
 
-The test problem of the isolated *N*-body runs of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), [Chiang et al. (2025)](https://doi.org/10.1093/mnras/staf1639) and [Chiang et al. (2026a)](https://doi.org/10.33232/001c.155367),
+The test problem of the isolated *N*-body runs of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), [Chiang et al. (2025)](https://doi.org/10.1093/mnras/staf1639) and [Chiang et al. (2026a)](https://doi.org/10.33232/001c.155367),
 as a test problem of the [GAMER](https://doi.org/10.1093/mnras/sty2586) code with its analysis and plotting
 scripts, is listed on the [Upcoming features](https://pianistpy.com/docs/project/upcoming-features) page.
 
@@ -6897,7 +6897,7 @@ scripts, is listed on the [Upcoming features](https://pianistpy.com/docs/project
 
 Source: https://pianistpy.com/docs/reference/api/
 
-Docstrings cite two documents by number. An equation, section or figure of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) is cited as
+Docstrings cite two documents by number. An equation, section or figure of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) is cited as
 “Chiang+(2026d), Eq. (B9)”, “Chiang+(2026d), Section 2.1” or “Chiang+(2026d), Fig. 14”. An equation,
 section or table of the [Technical notes](https://pianistpy.com/docs/reference/notes) is cited by its number, which carries the
 prefix “T:”, for example “Eq. (T:2.4)”, “Section T:2.3.1” or “Table T:2.1”.
@@ -6945,7 +6945,7 @@ phase space. A component (Component) is a density profile, such as a
 DoublePowerLaw, with a velocity anisotropy (Anisotropy). solve
 computes a model from one component: the component’s distribution
 function, and the self-consistent density, mass and potential of the
-model ([Chiang+(2026d)](https://pianistpy.com/docs/project/citing)).
+model ([Chiang+(2026d)](https://arxiv.org/abs/2610.28758)).
 
 Every observable is computed from a model. Sampler draws particles.
 sigma_r and sigma_t give the radial and the tangential velocity
@@ -7058,8 +7058,8 @@ elementary closed form.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (5), defines the profile. [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A6),
-gives \(C\). [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A7), gives the enclosed mass.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (5), defines the profile. [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A6),
+gives \(C\). [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A7), gives the enclosed mass.
 
 Examples
 
@@ -7262,7 +7262,7 @@ continuation of the formula is evaluated in arbitrary precision.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A7).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A7).
 
 Examples
 
@@ -7313,7 +7313,7 @@ the incomplete Beta function \(B(z; a, b)\),
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A3).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A3).
 
 Examples
 
@@ -7369,7 +7369,7 @@ to the depth.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A11), gives the first two terms of the series.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A11), gives the first two terms of the series.
 
 Examples
 
@@ -7534,7 +7534,7 @@ Self-consistent profile of a model, tabulated at radii called nodes.
 
 The profile of a model is `model.profile`. A component given the
 profile of a parent model and a new anisotropy is Method II of
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Appendix B2.2. The methods potential, density,
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Appendix B2.2. The methods potential, density,
 mass and radius evaluate the profile between the nodes.
 
 Two profiles are equal if the identity strings model of the two
@@ -8150,7 +8150,7 @@ with the upper sign for Type I and the lower sign for Type II, and
 with an infinite \(R_{\rm a}\), and the isotropic model is the
 constant-anisotropy model with \(\beta_{\rm c} = 0\). The factor
 \(g(R)\) that relates the augmented density to the auxiliary density is
-given in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44).
+given in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44).
 
 class pianistpy.anisotropy.Anisotropy(*beta_c=0.0*, *r_a=inf*, *kind='I'*)
 
@@ -8227,7 +8227,7 @@ across \(\beta_{\rm c} = 0\) and across an infinite
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44).
 
 Examples
 
@@ -8290,7 +8290,7 @@ The largest radius where the factor is defined.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44).
 
 Examples
 
@@ -8306,7 +8306,7 @@ property model: [str](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 `"isotropic"`, `"constant"`, `"om"` or `"com"`.
 
-The names are those of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The name does not include the
+The names are those of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The name does not include the
 type, which is in kind.
 
 See also
@@ -8441,14 +8441,14 @@ The DF of every anisotropy model of the package has the separable form
 \[F(\mathcal{K}, \mathcal{L}) = F_{\mathcal{K}}(\mathcal{K})\,
 \mathcal{L}^{-2\beta_{\rm c}}\]
 
-([Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (8)). \(\mathcal{K}\) is the energy-like
+([Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (8)). \(\mathcal{K}\) is the energy-like
 variable in internal units, with \(0 \le \mathcal{K} \le 1\).
 \(\mathcal{K}\) is the relative energy \(Z\) for a constant
 anisotropy, and \(\mathcal{K}\) is \(\mathcal{Q}_\pm\) for an
 Osipkov-Merritt (OM) or Cuddeford-Osipkov-Merritt (COM) model.
 \(\mathcal{L}\) is the angular momentum in internal units, and
 \(\beta_{\rm c}\) is the central anisotropy. A truncation at the
-energy \(\mathcal{K}_{\rm t}\) (Method I of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing)) gives the truncated DF
+energy \(\mathcal{K}_{\rm t}\) (Method I of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)) gives the truncated DF
 
 \[\hat{F}(\hat{\mathcal{K}}, \mathcal{L}) =
 F(\hat{\mathcal{K}} + \mathcal{K}_{\rm t}, \mathcal{L})
@@ -8465,7 +8465,7 @@ DF against the model’s density included, unless the settings set
 AccuracyWarning if a check of the returned result’s validation report
 lies above \(10^{-4}\).
 
-The derivation is in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1, and the numerical method
+The derivation is in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1, and the numerical method
 in Notes Section T:2.
 
 class pianistpy.df.Component(*profile*, *anisotropy=<factory>*, *mass=1.0*, *name='component'*)
@@ -8477,7 +8477,7 @@ model of one component is a sequence of length one. compute_df and
 solve accept a model of one component.
 
 A component whose profile is the TruncatedProfile of another model
-(`parent.profile`) is Method II of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The Method II
+(`parent.profile`) is Method II of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Method II
 component has the density of the parent model in the parent model’s
 potential, with the component’s own anisotropy.
 
@@ -8529,7 +8529,7 @@ The velocity anisotropy of a component.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1 and Appendix B2.2.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1 and Appendix B2.2.
 
 Examples
 
@@ -8693,7 +8693,7 @@ An equilibrium model.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (8). Notes Section T:2.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (8). Notes Section T:2.
 
 Examples
 
@@ -9031,7 +9031,7 @@ The untruncated DF of a component.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1. Notes Section T:3.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1. Notes Section T:3.
 
 Examples
 
@@ -9286,7 +9286,7 @@ Truncation of a model’s distribution function (Method I).
 A truncation shifts the distribution function (DF) in energy by the
 truncation energy \(\mathcal{K}_{\rm t}\) and lowers the DF by the
 DF’s value at \(\mathcal{K}_{\rm t}\), which gives a model of finite
-mass and finite radius (Method I of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing)). The truncation is given
+mass and finite radius (Method I of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)). The truncation is given
 by exactly one of three inputs: the truncation energy k_t, a target
 mass mass_t or a target radius r_t. A target mass is given together
 with the concentration that defines the unit of the target mass.
@@ -9351,7 +9351,7 @@ the untruncated DF, \(\mathcal{K}\) the energy-like variable and
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (9). Notes Section T:3.6.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (9). Notes Section T:3.6.
 
 Examples
 
@@ -9512,7 +9512,7 @@ in internal units. The result tabulates
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (8). Notes Section T:2.1.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (8). Notes Section T:2.1.
 
 Examples
 
@@ -9578,7 +9578,7 @@ A density profile with its velocity anisotropy.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1.
 
 Examples
 
@@ -9597,7 +9597,7 @@ With a Truncation, the model’s DF is the untruncated DF shifted in
 energy by the truncation energy \(\mathcal{K}_{\rm t}\) and lowered
 by the untruncated DF’s value at \(\mathcal{K}_{\rm t}\), which
 gives a model of finite mass and finite radius (Method I of
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing)). Without a truncation, the untruncated DF is the
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758)). Without a truncation, the untruncated DF is the
 model’s DF. An untruncated DF is a valid equilibrium only if
 DistributionFunction.is_physical is true.
 
@@ -9697,7 +9697,7 @@ Poisson’s equation with the density of \(\hat{F}\), from
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eqs. (9), (10) and (11). Notes Section T:3.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eqs. (9), (10) and (11). Notes Section T:3.
 
 Examples
 
@@ -10951,7 +10951,7 @@ origin. Default: `None`, which means no shift.
 - `"gamer"` takes `attributes` (`"standard"` or `"legacy"`):
 `"standard"` writes the mass, the position and the velocity.
 `"legacy"` writes 13 float32 blocks, one per attribute, in the
-layout of the GAMER build used for the runs of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing): the
+layout of the GAMER build used for the runs of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758): the
 mass, the position, the velocity, the type 1, the tag 1, the
 energy 0, the angular momentum 0, the energy backup 0 and the
 identifiers 0 to \(n - 1\). Default: `"standard"`.
@@ -12624,7 +12624,7 @@ densities \(\varrho_k\) and velocity distributions \(p_k\),
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 5.1 and Eq. (B38).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 5.1 and Eq. (B38).
 Notes Section T:6.8 (the local velocity distribution).
 
 Examples
@@ -13150,7 +13150,7 @@ distribution diverges at \(V_*\), and the divergence is integrable.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B38). [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B39). [Chiang+(2026d)](https://pianistpy.com/docs/project/citing),
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B38). [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B39). [Chiang+(2026d)](https://arxiv.org/abs/2610.28758),
 Eq. (B40). Notes Eq. (T:6.4).
 
 Examples
@@ -13289,8 +13289,8 @@ velocity anisotropy of component \(k\).
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B43), [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44) and
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B74).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B43), [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44) and
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B74).
 
 Examples
 
@@ -13381,7 +13381,7 @@ The weighted sum of per-component quantities.
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Appendix B5; Notes Section T:4.
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Appendix B5; Notes Section T:4.
 
 Examples
 
@@ -14379,7 +14379,7 @@ by \((4\pi C q)^{-1}\).
 
 References
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 2.1 and Eq. (6).
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 2.1 and Eq. (6).
 
 Examples
 
@@ -17541,9 +17541,9 @@ Settings levels: `default`, `quick`. A field is overridden by its group and its 
 
 Source: https://pianistpy.com/docs/reference/symbols
 
-The package’s identifiers follow the notation of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). A quantity with a symbol in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) or in the
+The package’s identifiers follow the notation of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). A quantity with a symbol in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) or in the
 Technical notes is called `<family>_<symbol>`. The family prefix gives the kind of quantity, and the rest of the
-name is the symbol or the symbol’s subscript in lower case. A truncated quantity (hatted in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing)) takes the
+name is the symbol or the symbol’s subscript in lower case. A truncated quantity (hatted in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)) takes the
 suffix `_trunc`, as in `p_trunc`, `df_trunc`, `rho_trunc` and `mass_trunc`. The untruncated quantity
 keeps the name without the suffix. Every docstring gives the
 symbol beside the name the first time the docstring describes the quantity.
@@ -17636,7 +17636,7 @@ probability densities
 
 \(p(V \,|\, R)\)
 
-Where the letter of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) cannot serve as a name, a fixed word replaces the letter. The normalization \(C\) of the
+Where the letter of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) cannot serve as a name, a fixed word replaces the letter. The normalization \(C\) of the
 density is `rho_norm`, since `rho_c` would read as a central density. The concentration \(c\) is
 `concentration`. The letter `c` alone is never a name. As a subscript, `c` means central (`beta_c`).
 
@@ -18713,7 +18713,7 @@ what the grid expects of the model, as in the grid files
 
 Source: https://pianistpy.com/docs/reference/notes
 
-The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The Technical notes follow and refer to the notations, equations, and results of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. [Section T:0](https://pianistpy.com/docs/reference/technical-notes/principles#tn-sec-principles) states the conventions and notations used; we then discuss the input potential-density models ([Section T:1](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-model)), the distribution function ([Section T:2](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-df)), the truncation ([Section T:3](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-truncation)), the linear superposition of components ([Section T:4](https://pianistpy.com/docs/reference/technical-notes/sup#tn-sec-sup)), the particle sampling ([Section T:5](https://pianistpy.com/docs/reference/technical-notes/sampling#tn-sec-sampling)), the velocity profiles and projections ([Section T:6](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-observables)), and the JAX-based gradients ([Section T:7](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradients)). [Section T:8](https://pianistpy.com/docs/reference/technical-notes/verification#tn-sec-verification) documents the accuracy and validation tests and related information.
+The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes follow and refer to the notations, equations, and results of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. [Section T:0](https://pianistpy.com/docs/reference/technical-notes/principles#tn-sec-principles) states the conventions and notations used; we then discuss the input potential-density models ([Section T:1](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-model)), the distribution function ([Section T:2](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-df)), the truncation ([Section T:3](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-truncation)), the linear superposition of components ([Section T:4](https://pianistpy.com/docs/reference/technical-notes/sup#tn-sec-sup)), the particle sampling ([Section T:5](https://pianistpy.com/docs/reference/technical-notes/sampling#tn-sec-sampling)), the velocity profiles and projections ([Section T:6](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-observables)), and the JAX-based gradients ([Section T:7](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradients)). [Section T:8](https://pianistpy.com/docs/reference/technical-notes/verification#tn-sec-verification) documents the accuracy and validation tests and related information.
 
 This document was last updated on October 21, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (Section T:2.3, Eq. (T:2.4), Table T:2.1). The [Functions by subpackage](https://pianistpy.com/docs/reference/api/index) page gives the form in which the docstrings cite the Technical notes.
 
@@ -18834,7 +18834,7 @@ Source: https://pianistpy.com/docs/reference/technical-notes/principles
 
 ## T:0.1 Notation
 
-We adopt the notation of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The relative potential is \(P\), with the central value \(P_0\); the energy-like variable is \(\mathcal{K}\); the distribution function (DF) is \(F(\mathcal{K}, L) = F_\mathcal{K}(\mathcal{K})\,L^{-2\beta_\mathrm{c}}\); the density is the double power law of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (5) with exponents \((\alpha, \beta, \gamma)\); and \(\varrho_\mathrm{aux}\) is the auxiliary density, which for the (C)OM models is given by [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B23). Three derived quantities are used throughout these notes. The first is the order of the inversion,
+We adopt the notation of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The relative potential is \(P\), with the central value \(P_0\); the energy-like variable is \(\mathcal{K}\); the distribution function (DF) is \(F(\mathcal{K}, L) = F_\mathcal{K}(\mathcal{K})\,L^{-2\beta_\mathrm{c}}\); the density is the double power law of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (5) with exponents \((\alpha, \beta, \gamma)\); and \(\varrho_\mathrm{aux}\) is the auxiliary density, which for the (C)OM models is given by [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B23). Three derived quantities are used throughout these notes. The first is the order of the inversion,
 
 \begin{equation}
   \nu \equiv \tfrac{3}{2} - \beta_\mathrm{c} = m + n, \qquad m \equiv \lfloor \nu \rfloor, \qquad 0 \leq n < 1 ,
@@ -18846,7 +18846,7 @@ and the other two are the exponent of the inner expansion and the depth below th
   \delta \equiv \frac{\alpha}{2-\gamma}, \qquad u \equiv P_0 - \mathcal{K} .
   \tag{T:0.2}
 \end{equation}
-Internally, every model is expressed in the units of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), in which the scale radius and the central potential of the untruncated profile are both unity; a truncated model therefore has \(P_0 = 1 - \mathcal{K}_\mathrm{t}\). The depth \(u\) is carried as a variable of its own wherever the difference \(P_0 - \mathcal{K}\) would lose significant digits.
+Internally, every model is expressed in the units of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), in which the scale radius and the central potential of the untruncated profile are both unity; a truncated model therefore has \(P_0 = 1 - \mathcal{K}_\mathrm{t}\). The depth \(u\) is carried as a variable of its own wherever the difference \(P_0 - \mathcal{K}\) would lose significant digits.
 
 ## T:0.2 Thresholds derived from the inputs
 
@@ -18875,7 +18875,7 @@ Source: https://pianistpy.com/docs/reference/technical-notes/model
 
 ## T:1.1 The potential–radius relation as P → P₀ and P → 0
 
-The potential of the double power law is given in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A3), and its inner and outer expansions in Eq. (A11) and Eq. (A13). Two consequences of those expansions are used below.
+The potential of the double power law is given in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A3), and its inner and outer expansions in Eq. (A11) and Eq. (A13). Two consequences of those expansions are used below.
 
 *Near the center*, \(P_0 - P \propto R^{2-\gamma}\,[1 + \mathcal{O}(R^{\alpha})]\). Since \(R^{\alpha} \propto (P_0-P)^{\delta}\), any function of \(R\) that is a series in \(R^{\alpha}\) is also a series in \((P_0 - P)^{\delta}\):
 
@@ -18883,7 +18883,7 @@ The potential of the double power law is given in [Chiang+(2026d)](https://piani
   R^{\alpha} \propto (P_0 - P)^{\delta}\left[1 + \mathcal{O}\!\left((P_0-P)^{\delta}\right)\right] .
   \tag{T:1.1}
 \end{equation}
-The coefficients of such a series are exact, and no fit is needed. The depth \(P_0 - P\) is itself a series in \(R^{\alpha}\) with known coefficients, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A11). Inverting that series order by order gives \(R = t\,[1 + S(t)]\), with \(t \propto (P_0-P)^{1/(2-\gamma)}\) and \(S\) a series in \(t^{\alpha}\). Substituting this inverse into the density and into the anisotropy factor of \(\varrho_\mathrm{aux}\) yields the coefficient of every power \(s\) of \(P_0 - P\) as \(C\,c_u^{-s}\), with \(c_u = C/[(2-\gamma)(3-\gamma)]\), times a finite sum of products of generalized binomial coefficients, of the depth’s relative coefficients \((2-\gamma)(3-\gamma)\binom{e}{k}/[(2-\gamma+k\alpha)(3-\gamma+k\alpha)]\), \(e = (\gamma-\beta)/\alpha\), and, for the OM and COM factors, of powers of \(\pm R_\mathrm{a}^{-2}\). The package forms these coefficients in closed form by a power-series algebra, keeping every term up to the power \(3\max(\alpha, 2)\) of \(t\) beyond the leading power, that is, up to \((P_0-P)^{3\max(\alpha,2)/(2-\gamma)}\) beyond the leading power of \(P_0 - P\).
+The coefficients of such a series are exact, and no fit is needed. The depth \(P_0 - P\) is itself a series in \(R^{\alpha}\) with known coefficients, [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A11). Inverting that series order by order gives \(R = t\,[1 + S(t)]\), with \(t \propto (P_0-P)^{1/(2-\gamma)}\) and \(S\) a series in \(t^{\alpha}\). Substituting this inverse into the density and into the anisotropy factor of \(\varrho_\mathrm{aux}\) yields the coefficient of every power \(s\) of \(P_0 - P\) as \(C\,c_u^{-s}\), with \(c_u = C/[(2-\gamma)(3-\gamma)]\), times a finite sum of products of generalized binomial coefficients, of the depth’s relative coefficients \((2-\gamma)(3-\gamma)\binom{e}{k}/[(2-\gamma+k\alpha)(3-\gamma+k\alpha)]\), \(e = (\gamma-\beta)/\alpha\), and, for the OM and COM factors, of powers of \(\pm R_\mathrm{a}^{-2}\). The package forms these coefficients in closed form by a power-series algebra, keeping every term up to the power \(3\max(\alpha, 2)\) of \(t\) beyond the leading power, that is, up to \((P_0-P)^{3\max(\alpha,2)/(2-\gamma)}\) beyond the leading power of \(P_0 - P\).
 
 *At large radii*, the potential of an untruncated profile behaves as
 
@@ -18904,13 +18904,13 @@ The inversion with the order pair \((j, n')\) of [Eq. (T:2.16)](https://pianistp
   \frac{\mathrm{d}}{\mathrm{d} P} = -\frac{R^2}{M(R)}\,\frac{\mathrm{d}}{\mathrm{d} R},
   \tag{T:1.3}
 \end{equation}
-with the closed-form enclosed mass \(M(R)\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A7), is applied symbolically to the closed-form auxiliary density \(\varrho_\mathrm{aux}(R) = \varrho(R)\,h(R)\), where \(h = R^{2\beta_\mathrm{c}}(1 \pm R^2/R_\mathrm{a}^2)^{s}\) is the inverse of the anisotropy factor (\(s = 1\) for OM, \(s = 1 - \beta_\mathrm{c}\) for COM, and \(s = 0\) otherwise). The result is evaluated at \(R(P)\), which we obtain by bisection in \(\ln R\) on the monotonic \(P(R)\) and, near the center, on the subtraction-free depth. The potential \(P(R)\) does not enter the derivatives’ expressions, which hold \(M(R)\) only; its closed form, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A3), enters only through the radius \(R(P)\) at which they are evaluated. A single expression of \(h\) serves every closed-form evaluation of the factor in the package: the Method I sources, the Method II sources, the edge law, the density of the Poisson solve, and the parameter derivatives of [Section T:7](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradients); the inner series of [Section T:1.1](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-pair) and its parameter derivatives expand the same factor as a binomial series in \(R^2/R_\mathrm{a}^2\), and the central deficit of [Section T:3.4](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-fills) writes the factor’s logarithmic step and slope out by hand. In Method II the input is a tabulated pair, and the derivatives are integrals of the Method I model’s DF ([Section T:2.6](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-tabulated)).
+with the closed-form enclosed mass \(M(R)\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A7), is applied symbolically to the closed-form auxiliary density \(\varrho_\mathrm{aux}(R) = \varrho(R)\,h(R)\), where \(h = R^{2\beta_\mathrm{c}}(1 \pm R^2/R_\mathrm{a}^2)^{s}\) is the inverse of the anisotropy factor (\(s = 1\) for OM, \(s = 1 - \beta_\mathrm{c}\) for COM, and \(s = 0\) otherwise). The result is evaluated at \(R(P)\), which we obtain by bisection in \(\ln R\) on the monotonic \(P(R)\) and, near the center, on the subtraction-free depth. The potential \(P(R)\) does not enter the derivatives’ expressions, which hold \(M(R)\) only; its closed form, [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A3), enters only through the radius \(R(P)\) at which they are evaluated. A single expression of \(h\) serves every closed-form evaluation of the factor in the package: the Method I sources, the Method II sources, the edge law, the density of the Poisson solve, and the parameter derivatives of [Section T:7](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradients); the inner series of [Section T:1.1](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-pair) and its parameter derivatives expand the same factor as a binomial series in \(R^2/R_\mathrm{a}^2\), and the central deficit of [Section T:3.4](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-fills) writes the factor’s logarithmic step and slope out by hand. In Method II the input is a tabulated pair, and the derivatives are integrals of the Method I model’s DF ([Section T:2.6](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-tabulated)).
 
 Our first design for the tabulated case was a spline of \(\ln{\varrho_\mathrm{aux}}\) in \(P\) with knots placed by the equidistribution principle ([de Boor 1978](https://link.springer.com/book/9780387953663)). Its derivatives of second and higher order carried the conditioning of the spline, which grows as the square of the ratio of its largest to its smallest knot spacing, into the inversion. The exact and integral forms replaced it.
 
 ### T:1.2.2 Inner series expansions and their range of validity
 
-Near the center, the density is its closed form, and the enclosed mass and the depth are the series of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (A12) and Eq. (A11), carried to four terms in \(R^{\alpha}\) and summed term by term with no subtraction from the central value; the potential is \(P_0\) less that depth. The series is trusted out to the largest radius at which its next term, relative to the depth, stays within \(10^{-7}\). This bound follows from the parameters of the profile alone, and no fixed depth is assumed. The Poisson solve of a truncated model starts from the same series, and its inner rows are filled from the series out to that join ([Section T:3.4](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-fills)).
+Near the center, the density is its closed form, and the enclosed mass and the depth are the series of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (A12) and Eq. (A11), carried to four terms in \(R^{\alpha}\) and summed term by term with no subtraction from the central value; the potential is \(P_0\) less that depth. The series is trusted out to the largest radius at which its next term, relative to the depth, stays within \(10^{-7}\). This bound follows from the parameters of the profile alone, and no fixed depth is assumed. The Poisson solve of a truncated model starts from the same series, and its inner rows are filled from the series out to that join ([Section T:3.4](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-fills)).
 
 ## T:1.3 Interpolation of the tabulated truncated profile
 
@@ -18925,7 +18925,7 @@ Source: https://pianistpy.com/docs/reference/technical-notes/df
 
 ## T:2.1 The two forms of the inversion and the forward relation
 
-[Chiang+(2026d)](https://pianistpy.com/docs/project/citing) gives the inversion in two forms: with the derivative outside the integral, Eq. (B22), and with the derivative inside the integral together with a surface term at \(P = 0\), Eq. (B9). The second form follows from the first by one integration by parts and is simpler to evaluate. The integration by parts requires that
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758) gives the inversion in two forms: with the derivative outside the integral, Eq. (B22), and with the derivative inside the integral together with a surface term at \(P = 0\), Eq. (B9). The second form follows from the first by one integration by parts and is simpler to evaluate. The integration by parts requires that
 
 \begin{equation}
   \frac{\mathrm{d}^m\varrho_\mathrm{aux}}{\mathrm{d} P^m}\ \text{continuous on}\ [0, \mathcal{K}] \qquad\text{and}\qquad \int_0^{\mathcal{K}}\left|\frac{\mathrm{d}^{m+1}\varrho_\mathrm{aux}}{\mathrm{d} P^{m+1}}\right|(\mathcal{K}-P)^{-n}\,\mathrm{d} P < \infty .
@@ -18950,7 +18950,7 @@ The forward relation is a Volterra equation whose lower limit lies at \(P = 0\),
 
 ### T:2.2.1 The limit P → P₀: the contribution of one power-law term
 
-Consider a single term \(\varrho_\mathrm{aux} \supset A_s\,(P_0 - P)^{s}\) of the expansion of \(\varrho_\mathrm{aux}\) about the center. Its \((m+1)\)-th derivative is \((-1)^{m+1} A_s\,[\Gamma(s+1)/\Gamma(s-m)]\,(P_0-P)^{s-m-1}\). With \(t = \mathcal{K} - P\), the integral of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B9) becomes \(\int_0^{\mathcal{K}} t^{-n} (u+t)^{s-m-1}\,\mathrm{d} t\), whose behavior as \(u \to 0\) follows from the Mellin-type integral
+Consider a single term \(\varrho_\mathrm{aux} \supset A_s\,(P_0 - P)^{s}\) of the expansion of \(\varrho_\mathrm{aux}\) about the center. Its \((m+1)\)-th derivative is \((-1)^{m+1} A_s\,[\Gamma(s+1)/\Gamma(s-m)]\,(P_0-P)^{s-m-1}\). With \(t = \mathcal{K} - P\), the integral of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B9) becomes \(\int_0^{\mathcal{K}} t^{-n} (u+t)^{s-m-1}\,\mathrm{d} t\), whose behavior as \(u \to 0\) follows from the Mellin-type integral
 
 \begin{equation}
   \int_0^{\infty} t^{a-1}(u+t)^{-b}\,\mathrm{d} t = u^{a-b}\,\frac{\Gamma(a)\,\Gamma(b-a)}{\Gamma(b)},
@@ -18980,7 +18980,7 @@ Since the inversion is linear, every power in the expansion of \(\varrho_\mathrm
 
 ### T:2.2.2 The central DF for γ > 2β_c
 
-The leading term of \(\varrho_\mathrm{aux}\) is \(A\,(P_0-P)^{s_0}\) with \(s_0 = (2\beta_\mathrm{c} - \gamma)/(2-\gamma) < 0\). [Eq. (T:2.5)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-singular) reproduces the exponent \(\kappa\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B36) and supplies its amplitude,
+The leading term of \(\varrho_\mathrm{aux}\) is \(A\,(P_0-P)^{s_0}\) with \(s_0 = (2\beta_\mathrm{c} - \gamma)/(2-\gamma) < 0\). [Eq. (T:2.5)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-singular) reproduces the exponent \(\kappa\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B36) and supplies its amplitude,
 
 \begin{equation}
   F_\mathcal{K} \simeq \frac{2^{\beta_\mathrm{c}}}{(2\pi)^{3/2}\,\Gamma(1-\beta_\mathrm{c})}\,A\,\frac{\Gamma(\nu - s_0)}{\Gamma(-s_0)}\,u^{\kappa},
@@ -18992,7 +18992,7 @@ As \(\gamma \to 2\beta_\mathrm{c}\), the amplitude vanishes linearly, \(\Gamma(\
 
 ### T:2.2.3 The central DF in the boundary case γ = 2β_c
 
-By [Eq. (T:1.1)](https://pianistpy.com/docs/reference/technical-notes/model#tn-eq-inner-map), \(\varrho_\mathrm{aux} = C_1 + C_2\,(P_0-P)^{\delta} + \dots\): for constant anisotropy it is a series in \((P_0-P)^{\delta}\); for OM (\(\gamma = 0\)) the factor \(1 \pm R^2/R_\mathrm{a}^2\) adds the powers \((P_0-P)^{1 + j\delta}\), \(j \geq 0\), of which the integer power drops out and the others lie above \(\delta\). The constant term has \(s = 0\) and no singular part. The next term has \(s = \delta\) and the exponent \(\kappa' = \delta - \nu\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B37). [Table T:2.1](https://pianistpy.com/docs/reference/technical-notes/df#tn-tab-critical) lists the cases; its last four rows assume that \(\delta\) is not an integer.
+By [Eq. (T:1.1)](https://pianistpy.com/docs/reference/technical-notes/model#tn-eq-inner-map), \(\varrho_\mathrm{aux} = C_1 + C_2\,(P_0-P)^{\delta} + \dots\): for constant anisotropy it is a series in \((P_0-P)^{\delta}\); for OM (\(\gamma = 0\)) the factor \(1 \pm R^2/R_\mathrm{a}^2\) adds the powers \((P_0-P)^{1 + j\delta}\), \(j \geq 0\), of which the integer power drops out and the others lie above \(\delta\). The constant term has \(s = 0\) and no singular part. The next term has \(s = \delta\) and the exponent \(\kappa' = \delta - \nu\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B37). [Table T:2.1](https://pianistpy.com/docs/reference/technical-notes/df#tn-tab-critical) lists the cases; its last four rows assume that \(\delta\) is not an integer.
 
 Table T:2.1. The central DF in the critical case \(\gamma = 2\beta_\mathrm{c}\), for constant anisotropy and OM models.
 
@@ -19032,9 +19032,9 @@ vanishing
 
 \(\propto u^{\kappa'}\)
 
-In the row \(\kappa' > 0\), \(n \neq 0\), the constant \(F_\mathcal{K}(P_0)\) is the non-local integral of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B9) at \(\mathcal{K} = P_0\); it is finite and may have either sign, and \(F_\mathcal{K} - F_\mathcal{K}(P_0) = \mathcal{O}(u^{\min(\kappa', 1)})\), with a factor \(\ln u\) at \(\kappa' = 1\).
+In the row \(\kappa' > 0\), \(n \neq 0\), the constant \(F_\mathcal{K}(P_0)\) is the non-local integral of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B9) at \(\mathcal{K} = P_0\); it is finite and may have either sign, and \(F_\mathcal{K} - F_\mathcal{K}(P_0) = \mathcal{O}(u^{\min(\kappa', 1)})\), with a factor \(\ln u\) at \(\kappa' = 1\).
 
-- *Sign.* With \(C_2 < 0\), the divergence is toward negative values for \(1 < \delta < \nu\), and also for \(\kappa' = 0\) with \(\beta_\mathrm{c} < 1/2\). Such models are unphysical even though they satisfy [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (12).
+- *Sign.* With \(C_2 < 0\), the divergence is toward negative values for \(1 < \delta < \nu\), and also for \(\kappa' = 0\) with \(\beta_\mathrm{c} < 1/2\). Such models are unphysical even though they satisfy [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (12).
 
 - *The finite case at* \(\kappa' = 0\)*.* This case requires \(\delta = \nu\) to be an integer. Within \(0 \leq \gamma < 2\) it occurs only for \(\alpha = 1\), \(\gamma = 1\), \(\beta_\mathrm{c} = 1/2\), which includes the NFW and Hernquist profiles.
 
@@ -19070,7 +19070,7 @@ so the central DF is finite, \(F_\mathcal{K}(P_0) = 2/\pi^2\).
 
 ### T:2.2.6 The limit P → 0
 
-Let \(\varrho_\mathrm{aux} \propto P^{\,y}\) as \(P \to 0\), where \(y\) is not a non-negative integer smaller than \(m\). Then \(\mathrm{d}^m\varrho_\mathrm{aux}/\mathrm{d} P^m \propto P^{\,y-m}\), and the surface term of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B9)
+Let \(\varrho_\mathrm{aux} \propto P^{\,y}\) as \(P \to 0\), where \(y\) is not a non-negative integer smaller than \(m\). Then \(\mathrm{d}^m\varrho_\mathrm{aux}/\mathrm{d} P^m \propto P^{\,y-m}\), and the surface term of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B9)
 
 \begin{equation}
   \text{vanishes for}\ y > m, \qquad \text{is finite for}\ y = m, \qquad \text{diverges for}\ y < m .
@@ -19122,7 +19122,7 @@ At \(\beta = 3\) the constant-anisotropy surface term still vanishes. For (C)OM 
 
 ### T:2.2.7 The low-energy tail of the DF and its contribution to the density
 
-For an untruncated (C)OM Type I model with \(\beta > 3\), [Eq. (T:2.12)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-y) and [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B25) give a power-law tail,
+For an untruncated (C)OM Type I model with \(\beta > 3\), [Eq. (T:2.12)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-y) and [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B25) give a power-law tail,
 
 \begin{equation}
   F_\mathcal{K}(\mathcal{K}) \simeq A\,\mathcal{K}^{-a} \quad (\mathcal{K} \to 0), \qquad a = \nu - (\beta - 2) = \tfrac{7}{2} - \beta_\mathrm{c} - \beta ,
@@ -19134,7 +19134,7 @@ which diverges for \(a > 0\); a profile with an outer slope of exactly 3 carries
   \varrho_\mathrm{aux}^{\rm tail}(P) = \frac{2\pi^{3/2}\,\Gamma(1-\beta_\mathrm{c})}{\Gamma(3/2-\beta_\mathrm{c})}\; 2^{\,\nu-1} A\, P^{\,\nu-a}\; B\!\left(\frac{q}{P};\, 1-a,\, \nu\right),
   \tag{T:2.14}
 \end{equation}
-where \(B(x; p, r) = \int_0^x t^{p-1}(1-t)^{r-1}\,\mathrm{d} t\) is the incomplete Beta function. The integral converges for \(a < 1\). For \(a \geq 1\) the density integral diverges at \(\mathcal{K} = 0\), and the untruncated model does not exist; a truncated model does exist, since the truncated DF of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B27) vanishes at its lower end.
+where \(B(x; p, r) = \int_0^x t^{p-1}(1-t)^{r-1}\,\mathrm{d} t\) is the incomplete Beta function. The integral converges for \(a < 1\). For \(a \geq 1\) the density integral diverges at \(\mathcal{K} = 0\), and the untruncated model does not exist; a truncated model does exist, since the truncated DF of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B27) vanishes at its lower end.
 
 ### T:2.2.8 Behavior of the inversion at the anisotropy radius of a Type II model
 
@@ -19158,7 +19158,7 @@ The form of the inversion is fixed from the model parameters alone, before any i
   (j, n') = (m+1,\; n-1),
   \tag{T:2.16}
 \end{equation}
-so that the kernel exponent always satisfies \(|n'| \leq 1/2\); otherwise \((j, n') = (m, n)\). With the higher order, the surface term can diverge as \(P \to 0\) ([Section T:2.2.6](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-outer)) and cancel against the integral, so a replaced pair is evaluated in the general form, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B22), on every row.
+so that the kernel exponent always satisfies \(|n'| \leq 1/2\); otherwise \((j, n') = (m, n)\). With the higher order, the surface term can diverge as \(P \to 0\) ([Section T:2.2.6](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-outer)) and cancel against the integral, so a replaced pair is evaluated in the general form, [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B22), on every row.
 
 - *Half-integer* \(\beta_\mathrm{c}\)*.* For \(n = 0\) the closed form of [Eq. (T:2.2)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-local) is used, and no quadrature is performed.
 
@@ -19287,13 +19287,13 @@ A DF obtained elsewhere, from a fitting function or from the output of another c
 
 Source: https://pianistpy.com/docs/reference/technical-notes/truncation
 
-The two truncation methods are defined in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 3.1.
+The two truncation methods are defined in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.1.
 
 ## T:3.1 Type II models beyond the anisotropy radius
 
 *The model is not defined for* \(R > R_\mathrm{a}\)*.* In the Type II variable \(Q_+\), the tangential velocity enters with the factor \(1 - R^2/R_\mathrm{a}^2\). For \(R > R_\mathrm{a}\) this factor is negative, the velocity integral diverges, and no DF of this form yields a density. An untruncated profile that extends beyond \(R_\mathrm{a}\) therefore has no Type II DF, whereas a truncated model with \(R_\mathrm{t} < R_\mathrm{a}\) is well defined.
 
-*Method I nevertheless needs* \(\varrho_\mathrm{aux}\) *there.* The inversion solves the Volterra equation [Eq. (T:2.3)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-volterra), whose lower limit lies at \(R = \infty\). The values of \(\varrho_\mathrm{aux}\) on \(P > P(R_\mathrm{a})\) determine \(F_\mathcal{K}\) there only in combination with \(F_\mathcal{K}\) on \(P < P(R_\mathrm{a})\). Method I constructs the truncated DF from the untruncated one by the shift of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B27), and the contribution of the stretch \(0 < P < P(R_\mathrm{a})\) to \(F_\mathcal{K}\) depends on \(\mathcal{K}\), so it does not cancel in that difference. A value of \(\varrho_\mathrm{aux}\) must therefore be supplied on that stretch.
+*Method I nevertheless needs* \(\varrho_\mathrm{aux}\) *there.* The inversion solves the Volterra equation [Eq. (T:2.3)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-volterra), whose lower limit lies at \(R = \infty\). The values of \(\varrho_\mathrm{aux}\) on \(P > P(R_\mathrm{a})\) determine \(F_\mathcal{K}\) there only in combination with \(F_\mathcal{K}\) on \(P < P(R_\mathrm{a})\). Method I constructs the truncated DF from the untruncated one by the shift of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B27), and the contribution of the stretch \(0 < P < P(R_\mathrm{a})\) to \(F_\mathcal{K}\) depends on \(\mathcal{K}\), so it does not cancel in that difference. A value of \(\varrho_\mathrm{aux}\) must therefore be supplied on that stretch.
 
 *The continuation.* For OM Type II, the factor \(1 - R^2/R_\mathrm{a}^2\) is a polynomial and is used as it stands. For COM Type II the factor \(w^{1-\beta_\mathrm{c}}\) is not real for \(w < 0\) where \(1 - \beta_\mathrm{c}\) is not an integer; PIANISTpy adopts, for every COM Type II model, the continuation
 
@@ -19325,7 +19325,7 @@ The source quadrature runs for truncated models only: an untruncated model takes
 
 ## T:3.3 Solving the truncated Poisson equation
 
-The truncated Poisson equation, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B28), is integrated outward in \(s = \ln r\) as a first-order system in \([\Phi,\; W = r\,\mathrm{d}\Phi/\mathrm{d} r,\; u = P_0 - \Phi]\), under a relative tolerance of \(10^{-11}\) and no absolute tolerance (the edge continuation in \(\ln\Phi\), also relative-only), starting from the series of the cusp ([Section T:1.2.2](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-series)). The right-hand side is the density of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B29), read from the source table of [Section T:3.2](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-num-truncation). The solve ends at the event where \(\Phi\) reaches the floor, which is the edge of a spatially finite model, or else at the outer radius; the last rows of a truncated model are re-solved on a grid geometric in \(R_\mathrm{t} - r\), and the row at the floor is the crossing of the event. A request whose solve reaches no edge within its radius is refused with the reason stated. The solve is a serial integration, and it runs on the CPU on every device ([Section T:0.5](https://pianistpy.com/docs/reference/technical-notes/principles#tn-sec-tiers)).
+The truncated Poisson equation, [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B28), is integrated outward in \(s = \ln r\) as a first-order system in \([\Phi,\; W = r\,\mathrm{d}\Phi/\mathrm{d} r,\; u = P_0 - \Phi]\), under a relative tolerance of \(10^{-11}\) and no absolute tolerance (the edge continuation in \(\ln\Phi\), also relative-only), starting from the series of the cusp ([Section T:1.2.2](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-series)). The right-hand side is the density of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B29), read from the source table of [Section T:3.2](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-num-truncation). The solve ends at the event where \(\Phi\) reaches the floor, which is the edge of a spatially finite model, or else at the outer radius; the last rows of a truncated model are re-solved on a grid geometric in \(R_\mathrm{t} - r\), and the row at the floor is the crossing of the event. A request whose solve reaches no edge within its radius is refused with the reason stated. The solve is a serial integration, and it runs on the CPU on every device ([Section T:0.5](https://pianistpy.com/docs/reference/technical-notes/principles#tn-sec-tiers)).
 
 ## T:3.4 Completing the truncated profile toward the center and the truncation radius
 
@@ -19333,7 +19333,7 @@ The rows of the solve are sparse where the potential approaches the floor and wh
 
 ## T:3.5 The lowest admissible truncation value
 
-The truncated DF of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B27) is non-negative and non-decreasing when the untruncated DF is non-decreasing above the truncation energy; the code asks in addition that the untruncated DF be non-negative there. From the computed untruncated DF on its support, the code takes the energy of its highest negative row and the end of its last decrease (by a relative amount above \(10^{-5}\)), and it accepts a truncation energy at or above the larger of the two and, for a Type II model, strictly above \(P(R_\mathrm{a})\) ([Section T:3.1](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-typeii)). The bound at \(P(R_\mathrm{a})\) is necessary but not sufficient: only the truncated solve places the edge, and a solve whose edge lies at or beyond \(R_\mathrm{a}\) is refused afterward with an error of its own, TYPE II EDGE. A truncation that no model can carry is refused before any stage runs: a cusp shallower than \(2\beta_\mathrm{c}(0)\) at the center, where the DF is negative there for every truncation ([An & Evans 2006b](https://doi.org/10.1086/501040)); a degenerate central series whose table the host floor alone would cut ([Section T:2.5.1](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-top-limit)); and a central DF that tends to a negative value, to minus infinity or to zero from below.
+The truncated DF of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B27) is non-negative and non-decreasing when the untruncated DF is non-decreasing above the truncation energy; the code asks in addition that the untruncated DF be non-negative there. From the computed untruncated DF on its support, the code takes the energy of its highest negative row and the end of its last decrease (by a relative amount above \(10^{-5}\)), and it accepts a truncation energy at or above the larger of the two and, for a Type II model, strictly above \(P(R_\mathrm{a})\) ([Section T:3.1](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-typeii)). The bound at \(P(R_\mathrm{a})\) is necessary but not sufficient: only the truncated solve places the edge, and a solve whose edge lies at or beyond \(R_\mathrm{a}\) is refused afterward with an error of its own, TYPE II EDGE. A truncation that no model can carry is refused before any stage runs: a cusp shallower than \(2\beta_\mathrm{c}(0)\) at the center, where the DF is negative there for every truncation ([An & Evans 2006b](https://doi.org/10.1086/501040)); a degenerate central series whose table the host floor alone would cut ([Section T:2.5.1](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-top-limit)); and a central DF that tends to a negative value, to minus infinity or to zero from below.
 
 ## T:3.6 Finding the truncation value for a target mass or truncation radius
 
@@ -19345,7 +19345,7 @@ An untruncated model solves no Poisson equation: its rows are the closed forms o
 
 ## T:3.8 Checks of the self-consistency of a model
 
-Each check is read on the rows of the profile through the profile object of [Section T:1.3](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-profile-object), so a model from a run and a model from a file are checked alike. The Poisson residual is Poisson’s equation in integral form on every interval between consecutive rows, including the edge row, \(\Phi(r_a) - \Phi(r_b) = \int M/r^2\,\mathrm{d} r\) and \(M(r_b) - M(r_a) = \int \varrho\,r^2\,\mathrm{d} r\), each relative to the larger of its two rows, widened on the floor event’s row by the root finder’s tolerance of the event over the solve’s relative tolerance. The round trip compares the density that the model’s own DF gives at a row, \(\varrho = g(R)\,C(\beta_\mathrm{c})\int_0^{\Phi} F(Q)\,[2(\Phi - Q)]^{1/2-\beta_\mathrm{c}}\,\mathrm{d} Q\), with \(g\) the anisotropy’s factor of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B44), with \(F\) read through the lookup, against the density of the row. It is evaluated at the rows nearest to each half-decade of radius and at every row from the last of those to the edge, so that the check reads what a dense read would read. The row density is the count of rows per bin that the fills keep; it is silent where every bin is full and refused at any shortfall.
+Each check is read on the rows of the profile through the profile object of [Section T:1.3](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-profile-object), so a model from a run and a model from a file are checked alike. The Poisson residual is Poisson’s equation in integral form on every interval between consecutive rows, including the edge row, \(\Phi(r_a) - \Phi(r_b) = \int M/r^2\,\mathrm{d} r\) and \(M(r_b) - M(r_a) = \int \varrho\,r^2\,\mathrm{d} r\), each relative to the larger of its two rows, widened on the floor event’s row by the root finder’s tolerance of the event over the solve’s relative tolerance. The round trip compares the density that the model’s own DF gives at a row, \(\varrho = g(R)\,C(\beta_\mathrm{c})\int_0^{\Phi} F(Q)\,[2(\Phi - Q)]^{1/2-\beta_\mathrm{c}}\,\mathrm{d} Q\), with \(g\) the anisotropy’s factor of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B44), with \(F\) read through the lookup, against the density of the row. It is evaluated at the rows nearest to each half-decade of radius and at every row from the last of those to the edge, so that the check reads what a dense read would read. The row density is the count of rows per bin that the fills keep; it is silent where every bin is full and refused at any shortfall.
 
 
 ---
@@ -19354,7 +19354,7 @@ Each check is read on the rows of the profile through the profile object of [Sec
 
 Source: https://pianistpy.com/docs/reference/technical-notes/sup
 
-Distribution functions inverted from one and the same truncated density, that is, Method II models of one Method I model, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, checked on its own nodes. The anisotropy profile of the superposition is given in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B74). In terms of the radial dispersions \(\sigma_{r,i}^2\) and the anisotropy profiles \(\beta_i\) of the members, with weights \(c_i > 0\) and \(\sum_i c_i = 1\), it reads
+Distribution functions inverted from one and the same truncated density, that is, Method II models of one Method I model, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, checked on its own nodes. The anisotropy profile of the superposition is given in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B74). In terms of the radial dispersions \(\sigma_{r,i}^2\) and the anisotropy profiles \(\beta_i\) of the members, with weights \(c_i > 0\) and \(\sum_i c_i = 1\), it reads
 
 \begin{equation}
   \beta_{\rm sup}(R) = \frac{\sum_i c_i\,\beta_i(R)\,\sigma_{r,i}^2(R)}{\sum_i c_i\,\sigma_{r,i}^2(R)} .
@@ -19391,7 +19391,7 @@ At radius \(R\), let \(V\) be the velocity and \(\varphi\) the angle between the
   Q_\mp = P - \tfrac{1}{2}\,f\,V^2, \qquad f(R, \varphi) \equiv 1 \pm \frac{R^2}{R_\mathrm{a}^2}\sin^2\varphi ,
   \tag{T:5.1}
 \end{equation}
-with the upper sign for Type I and the lower sign for Type II; \(f = 1\) for constant anisotropy. The probability density of \((V, \varphi)\) at \(R\), which follows from [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eqs. (B38) to (B40), is \(\propto V^{2-2\beta_\mathrm{c}}\sin^{1-2\beta_\mathrm{c}}\!\varphi\;F_\mathcal{K}(P - \tfrac12 f V^2)\). In the variable
+with the upper sign for Type I and the lower sign for Type II; \(f = 1\) for constant anisotropy. The probability density of \((V, \varphi)\) at \(R\), which follows from [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eqs. (B38) to (B40), is \(\propto V^{2-2\beta_\mathrm{c}}\sin^{1-2\beta_\mathrm{c}}\!\varphi\;F_\mathcal{K}(P - \tfrac12 f V^2)\). In the variable
 
 \begin{equation}
   x \equiv V\sqrt{\frac{f}{2P}} \in [0, 1]
@@ -19474,15 +19474,15 @@ with the member’s own \(\varrho_\mathrm{aux}\); the part of the integral below
 
 ## T:6.2 Surface density and line-of-sight velocity dispersion
 
-The surface density and the line-of-sight dispersion, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eqs. (B47) and (B46), come from a single line-of-sight rule with a single density, on two panels in the depth along the line of sight, at projected radii spaced logarithmically from the innermost row to a fixed fraction of the last row. Rows are added until the table reads itself between rows to within the certificate’s tolerance, \(10^{-8}\): at the midpoint of every interval the value read is compared with a row computed there, and a midpoint that misses becomes a row; the rows also stop when two rounds running do not halve the worst miss, and the certificate then records the end as stalled. On a spatially finite model, the surface density is read as \(\Sigma = (R_\mathrm{t}^2 - R^2)^{1/2} h\), the factor exact and \(\ln h\) a cubic in \(x = \ln[R/(1 - R/R_\mathrm{t})]\), which goes as \(\ln R\) far inside and as \(\ln R_\mathrm{t} - \ln(1 - R/R_\mathrm{t})\) toward the edge, so that a power law of \(h\) in \(R_\mathrm{t} - R\) is a straight line in \(x\); the squared dispersion is read in \(\ln R\). A projected radius inside the innermost row or beyond the last is refused, with the row and what places it stated; a negative squared dispersion, from the rule at a row or read between rows, is refused as well.
+The surface density and the line-of-sight dispersion, [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eqs. (B47) and (B46), come from a single line-of-sight rule with a single density, on two panels in the depth along the line of sight, at projected radii spaced logarithmically from the innermost row to a fixed fraction of the last row. Rows are added until the table reads itself between rows to within the certificate’s tolerance, \(10^{-8}\): at the midpoint of every interval the value read is compared with a row computed there, and a midpoint that misses becomes a row; the rows also stop when two rounds running do not halve the worst miss, and the certificate then records the end as stalled. On a spatially finite model, the surface density is read as \(\Sigma = (R_\mathrm{t}^2 - R^2)^{1/2} h\), the factor exact and \(\ln h\) a cubic in \(x = \ln[R/(1 - R/R_\mathrm{t})]\), which goes as \(\ln R\) far inside and as \(\ln R_\mathrm{t} - \ln(1 - R/R_\mathrm{t})\) toward the edge, so that a power law of \(h\) in \(R_\mathrm{t} - R\) is a straight line in \(x\); the squared dispersion is read in \(\ln R\). A projected radius inside the innermost row or beyond the last is refused, with the row and what places it stated; a negative squared dispersion, from the rule at a row or read between rows, is refused as well.
 
 ## T:6.3 Aperture-averaged velocity dispersions
 
-The dispersion inside an aperture is the surface-density weighted average of \(\sigma_{\rm los}^2\), [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B50). For an axisymmetric integrand every aperture reduces to a one-dimensional integral, \(\int f(R)\,\mathrm{arc}(R)\,R\,\mathrm{d} R\), where \(\mathrm{arc}(R)\) is the angular measure of the circle of radius \(R\) that lies inside the aperture. A centered circle takes a Gauss-Legendre rule in \(\ln R\) from the first row of the table, with at least a stated number of nodes and more per decade of its span. An offset circle has a full-circle core and a band of its own, the band under an end-point map in \(R - R_{\rm off}\) where it is narrow. A rectangle takes one panel between consecutive breaks of its arc, each with at least a stated number of Gauss-Legendre nodes and more per decade of its span. Above \(R_\mathrm{t}/\sqrt{2}\), where the factors \(R\) and \(v\) of the measure \(R\,\mathrm{d} R = -v\,\mathrm{d} v\) are equal, a panel is taken in \(v = (R_\mathrm{t}^2 - R^2)^{1/2}\), in which the integrand carries the edge factor \(v\) as a smooth factor; the narrow band of an offset circle is the exception and stays one panel in \(R - R_{\rm off}\). An aperture that encloses no tabulated surface density, or whose disk inside the first row carries more than a stated share of its weight, is refused with the reason stated. That disk is estimated from the slope \(s = -\mathrm{d}\ln\Sigma/\mathrm{d}\ln R\) between the first two rows, as the power law \(\Sigma_0 (R/R_0)^{-s}\) continued inward, which holds \(\Sigma_0 R_0^2/(2 - s)\); the estimate is finite only for \(s < 2\), and a slope at or above 2 is refused.
+The dispersion inside an aperture is the surface-density weighted average of \(\sigma_{\rm los}^2\), [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B50). For an axisymmetric integrand every aperture reduces to a one-dimensional integral, \(\int f(R)\,\mathrm{arc}(R)\,R\,\mathrm{d} R\), where \(\mathrm{arc}(R)\) is the angular measure of the circle of radius \(R\) that lies inside the aperture. A centered circle takes a Gauss-Legendre rule in \(\ln R\) from the first row of the table, with at least a stated number of nodes and more per decade of its span. An offset circle has a full-circle core and a band of its own, the band under an end-point map in \(R - R_{\rm off}\) where it is narrow. A rectangle takes one panel between consecutive breaks of its arc, each with at least a stated number of Gauss-Legendre nodes and more per decade of its span. Above \(R_\mathrm{t}/\sqrt{2}\), where the factors \(R\) and \(v\) of the measure \(R\,\mathrm{d} R = -v\,\mathrm{d} v\) are equal, a panel is taken in \(v = (R_\mathrm{t}^2 - R^2)^{1/2}\), in which the integrand carries the edge factor \(v\) as a smooth factor; the narrow band of an offset circle is the exception and stays one panel in \(R - R_{\rm off}\). An aperture that encloses no tabulated surface density, or whose disk inside the first row carries more than a stated share of its weight, is refused with the reason stated. That disk is estimated from the slope \(s = -\mathrm{d}\ln\Sigma/\mathrm{d}\ln R\) between the first two rows, as the power law \(\Sigma_0 (R/R_0)^{-s}\) continued inward, which holds \(\Sigma_0 R_0^2/(2 - s)\); the estimate is finite only for \(s < 2\), and a slope at or above 2 is refused.
 
 ## T:6.4 The line-of-sight velocity distribution
 
-The distribution \(D(R_{\rm 2D}, V)\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B53) is computed row by row at projected radii. On the plane \(V_{\rm los} = V\) at depth \(u\) along the line of sight, the level sets of \(Q\) are ellipses centered on the maximum of \(Q\), so the integral over the velocity plane is
+The distribution \(D(R_{\rm 2D}, V)\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B53) is computed row by row at projected radii. On the plane \(V_{\rm los} = V\) at depth \(u\) along the line of sight, the level sets of \(Q\) are ellipses centered on the maximum of \(Q\), so the integral over the velocity plane is
 
 \begin{equation}
   \iint F\,\mathrm{d} V_{\perp 1}\,\mathrm{d} V_{\perp 2} = \frac{R/R_{\rm 2D}}{\sqrt{Aq}}\int_0^{Q_c} F_\mathcal{K}(Q_c - s)\,\Lambda(s)\,\mathrm{d} s ,
@@ -19500,17 +19500,17 @@ The base rows are placed at a stated number per decade of projected radius. The 
 
 ## T:6.6 The aperture-averaged line-of-sight velocity distribution
 
-The distribution inside an aperture is the surface-density weighted average of the rows over the aperture, [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eqs. (B58) and (B59). No row is computed for it. The rows are read at the radii of the aperture’s rule ([Section T:6.3](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-aperture)), with every break of a row followed as a function of radius, and each radius is scanned once. The result is formed on its own panels in \(V\), with breaks at zero, at the smallest and the largest value of each row break over the aperture, and at the top; a velocity that meets a break curve inside the aperture takes the radii where the curve equals it as breaks of its radial rule. The output rule refines itself, bisecting each sub-panel wider than half the widest, until its norm and its second moment agree with those of the rows’ own rule (each row integrated on its own nodes) to one hundredth of \(10^{-6}\), until its widest sub-panel is no wider than the narrowest it began with, or until a round moves them by less than that; the end is recorded. At any velocity, the distribution is the polynomial of its panel through the panel’s own nodes, namely the Legendre series of the antiderivative of the quadrature, so that it integrates exactly as the quadrature does. Its second moment is checked against the dispersion of the aperture from the projected tables, which reads no distribution.
+The distribution inside an aperture is the surface-density weighted average of the rows over the aperture, [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eqs. (B58) and (B59). No row is computed for it. The rows are read at the radii of the aperture’s rule ([Section T:6.3](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-aperture)), with every break of a row followed as a function of radius, and each radius is scanned once. The result is formed on its own panels in \(V\), with breaks at zero, at the smallest and the largest value of each row break over the aperture, and at the top; a velocity that meets a break curve inside the aperture takes the radii where the curve equals it as breaks of its radial rule. The output rule refines itself, bisecting each sub-panel wider than half the widest, until its norm and its second moment agree with those of the rows’ own rule (each row integrated on its own nodes) to one hundredth of \(10^{-6}\), until its widest sub-panel is no wider than the narrowest it began with, or until a round moves them by less than that; the end is recorded. At any velocity, the distribution is the polynomial of its panel through the panel’s own nodes, namely the Legendre series of the antiderivative of the quadrature, so that it integrates exactly as the quadrature does. Its second moment is checked against the dispersion of the aperture from the projected tables, which reads no distribution.
 
 ## T:6.7 Gauss–Hermite moments
 
-With \(y = (V - V_*)/\sigma_*\), where \(V_*\) and \(\sigma_*\) are the mean and the dispersion of the distribution itself, the moments of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B63) are
+With \(y = (V - V_*)/\sigma_*\), where \(V_*\) and \(\sigma_*\) are the mean and the dispersion of the distribution itself, the moments of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B63) are
 
 \begin{equation}
   h_n = 2\sqrt{\pi}\int D(V)\,H_n(y)\,\frac{e^{-y^2/2}}{\sqrt{2\pi}}\,\mathrm{d} V , \qquad H_3 = \frac{2y^3 - 3y}{\sqrt{3}}, \quad H_4 = \frac{4y^4 - 12y^2 + 3}{2\sqrt{6}} ,
   \tag{T:6.3}
 \end{equation}
-with the Gauss-Hermite polynomials of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B61). They are taken on the velocity nodes and weights of a row or of an aperture distribution, mirrored to both signs and normalized to unit integral. For one distribution the standardized moments by direct sums are computed beside them; to first order, \(s_3 = 4\sqrt{3}\,h_3\) and \(s_4 = 3 + 8\sqrt{6}\,h_4\). The moments tabulated over radius and those over apertures are \(V_*\), \(\sigma_*\), \(h_3\) and \(h_4\). Moments at projected radii are tabulated once over radius and read between rows; moments over apertures are taken on the distribution of each aperture.
+with the Gauss-Hermite polynomials of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B61). They are taken on the velocity nodes and weights of a row or of an aperture distribution, mirrored to both signs and normalized to unit integral. For one distribution the standardized moments by direct sums are computed beside them; to first order, \(s_3 = 4\sqrt{3}\,h_3\) and \(s_4 = 3 + 8\sqrt{6}\,h_4\). The moments tabulated over radius and those over apertures are \(V_*\), \(\sigma_*\), \(h_3\) and \(h_4\). Moments at projected radii are tabulated once over radius and read between rows; moments over apertures are taken on the distribution of each aperture.
 
 ## T:6.8 The local velocity distribution
 
@@ -19608,7 +19608,7 @@ The exact forms are checked against references that owe nothing to the numerical
 
 ## T:8.3 The roundtrip test
 
-The test of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Section 4, shown in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Fig. 8, starts from the untruncated isotropic NFW profile, computes the DF, integrates it to a density, and solves the Poisson equation with \(P(0) = 1\). Every curve is numerical, and the only analytical quantity is the target density.
+The test of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 4, shown in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Fig. 8, starts from the untruncated isotropic NFW profile, computes the DF, integrates it to a density, and solves the Poisson equation with \(P(0) = 1\). Every curve is numerical, and the only analytical quantity is the target density.
 
 - *PIANISTpy.* The standard untruncated isotropic product: the inverted DF, the velocity quadrature, and a numerical Poisson solve.
 
@@ -19648,7 +19648,7 @@ Source: https://pianistpy.com/docs/project/release-notes
 
 ## Ver. 1.0.0
 
-The initial public release of PIANISTpy, described in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing).
+The initial public release of PIANISTpy, described in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758).
 
 ### Known limitations
 
@@ -19734,7 +19734,7 @@ The features listed below are planned or under development for releases after ve
 - Generalization of the self-consistent models to systems of several components that share one truncated
 potential, and to tracer populations in a fixed potential.
 
-- The test problem of the isolated \(N\)-body runs of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) as a
+- The test problem of the isolated \(N\)-body runs of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) as a
 [GAMER](https://doi.org/10.1093/mnras/sty2586) test problem, with its analysis and plotting scripts.
 
 - `losvd` and `aperture_losvd` on a `Model` that compute only the part of the line-of-sight table that the
@@ -19791,7 +19791,7 @@ pull request whose code, tests and description the contributor has not reviewed 
 
 Source: https://pianistpy.com/docs/project/citing
 
-Please cite the initial release paper, [Chiang, van den Bosch and Schive (2026d), MNRAS submitted](https://pianistpy.com/docs/project/citing), henceforth [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), in work that uses PIANISTpy.
+Please cite the initial release paper, [Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758](https://arxiv.org/abs/2610.28758), henceforth [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), in work that uses PIANISTpy.
 
 
 ---

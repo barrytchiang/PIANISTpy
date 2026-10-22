@@ -2,9 +2,9 @@
 
 Source: https://pianistpy.com/docs/reference/symbols
 
-The package’s identifiers follow the notation of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). A quantity with a symbol in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) or in the
+The package’s identifiers follow the notation of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). A quantity with a symbol in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) or in the
 Technical notes is called `<family>_<symbol>`. The family prefix gives the kind of quantity, and the rest of the
-name is the symbol or the symbol’s subscript in lower case. A truncated quantity (hatted in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing)) takes the
+name is the symbol or the symbol’s subscript in lower case. A truncated quantity (hatted in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)) takes the
 suffix `_trunc`, as in `p_trunc`, `df_trunc`, `rho_trunc` and `mass_trunc`. The untruncated quantity
 keeps the name without the suffix. Every docstring gives the
 symbol beside the name the first time the docstring describes the quantity.
@@ -97,7 +97,7 @@ probability densities
 
 \(p(V \,|\, R)\)
 
-Where the letter of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) cannot serve as a name, a fixed word replaces the letter. The normalization \(C\) of the
+Where the letter of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) cannot serve as a name, a fixed word replaces the letter. The normalization \(C\) of the
 density is `rho_norm`, since `rho_c` would read as a central density. The concentration \(c\) is
 `concentration`. The letter `c` alone is never a name. As a subscript, `c` means central (`beta_c`).
 

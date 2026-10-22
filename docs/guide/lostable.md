@@ -18,7 +18,7 @@ radius, from the center outward.
 Every observable then takes the table in place of the model and reads its values from the table. Build a table when a model is asked
 for more than one observable, or for one observable many times (a fit, a grid of apertures).
 
-As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), the dispersion inside an aperture is the surface-density weighted average of
+As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), the dispersion inside an aperture is the surface-density weighted average of
 \(\sigma_{\rm los}^2\). A centered circle of radius \(R_{\rm ape}\) gives
 
 \[\overline{\sigma}_{\rm los}^2(R_{\rm ape}) =

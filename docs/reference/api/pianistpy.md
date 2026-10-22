@@ -8,7 +8,7 @@ phase space. A component (Component) is a density profile, such as a
 DoublePowerLaw, with a velocity anisotropy (Anisotropy). solve
 computes a model from one component: the component’s distribution
 function, and the self-consistent density, mass and potential of the
-model ([Chiang+(2026d)](https://pianistpy.com/docs/project/citing)).
+model ([Chiang+(2026d)](https://arxiv.org/abs/2610.28758)).
 
 Every observable is computed from a model. Sampler draws particles.
 sigma_r and sigma_t give the radial and the tangential velocity

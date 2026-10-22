@@ -321,14 +321,14 @@ builds the model from that DF, with or without a <cite>Truncation</cite>.</p>
 <div class="math notranslate nohighlight">
 \[F(\mathcal{K}, \mathcal{L}) = F_{\mathcal{K}}(\mathcal{K})\,
 \mathcal{L}^{-2\beta_{\rm c}}\]</div>
-<p>(<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (8)). <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> is the energy-like
+<p>(<a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (8)). <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> is the energy-like
 variable in internal units, with <span class="nobr"><span class="math notranslate nohighlight">\(0 \le \mathcal{K} \le 1\)</span>.</span>
 <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> is the relative energy <span class="math notranslate nohighlight">\(Z\)</span> for a constant
 anisotropy, and <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> is <span class="math notranslate nohighlight">\(\mathcal{Q}_\pm\)</span> for an
 Osipkov-Merritt (OM) or Cuddeford-Osipkov-Merritt (COM) model.
 <span class="math notranslate nohighlight">\(\mathcal{L}\)</span> is the angular momentum in internal units, and
 <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> is the central anisotropy. A truncation at the
-energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> (Method I of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>) gives the truncated DF</p>
+energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> (Method I of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>) gives the truncated DF</p>
 <div class="math notranslate nohighlight">
 \[\hat{F}(\hat{\mathcal{K}}, \mathcal{L}) =
 F(\hat{\mathcal{K}} + \mathcal{K}_{\rm t}, \mathcal{L})
@@ -342,7 +342,7 @@ DF against the model’s density included, unless the settings set
 <code class="docutils literal notranslate"><span class="pre">write_anyway=True</span></code>. <cite>compute_df</cite>, <cite>truncate</cite> and <cite>solve</cite> issue an
 <cite>AccuracyWarning</cite> if a check of the returned result’s validation report
 lies above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)</span>.</span></p>
-<p>The derivation is in <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Section 3.1, and the numerical method
+<p>The derivation is in <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Section 3.1, and the numerical method
 in Notes Section T:2.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.df.Component">
@@ -352,7 +352,7 @@ in Notes Section T:2.</p>
 model of one component is a sequence of length one. <cite>compute_df</cite> and
 <cite>solve</cite> accept a model of one component.</p>
 <p>A component whose profile is the <cite>TruncatedProfile</cite> of another model
-(<code class="docutils literal notranslate"><span class="pre">parent.profile</span></code>) is Method II of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>. The Method II
+(<code class="docutils literal notranslate"><span class="pre">parent.profile</span></code>) is Method II of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The Method II
 component has the density of the parent model in the parent model’s
 potential, with the component’s own anisotropy.</p>
 <dl class="field-list simple">
@@ -400,7 +400,7 @@ particles carry the name <code class="docutils literal notranslate"><span class=
 </dl>
 </div>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Section 3.1 and Appendix B2.2.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Section 3.1 and Appendix B2.2.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">halo</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span>
@@ -557,7 +557,7 @@ from an inversion.</p></li>
 </dl>
 </div>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (8). Notes Section T:2.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (8). Notes Section T:2.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
@@ -881,7 +881,7 @@ the DF table has a closed form. Every <cite>Model</cite> from <cite>solve</cite>
 </dl>
 </div>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Section 3.1. Notes Section T:3.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Section 3.1. Notes Section T:3.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
@@ -1140,7 +1140,7 @@ columns that <cite>DistributionFunction.write_text</cite> writes. Default:
 <p>A truncation shifts the distribution function (DF) in energy by the
 truncation energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> and lowers the DF by the
 DF’s value at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> which gives a model of finite
-mass and finite radius (Method I of <a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>). The truncation is given
+mass and finite radius (Method I of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>). The truncation is given
 by exactly one of three inputs: the truncation energy <cite>k_t</cite>, a target
 mass <cite>mass_t</cite> or a target radius <cite>r_t</cite>. A target mass is given together
 with the <cite>concentration</cite> that defines the unit of the target mass.
@@ -1201,7 +1201,7 @@ F(\hat{\mathcal{K}} + \mathcal{K}_{\rm t}, \mathcal{L})
 the untruncated DF, <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> the energy-like variable and
 <span class="math notranslate nohighlight">\(\mathcal{L}\)</span> the angular momentum.</p>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (9). Notes Section T:3.6.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (9). Notes Section T:3.6.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
@@ -1352,7 +1352,7 @@ energy-like variable and <span class="math notranslate nohighlight">\(\mathcal{L
 in internal units. The result tabulates
 <span class="nobr"><span class="math notranslate nohighlight">\(F_{\mathcal{K}}(\mathcal{K})\)</span>.</span></p>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eq. (8). Notes Section T:2.1.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (8). Notes Section T:2.1.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
@@ -1412,7 +1412,7 @@ above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)<
 </dl>
 </div>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Section 3.1.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Section 3.1.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
@@ -1430,7 +1430,7 @@ above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)<
 energy by the truncation energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> and lowered
 by the untruncated DF’s value at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> which
 gives a model of finite mass and finite radius (Method I of
-<a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>). Without a truncation, the untruncated DF is the
+<a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>). Without a truncation, the untruncated DF is the
 model’s DF. An untruncated DF is a valid equilibrium only if
 <cite>DistributionFunction.is_physical</cite> is true.</p>
 <dl class="field-list simple">
@@ -1516,7 +1516,7 @@ Poisson’s equation with the density of <span class="nobr"><span class="math no
 <span class="math notranslate nohighlight">\(\hat{P}(0) = 1 - \mathcal{K}_{\rm t}\)</span> to the truncation radius
 <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>,</span> where <span class="nobr"><span class="math notranslate nohighlight">\(\hat{P}(R_{\rm t}) = 0\)</span>.</span></p>
 <p class="rubric">References</p>
-<p><a class="reference external" href="https://pianistpy.com/docs/project/citing">Chiang+(2026d)</a>, Eqs. (9), (10) and (11). Notes Section T:3.</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eqs. (9), (10) and (11). Notes Section T:3.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>

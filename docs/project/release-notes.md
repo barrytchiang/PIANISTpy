@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/project/release-notes
 
 ## Ver. 1.0.0
 
-The initial public release of PIANISTpy, described in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing).
+The initial public release of PIANISTpy, described in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758).
 
 ### Known limitations
 

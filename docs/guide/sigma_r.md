@@ -6,7 +6,7 @@ Source: https://pianistpy.com/docs/guide/sigma_r
 
 `sigma_r(source, r)` returns the intrinsic radial velocity dispersion \(\sigma_{\rm r}\) at user-specified 3D radii.
 \(\sigma_{\rm r}^2\) is the second moment of the radial velocity over the model’s distribution function at a
-fixed radius. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), \(\sigma_{\rm r}^2\) is the velocity moment of the augmented density
+fixed radius. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(\sigma_{\rm r}^2\) is the velocity moment of the augmented density
 \(\varrho_{\rm aug}\), integrated over the energy \(\mathcal{K}\) up to the relative potential
 \(P = P(R)\) at the radius \(R\),
 
@@ -16,7 +16,7 @@ fixed radius. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing),
 For the anisotropy models of the package, the augmented density separates as
 \(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\), with \(\varrho_{\rm aux}\) the auxiliary density
 and \(g\) the anisotropy factor (`Anisotropy.factor`). \(\sigma_{\rm r}^2\) is then the Jeans integral of
-\(\varrho_{\rm aux}\) over the potential. The radius \(R\) of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing) is `r` in the package.
+\(\varrho_{\rm aux}\) over the potential. The radius \(R\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) is `r` in the package.
 
 ## Arguments and units
 

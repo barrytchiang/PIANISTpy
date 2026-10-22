@@ -2,7 +2,7 @@
 
 Source: https://pianistpy.com/docs/reference/technical-notes/sup
 
-Distribution functions inverted from one and the same truncated density, that is, Method II models of one Method I model, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, checked on its own nodes. The anisotropy profile of the superposition is given in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B74). In terms of the radial dispersions \(\sigma_{r,i}^2\) and the anisotropy profiles \(\beta_i\) of the members, with weights \(c_i > 0\) and \(\sum_i c_i = 1\), it reads
+Distribution functions inverted from one and the same truncated density, that is, Method II models of one Method I model, combined with positive weights that sum to one, form a single equilibrium model in that density. Members on different truncated profiles are refused, and every component keeps its own energy grid, checked on its own nodes. The anisotropy profile of the superposition is given in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B74). In terms of the radial dispersions \(\sigma_{r,i}^2\) and the anisotropy profiles \(\beta_i\) of the members, with weights \(c_i > 0\) and \(\sum_i c_i = 1\), it reads
 
 \begin{equation}
   \beta_{\rm sup}(R) = \frac{\sum_i c_i\,\beta_i(R)\,\sigma_{r,i}^2(R)}{\sum_i c_i\,\sigma_{r,i}^2(R)} .

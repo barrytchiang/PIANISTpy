@@ -6,7 +6,7 @@ Source: https://pianistpy.com/docs/guide/losvd
 
 `losvd(source, r_2d, v)` returns the line-of-sight velocity distribution \(D(R_{\rm 2D}, V_{\rm los})\) at
 user-specified projected radii. \(D\) is the probability density of the line-of-sight velocity of the model’s
-mass seen at a projected distance \(R_{\rm 2D}\) from the center. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), \(D\) is the distribution
+mass seen at a projected distance \(R_{\rm 2D}\) from the center. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(D\) is the distribution
 function \(F(\mathcal{Z}, L)\), with \(L\) the angular momentum, integrated over the line of sight up to the
 truncation radius \(R_{\rm t}\) and over the two plane-of-sky velocity components \(V_{\perp 1}\) and
 \(V_{\perp 2}\), and divided by the surface density \(\Sigma\),

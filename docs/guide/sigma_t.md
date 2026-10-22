@@ -7,7 +7,7 @@ Source: https://pianistpy.com/docs/guide/sigma_t
 `sigma_t(source, r)` returns the intrinsic tangential velocity dispersion \(\sigma_{\rm t}\) at user-specified 3D radii.
 \(\sigma_{\rm t}^2\) is the sum of the squared dispersions of the two tangential velocity components,
 \(\sigma_{\rm t}^2 = \sigma_\theta^2 + \sigma_\phi^2\), with \(\theta\) and \(\phi\) the polar and the
-azimuthal directions. As in [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), \(\sigma_{\rm t}^2\) is the tangential velocity moment of the augmented
+azimuthal directions. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(\sigma_{\rm t}^2\) is the tangential velocity moment of the augmented
 density,
 
 \[\sigma_{\rm t}^2(R) = \frac{2}{\varrho_{\rm aug}(P, R)} \int_0^{P}

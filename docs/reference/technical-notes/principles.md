@@ -4,7 +4,7 @@ Source: https://pianistpy.com/docs/reference/technical-notes/principles
 
 ## T:0.1 Notation
 
-We adopt the notation of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing). The relative potential is \(P\), with the central value \(P_0\); the energy-like variable is \(\mathcal{K}\); the distribution function (DF) is \(F(\mathcal{K}, L) = F_\mathcal{K}(\mathcal{K})\,L^{-2\beta_\mathrm{c}}\); the density is the double power law of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (5) with exponents \((\alpha, \beta, \gamma)\); and \(\varrho_\mathrm{aux}\) is the auxiliary density, which for the (C)OM models is given by [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), Eq. (B23). Three derived quantities are used throughout these notes. The first is the order of the inversion,
+We adopt the notation of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The relative potential is \(P\), with the central value \(P_0\); the energy-like variable is \(\mathcal{K}\); the distribution function (DF) is \(F(\mathcal{K}, L) = F_\mathcal{K}(\mathcal{K})\,L^{-2\beta_\mathrm{c}}\); the density is the double power law of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (5) with exponents \((\alpha, \beta, \gamma)\); and \(\varrho_\mathrm{aux}\) is the auxiliary density, which for the (C)OM models is given by [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B23). Three derived quantities are used throughout these notes. The first is the order of the inversion,
 
 \begin{equation}
   \nu \equiv \tfrac{3}{2} - \beta_\mathrm{c} = m + n, \qquad m \equiv \lfloor \nu \rfloor, \qquad 0 \leq n < 1 ,
@@ -16,7 +16,7 @@ and the other two are the exponent of the inner expansion and the depth below th
   \delta \equiv \frac{\alpha}{2-\gamma}, \qquad u \equiv P_0 - \mathcal{K} .
   \tag{T:0.2}
 \end{equation}
-Internally, every model is expressed in the units of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing), in which the scale radius and the central potential of the untruncated profile are both unity; a truncated model therefore has \(P_0 = 1 - \mathcal{K}_\mathrm{t}\). The depth \(u\) is carried as a variable of its own wherever the difference \(P_0 - \mathcal{K}\) would lose significant digits.
+Internally, every model is expressed in the units of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), in which the scale radius and the central potential of the untruncated profile are both unity; a truncated model therefore has \(P_0 = 1 - \mathcal{K}_\mathrm{t}\). The depth \(u\) is carried as a variable of its own wherever the difference \(P_0 - \mathcal{K}\) would lose significant digits.
 
 ## T:0.2 Thresholds derived from the inputs
 

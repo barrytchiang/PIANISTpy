@@ -653,7 +653,7 @@ origin. Default: `None`, which means no shift.
 - `"gamer"` takes `attributes` (`"standard"` or `"legacy"`):
 `"standard"` writes the mass, the position and the velocity.
 `"legacy"` writes 13 float32 blocks, one per attribute, in the
-layout of the GAMER build used for the runs of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing): the
+layout of the GAMER build used for the runs of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758): the
 mass, the position, the velocity, the type 1, the tag 1, the
 energy 0, the angular momentum 0, the energy backup 0 and the
 identifiers 0 to \(n - 1\). Default: `"standard"`.
