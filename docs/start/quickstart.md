@@ -34,4 +34,5 @@ sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
 
 `pp.solve(halo, pp.Truncation(mass_t=1.0, concentration=10))` runs `compute_df` and `truncate` in one call.
 
-The [Examples](https://pianistpy.com/docs/notebooks/index) page shows self-contained Jupyter tutorial notebooks.
+The [Examples](https://pianistpy.com/docs/notebooks/index) page shows self-contained Jupyter tutorial notebooks, and the notebooks
+that reproduce the result figures of [Chiang+(2026d)](https://pianistpy.com/docs/project/citing).

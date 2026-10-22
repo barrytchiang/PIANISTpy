@@ -23,7 +23,9 @@ cell’s error alone gives.
 exception’s full message is in the cell’s tooltip and in the CSV.
 
 - **excluded**, where the model violates the Cusp Slope–Central Anisotropy theorem
-([An & Evans 2006b](https://doi.org/10.1086/501040)), which requires \(\gamma \ge 2\beta_{\rm c}\). The model is still
+([An & Evans 2006b](https://doi.org/10.1086/501040)), which requires the inner slope of the density
+profile, \(\gamma\), to be at least twice the central velocity anisotropy, \(\beta_{\rm c}\) (i.e.,
+\(\gamma \ge 2\beta_{\rm c}\)). The model is still
 computed and recorded in the CSV.
 
 The distribution function of an untruncated Type II model is defined only at energies above
@@ -889,7 +891,7 @@ the truncation energy as a fraction of the central potential; blank for an untru
 for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation energy); blank otherwise
 
 `expected outcome`
-what the grid expects of the model: “value” (a result is served), “value: not physical” (a result is served for a model that is not a physical equilibrium), “value: the parent’s DF within \(10^{-6}\), read by the package’s rule” (a Method II model whose distribution function equals its Method I model’s), or a refusal with the error the package raises (its kind, then the opening words of its message)
+what the grid expects of the model: “value” (a result is served), “value: not physical” (a result is served for a model that is not a physical equilibrium), “value: the Method I model’s DF within \(10^{-6}\), read by the package’s rule” (a Method II model whose distribution function equals its Method I model’s), or a refusal with the error the package raises (its kind, then the opening words of its message)
 
 `physical`
 whether the model is a physical equilibrium by the grid’s own criteria: True, False, or blank where the model is refused before the criteria apply; a result can be served for a model that is not physical

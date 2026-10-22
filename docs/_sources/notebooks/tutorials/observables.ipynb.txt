@@ -16,16 +16,26 @@
    "id": "c69cb2df",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-07T14:51:05.199331Z",
-     "iopub.status.busy": "2026-10-07T14:51:05.199246Z",
-     "iopub.status.idle": "2026-10-07T14:51:05.995090Z",
-     "shell.execute_reply": "2026-10-07T14:51:05.994720Z"
+     "iopub.execute_input": "2026-10-22T00:11:01.751570Z",
+     "iopub.status.busy": "2026-10-22T00:11:01.751350Z",
+     "iopub.status.idle": "2026-10-22T00:11:02.901555Z",
+     "shell.execute_reply": "2026-10-22T00:11:02.901098Z"
     }
    },
-   "outputs": [],
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "pianistpy 1.0.0\n"
+     ]
+    }
+   ],
    "source": [
     "import numpy as np\n",
     "import pianistpy as pp\n",
+    "\n",
+    "print(\"pianistpy\", pp.__version__)\n",
     "from pianistpy.df.analytic import analytic_model\n",
     "\n",
     "model = analytic_model(\"hernquist\")"
@@ -45,17 +55,17 @@
    "id": "a3a0a8ee",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-07T14:51:05.997094Z",
-     "iopub.status.busy": "2026-10-07T14:51:05.996835Z",
-     "iopub.status.idle": "2026-10-07T14:51:22.629207Z",
-     "shell.execute_reply": "2026-10-07T14:51:22.628702Z"
+     "iopub.execute_input": "2026-10-22T00:11:02.903157Z",
+     "iopub.status.busy": "2026-10-22T00:11:02.902902Z",
+     "iopub.status.idle": "2026-10-22T00:11:04.294264Z",
+     "shell.execute_reply": "2026-10-22T00:11:04.293841Z"
     }
    },
    "outputs": [
     {
      "data": {
       "text/plain": [
-       "array([0.30974035, 0.27598987, 0.1234161 ])"
+       "array([0.30974034, 0.27598986, 0.1234161 ])"
       ]
      },
      "execution_count": 2,
@@ -72,7 +82,9 @@
    "cell_type": "markdown",
    "id": "d2a59d8f",
    "metadata": {},
-   "source": "`sigma_los_aperture` averages the squared dispersion over an aperture, weighted by the surface density: a centered circle, or a rectangle at an offset and an angle."
+   "source": [
+    "`sigma_los_aperture` averages the squared dispersion over an aperture, weighted by the surface density: a centered circle, or a rectangle at an offset and an angle."
+   ]
   },
   {
    "cell_type": "code",
@@ -80,17 +92,17 @@
    "id": "e947fb9d",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-07T14:51:22.630449Z",
-     "iopub.status.busy": "2026-10-07T14:51:22.630305Z",
-     "iopub.status.idle": "2026-10-07T14:51:55.950414Z",
-     "shell.execute_reply": "2026-10-07T14:51:55.949912Z"
+     "iopub.execute_input": "2026-10-22T00:11:04.296101Z",
+     "iopub.status.busy": "2026-10-22T00:11:04.295995Z",
+     "iopub.status.idle": "2026-10-22T00:11:06.512707Z",
+     "shell.execute_reply": "2026-10-22T00:11:06.512275Z"
     }
    },
    "outputs": [
     {
      "data": {
       "text/plain": [
-       "(0.3028872393345692, 0.3003436495218896)"
+       "(0.30288723224579633, 0.30034364264265345)"
       ]
      },
      "execution_count": 3,
@@ -118,17 +130,17 @@
    "id": "481907dd",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-07T14:51:55.951556Z",
-     "iopub.status.busy": "2026-10-07T14:51:55.951449Z",
-     "iopub.status.idle": "2026-10-07T14:53:04.459400Z",
-     "shell.execute_reply": "2026-10-07T14:53:04.458878Z"
+     "iopub.execute_input": "2026-10-22T00:11:06.514370Z",
+     "iopub.status.busy": "2026-10-22T00:11:06.514225Z",
+     "iopub.status.idle": "2026-10-22T00:11:16.476744Z",
+     "shell.execute_reply": "2026-10-22T00:11:16.475988Z"
     }
    },
    "outputs": [
     {
      "data": {
       "text/plain": [
-       "(array([0.30974035, 0.27598987, 0.1234161 ]), 0.302887239623593)"
+       "(array([0.30974034, 0.27598986, 0.1234161 ]), 0.3028872396228435)"
       ]
      },
      "execution_count": 4,
@@ -155,20 +167,20 @@
    "id": "1cec393d",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-07T14:53:04.461277Z",
-     "iopub.status.busy": "2026-10-07T14:53:04.461012Z",
-     "iopub.status.idle": "2026-10-07T14:53:18.737114Z",
-     "shell.execute_reply": "2026-10-07T14:53:18.736636Z"
+     "iopub.execute_input": "2026-10-22T00:11:16.478545Z",
+     "iopub.status.busy": "2026-10-22T00:11:16.478431Z",
+     "iopub.status.idle": "2026-10-22T00:11:18.301924Z",
+     "shell.execute_reply": "2026-10-22T00:11:18.301193Z"
     }
    },
    "outputs": [
     {
      "data": {
       "text/latex": [
-       "$[31.599922,~28.156675,~12.590995] \\; \\mathrm{\\frac{km}{s}}$"
+       "$[31.599921,~28.156674,~12.590995] \\; \\mathrm{\\frac{km}{s}}$"
       ],
       "text/plain": [
-       "<Quantity [31.59992167, 28.15667468, 12.59099495] km / s>"
+       "<Quantity [31.59992127, 28.15667382, 12.59099488] km / s>"
       ]
      },
      "execution_count": 5,
@@ -187,10 +199,10 @@
    "id": "39a03fbe",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-07T14:53:18.738489Z",
-     "iopub.status.busy": "2026-10-07T14:53:18.738307Z",
-     "iopub.status.idle": "2026-10-07T14:53:22.239929Z",
-     "shell.execute_reply": "2026-10-07T14:53:22.239452Z"
+     "iopub.execute_input": "2026-10-22T00:11:18.303790Z",
+     "iopub.status.busy": "2026-10-22T00:11:18.303608Z",
+     "iopub.status.idle": "2026-10-22T00:11:20.079204Z",
+     "shell.execute_reply": "2026-10-22T00:11:20.078484Z"
     }
    },
    "outputs": [

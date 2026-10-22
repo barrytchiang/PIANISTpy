@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Local and line-of-sight velocity distributions &#8212; PIANISTpy ver. 1.0.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/chiang2026d/fig13_15_16';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../_static/logo.png"/>
+    <link rel="index" title="Index" href="../../genindex" />
+    <link rel="search" title="Search" href="../../search" />
+    <link rel="next" title="Accuracy checks of the distribution function and the velocity distribution" href="figC1_C2" />
+    <link rel="prev" title="Benchmark of the isotropic NFW distribution function" href="fig08" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+
+
+<link rel="alternate" type="text/markdown" href="fig13_15_16.md">
+
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreFranklin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/SourceSerif4.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreBaskerville.woff2">
+
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  
+
+  
+
+<!-- band -->
+<header id="pst-header" class="site d-print-none">
+  <div class="site-in">
+    <div class="site-top">
+      <a class="site-title" href="../../../">PIANISTpy</a>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+    </div>
+    <nav class="site-nav" aria-label="Site">
+      
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/index">Tutorials</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index">Chiang+(2026d) figures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/api/index">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/index">Functions by subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/symbols">Code and paper notations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/accuracy">Accuracy tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/notes">Technical notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="site-icons">
+        <a href="../../search" title="Search" aria-label="Search"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg></a>
+        <a href="https://github.com/barrytchiang/PIANISTpy" title="GitHub" aria-label="GitHub" rel="noopener" target="_blank"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+        <a href="https://pypi.org/project/pianistpy/" title="PyPI" aria-label="PyPI" rel="noopener" target="_blank"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6zM286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3zM167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4zm-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3z"/></svg></a>
+        <!-- manual-only -->
+        <button type="button" class="site-toggle sidebar-toggle primary-toggle" aria-label="Pages of this tab"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></button>
+        <!-- /manual-only -->
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- /band -->
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><div class="sidebar-logo">
+  <a href="../../../"><img src="../../_static/logo.png" alt="PIANISTpy"></a>
+</div></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Examples">
+  <p class="bd-links__title" role="heading" aria-level="1">Examples</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/particles">Generate particle initial conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/observables">Compute observables from a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index">Chiang+(2026d) figures</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="fig04_05_06">Distribution functions of the NFW families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig07">Anisotropy of superposed models and of two fits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig08">Benchmark of the isotropic NFW distribution function</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Local and line-of-sight velocity distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="figC1_C2">Accuracy checks of the distribution function and the velocity distribution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index" class="nav-link">Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index" class="nav-link">Chiang+(2026d) figures</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Local and line-of-sight velocity distributions</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="local-and-line-of-sight-velocity-distributions">
+<h1>Local and line-of-sight velocity distributions<a class="headerlink" href="#local-and-line-of-sight-velocity-distributions" title="Link to this heading">#</a></h1>
+<p>This notebook makes Figures 13, 15 and 16 of the paper. The whole notebook takes about two hours on one 32-core node, almost all of it the aperture averages of Fig. 15.</p>
+<p>The models: an NFW halo truncated at <span class="math notranslate nohighlight">\(\mathcal{Z}_{\rm t} = k_{\rm t} = 0.165\)</span> (Method I, isotropic), and three Method II members on its density profile, <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c} = +0.5\)</span>,</span> <span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.5\)</span> and the Osipkov-Merritt Type I model with <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a} = 1\)</span>,</span> all in the model’s internal units (the scale radius is 1, velocities in units of <span class="nobr"><span class="math notranslate nohighlight">\(\sigma_0\)</span>).</span></p>
+<p>Each model’s <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> is built once, below, and every figure reads it: Fig. 13 the local velocity distribution (<code class="docutils literal notranslate"><span class="pre">pp.pdf_v</span></code>), Fig. 15 the line-of-sight dispersion and its aperture average (<code class="docutils literal notranslate"><span class="pre">pp.sigma_los</span></code>, <code class="docutils literal notranslate"><span class="pre">pp.sigma_los_aperture</span></code>), Fig. 16 the line-of-sight velocity distribution in an aperture (<code class="docutils literal notranslate"><span class="pre">pp.aperture_losvd</span></code>). Everything here is computed by the package’s public calls; nothing is read from stored data.</p>
+<p>The <span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.5\)</span> table is built with <code class="docutils literal notranslate"><span class="pre">pp.Settings(write_anyway=True)</span></code>: its last row, at <span class="nobr"><span class="math notranslate nohighlight">\(R = 31.88\)</span>,</span> where the surface density reaches zero and the line of sight has no mass to converge on, is the one check above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-2}\)</span>,</span> and it lies outside every radius these figures read.</p>
+<p>Per-call accuracy messages are quieted; the summary after each figure’s models lists every model’s tier.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"TF_CPP_MIN_LOG_LEVEL"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"3"</span>  <span class="c1"># before any JAX import: no C++ log lines from XLA</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+
+<span class="c1"># The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.</span>
+<span class="n">PIANISTPY_PIN</span> <span class="o">=</span> <span class="s2">"1.0.0"</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pianistpy </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">pp</span><span class="o">.</span><span class="n">__version__</span> <span class="o">!=</span> <span class="n">PIANISTPY_PIN</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"These figures are made with pianistpy </span><span class="si">{</span><span class="n">PIANISTPY_PIN</span><span class="si">}</span><span class="s2">; the installed version is </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">."</span>
+    <span class="p">)</span>
+
+<span class="c1"># The package reports each result's accuracy twice per call: a line of the pianistpy log and Python's AccuracyWarning.</span>
+<span class="c1"># set_verbosity("quiet") hides the log's INFO line of a result in the band "recorded"; the pianistpy logger set to</span>
+<span class="c1"># ERROR also hides the log's WARNING line of a result in the band "warned"; the filter hides the AccuracyWarning.</span>
+<span class="c1"># The summary after each figure's models prints every model's tier in place of those per-call messages.</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="s2">"quiet"</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"pianistpy"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">AccuracyWarning</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tier_line</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One summary line for a result: its label, its report's tier, and the report's worst check with that check's error.</span>
+
+<span class="sd">    The worst check is the check of the highest tier level; among checks of one level, the check with the largest error.</span>
+<span class="sd">    A result whose tier is carried from the Method I model's report, and not from any of the result's own checks, says so.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">34s</span><span class="si">}</span><span class="s2"> not built: the package's exception is printed above"</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">validation</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rank</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">error</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">level</span><span class="p">,</span> <span class="n">error</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+
+    <span class="n">worst</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span>
+    <span class="n">own_level</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">worst</span><span class="p">]</span><span class="o">.</span><span class="n">level</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="s2">", the tier carried from the Method I model's report"</span> <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">parents_level</span> <span class="o">&gt;</span> <span class="n">own_level</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">34s</span><span class="si">}</span><span class="s2"> tier </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">tier</span><span class="si">:</span><span class="s2">9s</span><span class="si">}</span><span class="s2"> worst check </span><span class="si">{</span><span class="n">worst</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">worst</span><span class="p">]</span><span class="o">.</span><span class="n">error</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}{</span><span class="n">origin</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pianistpy 1.0.0
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+
+<span class="n">Z_T</span> <span class="o">=</span> <span class="mf">0.16502882092587715</span>  <span class="c1"># the truncation energy k_t of the figure's NFW halo</span>
+
+<span class="n">truncated</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">()),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="n">Z_T</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=</span><span class="mf">0.5</span><span class="p">))),</span>
+    <span class="c1"># built regardless of its last row's check (see above), its tier carried</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
+        <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">)),</span>
+        <span class="n">settings</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">Settings</span><span class="p">(</span><span class="n">write_anyway</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">r_a</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">"I"</span><span class="p">))),</span>
+<span class="p">]</span>
+<span class="c1"># in the order of the plotting code below: isotropic, +0.5, -0.5, OM Type I</span>
+<span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">pp</span><span class="o">.</span><span class="n">LosTable</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[</span><span class="n">truncated</span><span class="p">]</span> <span class="o">+</span> <span class="n">models</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Figures 13, 15 and 16: the four models and the LosTable of each model"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">table</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">"isotropic, Method I"</span><span class="p">,</span> <span class="s2">"beta_c = +0.5"</span><span class="p">,</span> <span class="s2">"beta_c = -0.5"</span><span class="p">,</span> <span class="s2">"OM Type I, R_a = 1"</span><span class="p">],</span> <span class="p">[</span><span class="n">truncated</span><span class="p">]</span> <span class="o">+</span> <span class="n">models</span><span class="p">,</span> <span class="n">tables</span>
+<span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tier_line</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">model</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tier_line</span><span class="p">(</span><span class="n">label</span> <span class="o">+</span> <span class="s2">", LosTable"</span><span class="p">,</span> <span class="n">table</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Figures 13, 15 and 16: the four models and the LosTable of each model
+isotropic, Method I                tier silent    worst check round_trip 4.91e-08
+isotropic, Method I, LosTable      tier silent    worst check certificate 8.92e-08
+beta_c = +0.5                      tier silent    worst check round_trip 2.23e-07
+beta_c = +0.5, LosTable            tier silent    worst check second_moment 8.27e-08
+beta_c = -0.5                      tier silent    worst check poisson_residual 4.77e-08
+beta_c = -0.5, LosTable            tier silent    worst check second_moment 2.94e-07
+OM Type I, R_a = 1                 tier silent    worst check round_trip 4.91e-08
+OM Type I, R_a = 1, LosTable       tier silent    worst check second_moment 8.67e-08
+</pre></div>
+</div>
+</div>
+</div>
+<section id="figure-13-local-velocity-distribution">
+<h2>Figure 13: local velocity distribution<a class="headerlink" href="#figure-13-local-velocity-distribution" title="Link to this heading">#</a></h2>
+<p>The probability density of the velocity <span class="math notranslate nohighlight">\(V = |\mathbf{v}|\)</span> at 3D radius <span class="math notranslate nohighlight">\(R\)</span> (<code class="docutils literal notranslate"><span class="pre">pp.pdf_v</span></code>). Top: the four models at <span class="nobr"><span class="math notranslate nohighlight">\(R = 1\)</span>,</span> with the Maxwell-Boltzmann distribution whose peak sits at the isotropic model’s. Bottom: the Osipkov-Merritt Type I model at <span class="nobr"><span class="math notranslate nohighlight">\(R = 0.1\)</span>,</span> 1 and 10.</p>
+<p>The distribution at 500 velocities from <span class="math notranslate nohighlight">\(10^{-7}\)</span> to <span class="math notranslate nohighlight">\(1 - 10^{-7}\)</span> times the escape velocity at the radius, the grid of the paper’s tables.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The arXiv figure's tables sample each p(V | R) at 500 velocities from 1e-7 V_esc(R) to (1 - 1e-7) V_esc(R),</span>
+<span class="c1"># V_esc(R) = sqrt(2 P(R)) the escape velocity at the radius; the same grid here, the values from pp.pdf_v.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">velocity_grid</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+    <span class="n">v_esc</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">v_esc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">v_esc</span> <span class="o">*</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="n">v_esc</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1e-7</span><span class="p">),</span> <span class="mi">500</span><span class="p">)</span>
+
+<span class="n">v_esc_1</span><span class="p">,</span> <span class="n">v_1</span> <span class="o">=</span> <span class="n">velocity_grid</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"V_esc(R = 1) = </span><span class="si">{</span><span class="n">v_esc_1</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">p_at_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">pdf_v</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v_1</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">]</span>
+<span class="n">v_om</span><span class="p">,</span> <span class="n">p_om</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">):</span>
+    <span class="n">v_esc</span><span class="p">,</span> <span class="n">v_r</span> <span class="o">=</span> <span class="n">velocity_grid</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"V_esc(R = </span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="n">v_esc</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">v_om</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v_r</span><span class="p">)</span>
+    <span class="n">p_om</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">pdf_v</span><span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">r</span><span class="p">,</span> <span class="n">v_r</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>V_esc(R = 1) = 1.028643e+00
+V_esc(R = 0.1) = 1.255458e+00
+V_esc(R = 1.0) = 1.028643e+00
+V_esc(R = 10.0) = 4.391825e-01
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the arXiv figure's script, with the frames and ticks at their printed size</span>
+<span class="c1"># before its savefig, which set every axes' frame and ticks as printed for its slot (f 0.99, column).</span>
+<span class="c1">#!/usr/bin/env python3</span>
+<span class="sd">"""</span>
+<span class="sd">V_shell_PDF_plot.py</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ticker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
+
+<span class="c1"># DejaVu Sans for text and math, as in Fig. 7</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># USER PARAMETERS</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">OUTPUT_FIG</span> <span class="o">=</span> <span class="s2">"V_shell_Comparison.pdf"</span>
+
+<span class="n">SIGMA_0</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="n">XMIN</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">XMAX</span> <span class="o">=</span> <span class="mf">1.3</span>
+
+<span class="n">YMIN_TOP</span> <span class="o">=</span> <span class="mf">0.001</span>
+<span class="n">YMAX_TOP</span> <span class="o">=</span> <span class="mf">3.1</span>   <span class="c1"># the OM I peak at R = 1 is 2.93 (V* = sqrt(2 Psi / (1 + R^2 / R_a^2)))</span>
+<span class="n">YMIN_BOT</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">YMAX_BOT</span> <span class="o">=</span> <span class="mf">6.9</span>   <span class="c1"># the OM I peak at R = 10 is 6.53 at V* = 0.044</span>
+
+<span class="c1"># ── OM purple shade factors ──────────────────────────────────────────────</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_lighten</span><span class="p">(</span><span class="n">hex_color</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.45</span><span class="p">):</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mcolors</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">(</span><span class="n">hex_color</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">(</span><span class="n">rgb</span> <span class="o">+</span> <span class="n">factor</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">rgb</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_darken</span><span class="p">(</span><span class="n">hex_color</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.45</span><span class="p">):</span>
+    <span class="n">rgb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mcolors</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">(</span><span class="n">hex_color</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">to_hex</span><span class="p">(</span><span class="n">rgb</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">factor</span><span class="p">))</span>
+    
+<span class="n">_OM_BASE_HEX</span> <span class="o">=</span> <span class="n">_lighten</span><span class="p">(</span><span class="s2">"#800080"</span><span class="p">,</span><span class="mf">0.2</span><span class="p">)</span>
+
+<span class="n">COLOR_ISO</span>    <span class="o">=</span> <span class="s2">"#eeaf1e"</span>
+<span class="n">COLOR_BP5</span>    <span class="o">=</span> <span class="s2">"#88c1d5"</span>
+<span class="n">COLOR_BM5</span>    <span class="o">=</span> <span class="s2">"#de582d"</span>
+<span class="n">COLOR_OM</span>     <span class="o">=</span> <span class="n">_OM_BASE_HEX</span>
+<span class="n">COLOR_MB</span>     <span class="o">=</span> <span class="s2">"#000000"</span>
+
+<span class="n">COLOR_OM_R01</span> <span class="o">=</span> <span class="n">_lighten</span><span class="p">(</span><span class="s2">"#800080"</span><span class="p">,</span> <span class="mf">0.72</span><span class="p">)</span>
+<span class="n">COLOR_OM_R1</span>  <span class="o">=</span> <span class="n">_OM_BASE_HEX</span>
+<span class="n">COLOR_OM_R10</span> <span class="o">=</span> <span class="n">_darken</span><span class="p">(</span><span class="s2">"#800080"</span><span class="p">,</span>  <span class="mf">0.25</span><span class="p">)</span>
+
+<span class="c1"># ── Legend / curve labels ────────────────────────────────────────────────</span>
+<span class="n">LABEL_BP5</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= +0.5}$'</span>
+<span class="n">LABEL_ISO</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= 0.0}$'</span>
+<span class="n">LABEL_BM5</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= -0.5}$'</span>
+<span class="n">LABEL_OM</span>  <span class="o">=</span> <span class="sa">r</span><span class="s1">'$\mathbf{OM\ (Type\ I)}$'</span>
+
+<span class="n">LABEL_R01</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'$\boldsymbol</span><span class="si">{R}</span><span class="s1">\mathbf{ = 0.1}$'</span>
+<span class="n">LABEL_R1</span>  <span class="o">=</span> <span class="sa">r</span><span class="s1">'$\boldsymbol</span><span class="si">{R}</span><span class="s1">\mathbf{ = 1}$'</span>
+<span class="n">LABEL_R10</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">'$\boldsymbol</span><span class="si">{R}</span><span class="s1">\mathbf{ = 10}$'</span>
+
+<span class="c1"># ── Global font / frame sizes ────────────────────────────────────────────</span>
+<span class="n">FONTSIZE_AXIS_LABEL</span> <span class="o">=</span> <span class="mi">22</span>
+<span class="n">FONTSIZE_TICK_LABEL</span> <span class="o">=</span> <span class="mi">22</span>
+<span class="n">FONTSIZE_LEGEND</span>     <span class="o">=</span> <span class="mi">19</span>
+<span class="n">FRAME_LINEWIDTH</span>     <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">TICK_LINEWIDTH</span>      <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">TICK_MAJOR_LENGTH</span>   <span class="o">=</span> <span class="mf">10.0</span>
+<span class="n">TICK_MINOR_LENGTH</span>   <span class="o">=</span> <span class="mf">6.0</span>
+<span class="n">CURVE_LINEWIDTH</span>     <span class="o">=</span> <span class="mf">4.5</span>
+<span class="n">MB_LINEWIDTH</span>        <span class="o">=</span> <span class="mf">2.5</span>
+
+<span class="c1"># ── TOP PANEL: "R = 1" annotation ───────────────────────────────────────</span>
+<span class="c1"># Position: top-right corner (axes fraction).</span>
+<span class="c1"># ANNOT_TOP_R1_Y_SHIFT moves the label up (+) or down (-) from the default.</span>
+<span class="n">ANNOT_TOP_R1_FONTSIZE</span> <span class="o">=</span> <span class="mi">25</span>          <span class="c1"># decoupled from FONTSIZE_LEGEND</span>
+<span class="n">ANNOT_TOP_R1_Y_SHIFT</span>  <span class="o">=</span> <span class="mf">0.00</span>        <span class="c1"># additional vertical shift (axes fraction)</span>
+
+<span class="c1"># ── TOP PANEL: curve-label legend vertical shift ─────────────────────────</span>
+<span class="c1"># Positive = up, negative = down (axes fraction added to bbox_to_anchor y).</span>
+<span class="n">ANNOT_TOP_LEGEND_Y_SHIFT</span> <span class="o">=</span> <span class="mf">0.022</span>
+
+<span class="c1"># ── BOTTOM PANEL: "OM (Type I)" annotation ──────────────────────────────</span>
+<span class="n">ANNOT_BOT_OM_FONTSIZE</span> <span class="o">=</span> <span class="mi">25</span>          <span class="c1"># decoupled from FONTSIZE_LEGEND</span>
+<span class="n">ANNOT_BOT_OM_Y_SHIFT</span>  <span class="o">=</span> <span class="mf">0.00</span>        <span class="c1"># additional vertical shift (axes fraction)</span>
+
+<span class="c1"># ── BOTTOM PANEL: curve-label legend vertical shift ──────────────────────</span>
+<span class="n">ANNOT_BOT_LEGEND_Y_SHIFT</span> <span class="o">=</span> <span class="mf">0.019</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># LOAD DATA</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">V_comp</span>  <span class="o">=</span> <span class="n">v_1</span> <span class="o">/</span> <span class="n">SIGMA_0</span>
+<span class="n">p_iso</span>   <span class="o">=</span> <span class="n">p_at_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
+<span class="n">p_bp5</span>   <span class="o">=</span> <span class="n">p_at_1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
+<span class="n">p_bm5</span>   <span class="o">=</span> <span class="n">p_at_1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
+<span class="n">p_om_r1</span> <span class="o">=</span> <span class="n">p_at_1</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
+
+<span class="n">V_r01</span> <span class="o">=</span> <span class="n">v_om</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">SIGMA_0</span><span class="p">;</span>  <span class="n">p_r01</span> <span class="o">=</span> <span class="n">p_om</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
+<span class="n">V_r1</span>  <span class="o">=</span> <span class="n">v_om</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">SIGMA_0</span><span class="p">;</span>  <span class="n">p_r1</span>  <span class="o">=</span> <span class="n">p_om</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
+<span class="n">V_r10</span> <span class="o">=</span> <span class="n">v_om</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">SIGMA_0</span><span class="p">;</span>  <span class="n">p_r10</span> <span class="o">=</span> <span class="n">p_om</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># MAXWELL-BOLTZMANN — match peak LOCATION to isotropic</span>
+<span class="c1"># ============================================================</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">maxwell_boltzmann</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">v</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">a</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">v</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">peak_iso_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">p_iso</span><span class="p">))</span>
+<span class="n">peak_iso_v</span>   <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">V_comp</span><span class="p">[</span><span class="n">peak_iso_idx</span><span class="p">])</span>
+<span class="n">peak_iso_val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p_iso</span><span class="p">[</span><span class="n">peak_iso_idx</span><span class="p">])</span>
+<span class="n">a_mb</span>         <span class="o">=</span> <span class="n">peak_iso_v</span>
+<span class="n">mb_peak_h</span>    <span class="o">=</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">a_mb</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  MB match: peak LOCATION"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    iso mode : v = </span><span class="si">{</span><span class="n">peak_iso_v</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">   height = </span><span class="si">{</span><span class="n">peak_iso_val</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    MB  mode : v = </span><span class="si">{</span><span class="n">a_mb</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">   height = </span><span class="si">{</span><span class="n">mb_peak_h</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    height ratio (iso/MB) : </span><span class="si">{</span><span class="n">peak_iso_val</span><span class="o">/</span><span class="n">mb_peak_h</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">V_mb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="n">p_mb</span> <span class="o">=</span> <span class="n">maxwell_boltzmann</span><span class="p">(</span><span class="n">V_mb</span><span class="p">,</span> <span class="n">a_mb</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># FIGURE SETUP</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_top</span><span class="p">,</span> <span class="n">ax_bot</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+    <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span>
+    <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">'hspace'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">style_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">spine</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="n">FRAME_LINEWIDTH</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+        <span class="n">which</span><span class="o">=</span><span class="s1">'major'</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">'in'</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">TICK_MAJOR_LENGTH</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">TICK_LINEWIDTH</span><span class="p">,</span>
+        <span class="n">labelsize</span><span class="o">=</span><span class="n">FONTSIZE_TICK_LABEL</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+        <span class="n">which</span><span class="o">=</span><span class="s1">'minor'</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">'in'</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">TICK_MINOR_LENGTH</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">TICK_LINEWIDTH</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># X-AXIS TICKS — "0.0" -&gt; "0"</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">major_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">XMAX</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<span class="n">minor_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">XMAX</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ax_top</span><span class="p">,</span> <span class="n">ax_bot</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">major_x</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">minor_x</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fmt_x</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Format x tick: '0' for exactly zero, else one decimal place."""</span>
+    <span class="k">return</span> <span class="s1">'0'</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-9</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">'</span>
+
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="n">_fmt_x</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">major_x</span><span class="p">],</span>
+                        <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_TICK_LABEL</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># TOP PANEL</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">ax_top</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_comp</span><span class="p">,</span> <span class="n">p_bp5</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_BP5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_comp</span><span class="p">,</span> <span class="n">p_bm5</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_BM5</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_comp</span><span class="p">,</span> <span class="n">p_om_r1</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_OM</span><span class="p">,</span>  <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_comp</span><span class="p">,</span> <span class="n">p_iso</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_ISO</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_mb</span><span class="p">,</span>   <span class="n">p_mb</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_MB</span><span class="p">,</span>  <span class="n">linewidth</span><span class="o">=</span><span class="n">MB_LINEWIDTH</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span>  <span class="n">zorder</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">XMIN</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">YMIN_TOP</span><span class="p">,</span> <span class="n">YMAX_TOP</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$p(V\,|\,R)$'</span><span class="p">,</span>
+                  <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">style_ax</span><span class="p">(</span><span class="n">ax_top</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.1</span><span class="p">))</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="c1"># Curve-label legend (top panel) — vertical shift applied to anchor y</span>
+<span class="n">_top_leg_y</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">ANNOT_TOP_LEGEND_Y_SHIFT</span>
+<span class="n">top_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">LABEL_BP5</span><span class="p">,</span> <span class="n">LABEL_ISO</span><span class="p">,</span> <span class="n">LABEL_BM5</span><span class="p">,</span> <span class="n">LABEL_OM</span><span class="p">]</span>
+<span class="n">top_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">COLOR_BP5</span><span class="p">,</span> <span class="n">COLOR_ISO</span><span class="p">,</span> <span class="n">COLOR_BM5</span><span class="p">,</span> <span class="n">COLOR_OM</span><span class="p">]</span>
+<span class="n">blank_top</span>  <span class="o">=</span> <span class="p">[</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'none'</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">top_labels</span><span class="p">]</span>
+
+<span class="n">leg_top</span> <span class="o">=</span> <span class="n">ax_top</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">blank_top</span><span class="p">,</span> <span class="n">top_labels</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s1">'upper right'</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">_top_leg_y</span><span class="p">),</span>
+    <span class="n">bbox_transform</span><span class="o">=</span><span class="n">ax_top</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_LEGEND</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">handlelength</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">handletextpad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">borderpad</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">txt</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">leg_top</span><span class="o">.</span><span class="n">get_texts</span><span class="p">(),</span> <span class="n">top_colors</span><span class="p">):</span>
+    <span class="n">txt</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="c1"># "R = 1" annotation — top-right, with independent fontsize + y-shift</span>
+<span class="n">_r1_y</span> <span class="o">=</span> <span class="mf">0.96</span> <span class="o">+</span> <span class="n">ANNOT_TOP_R1_Y_SHIFT</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">_r1_y</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$\boldsymbol</span><span class="si">{R}</span><span class="s1">\mathbf{ = 1}$'</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax_top</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">ANNOT_TOP_R1_FONTSIZE</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># BOTTOM PANEL</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_r01</span><span class="p">,</span> <span class="n">p_r01</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_OM_R01</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_r1</span><span class="p">,</span>  <span class="n">p_r1</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_OM_R1</span><span class="p">,</span>  <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">V_r10</span><span class="p">,</span> <span class="n">p_r10</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">COLOR_OM_R10</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">XMIN</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">YMIN_BOT</span><span class="p">,</span> <span class="n">YMAX_BOT</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$V$'</span><span class="p">,</span>
+                  <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$p(V\,|\,R)$'</span><span class="p">,</span>
+                  <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">style_ax</span><span class="p">(</span><span class="n">ax_bot</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+
+<span class="c1"># Curve-label legend (bottom panel) — vertical shift applied to anchor y</span>
+<span class="n">_bot_leg_y</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">ANNOT_BOT_LEGEND_Y_SHIFT</span>
+<span class="n">bot_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">LABEL_R01</span><span class="p">,</span> <span class="n">LABEL_R1</span><span class="p">,</span> <span class="n">LABEL_R10</span><span class="p">]</span>
+<span class="n">bot_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">COLOR_OM_R01</span><span class="p">,</span> <span class="n">COLOR_OM_R1</span><span class="p">,</span> <span class="n">COLOR_OM_R10</span><span class="p">]</span>
+<span class="n">blank_bot</span>  <span class="o">=</span> <span class="p">[</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'none'</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">bot_labels</span><span class="p">]</span>
+
+<span class="n">leg_bot</span> <span class="o">=</span> <span class="n">ax_bot</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">blank_bot</span><span class="p">,</span> <span class="n">bot_labels</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s1">'upper right'</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">_bot_leg_y</span><span class="p">),</span>
+    <span class="n">bbox_transform</span><span class="o">=</span><span class="n">ax_bot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_LEGEND</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">handlelength</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">handletextpad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">borderpad</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">txt</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">leg_bot</span><span class="o">.</span><span class="n">get_texts</span><span class="p">(),</span> <span class="n">bot_colors</span><span class="p">):</span>
+    <span class="n">txt</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="c1"># two leading spaces so the label clears the R = 0.1 curve</span>
+<span class="c1"># "OM (Type I)" annotation — top-right, black, with independent fontsize + y-shift</span>
+<span class="n">_om_y</span> <span class="o">=</span> <span class="mf">0.96</span> <span class="o">+</span> <span class="n">ANNOT_BOT_OM_Y_SHIFT</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">_om_y</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$\mathbf{\ \ OM\ (Type\ I)}$'</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax_bot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">ANNOT_BOT_OM_FONTSIZE</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># SAVE</span>
+<span class="c1"># ============================================================</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_sys</span>
+<span class="n">_fs_sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'scripts'</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">print_frame_fs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_pf</span>  <span class="c1"># frames and ticks at their printed size</span>
+<span class="n">_fs_s</span> <span class="o">=</span> <span class="n">_fs_pf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span> <span class="n">width_pt</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'PRINT_WIDTH_PT'</span><span class="p">,</span> <span class="mf">586.1</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'[fs] printed scale s = </span><span class="si">{</span><span class="n">_fs_s</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> (f 0.99, slot column, W_fig </span><span class="si">{</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PRINT_WIDTH_PT"</span><span class="p">,</span><span class="w"> </span><span class="mf">586.1</span><span class="p">)</span><span class="si">}</span><span class="s1"> pt)'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">OUTPUT_FIG</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  [SAVE] figure -&gt; </span><span class="si">{</span><span class="n">OUTPUT_FIG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  MB match: peak LOCATION
+    iso mode : v = 4.452641e-01   height = 1.923733e+00
+    MB  mode : v = 4.452641e-01   height = 1.864545e+00
+    height ratio (iso/MB) : 1.0317
+[fs] printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)
+  [SAVE] figure -&gt; V_shell_Comparison.pdf
+</pre></div>
+</div>
+<img alt="figure" src="../../_images/65862117c5f3e7ad3136063977da8c3dffe9ca5fc7f6f78c969539abe59308c3.png" />
+</div>
+</div>
+</section>
+<section id="figure-15-line-of-sight-velocity-dispersion">
+<h2>Figure 15: line-of-sight velocity dispersion<a class="headerlink" href="#figure-15-line-of-sight-velocity-dispersion" title="Link to this heading">#</a></h2>
+<p>Top: the line-of-sight velocity dispersion <span class="math notranslate nohighlight">\(\sigma_{\rm los}(R_{\rm 2D})\)</span> at projected radii (<code class="docutils literal notranslate"><span class="pre">pp.sigma_los</span></code>). Bottom: its average inside a centered circle of radius <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm 2D}\)</span>,</span> <span class="math notranslate nohighlight">\(\overline{\sigma}_{\rm los}(\leq R_{\rm 2D})\)</span> (<code class="docutils literal notranslate"><span class="pre">pp.sigma_los_aperture</span></code>).</p>
+<p>The dispersion at 316 projected radii, and its average inside centered circles of 100 radii, both log-spaced from <span class="math notranslate nohighlight">\(10^{-4.7}\)</span> to the last projected radius of the line-of-sight table.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="n">t_cell</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="c1"># sigma_los at 316 and the aperture average at 100 log-spaced radii (about 16 a decade), from 10^-4.7 (the figure's</span>
+<span class="c1"># left edge) to the projected table's last row; each aperture radius is one sigma_los_aperture call.</span>
+<span class="n">los</span><span class="p">,</span> <span class="n">ape</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+    <span class="n">r_last</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">projected</span><span class="o">.</span><span class="n">r_2d</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># the projected table's last row</span>
+    <span class="n">R_2D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">10.0</span><span class="o">**-</span><span class="mf">4.7</span><span class="p">,</span> <span class="n">r_last</span><span class="p">,</span> <span class="mi">316</span><span class="p">)</span>
+    <span class="n">los</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">R_2D</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">sigma_los</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">R_2D</span><span class="p">))))</span>
+    <span class="n">R_ape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">10.0</span><span class="o">**-</span><span class="mf">4.7</span><span class="p">,</span> <span class="n">r_last</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">sig_bar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pp</span><span class="o">.</span><span class="n">sigma_los_aperture</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">r</span><span class="p">))</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">R_ape</span><span class="p">])</span>
+    <span class="n">ape</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">R_ape</span><span class="p">,</span> <span class="n">sig_bar</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"last projected row </span><span class="si">{</span><span class="n">r_last</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">; aperture radii </span><span class="si">{</span><span class="n">R_ape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">R_ape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cell time </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t_cell</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> s"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
+last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
+last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
+last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
+cell time 6391 s
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Fig. 15 (LOS_sigma.pdf) by the arXiv figure's script, with Fig. 7's fonts and the frames, ticks and tick-label gap as printed."""</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ticker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="c1"># DejaVu Sans for text and math, as in Fig. 7</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># USER PARAMETERS</span>
+<span class="c1"># ============================================================</span>
+
+<span class="c1"># --- input curves: list of ((R_2D, sigma_los), (R_ape, sigma_bar), label) tuples, computed above ---</span>
+<span class="n">MODELS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">los</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"Isotropic"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">los</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"beta0p5"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">los</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">"betam0p5"</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">los</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">ape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="s2">"OM Ra1"</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="c1"># --- legend labels (one per model, in order matching MODELS) ---</span>
+<span class="n">LEGEND_LABELS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= 0.0}$'</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= +0.5}$'</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= -0.5}$'</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">'$\mathbf{OM\ (Type\ I)}$'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># --- legend settings ---</span>
+<span class="n">FONTSIZE_LEGEND</span>  <span class="o">=</span> <span class="mi">22</span>
+<span class="n">LEGEND_ORDER</span>     <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>   <span class="c1"># indices into MODELS list, top to bottom</span>
+<span class="n">LEGEND_X_SHIFT</span>   <span class="o">=</span>  <span class="mf">0.03</span>           <span class="c1"># positive = right, negative = left (axes fraction)</span>
+<span class="n">LEGEND_Y_SHIFT</span>   <span class="o">=</span>  <span class="o">-</span><span class="mf">0.04</span>           <span class="c1"># positive = up,    negative = down  (axes fraction)</span>
+
+<span class="c1"># --- output ---</span>
+<span class="n">OUTPUT_FIG</span>       <span class="o">=</span> <span class="s2">"LOS_sigma.pdf"</span>
+
+<span class="c1"># --- x-axis (in log10(R) units) ---</span>
+<span class="n">XMIN</span>             <span class="o">=</span> <span class="o">-</span><span class="mf">4.7</span>
+<span class="n">XMAX</span>             <span class="o">=</span>  <span class="mf">1.6</span>
+
+<span class="c1"># --- y-axis top panel (sigma_los radial profile) ---</span>
+<span class="n">YMIN_TOP</span>         <span class="o">=</span> <span class="mf">0.005</span>
+<span class="n">YMAX_TOP</span>         <span class="o">=</span> <span class="mf">0.45</span>
+
+<span class="c1"># --- y-axis bottom panel (aperture-averaged sigma_los) ---</span>
+<span class="n">YMIN_BOT</span>         <span class="o">=</span> <span class="mf">0.00</span>
+<span class="n">YMAX_BOT</span>         <span class="o">=</span> <span class="mf">0.45</span>
+
+<span class="c1"># --- curve colors (one per model, in order) ---</span>
+<span class="n">CURVE_COLORS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"#eeaf1e"</span><span class="p">,</span>   <span class="c1"># model 1</span>
+    <span class="s2">"#88c1d5"</span><span class="p">,</span>   <span class="c1"># model 2</span>
+    <span class="s2">"#de582d"</span><span class="p">,</span>   <span class="c1"># model 3</span>
+    <span class="s2">"#800080"</span><span class="p">,</span>   <span class="c1"># model 4</span>
+<span class="p">]</span>
+
+<span class="c1"># --- font sizes ---</span>
+<span class="n">FONTSIZE_AXIS_LABEL</span>  <span class="o">=</span> <span class="mi">22</span>
+<span class="n">FONTSIZE_TICK_LABEL</span>  <span class="o">=</span> <span class="mi">22</span>
+<span class="n">FONTSIZE_INLINE</span>      <span class="o">=</span> <span class="mi">22</span>
+
+<span class="c1"># --- frame / tick thickness ---</span>
+<span class="n">FRAME_LINEWIDTH</span>      <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">TICK_LINEWIDTH</span>       <span class="o">=</span> <span class="mf">2.5</span>
+
+<span class="c1"># --- tick lengths ---</span>
+<span class="n">TICK_MAJOR_LENGTH</span>    <span class="o">=</span> <span class="mf">10.0</span>
+<span class="n">TICK_MINOR_LENGTH</span>    <span class="o">=</span>  <span class="mf">6.0</span>
+
+<span class="c1"># --- model curve line thickness ---</span>
+<span class="n">CURVE_LINEWIDTH</span>      <span class="o">=</span> <span class="mf">4.5</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># FIGURE SETUP</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_top</span><span class="p">,</span> <span class="n">ax_bot</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+    <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">'hspace'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">style_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">spine</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="n">FRAME_LINEWIDTH</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+        <span class="n">which</span><span class="o">=</span><span class="s1">'major'</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="s1">'in'</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">TICK_MAJOR_LENGTH</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="n">TICK_LINEWIDTH</span><span class="p">,</span>
+        <span class="n">labelsize</span><span class="o">=</span><span class="n">FONTSIZE_TICK_LABEL</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+        <span class="n">which</span><span class="o">=</span><span class="s1">'minor'</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="s1">'in'</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">TICK_MINOR_LENGTH</span><span class="p">,</span>
+        <span class="n">width</span><span class="o">=</span><span class="n">TICK_LINEWIDTH</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># CUSTOM X-AXIS TICKS</span>
+<span class="c1"># Major ticks at 1x10^n (labelled), minor ticks at {2,4,6,8}x10^n</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">exp_min</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">XMIN</span><span class="p">)</span>
+<span class="n">exp_max</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">XMAX</span><span class="p">)</span>
+
+<span class="n">major_locs</span>   <span class="o">=</span> <span class="p">[]</span>
+<span class="n">major_labels</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">minor_locs</span>   <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">exp_min</span><span class="p">,</span> <span class="n">exp_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># major: 1x10^exp</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">XMIN</span> <span class="o">&lt;=</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="n">XMAX</span><span class="p">:</span>
+        <span class="n">major_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">major_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$1$"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">exp</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">major_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$10$"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">exp</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">major_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">r</span><span class="s2">"$0.1$"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">major_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"$10^</span><span class="se">{{</span><span class="si">{</span><span class="n">exp</span><span class="si">}</span><span class="se">}}</span><span class="s2">$"</span><span class="p">)</span>
+
+    <span class="c1"># minor: 2-9 x 10^exp</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="n">mval</span> <span class="o">=</span> <span class="n">exp</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">XMIN</span> <span class="o">&lt;=</span> <span class="n">mval</span> <span class="o">&lt;=</span> <span class="n">XMAX</span><span class="p">:</span>
+            <span class="n">minor_locs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mval</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ax_top</span><span class="p">,</span> <span class="n">ax_bot</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">major_locs</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">minor_locs</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">major_labels</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_TICK_LABEL</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># PLOT MODELS</span>
+<span class="c1"># ============================================================</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">f_los</span><span class="p">,</span> <span class="n">f_ape</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">MODELS</span><span class="p">):</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">CURVE_COLORS</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">CURVE_COLORS</span><span class="p">)]</span>
+
+    <span class="c1"># --- top panel: sigma_los(R_2D) ---</span>
+    <span class="n">R_2D</span><span class="p">,</span> <span class="n">sig_los</span> <span class="o">=</span> <span class="n">f_los</span>
+    <span class="n">mask1</span>   <span class="o">=</span> <span class="n">R_2D</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">x1</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">R_2D</span><span class="p">[</span><span class="n">mask1</span><span class="p">])</span>
+    <span class="n">y1</span>      <span class="o">=</span> <span class="n">sig_los</span><span class="p">[</span><span class="n">mask1</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">ax_top</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+
+    <span class="c1"># --- bottom panel: sigma_los_bar(R_ape) ---</span>
+    <span class="n">R_ape</span><span class="p">,</span> <span class="n">sig_bar</span> <span class="o">=</span> <span class="n">f_ape</span>
+    <span class="n">mask2</span>   <span class="o">=</span> <span class="n">R_ape</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">x2</span>      <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">R_ape</span><span class="p">[</span><span class="n">mask2</span><span class="p">])</span>
+    <span class="n">y2</span>      <span class="o">=</span> <span class="n">sig_bar</span><span class="p">[</span><span class="n">mask2</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">ax_bot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">LEGEND_LABELS</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">LEGEND_LABELS</span><span class="p">)])</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># AXIS LIMITS, LABELS, STYLE</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">XMIN</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">YMIN_TOP</span><span class="p">,</span> <span class="n">YMAX_TOP</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'${\sigma}_{\rm los}(R_{\rm 2D})\,/\,\sigma_0$'</span><span class="p">,</span>
+                  <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">style_ax</span><span class="p">(</span><span class="n">ax_top</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax_top</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.02</span><span class="p">))</span>
+
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">XMIN</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">YMIN_BOT</span><span class="p">,</span> <span class="n">YMAX_BOT</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$R_{\rm 2D}$'</span><span class="p">,</span>
+                  <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$\overline{\sigma}_{\rm los}(\leq R_{\rm 2D})\,/\,\sigma_0$'</span><span class="p">,</span>
+                  <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">style_ax</span><span class="p">(</span><span class="n">ax_bot</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.02</span><span class="p">))</span>
+
+<span class="c1"># ── custom legend: colored bold text, no frame, no line samples ─────</span>
+<span class="n">handles</span><span class="p">,</span> <span class="n">labels_auto</span> <span class="o">=</span> <span class="n">ax_bot</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+<span class="n">ordered_labels</span>  <span class="o">=</span> <span class="p">[</span><span class="n">LEGEND_LABELS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">LEGEND_ORDER</span><span class="p">]</span>
+<span class="n">ordered_colors</span>  <span class="o">=</span> <span class="p">[</span><span class="n">CURVE_COLORS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">LEGEND_ORDER</span><span class="p">]</span>
+
+<span class="n">blank_handles</span> <span class="o">=</span> <span class="p">[</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'none'</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">LEGEND_ORDER</span><span class="p">]</span>
+
+<span class="n">leg</span> <span class="o">=</span> <span class="n">ax_bot</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">blank_handles</span><span class="p">,</span>
+    <span class="n">ordered_labels</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s1">'lower right'</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">LEGEND_X_SHIFT</span><span class="p">,</span> <span class="mf">0.0</span> <span class="o">+</span> <span class="n">LEGEND_Y_SHIFT</span><span class="p">),</span>
+    <span class="n">bbox_transform</span><span class="o">=</span><span class="n">ax_bot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_LEGEND</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">handlelength</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">handletextpad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">borderpad</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">(),</span> <span class="n">ordered_colors</span><span class="p">):</span>
+    <span class="n">text</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">text</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">FONTSIZE_LEGEND</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># SAVE</span>
+<span class="c1"># ============================================================</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_sys</span>  <span class="c1"># frames, ticks and tick-label gap as printed: 0.99 of the column, tight crop</span>
+<span class="n">_sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'scripts'</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">print_frame_fs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_pf</span>
+<span class="n">_fs_pf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span> <span class="n">width_pt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+<span class="n">_w</span> <span class="o">=</span> <span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">get_tightbbox</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">get_renderer</span><span class="p">())</span><span class="o">.</span><span class="n">width</span> <span class="o">+</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">72.0</span>
+<span class="n">_fs_pf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span> <span class="n">width_pt</span><span class="o">=</span><span class="n">_w</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">OUTPUT_FIG</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  [SAVE] figure -&gt; </span><span class="si">{</span><span class="n">OUTPUT_FIG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  [SAVE] figure -&gt; LOS_sigma.pdf
+</pre></div>
+</div>
+<img alt="figure" src="../../_images/dd13b9852c98cbbf0d0a6f8121135f148eb54f359fa850a16d529631e09d295a.png" />
+</div>
+</div>
+</section>
+<section id="figure-16-line-of-sight-velocity-distribution-in-an-aperture">
+<h2>Figure 16: line-of-sight velocity distribution in an aperture<a class="headerlink" href="#figure-16-line-of-sight-velocity-distribution-in-an-aperture" title="Link to this heading">#</a></h2>
+<p>The distribution of the line-of-sight velocity of the model’s mass inside a circle of radius 1 (<code class="docutils literal notranslate"><span class="pre">pp.aperture_losvd</span></code>): centered (top) and offset by <span class="math notranslate nohighlight">\(R_{\rm off} = 10\)</span> (bottom).</p>
+<p>The distribution at 4001 velocities between plus and minus the escape velocity at the aperture’s innermost point; each curve stops where the distribution ends, at the escape velocity along the line of sight.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The arXiv figure's tables span each distribution's support and stop at its end (no zero rows). Here a uniform grid</span>
+<span class="c1"># with V_los = 0 on it, out to the escape velocity at the aperture's innermost point, keeps the samples where the</span>
+<span class="c1"># distribution is positive: aperture_losvd is exactly zero beyond the support.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">losvd_curve</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">aperture</span><span class="p">,</span> <span class="n">v_max</span><span class="p">):</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">v_max</span><span class="p">,</span> <span class="n">v_max</span><span class="p">,</span> <span class="mi">4001</span><span class="p">)</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">aperture_losvd</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">aperture</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">f</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">v</span><span class="p">[</span><span class="n">keep</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">keep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">f</span><span class="p">[</span><span class="n">keep</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">keep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="n">centred</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r_off</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">v_max_cen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1e-6</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]))</span>  <span class="c1"># the center's escape velocity</span>
+<span class="n">v_max_off</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">9.0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]))</span>   <span class="c1"># at R = R_off - R_ape = 9</span>
+<span class="n">curves</span> <span class="o">=</span> <span class="p">[(</span><span class="n">losvd_curve</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">centred</span><span class="p">,</span> <span class="n">v_max_cen</span><span class="p">),</span> <span class="n">losvd_curve</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">v_max_off</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">]</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">vc</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="p">(</span><span class="n">vo</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">curves</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"support: centred +-</span><span class="si">{</span><span class="n">vc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, R_off = 10 +-</span><span class="si">{</span><span class="n">vo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>support: centred +-1.292262, R_off = 10 +-0.469311
+support: centred +-1.292262, R_off = 10 +-0.469311
+support: centred +-1.292262, R_off = 10 +-0.469311
+support: centred +-1.292262, R_off = 10 +-0.263180
+</pre></div>
+</div>
+</div>
+</div>
+<p>The figure.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the arXiv figure's script, with the frames and ticks at their printed size</span>
+<span class="c1"># before its savefig, which set every axes' frame and ticks as printed for its slot (f 0.99, column).</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ticker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="c1">#matplotlib.rcParams['font.family'] = 'serif'</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># USER PARAMETERS</span>
+<span class="c1"># ============================================================</span>
+
+<span class="c1"># Each entry: ((v, centered PDF), (v, offset PDF), color), computed above</span>
+<span class="n">MODELS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"#eeaf1e"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"#88c1d5"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"#de582d"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">curves</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+        <span class="s2">"#800080"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">LEGEND_LABELS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= 0.0}$'</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= +0.5}$'</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">'$\boldsymbol{\beta}_{\mathbf</span><span class="si">{c}</span><span class="s1">} \mathbf{= -0.5}$'</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">'$\mathbf{OM\ (Type\ I)}$'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">LEGEND_ORDER</span>        <span class="o">=</span>  <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>   <span class="c1"># top-&gt;bottom: beta=0.5, 0.0, -0.5, OM</span>
+<span class="n">FONTSIZE_LEGEND</span>     <span class="o">=</span>  <span class="mi">22</span>
+<span class="n">LEGEND_X_SHIFT</span>      <span class="o">=</span>  <span class="mf">0.022</span>
+<span class="n">LEGEND_Y_SHIFT</span>      <span class="o">=</span>  <span class="mf">0.04</span>
+
+<span class="c1"># ── per-panel curve draw order (MODELS indices; last = top layer) ────────────</span>
+<span class="n">TOP_DRAW_ORDER</span>      <span class="o">=</span>  <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>   <span class="c1"># beta=-0.5 (bottom), 0.0, 0.5, OM (top)</span>
+<span class="n">BOTTOM_DRAW_ORDER</span>   <span class="o">=</span>  <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>   <span class="c1"># OM (bottom), 0.5, 0.0, -0.5 (top)</span>
+
+<span class="c1"># ── panel annotations ("Centered" / "Roff=10"): font size + position shifts ──</span>
+<span class="c1">#    shifts are relative to the default location (0.05, 0.95) in axes fraction</span>
+<span class="n">ANNOT_FONTSIZE</span>      <span class="o">=</span>  <span class="mi">24</span>
+<span class="n">CENTERED_X_SHIFT</span>    <span class="o">=</span>  <span class="o">-</span><span class="mf">0.02</span>
+<span class="n">CENTERED_Y_SHIFT</span>    <span class="o">=</span>  <span class="mf">0.0</span>
+<span class="n">ROFF_X_SHIFT</span>        <span class="o">=</span>  <span class="o">-</span><span class="mf">0.02</span>
+<span class="n">ROFF_Y_SHIFT</span>        <span class="o">=</span>  <span class="mf">0.0</span>
+
+<span class="n">OUTPUT_FIG</span>          <span class="o">=</span> <span class="s2">"LOS_VD.pdf"</span>
+
+<span class="n">XMIN</span>                <span class="o">=</span> <span class="o">-</span><span class="mf">1.05</span>
+<span class="n">XMAX</span>                <span class="o">=</span>  <span class="mf">1.05</span>
+
+<span class="n">YMIN_TOP</span>            <span class="o">=</span>  <span class="mf">0.0</span>
+<span class="n">YMAX_TOP</span>            <span class="o">=</span>  <span class="mf">1.501</span>
+<span class="n">YMIN_BOT</span>            <span class="o">=</span>  <span class="mf">0.0</span>
+<span class="n">YMAX_BOT</span>            <span class="o">=</span>  <span class="mf">7.0</span>
+
+<span class="n">FONTSIZE_AXIS_LABEL</span> <span class="o">=</span> <span class="mi">22</span>
+<span class="n">FONTSIZE_TICK_LABEL</span> <span class="o">=</span> <span class="mi">22</span>
+<span class="n">FRAME_LINEWIDTH</span>     <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">TICK_LINEWIDTH</span>      <span class="o">=</span> <span class="mf">2.5</span>
+<span class="n">TICK_MAJOR_LENGTH</span>   <span class="o">=</span> <span class="mf">10.0</span>
+<span class="n">TICK_MINOR_LENGTH</span>   <span class="o">=</span> <span class="mf">6.0</span>
+<span class="n">CURVE_LINEWIDTH</span>     <span class="o">=</span> <span class="mf">4.5</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># FIGURE SETUP</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax_top</span><span class="p">,</span> <span class="n">ax_bot</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+    <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">'hspace'</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">style_ax</span><span class="p">(</span><span class="n">ax</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">spine</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">spine</span><span class="o">.</span><span class="n">set_linewidth</span><span class="p">(</span><span class="n">FRAME_LINEWIDTH</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+        <span class="n">which</span><span class="o">=</span><span class="s1">'major'</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">'in'</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">TICK_MAJOR_LENGTH</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">TICK_LINEWIDTH</span><span class="p">,</span>
+        <span class="n">labelsize</span><span class="o">=</span><span class="n">FONTSIZE_TICK_LABEL</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+        <span class="n">which</span><span class="o">=</span><span class="s1">'minor'</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">'in'</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">TICK_MINOR_LENGTH</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">TICK_LINEWIDTH</span><span class="p">,</span>
+        <span class="n">top</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># X-AXIS TICKS</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">major_locs</span>   <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="n">major_labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'$-1.0$'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$-0.5$'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$0$'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$0.5$'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$1.0$'</span><span class="p">]</span>
+<span class="n">minor_locs</span>   <span class="o">=</span> <span class="p">[</span><span class="nb">round</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">major_locs</span>
+                <span class="ow">and</span> <span class="n">XMIN</span> <span class="o">&lt;=</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">XMAX</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ax_top</span><span class="p">,</span> <span class="n">ax_bot</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">major_locs</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">minor_locs</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">major_labels</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_TICK_LABEL</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># LOAD AND PLOT — all four models in both panels</span>
+<span class="c1"># ============================================================</span>
+
+<span class="c1"># ── top panel: centered (Roff = 0) ───────────────────────────</span>
+<span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">TOP_DRAW_ORDER</span><span class="p">):</span>
+    <span class="n">f_cen</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">MODELS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">v_los</span><span class="p">,</span> <span class="n">pdf</span> <span class="o">=</span> <span class="n">f_cen</span>
+    <span class="n">ax_top</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">v_los</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span> <span class="o">+</span> <span class="n">rank</span><span class="p">)</span>
+
+<span class="c1"># ── bottom panel: offset (Roff = 10) ─────────────────────────</span>
+<span class="k">for</span> <span class="n">rank</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">BOTTOM_DRAW_ORDER</span><span class="p">):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">f_off</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">MODELS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">v_los</span><span class="p">,</span> <span class="n">pdf</span> <span class="o">=</span> <span class="n">f_off</span>
+    <span class="n">ax_bot</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">v_los</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">CURVE_LINEWIDTH</span><span class="p">,</span>
+                <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span> <span class="o">+</span> <span class="n">rank</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># AXIS LIMITS, LABELS, STYLE</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">XMIN</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">YMIN_TOP</span><span class="p">,</span> <span class="n">YMAX_TOP</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'PDF'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">style_ax</span><span class="p">(</span><span class="n">ax_top</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax_top</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.1</span><span class="p">))</span>
+
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">XMIN</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">YMIN_BOT</span><span class="p">,</span> <span class="n">YMAX_BOT</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'$V_{\rm los}$'</span><span class="p">,</span>
+                  <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">'PDF'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">style_ax</span><span class="p">(</span><span class="n">ax_bot</span><span class="p">)</span>
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="c1"># ── panel labels ─────────────────────────────────────────────</span>
+<span class="n">ax_top</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">+</span> <span class="n">CENTERED_X_SHIFT</span><span class="p">,</span> <span class="mf">0.95</span> <span class="o">+</span> <span class="n">CENTERED_Y_SHIFT</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$\mathbf</span><span class="si">{Centred}</span><span class="s1">$'</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax_top</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">ANNOT_FONTSIZE</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">)</span>
+
+<span class="n">ax_bot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">+</span> <span class="n">ROFF_X_SHIFT</span><span class="p">,</span> <span class="mf">0.95</span> <span class="o">+</span> <span class="n">ROFF_Y_SHIFT</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$\boldsymbol</span><span class="si">{R}</span><span class="s1">_{\mathbf</span><span class="si">{off}</span><span class="s1">}\mathbf{ = 10}$'</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax_bot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="n">ANNOT_FONTSIZE</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'left'</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s1">'bold'</span><span class="p">)</span>
+
+<span class="c1"># ── legend: colored bold text, no line samples, no frame ─────</span>
+<span class="n">ordered_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">LEGEND_LABELS</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">LEGEND_ORDER</span><span class="p">]</span>
+<span class="n">ordered_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">MODELS</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">LEGEND_ORDER</span><span class="p">]</span>
+<span class="n">blank_handles</span>  <span class="o">=</span> <span class="p">[</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'none'</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">LEGEND_ORDER</span><span class="p">]</span>
+
+<span class="n">leg</span> <span class="o">=</span> <span class="n">ax_top</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">blank_handles</span><span class="p">,</span>
+    <span class="n">ordered_labels</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s1">'upper right'</span><span class="p">,</span>
+    <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">LEGEND_X_SHIFT</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">LEGEND_Y_SHIFT</span><span class="p">),</span>
+    <span class="n">bbox_transform</span><span class="o">=</span><span class="n">ax_top</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+    <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_LEGEND</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">handlelength</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">handletextpad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">borderpad</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">for</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">(),</span> <span class="n">ordered_colors</span><span class="p">):</span>
+    <span class="n">text</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">text</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="n">FONTSIZE_LEGEND</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># SAVE</span>
+<span class="c1"># ============================================================</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_sys</span>
+<span class="n">_fs_sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'scripts'</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">print_frame_fs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_pf</span>  <span class="c1"># frames and ticks at their printed size</span>
+<span class="n">_fs_s</span> <span class="o">=</span> <span class="n">_fs_pf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span> <span class="n">width_pt</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'PRINT_WIDTH_PT'</span><span class="p">,</span> <span class="mf">589.9</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'[fs] printed scale s = </span><span class="si">{</span><span class="n">_fs_s</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> (f 0.99, slot column, W_fig </span><span class="si">{</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PRINT_WIDTH_PT"</span><span class="p">,</span><span class="w"> </span><span class="mf">589.9</span><span class="p">)</span><span class="si">}</span><span class="s1"> pt)'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">OUTPUT_FIG</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  [SAVE] figure -&gt; </span><span class="si">{</span><span class="n">OUTPUT_FIG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[fs] printed scale s = 0.4080 (f 0.99, slot column, W_fig 589.9 pt)
+  [SAVE] figure -&gt; LOS_VD.pdf
+</pre></div>
+</div>
+<img alt="figure" src="../../_images/abf39e9fe7f590311cfaffc937a4f3b5fb6da3102776dfc9e312e14fdf41382d.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#figure-13-local-velocity-distribution">Figure 13: local velocity distribution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#figure-15-line-of-sight-velocity-dispersion">Figure 15: line-of-sight velocity dispersion</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#figure-16-line-of-sight-velocity-distribution-in-an-aperture">Figure 16: line-of-sight velocity distribution in an aperture</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Barry T. Chiang.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/" rel="noopener" target="_blank">Sphinx</a> 9.0.4.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -9,4 +9,5 @@ browser.
    :maxdepth: 1
 
    tutorials/index
+   chiang2026d/index
    gamer

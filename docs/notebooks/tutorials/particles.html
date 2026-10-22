@@ -140,6 +140,7 @@
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index">Examples</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chiang2026d/index">Chiang+(2026d) figures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
@@ -213,6 +214,14 @@
 <li class="toctree-l2"><a class="reference internal" href="observables">Compute observables from a model</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../chiang2026d/index">Chiang+(2026d) figures</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../chiang2026d/fig04_05_06">Distribution functions of the NFW families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chiang2026d/fig07">Anisotropy of superposed models and of two fits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chiang2026d/fig08">Benchmark of the isotropic NFW distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chiang2026d/fig13_15_16">Local and line-of-sight velocity distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../chiang2026d/figC1_C2">Accuracy checks of the distribution function and the velocity distribution</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </div>
@@ -283,6 +292,8 @@
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"pianistpy"</span><span class="p">,</span> <span class="n">pp</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pianistpy.df.analytic</span><span class="w"> </span><span class="kn">import</span> <span class="n">analytic_model</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">analytic_model</span><span class="p">(</span><span class="s2">"hernquist"</span><span class="p">)</span>
@@ -291,7 +302,10 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(False, 'goal')
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pianistpy 1.0.0
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(False, 'silent')
 </pre></div>
 </div>
 </div>

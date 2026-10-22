@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Distribution functions of the NFW families &#8212; PIANISTpy ver. 1.0.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/fonts.css?v=7e12a040" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/band.css?v=b020b0c9" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"output": {"displayOverflow": "scroll"}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/chiang2026d/fig04_05_06';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../_static/logo.png"/>
+    <link rel="index" title="Index" href="../../genindex" />
+    <link rel="search" title="Search" href="../../search" />
+    <link rel="next" title="Anisotropy of superposed models and of two fits" href="fig07" />
+    <link rel="prev" title="Chiang+(2026d) figures" href="index" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+
+
+<link rel="alternate" type="text/markdown" href="fig04_05_06.md">
+
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreFranklin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/SourceSerif4.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/fonts/LibreBaskerville.woff2">
+
+  </head>
+  <body data-default-mode="light">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  
+
+  
+
+<!-- band -->
+<header id="pst-header" class="site d-print-none">
+  <div class="site-in">
+    <div class="site-top">
+      <a class="site-title" href="../../../">PIANISTpy</a>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+    </div>
+    <nav class="site-nav" aria-label="Site">
+      
+      <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../start/overview">Get started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../start/overview">What PIANISTpy does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/quickstart">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../start/computing-time">Representative computing time</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/accuracy">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/input-output">Input and output (write, read)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/runtime">Runtime options</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/index">Tutorials</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index">Chiang+(2026d) figures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/api/index">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/api/index">Functions by subpackage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/settings">Numerical settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/symbols">Code and paper notations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/accuracy">Accuracy tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../reference/notes">Technical notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/release-notes">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/release-notes">Release notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/accuracy">Accuracy by release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/upcoming-features">Upcoming features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../project/citing">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../project/citing">How to cite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../project/license">License and authors</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="site-icons">
+        <a href="../../search" title="Search" aria-label="Search"><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg></a>
+        <a href="https://github.com/barrytchiang/PIANISTpy" title="GitHub" aria-label="GitHub" rel="noopener" target="_blank"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+        <a href="https://pypi.org/project/pianistpy/" title="PyPI" aria-label="PyPI" rel="noopener" target="_blank"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6zM286.2 404c11.1 0 20.1 9.1 20.1 20.3 0 11.3-9 20.4-20.1 20.4-11 0-20.1-9.2-20.1-20.4.1-11.3 9.1-20.3 20.1-20.3zM167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4zm-6.7-142.6c-11.1 0-20.1-9.1-20.1-20.3.1-11.3 9-20.4 20.1-20.4 11 0 20.1 9.2 20.1 20.4s-9 20.3-20.1 20.3z"/></svg></a>
+        <!-- manual-only -->
+        <button type="button" class="site-toggle sidebar-toggle primary-toggle" aria-label="Pages of this tab"><svg viewBox="0 0 448 512" aria-hidden="true"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></button>
+        <!-- /manual-only -->
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- /band -->
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><div class="sidebar-logo">
+  <a href="../../../"><img src="../../_static/logo.png" alt="PIANISTpy"></a>
+</div></div>
+        <div class="sidebar-primary-item">
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Examples">
+  <p class="bd-links__title" role="heading" aria-level="1">Examples</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../tutorials/index">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/particles">Generate particle initial conditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tutorials/observables">Compute observables from a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index">Chiang+(2026d) figures</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Distribution functions of the NFW families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig07">Anisotropy of superposed models and of two fits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig08">Benchmark of the isotropic NFW distribution function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig13_15_16">Local and line-of-sight velocity distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="figC1_C2">Accuracy checks of the distribution function and the velocity distribution</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index" class="nav-link">Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index" class="nav-link">Chiang+(2026d) figures</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Distribution functions of the NFW families</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="distribution-functions-of-the-nfw-families">
+<h1>Distribution functions of the NFW families<a class="headerlink" href="#distribution-functions-of-the-nfw-families" title="Link to this heading">#</a></h1>
+<p>This notebook makes Figures 4, 5 and 6 of the paper.</p>
+<ul class="simple">
+<li><p><strong>Fig. 4</strong> (<code class="docutils literal notranslate"><span class="pre">DF_Untruncation_DFs.pdf</span></code>): top, the anisotropy <span class="math notranslate nohighlight">\(\beta_\sigma(R)\)</span> of each family in closed form; bottom, the
+untruncated distribution function <span class="math notranslate nohighlight">\(F(\mathcal{K})\)</span> of the NFW density with that anisotropy (<code class="docutils literal notranslate"><span class="pre">pp.compute_df</span></code>).</p></li>
+<li><p><strong>Fig. 5</strong> (<code class="docutils literal notranslate"><span class="pre">DF_Truncation_DFs_I.pdf</span></code>): Method I, each member truncated at its own <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> (<code class="docutils literal notranslate"><span class="pre">pp.truncate</span></code> of the
+untruncated DF with <code class="docutils literal notranslate"><span class="pre">pp.Truncation(k_t=...)</span></code>, which is what <code class="docutils literal notranslate"><span class="pre">pp.solve</span></code> does); top, <span class="math notranslate nohighlight">\(\hat F(\hat{\mathcal{K}})\)</span> with
+<span class="nobr"><span class="math notranslate nohighlight">\(\hat{\mathcal{K}} = \mathcal{K} - \mathcal{K}_{\rm t}\)</span>;</span> bottom, the truncated density <span class="nobr"><span class="math notranslate nohighlight">\(\hat\varrho(R)\)</span>.</span></p></li>
+<li><p><strong>Fig. 6</strong> (<code class="docutils literal notranslate"><span class="pre">DF_Truncation_DFs_II.pdf</span></code>): Method II, the isotropic NFW truncated at <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.1651\)</span> (the Method I model) and
+each member a model with its anisotropy on that model’s truncated density (<code class="docutils literal notranslate"><span class="pre">pp.solve(pp.Component(truncated.profile,</span> <span class="pre">...))</span></code>); top,
+<span class="nobr"><span class="math notranslate nohighlight">\(\hat F(\hat{\mathcal{K}})\)</span>;</span> bottom, <span class="math notranslate nohighlight">\(\sigma_{\rm 3D}/\sigma_0\)</span> from <code class="docutils literal notranslate"><span class="pre">pp.sigma_r</span></code> and <code class="docutils literal notranslate"><span class="pre">pp.sigma_t</span></code>,
+<span class="nobr"><span class="math notranslate nohighlight">\(\sigma_0 = (\ln 11 - 10/11)^{1/2}\)</span>.</span></p></li>
+</ul>
+<p>The figures are drawn in the published style: the page, the frames and the text positions of the original Mathematica exports
+(<code class="docutils literal notranslate"><span class="pre">data/fig04_05_06/layout_fig04.json</span></code>, <code class="docutils literal notranslate"><span class="pre">_fig05</span></code>, <code class="docutils literal notranslate"><span class="pre">_fig06</span></code>), the ticks inward on all four sides at their printed size, the curve
+labels at the exports’ positions, all text in DejaVu Sans (<code class="docutils literal notranslate"><span class="pre">scripts/mma_port.py</span></code>, <code class="docutils literal notranslate"><span class="pre">scripts/dejavu_labels.py</span></code>). The dashed vertical lines at
+the truncation energies are those of the published figures. Every curve is computed here by the package’s public calls; nothing is read
+from stored model data. A model the package refuses is printed with its reason and left out.</p>
+<p>Per-call accuracy messages are quieted; the summary after each figure’s models lists every model’s tier.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"TF_CPP_MIN_LOG_LEVEL"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"3"</span>  <span class="c1"># before any JAX import: no C++ log lines from XLA</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="c1"># matplotlib's Computer Modern fonts carry very old timestamps, which fontTools reports while the PDFs embed them</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"fontTools"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"scripts"</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">mma_port</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>  <span class="c1"># noqa: E402</span>
+
+<span class="n">DATA</span> <span class="o">=</span> <span class="s2">"data/fig04_05_06"</span>
+<span class="n">NFW</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">()</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">C</span>                                     <span class="c1"># the colors of the published figures (exact RGB of the exports)</span>
+<span class="n">FRAME</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">FRAME</span>                             <span class="c1"># 224.46 pt, the frame side of the exports</span>
+<span class="n">PRINTED</span> <span class="o">=</span> <span class="p">{</span><span class="mf">0.04</span><span class="p">:</span> <span class="mf">4.08</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">:</span> <span class="mf">2.45</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">:</span> <span class="mf">1.225</span><span class="p">}</span>   <span class="c1"># the FrameTicks sizes (fraction of the frame) -&gt; pt as printed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">printed_scale</span><span class="p">(</span><span class="n">W</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The printed scale of a page W pt wide placed at 0.99 of the text width (506.1 pt); frame and tick lines 1.02 pt as printed."""</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="mf">0.99</span> <span class="o">*</span> <span class="mf">506.1</span> <span class="o">/</span> <span class="n">W</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">LW_FRAME</span> <span class="o">=</span> <span class="mf">1.02</span> <span class="o">/</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""inward ticks of a FrameTicks entry on one side, drawn at their printed length"""</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">PRINTED</span><span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">/</span> <span class="n">s</span> <span class="o">/</span> <span class="n">FRAME</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">logF_frame</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""a log10 F frame of the three figures: K (or K^) in [0, 1], F in [10^-7.8, 10^7.8]"""</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="s2">"linear"</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="s2">"log"</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mf">7.8</span><span class="p">,</span> <span class="mi">10</span> <span class="o">**</span> <span class="mf">7.8</span><span class="p">))</span>
+    <span class="n">dec</span> <span class="o">=</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">shifted</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""a text span moved by (dx, dy) pt (x right, y down)"""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dx</span> <span class="ow">or</span> <span class="n">dy</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">sp</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="p">[</span><span class="n">sp</span><span class="p">[</span><span class="s2">"origin"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"origin"</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dy</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"chars"</span> <span class="ow">in</span> <span class="n">sp</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"chars"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">c</span><span class="p">,</span> <span class="p">[</span><span class="n">o</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="n">o</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dy</span><span class="p">]]</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"chars"</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="c1"># every model of the three figures: tag -&gt; (family, R_a, beta_c)</span>
+<span class="n">FAMILY</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"iso"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="s2">"b+0.50"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"const"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="s2">"b-0.50"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"const"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">)}</span>
+<span class="k">for</span> <span class="n">ra</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">):</span>
+    <span class="n">FAMILY</span><span class="p">[</span><span class="sa">f</span><span class="s2">"OMI_Ra</span><span class="si">{</span><span class="n">ra</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"OMI"</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">FAMILY</span><span class="p">[</span><span class="sa">f</span><span class="s2">"OMII_Ra</span><span class="si">{</span><span class="n">ra</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"OMII"</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">bc</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"+0.25"</span><span class="p">,</span> <span class="s2">"-0.25"</span><span class="p">):</span>
+        <span class="n">FAMILY</span><span class="p">[</span><span class="sa">f</span><span class="s2">"COMI_b</span><span class="si">{</span><span class="n">bc</span><span class="si">}</span><span class="s2">_Ra</span><span class="si">{</span><span class="n">ra</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"COMI"</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">bc</span><span class="p">))</span>
+        <span class="n">FAMILY</span><span class="p">[</span><span class="sa">f</span><span class="s2">"COMII_b</span><span class="si">{</span><span class="n">bc</span><span class="si">}</span><span class="s2">_Ra</span><span class="si">{</span><span class="n">ra</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"COMII"</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">bc</span><span class="p">))</span>
+
+<span class="n">FIG4</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">FAMILY</span><span class="p">)</span>                          <span class="c1"># Fig. 4: all 21, untruncated</span>
+<span class="n">FIG5_KT</span> <span class="o">=</span> <span class="p">{</span>                                  <span class="c1"># Fig. 5: Method I, each member at its own K_t</span>
+    <span class="s2">"iso"</span><span class="p">:</span> <span class="mf">0.16497796163238299</span><span class="p">,</span> <span class="s2">"b+0.50"</span><span class="p">:</span> <span class="mf">0.19986231811501387</span><span class="p">,</span> <span class="s2">"b-0.50"</span><span class="p">:</span> <span class="mf">0.1603510056974926</span><span class="p">,</span>
+    <span class="s2">"OMI_Ra10"</span><span class="p">:</span> <span class="mf">0.13454</span><span class="p">,</span> <span class="s2">"OMI_Ra100"</span><span class="p">:</span> <span class="mf">0.1643</span><span class="p">,</span> <span class="s2">"OMII_Ra10"</span><span class="p">:</span> <span class="mf">0.225</span><span class="p">,</span> <span class="s2">"OMII_Ra100"</span><span class="p">:</span> <span class="mf">0.165</span><span class="p">,</span>
+    <span class="s2">"COMI_b+0.25_Ra100"</span><span class="p">:</span> <span class="mf">0.172</span><span class="p">,</span> <span class="s2">"COMI_b-0.25_Ra10"</span><span class="p">:</span> <span class="mf">0.135</span><span class="p">,</span> <span class="s2">"COMI_b-0.25_Ra100"</span><span class="p">:</span> <span class="mf">0.16125</span><span class="p">,</span>
+    <span class="s2">"COMII_b+0.25_Ra10"</span><span class="p">:</span> <span class="mf">0.262</span><span class="p">,</span> <span class="s2">"COMII_b+0.25_Ra100"</span><span class="p">:</span> <span class="mf">0.1742</span><span class="p">,</span> <span class="s2">"COMII_b-0.25_Ra10"</span><span class="p">:</span> <span class="mf">0.217</span><span class="p">,</span> <span class="s2">"COMII_b-0.25_Ra100"</span><span class="p">:</span> <span class="mf">0.162</span><span class="p">}</span>
+<span class="n">FIG6_KT</span> <span class="o">=</span> <span class="mf">0.1651</span>                             <span class="c1"># Fig. 6: the Method I model's K_t (isotropic)</span>
+<span class="n">FIG6</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"b+0.50"</span><span class="p">,</span> <span class="s2">"b-0.50"</span><span class="p">,</span> <span class="s2">"OMI_Ra1"</span><span class="p">,</span> <span class="s2">"OMI_Ra10"</span><span class="p">,</span> <span class="s2">"OMI_Ra100"</span><span class="p">,</span> <span class="s2">"OMII_Ra100"</span><span class="p">,</span> <span class="s2">"COMI_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMI_b-0.25_Ra1"</span><span class="p">,</span>
+        <span class="s2">"COMI_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMI_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMII_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMII_b-0.25_Ra100"</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">anisotropy</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+    <span class="n">kind</span><span class="p">,</span> <span class="n">r_a</span><span class="p">,</span> <span class="n">beta_c</span> <span class="o">=</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"iso"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"const"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=</span><span class="n">beta_c</span><span class="p">)</span>
+    <span class="n">fam</span> <span class="o">=</span> <span class="s2">"II"</span> <span class="k">if</span> <span class="n">kind</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"II"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"I"</span>
+    <span class="k">if</span> <span class="n">kind</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"COM"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=</span><span class="n">beta_c</span><span class="p">,</span> <span class="n">r_a</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">r_a</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="n">fam</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">r_a</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">r_a</span><span class="p">),</span> <span class="n">kind</span><span class="o">=</span><span class="n">fam</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">made</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">call</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The result of a public call, or None with the package's refusal printed."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">call</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">pp</span><span class="o">.</span><span class="n">PianistpyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: refused by the package: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">300</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">df_table</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The DF table of a result: K and F (F signed where the inversion makes it negative)."""</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">log_df</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">sign</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">sign</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sign</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">f</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">beta_closed</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""beta_sigma(R) of each family in closed form; a Type II family is -1e5 outside R_a, where it is not defined"""</span>
+    <span class="n">kind</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">bc</span> <span class="o">=</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"const"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">bc</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="p">(</span><span class="n">ra</span> <span class="o">/</span> <span class="n">R</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">qq</span> <span class="o">=</span> <span class="p">(</span><span class="n">ra</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">ra</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-15</span><span class="p">)))</span> <span class="o">**</span> <span class="mi">2</span>          <span class="c1"># a Type II family evaluated inside R_a only</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"OMI"</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">q</span><span class="p">),</span> <span class="s2">"COMI"</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">bc</span> <span class="o">*</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">q</span><span class="p">),</span>
+            <span class="s2">"OMII"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">R</span> <span class="o">&lt;</span> <span class="n">ra</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">qq</span><span class="p">),</span> <span class="o">-</span><span class="mf">1e5</span><span class="p">),</span> <span class="s2">"COMII"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">R</span> <span class="o">&lt;</span> <span class="n">ra</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">bc</span> <span class="o">*</span> <span class="n">qq</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">qq</span><span class="p">),</span> <span class="o">-</span><span class="mf">1e5</span><span class="p">)}[</span><span class="n">kind</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+
+<span class="c1"># The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.</span>
+<span class="n">PIANISTPY_PIN</span> <span class="o">=</span> <span class="s2">"1.0.0"</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pianistpy </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">pp</span><span class="o">.</span><span class="n">__version__</span> <span class="o">!=</span> <span class="n">PIANISTPY_PIN</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"These figures are made with pianistpy </span><span class="si">{</span><span class="n">PIANISTPY_PIN</span><span class="si">}</span><span class="s2">; the installed version is </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">."</span>
+    <span class="p">)</span>
+
+<span class="c1"># The package reports each result's accuracy twice per call: a line of the pianistpy log and Python's AccuracyWarning.</span>
+<span class="c1"># set_verbosity("quiet") hides the log's INFO line of a result in the band "recorded"; the pianistpy logger set to</span>
+<span class="c1"># ERROR also hides the log's WARNING line of a result in the band "warned"; the filter hides the AccuracyWarning.</span>
+<span class="c1"># The summary after each figure's models prints every model's tier in place of those per-call messages.</span>
+<span class="n">pp</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="s2">"quiet"</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">"pianistpy"</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">AccuracyWarning</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tier_line</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One summary line for a result: its label, its report's tier, and the report's worst check with that check's error.</span>
+
+<span class="sd">    The worst check is the check of the highest tier level; among checks of one level, the check with the largest error.</span>
+<span class="sd">    A result whose tier is carried from the Method I model's report, and not from any of the result's own checks, says so.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">34s</span><span class="si">}</span><span class="s2"> not built: the package's exception is printed above"</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">validation</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rank</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">error</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">level</span><span class="p">,</span> <span class="n">error</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+
+    <span class="n">worst</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span>
+    <span class="n">own_level</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">worst</span><span class="p">]</span><span class="o">.</span><span class="n">level</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="s2">", the tier carried from the Method I model's report"</span> <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">parents_level</span> <span class="o">&gt;</span> <span class="n">own_level</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">34s</span><span class="si">}</span><span class="s2"> tier </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">tier</span><span class="si">:</span><span class="s2">9s</span><span class="si">}</span><span class="s2"> worst check </span><span class="si">{</span><span class="n">worst</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">checks</span><span class="p">[</span><span class="n">worst</span><span class="p">]</span><span class="o">.</span><span class="n">error</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}{</span><span class="n">origin</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pianistpy 1.0.0
+</pre></div>
+</div>
+</div>
+</div>
+<section id="the-models">
+<h2>The models<a class="headerlink" href="#the-models" title="Link to this heading">#</a></h2>
+<p>The untruncated DF of each of the 21 members is computed once (<code class="docutils literal notranslate"><span class="pre">pp.compute_df</span></code>): Fig. 4 draws them, and the Method I models of
+Fig. 5 and the Method I model of Fig. 6 are their truncations (<code class="docutils literal notranslate"><span class="pre">pp.truncate</span></code>; <code class="docutils literal notranslate"><span class="pre">pp.solve(component,</span> <span class="pre">truncation)</span></code> is <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> followed by
+<code class="docutils literal notranslate"><span class="pre">truncate</span></code>). The members of Fig. 6 are new inversions on the Method I model’s truncated density.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dfs</span> <span class="o">=</span> <span class="p">{</span><span class="n">tag</span><span class="p">:</span> <span class="n">made</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2"> (untruncated)"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">:</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">NFW</span><span class="p">,</span> <span class="n">anisotropy</span><span class="p">(</span><span class="n">tag</span><span class="p">))))</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">FIG4</span><span class="p">}</span>
+<span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">df_table</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">size</span><span class="si">:</span><span class="s2">6d</span><span class="si">}</span><span class="s2"> rows, K in [</span><span class="si">{</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">k</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.10f</span><span class="si">}</span><span class="s2">], F &lt; 0 on </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">f</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="si">}</span><span class="s2"> rows"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>iso                    9655 rows, K in [2.007e-10, 0.9999999990], F &lt; 0 on 0 rows
+b+0.50                 9656 rows, K in [2.007e-10, 0.9999999990], F &lt; 0 on 0 rows
+b-0.50                 9655 rows, K in [2.007e-10, 0.9999999990], F &lt; 0 on 0 rows
+OMI_Ra1                8146 rows, K in [2.004e-10, 0.9999999990], F &lt; 0 on 0 rows
+OMII_Ra1               8311 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMI_b+0.25_Ra1        7535 rows, K in [2.005e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMII_b+0.25_Ra1      21921 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMI_b-0.25_Ra1        8398 rows, K in [2.009e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMII_b-0.25_Ra1      22066 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+OMI_Ra10               8369 rows, K in [2.002e-10, 0.9999999990], F &lt; 0 on 0 rows
+OMII_Ra10              8004 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMI_b+0.25_Ra10       7529 rows, K in [2.010e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMII_b+0.25_Ra10     11245 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMI_b-0.25_Ra10       7626 rows, K in [2.003e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMII_b-0.25_Ra10     10507 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+OMI_Ra100              7643 rows, K in [2.012e-10, 0.9999999990], F &lt; 0 on 0 rows
+OMII_Ra100             7766 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMI_b+0.25_Ra100      7498 rows, K in [2.003e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMII_b+0.25_Ra100     8435 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMI_b-0.25_Ra100      7639 rows, K in [2.010e-10, 0.9999999990], F &lt; 0 on 0 rows
+COMII_b-0.25_Ra100     8596 rows, K in [1.000e-10, 0.9999999990], F &lt; 0 on 0 rows
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Figure 4: the 21 untruncated models"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tier_line</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Figure 4: the 21 untruncated models
+iso                                tier silent    worst check high_k_slope_mismatch 6.45e-07
+b+0.50                             tier silent    worst check top_form 3.00e-08
+b-0.50                             tier silent    worst check high_k_slope_mismatch 1.72e-09
+OMI_Ra1                            tier recorded  worst check high_k_slope_mismatch 3.37e-06
+OMII_Ra1                           tier silent    worst check top_form 2.66e-09
+COMI_b+0.25_Ra1                    tier silent    worst check high_k_slope_mismatch 6.20e-07
+COMII_b+0.25_Ra1                   tier silent    worst check top_form 1.82e-08
+COMI_b-0.25_Ra1                    tier silent    worst check high_k_slope_mismatch 1.80e-07
+COMII_b-0.25_Ra1                   tier silent    worst check top_form 1.10e-08
+OMI_Ra10                           tier recorded  worst check high_k_slope_mismatch 3.37e-06
+OMII_Ra10                          tier silent    worst check top_form 2.66e-09
+COMI_b+0.25_Ra10                   tier silent    worst check high_k_slope_mismatch 6.49e-07
+COMII_b+0.25_Ra10                  tier silent    worst check top_form 2.10e-08
+COMI_b-0.25_Ra10                   tier silent    worst check high_k_slope_mismatch 1.59e-07
+COMII_b-0.25_Ra10                  tier silent    worst check top_form 7.23e-09
+OMI_Ra100                          tier recorded  worst check high_k_slope_mismatch 3.38e-06
+OMII_Ra100                         tier silent    worst check top_form 2.66e-09
+COMI_b+0.25_Ra100                  tier silent    worst check high_k_slope_mismatch 6.58e-07
+COMII_b+0.25_Ra100                 tier silent    worst check top_form 1.36e-08
+COMI_b-0.25_Ra100                  tier silent    worst check high_k_slope_mismatch 1.48e-07
+COMII_b-0.25_Ra100                 tier silent    worst check top_form 5.06e-08
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m1</span> <span class="o">=</span> <span class="p">{</span><span class="n">tag</span><span class="p">:</span> <span class="p">(</span><span class="n">made</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2"> at K_t </span><span class="si">{</span><span class="n">kt</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span> <span class="n">kt</span><span class="o">=</span><span class="n">kt</span><span class="p">:</span> <span class="n">pp</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">dfs</span><span class="p">[</span><span class="n">tag</span><span class="p">],</span> <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="n">kt</span><span class="p">)))</span>
+             <span class="k">if</span> <span class="n">dfs</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">kt</span> <span class="ow">in</span> <span class="n">FIG5_KT</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m1</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2"> K_t </span><span class="si">{</span><span class="n">FIG5_KT</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2"> R_t </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">r_t</span><span class="p">)</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">, K^ end </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>OMII_Ra10 at K_t 0.225: refused by the package: UnphysicalModelError: The truncation at K_t = 0.225 is refused: DOMAIN; Z GATE (DOMAIN: K_t must lie above P(R_a) = 0.23978952727983707, the potential at the anisotropy's domain edge R_a = 10, so that R_t &lt; R_a; Merritt 1985).
+COMII_b+0.25_Ra10 at K_t 0.262: refused by the package: UnphysicalModelError: The truncation at K_t = 0.262 is refused: TYPE II EDGE: the model's potential at R_a = 10 is Phi = 4.394247e-02, above the floor, so its truncation radius lies beyond R_a, where the Type II density rho_aux / (1 - r^2/R_a^2) has a pole (the solve stopped at R_a - r = 9.930e-13); a larger K_t moves th
+COMII_b-0.25_Ra10 at K_t 0.217: refused by the package: UnphysicalModelError: The truncation at K_t = 0.217 is refused: DOMAIN; Z GATE (DOMAIN: K_t must lie above P(R_a) = 0.23978952727983707, the potential at the anisotropy's domain edge R_a = 10, so that R_t &lt; R_a; Merritt 1985).
+iso                  K_t 0.16497796163238299  R_t 31.8916, K^ end 0.835022
+b+0.50               K_t 0.19986231811501387  R_t 41.0998, K^ end 0.800138
+b-0.50               K_t 0.1603510056974926   R_t 27.977, K^ end 0.839649
+OMI_Ra10             K_t 0.13454              R_t 251.229, K^ end 0.865460
+OMI_Ra100            K_t 0.1643               R_t 32.3017, K^ end 0.835700
+OMII_Ra100           K_t 0.165                R_t 31.6547, K^ end 0.835000
+COMI_b+0.25_Ra100    K_t 0.172                R_t 36.1036, K^ end 0.828000
+COMI_b-0.25_Ra10     K_t 0.135                R_t 139.988, K^ end 0.865000
+COMI_b-0.25_Ra100    K_t 0.16125              R_t 29.8994, K^ end 0.838750
+COMII_b+0.25_Ra100   K_t 0.1742               R_t 34.9995, K^ end 0.825800
+COMII_b-0.25_Ra100   K_t 0.162                R_t 29.3003, K^ end 0.838000
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Figure 5: the 14 Method I models"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m1</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tier_line</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2"> at K_t </span><span class="si">{</span><span class="n">FIG5_KT</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">m</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Figure 5: the 14 Method I models
+iso at K_t 0.16497796163238299     tier silent    worst check round_trip 5.00e-08
+b+0.50 at K_t 0.19986231811501387  tier silent    worst check round_trip 1.31e-07
+b-0.50 at K_t 0.1603510056974926   tier silent    worst check poisson_residual 6.59e-08
+OMI_Ra10 at K_t 0.13454            tier recorded  worst check round_trip 5.20e-08, the tier carried from the Method I model's report
+OMI_Ra100 at K_t 0.1643            tier recorded  worst check poisson_residual 9.72e-08, the tier carried from the Method I model's report
+OMII_Ra10 at K_t 0.225             not built: the package's exception is printed above
+OMII_Ra100 at K_t 0.165            tier silent    worst check round_trip 1.75e-07
+COMI_b+0.25_Ra100 at K_t 0.172     tier silent    worst check round_trip 7.96e-08
+COMI_b-0.25_Ra10 at K_t 0.135      tier silent    worst check round_trip 3.00e-08
+COMI_b-0.25_Ra100 at K_t 0.16125   tier silent    worst check poisson_residual 5.53e-08
+COMII_b+0.25_Ra10 at K_t 0.262     not built: the package's exception is printed above
+COMII_b+0.25_Ra100 at K_t 0.1742   tier silent    worst check round_trip 8.62e-08
+COMII_b-0.25_Ra10 at K_t 0.217     not built: the package's exception is printed above
+COMII_b-0.25_Ra100 at K_t 0.162    tier silent    worst check round_trip 2.44e-07
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SIGMA_0</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">11.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">10.0</span> <span class="o">/</span> <span class="mf">11.0</span><span class="p">)</span>
+<span class="n">truncated</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="n">dfs</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">],</span> <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="n">FIG6_KT</span><span class="p">))</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"iso"</span><span class="p">:</span> <span class="n">truncated</span><span class="p">}</span>
+<span class="n">m2</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">tag</span><span class="p">:</span> <span class="n">made</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">tag</span><span class="o">=</span><span class="n">tag</span><span class="p">:</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="n">anisotropy</span><span class="p">(</span><span class="n">tag</span><span class="p">))))</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">FIG6</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sigma3d</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""sigma_3D / sigma_0 on R in [1e-4, R_t), and the point (1.0001 R_t, 0) appended as the published figure does"""</span>
+    <span class="n">r_t</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">r_t</span><span class="p">)</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">r_t</span><span class="p">,</span> <span class="mi">1201</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">sigma_r</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">R</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">sigma_t</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">R</span><span class="p">))</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">SIGMA_0</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="mf">1.0001</span> <span class="o">*</span> <span class="n">r_t</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+
+<span class="n">S3</span> <span class="o">=</span> <span class="p">{</span><span class="n">tag</span><span class="p">:</span> <span class="n">sigma3d</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m2</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Method I model: K_t </span><span class="si">{</span><span class="n">FIG6_KT</span><span class="si">}</span><span class="s2">, R_t </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">r_t</span><span class="p">)</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span> <span class="ow">in</span> <span class="n">S3</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tag</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2"> sigma_3D/sigma_0 at R = 1: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">R</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span><span class="w"> </span><span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">, max </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.5f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Method I model: K_t 0.1651, R_t 31.8604
+iso                  sigma_3D/sigma_0 at R = 1: 0.42575, max 0.42999
+b+0.50               sigma_3D/sigma_0 at R = 1: 0.44361, max 0.52579
+b-0.50               sigma_3D/sigma_0 at R = 1: 0.41230, max 0.41231
+OMI_Ra1              sigma_3D/sigma_0 at R = 1: 0.51247, max 0.54102
+OMI_Ra10             sigma_3D/sigma_0 at R = 1: 0.42925, max 0.43251
+OMI_Ra100            sigma_3D/sigma_0 at R = 1: 0.42579, max 0.43002
+OMII_Ra100           sigma_3D/sigma_0 at R = 1: 0.42572, max 0.42997
+COMI_b+0.25_Ra100    sigma_3D/sigma_0 at R = 1: 0.43434, max 0.44969
+COMI_b-0.25_Ra1      sigma_3D/sigma_0 at R = 1: 0.51663, max 0.53229
+COMI_b-0.25_Ra10     sigma_3D/sigma_0 at R = 1: 0.42142, max 0.42183
+COMI_b-0.25_Ra100    sigma_3D/sigma_0 at R = 1: 0.41847, max 0.41928
+COMII_b+0.25_Ra100   sigma_3D/sigma_0 at R = 1: 0.43425, max 0.44965
+COMII_b-0.25_Ra100   sigma_3D/sigma_0 at R = 1: 0.41841, max 0.41923
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Figure 6: the Method I model and the 12 Method II models"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m2</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tier_line</span><span class="p">(</span><span class="n">tag</span> <span class="o">+</span> <span class="p">(</span><span class="s2">", Method I model"</span> <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s2">"iso"</span> <span class="k">else</span> <span class="s2">""</span><span class="p">),</span> <span class="n">m</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Figure 6: the Method I model and the 12 Method II models
+iso, Method I model                tier silent    worst check round_trip 4.96e-08
+b+0.50                             tier silent    worst check round_trip 2.30e-07
+b-0.50                             tier silent    worst check poisson_residual 4.65e-08
+OMI_Ra1                            tier silent    worst check round_trip 4.96e-08
+OMI_Ra10                           tier silent    worst check round_trip 4.98e-08
+OMI_Ra100                          tier silent    worst check round_trip 4.97e-08
+OMII_Ra100                         tier silent    worst check round_trip 4.97e-08
+COMI_b+0.25_Ra100                  tier silent    worst check round_trip 1.12e-07
+COMI_b-0.25_Ra1                    tier silent    worst check round_trip 8.40e-08
+COMI_b-0.25_Ra10                   tier silent    worst check round_trip 8.40e-08
+COMI_b-0.25_Ra100                  tier silent    worst check round_trip 7.95e-08
+COMII_b+0.25_Ra100                 tier silent    worst check round_trip 1.12e-07
+COMII_b-0.25_Ra100                 tier silent    worst check round_trip 7.95e-08
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-figures">
+<h2>The figures<a class="headerlink" href="#the-figures" title="Link to this heading">#</a></h2>
+<p>Each figure is drawn on its export’s page, at the size it is printed in the paper.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="mf">1194.0</span><span class="p">,</span> <span class="mf">591.0</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">printed_scale</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+<span class="n">page</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Page</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="p">[</span><span class="mf">69.45</span> <span class="o">+</span> <span class="mf">224.91</span> <span class="o">*</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="p">[</span><span class="mf">32.0</span><span class="p">,</span> <span class="mf">313.0</span><span class="p">])</span>
+<span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.22e-2</span><span class="p">,</span> <span class="mf">5.2e2</span><span class="p">,</span> <span class="mi">20001</span><span class="p">)</span>
+<span class="n">R2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">ra</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">R</span><span class="p">,</span> <span class="n">ra</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1e-9</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">,</span> <span class="mi">4000</span><span class="p">))])</span>  <span class="c1"># noqa: E731  dense into R_a: the Type II plunge</span>
+<span class="n">PANELS4</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># (members, colors) of the five columns</span>
+    <span class="p">([</span><span class="s2">"b+0.50"</span><span class="p">,</span> <span class="s2">"b-0.50"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"b05"</span><span class="p">,</span> <span class="s2">"bm05"</span><span class="p">]),</span>
+    <span class="p">([</span><span class="s2">"OMI_Ra1"</span><span class="p">,</span> <span class="s2">"OMI_Ra10"</span><span class="p">,</span> <span class="s2">"OMI_Ra100"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"OM1"</span><span class="p">,</span> <span class="s2">"OM10"</span><span class="p">,</span> <span class="s2">"OM100"</span><span class="p">]),</span>
+    <span class="p">([</span><span class="s2">"OMII_Ra1"</span><span class="p">,</span> <span class="s2">"OMII_Ra10"</span><span class="p">,</span> <span class="s2">"OMII_Ra100"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"OMII1"</span><span class="p">,</span> <span class="s2">"OMII10"</span><span class="p">,</span> <span class="s2">"OMII100"</span><span class="p">]),</span>
+    <span class="p">([</span><span class="sa">f</span><span class="s2">"COMI_b</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">_Ra</span><span class="si">{</span><span class="n">ra</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"+0.25"</span><span class="p">,</span> <span class="s2">"-0.25"</span><span class="p">)</span> <span class="k">for</span> <span class="n">ra</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)],</span>
+     <span class="p">[</span><span class="s2">"COMRa1U"</span><span class="p">,</span> <span class="s2">"COMRa10U"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">,</span> <span class="s2">"COMRa1"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">]),</span>
+    <span class="p">([</span><span class="sa">f</span><span class="s2">"COMII_b</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">_Ra</span><span class="si">{</span><span class="n">ra</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"+0.25"</span><span class="p">,</span> <span class="s2">"-0.25"</span><span class="p">)</span> <span class="k">for</span> <span class="n">ra</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)],</span>
+     <span class="p">[</span><span class="s2">"COMRa1U"</span><span class="p">,</span> <span class="s2">"COMRa10U"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">,</span> <span class="s2">"COMRa1"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">])]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">beta_frame</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.22e-2</span><span class="p">,</span> <span class="mf">5.2e2</span><span class="p">),</span> <span class="s2">"linear"</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">1.2</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">2.1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">2.1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">mn</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="n">mn</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="n">mn</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">type_I_end</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""the published list rules at the left end: OM Type I continued to the axis by the point {1e-10, 1e10}; COM Type I with</span>
+<span class="sd">    beta_c &gt; 0 closed to zero (LeftZeroPoint), with beta_c &lt; 0 opened to the top (LeftInfPoint)"""</span>
+    <span class="n">kind</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">bc</span> <span class="o">=</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"OMI"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">1e-10</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">1e10</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"COMI"</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">f</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">0.99999</span> <span class="o">*</span> <span class="n">k</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="n">p</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">1e-12</span> <span class="k">if</span> <span class="n">bc</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">1e12</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">f</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">support</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""a Type II DF over its support only, K &gt; P(R_a) = ln(1 + R_a) / R_a (the potential at the domain edge R_a)"""</span>
+    <span class="n">ra</span> <span class="o">=</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">p_edge</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span> <span class="o">/</span> <span class="n">ra</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="n">p_edge</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Fig. 4 </span><span class="si">{</span><span class="n">tag</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">inside</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">k</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> rows over the support K &gt; P(R_a) = </span><span class="si">{</span><span class="n">p_edge</span><span class="si">:</span><span class="s2">.10f</span><span class="si">}</span><span class="s2">; "</span>
+          <span class="sa">f</span><span class="s2">"there F &lt;= 0 on </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="si">}</span><span class="s2"> rows, min F </span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.3e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">k</span><span class="p">[</span><span class="n">inside</span><span class="p">],</span> <span class="n">f</span><span class="p">[</span><span class="n">inside</span><span class="p">]</span>
+
+
+<span class="c1"># top row: beta_sigma(R)</span>
+<span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">PANELS4</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">beta_frame</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">R</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">],</span> <span class="mf">0.025</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">cols</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">R2</span><span class="p">(</span><span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"II"</span><span class="p">)</span> <span class="k">else</span> <span class="n">R</span>
+        <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">beta_closed</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">r</span><span class="p">),</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="mf">0.015</span><span class="p">)</span>
+
+<span class="c1"># bottom row: F(K); the Type II curves drawn R_a 100 first, R_a 1 last, each with the dashed vertical at its support edge</span>
+<span class="n">k_iso</span><span class="p">,</span> <span class="n">f_iso</span> <span class="o">=</span> <span class="n">df_table</span><span class="p">(</span><span class="n">dfs</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">PANELS4</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">logF_frame</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">k_iso</span><span class="p">,</span> <span class="n">f_iso</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">],</span> <span class="mf">0.025</span><span class="p">)</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">(</span><span class="n">pairs</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">pairs</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">b</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dfs</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">df_table</span><span class="p">(</span><span class="n">dfs</span><span class="p">[</span><span class="n">tag</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"II"</span><span class="p">):</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">support</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="mf">0.015</span><span class="p">)</span>
+            <span class="c1"># half the width, AbsoluteDashing {6.5, 15}; the COM II +0.25 dashes offset by half a period, so that the two</span>
+            <span class="c1"># colors sharing one P(R_a) alternate on one line</span>
+            <span class="n">off</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">5.85</span> <span class="o">+</span> <span class="mf">13.5</span><span class="p">)</span> <span class="k">if</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">color</span><span class="o">=</span><span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.0075</span> <span class="o">*</span> <span class="n">FRAME</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="p">(</span><span class="n">off</span><span class="p">,</span> <span class="p">(</span><span class="mf">5.85</span><span class="p">,</span> <span class="mf">13.5</span><span class="p">)),</span>
+                    <span class="n">dash_capstyle</span><span class="o">=</span><span class="s2">"projecting"</span><span class="p">,</span> <span class="n">clip_on</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">type_I_end</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">f</span><span class="p">),</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="mf">0.015</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">adjust4</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""the published placement edits on top of the export, in pt: the two beta_c labels of the top COM Type I panel 1.6 pt</span>
+<span class="sd">    right; the R_a block of the top COM Type II panel 1.6 pt up"""</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"origin"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="mi">744</span> <span class="o">&lt;</span> <span class="n">x0</span> <span class="o">&lt;</span> <span class="mi">969</span> <span class="ow">and</span> <span class="n">y0</span> <span class="o">&lt;</span> <span class="mi">257</span> <span class="ow">and</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"#1d7792"</span><span class="p">,</span> <span class="s2">"#bc6527"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">shifted</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x0</span> <span class="o">&gt;</span> <span class="mi">969</span> <span class="ow">and</span> <span class="mi">180</span> <span class="o">&lt;</span> <span class="n">y0</span> <span class="o">&lt;</span> <span class="mi">257</span> <span class="ow">and</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"#393939"</span><span class="p">,</span> <span class="s2">"#6a6a6a"</span><span class="p">,</span> <span class="s2">"#aaaaaa"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">shifted</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sp</span>
+
+
+<span class="n">mp</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="s2">"layout_fig04.json"</span><span class="p">),</span> <span class="n">adjust</span><span class="o">=</span><span class="n">adjust4</span><span class="p">)</span>
+<span class="n">page</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"DF_Untruncation_DFs.pdf"</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">display</span>
+<span class="n">_png</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>  <span class="c1"># the page inline as well: mma_port draws on the Agg backend, which displays nothing by itself</span>
+<span class="n">page</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">_png</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"png"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">_png</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved -&gt; DF_Untruncation_DFs.pdf (</span><span class="si">{</span><span class="n">W</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">H</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> pt)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Fig. 4 OMII_Ra100: 4729 of 7766 rows over the support K &gt; P(R_a) = 0.0461512052; there F &lt;= 0 on 0 rows, min F 3.664e-05
+Fig. 4 OMII_Ra10: 4700 of 8004 rows over the support K &gt; P(R_a) = 0.2397895273; there F &lt;= 0 on 0 rows, min F 3.583e-03
+Fig. 4 OMII_Ra1: 3927 of 8311 rows over the support K &gt; P(R_a) = 0.6931471806; there F &lt;= 0 on 0 rows, min F 5.942e-01
+Fig. 4 COMII_b+0.25_Ra100: 5038 of 8435 rows over the support K &gt; P(R_a) = 0.0461512052; there F &lt;= 0 on 0 rows, min F 1.339e-04
+Fig. 4 COMII_b+0.25_Ra10: 6448 of 11245 rows over the support K &gt; P(R_a) = 0.2397895273; there F &lt;= 0 on 0 rows, min F 5.980e-03
+Fig. 4 COMII_b+0.25_Ra1: 10349 of 21921 rows over the support K &gt; P(R_a) = 0.6931471806; there F &lt;= 0 on 0 rows, min F 3.237e-01
+Fig. 4 COMII_b-0.25_Ra100: 5216 of 8596 rows over the support K &gt; P(R_a) = 0.0461512052; there F &lt;= 0 on 0 rows, min F 1.471e-05
+Fig. 4 COMII_b-0.25_Ra10: 5864 of 10507 rows over the support K &gt; P(R_a) = 0.2397895273; there F &lt;= 0 on 0 rows, min F 3.318e-03
+Fig. 4 COMII_b-0.25_Ra1: 10349 of 22066 rows over the support K &gt; P(R_a) = 0.6931471806; there F &lt;= 0 on 0 rows, min F 1.791e+00
+</pre></div>
+</div>
+<img alt="figure" src="../../_images/dee3d319e53fab8e2a1f6f853a816ed7dc84596cd0661372814730918bb0c153.png" />
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Saved -&gt; DF_Untruncation_DFs.pdf (1194 x 591 pt)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="mf">1185.0</span><span class="p">,</span> <span class="mf">597.0</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">printed_scale</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+<span class="n">page</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Page</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="p">[</span><span class="mf">60.45</span> <span class="o">+</span> <span class="mf">224.91</span> <span class="o">*</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="p">[</span><span class="mf">32.0</span><span class="p">,</span> <span class="mf">319.0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fhat</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>          <span class="c1"># the point {0, 1e-12} prepended, as the published figure</span>
+    <span class="n">k</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">df_table</span><span class="p">(</span><span class="n">m1</span><span class="p">[</span><span class="n">tag</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">k</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="mf">1e-12</span><span class="p">,</span> <span class="n">f</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rho</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>           <span class="c1"># the point {1.0001 R_t, 1e-20} appended, as the published figure</span>
+    <span class="n">r</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m1</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">r</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m1</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">rho_trunc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="mf">1.0001</span> <span class="o">*</span> <span class="n">r</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">d</span><span class="p">,</span> <span class="mf">1e-20</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rho_frame</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.11</span><span class="p">,</span> <span class="mf">0.9e2</span><span class="p">),</span> <span class="s2">"log"</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mf">9.5</span><span class="p">,</span> <span class="mi">10</span> <span class="o">**</span> <span class="mf">1.05</span><span class="p">))</span>
+    <span class="n">dec</span> <span class="o">=</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)]</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">mn</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">)]</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="n">mn</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="n">mn</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+
+
+<span class="n">RN</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">3.5</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="mf">0.0025</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">panel5</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">top_list</span><span class="p">,</span> <span class="n">grid_list</span><span class="p">,</span> <span class="n">bot_list</span><span class="p">,</span> <span class="n">iso_bot</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""top: gridlines at each curve's K^ end, then F^(K^); bottom: the untruncated NFW, the isotropic and the members' rho^(R)"""</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">logF_frame</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">grid_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m1</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">gridline</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m1</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">th</span> <span class="ow">in</span> <span class="n">top_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m1</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">fhat</span><span class="p">(</span><span class="n">tag</span><span class="p">),</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">th</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">rho_frame</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">RN</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">RN</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">RN</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">),</span> <span class="n">C</span><span class="p">[</span><span class="s2">"black"</span><span class="p">],</span> <span class="mf">0.02</span><span class="p">)</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">rho</span><span class="p">(</span><span class="s2">"iso"</span><span class="p">),</span> <span class="n">C</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">],</span> <span class="n">iso_bot</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">th</span> <span class="ow">in</span> <span class="n">bot_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m1</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">rho</span><span class="p">(</span><span class="n">tag</span><span class="p">),</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">th</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">panel5</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">),</span> <span class="p">(</span><span class="s2">"b+0.50"</span><span class="p">,</span> <span class="s2">"b05"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"b-0.50"</span><span class="p">,</span> <span class="s2">"bm05"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)],</span>
+            <span class="p">[(</span><span class="s2">"b+0.50"</span><span class="p">,</span> <span class="s2">"b05"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"b-0.50"</span><span class="p">,</span> <span class="s2">"bm05"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">)],</span>
+            <span class="p">[(</span><span class="s2">"b+0.50"</span><span class="p">,</span> <span class="s2">"b05"</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">),</span> <span class="p">(</span><span class="s2">"b-0.50"</span><span class="p">,</span> <span class="s2">"bm05"</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)],</span> <span class="mf">0.02</span><span class="p">)</span>
+<span class="n">r1</span><span class="p">,</span> <span class="n">r3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">r1</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="s2">"cyanguide"</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">dash</span><span class="o">=</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="mf">4.95</span><span class="p">))</span>          <span class="c1"># the R^-1 and R^-3 guides</span>
+<span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">r3</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">r3</span> <span class="o">**</span> <span class="mi">3</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="s2">"magenta"</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">dash</span><span class="o">=</span><span class="p">(</span><span class="mf">1.35</span><span class="p">,</span> <span class="mf">4.95</span><span class="p">))</span>
+<span class="n">panel5</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMI_Ra10"</span><span class="p">,</span> <span class="s2">"OM10"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMI_Ra100"</span><span class="p">,</span> <span class="s2">"OM100"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"OMI_Ra10"</span><span class="p">,</span> <span class="s2">"OM10"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMI_Ra100"</span><span class="p">,</span> <span class="s2">"OM100"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"OMI_Ra10"</span><span class="p">,</span> <span class="s2">"OM10"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMI_Ra100"</span><span class="p">,</span> <span class="s2">"OM100"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)],</span> <span class="mf">0.025</span><span class="p">)</span>
+<span class="n">panel5</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMII_Ra10"</span><span class="p">,</span> <span class="s2">"OMII10"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMII_Ra100"</span><span class="p">,</span> <span class="s2">"OMII100"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"OMII_Ra10"</span><span class="p">,</span> <span class="s2">"OMII10"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMII_Ra100"</span><span class="p">,</span> <span class="s2">"OMII100"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"OMII_Ra10"</span><span class="p">,</span> <span class="s2">"OMII10"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMII_Ra100"</span><span class="p">,</span> <span class="s2">"OMII100"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)],</span> <span class="mf">0.025</span><span class="p">)</span>
+<span class="n">panel5</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span>
+           <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"COMI_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"COMI_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">,</span> <span class="mf">0.012</span><span class="p">)],</span>
+       <span class="mf">0.02</span><span class="p">)</span>
+<span class="n">panel5</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b+0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10U"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span>
+           <span class="p">(</span><span class="s2">"COMII_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"COMII_b+0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10U"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"COMII_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">)],</span>
+       <span class="p">[(</span><span class="s2">"COMII_b+0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10U"</span><span class="p">,</span> <span class="mf">0.0125</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">,</span> <span class="mf">0.0125</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"COMII_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">,</span> <span class="mf">0.0125</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">,</span> <span class="mf">0.0125</span><span class="p">)],</span> <span class="mf">0.02</span><span class="p">)</span>
+
+<span class="c1"># the published labels were laid out for the three members refused at these K_t (OM II R_a 10, COM II +0.25 and -0.25 R_a 10):</span>
+<span class="c1"># their labels removed and the others of those panels restacked into the freed rows</span>
+<span class="n">PUBLISHED_REFUSED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"OMII_Ra10"</span><span class="p">,</span> <span class="s2">"COMII_b+0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMII_b-0.25_Ra10"</span><span class="p">}</span>
+<span class="n">refused5</span> <span class="o">=</span> <span class="p">{</span><span class="n">tag</span> <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m1</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">}</span>
+<span class="k">if</span> <span class="n">refused5</span> <span class="o">!=</span> <span class="n">PUBLISHED_REFUSED</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"note: refused here </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">refused5</span><span class="p">)</span><span class="si">}</span><span class="s2">, the published labels assume </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">PUBLISHED_REFUSED</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">adjust5</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"origin"</span><span class="p">]</span>
+    <span class="n">top_row</span> <span class="o">=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">257</span>
+    <span class="k">if</span> <span class="n">top_row</span> <span class="ow">and</span> <span class="mi">510</span> <span class="o">&lt;</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">735</span> <span class="ow">and</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"#5c8827"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">top_row</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">960</span> <span class="ow">and</span> <span class="n">sp</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"#1d7792"</span><span class="p">,</span> <span class="s2">"#bc6527"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">top_row</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">960</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">shifted</span><span class="p">(</span><span class="n">sp</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">{</span><span class="s2">"#81bece"</span><span class="p">:</span> <span class="o">-</span><span class="mf">18.7</span><span class="p">,</span> <span class="s2">"#ed8c3f"</span><span class="p">:</span> <span class="o">-</span><span class="mf">37.2</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sp</span><span class="p">[</span><span class="s2">"color"</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">sp</span>
+
+
+<span class="n">mp</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="s2">"layout_fig05.json"</span><span class="p">),</span> <span class="n">adjust</span><span class="o">=</span><span class="n">adjust5</span><span class="p">)</span>
+<span class="n">page</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"DF_Truncation_DFs_I.pdf"</span><span class="p">)</span>
+<span class="n">_png</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>  <span class="c1"># the page inline as well: mma_port draws on the Agg backend, which displays nothing by itself</span>
+<span class="n">page</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">_png</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"png"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">_png</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved -&gt; DF_Truncation_DFs_I.pdf (</span><span class="si">{</span><span class="n">W</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">H</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> pt)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="figure" src="../../_images/35d433d6119032c642c06ae4a70e710a2c9ba1bba00a2dba576ce719984ae1a6.png" />
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Saved -&gt; DF_Truncation_DFs_I.pdf (1185 x 597 pt)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">W</span><span class="p">,</span> <span class="n">H</span> <span class="o">=</span> <span class="mf">1185.0</span><span class="p">,</span> <span class="mf">597.0</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">printed_scale</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>
+<span class="n">page</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Page</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="p">[</span><span class="mf">60.45</span> <span class="o">+</span> <span class="mf">224.91</span> <span class="o">*</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)],</span> <span class="p">[</span><span class="mf">32.0</span><span class="p">,</span> <span class="mf">319.0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sigma_frame</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0002</span><span class="p">,</span> <span class="mf">0.87e2</span><span class="p">),</span> <span class="s2">"linear"</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">))</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">),</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">),</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">mn</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">)]</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="n">mn</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="n">mn</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="n">s</span><span class="p">);</span> <span class="n">tick</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="s2">"top"</span><span class="p">,</span> <span class="p">[</span><span class="mf">10.0</span> <span class="o">**</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">)],</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+
+
+<span class="n">K_END</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">truncated</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">panel6</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">members</span><span class="p">,</span> <span class="n">grid_cols</span><span class="p">,</span> <span class="n">iso_top</span><span class="p">,</span> <span class="n">iso_bot</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""top: gridlines at the isotropic K^ end, the Method I model's F^ and the members'; bottom: sigma_3D / sigma_0"""</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">logF_frame</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">grid_cols</span><span class="p">:</span>
+        <span class="n">mp</span><span class="o">.</span><span class="n">gridline</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">K_END</span><span class="p">,</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">])</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">df_table</span><span class="p">(</span><span class="n">truncated</span><span class="p">),</span> <span class="n">C</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">],</span> <span class="n">iso_top</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">m2</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">df_table</span><span class="p">(</span><span class="n">m2</span><span class="p">[</span><span class="n">tag</span><span class="p">]),</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="mf">0.015</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">sigma_frame</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">S3</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">],</span> <span class="n">C</span><span class="p">[</span><span class="s2">"iso"</span><span class="p">],</span> <span class="n">iso_bot</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">S3</span><span class="p">:</span>
+            <span class="n">mp</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">*</span><span class="n">S3</span><span class="p">[</span><span class="n">tag</span><span class="p">],</span> <span class="n">C</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="mf">0.015</span><span class="p">)</span>
+
+
+<span class="n">panel6</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"b+0.50"</span><span class="p">,</span> <span class="s2">"b05"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"b-0.50"</span><span class="p">,</span> <span class="s2">"bm05"</span><span class="p">)],</span> <span class="p">[</span><span class="s2">"bm05"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">],</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span>
+<span class="n">panel6</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"OMI_Ra1"</span><span class="p">,</span> <span class="s2">"OM1"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMI_Ra10"</span><span class="p">,</span> <span class="s2">"OM10"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"OMI_Ra100"</span><span class="p">,</span> <span class="s2">"OM100"</span><span class="p">)],</span> <span class="p">[</span><span class="s2">"OM100"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">],</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)</span>
+<span class="n">panel6</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"OMII_Ra100"</span><span class="p">,</span> <span class="s2">"OMII100"</span><span class="p">)],</span> <span class="p">[</span><span class="s2">"OMII100"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">],</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)</span>
+<span class="n">panel6</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"COMI_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra1"</span><span class="p">,</span> <span class="s2">"COMRa1"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra10"</span><span class="p">,</span> <span class="s2">"COMRa10"</span><span class="p">),</span>
+           <span class="p">(</span><span class="s2">"COMI_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">)],</span> <span class="p">[</span><span class="s2">"COMRa100"</span><span class="p">,</span> <span class="s2">"iso"</span><span class="p">],</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.03</span><span class="p">)</span>
+<span class="n">panel6</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"COMII_b+0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100U"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"COMII_b-0.25_Ra100"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">)],</span> <span class="p">[</span><span class="s2">"iso"</span><span class="p">,</span> <span class="s2">"COMRa100"</span><span class="p">],</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">)</span>
+<span class="n">mp</span><span class="o">.</span><span class="n">draw_text</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA</span><span class="p">,</span> <span class="s2">"layout_fig06.json"</span><span class="p">))</span>
+<span class="n">page</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"DF_Truncation_DFs_II.pdf"</span><span class="p">)</span>
+<span class="n">_png</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>  <span class="c1"># the page inline as well: mma_port draws on the Agg backend, which displays nothing by itself</span>
+<span class="n">page</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">_png</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"png"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Image</span><span class="p">(</span><span class="n">_png</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved -&gt; DF_Truncation_DFs_II.pdf (</span><span class="si">{</span><span class="n">W</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> x </span><span class="si">{</span><span class="n">H</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2"> pt)"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="figure" src="../../_images/d4932b6090e4b4442c1f70fcb13edbb3d4550e906f5014a41269ce9e62e259b6.png" />
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Saved -&gt; DF_Truncation_DFs_II.pdf (1185 x 597 pt)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="against-the-published-files">
+<h2>Against the published files<a class="headerlink" href="#against-the-published-files" title="Link to this heading">#</a></h2>
+<p>The three PDFs written here were compared with the paper’s files, page by page: the text spans (string, origin, size), the frame and tick strokes (width and length), and every curve, read back from the PDF paths into data units (matplotlib simplifies a path to about 0.1 pt, 0.007 dex on the log F axes, so smaller differences are not resolved).</p>
+<p><strong>Style.</strong> The pages (1194 x 591 pt and 1185 x 597 pt), the frames, the colors, the curve widths and the curve rules are the paper’s. The frame and tick strokes are the same in number, width and length in all three figures: 1.02 pt lines, ticks 4.08 and 2.45 pt as printed at 0.99 of the text width. The text differs in one respect: it is set in DejaVu Sans here, where the paper’s files use Liberation Sans and draw the script K, the hat, varrho and some signs from the outlines of the fonts embedded in the original Mathematica exports, which are not free to redistribute. Each label is laid out again at the DejaVu Sans widths from the export’s position (<code class="docutils literal notranslate"><span class="pre">scripts/dejavu_labels.py</span></code>), so the label positions move by 2 pt (median), at most 14 pt (Fig. 4) and 24 pt (Figs. 5 and 6), all sizes unchanged. The wider font makes two places tighter than in the paper: the long labels of the top COM panels of Fig. 5 reach the right frame, and the decade labels <span class="math notranslate nohighlight">\(10^{-1}\)</span> and 1 of the bottom row of Fig. 6 nearly touch.</p>
+<p><strong>Data.</strong> The paper’s curves were drawn from stored products of the same models; here every curve comes from the package’s public calls.</p>
+<ul class="simple">
+<li><p>Fig. 4, top row: the same closed forms. Bottom row: the Type II curves (all nine) start at the same energies, <span class="math notranslate nohighlight">\(P(R_{\rm a}) = \ln(1 + R_{\rm a})/R_{\rm a}\)</span> (the first table row above 0.6931, 0.2398 and 0.0462 for <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> = 1, 10, 100), and agree with the paper’s to the precision of the PDF paths, with the same dashed vertical at each support edge and no other jump. The other curves agree to <span class="math notranslate nohighlight">\(8\times10^{-4}\)</span> dex or better (median) and at most <span class="math notranslate nohighlight">\(1.4\times10^{-2}\)</span> dex for <span class="math notranslate nohighlight">\(\mathcal{K} &lt; 0.995\)</span> (COM I <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.25\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span>);</span> the largest differences, up to 0.028 dex, are at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K} &gt; 0.995\)</span>,</span> where <span class="math notranslate nohighlight">\(F\)</span> rises steeply and the two tables sample the curve at different points.</p></li>
+<li><p>Fig. 5, top row: identical to the precision of the PDF paths. Bottom row: the densities agree to <span class="math notranslate nohighlight">\(10^{-4}\)</span> dex (median); the largest difference, <span class="math notranslate nohighlight">\(7.7\times10^{-3}\)</span> dex, is at <span class="nobr"><span class="math notranslate nohighlight">\(R = 40\)</span>,</span> just inside the truncation radius of <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c} = +0.5\)</span>;</span> the others are below <span class="math notranslate nohighlight">\(2.6\times10^{-3}\)</span> dex. The same three members are refused as in the paper (OM II <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span>,</span> COM II <span class="math notranslate nohighlight">\(\beta_{\rm c} = \pm0.25\)</span> <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a} = 10\)</span>),</span> so their labels are left out as there.</p></li>
+<li><p>Fig. 6, top row: identical to <span class="math notranslate nohighlight">\(5\times10^{-5}\)</span> dex. Bottom row: <span class="math notranslate nohighlight">\(\sigma_{\rm 3D}/\sigma_0\)</span> from <code class="docutils literal notranslate"><span class="pre">pp.sigma_r</span></code> and <code class="docutils literal notranslate"><span class="pre">pp.sigma_t</span></code> against the paper’s Jeans solution on the stored profiles: <span class="math notranslate nohighlight">\(10^{-4}\)</span> (median), at most <span class="nobr"><span class="math notranslate nohighlight">\(4.4\times10^{-3}\)</span>,</span> at <span class="nobr"><span class="math notranslate nohighlight">\(R \approx 31.8\)</span>,</span> just inside the truncation radius.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-models">The models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-figures">The figures</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#against-the-published-files">Against the published files</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, Barry T. Chiang.
+      <br/>
+    
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/" rel="noopener" target="_blank">Sphinx</a> 9.0.4.
+  </p>
+</div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

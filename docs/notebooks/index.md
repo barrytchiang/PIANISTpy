@@ -8,4 +8,6 @@ browser.
 
 - [Tutorials](https://pianistpy.com/docs/notebooks/tutorials/index)
 
+- [Chiang+(2026d) figures](https://pianistpy.com/docs/notebooks/chiang2026d/index)
+
 - [*N*-body tests with GAMER](https://pianistpy.com/docs/notebooks/gamer)

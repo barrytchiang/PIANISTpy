@@ -142,6 +142,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../notebooks/index">Examples</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../notebooks/tutorials/index">Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/chiang2026d/index">Chiang+(2026d) figures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
@@ -324,7 +325,9 @@ cell’s error alone gives.</p></li>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> where the package cannot compute the model to the required accuracy. The
 exception’s full message is in the cell’s tooltip and in the CSV.</p></li>
 <li><p><strong>excluded</strong>, where the model violates the Cusp Slope–Central Anisotropy theorem
-(<a class="reference external" href="https://doi.org/10.1086/501040" rel="noopener" target="_blank">An &amp; Evans 2006b</a>), which requires <span class="nobr"><span class="math notranslate nohighlight">\(\gamma \ge 2\beta_{\rm c}\)</span>.</span> The model is still
+(<a class="reference external" href="https://doi.org/10.1086/501040" rel="noopener" target="_blank">An &amp; Evans 2006b</a>), which requires the inner slope of the density
+profile, <span class="nobr"><span class="math notranslate nohighlight">\(\gamma\)</span>,</span> to be at least twice the central velocity anisotropy, <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> (i.e.,
+<span class="nobr"><span class="math notranslate nohighlight">\(\gamma \ge 2\beta_{\rm c}\)</span>).</span> The model is still
 computed and recorded in the CSV.</p></li>
 </ul>
 <p>The distribution function of an untruncated Type II model is defined only at energies above
@@ -1178,7 +1181,7 @@ and the quick settings level. The counts of each release are on <a class="refere
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">model</span></code></dt><dd><p>for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation energy); blank otherwise</p>
 </dd>
-<dt><code class="docutils literal notranslate"><span class="pre">expected</span> <span class="pre">outcome</span></code></dt><dd><p>what the grid expects of the model: “value” (a result is served), “value: not physical” (a result is served for a model that is not a physical equilibrium), “value: the parent’s DF within <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span> read by the package’s rule” (a Method II model whose distribution function equals its Method I model’s), or a refusal with the error the package raises (its kind, then the opening words of its message)</p>
+<dt><code class="docutils literal notranslate"><span class="pre">expected</span> <span class="pre">outcome</span></code></dt><dd><p>what the grid expects of the model: “value” (a result is served), “value: not physical” (a result is served for a model that is not a physical equilibrium), “value: the Method I model’s DF within <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span> read by the package’s rule” (a Method II model whose distribution function equals its Method I model’s), or a refusal with the error the package raises (its kind, then the opening words of its message)</p>
 </dd>
 <dt><code class="docutils literal notranslate"><span class="pre">physical</span></code></dt><dd><p>whether the model is a physical equilibrium by the grid’s own criteria: True, False, or blank where the model is refused before the criteria apply; a result can be served for a model that is not physical</p>
 </dd>

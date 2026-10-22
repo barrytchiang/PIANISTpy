@@ -7,6 +7,8 @@ A `Sampler` holds the tables that drawing particles needs; it is built once from
 ```ipython3
 import numpy as np
 import pianistpy as pp
+
+print("pianistpy", pp.__version__)
 from pianistpy.df.analytic import analytic_model
 
 model = analytic_model("hernquist")
@@ -14,7 +16,11 @@ model.spatially_finite, model.validation.tier
 ```
 
 ```myst
-(False, 'goal')
+pianistpy 1.0.0
+```
+
+```myst
+(False, 'silent')
 ```
 
 The Hernquist model is not truncated, so the sampler needs an outer radius, `r_sample`, in internal units (the scale radius is 1).
