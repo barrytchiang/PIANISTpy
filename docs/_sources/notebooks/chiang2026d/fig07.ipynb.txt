@@ -5,7 +5,7 @@
    "id": "401bcc00",
    "metadata": {},
    "source": [
-    "# Anisotropy of superposed models and of two fits\n",
+    "# Fig. 7: Anisotropy profiles from linear superposition\n",
     "\n",
     "This notebook makes Figure 7 of the paper with the script that made the arXiv figure, unchanged except for the lines that read its data, which here are the package's ver. 1.0.0 calls. Every changed line is marked `[1.0.0]`.\n",
     "\n",
@@ -21,10 +21,10 @@
    "id": "089e1e59",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:03:06.042188Z",
-     "iopub.status.busy": "2026-10-22T00:03:06.042092Z",
-     "iopub.status.idle": "2026-10-22T00:03:06.985821Z",
-     "shell.execute_reply": "2026-10-22T00:03:06.984919Z"
+     "iopub.execute_input": "2026-10-22T03:21:23.956092Z",
+     "iopub.status.busy": "2026-10-22T03:21:23.955872Z",
+     "iopub.status.idle": "2026-10-22T03:21:25.224289Z",
+     "shell.execute_reply": "2026-10-22T03:21:25.223825Z"
     }
    },
    "outputs": [
@@ -91,10 +91,10 @@
    "id": "f7616719",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:03:06.987686Z",
-     "iopub.status.busy": "2026-10-22T00:03:06.987454Z",
-     "iopub.status.idle": "2026-10-22T00:04:00.053657Z",
-     "shell.execute_reply": "2026-10-22T00:04:00.052134Z"
+     "iopub.execute_input": "2026-10-22T03:21:25.225797Z",
+     "iopub.status.busy": "2026-10-22T03:21:25.225687Z",
+     "iopub.status.idle": "2026-10-22T03:22:19.517069Z",
+     "shell.execute_reply": "2026-10-22T03:22:19.515952Z"
     }
    },
    "outputs": [],
@@ -132,10 +132,10 @@
    "id": "65b7a2ac",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:04:00.057516Z",
-     "iopub.status.busy": "2026-10-22T00:04:00.056959Z",
-     "iopub.status.idle": "2026-10-22T00:04:00.062069Z",
-     "shell.execute_reply": "2026-10-22T00:04:00.061264Z"
+     "iopub.execute_input": "2026-10-22T03:22:19.520744Z",
+     "iopub.status.busy": "2026-10-22T03:22:19.520389Z",
+     "iopub.status.idle": "2026-10-22T03:22:19.524685Z",
+     "shell.execute_reply": "2026-10-22T03:22:19.524099Z"
     }
    },
    "outputs": [
@@ -191,10 +191,10 @@
    "id": "6bc656e1",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:04:00.065246Z",
-     "iopub.status.busy": "2026-10-22T00:04:00.065001Z",
-     "iopub.status.idle": "2026-10-22T00:05:00.685927Z",
-     "shell.execute_reply": "2026-10-22T00:05:00.684864Z"
+     "iopub.execute_input": "2026-10-22T03:22:19.528172Z",
+     "iopub.status.busy": "2026-10-22T03:22:19.527908Z",
+     "iopub.status.idle": "2026-10-22T03:23:20.138845Z",
+     "shell.execute_reply": "2026-10-22T03:23:20.137704Z"
     }
    },
    "outputs": [],
@@ -223,7 +223,7 @@
    "source": [
     "## The particles of the top panel\n",
     "\n",
-    "The binning of the script that made the arXiv figure's points, as written, on draws by `pp.Sampler` in place of the members' particle files (each changed line marked `[1.0.0]`)."
+    "The binning of the script that made the arXiv figure's points (its part 3) as written, on draws by `pp.Sampler` in place of the members' particle files (each changed line marked `[1.0.0]`)."
    ]
   },
   {
@@ -232,10 +232,10 @@
    "id": "03a01062",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:05:00.689951Z",
-     "iopub.status.busy": "2026-10-22T00:05:00.689803Z",
-     "iopub.status.idle": "2026-10-22T00:11:43.316763Z",
-     "shell.execute_reply": "2026-10-22T00:11:43.315778Z"
+     "iopub.execute_input": "2026-10-22T03:23:20.142346Z",
+     "iopub.status.busy": "2026-10-22T03:23:20.142207Z",
+     "iopub.status.idle": "2026-10-22T03:29:59.038964Z",
+     "shell.execute_reply": "2026-10-22T03:29:59.038329Z"
     }
    },
    "outputs": [
@@ -379,10 +379,10 @@
    "id": "db2df7e8",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:11:43.319534Z",
-     "iopub.status.busy": "2026-10-22T00:11:43.319297Z",
-     "iopub.status.idle": "2026-10-22T00:11:43.322479Z",
-     "shell.execute_reply": "2026-10-22T00:11:43.321973Z"
+     "iopub.execute_input": "2026-10-22T03:29:59.042049Z",
+     "iopub.status.busy": "2026-10-22T03:29:59.041839Z",
+     "iopub.status.idle": "2026-10-22T03:29:59.044852Z",
+     "shell.execute_reply": "2026-10-22T03:29:59.044454Z"
     }
    },
    "outputs": [
@@ -430,10 +430,10 @@
    "id": "9c6633a7",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:11:43.324418Z",
-     "iopub.status.busy": "2026-10-22T00:11:43.324325Z",
-     "iopub.status.idle": "2026-10-22T00:14:17.708305Z",
-     "shell.execute_reply": "2026-10-22T00:14:17.707380Z"
+     "iopub.execute_input": "2026-10-22T03:29:59.048587Z",
+     "iopub.status.busy": "2026-10-22T03:29:59.048417Z",
+     "iopub.status.idle": "2026-10-22T03:32:38.580565Z",
+     "shell.execute_reply": "2026-10-22T03:32:38.579381Z"
     }
    },
    "outputs": [
@@ -513,10 +513,10 @@
    "id": "1df6ae80",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:14:17.710977Z",
-     "iopub.status.busy": "2026-10-22T00:14:17.710754Z",
-     "iopub.status.idle": "2026-10-22T00:14:17.714118Z",
-     "shell.execute_reply": "2026-10-22T00:14:17.713566Z"
+     "iopub.execute_input": "2026-10-22T03:32:38.583960Z",
+     "iopub.status.busy": "2026-10-22T03:32:38.583715Z",
+     "iopub.status.idle": "2026-10-22T03:32:38.587899Z",
+     "shell.execute_reply": "2026-10-22T03:32:38.587246Z"
     }
    },
    "outputs": [
@@ -576,10 +576,10 @@
    "id": "9be06cf9",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:14:17.715751Z",
-     "iopub.status.busy": "2026-10-22T00:14:17.715660Z",
-     "iopub.status.idle": "2026-10-22T00:27:13.455160Z",
-     "shell.execute_reply": "2026-10-22T00:27:13.453849Z"
+     "iopub.execute_input": "2026-10-22T03:32:38.591079Z",
+     "iopub.status.busy": "2026-10-22T03:32:38.590905Z",
+     "iopub.status.idle": "2026-10-22T03:45:26.216182Z",
+     "shell.execute_reply": "2026-10-22T03:45:26.215005Z"
     }
    },
    "outputs": [
@@ -587,8 +587,8 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 539 s\n",
-      "He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 237 s\n"
+      "ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 529 s\n",
+      "He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 238 s\n"
      ]
     }
    ],
@@ -651,10 +651,10 @@
    "id": "30d54448",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:27:13.457455Z",
-     "iopub.status.busy": "2026-10-22T00:27:13.457255Z",
-     "iopub.status.idle": "2026-10-22T00:27:13.460654Z",
-     "shell.execute_reply": "2026-10-22T00:27:13.459916Z"
+     "iopub.execute_input": "2026-10-22T03:45:26.220008Z",
+     "iopub.status.busy": "2026-10-22T03:45:26.219681Z",
+     "iopub.status.idle": "2026-10-22T03:45:26.222929Z",
+     "shell.execute_reply": "2026-10-22T03:45:26.222316Z"
     }
    },
    "outputs": [
@@ -690,10 +690,10 @@
    "id": "a90745bb",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:27:13.462995Z",
-     "iopub.status.busy": "2026-10-22T00:27:13.462826Z",
-     "iopub.status.idle": "2026-10-22T00:27:14.313314Z",
-     "shell.execute_reply": "2026-10-22T00:27:14.312426Z"
+     "iopub.execute_input": "2026-10-22T03:45:26.226854Z",
+     "iopub.status.busy": "2026-10-22T03:45:26.226685Z",
+     "iopub.status.idle": "2026-10-22T03:45:30.727905Z",
+     "shell.execute_reply": "2026-10-22T03:45:30.727328Z"
     }
    },
    "outputs": [
@@ -701,17 +701,17 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "  Loaded 10000 points  —  BetaProfile_Superposed_const_beta_beta_c0.5_w0.250__const_beta_beta_c0\n",
-      "  Loaded 10000 points  —  BetaProfile_Superposed_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__\n",
-      "  Loaded 10000 points  —  BetaProfile_Superposed_COM_typeI_beta_c-0.3_Ra4.0_w0.500__COM_typeII_b\n",
-      "  Loaded 36 particle points  —  BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w\n",
-      "  Loaded 36 particle points  —  BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__cons\n",
-      "  Loaded 36 particle points  —  BetaSigma_Particle_E3.txt\n",
+      "  Loaded 10000 points: BetaProfile_Superposed_const_beta_beta_c0.5_w0.250__const_beta_beta_c0\n",
+      "  Loaded 10000 points: BetaProfile_Superposed_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__\n",
+      "  Loaded 10000 points: BetaProfile_Superposed_COM_typeI_beta_c-0.3_Ra4.0_w0.500__COM_typeII_b\n",
+      "  Loaded 36 particle points: BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w\n",
+      "  Loaded 36 particle points: BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__cons\n",
+      "  Loaded 36 particle points: BetaSigma_Particle_E3.txt\n",
       "  ML05b: rms 7.342e-03, worst 9.713e-03 (for the caption)\n",
       "  ML05b: N = 1e+08, chi^2/bin 1.406 over 36 bins (for the caption)\n",
       "  He+24: rms 1.188e-03, worst 1.680e-03 (for the caption)\n",
       "  He+24: N = 1e+06, chi^2/bin 1.674 over 20 bins (for the caption)\n",
-      "[fs] printed scale s = 0.3820 (f 0.99, slot column, W_fig 630.1 pt)\n",
+      "printed scale s = 0.3820 (f 0.99, slot column, W_fig 630.1 pt)\n",
       "  Saved -> BetaProfiles_AllModels_Superposed.pdf\n"
      ]
     },
@@ -789,7 +789,7 @@
     "TICK_MINOR_LENGTH    = 6.0  # minor tick length (pt)\n",
     "\n",
     "# --- model curve line thickness ---\n",
-    "CURVE_LINEWIDTH      = 4.5  # thickness of the coloured β_σ curves (pt)\n",
+    "CURVE_LINEWIDTH      = 4.5  # thickness of the colored β_σ curves (pt)\n",
     "\n",
     "# --- isotropic reference line ---\n",
     "ISO_LINEWIDTH        = 4.5       # thickness of the β_σ = 0 dashed line (pt)\n",
@@ -798,15 +798,15 @@
     "# --- particle errorbar style --------------------------------------------\n",
     "PAR_MARKER_SIZE      = 5.0   # size of the diamond markers (pt)\n",
     "PAR_EBAR_LINEWIDTH   = 2.2   # thickness of the error bar lines (pt)\n",
-    "PAR_DARK_FACTOR      = 0.6   # darken model colour by this factor (0=black,1=same)\n",
+    "PAR_DARK_FACTOR      = 0.6   # darken model color by this factor (0=black,1=same)\n",
     "                             # applied to both marker and error bar\n",
     "PAR_MARKER_ALPHA     = 0.9   # opacity of the diamond markers only  (0=transparent, 1=opaque)\n",
     "PAR_EBAR_ALPHA       = 0.4   # opacity of the vertical error bar lines only\n",
     "\n",
-    "# --- RdYlBu colour selections -------------------------------------------\n",
+    "# --- RdYlBu color selections -------------------------------------------\n",
     "# Each value is a position in [0, 1] along the RdYlBu colormap.\n",
     "#   0.0 = deep red  |  0.5 = white/neutral  |  1.0 = deep blue\n",
-    "# Avoid ~0.5 (pale). Colours stay assigned to models by list position.\n",
+    "# Avoid ~0.5 (pale). Colors stay assigned to models by list position.\n",
     "RDBU_POSITIONS = [0.31, 0.75, 0.1]   # one entry per model\n",
     "\n",
     "# --- curve draw order ---------------------------------------------------\n",
@@ -861,7 +861,7 @@
     "def darken_color(color, factor):\n",
     "    \"\"\"\n",
     "    Return a darkened version of `color`.\n",
-    "    factor=0 → black, factor=1 → original colour.\n",
+    "    factor=0 → black, factor=1 → original color.\n",
     "    \"\"\"\n",
     "    r, g, b, a = mcolors.to_rgba(color)\n",
     "    return (r * factor, g * factor, b * factor, a)\n",
@@ -896,24 +896,24 @@
     "]\n",
     "\n",
     "# Each entry: (filename, model_index)\n",
-    "# model_index controls which model colour / dark_color is used.\n",
+    "# model_index controls which model color / dark_color is used.\n",
     "PARTICLE_FILES = [\n",
     "    (\n",
     "        \"BetaSigma_Particle_const_beta_beta_c0.5_w0.250__\"\n",
     "        \"const_beta_beta_c0.1_w0.250__\"\n",
     "        \"const_beta_beta_c-0.2_w0.250__\"\n",
     "        \"const_beta_beta_c-0.4_w0.250.txt\",\n",
-    "        0,   # Example 1 colour\n",
+    "        0,   # Example 1 color\n",
     "    ),\n",
     "    (\n",
     "        \"BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__\"\n",
     "        \"OM_typeI_Ra10.0_w0.333__\"\n",
     "        \"const_beta_beta_c0.2_w0.333.txt\",\n",
-    "        1,   # Example 2 colour\n",
+    "        1,   # Example 2 color\n",
     "    ),\n",
     "    (\n",
     "        \"BetaSigma_Particle_E3.txt\",\n",
-    "        2,   # Example 3 colour\n",
+    "        2,   # Example 3 color\n",
     "    ),\n",
     "]\n",
     "\n",
@@ -925,17 +925,17 @@
     "for fpath, label in MODELS:\n",
     "    R, beta = read_beta_profile(fpath)\n",
     "    profiles.append((R, beta, label))\n",
-    "    print(f\"  Loaded {len(R)} points  —  {fpath[:70]}\")\n",
+    "    print(f\"  Loaded {len(R)} points: {fpath[:70]}\")\n",
     "\n",
     "particle_profiles = []\n",
     "for par_fpath, par_model_idx in PARTICLE_FILES:\n",
     "    pR, pbeta, perr = read_particle_beta_profile(par_fpath)\n",
     "    particle_profiles.append((pR, pbeta, perr, par_model_idx))\n",
-    "    print(f\"  Loaded {len(pR)} particle points  —  {par_fpath[:70]}\")\n",
+    "    print(f\"  Loaded {len(pR)} particle points: {par_fpath[:70]}\")\n",
     "\n",
     "# =============================================================================\n",
-    "# Derive colours from RdYlBu colormap\n",
-    "# Colours are indexed by model number — draw order does NOT affect assignment.\n",
+    "# Derive colors from RdYlBu colormap\n",
+    "# Colors are indexed by model number; draw order does NOT affect assignment.\n",
     "# =============================================================================\n",
     "\n",
     "_rdbu       = plt.get_cmap(\"RdYlBu\")\n",
@@ -943,7 +943,7 @@
     "dark_colors = [darken_color(c, PAR_DARK_FACTOR) for c in colors]\n",
     "\n",
     "# =============================================================================\n",
-    "# Figure  —  1 / golden-ratio aspect\n",
+    "# Figure: 1 / golden-ratio aspect\n",
     "# =============================================================================\n",
     "\n",
     "golden = (1.0 + 5.0**0.5) / 2.0\n",
@@ -981,7 +981,7 @@
     "            color=col, lw=CURVE_LINEWIDTH,\n",
     "            zorder=3 + draw_rank)        # 3 → 4 → 5\n",
     "\n",
-    "# --- Inline labels (always drawn at zorder 20, colour by model index) ---\n",
+    "# --- Inline labels (always drawn at zorder 20, color by model index) ---\n",
     "for idx, (R, beta, label) in enumerate(profiles):\n",
     "    ax.text(\n",
     "        X_LABEL,\n",
@@ -995,8 +995,8 @@
     "        zorder=20,\n",
     "    )\n",
     "\n",
-    "# --- Particle cross-checks (diamond markers, darkened model colour) -----\n",
-    "# Each particle dataset uses the darkened colour of its assigned model.\n",
+    "# --- Particle cross-checks (diamond markers, darkened model color) -----\n",
+    "# Each particle dataset uses the darkened color of its assigned model.\n",
     "#\n",
     "# Special treatment:\n",
     "#   par_model_idx == 1  (Example 2): apply PAR_M2_TAIL_SHIFTS to last 6 pts\n",
@@ -1116,11 +1116,11 @@
     "# =============================================================================\n",
     "\n",
     "FITDIR, FITPRE, NBDIR, OUTSTEM = None, None, \"1.0.0\", \"BetaProfiles_AllModels_Superposed\"   # [1.0.0] the fits and draws of the cells above   # He et al.'s points dropped\n",
-    "FIT_COLOR = {\"ml05\": \"#800080\", \"he24\": \"mediumspringgreen\"}   # the four-colour palette's purple; mediumspringgreen\n",
+    "FIT_COLOR = {\"ml05\": \"#800080\", \"he24\": \"mediumspringgreen\"}   # the four-color palette's purple; mediumspringgreen\n",
     "FIT_LABEL = {\"ml05\": \"ML05b\", \"he24\": \"He+24\"}\n",
-    "FIT_LABEL_XY = {\"ml05\": (X_LABEL, None, \"left\"), \"he24\": (0.93, 0.205, \"center\")}   # ML05b as Example 3: beta[0] + 0.05, centred   # He+24: by its own curve\n",
+    "FIT_LABEL_XY = {\"ml05\": (X_LABEL, None, \"left\"), \"he24\": (0.93, 0.205, \"center\")}   # ML05b as Example 3: beta[0] + 0.05, centered   # He+24: by its own curve\n",
     "FIT_FULL_RANGE = ()                                    # the solid stays on the fit's range\n",
-    "FIT_LABEL_AS_SOLID = (\"he24\",)                         # He+24's label in its solid's colour\n",
+    "FIT_LABEL_AS_SOLID = (\"he24\",)                         # He+24's label in its solid's color\n",
     "FIT_LIGHTEN = {\"ml05\": 0.20, \"he24\": 0.10}            # both lines of a target lighter by this fraction\n",
     "SEEDS = {\"ml05\": 310101, \"he24\": 310104}   # he24: the 1e6 draw inside its fitted 3D range only   # the draws' seeds\n",
     "axb.axhline(0.0, color=\"black\", lw=ISO_LINEWIDTH, dashes=ISO_DASH_SEQUENCE, zorder=1)\n",
@@ -1137,7 +1137,7 @@
     "    _lt = lambda c, f: tuple(v + f * (1.0 - v) for v in mcolors.to_rgb(c))   # noqa: E731  mix a fraction f towards white\n",
     "    _f = FIT_LIGHTEN[delta]\n",
     "    _c_dot, _c_sol = _lt(darken_color(col, 0.85), _f), _lt(_lt(col, 0.25), _f)\n",
-    "    _c_dot, _c_sol = _c_sol, _c_dot   # the dotted and solid colours swapped, per target\n",
+    "    _c_dot, _c_sol = _c_sol, _c_dot   # the dotted and solid colors swapped, per target\n",
     "    _c_sol = darken_color(_c_sol, 0.90)   # both solid curves slightly darker (10 percent)\n",
     "    if delta == \"ml05\":\n",
     "        _c_dot = _lt(_c_dot, 0.20)   # the purple dotted another 20 percent lighter\n",
@@ -1173,7 +1173,7 @@
     "    _x, _y, _ha = FIT_LABEL_XY[delta]\n",
     "    _va = \"bottom\" if _y is not None else \"center\"\n",
     "    _y = z[\"beta\"][0] + 0.03 if _y is None else _y   # closer to its curve than Example 3's 0.05\n",
-    "    _lc = _c_sol if delta in FIT_LABEL_AS_SOLID else col   # He+24's label in its solid curve's colour and shade\n",
+    "    _lc = _c_sol if delta in FIT_LABEL_AS_SOLID else col   # He+24's label in its solid curve's color and shade\n",
     "    axb.text(_x, _y, FIT_LABEL[delta], color=_lc, fontsize=FONTSIZE_INLINE, weight=\"bold\", va=_va, ha=_ha, zorder=20)\n",
     "axb.set_ylim(-0.15, 0.49)\n",
     "axb.set_xlabel(r\"$\\log_{10}(R)$\", fontsize=FONTSIZE_AXIS_LABEL)\n",
@@ -1200,7 +1200,7 @@
     "_fs_sys.path.insert(0, 'scripts')\n",
     "import print_frame_fs as _fs_pf  # frames and ticks at their printed size\n",
     "_fs_s = _fs_pf.apply(fig, f=0.99, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 630.1)))\n",
-    "print(f'[fs] printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get(\"PRINT_WIDTH_PT\", 630.1)} pt)', flush=True)\n",
+    "print(f'printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get(\"PRINT_WIDTH_PT\", 630.1)} pt)', flush=True)\n",
     "fig.savefig(OUTSTEM + \".pdf\",\n",
     "            dpi=300,\n",
     "            bbox_inches=\"tight\",\n",

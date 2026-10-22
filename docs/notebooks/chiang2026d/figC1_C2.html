@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Accuracy checks of the distribution function and the velocity distribution &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Figs. C1 and C2: Distribution function and velocity distribution accuracy checks &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -54,7 +54,7 @@
     <link rel="index" title="Index" href="../../genindex" />
     <link rel="search" title="Search" href="../../search" />
     <link rel="next" title="N-body tests with GAMER" href="../gamer" />
-    <link rel="prev" title="Local and line-of-sight velocity distributions" href="fig13_15_16" />
+    <link rel="prev" title="Figs. 13, 15 and 16: Velocity distributions and observables" href="fig13_15_16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -217,11 +217,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index">Chiang+(2026d) figures</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="fig04_05_06">Distribution functions of the NFW families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fig07">Anisotropy of superposed models and of two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fig08">Benchmark of the isotropic NFW distribution function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fig13_15_16">Local and line-of-sight velocity distributions</a></li>
-<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Accuracy checks of the distribution function and the velocity distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig04_05_06">Figs. 4, 5 and 6: Distribution functions with and without truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig07">Fig. 7: Anisotropy profiles from linear superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig08">Fig. 8: Isotropic NFW benchmark against other codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig13_15_16">Figs. 13, 15 and 16: Velocity distributions and observables</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Figs. C1 and C2: Distribution function and velocity distribution accuracy checks</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
@@ -270,7 +270,7 @@
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Chiang+(2026d) figures</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Accuracy checks of the distribution function and the velocity distribution</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Figs. C1 and C2: Distribution function and velocity distribution accuracy checks</span></li>
   </ul>
 </nav>
 </div>
@@ -287,8 +287,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="accuracy-checks-of-the-distribution-function-and-the-velocity-distribution">
-<h1>Accuracy checks of the distribution function and the velocity distribution<a class="headerlink" href="#accuracy-checks-of-the-distribution-function-and-the-velocity-distribution" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="figs-c1-and-c2-distribution-function-and-velocity-distribution-accuracy-checks">
+<h1>Figs. C1 and C2: Distribution function and velocity distribution accuracy checks<a class="headerlink" href="#figs-c1-and-c2-distribution-function-and-velocity-distribution-accuracy-checks" title="Link to this heading">#</a></h1>
 <p>This notebook makes Figures C1 and C2 of the paper.</p>
 <p>Both appendix figures are drawn on the same NFW halo truncated at <span class="math notranslate nohighlight">\(\mathcal{Z}_{\rm t} = k_{\rm t} = 0.00796\)</span> (Method I, isotropic) and constant-anisotropy Method II models on its density. The models are solved once, below: Fig. C1 draws all eleven, and Fig. C2 draws four of them <span class="nobr">(<span class="math notranslate nohighlight">\(\beta_{\rm c} = +0.5, +0.3, 0, -0.5\)</span>).</span></p>
 <p>Internal units throughout (the scale radius is 1). Everything here is computed by the package’s public calls; nothing is read from stored data.</p>
@@ -493,7 +493,7 @@ the Method I model's profile: 77319 rows, R from 2.000000e-10 to 1213.635364, po
 <span class="c1"># ------------------------------------------------------------------------------</span>
 
 <span class="n">PATCH_MARKER_SIZE</span>    <span class="o">=</span> <span class="mi">7</span>   <span class="c1"># size of filled circle markers at patch thresholds</span>
-<span class="c1"># (on_pts, off_pts) in points — controls dash length and gap uniformly</span>
+<span class="c1"># (on_pts, off_pts) in points: controls dash length and gap uniformly</span>
 <span class="n">DASH_PATTERN</span>         <span class="o">=</span> <span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)</span>
 
 <span class="c1"># ------------------------------------------------------------------------------</span>
@@ -516,7 +516,7 @@ the Method I model's profile: 77319 rows, R from 2.000000e-10 to 1213.635364, po
      <span class="mf">0.2</span> <span class="p">:</span> <span class="p">(</span><span class="mf">3.612e-7</span><span class="p">,</span>  <span class="mf">0.991045</span><span class="p">),</span>
      <span class="mf">0.3</span> <span class="p">:</span> <span class="p">(</span><span class="mf">3.612e-7</span><span class="p">,</span>  <span class="mf">0.991045</span><span class="p">),</span>
      <span class="mf">0.4</span> <span class="p">:</span> <span class="p">(</span><span class="mf">3.612e-7</span><span class="p">,</span>  <span class="mf">0.991045</span><span class="p">),</span>
-     <span class="mf">0.5</span> <span class="p">:</span> <span class="p">(</span><span class="mf">3.612e-7</span><span class="p">,</span>  <span class="nb">float</span><span class="p">(</span><span class="s1">'nan'</span><span class="p">)),</span>  <span class="c1"># plateau case — no high-Q patch</span>
+     <span class="mf">0.5</span> <span class="p">:</span> <span class="p">(</span><span class="mf">3.612e-7</span><span class="p">,</span>  <span class="nb">float</span><span class="p">(</span><span class="s1">'nan'</span><span class="p">)),</span>  <span class="c1"># plateau case; no high-Q patch</span>
 <span class="p">}</span>
 
 <span class="c1"># ------------------------------------------------------------------------------</span>
@@ -609,7 +609,7 @@ the Method I model's profile: 77319 rows, R from 2.000000e-10 to 1213.635364, po
 <span class="n">OUTPUT_FIG</span>  <span class="o">=</span> <span class="s2">"Visualize_DF_Anisotropy.pdf"</span>
 
 <span class="c1"># ------------------------------------------------------------------------------</span>
-<span class="c1"># -- Colour map ----------------------------------------------------------------</span>
+<span class="c1"># -- Color map ----------------------------------------------------------------</span>
 <span class="c1"># ------------------------------------------------------------------------------</span>
 
 <span class="n">cmap</span>   <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="s2">"coolwarm"</span><span class="p">]</span>
@@ -1311,7 +1311,7 @@ beta_c = -0.5, Sampler             tier silent    worst check row_error 1.85e-07
 <span class="sd">"""</span>
 <span class="sd">The script of Fig. C2.</span>
 <span class="sd">Takes the four models' distributions computed above and produces a 4-column × 3-row figure:</span>
-<span class="sd">  Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  colour = CDF)</span>
+<span class="sd">  Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  color = CDF)</span>
 <span class="sd">  Row 2 : CDF slices at every integer decade in log10(R)</span>
 <span class="sd">  Row 3 : PDF slices at every integer decade in log10(R)</span>
 <span class="sd">"""</span>
@@ -1347,7 +1347,7 @@ beta_c = -0.5, Sampler             tier silent    worst check row_error 1.85e-07
 <span class="n">TICK_LENGTH_MAJOR</span>    <span class="o">=</span> <span class="mf">8.5</span>
 <span class="n">TICK_LENGTH_MINOR</span>    <span class="o">=</span> <span class="mf">5.5</span>
 
-<span class="c1"># Contour levels, colours, annotation strings</span>
+<span class="c1"># Contour levels, colors, annotation strings</span>
 <span class="n">CONTOUR_LEVELS</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span>       <span class="mf">0.5</span><span class="p">,</span>      <span class="mf">0.9</span>   <span class="p">]</span>
 <span class="n">CONTOUR_COLORS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"magenta"</span><span class="p">,</span> <span class="s2">"orange"</span><span class="p">,</span> <span class="s2">"cyan"</span> <span class="p">]</span>
 <span class="n">CONTOUR_LABELS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"0.1"</span><span class="p">,</span>     <span class="s2">"0.5"</span><span class="p">,</span>    <span class="s2">"0.9"</span>  <span class="p">]</span>
@@ -1363,9 +1363,9 @@ beta_c = -0.5, Sampler             tier silent    worst check row_error 1.85e-07
 <span class="n">PDF_LOG_YMIN</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.7</span>
 <span class="n">PDF_LOG_YMAX</span> <span class="o">=</span>  <span class="mf">2.4</span>
 
-<span class="c1"># x-axis major tick positions — WITHOUT 1.0 (cols 0-2, all three rows)</span>
+<span class="c1"># x-axis major tick positions: WITHOUT 1.0 (cols 0-2, all three rows)</span>
 <span class="n">XTICKS_MAJOR_NO1</span>   <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
-<span class="c1"># x-axis major tick positions — WITH 1.0 (col 3 bottom row only)</span>
+<span class="c1"># x-axis major tick positions: WITH 1.0 (col 3 bottom row only)</span>
 <span class="n">XTICKS_MAJOR_WITH1</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
 <span class="n">XTICK_MINOR_SPACING</span> <span class="o">=</span> <span class="mf">0.05</span>
 
@@ -1373,9 +1373,9 @@ beta_c = -0.5, Sampler             tier silent    worst check row_error 1.85e-07
 <span class="c1"># Each value is tuned so the label sits just to the LEFT of its curve</span>
 <span class="c1"># at the top of the heatmap.  Adjust individually as needed.</span>
 <span class="n">LABEL_VESC_ANCHORS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mf">0.1</span> <span class="p">:</span> <span class="mf">0.125</span><span class="p">,</span>   <span class="c1"># magenta — curve is near x~0.05 at top</span>
-    <span class="mf">0.5</span> <span class="p">:</span> <span class="mf">0.43</span><span class="p">,</span>   <span class="c1"># orange  — curve is near x~0.25 at top</span>
-    <span class="mf">0.9</span> <span class="p">:</span> <span class="mf">0.72</span><span class="p">,</span>   <span class="c1"># cyan    — curve is near x~0.55 at top</span>
+    <span class="mf">0.1</span> <span class="p">:</span> <span class="mf">0.125</span><span class="p">,</span>   <span class="c1"># magenta: curve is near x~0.05 at top</span>
+    <span class="mf">0.5</span> <span class="p">:</span> <span class="mf">0.43</span><span class="p">,</span>   <span class="c1"># orange: curve is near x~0.25 at top</span>
+    <span class="mf">0.9</span> <span class="p">:</span> <span class="mf">0.72</span><span class="p">,</span>   <span class="c1"># cyan: curve is near x~0.55 at top</span>
 <span class="p">}</span>
 
 <span class="c1"># ══════════════════════════════════════════════════════════════════════════════</span>
@@ -1450,7 +1450,7 @@ beta_c = -0.5, Sampler             tier silent    worst check row_error 1.85e-07
         <span class="p">)</span>
 
 <span class="c1"># ══════════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># ── Figure layout — airtight, square panels ───────────────────────────────────</span>
+<span class="c1"># ── Figure layout: airtight, square panels ───────────────────────────────────</span>
 <span class="c1"># ══════════════════════════════════════════════════════════════════════════════</span>
 
 <span class="n">PANEL_SIDE</span>   <span class="o">=</span> <span class="mf">3.8</span>
@@ -1469,8 +1469,8 @@ beta_c = -0.5, Sampler             tier silent    worst check row_error 1.85e-07
 
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_w</span><span class="p">,</span> <span class="n">fig_h</span><span class="p">))</span>
 
-<span class="c1"># Build axes — NOTE: NO sharex at construction time.</span>
-<span class="c1"># We manage x-axis tick synchronisation manually in the post-loop pass</span>
+<span class="c1"># Build axes. NOTE: NO sharex at construction time.</span>
+<span class="c1"># We manage x-axis tick synchronization manually in the post-loop pass</span>
 <span class="c1"># so that per-column locators are never overridden by sharex propagation.</span>
 <span class="n">axes</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">N_col</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
 
@@ -1640,7 +1640,7 @@ beta_c = -0.5, Sampler             tier silent    worst check row_error 1.85e-07
                       <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_AXIS_LABEL</span><span class="p">)</span>
 
 <span class="c1"># ══════════════════════════════════════════════════════════════════════════════</span>
-<span class="c1"># ── POST-LOOP x-axis tick pass — all three rows, every column individually ────</span>
+<span class="c1"># ── POST-LOOP x-axis tick pass: all three rows, every column individually ────</span>
 <span class="c1"># ══════════════════════════════════════════════════════════════════════════════</span>
 <span class="c1"># sharex is NOT used (axes built without it above), so each axis object's</span>
 <span class="c1"># locator is fully independent.  We set every axis explicitly here to</span>

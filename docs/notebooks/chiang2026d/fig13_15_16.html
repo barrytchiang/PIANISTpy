@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Local and line-of-sight velocity distributions &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Figs. 13, 15 and 16: Velocity distributions and observables &#8212; PIANISTpy ver. 1.0.0</title>
   
   
   
@@ -53,8 +53,8 @@
     <link rel="icon" href="../../_static/logo.png"/>
     <link rel="index" title="Index" href="../../genindex" />
     <link rel="search" title="Search" href="../../search" />
-    <link rel="next" title="Accuracy checks of the distribution function and the velocity distribution" href="figC1_C2" />
-    <link rel="prev" title="Benchmark of the isotropic NFW distribution function" href="fig08" />
+    <link rel="next" title="Figs. C1 and C2: Distribution function and velocity distribution accuracy checks" href="figC1_C2" />
+    <link rel="prev" title="Fig. 8: Isotropic NFW benchmark against other codes" href="fig08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -217,11 +217,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index">Chiang+(2026d) figures</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="fig04_05_06">Distribution functions of the NFW families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fig07">Anisotropy of superposed models and of two fits</a></li>
-<li class="toctree-l2"><a class="reference internal" href="fig08">Benchmark of the isotropic NFW distribution function</a></li>
-<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Local and line-of-sight velocity distributions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="figC1_C2">Accuracy checks of the distribution function and the velocity distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig04_05_06">Figs. 4, 5 and 6: Distribution functions with and without truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig07">Fig. 7: Anisotropy profiles from linear superposition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fig08">Fig. 8: Isotropic NFW benchmark against other codes</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Figs. 13, 15 and 16: Velocity distributions and observables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="figC1_C2">Figs. C1 and C2: Distribution function and velocity distribution accuracy checks</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../gamer"><em>N</em>-body tests with GAMER</a></li>
@@ -270,7 +270,7 @@
     
     <li class="breadcrumb-item"><a href="index" class="nav-link">Chiang+(2026d) figures</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Local and line-of-sight velocity distributions</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Figs. 13, 15 and 16: Velocity distributions and observables</span></li>
   </ul>
 </nav>
 </div>
@@ -287,8 +287,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="local-and-line-of-sight-velocity-distributions">
-<h1>Local and line-of-sight velocity distributions<a class="headerlink" href="#local-and-line-of-sight-velocity-distributions" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="figs-13-15-and-16-velocity-distributions-and-observables">
+<h1>Figs. 13, 15 and 16: Velocity distributions and observables<a class="headerlink" href="#figs-13-15-and-16-velocity-distributions-and-observables" title="Link to this heading">#</a></h1>
 <p>This notebook makes Figures 13, 15 and 16 of the paper. The whole notebook takes about two hours on one 32-core node, almost all of it the aperture averages of Fig. 15.</p>
 <p>The models: an NFW halo truncated at <span class="math notranslate nohighlight">\(\mathcal{Z}_{\rm t} = k_{\rm t} = 0.165\)</span> (Method I, isotropic), and three Method II members on its density profile, <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c} = +0.5\)</span>,</span> <span class="math notranslate nohighlight">\(\beta_{\rm c} = -0.5\)</span> and the Osipkov-Merritt Type I model with <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a} = 1\)</span>,</span> all in the model’s internal units (the scale radius is 1, velocities in units of <span class="nobr"><span class="math notranslate nohighlight">\(\sigma_0\)</span>).</span></p>
 <p>Each model’s <code class="docutils literal notranslate"><span class="pre">LosTable</span></code> is built once, below, and every figure reads it: Fig. 13 the local velocity distribution (<code class="docutils literal notranslate"><span class="pre">pp.pdf_v</span></code>), Fig. 15 the line-of-sight dispersion and its aperture average (<code class="docutils literal notranslate"><span class="pre">pp.sigma_los</span></code>, <code class="docutils literal notranslate"><span class="pre">pp.sigma_los_aperture</span></code>), Fig. 16 the line-of-sight velocity distribution in an aperture (<code class="docutils literal notranslate"><span class="pre">pp.aperture_losvd</span></code>). Everything here is computed by the package’s public calls; nothing is read from stored data.</p>
@@ -543,7 +543,7 @@ V_esc(R = 10.0) = 4.391825e-01
 <span class="n">V_r10</span> <span class="o">=</span> <span class="n">v_om</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="n">SIGMA_0</span><span class="p">;</span>  <span class="n">p_r10</span> <span class="o">=</span> <span class="n">p_om</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">SIGMA_0</span>
 
 <span class="c1"># ============================================================</span>
-<span class="c1"># MAXWELL-BOLTZMANN — match peak LOCATION to isotropic</span>
+<span class="c1"># MAXWELL-BOLTZMANN: match peak LOCATION to isotropic</span>
 <span class="c1"># ============================================================</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">maxwell_boltzmann</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
@@ -590,7 +590,7 @@ V_esc(R = 10.0) = 4.391825e-01
     <span class="p">)</span>
 
 <span class="c1"># ============================================================</span>
-<span class="c1"># X-AXIS TICKS — "0.0" -&gt; "0"</span>
+<span class="c1"># X-AXIS TICKS: "0.0" -&gt; "0"</span>
 <span class="c1"># ============================================================</span>
 
 <span class="n">major_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">XMAX</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
@@ -633,7 +633,7 @@ V_esc(R = 10.0) = 4.391825e-01
 <span class="n">ax_top</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.1</span><span class="p">))</span>
 <span class="n">ax_top</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
 
-<span class="c1"># Curve-label legend (top panel) — vertical shift applied to anchor y</span>
+<span class="c1"># Curve-label legend (top panel): vertical shift applied to anchor y</span>
 <span class="n">_top_leg_y</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">ANNOT_TOP_LEGEND_Y_SHIFT</span>
 <span class="n">top_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">LABEL_BP5</span><span class="p">,</span> <span class="n">LABEL_ISO</span><span class="p">,</span> <span class="n">LABEL_BM5</span><span class="p">,</span> <span class="n">LABEL_OM</span><span class="p">]</span>
 <span class="n">top_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">COLOR_BP5</span><span class="p">,</span> <span class="n">COLOR_ISO</span><span class="p">,</span> <span class="n">COLOR_BM5</span><span class="p">,</span> <span class="n">COLOR_OM</span><span class="p">]</span>
@@ -652,7 +652,7 @@ V_esc(R = 10.0) = 4.391825e-01
 <span class="k">for</span> <span class="n">txt</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">leg_top</span><span class="o">.</span><span class="n">get_texts</span><span class="p">(),</span> <span class="n">top_colors</span><span class="p">):</span>
     <span class="n">txt</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-<span class="c1"># "R = 1" annotation — top-right, with independent fontsize + y-shift</span>
+<span class="c1"># "R = 1" annotation: top-right, with independent fontsize + y-shift</span>
 <span class="n">_r1_y</span> <span class="o">=</span> <span class="mf">0.96</span> <span class="o">+</span> <span class="n">ANNOT_TOP_R1_Y_SHIFT</span>
 <span class="n">ax_top</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">_r1_y</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$\boldsymbol</span><span class="si">{R}</span><span class="s1">\mathbf{ = 1}$'</span><span class="p">,</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">ax_top</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
@@ -680,7 +680,7 @@ V_esc(R = 10.0) = 4.391825e-01
 <span class="n">ax_bot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
 <span class="n">ax_bot</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">ticker</span><span class="o">.</span><span class="n">MultipleLocator</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
 
-<span class="c1"># Curve-label legend (bottom panel) — vertical shift applied to anchor y</span>
+<span class="c1"># Curve-label legend (bottom panel): vertical shift applied to anchor y</span>
 <span class="n">_bot_leg_y</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">ANNOT_BOT_LEGEND_Y_SHIFT</span>
 <span class="n">bot_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">LABEL_R01</span><span class="p">,</span> <span class="n">LABEL_R1</span><span class="p">,</span> <span class="n">LABEL_R10</span><span class="p">]</span>
 <span class="n">bot_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">COLOR_OM_R01</span><span class="p">,</span> <span class="n">COLOR_OM_R1</span><span class="p">,</span> <span class="n">COLOR_OM_R10</span><span class="p">]</span>
@@ -700,7 +700,7 @@ V_esc(R = 10.0) = 4.391825e-01
     <span class="n">txt</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
 <span class="c1"># two leading spaces so the label clears the R = 0.1 curve</span>
-<span class="c1"># "OM (Type I)" annotation — top-right, black, with independent fontsize + y-shift</span>
+<span class="c1"># "OM (Type I)" annotation: top-right, black, with independent fontsize + y-shift</span>
 <span class="n">_om_y</span> <span class="o">=</span> <span class="mf">0.96</span> <span class="o">+</span> <span class="n">ANNOT_BOT_OM_Y_SHIFT</span>
 <span class="n">ax_bot</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">_om_y</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'$\mathbf{\ \ OM\ (Type\ I)}$'</span><span class="p">,</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">ax_bot</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
@@ -715,7 +715,7 @@ V_esc(R = 10.0) = 4.391825e-01
 <span class="n">_fs_sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'scripts'</span><span class="p">)</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">print_frame_fs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_pf</span>  <span class="c1"># frames and ticks at their printed size</span>
 <span class="n">_fs_s</span> <span class="o">=</span> <span class="n">_fs_pf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span> <span class="n">width_pt</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'PRINT_WIDTH_PT'</span><span class="p">,</span> <span class="mf">586.1</span><span class="p">)))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'[fs] printed scale s = </span><span class="si">{</span><span class="n">_fs_s</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> (f 0.99, slot column, W_fig </span><span class="si">{</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PRINT_WIDTH_PT"</span><span class="p">,</span><span class="w"> </span><span class="mf">586.1</span><span class="p">)</span><span class="si">}</span><span class="s1"> pt)'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'printed scale s = </span><span class="si">{</span><span class="n">_fs_s</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> (f 0.99, slot column, W_fig </span><span class="si">{</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PRINT_WIDTH_PT"</span><span class="p">,</span><span class="w"> </span><span class="mf">586.1</span><span class="p">)</span><span class="si">}</span><span class="s1"> pt)'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">OUTPUT_FIG</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  [SAVE] figure -&gt; </span><span class="si">{</span><span class="n">OUTPUT_FIG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -727,7 +727,7 @@ V_esc(R = 10.0) = 4.391825e-01
     iso mode : v = 4.452641e-01   height = 1.923733e+00
     MB  mode : v = 4.452641e-01   height = 1.864545e+00
     height ratio (iso/MB) : 1.0317
-[fs] printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)
+printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)
   [SAVE] figure -&gt; V_shell_Comparison.pdf
 </pre></div>
 </div>
@@ -763,7 +763,7 @@ V_esc(R = 10.0) = 4.391825e-01
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
-cell time 6391 s
+cell time 5739 s
 </pre></div>
 </div>
 </div>
@@ -877,7 +877,7 @@ cell time 6391 s
 
 <span class="c1"># ============================================================</span>
 <span class="c1"># CUSTOM X-AXIS TICKS</span>
-<span class="c1"># Major ticks at 1x10^n (labelled), minor ticks at {2,4,6,8}x10^n</span>
+<span class="c1"># Major ticks at 1x10^n (labeled), minor ticks at {2,4,6,8}x10^n</span>
 <span class="c1"># ============================================================</span>
 
 <span class="n">exp_min</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">XMIN</span><span class="p">)</span>
@@ -1026,21 +1026,21 @@ cell time 6391 s
     <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">f</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">v</span><span class="p">[</span><span class="n">keep</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">keep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">f</span><span class="p">[</span><span class="n">keep</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">keep</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 
-<span class="n">centred</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">centered</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 <span class="n">offset</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Aperture</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">r_off</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
 <span class="n">v_max_cen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1e-6</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]))</span>  <span class="c1"># the center's escape velocity</span>
 <span class="n">v_max_off</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">truncated</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">9.0</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]))</span>   <span class="c1"># at R = R_off - R_ape = 9</span>
-<span class="n">curves</span> <span class="o">=</span> <span class="p">[(</span><span class="n">losvd_curve</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">centred</span><span class="p">,</span> <span class="n">v_max_cen</span><span class="p">),</span> <span class="n">losvd_curve</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">v_max_off</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">]</span>
+<span class="n">curves</span> <span class="o">=</span> <span class="p">[(</span><span class="n">losvd_curve</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">centered</span><span class="p">,</span> <span class="n">v_max_cen</span><span class="p">),</span> <span class="n">losvd_curve</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">v_max_off</span><span class="p">))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">]</span>
 <span class="k">for</span> <span class="p">(</span><span class="n">vc</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="p">(</span><span class="n">vo</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">curves</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"support: centred +-</span><span class="si">{</span><span class="n">vc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, R_off = 10 +-</span><span class="si">{</span><span class="n">vo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"support: centered +-</span><span class="si">{</span><span class="n">vc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, R_off = 10 +-</span><span class="si">{</span><span class="n">vo</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>support: centred +-1.292262, R_off = 10 +-0.469311
-support: centred +-1.292262, R_off = 10 +-0.469311
-support: centred +-1.292262, R_off = 10 +-0.469311
-support: centred +-1.292262, R_off = 10 +-0.263180
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>support: centered +-1.292262, R_off = 10 +-0.469311
+support: centered +-1.292262, R_off = 10 +-0.469311
+support: centered +-1.292262, R_off = 10 +-0.469311
+support: centered +-1.292262, R_off = 10 +-0.263180
 </pre></div>
 </div>
 </div>
@@ -1172,7 +1172,7 @@ support: centred +-1.292262, R_off = 10 +-0.263180
 <span class="n">ax_bot</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">major_labels</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">FONTSIZE_TICK_LABEL</span><span class="p">)</span>
 
 <span class="c1"># ============================================================</span>
-<span class="c1"># LOAD AND PLOT — all four models in both panels</span>
+<span class="c1"># LOAD AND PLOT: all four models in both panels</span>
 <span class="c1"># ============================================================</span>
 
 <span class="c1"># ── top panel: centered (Roff = 0) ───────────────────────────</span>
@@ -1251,7 +1251,7 @@ support: centred +-1.292262, R_off = 10 +-0.263180
 <span class="n">_fs_sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'scripts'</span><span class="p">)</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">print_frame_fs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_fs_pf</span>  <span class="c1"># frames and ticks at their printed size</span>
 <span class="n">_fs_s</span> <span class="o">=</span> <span class="n">_fs_pf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="s1">'column'</span><span class="p">,</span> <span class="n">width_pt</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'PRINT_WIDTH_PT'</span><span class="p">,</span> <span class="mf">589.9</span><span class="p">)))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'[fs] printed scale s = </span><span class="si">{</span><span class="n">_fs_s</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> (f 0.99, slot column, W_fig </span><span class="si">{</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PRINT_WIDTH_PT"</span><span class="p">,</span><span class="w"> </span><span class="mf">589.9</span><span class="p">)</span><span class="si">}</span><span class="s1"> pt)'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'printed scale s = </span><span class="si">{</span><span class="n">_fs_s</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1"> (f 0.99, slot column, W_fig </span><span class="si">{</span><span class="n">_fs_os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"PRINT_WIDTH_PT"</span><span class="p">,</span><span class="w"> </span><span class="mf">589.9</span><span class="p">)</span><span class="si">}</span><span class="s1"> pt)'</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">OUTPUT_FIG</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">'tight'</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  [SAVE] figure -&gt; </span><span class="si">{</span><span class="n">OUTPUT_FIG</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1259,7 +1259,7 @@ support: centred +-1.292262, R_off = 10 +-0.263180
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[fs] printed scale s = 0.4080 (f 0.99, slot column, W_fig 589.9 pt)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>printed scale s = 0.4080 (f 0.99, slot column, W_fig 589.9 pt)
   [SAVE] figure -&gt; LOS_VD.pdf
 </pre></div>
 </div>

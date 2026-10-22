@@ -5,7 +5,7 @@
    "id": "85aad2d4",
    "metadata": {},
    "source": [
-    "# Local and line-of-sight velocity distributions\n",
+    "# Figs. 13, 15 and 16: Velocity distributions and observables\n",
     "\n",
     "This notebook makes Figures 13, 15 and 16 of the paper. The whole notebook takes about two hours on one 32-core node, almost all of it the aperture averages of Fig. 15.\n",
     "\n",
@@ -24,10 +24,10 @@
    "id": "tiers-2fea9156ca06",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-21T22:50:00.631727Z",
-     "iopub.status.busy": "2026-10-21T22:50:00.631504Z",
-     "iopub.status.idle": "2026-10-21T22:50:02.152538Z",
-     "shell.execute_reply": "2026-10-21T22:50:02.151948Z"
+     "iopub.execute_input": "2026-10-22T03:21:21.641334Z",
+     "iopub.status.busy": "2026-10-22T03:21:21.641246Z",
+     "iopub.status.idle": "2026-10-22T03:21:23.008609Z",
+     "shell.execute_reply": "2026-10-22T03:21:23.008178Z"
     }
    },
    "outputs": [
@@ -94,10 +94,10 @@
    "id": "e3f2ab04",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-21T22:50:02.154582Z",
-     "iopub.status.busy": "2026-10-21T22:50:02.154374Z",
-     "iopub.status.idle": "2026-10-21T22:57:30.842166Z",
-     "shell.execute_reply": "2026-10-21T22:57:30.841186Z"
+     "iopub.execute_input": "2026-10-22T03:21:23.011756Z",
+     "iopub.status.busy": "2026-10-22T03:21:23.011563Z",
+     "iopub.status.idle": "2026-10-22T03:28:37.540193Z",
+     "shell.execute_reply": "2026-10-22T03:28:37.539245Z"
     }
    },
    "outputs": [],
@@ -129,10 +129,10 @@
    "id": "tiers-010fbfa10a5b",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-21T22:57:30.844683Z",
-     "iopub.status.busy": "2026-10-21T22:57:30.844288Z",
-     "iopub.status.idle": "2026-10-21T22:57:30.848248Z",
-     "shell.execute_reply": "2026-10-21T22:57:30.847591Z"
+     "iopub.execute_input": "2026-10-22T03:28:37.542647Z",
+     "iopub.status.busy": "2026-10-22T03:28:37.542326Z",
+     "iopub.status.idle": "2026-10-22T03:28:37.545537Z",
+     "shell.execute_reply": "2026-10-22T03:28:37.545054Z"
     }
    },
    "outputs": [
@@ -179,10 +179,10 @@
    "id": "8d3a4ca3",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-21T22:57:30.850654Z",
-     "iopub.status.busy": "2026-10-21T22:57:30.850418Z",
-     "iopub.status.idle": "2026-10-21T22:57:31.893470Z",
-     "shell.execute_reply": "2026-10-21T22:57:31.892484Z"
+     "iopub.execute_input": "2026-10-22T03:28:37.546918Z",
+     "iopub.status.busy": "2026-10-22T03:28:37.546820Z",
+     "iopub.status.idle": "2026-10-22T03:28:38.627854Z",
+     "shell.execute_reply": "2026-10-22T03:28:38.627142Z"
     }
    },
    "outputs": [
@@ -229,10 +229,10 @@
    "id": "2fcc4d59",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-21T22:57:31.897052Z",
-     "iopub.status.busy": "2026-10-21T22:57:31.896693Z",
-     "iopub.status.idle": "2026-10-21T22:57:32.879828Z",
-     "shell.execute_reply": "2026-10-21T22:57:32.878984Z"
+     "iopub.execute_input": "2026-10-22T03:28:38.630006Z",
+     "iopub.status.busy": "2026-10-22T03:28:38.629879Z",
+     "iopub.status.idle": "2026-10-22T03:28:39.967246Z",
+     "shell.execute_reply": "2026-10-22T03:28:39.966620Z"
     }
    },
    "outputs": [
@@ -244,7 +244,7 @@
       "    iso mode : v = 4.452641e-01   height = 1.923733e+00\n",
       "    MB  mode : v = 4.452641e-01   height = 1.864545e+00\n",
       "    height ratio (iso/MB) : 1.0317\n",
-      "[fs] printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)\n",
+      "printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)\n",
       "  [SAVE] figure -> V_shell_Comparison.pdf\n"
      ]
     },
@@ -366,7 +366,7 @@
     "V_r10 = v_om[2] / SIGMA_0;  p_r10 = p_om[2] * SIGMA_0\n",
     "\n",
     "# ============================================================\n",
-    "# MAXWELL-BOLTZMANN — match peak LOCATION to isotropic\n",
+    "# MAXWELL-BOLTZMANN: match peak LOCATION to isotropic\n",
     "# ============================================================\n",
     "\n",
     "def maxwell_boltzmann(v, a):\n",
@@ -413,7 +413,7 @@
     "    )\n",
     "\n",
     "# ============================================================\n",
-    "# X-AXIS TICKS — \"0.0\" -> \"0\"\n",
+    "# X-AXIS TICKS: \"0.0\" -> \"0\"\n",
     "# ============================================================\n",
     "\n",
     "major_x = np.arange(0.0, XMAX + 0.01, 0.2)\n",
@@ -456,7 +456,7 @@
     "ax_top.yaxis.set_minor_locator(ticker.MultipleLocator(0.1))\n",
     "ax_top.yaxis.set_major_locator(ticker.MultipleLocator(0.5))\n",
     "\n",
-    "# Curve-label legend (top panel) — vertical shift applied to anchor y\n",
+    "# Curve-label legend (top panel): vertical shift applied to anchor y\n",
     "_top_leg_y = 1.0 + ANNOT_TOP_LEGEND_Y_SHIFT\n",
     "top_labels = [LABEL_BP5, LABEL_ISO, LABEL_BM5, LABEL_OM]\n",
     "top_colors = [COLOR_BP5, COLOR_ISO, COLOR_BM5, COLOR_OM]\n",
@@ -475,7 +475,7 @@
     "for txt, col in zip(leg_top.get_texts(), top_colors):\n",
     "    txt.set_color(col)\n",
     "\n",
-    "# \"R = 1\" annotation — top-right, with independent fontsize + y-shift\n",
+    "# \"R = 1\" annotation: top-right, with independent fontsize + y-shift\n",
     "_r1_y = 0.96 + ANNOT_TOP_R1_Y_SHIFT\n",
     "ax_top.text(0.03, _r1_y, r'$\\boldsymbol{R}\\mathbf{ = 1}$',\n",
     "            transform=ax_top.transAxes,\n",
@@ -503,7 +503,7 @@
     "ax_bot.yaxis.set_minor_locator(ticker.MultipleLocator(0.25))\n",
     "ax_bot.yaxis.set_major_locator(ticker.MultipleLocator(1.0))\n",
     "\n",
-    "# Curve-label legend (bottom panel) — vertical shift applied to anchor y\n",
+    "# Curve-label legend (bottom panel): vertical shift applied to anchor y\n",
     "_bot_leg_y = 1.0 + ANNOT_BOT_LEGEND_Y_SHIFT\n",
     "bot_labels = [LABEL_R01, LABEL_R1, LABEL_R10]\n",
     "bot_colors = [COLOR_OM_R01, COLOR_OM_R1, COLOR_OM_R10]\n",
@@ -523,7 +523,7 @@
     "    txt.set_color(col)\n",
     "\n",
     "# two leading spaces so the label clears the R = 0.1 curve\n",
-    "# \"OM (Type I)\" annotation — top-right, black, with independent fontsize + y-shift\n",
+    "# \"OM (Type I)\" annotation: top-right, black, with independent fontsize + y-shift\n",
     "_om_y = 0.96 + ANNOT_BOT_OM_Y_SHIFT\n",
     "ax_bot.text(0.03, _om_y, r'$\\mathbf{\\ \\ OM\\ (Type\\ I)}$',\n",
     "            transform=ax_bot.transAxes,\n",
@@ -538,7 +538,7 @@
     "_fs_sys.path.insert(0, 'scripts')\n",
     "import print_frame_fs as _fs_pf  # frames and ticks at their printed size\n",
     "_fs_s = _fs_pf.apply(fig, f=0.99, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 586.1)))\n",
-    "print(f'[fs] printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get(\"PRINT_WIDTH_PT\", 586.1)} pt)', flush=True)\n",
+    "print(f'printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get(\"PRINT_WIDTH_PT\", 586.1)} pt)', flush=True)\n",
     "fig.savefig(OUTPUT_FIG, bbox_inches='tight', dpi=300)\n",
     "print(f\"  [SAVE] figure -> {OUTPUT_FIG}\")\n",
     "plt.show()"
@@ -562,10 +562,10 @@
    "id": "20ebdca8",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-21T22:57:32.881926Z",
-     "iopub.status.busy": "2026-10-21T22:57:32.881717Z",
-     "iopub.status.idle": "2026-10-22T00:44:03.415764Z",
-     "shell.execute_reply": "2026-10-22T00:44:03.414467Z"
+     "iopub.execute_input": "2026-10-22T03:28:39.969011Z",
+     "iopub.status.busy": "2026-10-22T03:28:39.968819Z",
+     "iopub.status.idle": "2026-10-22T05:04:19.250153Z",
+     "shell.execute_reply": "2026-10-22T05:04:19.249055Z"
     }
    },
    "outputs": [
@@ -577,7 +577,7 @@
       "last projected row 31.875380; aperture radii 1.995e-05 to 31.875380\n",
       "last projected row 31.875380; aperture radii 1.995e-05 to 31.875380\n",
       "last projected row 31.875380; aperture radii 1.995e-05 to 31.875380\n",
-      "cell time 6391 s\n"
+      "cell time 5739 s\n"
      ]
     }
    ],
@@ -612,10 +612,10 @@
    "id": "8239bd2a",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:44:03.419266Z",
-     "iopub.status.busy": "2026-10-22T00:44:03.419068Z",
-     "iopub.status.idle": "2026-10-22T00:44:03.941543Z",
-     "shell.execute_reply": "2026-10-22T00:44:03.940552Z"
+     "iopub.execute_input": "2026-10-22T05:04:19.254726Z",
+     "iopub.status.busy": "2026-10-22T05:04:19.254496Z",
+     "iopub.status.idle": "2026-10-22T05:04:19.788805Z",
+     "shell.execute_reply": "2026-10-22T05:04:19.788152Z"
     }
    },
    "outputs": [
@@ -744,7 +744,7 @@
     "\n",
     "# ============================================================\n",
     "# CUSTOM X-AXIS TICKS\n",
-    "# Major ticks at 1x10^n (labelled), minor ticks at {2,4,6,8}x10^n\n",
+    "# Major ticks at 1x10^n (labeled), minor ticks at {2,4,6,8}x10^n\n",
     "# ============================================================\n",
     "\n",
     "exp_min = math.floor(XMIN)\n",
@@ -887,10 +887,10 @@
    "id": "34e7d938",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:44:03.944519Z",
-     "iopub.status.busy": "2026-10-22T00:44:03.944256Z",
-     "iopub.status.idle": "2026-10-22T00:46:59.690112Z",
-     "shell.execute_reply": "2026-10-22T00:46:59.688917Z"
+     "iopub.execute_input": "2026-10-22T05:04:19.792313Z",
+     "iopub.status.busy": "2026-10-22T05:04:19.792062Z",
+     "iopub.status.idle": "2026-10-22T05:06:56.597441Z",
+     "shell.execute_reply": "2026-10-22T05:06:56.596839Z"
     }
    },
    "outputs": [
@@ -898,10 +898,10 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "support: centred +-1.292262, R_off = 10 +-0.469311\n",
-      "support: centred +-1.292262, R_off = 10 +-0.469311\n",
-      "support: centred +-1.292262, R_off = 10 +-0.469311\n",
-      "support: centred +-1.292262, R_off = 10 +-0.263180\n"
+      "support: centered +-1.292262, R_off = 10 +-0.469311\n",
+      "support: centered +-1.292262, R_off = 10 +-0.469311\n",
+      "support: centered +-1.292262, R_off = 10 +-0.469311\n",
+      "support: centered +-1.292262, R_off = 10 +-0.263180\n"
      ]
     }
    ],
@@ -915,13 +915,13 @@
     "    keep = np.nonzero(f > 0.0)[0]\n",
     "    return v[keep[0]:keep[-1] + 1], f[keep[0]:keep[-1] + 1]\n",
     "\n",
-    "centred = pp.Aperture.circle(1.0)\n",
+    "centered = pp.Aperture.circle(1.0)\n",
     "offset = pp.Aperture.circle(1.0, r_off=10.0)\n",
     "v_max_cen = float(np.sqrt(2.0 * truncated.profile.potential(np.array([1e-6]))[0]))  # the center's escape velocity\n",
     "v_max_off = float(np.sqrt(2.0 * truncated.profile.potential(np.array([9.0]))[0]))   # at R = R_off - R_ape = 9\n",
-    "curves = [(losvd_curve(t, centred, v_max_cen), losvd_curve(t, offset, v_max_off)) for t in tables]\n",
+    "curves = [(losvd_curve(t, centered, v_max_cen), losvd_curve(t, offset, v_max_off)) for t in tables]\n",
     "for (vc, _), (vo, _) in curves:\n",
-    "    print(f\"support: centred +-{vc[-1]:.6f}, R_off = 10 +-{vo[-1]:.6f}\")"
+    "    print(f\"support: centered +-{vc[-1]:.6f}, R_off = 10 +-{vo[-1]:.6f}\")"
    ]
   },
   {
@@ -938,10 +938,10 @@
    "id": "05df9235",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2026-10-22T00:46:59.693748Z",
-     "iopub.status.busy": "2026-10-22T00:46:59.693501Z",
-     "iopub.status.idle": "2026-10-22T00:47:00.041208Z",
-     "shell.execute_reply": "2026-10-22T00:47:00.040197Z"
+     "iopub.execute_input": "2026-10-22T05:06:56.602120Z",
+     "iopub.status.busy": "2026-10-22T05:06:56.601845Z",
+     "iopub.status.idle": "2026-10-22T05:06:56.948489Z",
+     "shell.execute_reply": "2026-10-22T05:06:56.947790Z"
     }
    },
    "outputs": [
@@ -949,7 +949,7 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "[fs] printed scale s = 0.4080 (f 0.99, slot column, W_fig 589.9 pt)\n",
+      "printed scale s = 0.4080 (f 0.99, slot column, W_fig 589.9 pt)\n",
       "  [SAVE] figure -> LOS_VD.pdf\n"
      ]
     },
@@ -1089,7 +1089,7 @@
     "ax_bot.set_xticklabels(major_labels, fontsize=FONTSIZE_TICK_LABEL)\n",
     "\n",
     "# ============================================================\n",
-    "# LOAD AND PLOT — all four models in both panels\n",
+    "# LOAD AND PLOT: all four models in both panels\n",
     "# ============================================================\n",
     "\n",
     "# ── top panel: centered (Roff = 0) ───────────────────────────\n",
@@ -1168,7 +1168,7 @@
     "_fs_sys.path.insert(0, 'scripts')\n",
     "import print_frame_fs as _fs_pf  # frames and ticks at their printed size\n",
     "_fs_s = _fs_pf.apply(fig, f=0.99, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 589.9)))\n",
-    "print(f'[fs] printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get(\"PRINT_WIDTH_PT\", 589.9)} pt)', flush=True)\n",
+    "print(f'printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get(\"PRINT_WIDTH_PT\", 589.9)} pt)', flush=True)\n",
     "fig.savefig(OUTPUT_FIG, bbox_inches='tight', dpi=300)\n",
     "print(f\"  [SAVE] figure -> {OUTPUT_FIG}\")\n",
     "plt.show()"

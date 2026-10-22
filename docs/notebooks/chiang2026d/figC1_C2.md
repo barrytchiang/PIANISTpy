@@ -1,4 +1,4 @@
-# Accuracy checks of the distribution function and the velocity distribution
+# Figs. C1 and C2: Distribution function and velocity distribution accuracy checks
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/figC1_C2
 
@@ -198,7 +198,7 @@ TICK_LENGTH_MINOR    = 5.5
 # ------------------------------------------------------------------------------
 
 PATCH_MARKER_SIZE    = 7   # size of filled circle markers at patch thresholds
-# (on_pts, off_pts) in points — controls dash length and gap uniformly
+# (on_pts, off_pts) in points: controls dash length and gap uniformly
 DASH_PATTERN         = (8.0, 3.0)
 
 # ------------------------------------------------------------------------------
@@ -221,7 +221,7 @@ PATCH_ANCHORS = {
      0.2 : (3.612e-7,  0.991045),
      0.3 : (3.612e-7,  0.991045),
      0.4 : (3.612e-7,  0.991045),
-     0.5 : (3.612e-7,  float('nan')),  # plateau case — no high-Q patch
+     0.5 : (3.612e-7,  float('nan')),  # plateau case; no high-Q patch
 }
 
 # ------------------------------------------------------------------------------
@@ -314,7 +314,7 @@ PATCH_ANCHORS = anchors
 OUTPUT_FIG  = "Visualize_DF_Anisotropy.pdf"
 
 # ------------------------------------------------------------------------------
-# -- Colour map ----------------------------------------------------------------
+# -- Color map ----------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
 cmap   = matplotlib.colormaps["coolwarm"]
@@ -1004,7 +1004,7 @@ The figure.
 """
 The script of Fig. C2.
 Takes the four models' distributions computed above and produces a 4-column × 3-row figure:
-  Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  colour = CDF)
+  Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  color = CDF)
   Row 2 : CDF slices at every integer decade in log10(R)
   Row 3 : PDF slices at every integer decade in log10(R)
 """
@@ -1040,7 +1040,7 @@ TICK_WIDTH           = 2.5
 TICK_LENGTH_MAJOR    = 8.5
 TICK_LENGTH_MINOR    = 5.5
 
-# Contour levels, colours, annotation strings
+# Contour levels, colors, annotation strings
 CONTOUR_LEVELS = [0.1,       0.5,      0.9   ]
 CONTOUR_COLORS = ["magenta", "orange", "cyan" ]
 CONTOUR_LABELS = ["0.1",     "0.5",    "0.9"  ]
@@ -1056,9 +1056,9 @@ LABEL_TOP_FRAC = 0.07
 PDF_LOG_YMIN = -1.7
 PDF_LOG_YMAX =  2.4
 
-# x-axis major tick positions — WITHOUT 1.0 (cols 0-2, all three rows)
+# x-axis major tick positions: WITHOUT 1.0 (cols 0-2, all three rows)
 XTICKS_MAJOR_NO1   = [0.0, 0.2, 0.4, 0.6, 0.8]
-# x-axis major tick positions — WITH 1.0 (col 3 bottom row only)
+# x-axis major tick positions: WITH 1.0 (col 3 bottom row only)
 XTICKS_MAJOR_WITH1 = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
 XTICK_MINOR_SPACING = 0.05
 
@@ -1066,9 +1066,9 @@ XTICK_MINOR_SPACING = 0.05
 # Each value is tuned so the label sits just to the LEFT of its curve
 # at the top of the heatmap.  Adjust individually as needed.
 LABEL_VESC_ANCHORS = {
-    0.1 : 0.125,   # magenta — curve is near x~0.05 at top
-    0.5 : 0.43,   # orange  — curve is near x~0.25 at top
-    0.9 : 0.72,   # cyan    — curve is near x~0.55 at top
+    0.1 : 0.125,   # magenta: curve is near x~0.05 at top
+    0.5 : 0.43,   # orange: curve is near x~0.25 at top
+    0.9 : 0.72,   # cyan: curve is near x~0.55 at top
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1143,7 +1143,7 @@ def place_contour_labels(ax, contour_sets):
         )
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ── Figure layout — airtight, square panels ───────────────────────────────────
+# ── Figure layout: airtight, square panels ───────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
 
 PANEL_SIDE   = 3.8
@@ -1162,8 +1162,8 @@ fig_h = BOT_MARGIN + 3 * PANEL_SIDE + TOP_MARGIN
 
 fig = plt.figure(figsize=(fig_w, fig_h))
 
-# Build axes — NOTE: NO sharex at construction time.
-# We manage x-axis tick synchronisation manually in the post-loop pass
+# Build axes. NOTE: NO sharex at construction time.
+# We manage x-axis tick synchronization manually in the post-loop pass
 # so that per-column locators are never overridden by sharex propagation.
 axes = [[None] * N_col for _ in range(3)]
 
@@ -1333,7 +1333,7 @@ for col, d in enumerate(datasets):
                       fontsize=FONTSIZE_AXIS_LABEL)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ── POST-LOOP x-axis tick pass — all three rows, every column individually ────
+# ── POST-LOOP x-axis tick pass: all three rows, every column individually ────
 # ══════════════════════════════════════════════════════════════════════════════
 # sharex is NOT used (axes built without it above), so each axis object's
 # locator is fully independent.  We set every axis explicitly here to

@@ -2192,20 +2192,20 @@ Source: https://pianistpy.com/docs/notebooks/chiang2026d/
 Each notebook reproduces one or more result figures of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) with the released package, and computes every number
 it shows in its own cells.
 
-- [Distribution functions of the NFW families](https://pianistpy.com/docs/notebooks/chiang2026d/fig04_05_06)
+- [Figs. 4, 5 and 6: Distribution functions with and without truncation](https://pianistpy.com/docs/notebooks/chiang2026d/fig04_05_06)
 
-- [Anisotropy of superposed models and of two fits](https://pianistpy.com/docs/notebooks/chiang2026d/fig07)
+- [Fig. 7: Anisotropy profiles from linear superposition](https://pianistpy.com/docs/notebooks/chiang2026d/fig07)
 
-- [Benchmark of the isotropic NFW distribution function](https://pianistpy.com/docs/notebooks/chiang2026d/fig08)
+- [Fig. 8: Isotropic NFW benchmark against other codes](https://pianistpy.com/docs/notebooks/chiang2026d/fig08)
 
-- [Local and line-of-sight velocity distributions](https://pianistpy.com/docs/notebooks/chiang2026d/fig13_15_16)
+- [Figs. 13, 15 and 16: Velocity distributions and observables](https://pianistpy.com/docs/notebooks/chiang2026d/fig13_15_16)
 
-- [Accuracy checks of the distribution function and the velocity distribution](https://pianistpy.com/docs/notebooks/chiang2026d/figC1_C2)
+- [Figs. C1 and C2: Distribution function and velocity distribution accuracy checks](https://pianistpy.com/docs/notebooks/chiang2026d/figC1_C2)
 
 
 ---
 
-# Distribution functions of the NFW families
+# Figs. 4, 5 and 6: Distribution functions with and without truncation
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig04_05_06
 
@@ -2843,7 +2843,7 @@ The three PDFs written here were compared with the paper’s files, page by page
 
 ---
 
-# Anisotropy of superposed models and of two fits
+# Fig. 7: Anisotropy profiles from linear superposition
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig07
 
@@ -2988,7 +2988,7 @@ for name, model in composites.items():
 
 ## The particles of the top panel
 
-The binning of the script that made the arXiv figure’s points, as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
+The binning of the script that made the arXiv figure’s points (its part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
 
 ```ipython3
 import hashlib
@@ -3298,8 +3298,8 @@ for name, model in fits.items():
 ```
 
 ```myst
-ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 539 s
-He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 237 s
+ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 529 s
+He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 238 s
 ```
 
 ```ipython3
@@ -3381,7 +3381,7 @@ TICK_MAJOR_LENGTH    = 10.0  # major tick length (pt)
 TICK_MINOR_LENGTH    = 6.0  # minor tick length (pt)
 
 # --- model curve line thickness ---
-CURVE_LINEWIDTH      = 4.5  # thickness of the coloured β_σ curves (pt)
+CURVE_LINEWIDTH      = 4.5  # thickness of the colored β_σ curves (pt)
 
 # --- isotropic reference line ---
 ISO_LINEWIDTH        = 4.5       # thickness of the β_σ = 0 dashed line (pt)
@@ -3390,15 +3390,15 @@ ISO_DASH_SEQUENCE    = (7, 2.5)    # (dash_length, gap_length) in pt
 # --- particle errorbar style --------------------------------------------
 PAR_MARKER_SIZE      = 5.0   # size of the diamond markers (pt)
 PAR_EBAR_LINEWIDTH   = 2.2   # thickness of the error bar lines (pt)
-PAR_DARK_FACTOR      = 0.6   # darken model colour by this factor (0=black,1=same)
+PAR_DARK_FACTOR      = 0.6   # darken model color by this factor (0=black,1=same)
                              # applied to both marker and error bar
 PAR_MARKER_ALPHA     = 0.9   # opacity of the diamond markers only  (0=transparent, 1=opaque)
 PAR_EBAR_ALPHA       = 0.4   # opacity of the vertical error bar lines only
 
-# --- RdYlBu colour selections -------------------------------------------
+# --- RdYlBu color selections -------------------------------------------
 # Each value is a position in [0, 1] along the RdYlBu colormap.
 #   0.0 = deep red  |  0.5 = white/neutral  |  1.0 = deep blue
-# Avoid ~0.5 (pale). Colours stay assigned to models by list position.
+# Avoid ~0.5 (pale). Colors stay assigned to models by list position.
 RDBU_POSITIONS = [0.31, 0.75, 0.1]   # one entry per model
 
 # --- curve draw order ---------------------------------------------------
@@ -3450,7 +3450,7 @@ def read_particle_beta_profile(filepath):
 def darken_color(color, factor):
     """
     Return a darkened version of `color`.
-    factor=0 → black, factor=1 → original colour.
+    factor=0 → black, factor=1 → original color.
     """
     r, g, b, a = mcolors.to_rgba(color)
     return (r * factor, g * factor, b * factor, a)
@@ -3484,24 +3484,24 @@ MODELS = [
 ]
 
 # Each entry: (filename, model_index)
-# model_index controls which model colour / dark_color is used.
+# model_index controls which model color / dark_color is used.
 PARTICLE_FILES = [
     (
         "BetaSigma_Particle_const_beta_beta_c0.5_w0.250__"
         "const_beta_beta_c0.1_w0.250__"
         "const_beta_beta_c-0.2_w0.250__"
         "const_beta_beta_c-0.4_w0.250.txt",
-        0,   # Example 1 colour
+        0,   # Example 1 color
     ),
     (
         "BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__"
         "OM_typeI_Ra10.0_w0.333__"
         "const_beta_beta_c0.2_w0.333.txt",
-        1,   # Example 2 colour
+        1,   # Example 2 color
     ),
     (
         "BetaSigma_Particle_E3.txt",
-        2,   # Example 3 colour
+        2,   # Example 3 color
     ),
 ]
 
@@ -3513,17 +3513,17 @@ profiles = []
 for fpath, label in MODELS:
     R, beta = read_beta_profile(fpath)
     profiles.append((R, beta, label))
-    print(f"  Loaded {len(R)} points  —  {fpath[:70]}")
+    print(f"  Loaded {len(R)} points: {fpath[:70]}")
 
 particle_profiles = []
 for par_fpath, par_model_idx in PARTICLE_FILES:
     pR, pbeta, perr = read_particle_beta_profile(par_fpath)
     particle_profiles.append((pR, pbeta, perr, par_model_idx))
-    print(f"  Loaded {len(pR)} particle points  —  {par_fpath[:70]}")
+    print(f"  Loaded {len(pR)} particle points: {par_fpath[:70]}")
 
 # =============================================================================
-# Derive colours from RdYlBu colormap
-# Colours are indexed by model number — draw order does NOT affect assignment.
+# Derive colors from RdYlBu colormap
+# Colors are indexed by model number; draw order does NOT affect assignment.
 # =============================================================================
 
 _rdbu       = plt.get_cmap("RdYlBu")
@@ -3531,7 +3531,7 @@ colors      = [_rdbu(p) for p in RDBU_POSITIONS]
 dark_colors = [darken_color(c, PAR_DARK_FACTOR) for c in colors]
 
 # =============================================================================
-# Figure  —  1 / golden-ratio aspect
+# Figure: 1 / golden-ratio aspect
 # =============================================================================
 
 golden = (1.0 + 5.0**0.5) / 2.0
@@ -3569,7 +3569,7 @@ for draw_rank, model_idx in enumerate(CURVE_DRAW_ORDER):
             color=col, lw=CURVE_LINEWIDTH,
             zorder=3 + draw_rank)        # 3 → 4 → 5
 
-# --- Inline labels (always drawn at zorder 20, colour by model index) ---
+# --- Inline labels (always drawn at zorder 20, color by model index) ---
 for idx, (R, beta, label) in enumerate(profiles):
     ax.text(
         X_LABEL,
@@ -3583,8 +3583,8 @@ for idx, (R, beta, label) in enumerate(profiles):
         zorder=20,
     )
 
-# --- Particle cross-checks (diamond markers, darkened model colour) -----
-# Each particle dataset uses the darkened colour of its assigned model.
+# --- Particle cross-checks (diamond markers, darkened model color) -----
+# Each particle dataset uses the darkened color of its assigned model.
 #
 # Special treatment:
 #   par_model_idx == 1  (Example 2): apply PAR_M2_TAIL_SHIFTS to last 6 pts
@@ -3704,11 +3704,11 @@ ax.tick_params(
 # =============================================================================
 
 FITDIR, FITPRE, NBDIR, OUTSTEM = None, None, "1.0.0", "BetaProfiles_AllModels_Superposed"   # [1.0.0] the fits and draws of the cells above   # He et al.'s points dropped
-FIT_COLOR = {"ml05": "#800080", "he24": "mediumspringgreen"}   # the four-colour palette's purple; mediumspringgreen
+FIT_COLOR = {"ml05": "#800080", "he24": "mediumspringgreen"}   # the four-color palette's purple; mediumspringgreen
 FIT_LABEL = {"ml05": "ML05b", "he24": "He+24"}
-FIT_LABEL_XY = {"ml05": (X_LABEL, None, "left"), "he24": (0.93, 0.205, "center")}   # ML05b as Example 3: beta[0] + 0.05, centred   # He+24: by its own curve
+FIT_LABEL_XY = {"ml05": (X_LABEL, None, "left"), "he24": (0.93, 0.205, "center")}   # ML05b as Example 3: beta[0] + 0.05, centered   # He+24: by its own curve
 FIT_FULL_RANGE = ()                                    # the solid stays on the fit's range
-FIT_LABEL_AS_SOLID = ("he24",)                         # He+24's label in its solid's colour
+FIT_LABEL_AS_SOLID = ("he24",)                         # He+24's label in its solid's color
 FIT_LIGHTEN = {"ml05": 0.20, "he24": 0.10}            # both lines of a target lighter by this fraction
 SEEDS = {"ml05": 310101, "he24": 310104}   # he24: the 1e6 draw inside its fitted 3D range only   # the draws' seeds
 axb.axhline(0.0, color="black", lw=ISO_LINEWIDTH, dashes=ISO_DASH_SEQUENCE, zorder=1)
@@ -3725,7 +3725,7 @@ for k, delta in enumerate(("ml05", "he24")):
     _lt = lambda c, f: tuple(v + f * (1.0 - v) for v in mcolors.to_rgb(c))   # noqa: E731  mix a fraction f towards white
     _f = FIT_LIGHTEN[delta]
     _c_dot, _c_sol = _lt(darken_color(col, 0.85), _f), _lt(_lt(col, 0.25), _f)
-    _c_dot, _c_sol = _c_sol, _c_dot   # the dotted and solid colours swapped, per target
+    _c_dot, _c_sol = _c_sol, _c_dot   # the dotted and solid colors swapped, per target
     _c_sol = darken_color(_c_sol, 0.90)   # both solid curves slightly darker (10 percent)
     if delta == "ml05":
         _c_dot = _lt(_c_dot, 0.20)   # the purple dotted another 20 percent lighter
@@ -3761,7 +3761,7 @@ for k, delta in enumerate(("ml05", "he24")):
     _x, _y, _ha = FIT_LABEL_XY[delta]
     _va = "bottom" if _y is not None else "center"
     _y = z["beta"][0] + 0.03 if _y is None else _y   # closer to its curve than Example 3's 0.05
-    _lc = _c_sol if delta in FIT_LABEL_AS_SOLID else col   # He+24's label in its solid curve's colour and shade
+    _lc = _c_sol if delta in FIT_LABEL_AS_SOLID else col   # He+24's label in its solid curve's color and shade
     axb.text(_x, _y, FIT_LABEL[delta], color=_lc, fontsize=FONTSIZE_INLINE, weight="bold", va=_va, ha=_ha, zorder=20)
 axb.set_ylim(-0.15, 0.49)
 axb.set_xlabel(r"$\log_{10}(R)$", fontsize=FONTSIZE_AXIS_LABEL)
@@ -3788,7 +3788,7 @@ import os as _fs_os, sys as _fs_sys
 _fs_sys.path.insert(0, 'scripts')
 import print_frame_fs as _fs_pf  # frames and ticks at their printed size
 _fs_s = _fs_pf.apply(fig, f=0.99, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 630.1)))
-print(f'[fs] printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 630.1)} pt)', flush=True)
+print(f'printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 630.1)} pt)', flush=True)
 fig.savefig(OUTSTEM + ".pdf",
             dpi=300,
             bbox_inches="tight",
@@ -3797,24 +3797,24 @@ print(f"  Saved -> {OUTSTEM}.pdf")
 ```
 
 ```myst
-  Loaded 10000 points  —  BetaProfile_Superposed_const_beta_beta_c0.5_w0.250__const_beta_beta_c0
-  Loaded 10000 points  —  BetaProfile_Superposed_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__
-  Loaded 10000 points  —  BetaProfile_Superposed_COM_typeI_beta_c-0.3_Ra4.0_w0.500__COM_typeII_b
-  Loaded 36 particle points  —  BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w
-  Loaded 36 particle points  —  BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__cons
-  Loaded 36 particle points  —  BetaSigma_Particle_E3.txt
+  Loaded 10000 points: BetaProfile_Superposed_const_beta_beta_c0.5_w0.250__const_beta_beta_c0
+  Loaded 10000 points: BetaProfile_Superposed_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__
+  Loaded 10000 points: BetaProfile_Superposed_COM_typeI_beta_c-0.3_Ra4.0_w0.500__COM_typeII_b
+  Loaded 36 particle points: BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w
+  Loaded 36 particle points: BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__cons
+  Loaded 36 particle points: BetaSigma_Particle_E3.txt
   ML05b: rms 7.342e-03, worst 9.713e-03 (for the caption)
   ML05b: N = 1e+08, chi^2/bin 1.406 over 36 bins (for the caption)
   He+24: rms 1.188e-03, worst 1.680e-03 (for the caption)
   He+24: N = 1e+06, chi^2/bin 1.674 over 20 bins (for the caption)
-[fs] printed scale s = 0.3820 (f 0.99, slot column, W_fig 630.1 pt)
+printed scale s = 0.3820 (f 0.99, slot column, W_fig 630.1 pt)
   Saved -> BetaProfiles_AllModels_Superposed.pdf
 ```
 
 
 ---
 
-# Benchmark of the isotropic NFW distribution function
+# Fig. 8: Isotropic NFW benchmark against other codes
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig08
 
@@ -3951,8 +3951,8 @@ for code_, script in (("galpy", "scripts/galpy_iso.py"), ("agama", "scripts/agam
 ```
 
 ```myst
-galpy: exit 0 in 117 s; [Success] Execution complete. Formatted matrix written to: galpy_numerical_iso.txt
-agama: exit 0 in 15 s; [Success] Fully self-consistent numerical AGAMA profile dataset written to: agama_numerical_iso.txt
+galpy: exit 0 in 120 s; [Success] Execution complete. Formatted matrix written to: galpy_numerical_iso.txt
+agama: exit 0 in 14 s; [Success] Fully self-consistent numerical AGAMA profile dataset written to: agama_numerical_iso.txt
 ```
 
 ## The curves
@@ -4193,7 +4193,7 @@ def _shift(R, d, uN, PN_):
 
 def poisson_resid(cin, cout, rtol=1e-12):
     """the roundtrip's Poisson solve as a residual about the analytic NFW potential: P = P_NFW(R) + delta,
-    lap delta = -(rho[F](P) - rho_NFW(R)), P(0) = 1 (delta = 0 at the centre). The same equation as the outward solve, but P is
+    lap delta = -(rho[F](P) - rho_NFW(R)), P(0) = 1 (delta = 0 at the center). The same equation as the outward solve, but P is
     never formed as 1 minus an accumulated integral: delta carries its own digits and float64 holds it. rho[F](P) =
     rho_NFW(R_NFW(P)) (1 + c(P)); the roundtrip error at R is rho[F](P) / rho_NFW(R) - 1 = expm1(D) + c exp(D), D = ln rho_NFW(R')
     - ln rho_NFW(R), R' = R_NFW(P)."""
@@ -4292,7 +4292,7 @@ normalization: C INT F sqrt(P - K) dK / rho_NFW at R = 10: 1.000000000000
 inverse check: u(R(u)) / u - 1 max 3.9e-15, P(R(P)) / P - 1 max 3.6e-15
   Poisson: 2602 evaluations, status 0/0
 exact NFW through the tables and the solver: |rt - 1| max 7.67e-07 (R <= 1e5: 4.04e-09); c0 = 4.999999999973325e-01 (exact 1/2)
-pianist: density tables 4739 + 17353 nodes in 56 s; quadrature H vs 2H 1.1e-11 (inner), 3.0e-10 (outer); spline vs direct at midpoints 1.5e-11, 5.8e-12
+pianist: density tables 4739 + 17353 nodes in 57 s; quadrature H vs 2H 1.1e-11 (inner), 3.0e-10 (outer); spline vs direct at midpoints 1.5e-11, 5.8e-12
   Poisson: 4246 evaluations, status 0/0
   residual Poisson (rtol 1e-12): 781937 evaluations, status 0
   residual Poisson (rtol 1e-10): 373298 evaluations, status 0
@@ -4327,7 +4327,7 @@ lane: residual with the table at 2H: max |diff| R <= 1e0: 1.79e-14, R <= 1e3: 1.
   residual Poisson (rtol 1e-12): 8471 evaluations, status 0
 lane: residual with the table on every other node: max |diff| R <= 1e0: 1.81e-12, R <= 1e3: 5.80e-12, R <= 1e5: 5.24e-11, R <= 1e7: 1.09e-09, R <= 1e8: 2.40e-09, R <= 1e9: 9.27e-09
 lane: c0 u rho at u = 1e-12: 5.001872023546e-01 (exact 1/2); roundtrip at log R = -10, -9, -8, -6, -4, -2, 0, 2, 4: +1.87e-04, +1.87e-04, +1.87e-04, +1.87e-04, +1.78e-04, -2.66e-05, +3.60e-06, +2.78e-04, -2.04e-03
-wrote fig08_curves.npz in 420 s
+wrote fig08_curves.npz in 416 s
 ```
 
 ## The figure
@@ -4453,7 +4453,7 @@ style_ax(ax_bot)
 _bold_fp = FontProperties(weight="bold", size=FONTSIZE_LEGEND)
 
 def text_legend(ax, names, colors, loc):
-    """a text-only legend (no line handles), each entry bold in its curve's colour"""
+    """a text-only legend (no line handles), each entry bold in its curve's color"""
     lg = ax.legend(handles=[Line2D([], [], color="none", label=n) for n in names], fontsize=FONTSIZE_LEGEND, frameon=False, loc=loc,
                    handlelength=0, handletextpad=0, prop=_bold_fp)
     for t, c in zip(lg.get_texts(), colors):
@@ -4473,7 +4473,7 @@ import os as _fs_os, sys as _fs_sys
 _fs_sys.path.insert(0, 'scripts')
 import print_frame_fs as _fs_pf  # frames and ticks at their printed size
 _fs_s = _fs_pf.apply(fig, f=1.0, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 590.2)))
-print(f'[fs] printed scale s = {_fs_s:.4f} (f 1.0, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 590.2)} pt)', flush=True)
+print(f'printed scale s = {_fs_s:.4f} (f 1.0, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 590.2)} pt)', flush=True)
 fig.savefig(OUTPUT_FIG, bbox_inches="tight", dpi=300)
 plt.close(fig)
 meta = PngInfo()
@@ -4496,7 +4496,7 @@ _display(_Img(OUTPUT_FIG))
 ```
 
 ```myst
-[fs] printed scale s = 0.4119 (f 1.0, slot column, W_fig 590.2 pt)
+printed scale s = 0.4119 (f 1.0, slot column, W_fig 590.2 pt)
 NFW_Benchmark_Iso_chop.png: x [-8, 8]
   PIANISTpy rt: log10|delta| over [-14.49, -8.87] (axis [-14.5, 1.0])
   Widrow rt: log10|delta| over [-7.51, -0.00] (axis [-14.5, 1.0])
@@ -4507,7 +4507,7 @@ NFW_Benchmark_Iso_chop.png: x [-8, 8]
 
 ---
 
-# Local and line-of-sight velocity distributions
+# Figs. 13, 15 and 16: Velocity distributions and observables
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig13_15_16
 
@@ -4756,7 +4756,7 @@ V_r1  = v_om[1] / SIGMA_0;  p_r1  = p_om[1] * SIGMA_0
 V_r10 = v_om[2] / SIGMA_0;  p_r10 = p_om[2] * SIGMA_0
 
 # ============================================================
-# MAXWELL-BOLTZMANN — match peak LOCATION to isotropic
+# MAXWELL-BOLTZMANN: match peak LOCATION to isotropic
 # ============================================================
 
 def maxwell_boltzmann(v, a):
@@ -4803,7 +4803,7 @@ def style_ax(ax):
     )
 
 # ============================================================
-# X-AXIS TICKS — "0.0" -> "0"
+# X-AXIS TICKS: "0.0" -> "0"
 # ============================================================
 
 major_x = np.arange(0.0, XMAX + 0.01, 0.2)
@@ -4846,7 +4846,7 @@ style_ax(ax_top)
 ax_top.yaxis.set_minor_locator(ticker.MultipleLocator(0.1))
 ax_top.yaxis.set_major_locator(ticker.MultipleLocator(0.5))
 
-# Curve-label legend (top panel) — vertical shift applied to anchor y
+# Curve-label legend (top panel): vertical shift applied to anchor y
 _top_leg_y = 1.0 + ANNOT_TOP_LEGEND_Y_SHIFT
 top_labels = [LABEL_BP5, LABEL_ISO, LABEL_BM5, LABEL_OM]
 top_colors = [COLOR_BP5, COLOR_ISO, COLOR_BM5, COLOR_OM]
@@ -4865,7 +4865,7 @@ leg_top = ax_top.legend(
 for txt, col in zip(leg_top.get_texts(), top_colors):
     txt.set_color(col)
 
-# "R = 1" annotation — top-right, with independent fontsize + y-shift
+# "R = 1" annotation: top-right, with independent fontsize + y-shift
 _r1_y = 0.96 + ANNOT_TOP_R1_Y_SHIFT
 ax_top.text(0.03, _r1_y, r'$\boldsymbol{R}\mathbf{ = 1}$',
             transform=ax_top.transAxes,
@@ -4893,7 +4893,7 @@ style_ax(ax_bot)
 ax_bot.yaxis.set_minor_locator(ticker.MultipleLocator(0.25))
 ax_bot.yaxis.set_major_locator(ticker.MultipleLocator(1.0))
 
-# Curve-label legend (bottom panel) — vertical shift applied to anchor y
+# Curve-label legend (bottom panel): vertical shift applied to anchor y
 _bot_leg_y = 1.0 + ANNOT_BOT_LEGEND_Y_SHIFT
 bot_labels = [LABEL_R01, LABEL_R1, LABEL_R10]
 bot_colors = [COLOR_OM_R01, COLOR_OM_R1, COLOR_OM_R10]
@@ -4913,7 +4913,7 @@ for txt, col in zip(leg_bot.get_texts(), bot_colors):
     txt.set_color(col)
 
 # two leading spaces so the label clears the R = 0.1 curve
-# "OM (Type I)" annotation — top-right, black, with independent fontsize + y-shift
+# "OM (Type I)" annotation: top-right, black, with independent fontsize + y-shift
 _om_y = 0.96 + ANNOT_BOT_OM_Y_SHIFT
 ax_bot.text(0.03, _om_y, r'$\mathbf{\ \ OM\ (Type\ I)}$',
             transform=ax_bot.transAxes,
@@ -4928,7 +4928,7 @@ import os as _fs_os, sys as _fs_sys
 _fs_sys.path.insert(0, 'scripts')
 import print_frame_fs as _fs_pf  # frames and ticks at their printed size
 _fs_s = _fs_pf.apply(fig, f=0.99, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 586.1)))
-print(f'[fs] printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 586.1)} pt)', flush=True)
+print(f'printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 586.1)} pt)', flush=True)
 fig.savefig(OUTPUT_FIG, bbox_inches='tight', dpi=300)
 print(f"  [SAVE] figure -> {OUTPUT_FIG}")
 plt.show()
@@ -4939,7 +4939,7 @@ plt.show()
     iso mode : v = 4.452641e-01   height = 1.923733e+00
     MB  mode : v = 4.452641e-01   height = 1.864545e+00
     height ratio (iso/MB) : 1.0317
-[fs] printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)
+printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)
   [SAVE] figure -> V_shell_Comparison.pdf
 ```
 
@@ -4971,7 +4971,7 @@ last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
-cell time 6391 s
+cell time 5739 s
 ```
 
 The figure.
@@ -5083,7 +5083,7 @@ def style_ax(ax):
 
 # ============================================================
 # CUSTOM X-AXIS TICKS
-# Major ticks at 1x10^n (labelled), minor ticks at {2,4,6,8}x10^n
+# Major ticks at 1x10^n (labeled), minor ticks at {2,4,6,8}x10^n
 # ============================================================
 
 exp_min = math.floor(XMIN)
@@ -5228,20 +5228,20 @@ def losvd_curve(table, aperture, v_max):
     keep = np.nonzero(f > 0.0)[0]
     return v[keep[0]:keep[-1] + 1], f[keep[0]:keep[-1] + 1]
 
-centred = pp.Aperture.circle(1.0)
+centered = pp.Aperture.circle(1.0)
 offset = pp.Aperture.circle(1.0, r_off=10.0)
 v_max_cen = float(np.sqrt(2.0 * truncated.profile.potential(np.array([1e-6]))[0]))  # the center's escape velocity
 v_max_off = float(np.sqrt(2.0 * truncated.profile.potential(np.array([9.0]))[0]))   # at R = R_off - R_ape = 9
-curves = [(losvd_curve(t, centred, v_max_cen), losvd_curve(t, offset, v_max_off)) for t in tables]
+curves = [(losvd_curve(t, centered, v_max_cen), losvd_curve(t, offset, v_max_off)) for t in tables]
 for (vc, _), (vo, _) in curves:
-    print(f"support: centred +-{vc[-1]:.6f}, R_off = 10 +-{vo[-1]:.6f}")
+    print(f"support: centered +-{vc[-1]:.6f}, R_off = 10 +-{vo[-1]:.6f}")
 ```
 
 ```myst
-support: centred +-1.292262, R_off = 10 +-0.469311
-support: centred +-1.292262, R_off = 10 +-0.469311
-support: centred +-1.292262, R_off = 10 +-0.469311
-support: centred +-1.292262, R_off = 10 +-0.263180
+support: centered +-1.292262, R_off = 10 +-0.469311
+support: centered +-1.292262, R_off = 10 +-0.469311
+support: centered +-1.292262, R_off = 10 +-0.469311
+support: centered +-1.292262, R_off = 10 +-0.263180
 ```
 
 The figure.
@@ -5371,7 +5371,7 @@ ax_top.set_xticklabels([])
 ax_bot.set_xticklabels(major_labels, fontsize=FONTSIZE_TICK_LABEL)
 
 # ============================================================
-# LOAD AND PLOT — all four models in both panels
+# LOAD AND PLOT: all four models in both panels
 # ============================================================
 
 # ── top panel: centered (Roff = 0) ───────────────────────────
@@ -5450,21 +5450,21 @@ import os as _fs_os, sys as _fs_sys
 _fs_sys.path.insert(0, 'scripts')
 import print_frame_fs as _fs_pf  # frames and ticks at their printed size
 _fs_s = _fs_pf.apply(fig, f=0.99, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 589.9)))
-print(f'[fs] printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 589.9)} pt)', flush=True)
+print(f'printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 589.9)} pt)', flush=True)
 fig.savefig(OUTPUT_FIG, bbox_inches='tight', dpi=300)
 print(f"  [SAVE] figure -> {OUTPUT_FIG}")
 plt.show()
 ```
 
 ```myst
-[fs] printed scale s = 0.4080 (f 0.99, slot column, W_fig 589.9 pt)
+printed scale s = 0.4080 (f 0.99, slot column, W_fig 589.9 pt)
   [SAVE] figure -> LOS_VD.pdf
 ```
 
 
 ---
 
-# Accuracy checks of the distribution function and the velocity distribution
+# Figs. C1 and C2: Distribution function and velocity distribution accuracy checks
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/figC1_C2
 
@@ -5664,7 +5664,7 @@ TICK_LENGTH_MINOR    = 5.5
 # ------------------------------------------------------------------------------
 
 PATCH_MARKER_SIZE    = 7   # size of filled circle markers at patch thresholds
-# (on_pts, off_pts) in points — controls dash length and gap uniformly
+# (on_pts, off_pts) in points: controls dash length and gap uniformly
 DASH_PATTERN         = (8.0, 3.0)
 
 # ------------------------------------------------------------------------------
@@ -5687,7 +5687,7 @@ PATCH_ANCHORS = {
      0.2 : (3.612e-7,  0.991045),
      0.3 : (3.612e-7,  0.991045),
      0.4 : (3.612e-7,  0.991045),
-     0.5 : (3.612e-7,  float('nan')),  # plateau case — no high-Q patch
+     0.5 : (3.612e-7,  float('nan')),  # plateau case; no high-Q patch
 }
 
 # ------------------------------------------------------------------------------
@@ -5780,7 +5780,7 @@ PATCH_ANCHORS = anchors
 OUTPUT_FIG  = "Visualize_DF_Anisotropy.pdf"
 
 # ------------------------------------------------------------------------------
-# -- Colour map ----------------------------------------------------------------
+# -- Color map ----------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
 cmap   = matplotlib.colormaps["coolwarm"]
@@ -6470,7 +6470,7 @@ The figure.
 """
 The script of Fig. C2.
 Takes the four models' distributions computed above and produces a 4-column × 3-row figure:
-  Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  colour = CDF)
+  Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  color = CDF)
   Row 2 : CDF slices at every integer decade in log10(R)
   Row 3 : PDF slices at every integer decade in log10(R)
 """
@@ -6506,7 +6506,7 @@ TICK_WIDTH           = 2.5
 TICK_LENGTH_MAJOR    = 8.5
 TICK_LENGTH_MINOR    = 5.5
 
-# Contour levels, colours, annotation strings
+# Contour levels, colors, annotation strings
 CONTOUR_LEVELS = [0.1,       0.5,      0.9   ]
 CONTOUR_COLORS = ["magenta", "orange", "cyan" ]
 CONTOUR_LABELS = ["0.1",     "0.5",    "0.9"  ]
@@ -6522,9 +6522,9 @@ LABEL_TOP_FRAC = 0.07
 PDF_LOG_YMIN = -1.7
 PDF_LOG_YMAX =  2.4
 
-# x-axis major tick positions — WITHOUT 1.0 (cols 0-2, all three rows)
+# x-axis major tick positions: WITHOUT 1.0 (cols 0-2, all three rows)
 XTICKS_MAJOR_NO1   = [0.0, 0.2, 0.4, 0.6, 0.8]
-# x-axis major tick positions — WITH 1.0 (col 3 bottom row only)
+# x-axis major tick positions: WITH 1.0 (col 3 bottom row only)
 XTICKS_MAJOR_WITH1 = [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
 XTICK_MINOR_SPACING = 0.05
 
@@ -6532,9 +6532,9 @@ XTICK_MINOR_SPACING = 0.05
 # Each value is tuned so the label sits just to the LEFT of its curve
 # at the top of the heatmap.  Adjust individually as needed.
 LABEL_VESC_ANCHORS = {
-    0.1 : 0.125,   # magenta — curve is near x~0.05 at top
-    0.5 : 0.43,   # orange  — curve is near x~0.25 at top
-    0.9 : 0.72,   # cyan    — curve is near x~0.55 at top
+    0.1 : 0.125,   # magenta: curve is near x~0.05 at top
+    0.5 : 0.43,   # orange: curve is near x~0.25 at top
+    0.9 : 0.72,   # cyan: curve is near x~0.55 at top
 }
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -6609,7 +6609,7 @@ def place_contour_labels(ax, contour_sets):
         )
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ── Figure layout — airtight, square panels ───────────────────────────────────
+# ── Figure layout: airtight, square panels ───────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
 
 PANEL_SIDE   = 3.8
@@ -6628,8 +6628,8 @@ fig_h = BOT_MARGIN + 3 * PANEL_SIDE + TOP_MARGIN
 
 fig = plt.figure(figsize=(fig_w, fig_h))
 
-# Build axes — NOTE: NO sharex at construction time.
-# We manage x-axis tick synchronisation manually in the post-loop pass
+# Build axes. NOTE: NO sharex at construction time.
+# We manage x-axis tick synchronization manually in the post-loop pass
 # so that per-column locators are never overridden by sharex propagation.
 axes = [[None] * N_col for _ in range(3)]
 
@@ -6799,7 +6799,7 @@ for col, d in enumerate(datasets):
                       fontsize=FONTSIZE_AXIS_LABEL)
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ── POST-LOOP x-axis tick pass — all three rows, every column individually ────
+# ── POST-LOOP x-axis tick pass: all three rows, every column individually ────
 # ══════════════════════════════════════════════════════════════════════════════
 # sharex is NOT used (axes built without it above), so each axis object's
 # locator is fully independent.  We set every axis explicitly here to

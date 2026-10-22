@@ -5,7 +5,7 @@
    "id": "232b7fbc",
    "metadata": {},
    "source": [
-    "# Distribution functions of the NFW families\n",
+    "# Figs. 4, 5 and 6: Distribution functions with and without truncation\n",
     "\n",
     "This notebook makes Figures 4, 5 and 6 of the paper.\n",
     "\n",

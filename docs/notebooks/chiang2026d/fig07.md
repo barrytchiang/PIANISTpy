@@ -1,4 +1,4 @@
-# Anisotropy of superposed models and of two fits
+# Fig. 7: Anisotropy profiles from linear superposition
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig07
 
@@ -143,7 +143,7 @@ for name, model in composites.items():
 
 ## The particles of the top panel
 
-The binning of the script that made the arXiv figure’s points, as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
+The binning of the script that made the arXiv figure’s points (its part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
 
 ```ipython3
 import hashlib
@@ -453,8 +453,8 @@ for name, model in fits.items():
 ```
 
 ```myst
-ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 539 s
-He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 237 s
+ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 529 s
+He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 238 s
 ```
 
 ```ipython3
@@ -536,7 +536,7 @@ TICK_MAJOR_LENGTH    = 10.0  # major tick length (pt)
 TICK_MINOR_LENGTH    = 6.0  # minor tick length (pt)
 
 # --- model curve line thickness ---
-CURVE_LINEWIDTH      = 4.5  # thickness of the coloured β_σ curves (pt)
+CURVE_LINEWIDTH      = 4.5  # thickness of the colored β_σ curves (pt)
 
 # --- isotropic reference line ---
 ISO_LINEWIDTH        = 4.5       # thickness of the β_σ = 0 dashed line (pt)
@@ -545,15 +545,15 @@ ISO_DASH_SEQUENCE    = (7, 2.5)    # (dash_length, gap_length) in pt
 # --- particle errorbar style --------------------------------------------
 PAR_MARKER_SIZE      = 5.0   # size of the diamond markers (pt)
 PAR_EBAR_LINEWIDTH   = 2.2   # thickness of the error bar lines (pt)
-PAR_DARK_FACTOR      = 0.6   # darken model colour by this factor (0=black,1=same)
+PAR_DARK_FACTOR      = 0.6   # darken model color by this factor (0=black,1=same)
                              # applied to both marker and error bar
 PAR_MARKER_ALPHA     = 0.9   # opacity of the diamond markers only  (0=transparent, 1=opaque)
 PAR_EBAR_ALPHA       = 0.4   # opacity of the vertical error bar lines only
 
-# --- RdYlBu colour selections -------------------------------------------
+# --- RdYlBu color selections -------------------------------------------
 # Each value is a position in [0, 1] along the RdYlBu colormap.
 #   0.0 = deep red  |  0.5 = white/neutral  |  1.0 = deep blue
-# Avoid ~0.5 (pale). Colours stay assigned to models by list position.
+# Avoid ~0.5 (pale). Colors stay assigned to models by list position.
 RDBU_POSITIONS = [0.31, 0.75, 0.1]   # one entry per model
 
 # --- curve draw order ---------------------------------------------------
@@ -605,7 +605,7 @@ def read_particle_beta_profile(filepath):
 def darken_color(color, factor):
     """
     Return a darkened version of `color`.
-    factor=0 → black, factor=1 → original colour.
+    factor=0 → black, factor=1 → original color.
     """
     r, g, b, a = mcolors.to_rgba(color)
     return (r * factor, g * factor, b * factor, a)
@@ -639,24 +639,24 @@ MODELS = [
 ]
 
 # Each entry: (filename, model_index)
-# model_index controls which model colour / dark_color is used.
+# model_index controls which model color / dark_color is used.
 PARTICLE_FILES = [
     (
         "BetaSigma_Particle_const_beta_beta_c0.5_w0.250__"
         "const_beta_beta_c0.1_w0.250__"
         "const_beta_beta_c-0.2_w0.250__"
         "const_beta_beta_c-0.4_w0.250.txt",
-        0,   # Example 1 colour
+        0,   # Example 1 color
     ),
     (
         "BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__"
         "OM_typeI_Ra10.0_w0.333__"
         "const_beta_beta_c0.2_w0.333.txt",
-        1,   # Example 2 colour
+        1,   # Example 2 color
     ),
     (
         "BetaSigma_Particle_E3.txt",
-        2,   # Example 3 colour
+        2,   # Example 3 color
     ),
 ]
 
@@ -668,17 +668,17 @@ profiles = []
 for fpath, label in MODELS:
     R, beta = read_beta_profile(fpath)
     profiles.append((R, beta, label))
-    print(f"  Loaded {len(R)} points  —  {fpath[:70]}")
+    print(f"  Loaded {len(R)} points: {fpath[:70]}")
 
 particle_profiles = []
 for par_fpath, par_model_idx in PARTICLE_FILES:
     pR, pbeta, perr = read_particle_beta_profile(par_fpath)
     particle_profiles.append((pR, pbeta, perr, par_model_idx))
-    print(f"  Loaded {len(pR)} particle points  —  {par_fpath[:70]}")
+    print(f"  Loaded {len(pR)} particle points: {par_fpath[:70]}")
 
 # =============================================================================
-# Derive colours from RdYlBu colormap
-# Colours are indexed by model number — draw order does NOT affect assignment.
+# Derive colors from RdYlBu colormap
+# Colors are indexed by model number; draw order does NOT affect assignment.
 # =============================================================================
 
 _rdbu       = plt.get_cmap("RdYlBu")
@@ -686,7 +686,7 @@ colors      = [_rdbu(p) for p in RDBU_POSITIONS]
 dark_colors = [darken_color(c, PAR_DARK_FACTOR) for c in colors]
 
 # =============================================================================
-# Figure  —  1 / golden-ratio aspect
+# Figure: 1 / golden-ratio aspect
 # =============================================================================
 
 golden = (1.0 + 5.0**0.5) / 2.0
@@ -724,7 +724,7 @@ for draw_rank, model_idx in enumerate(CURVE_DRAW_ORDER):
             color=col, lw=CURVE_LINEWIDTH,
             zorder=3 + draw_rank)        # 3 → 4 → 5
 
-# --- Inline labels (always drawn at zorder 20, colour by model index) ---
+# --- Inline labels (always drawn at zorder 20, color by model index) ---
 for idx, (R, beta, label) in enumerate(profiles):
     ax.text(
         X_LABEL,
@@ -738,8 +738,8 @@ for idx, (R, beta, label) in enumerate(profiles):
         zorder=20,
     )
 
-# --- Particle cross-checks (diamond markers, darkened model colour) -----
-# Each particle dataset uses the darkened colour of its assigned model.
+# --- Particle cross-checks (diamond markers, darkened model color) -----
+# Each particle dataset uses the darkened color of its assigned model.
 #
 # Special treatment:
 #   par_model_idx == 1  (Example 2): apply PAR_M2_TAIL_SHIFTS to last 6 pts
@@ -859,11 +859,11 @@ ax.tick_params(
 # =============================================================================
 
 FITDIR, FITPRE, NBDIR, OUTSTEM = None, None, "1.0.0", "BetaProfiles_AllModels_Superposed"   # [1.0.0] the fits and draws of the cells above   # He et al.'s points dropped
-FIT_COLOR = {"ml05": "#800080", "he24": "mediumspringgreen"}   # the four-colour palette's purple; mediumspringgreen
+FIT_COLOR = {"ml05": "#800080", "he24": "mediumspringgreen"}   # the four-color palette's purple; mediumspringgreen
 FIT_LABEL = {"ml05": "ML05b", "he24": "He+24"}
-FIT_LABEL_XY = {"ml05": (X_LABEL, None, "left"), "he24": (0.93, 0.205, "center")}   # ML05b as Example 3: beta[0] + 0.05, centred   # He+24: by its own curve
+FIT_LABEL_XY = {"ml05": (X_LABEL, None, "left"), "he24": (0.93, 0.205, "center")}   # ML05b as Example 3: beta[0] + 0.05, centered   # He+24: by its own curve
 FIT_FULL_RANGE = ()                                    # the solid stays on the fit's range
-FIT_LABEL_AS_SOLID = ("he24",)                         # He+24's label in its solid's colour
+FIT_LABEL_AS_SOLID = ("he24",)                         # He+24's label in its solid's color
 FIT_LIGHTEN = {"ml05": 0.20, "he24": 0.10}            # both lines of a target lighter by this fraction
 SEEDS = {"ml05": 310101, "he24": 310104}   # he24: the 1e6 draw inside its fitted 3D range only   # the draws' seeds
 axb.axhline(0.0, color="black", lw=ISO_LINEWIDTH, dashes=ISO_DASH_SEQUENCE, zorder=1)
@@ -880,7 +880,7 @@ for k, delta in enumerate(("ml05", "he24")):
     _lt = lambda c, f: tuple(v + f * (1.0 - v) for v in mcolors.to_rgb(c))   # noqa: E731  mix a fraction f towards white
     _f = FIT_LIGHTEN[delta]
     _c_dot, _c_sol = _lt(darken_color(col, 0.85), _f), _lt(_lt(col, 0.25), _f)
-    _c_dot, _c_sol = _c_sol, _c_dot   # the dotted and solid colours swapped, per target
+    _c_dot, _c_sol = _c_sol, _c_dot   # the dotted and solid colors swapped, per target
     _c_sol = darken_color(_c_sol, 0.90)   # both solid curves slightly darker (10 percent)
     if delta == "ml05":
         _c_dot = _lt(_c_dot, 0.20)   # the purple dotted another 20 percent lighter
@@ -916,7 +916,7 @@ for k, delta in enumerate(("ml05", "he24")):
     _x, _y, _ha = FIT_LABEL_XY[delta]
     _va = "bottom" if _y is not None else "center"
     _y = z["beta"][0] + 0.03 if _y is None else _y   # closer to its curve than Example 3's 0.05
-    _lc = _c_sol if delta in FIT_LABEL_AS_SOLID else col   # He+24's label in its solid curve's colour and shade
+    _lc = _c_sol if delta in FIT_LABEL_AS_SOLID else col   # He+24's label in its solid curve's color and shade
     axb.text(_x, _y, FIT_LABEL[delta], color=_lc, fontsize=FONTSIZE_INLINE, weight="bold", va=_va, ha=_ha, zorder=20)
 axb.set_ylim(-0.15, 0.49)
 axb.set_xlabel(r"$\log_{10}(R)$", fontsize=FONTSIZE_AXIS_LABEL)
@@ -943,7 +943,7 @@ import os as _fs_os, sys as _fs_sys
 _fs_sys.path.insert(0, 'scripts')
 import print_frame_fs as _fs_pf  # frames and ticks at their printed size
 _fs_s = _fs_pf.apply(fig, f=0.99, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 630.1)))
-print(f'[fs] printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 630.1)} pt)', flush=True)
+print(f'printed scale s = {_fs_s:.4f} (f 0.99, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 630.1)} pt)', flush=True)
 fig.savefig(OUTSTEM + ".pdf",
             dpi=300,
             bbox_inches="tight",
@@ -952,16 +952,16 @@ print(f"  Saved -> {OUTSTEM}.pdf")
 ```
 
 ```myst
-  Loaded 10000 points  —  BetaProfile_Superposed_const_beta_beta_c0.5_w0.250__const_beta_beta_c0
-  Loaded 10000 points  —  BetaProfile_Superposed_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__
-  Loaded 10000 points  —  BetaProfile_Superposed_COM_typeI_beta_c-0.3_Ra4.0_w0.500__COM_typeII_b
-  Loaded 36 particle points  —  BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w
-  Loaded 36 particle points  —  BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__cons
-  Loaded 36 particle points  —  BetaSigma_Particle_E3.txt
+  Loaded 10000 points: BetaProfile_Superposed_const_beta_beta_c0.5_w0.250__const_beta_beta_c0
+  Loaded 10000 points: BetaProfile_Superposed_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__
+  Loaded 10000 points: BetaProfile_Superposed_COM_typeI_beta_c-0.3_Ra4.0_w0.500__COM_typeII_b
+  Loaded 36 particle points: BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w
+  Loaded 36 particle points: BetaSigma_Particle_OM_typeI_Ra1.0_w0.333__OM_typeI_Ra10.0_w0.333__cons
+  Loaded 36 particle points: BetaSigma_Particle_E3.txt
   ML05b: rms 7.342e-03, worst 9.713e-03 (for the caption)
   ML05b: N = 1e+08, chi^2/bin 1.406 over 36 bins (for the caption)
   He+24: rms 1.188e-03, worst 1.680e-03 (for the caption)
   He+24: N = 1e+06, chi^2/bin 1.674 over 20 bins (for the caption)
-[fs] printed scale s = 0.3820 (f 0.99, slot column, W_fig 630.1 pt)
+printed scale s = 0.3820 (f 0.99, slot column, W_fig 630.1 pt)
   Saved -> BetaProfiles_AllModels_Superposed.pdf
 ```

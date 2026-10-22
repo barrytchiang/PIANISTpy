@@ -1,4 +1,4 @@
-# Benchmark of the isotropic NFW distribution function
+# Fig. 8: Isotropic NFW benchmark against other codes
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig08
 
@@ -135,8 +135,8 @@ for code_, script in (("galpy", "scripts/galpy_iso.py"), ("agama", "scripts/agam
 ```
 
 ```myst
-galpy: exit 0 in 117 s; [Success] Execution complete. Formatted matrix written to: galpy_numerical_iso.txt
-agama: exit 0 in 15 s; [Success] Fully self-consistent numerical AGAMA profile dataset written to: agama_numerical_iso.txt
+galpy: exit 0 in 120 s; [Success] Execution complete. Formatted matrix written to: galpy_numerical_iso.txt
+agama: exit 0 in 14 s; [Success] Fully self-consistent numerical AGAMA profile dataset written to: agama_numerical_iso.txt
 ```
 
 ## The curves
@@ -377,7 +377,7 @@ def _shift(R, d, uN, PN_):
 
 def poisson_resid(cin, cout, rtol=1e-12):
     """the roundtrip's Poisson solve as a residual about the analytic NFW potential: P = P_NFW(R) + delta,
-    lap delta = -(rho[F](P) - rho_NFW(R)), P(0) = 1 (delta = 0 at the centre). The same equation as the outward solve, but P is
+    lap delta = -(rho[F](P) - rho_NFW(R)), P(0) = 1 (delta = 0 at the center). The same equation as the outward solve, but P is
     never formed as 1 minus an accumulated integral: delta carries its own digits and float64 holds it. rho[F](P) =
     rho_NFW(R_NFW(P)) (1 + c(P)); the roundtrip error at R is rho[F](P) / rho_NFW(R) - 1 = expm1(D) + c exp(D), D = ln rho_NFW(R')
     - ln rho_NFW(R), R' = R_NFW(P)."""
@@ -476,7 +476,7 @@ normalization: C INT F sqrt(P - K) dK / rho_NFW at R = 10: 1.000000000000
 inverse check: u(R(u)) / u - 1 max 3.9e-15, P(R(P)) / P - 1 max 3.6e-15
   Poisson: 2602 evaluations, status 0/0
 exact NFW through the tables and the solver: |rt - 1| max 7.67e-07 (R <= 1e5: 4.04e-09); c0 = 4.999999999973325e-01 (exact 1/2)
-pianist: density tables 4739 + 17353 nodes in 56 s; quadrature H vs 2H 1.1e-11 (inner), 3.0e-10 (outer); spline vs direct at midpoints 1.5e-11, 5.8e-12
+pianist: density tables 4739 + 17353 nodes in 57 s; quadrature H vs 2H 1.1e-11 (inner), 3.0e-10 (outer); spline vs direct at midpoints 1.5e-11, 5.8e-12
   Poisson: 4246 evaluations, status 0/0
   residual Poisson (rtol 1e-12): 781937 evaluations, status 0
   residual Poisson (rtol 1e-10): 373298 evaluations, status 0
@@ -511,7 +511,7 @@ lane: residual with the table at 2H: max |diff| R <= 1e0: 1.79e-14, R <= 1e3: 1.
   residual Poisson (rtol 1e-12): 8471 evaluations, status 0
 lane: residual with the table on every other node: max |diff| R <= 1e0: 1.81e-12, R <= 1e3: 5.80e-12, R <= 1e5: 5.24e-11, R <= 1e7: 1.09e-09, R <= 1e8: 2.40e-09, R <= 1e9: 9.27e-09
 lane: c0 u rho at u = 1e-12: 5.001872023546e-01 (exact 1/2); roundtrip at log R = -10, -9, -8, -6, -4, -2, 0, 2, 4: +1.87e-04, +1.87e-04, +1.87e-04, +1.87e-04, +1.78e-04, -2.66e-05, +3.60e-06, +2.78e-04, -2.04e-03
-wrote fig08_curves.npz in 420 s
+wrote fig08_curves.npz in 416 s
 ```
 
 ## The figure
@@ -637,7 +637,7 @@ style_ax(ax_bot)
 _bold_fp = FontProperties(weight="bold", size=FONTSIZE_LEGEND)
 
 def text_legend(ax, names, colors, loc):
-    """a text-only legend (no line handles), each entry bold in its curve's colour"""
+    """a text-only legend (no line handles), each entry bold in its curve's color"""
     lg = ax.legend(handles=[Line2D([], [], color="none", label=n) for n in names], fontsize=FONTSIZE_LEGEND, frameon=False, loc=loc,
                    handlelength=0, handletextpad=0, prop=_bold_fp)
     for t, c in zip(lg.get_texts(), colors):
@@ -657,7 +657,7 @@ import os as _fs_os, sys as _fs_sys
 _fs_sys.path.insert(0, 'scripts')
 import print_frame_fs as _fs_pf  # frames and ticks at their printed size
 _fs_s = _fs_pf.apply(fig, f=1.0, slot='column', width_pt=float(_fs_os.environ.get('PRINT_WIDTH_PT', 590.2)))
-print(f'[fs] printed scale s = {_fs_s:.4f} (f 1.0, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 590.2)} pt)', flush=True)
+print(f'printed scale s = {_fs_s:.4f} (f 1.0, slot column, W_fig {_fs_os.environ.get("PRINT_WIDTH_PT", 590.2)} pt)', flush=True)
 fig.savefig(OUTPUT_FIG, bbox_inches="tight", dpi=300)
 plt.close(fig)
 meta = PngInfo()
@@ -680,7 +680,7 @@ _display(_Img(OUTPUT_FIG))
 ```
 
 ```myst
-[fs] printed scale s = 0.4119 (f 1.0, slot column, W_fig 590.2 pt)
+printed scale s = 0.4119 (f 1.0, slot column, W_fig 590.2 pt)
 NFW_Benchmark_Iso_chop.png: x [-8, 8]
   PIANISTpy rt: log10|delta| over [-14.49, -8.87] (axis [-14.5, 1.0])
   Widrow rt: log10|delta| over [-7.51, -0.00] (axis [-14.5, 1.0])
