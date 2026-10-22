@@ -37,6 +37,7 @@ HEADER = f"""<p align="center">
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](https://github.com/barrytchiang/PIANISTpy/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/pianistpy)](https://pypi.org/project/pianistpy/)
 [![Python](https://img.shields.io/pypi/pyversions/pianistpy)](https://pypi.org/project/pianistpy/)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23548188-blue)](https://doi.org/10.5281/zenodo.23548188)
 
 **P**article **I**nitial conditions with **ANIS**o**T**ropy.
 """

@@ -12,6 +12,7 @@
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue)](https://github.com/barrytchiang/PIANISTpy/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/pianistpy)](https://pypi.org/project/pianistpy/)
 [![Python](https://img.shields.io/pypi/pyversions/pianistpy)](https://pypi.org/project/pianistpy/)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23548188-blue)](https://doi.org/10.5281/zenodo.23548188)
 
 **P**article **I**nitial conditions with **ANIS**o**T**ropy.
 
@@ -97,6 +98,9 @@ sigma = pp.sigma_los(model, [2, 20, 100] * u.kpc)
 ## How to cite
 
 Please cite the initial release paper, [Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758](https://arxiv.org/abs/2610.28758), henceforth [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), in work that uses PIANISTpy.
+
+Each release of PIANISTpy is also archived on Zenodo under
+[doi:10.5281/zenodo.23548188](https://doi.org/10.5281/zenodo.23548188), which resolves to the latest release.
 
 ## License
 

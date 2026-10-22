@@ -13,6 +13,9 @@ identifiers:
   - type: other
     value: "arXiv:2610.28758"
     description: "The initial release paper, Chiang, van den Bosch and Schive (2026d)"
+  - type: doi
+    value: 10.5281/zenodo.23548188
+    description: "The Zenodo archive of every release; resolves to the latest release"
 repository-code: "https://github.com/barrytchiang/PIANISTpy"
 preferred-citation:
   type: article

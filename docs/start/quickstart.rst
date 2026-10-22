@@ -33,4 +33,5 @@ equals the virial mass of the untruncated halo. The model is then given in physi
 
 ``pp.solve(halo, pp.Truncation(mass_t=1.0, concentration=10))`` runs ``compute_df`` and ``truncate`` in one call.
 
-The :doc:`Examples <../notebooks/index>` page shows self-contained Jupyter tutorial notebooks.
+The :doc:`Examples <../notebooks/index>` page shows self-contained Jupyter tutorial notebooks, and the notebooks
+that reproduce the result figures of |paper|.
