@@ -1197,8 +1197,7 @@
    "source": [
     "#!/usr/bin/env python3\n",
     "\"\"\"\n",
-    "Visualize_CDF_Table_COM.py\n",
-    "--------------------------\n",
+    "The script of Fig. C2.\n",
     "Takes the four models' distributions computed above and produces a 4-column × 3-row figure:\n",
     "  Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  colour = CDF)\n",
     "  Row 2 : CDF slices at every integer decade in log10(R)\n",

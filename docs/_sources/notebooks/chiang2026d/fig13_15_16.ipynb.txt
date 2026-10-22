@@ -264,7 +264,7 @@
     "# before its savefig, which set every axes' frame and ticks as printed for its slot (f 0.99, column).\n",
     "#!/usr/bin/env python3\n",
     "\"\"\"\n",
-    "V_shell_PDF_plot.py\n",
+    "The script of Fig. 13.\n",
     "\"\"\"\n",
     "\n",
     "import numpy as np\n",

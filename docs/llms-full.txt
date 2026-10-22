@@ -2988,7 +2988,7 @@ for name, model in composites.items():
 
 ## The particles of the top panel
 
-The binning of the script that made the arXiv figure’s points (`mk_beta6_289.py`, part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
+The binning of the script that made the arXiv figure’s points, as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
 
 ```ipython3
 import hashlib
@@ -4654,7 +4654,7 @@ The figure.
 # before its savefig, which set every axes' frame and ticks as printed for its slot (f 0.99, column).
 #!/usr/bin/env python3
 """
-V_shell_PDF_plot.py
+The script of Fig. 13.
 """
 
 import numpy as np
@@ -6468,8 +6468,7 @@ The figure.
 ```ipython3
 #!/usr/bin/env python3
 """
-Visualize_CDF_Table_COM.py
---------------------------
+The script of Fig. C2.
 Takes the four models' distributions computed above and produces a 4-column × 3-row figure:
   Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  colour = CDF)
   Row 2 : CDF slices at every integer decade in log10(R)

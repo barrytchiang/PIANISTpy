@@ -143,7 +143,7 @@ for name, model in composites.items():
 
 ## The particles of the top panel
 
-The binning of the script that made the arXiv figure’s points (`mk_beta6_289.py`, part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
+The binning of the script that made the arXiv figure’s points, as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
 
 ```ipython3
 import hashlib

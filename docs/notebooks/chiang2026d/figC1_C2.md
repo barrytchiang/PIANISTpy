@@ -1002,8 +1002,7 @@ The figure.
 ```ipython3
 #!/usr/bin/env python3
 """
-Visualize_CDF_Table_COM.py
---------------------------
+The script of Fig. C2.
 Takes the four models' distributions computed above and produces a 4-column × 3-row figure:
   Row 1 : 2-D CDF heatmap   (v/v_esc  vs  log10(R),  colour = CDF)
   Row 2 : CDF slices at every integer decade in log10(R)
