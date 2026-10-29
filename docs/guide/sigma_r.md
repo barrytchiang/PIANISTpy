@@ -7,7 +7,7 @@ Source: https://pianistpy.com/docs/guide/sigma_r
 `sigma_r(source, r)` returns the intrinsic radial velocity dispersion \(\sigma_{\rm r}\) at user-specified 3D radii.
 \(\sigma_{\rm r}^2\) is the second moment of the radial velocity over the model’s distribution function at a
 fixed radius. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(\sigma_{\rm r}^2\) is the velocity moment of the augmented density
-\(\varrho_{\rm aug}\), integrated over the energy \(\mathcal{K}\) up to the relative potential
+\(\varrho_{\rm aug}\), integrated over the energy-like variable \(\mathcal{K}\) up to the relative potential
 \(P = P(R)\) at the radius \(R\),
 
 \[\sigma_{\rm r}^2(R) = \frac{1}{\varrho_{\rm aug}(P, R)} \int_0^{P} \varrho_{\rm aug}(\mathcal{K}, R)\,

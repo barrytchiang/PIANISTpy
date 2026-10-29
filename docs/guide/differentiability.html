@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -318,7 +318,7 @@ weight and each scale. With <code class="docutils literal notranslate"><span cla
 <li><p><strong>The observables.</strong> <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Differentiable</span></code> provides the observables of a one-component model as JAX
 functions of the component’s anisotropy <span class="math notranslate nohighlight">\((\beta_{\rm c}, R_{\rm a})\)</span> (<a class="reference internal" href="differentiable"><span class="doc">Differentiable observables</span></a>).</p></li>
 <li><p><strong>The distribution function.</strong> The derivative of the distribution function in the central anisotropy
-<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and the anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is available at the inversion’s energies and for
+<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> and the anisotropy radius <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> is available at the nodes of the inversion’s grid in <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>,</span> the energy-like variable, and for
 the full table (see <a class="reference internal" href="#the-distribution-function">The distribution function</a> below).</p></li>
 </ul>
 <p>The derivative of the distribution function is available for the following anisotropy models, with their parameters:</p>
@@ -359,25 +359,25 @@ compute the derivative of the truncated profile in the anisotropy.</p></li>
 <h2>The distribution function<a class="headerlink" href="#the-distribution-function" title="Link to this heading">#</a></h2>
 <p>The derivative of the distribution function is available in two forms:</p>
 <ul class="simple">
-<li><p>the rows (the distribution function on the inversion’s energy grid), through <code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code> and
+<li><p>the rows (the distribution function on the inversion’s <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> grid), through <code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code> and
 <code class="docutils literal notranslate"><span class="pre">rows_jacobian</span></code>, for a component on its own analytic profile only;</p></li>
 <li><p>the table, as the lookup reads it, through <code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code> and <code class="docutils literal notranslate"><span class="pre">table_jacobian</span></code>. The derivative covers
-every array of the table: the rows (<code class="docutils literal notranslate"><span class="pre">log_df</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df_slope</span></code>), the nodes below the table’s first energy
+every array of the table: the rows (<code class="docutils literal notranslate"><span class="pre">log_df</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df_slope</span></code>), the nodes below the table’s first node
 (<code class="docutils literal notranslate"><span class="pre">log_df_below</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df_slope_below</span></code>), the closed form at the center (<code class="docutils literal notranslate"><span class="pre">central</span></code>) and the tail (<code class="docutils literal notranslate"><span class="pre">tail</span></code>).
-For a Method II component, the arrays are the rows (<code class="docutils literal notranslate"><span class="pre">log_df</span></code>), the power law at the lowest energies
+For a Method II component, the arrays are the rows (<code class="docutils literal notranslate"><span class="pre">log_df</span></code>), the power law at the lowest values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span>
 (<code class="docutils literal notranslate"><span class="pre">edge_law</span></code>) and the closed form at the center (<code class="docutils literal notranslate"><span class="pre">center</span></code>).</p></li>
 </ul>
 <p><code class="docutils literal notranslate"><span class="pre">make_inversion_rows</span></code> and <code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code> each return a JAX function of the anisotropy parameters, the
-names of the parameters (<code class="docutils literal notranslate"><span class="pre">params</span></code>), and the energies or the table at the component’s own parameters. The value of
+names of the parameters (<code class="docutils literal notranslate"><span class="pre">params</span></code>), and the values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> or the table at the component’s own parameters. The value of
 the returned function is the result of <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_df()</span></code> at the given parameters, computed on the CPU.
 The derivative of the returned function is the package’s analytic derivative (Eq. (T:7.1) of the
 <a class="reference internal" href="../reference/notes"><span class="doc">Technical notes</span></a>). The <code class="docutils literal notranslate"><span class="pre">*_jacobian</span></code> functions return the values and their derivatives
 as arrays.</p>
-<p>Both returned functions hold the energies at the component’s own parameters. The function that
+<p>Both returned functions hold the values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> at the component’s own parameters. The function that
 <code class="docutils literal notranslate"><span class="pre">make_inversion_table</span></code> returns makes the anchor of the closed form at the center and the nodes kept again at each
 new parameter value, except that a component on a truncated profile also holds the nodes kept at the component’s
 own parameters. The derivative is thus the derivative of the table that <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_df()</span></code> returns at the
-given parameters, on the held energies. Where a discrete choice would change between two parameter values, the value
+given parameters, on the held values of <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>.</span> Where a discrete choice would change between two parameter values, the value
 of the returned function differs from a new <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_df()</span></code> call by up to the tolerance of the
 inversion.</p>
 </section>
@@ -395,7 +395,7 @@ finite differences:</p>
 <li><p>the Richardson residual of the quotient and, for a one-sided difference, the spread between the derivatives from
 the two sides, relative to the largest <span class="math notranslate nohighlight">\(|\partial F/\partial\beta_{\rm c}|\)</span> in the record of
 <code class="docutils literal notranslate"><span class="pre">rows_jacobian</span></code> and absolute in the record of <code class="docutils literal notranslate"><span class="pre">table_jacobian</span></code>;</p></li>
-<li><p>for a component on a truncated profile, where the component’s energy grid is placed.</p></li>
+<li><p>for a component on a truncated profile, where the component’s <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> grid is placed.</p></li>
 </ul>
 <p>The Richardson residual is the accuracy of the derivative, read against the thresholds <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span>
 <span class="math notranslate nohighlight">\(10^{-4}\)</span> and <span class="math notranslate nohighlight">\(10^{-2}\)</span> of the validation reports (<a class="reference internal" href="accuracy"><span class="doc">Accuracy</span></a>). Where the difference is central, the

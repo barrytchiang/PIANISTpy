@@ -8,3 +8,7 @@ References
 - de Boor C., 1978, `A Practical Guide to Splines. Applied Mathematical Sciences Vol. 27, Springer, New York <https://link.springer.com/book/9780387953663>`__
 
 - Vasiliev E., 2019, `MNRAS, 482, 1525 <https://doi.org/10.1093/mnras/sty2672>`__
+
+- Widrow L. M., 2000, `ApJS, 131, 39 <https://doi.org/10.1086/317367>`__
+
+- Zhao H., 1996, `MNRAS, 278, 488 <https://doi.org/10.1093/mnras/278.2.488>`__

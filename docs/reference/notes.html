@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -233,9 +233,9 @@
 <li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">Technical notes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/principles">T:0 Principles and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df">T:2 The distribution function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df">T:2 The DF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation">T:3 Phase-space truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling">T:5 Particle sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients">T:7 Gradients</a></li>
@@ -304,35 +304,33 @@
                   
   <section id="technical-notes">
 <h1>Technical notes<a class="headerlink" href="#technical-notes" title="Link to this heading">#</a></h1>
-<p>The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The Technical notes follow and refer to the notations, equations, and results of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. <a class="reference internal" href="technical-notes/principles#tn-sec-principles"><span class="std std-ref">Section T:0</span></a> states the conventions and notations used; we then discuss the input potential-density models (<a class="reference internal" href="technical-notes/model#tn-sec-model"><span class="std std-ref">Section T:1</span></a>), the distribution function (<a class="reference internal" href="technical-notes/df#tn-sec-df"><span class="std std-ref">Section T:2</span></a>), the truncation (<a class="reference internal" href="technical-notes/truncation#tn-sec-truncation"><span class="std std-ref">Section T:3</span></a>), the linear superposition of components (<a class="reference internal" href="technical-notes/sup#tn-sec-sup"><span class="std std-ref">Section T:4</span></a>), the particle sampling (<a class="reference internal" href="technical-notes/sampling#tn-sec-sampling"><span class="std std-ref">Section T:5</span></a>), the velocity profiles and projections (<a class="reference internal" href="technical-notes/observables#tn-sec-observables"><span class="std std-ref">Section T:6</span></a>), and the JAX-based gradients (<a class="reference internal" href="technical-notes/gradients#tn-sec-gradients"><span class="std std-ref">Section T:7</span></a>). <a class="reference internal" href="technical-notes/verification#tn-sec-verification"><span class="std std-ref">Section T:8</span></a> documents the accuracy and validation tests and related information.</p>
-<p>This document was last updated on October 21, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (Section T:2.3, Eq. (T:2.4), Table T:2.1). The <a class="reference internal" href="api/index"><span class="doc">Functions by subpackage</span></a> page gives the form in which the docstrings cite the Technical notes.</p>
+<p>The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The Technical notes follow and refer to the notations, equations, and results of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. <a class="reference internal" href="technical-notes/principles#tn-sec-principles"><span class="std std-ref">Section T:0</span></a> states the conventions and notations used; we then discuss the input potential–density models (<a class="reference internal" href="technical-notes/model#tn-sec-model"><span class="std std-ref">Section T:1</span></a>), the distribution function (DF; <a class="reference internal" href="technical-notes/df#tn-sec-df"><span class="std std-ref">Section T:2</span></a>), the phase-space truncation (<a class="reference internal" href="technical-notes/truncation#tn-sec-truncation"><span class="std std-ref">Section T:3</span></a>), the linear superposition of DFs (<a class="reference internal" href="technical-notes/sup#tn-sec-sup"><span class="std std-ref">Section T:4</span></a>), the particle sampling (<a class="reference internal" href="technical-notes/sampling#tn-sec-sampling"><span class="std std-ref">Section T:5</span></a>), the velocity profiles and projections (<a class="reference internal" href="technical-notes/observables#tn-sec-observables"><span class="std std-ref">Section T:6</span></a>), and the JAX-based gradients (<a class="reference internal" href="technical-notes/gradients#tn-sec-gradients"><span class="std std-ref">Section T:7</span></a>). <a class="reference internal" href="technical-notes/verification#tn-sec-verification"><span class="std std-ref">Section T:8</span></a> documents the accuracy and validation tests and related information.</p>
+<p>This document was last updated on October 29, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/principles">T:0 Principles and conventions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-1-notation">T:0.1 Notation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-2-thresholds-derived-from-the-inputs">T:0.2 Thresholds derived from the inputs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-3-closed-forms-symbolic-derivatives-and-arbitrary-precision">T:0.3 Closed forms, symbolic derivatives and arbitrary precision</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-4-limits-of-double-precision-and-of-the-energy-grid">T:0.4 Limits of double precision and of the energy grid</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-5-accuracy-tiers-settings-levels-and-devices">T:0.5 Accuracy tiers, settings levels, and devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-2-accuracy-tiers-and-settings">T:0.2 Accuracy tiers and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/principles#t-0-3-symbolic-derivatives-and-arbitrary-precision-arithmetic">T:0.3 Symbolic derivatives and arbitrary-precision arithmetic</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/model">T:1 The potential–density pair and the auxiliary density</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/model#t-1-1-the-potentialradius-relation-as-p-p0-and-p-0">T:1.1 The potential–radius relation as P → P₀ and P → 0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/model#t-1-1-asymptotic-forms-of-the-potentialradius-relation">T:1.1 Asymptotic forms of the potential–radius relation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/model#t-1-2-derivatives-of-the-auxiliary-density">T:1.2 Derivatives of the auxiliary density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/model#t-1-3-interpolation-of-the-tabulated-truncated-profile">T:1.3 Interpolation of the tabulated truncated profile</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="technical-notes/df">T:2 The distribution function</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/df">T:2 The DF</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-1-the-two-forms-of-the-inversion-and-the-forward-relation">T:2.1 The two forms of the inversion and the forward relation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-2-asymptotic-behavior-of-the-df">T:2.2 Asymptotic behavior of the DF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-3-evaluating-the-inversion-at-each-tabulated-energy">T:2.3 Evaluating the inversion at each tabulated energy</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-4-the-energy-grid">T:2.4 The energy grid</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-5-the-distribution-function-outside-the-tabulated-energies">T:2.5 The distribution function outside the tabulated energies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-6-method-ii-inversion-of-a-truncated-potentialdensity-pair">T:2.6 Method II: inversion of a truncated potential–density pair</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-7-a-distribution-function-supplied-as-input">T:2.7 A distribution function supplied as input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-3-evaluating-the-inversion-on-the-grid">T:2.3 Evaluating the inversion on the grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-4-the-k-grid">T:2.4 The K grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-5-the-df-outside-the-grid">T:2.5 The DF outside the grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-6-method-ii-inversion-of-a-truncated-potentialdensity-pair">T:2.6 Method II: inversion of a truncated potential–density pair</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-7-a-df-supplied-as-input">T:2.7 A DF supplied as input</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="technical-notes/truncation">T:3 Truncation</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/truncation">T:3 Phase-space truncation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-1-type-ii-models-beyond-the-anisotropy-radius">T:3.1 Type II models beyond the anisotropy radius</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-2-the-truncated-df-and-its-density">T:3.2 The truncated DF and its density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-3-solving-the-truncated-poisson-equation">T:3.3 Solving the truncated Poisson equation</a></li>
@@ -343,7 +341,7 @@
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-8-checks-of-the-self-consistency-of-a-model">T:3.8 Checks of the self-consistency of a model</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/sampling">T:5 Particle sampling</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-1-the-velocity-distribution-at-a-given-radius-factorizes">T:5.1 The velocity distribution at a given radius factorizes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-2-tabulated-inverse-cdfs">T:5.2 Tabulated inverse CDFs</a></li>

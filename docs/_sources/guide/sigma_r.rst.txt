@@ -6,7 +6,7 @@ Radial velocity dispersion
 ``sigma_r(source, r)`` returns the intrinsic radial velocity dispersion :math:`\sigma_{\rm r}` at user-specified 3D radii.
 :math:`\sigma_{\rm r}^2` is the second moment of the radial velocity over the model's distribution function at a
 fixed radius. As in |paper|, :math:`\sigma_{\rm r}^2` is the velocity moment of the augmented density
-:math:`\varrho_{\rm aug}`, integrated over the energy :math:`\mathcal{K}` up to the relative potential
+:math:`\varrho_{\rm aug}`, integrated over the energy-like variable :math:`\mathcal{K}` up to the relative potential
 :math:`P = P(R)` at the radius :math:`R`,
 
 .. math::

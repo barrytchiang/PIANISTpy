@@ -20,7 +20,7 @@ weight and each scale. With `free=`, the anisotropy \((\beta_{\rm c}, R_{\rm a})
 functions of the component’s anisotropy \((\beta_{\rm c}, R_{\rm a})\) ([Differentiable observables](https://pianistpy.com/docs/guide/differentiable)).
 
 - **The distribution function.** The derivative of the distribution function in the central anisotropy
-\(\beta_{\rm c}\) and the anisotropy radius \(R_{\rm a}\) is available at the inversion’s energies and for
+\(\beta_{\rm c}\) and the anisotropy radius \(R_{\rm a}\) is available at the nodes of the inversion’s grid in \(\mathcal{K}\), the energy-like variable, and for
 the full table (see [The distribution function](https://pianistpy.com/docs/guide/differentiability#the-distribution-function) below).
 
 The derivative of the distribution function is available for the following anisotropy models, with their parameters:
@@ -64,27 +64,27 @@ compute the derivative of the truncated profile in the anisotropy.
 
 The derivative of the distribution function is available in two forms:
 
-- the rows (the distribution function on the inversion’s energy grid), through `make_inversion_rows` and
+- the rows (the distribution function on the inversion’s \(\mathcal{K}\) grid), through `make_inversion_rows` and
 `rows_jacobian`, for a component on its own analytic profile only;
 
 - the table, as the lookup reads it, through `make_inversion_table` and `table_jacobian`. The derivative covers
-every array of the table: the rows (`log_df`, `log_df_slope`), the nodes below the table’s first energy
+every array of the table: the rows (`log_df`, `log_df_slope`), the nodes below the table’s first node
 (`log_df_below`, `log_df_slope_below`), the closed form at the center (`central`) and the tail (`tail`).
-For a Method II component, the arrays are the rows (`log_df`), the power law at the lowest energies
+For a Method II component, the arrays are the rows (`log_df`), the power law at the lowest values of \(\mathcal{K}\)
 (`edge_law`) and the closed form at the center (`center`).
 
 `make_inversion_rows` and `make_inversion_table` each return a JAX function of the anisotropy parameters, the
-names of the parameters (`params`), and the energies or the table at the component’s own parameters. The value of
+names of the parameters (`params`), and the values of \(\mathcal{K}\) or the table at the component’s own parameters. The value of
 the returned function is the result of `compute_df()` at the given parameters, computed on the CPU.
 The derivative of the returned function is the package’s analytic derivative (Eq. (T:7.1) of the
 [Technical notes](https://pianistpy.com/docs/reference/notes)). The `*_jacobian` functions return the values and their derivatives
 as arrays.
 
-Both returned functions hold the energies at the component’s own parameters. The function that
+Both returned functions hold the values of \(\mathcal{K}\) at the component’s own parameters. The function that
 `make_inversion_table` returns makes the anchor of the closed form at the center and the nodes kept again at each
 new parameter value, except that a component on a truncated profile also holds the nodes kept at the component’s
 own parameters. The derivative is thus the derivative of the table that `compute_df()` returns at the
-given parameters, on the held energies. Where a discrete choice would change between two parameter values, the value
+given parameters, on the held values of \(\mathcal{K}\). Where a discrete choice would change between two parameter values, the value
 of the returned function differs from a new `compute_df()` call by up to the tolerance of the
 inversion.
 
@@ -105,7 +105,7 @@ finite differences:
 the two sides, relative to the largest \(|\partial F/\partial\beta_{\rm c}|\) in the record of
 `rows_jacobian` and absolute in the record of `table_jacobian`;
 
-- for a component on a truncated profile, where the component’s energy grid is placed.
+- for a component on a truncated profile, where the component’s \(\mathcal{K}\) grid is placed.
 
 The Richardson residual is the accuracy of the derivative, read against the thresholds \(10^{-6}\),
 \(10^{-4}\) and \(10^{-2}\) of the validation reports ([Accuracy](https://pianistpy.com/docs/guide/accuracy)). Where the difference is central, the

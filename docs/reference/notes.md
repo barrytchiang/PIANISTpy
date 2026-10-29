@@ -2,47 +2,43 @@
 
 Source: https://pianistpy.com/docs/reference/notes
 
-The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes follow and refer to the notations, equations, and results of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. [Section T:0](https://pianistpy.com/docs/reference/technical-notes/principles#tn-sec-principles) states the conventions and notations used; we then discuss the input potential-density models ([Section T:1](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-model)), the distribution function ([Section T:2](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-df)), the truncation ([Section T:3](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-truncation)), the linear superposition of components ([Section T:4](https://pianistpy.com/docs/reference/technical-notes/sup#tn-sec-sup)), the particle sampling ([Section T:5](https://pianistpy.com/docs/reference/technical-notes/sampling#tn-sec-sampling)), the velocity profiles and projections ([Section T:6](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-observables)), and the JAX-based gradients ([Section T:7](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradients)). [Section T:8](https://pianistpy.com/docs/reference/technical-notes/verification#tn-sec-verification) documents the accuracy and validation tests and related information.
+The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes follow and refer to the notations, equations, and results of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. [Section T:0](https://pianistpy.com/docs/reference/technical-notes/principles#tn-sec-principles) states the conventions and notations used; we then discuss the input potential–density models ([Section T:1](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-model)), the distribution function (DF; [Section T:2](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-df)), the phase-space truncation ([Section T:3](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-truncation)), the linear superposition of DFs ([Section T:4](https://pianistpy.com/docs/reference/technical-notes/sup#tn-sec-sup)), the particle sampling ([Section T:5](https://pianistpy.com/docs/reference/technical-notes/sampling#tn-sec-sampling)), the velocity profiles and projections ([Section T:6](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-observables)), and the JAX-based gradients ([Section T:7](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradients)). [Section T:8](https://pianistpy.com/docs/reference/technical-notes/verification#tn-sec-verification) documents the accuracy and validation tests and related information.
 
-This document was last updated on October 21, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (Section T:2.3, Eq. (T:2.4), Table T:2.1). The [Functions by subpackage](https://pianistpy.com/docs/reference/api/index) page gives the form in which the docstrings cite the Technical notes.
+This document was last updated on October 29, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.
 
 - [T:0 Principles and conventions](https://pianistpy.com/docs/reference/technical-notes/principles)
 
 - [T:0.1 Notation](https://pianistpy.com/docs/reference/technical-notes/principles#t-0-1-notation)
 
-- [T:0.2 Thresholds derived from the inputs](https://pianistpy.com/docs/reference/technical-notes/principles#t-0-2-thresholds-derived-from-the-inputs)
+- [T:0.2 Accuracy tiers and settings](https://pianistpy.com/docs/reference/technical-notes/principles#t-0-2-accuracy-tiers-and-settings)
 
-- [T:0.3 Closed forms, symbolic derivatives and arbitrary precision](https://pianistpy.com/docs/reference/technical-notes/principles#t-0-3-closed-forms-symbolic-derivatives-and-arbitrary-precision)
-
-- [T:0.4 Limits of double precision and of the energy grid](https://pianistpy.com/docs/reference/technical-notes/principles#t-0-4-limits-of-double-precision-and-of-the-energy-grid)
-
-- [T:0.5 Accuracy tiers, settings levels, and devices](https://pianistpy.com/docs/reference/technical-notes/principles#t-0-5-accuracy-tiers-settings-levels-and-devices)
+- [T:0.3 Symbolic derivatives and arbitrary-precision arithmetic](https://pianistpy.com/docs/reference/technical-notes/principles#t-0-3-symbolic-derivatives-and-arbitrary-precision-arithmetic)
 
 - [T:1 The potential–density pair and the auxiliary density](https://pianistpy.com/docs/reference/technical-notes/model)
 
-- [T:1.1 The potential–radius relation as P → P₀ and P → 0](https://pianistpy.com/docs/reference/technical-notes/model#t-1-1-the-potentialradius-relation-as-p-p0-and-p-0)
+- [T:1.1 Asymptotic forms of the potential–radius relation](https://pianistpy.com/docs/reference/technical-notes/model#t-1-1-asymptotic-forms-of-the-potentialradius-relation)
 
 - [T:1.2 Derivatives of the auxiliary density](https://pianistpy.com/docs/reference/technical-notes/model#t-1-2-derivatives-of-the-auxiliary-density)
 
 - [T:1.3 Interpolation of the tabulated truncated profile](https://pianistpy.com/docs/reference/technical-notes/model#t-1-3-interpolation-of-the-tabulated-truncated-profile)
 
-- [T:2 The distribution function](https://pianistpy.com/docs/reference/technical-notes/df)
+- [T:2 The DF](https://pianistpy.com/docs/reference/technical-notes/df)
 
 - [T:2.1 The two forms of the inversion and the forward relation](https://pianistpy.com/docs/reference/technical-notes/df#t-2-1-the-two-forms-of-the-inversion-and-the-forward-relation)
 
 - [T:2.2 Asymptotic behavior of the DF](https://pianistpy.com/docs/reference/technical-notes/df#t-2-2-asymptotic-behavior-of-the-df)
 
-- [T:2.3 Evaluating the inversion at each tabulated energy](https://pianistpy.com/docs/reference/technical-notes/df#t-2-3-evaluating-the-inversion-at-each-tabulated-energy)
+- [T:2.3 Evaluating the inversion on the grid](https://pianistpy.com/docs/reference/technical-notes/df#t-2-3-evaluating-the-inversion-on-the-grid)
 
-- [T:2.4 The energy grid](https://pianistpy.com/docs/reference/technical-notes/df#t-2-4-the-energy-grid)
+- [T:2.4 The K grid](https://pianistpy.com/docs/reference/technical-notes/df#t-2-4-the-k-grid)
 
-- [T:2.5 The distribution function outside the tabulated energies](https://pianistpy.com/docs/reference/technical-notes/df#t-2-5-the-distribution-function-outside-the-tabulated-energies)
+- [T:2.5 The DF outside the grid](https://pianistpy.com/docs/reference/technical-notes/df#t-2-5-the-df-outside-the-grid)
 
-- [T:2.6 Method II: inversion of a truncated potential–density pair](https://pianistpy.com/docs/reference/technical-notes/df#t-2-6-method-ii-inversion-of-a-truncated-potentialdensity-pair)
+- [T:2.6 Method II: inversion of a truncated potential–density pair](https://pianistpy.com/docs/reference/technical-notes/df#t-2-6-method-ii-inversion-of-a-truncated-potentialdensity-pair)
 
-- [T:2.7 A distribution function supplied as input](https://pianistpy.com/docs/reference/technical-notes/df#t-2-7-a-distribution-function-supplied-as-input)
+- [T:2.7 A DF supplied as input](https://pianistpy.com/docs/reference/technical-notes/df#t-2-7-a-df-supplied-as-input)
 
-- [T:3 Truncation](https://pianistpy.com/docs/reference/technical-notes/truncation)
+- [T:3 Phase-space truncation](https://pianistpy.com/docs/reference/technical-notes/truncation)
 
 - [T:3.1 Type II models beyond the anisotropy radius](https://pianistpy.com/docs/reference/technical-notes/truncation#t-3-1-type-ii-models-beyond-the-anisotropy-radius)
 
@@ -60,7 +56,7 @@ This document was last updated on October 21, 2026. Section, equation and table 
 
 - [T:3.8 Checks of the self-consistency of a model](https://pianistpy.com/docs/reference/technical-notes/truncation#t-3-8-checks-of-the-self-consistency-of-a-model)
 
-- [T:4 Linear superposition of Method II DFs](https://pianistpy.com/docs/reference/technical-notes/sup)
+- [T:4 Linear superposition of Method II DFs](https://pianistpy.com/docs/reference/technical-notes/sup)
 
 - [T:5 Particle sampling](https://pianistpy.com/docs/reference/technical-notes/sampling)
 

@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -349,7 +349,7 @@ method holds fixed the radii and velocities at which the tables at <span class="
 does for a free component. Where the tabulated radii and velocities change from one <span class="math notranslate nohighlight">\(\theta\)</span> to another, the
 value of a method changes by up to the tolerance of the tables, and the derivative omits that change.</p>
 <p>The derivatives of <code class="docutils literal notranslate"><span class="pre">losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code> and <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> are taken through the derivative of the distribution
-function (<a class="reference internal" href="differentiability"><span class="doc">End-to-end differentiability</span></a>), with the energies of the distribution function’s table held fixed. For a
+function (<a class="reference internal" href="differentiability"><span class="doc">End-to-end differentiability</span></a>), with the values of the energy-like variable <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> of the distribution function’s table held fixed. For a
 component whose distribution function has no derivative in the anisotropy, such as an isotropic component,
 <code class="docutils literal notranslate"><span class="pre">losvd</span></code>, <code class="docutils literal notranslate"><span class="pre">pdf_v</span></code> and <code class="docutils literal notranslate"><span class="pre">aperture_losvd</span></code> raise <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> with a message that states the
 reason.</p>

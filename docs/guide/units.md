@@ -16,7 +16,7 @@ model’s unit system: `Sampler`’s `r_sample` and `r_range`, the radii, the `v
 
 Exactly one of the three inputs of a `Truncation` is given, in these units:
 
-- the truncation energy `k_t` in internal units;
+- the truncation value `k_t` in internal units;
 
 - a target radius `r_t` in units of the scale radius;
 

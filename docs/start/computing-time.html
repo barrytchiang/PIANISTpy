@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -285,7 +285,7 @@ is the <a class="reference external" href="https://github.com/calab-ntu/gpu-clus
 <a class="reference external" href="https://calab-ntu.github.io/" rel="noopener" target="_blank">NTU CALab</a> (PI: <a class="reference external" href="https://www.phys.ntu.edu.tw/enphysics/hyschive.html" rel="noopener" target="_blank">Hsi-Yu Schive</a>),
 with an AMD Ryzen Threadripper PRO 5975WX CPU (32 cores, Linux) and an NVIDIA GeForce RTX 3080 Ti GPU. The second
 machine is a laptop with an Intel Core Ultra 9 185H CPU (16 cores, Windows 11). The steps that run in parallel
-processes used 28 processes on spock and 12 processes on the laptop, set by <code class="xref py py-func docutils literal notranslate"><span class="pre">set_cores()</span></code>.</p>
+processes used 28 processes on spock and 12 processes on the laptop, set by <code class="xref py py-func docutils literal notranslate"><span class="pre">set_cores()</span></code>. A step whose wall time scales with a sequential count (the steps of a solve, or rows computed one at a time) is latency-bound on a GPU and runs on the CPU on every machine; a step whose wall time scales with a batch (the velocity table, the particle draw) runs on the GPU when one is present. This classification rests on measured scaling.</p>
 <section id="building-a-model">
 <h2>Building a model<a class="headerlink" href="#building-a-model" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="chain-table table">

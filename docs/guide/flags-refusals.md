@@ -10,8 +10,8 @@ result. The message of each error states the cause, and each section below gives
 
 `compute_df` returns the distribution function of every component for which the inversion is defined, whatever
 the sign of the distribution function. The result states where the distribution function is negative. The result
-also states the energy at which the distribution function crosses zero, the distribution function’s minimum, and
-`k_t_min`, the lowest truncation energy that gives a valid equilibrium.
+also states the value of the energy-like variable \(\mathcal{K}\) at which the distribution function crosses zero, the distribution function’s minimum, and
+`k_t_min`, the lowest truncation value \(\mathcal{K}_{\rm t}\) that gives a valid equilibrium.
 
 ## A model is always a valid equilibrium
 
@@ -41,11 +41,11 @@ act as follows:
 - an observable at a projected radius beyond the outermost projected radius of the model’s line-of-sight table
 raises `InputError`, and the message states the radius that bounds the table.
 
-## A distribution function that diverges at the truncation energy
+## A distribution function that diverges at the truncation value
 
 A Method II model whose central anisotropy \(\beta_{\rm c}\) lies more than 1 below the \(\beta_{\rm c}\) of
 the Method I model whose truncated density the Method II model uses has a distribution function that diverges,
-integrably, at the truncation energy. The package returns the Method II model and writes a warning to the package’s log. The warning gives the
+integrably, at \(\mathcal{K}_{\rm t}\). The package returns the Method II model and writes a warning to the package’s log. The warning gives the
 exponent and says the model is a valid equilibrium of finite density whose stability is not established.
 
 ## One component

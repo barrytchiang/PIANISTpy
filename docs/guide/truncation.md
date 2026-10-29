@@ -6,8 +6,8 @@ Source: https://pianistpy.com/docs/guide/truncation
 
 ## Method I
 
-`truncate(df, truncation)` returns a `Model`, which holds the distribution function truncated at an
-energy and the self-consistent potential-density pair of the truncated distribution function. If the untruncated
+`truncate(df, truncation)` returns a `Model`, which holds the distribution function truncated at a
+value of the energy-like variable \(\mathcal{K}\) and the self-consistent potential–density pair of the truncated distribution function. If the untruncated
 distribution function is everywhere non-negative and monotonic, the truncated distribution function inherits both
 properties, and the truncation boundary is in dynamical equilibrium. A request with no physical model raises
 `UnphysicalModelError`, which carries the distribution function, or the model without an edge, for
@@ -21,13 +21,13 @@ raises `AccuracyError` from \(\gamma = 1.735\) upward.
 `Truncation` takes exactly one of three inputs:
 
 ```python
-pp.Truncation(k_t=0.2)                          # the truncation energy, in internal units
+pp.Truncation(k_t=0.2)                          # the truncation value k_t, in internal units
 pp.Truncation(mass_t=1.0, concentration=10.0)   # a target mass, in units of M_0 (model units)
 pp.Truncation(r_t=5.0)                          # a target radius, in units of the scale radius
 ```
 
 A target mass is given in units of \(M_0\), so it needs the concentration that defines \(M_0\). A target
-radius or a truncation energy needs no concentration, and a concentration given with `r_t` or `k_t` raises
+radius or a truncation value needs no concentration, and a concentration given with `r_t` or `k_t` raises
 `InputError`.
 
 `solve(component, truncation)` runs `compute_df` and `truncate` in one call. Without a `Truncation`,
@@ -56,7 +56,7 @@ A Type II model (Osipkov-Merritt or Cuddeford-Osipkov-Merritt) must end inside i
 \(R_{\rm a}\), where the model’s density \(\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)\), with
 \(\varrho_{\rm aux}\) the auxiliary density, has a pole.
 
-- The truncation energy must satisfy \(\mathcal{K}_{\rm t} > P(R_{\rm a})\). Where this bound sets `k_t_min`,
+- The truncation value must satisfy \(\mathcal{K}_{\rm t} > P(R_{\rm a})\). Where this bound sets `k_t_min`,
 `k_t_min` is the next floating-point number above \(P(R_{\rm a})\).
 
 - The bound is necessary, not sufficient. The bound keeps inside \(R_{\rm a}\) the radius at which the

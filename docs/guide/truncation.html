@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -305,8 +305,8 @@
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Truncation</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.truncate()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.solve()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.Model</span></code></p>
 <section id="method-i">
 <h2>Method I<a class="headerlink" href="#method-i" title="Link to this heading">#</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">truncate(df,</span> <span class="pre">truncation)</span></code> returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>, which holds the distribution function truncated at an
-energy and the self-consistent potential-density pair of the truncated distribution function. If the untruncated
+<p><code class="docutils literal notranslate"><span class="pre">truncate(df,</span> <span class="pre">truncation)</span></code> returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code>, which holds the distribution function truncated at a
+value of the energy-like variable <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> and the self-consistent potential–density pair of the truncated distribution function. If the untruncated
 distribution function is everywhere non-negative and monotonic, the truncated distribution function inherits both
 properties, and the truncation boundary is in dynamical equilibrium. A request with no physical model raises
 <code class="xref py py-class docutils literal notranslate"><span class="pre">UnphysicalModelError</span></code>, which carries the distribution function, or the model without an edge, for
@@ -316,13 +316,13 @@ truncated model does not converge, and <code class="docutils literal notranslate
 <span class="nobr"><span class="math notranslate nohighlight">\((\alpha, \beta) = (2, 4)\)</span>,</span> <span class="math notranslate nohighlight">\(\beta_{\rm c} = -1/2\)</span> and <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} = 0.3\)</span>,</span> <code class="docutils literal notranslate"><span class="pre">truncate</span></code>
 raises <code class="xref py py-class docutils literal notranslate"><span class="pre">AccuracyError</span></code> from <span class="math notranslate nohighlight">\(\gamma = 1.735\)</span> upward.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Truncation</span></code> takes exactly one of three inputs:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>                          <span class="c1"># the truncation energy, in internal units</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>                          <span class="c1"># the truncation value k_t, in internal units</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">mass_t</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>   <span class="c1"># a target mass, in units of M_0 (model units)</span>
 <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">r_t</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>                          <span class="c1"># a target radius, in units of the scale radius</span>
 </pre></div>
 </div>
 <p>A target mass is given in units of <span class="nobr"><span class="math notranslate nohighlight">\(M_0\)</span>,</span> so it needs the concentration that defines <span class="nobr"><span class="math notranslate nohighlight">\(M_0\)</span>.</span> A target
-radius or a truncation energy needs no concentration, and a concentration given with <code class="docutils literal notranslate"><span class="pre">r_t</span></code> or <code class="docutils literal notranslate"><span class="pre">k_t</span></code> raises
+radius or a truncation value needs no concentration, and a concentration given with <code class="docutils literal notranslate"><span class="pre">r_t</span></code> or <code class="docutils literal notranslate"><span class="pre">k_t</span></code> raises
 <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">solve(component,</span> <span class="pre">truncation)</span></code> runs <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> and <code class="docutils literal notranslate"><span class="pre">truncate</span></code> in one call. Without a <code class="docutils literal notranslate"><span class="pre">Truncation</span></code>,
 <code class="docutils literal notranslate"><span class="pre">truncate</span></code> and <code class="docutils literal notranslate"><span class="pre">solve</span></code> return the untruncated model, or, for a Method II component, the model that ends at the
@@ -345,7 +345,7 @@ untruncated model’s truncation radius <code class="docutils literal notranslat
 <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>,</span> where the model’s density <span class="nobr"><span class="math notranslate nohighlight">\(\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)\)</span>,</span> with
 <span class="math notranslate nohighlight">\(\varrho_{\rm aux}\)</span> the auxiliary density, has a pole.</p>
 <ul class="simple">
-<li><p>The truncation energy must satisfy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} &gt; P(R_{\rm a})\)</span>.</span> Where this bound sets <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>,
+<li><p>The truncation value must satisfy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t} &gt; P(R_{\rm a})\)</span>.</span> Where this bound sets <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>,
 <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the next floating-point number above <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>.</span></p></li>
 <li><p>The bound is necessary, not sufficient. The bound keeps inside <span class="math notranslate nohighlight">\(R_{\rm a}\)</span> the radius at which the
 untruncated potential equals <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> but the truncated model’s own edge lies farther out than

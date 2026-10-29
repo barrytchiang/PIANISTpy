@@ -57,7 +57,7 @@ does for a free component. Where the tabulated radii and velocities change from 
 value of a method changes by up to the tolerance of the tables, and the derivative omits that change.
 
 The derivatives of `losvd`, `pdf_v` and `aperture_losvd` are taken through the derivative of the distribution
-function ([End-to-end differentiability](https://pianistpy.com/docs/guide/differentiability)), with the energies of the distribution function’s table held fixed. For a
+function ([End-to-end differentiability](https://pianistpy.com/docs/guide/differentiability)), with the values of the energy-like variable \(\mathcal{K}\) of the distribution function’s table held fixed. For a
 component whose distribution function has no derivative in the anisotropy, such as an isotropic component,
 `losvd`, `pdf_v` and `aperture_losvd` raise `InputError` with a message that states the
 reason.

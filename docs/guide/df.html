@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -306,11 +306,11 @@
 <p><code class="docutils literal notranslate"><span class="pre">compute_df(component)</span></code> returns the untruncated distribution function of a component as a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">DistributionFunction</span></code>. <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> computes the distribution function by the analytic inversion
 of the density. <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> returns the distribution function even where the distribution function is negative or
-not monotonic, and the result states the energies at which the distribution function is negative or not monotonic.
-The attribute <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the lowest truncation energy that <code class="docutils literal notranslate"><span class="pre">truncate</span></code> accepts. <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is zero when the
+not monotonic, and the result states the values of the energy-like variable <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> at which the distribution function is negative or not monotonic.
+The attribute <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the lowest truncation value <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> that <code class="docutils literal notranslate"><span class="pre">truncate</span></code> accepts. <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is zero when the
 distribution function is non-negative and non-decreasing everywhere and the model is not a Type II model. One result serves every Method I truncation of the
 same component, so a scan over
-truncation energies needs one <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> call.</p>
+truncation values needs one <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> call.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">halo</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">(</span><span class="n">beta_c</span><span class="o">=</span><span class="mf">0.25</span><span class="p">))</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">halo</span><span class="p">)</span>
 </pre></div>
@@ -318,17 +318,17 @@ truncation energies needs one <code class="docutils literal notranslate"><span c
 <p><code class="docutils literal notranslate"><span class="pre">DistributionFunction.from_function(component,</span> <span class="pre">f)</span></code> validates a distribution function from elsewhere, such as a
 fitting function or the output of another code, with the checks of <code class="docutils literal notranslate"><span class="pre">compute_df</span></code>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">f(k,</span> <span class="pre">depth)</span></code> takes an array of energies <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> in internal units and the array of their depths
-below the center, <span class="nobr"><span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span>.</span> It returns the distribution function <span class="math notranslate nohighlight">\(F\)</span> at each energy, not
-its logarithm. The depth carries no rounding error at every energy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K} \ge 1/2\)</span>,</span> so a fit written in
-the depth near the center can use <code class="docutils literal notranslate"><span class="pre">depth</span></code>. A function of the energy alone may ignore <code class="docutils literal notranslate"><span class="pre">depth</span></code>.</p></li>
-<li><p>The function is tabulated on the energy grid that <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> uses for the same component and settings. The
+<li><p><code class="docutils literal notranslate"><span class="pre">f(k,</span> <span class="pre">depth)</span></code> takes an array of values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> in internal units and the array of their depths
+below the center, <span class="nobr"><span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span>.</span> It returns the distribution function <span class="math notranslate nohighlight">\(F\)</span> at each <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>,</span> not
+its logarithm. The depth carries no rounding error at every <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K} \ge 1/2\)</span>,</span> so a fit written in
+the depth near the center can use <code class="docutils literal notranslate"><span class="pre">depth</span></code>. A function of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> alone may ignore <code class="docutils literal notranslate"><span class="pre">depth</span></code>.</p></li>
+<li><p>The function is tabulated on the <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> grid that <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> uses for the same component and settings. The
 table is then continued beyond its ends, checked for sign and validated against the density, as for
 <code class="docutils literal notranslate"><span class="pre">compute_df</span></code>.</p></li>
 <li><p>The function gives <span class="math notranslate nohighlight">\(F\)</span> only, so the validation report marks its check of the table’s logarithmic slope,
 <code class="docutils literal notranslate"><span class="pre">slope_column</span></code>, as <code class="docutils literal notranslate"><span class="pre">&quot;not</span> <span class="pre">judged&quot;</span></code>.</p></li>
 <li><p>A file written from the result stores the table and the function’s name, not the function.</p></li>
-<li><p>A value that is not finite raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>, which states the first such energy.</p></li>
+<li><p>A value that is not finite raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>, which states the first such <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>.</span></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">truncate</span></code> raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code> for a distribution function from <code class="docutils literal notranslate"><span class="pre">from_function</span></code>, because a
 truncation needs values of the inversion that a distribution function from <code class="docutils literal notranslate"><span class="pre">from_function</span></code> does not carry.</p></li>
 </ul>
@@ -343,7 +343,7 @@ truncation needs values of the inversion that a distribution function from <code
 </div>
 <p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DistributionFunction</span></code> holds:</p>
 <ul class="simple">
-<li><p>the distribution function tabulated on its energy grid, with its logarithmic slope;</p></li>
+<li><p>the distribution function tabulated on its <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> grid, with its logarithmic slope;</p></li>
 <li><p>the asymptotic forms of the distribution function at the center and at the outer end, which continue the
 distribution function beyond the table;</p></li>
 <li><p>where it is negative or not monotonic, and <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>;</p></li>

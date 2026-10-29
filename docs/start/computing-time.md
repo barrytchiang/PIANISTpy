@@ -11,7 +11,7 @@ is the [spock GPU cluster](https://github.com/calab-ntu/gpu-cluster/wiki/System-
 [NTU CALab](https://calab-ntu.github.io/) (PI: [Hsi-Yu Schive](https://www.phys.ntu.edu.tw/enphysics/hyschive.html)),
 with an AMD Ryzen Threadripper PRO 5975WX CPU (32 cores, Linux) and an NVIDIA GeForce RTX 3080 Ti GPU. The second
 machine is a laptop with an Intel Core Ultra 9 185H CPU (16 cores, Windows 11). The steps that run in parallel
-processes used 28 processes on spock and 12 processes on the laptop, set by `set_cores()`.
+processes used 28 processes on spock and 12 processes on the laptop, set by `set_cores()`. A step whose wall time scales with a sequential count (the steps of a solve, or rows computed one at a time) is latency-bound on a GPU and runs on the CPU on every machine; a step whose wall time scales with a batch (the velocity table, the particle draw) runs on the GPU when one is present. This classification rests on measured scaling.
 
 ## Building a model
 

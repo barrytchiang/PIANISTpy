@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -235,9 +235,9 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="notes">Technical notes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/principles">T:0 Principles and conventions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/model">T:1 The potential–density pair and the auxiliary density</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df">T:2 The distribution function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation">T:3 Truncation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df">T:2 The DF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation">T:3 Phase-space truncation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling">T:5 Particle sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/observables">T:6 Velocity distributions and dispersion profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/gradients">T:7 Gradients</a></li>
@@ -330,9 +330,9 @@ profile, <span class="nobr"><span class="math notranslate nohighlight">\(\gamma\
 <span class="nobr"><span class="math notranslate nohighlight">\(\gamma \ge 2\beta_{\rm c}\)</span>).</span> The model is still
 computed and recorded in the CSV.</p></li>
 </ul>
-<p>The distribution function of an untruncated Type II model is defined only at energies above
+<p>The distribution function of an untruncated Type II model is defined only at values of the energy-like variable <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> above
 <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>,</span> the relative potential at the anisotropy radius <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</span> The cell of such a model
-gives the tier that the package reports at energies above <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>,</span> with the note “support above
+gives the tier that the package reports at values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> above <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>,</span> with the note “support above
 <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>”. Below <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>,</span> the density <span class="math notranslate nohighlight">\(\varrho_{\rm inv}\)</span> does not measure the
 distribution function’s accuracy, so the cell gives no error values.</p>
 <p>A † marks a cell whose outcome differs from the outcome that the CSV’s <code class="docutils literal notranslate"><span class="pre">expected</span> <span class="pre">outcome</span></code> column states for the

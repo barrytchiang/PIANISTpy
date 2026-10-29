@@ -28,9 +28,9 @@ profile, \(\gamma\), to be at least twice the central velocity anisotropy, \(\be
 \(\gamma \ge 2\beta_{\rm c}\)). The model is still
 computed and recorded in the CSV.
 
-The distribution function of an untruncated Type II model is defined only at energies above
+The distribution function of an untruncated Type II model is defined only at values of the energy-like variable \(\mathcal{K}\) above
 \(P(R_{\rm a})\), the relative potential at the anisotropy radius \(R_{\rm a}\). The cell of such a model
-gives the tier that the package reports at energies above \(P(R_{\rm a})\), with the note “support above
+gives the tier that the package reports at values of \(\mathcal{K}\) above \(P(R_{\rm a})\), with the note “support above
 \(P(R_{\rm a})\)”. Below \(P(R_{\rm a})\), the density \(\varrho_{\rm inv}\) does not measure the
 distribution function’s accuracy, so the cell gives no error values.
 

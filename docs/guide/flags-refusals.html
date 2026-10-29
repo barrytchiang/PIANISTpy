@@ -33,7 +33,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/css/fonts.css?v=7e12a040" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=52034a91" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=c2ccedbe" />
     <link rel="stylesheet" type="text/css" href="../_static/css/band.css?v=b020b0c9" />
   
   <!-- So that users can add custom icons -->
@@ -309,8 +309,8 @@ result. The message of each error states the cause, and each section below gives
 <h2>The distribution function is always returned<a class="headerlink" href="#the-distribution-function-is-always-returned" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">compute_df</span></code> returns the distribution function of every component for which the inversion is defined, whatever
 the sign of the distribution function. The result states where the distribution function is negative. The result
-also states the energy at which the distribution function crosses zero, the distribution function’s minimum, and
-<code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>, the lowest truncation energy that gives a valid equilibrium.</p>
+also states the value of the energy-like variable <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> at which the distribution function crosses zero, the distribution function’s minimum, and
+<code class="docutils literal notranslate"><span class="pre">k_t_min</span></code>, the lowest truncation value <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> that gives a valid equilibrium.</p>
 </section>
 <section id="a-model-is-always-a-valid-equilibrium">
 <h2>A model is always a valid equilibrium<a class="headerlink" href="#a-model-is-always-a-valid-equilibrium" title="Link to this heading">#</a></h2>
@@ -339,11 +339,11 @@ act as follows:</p>
 raises <code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>, and the message states the radius that bounds the table.</p></li>
 </ul>
 </section>
-<section id="a-distribution-function-that-diverges-at-the-truncation-energy">
-<h2>A distribution function that diverges at the truncation energy<a class="headerlink" href="#a-distribution-function-that-diverges-at-the-truncation-energy" title="Link to this heading">#</a></h2>
+<section id="a-distribution-function-that-diverges-at-the-truncation-value">
+<h2>A distribution function that diverges at the truncation value<a class="headerlink" href="#a-distribution-function-that-diverges-at-the-truncation-value" title="Link to this heading">#</a></h2>
 <p>A Method II model whose central anisotropy <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> lies more than 1 below the <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> of
 the Method I model whose truncated density the Method II model uses has a distribution function that diverges,
-integrably, at the truncation energy. The package returns the Method II model and writes a warning to the package’s log. The warning gives the
+integrably, at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>.</span> The package returns the Method II model and writes a warning to the package’s log. The warning gives the
 exponent and says the model is a valid equilibrium of finite density whose stability is not established.</p>
 </section>
 <section id="one-component">
@@ -395,7 +395,7 @@ the file.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-distribution-function-is-always-returned">The distribution function is always returned</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-model-is-always-a-valid-equilibrium">A model is always a valid equilibrium</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-model-that-is-not-spatially-finite-is-a-model">A model that is not spatially finite is a model</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-distribution-function-that-diverges-at-the-truncation-energy">A distribution function that diverges at the truncation energy</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-distribution-function-that-diverges-at-the-truncation-value">A distribution function that diverges at the truncation value</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#one-component">One component</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-attributes-to-read-first-in-a-result">The attributes to read first in a result</a></li>
 </ul>
