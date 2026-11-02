@@ -144,7 +144,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../notebooks/gamer"><em>N</em>-body tests with GAMER</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current"><a class="reference internal" href="api/index">API reference</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index">API reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="api/index">Functions by subpackage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="settings">Numerical settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="symbols">Code and paper notations</a></li>
@@ -283,7 +283,7 @@
       </a>
     </li>
     
-    <li class="breadcrumb-item"><a href="api/index" class="nav-link">API reference</a></li>
+    <li class="breadcrumb-item"><a href="index" class="nav-link">API reference</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Technical notes</span></li>
   </ul>
@@ -305,7 +305,7 @@
   <section id="technical-notes">
 <h1>Technical notes<a class="headerlink" href="#technical-notes" title="Link to this heading">#</a></h1>
 <p>The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The Technical notes follow and refer to the notations, equations, and results of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. <a class="reference internal" href="technical-notes/principles#tn-sec-principles"><span class="std std-ref">Section T:0</span></a> states the conventions and notations used; we then discuss the input potential–density models (<a class="reference internal" href="technical-notes/model#tn-sec-model"><span class="std std-ref">Section T:1</span></a>), the distribution function (DF; <a class="reference internal" href="technical-notes/df#tn-sec-df"><span class="std std-ref">Section T:2</span></a>), the phase-space truncation (<a class="reference internal" href="technical-notes/truncation#tn-sec-truncation"><span class="std std-ref">Section T:3</span></a>), the linear superposition of DFs (<a class="reference internal" href="technical-notes/sup#tn-sec-sup"><span class="std std-ref">Section T:4</span></a>), the particle sampling (<a class="reference internal" href="technical-notes/sampling#tn-sec-sampling"><span class="std std-ref">Section T:5</span></a>), the velocity profiles and projections (<a class="reference internal" href="technical-notes/observables#tn-sec-observables"><span class="std std-ref">Section T:6</span></a>), and the JAX-based gradients (<a class="reference internal" href="technical-notes/gradients#tn-sec-gradients"><span class="std std-ref">Section T:7</span></a>). <a class="reference internal" href="technical-notes/verification#tn-sec-verification"><span class="std std-ref">Section T:8</span></a> documents the accuracy and validation tests and related information.</p>
-<p>This document was last updated on October 29, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.</p>
+<p>This document was last updated on November 1, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/principles">T:0 Principles and conventions</a><ul>
@@ -321,29 +321,29 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/df">T:2 The DF</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-1-the-two-forms-of-the-inversion-and-the-forward-relation">T:2.1 The two forms of the inversion and the forward relation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-1-the-general-and-simplified-forms-of-the-cuddeford-inversion">T:2.1 The general and simplified forms of the Cuddeford inversion</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-2-asymptotic-behavior-of-the-df">T:2.2 Asymptotic behavior of the DF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-3-evaluating-the-inversion-on-the-grid">T:2.3 Evaluating the inversion on the grid</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-4-the-k-grid">T:2.4 The K grid</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-5-the-df-outside-the-grid">T:2.5 The DF outside the grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-3-evaluating-the-inversion-on-the-grid-of-the-energy-like-variable">T:2.3 Evaluating the inversion on the grid of the energy-like variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-4-the-grid-of-the-energy-like-variable">T:2.4 The grid of the energy-like variable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-5-the-df-beyond-the-ends-of-its-grid">T:2.5 The DF beyond the ends of its grid</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-6-method-ii-inversion-of-a-truncated-potentialdensity-pair">T:2.6 Method II: inversion of a truncated potential–density pair</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-7-a-df-supplied-as-input">T:2.7 A DF supplied as input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/df#t-2-7-a-user-supplied-df">T:2.7 A user-supplied DF</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/truncation">T:3 Phase-space truncation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-1-type-ii-models-beyond-the-anisotropy-radius">T:3.1 Type II models beyond the anisotropy radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-1-c-om-type-ii-models-beyond-the-anisotropy-radius">T:3.1 (C)OM Type II models beyond the anisotropy radius</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-2-the-truncated-df-and-its-density">T:3.2 The truncated DF and its density</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-3-solving-the-truncated-poisson-equation">T:3.3 Solving the truncated Poisson equation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-4-completing-the-truncated-profile-toward-the-center-and-the-truncation-radius">T:3.4 Completing the truncated profile toward the center and the truncation radius</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-4-completing-the-profile-at-the-center-and-at-the-truncation-boundary">T:3.4 Completing the profile at the center and at the truncation boundary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-5-the-lowest-admissible-truncation-value">T:3.5 The lowest admissible truncation value</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-6-finding-the-truncation-value-for-a-target-mass-or-truncation-radius">T:3.6 Finding the truncation value for a target mass or truncation radius</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-7-the-closed-form-profile-of-an-untruncated-model">T:3.7 The closed-form profile of an untruncated model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-8-checks-of-the-self-consistency-of-a-model">T:3.8 Checks of the self-consistency of a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/truncation#t-3-8-self-consistency-checks">T:3.8 Self-consistency checks</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/sup">T:4 Linear superposition of Method II DFs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/sampling">T:5 Particle sampling</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-1-the-velocity-distribution-at-a-given-radius-factorizes">T:5.1 The velocity distribution at a given radius factorizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-1-factorization-of-the-velocity-distribution-at-a-given-radius">T:5.1 Factorization of the velocity distribution at a given radius</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-2-tabulated-inverse-cdfs">T:5.2 Tabulated inverse CDFs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-3-drawing-particles-by-inverse-cdf-sampling">T:5.3 Drawing particles by inverse-CDF sampling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/sampling#t-5-4-checks-of-the-drawn-particles-and-of-the-written-files">T:5.4 Checks of the drawn particles and of the written files</a></li>
@@ -370,9 +370,9 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/verification">T:8 Verification</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-1-the-checks-of-each-validation-report">T:8.1 The checks of each validation report</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-2-tests-against-independent-references">T:8.2 Tests against independent references</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-2-tests-against-closed-forms-and-arbitrary-precision-references">T:8.2 Tests against closed forms and arbitrary-precision references</a></li>
 <li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-3-the-roundtrip-test">T:8.3 The roundtrip test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-4-the-accuracy-tables-run-at-every-release">T:8.4 The accuracy tables run at every release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="technical-notes/verification#t-8-4-the-accuracy-tables-at-each-release">T:8.4 The accuracy tables at each release</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="technical-notes/references">References</a></li>
