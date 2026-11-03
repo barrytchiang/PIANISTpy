@@ -35,7 +35,7 @@ zero. For an Osipkov-Merritt component, the gradient of ``losvd``, ``aperture_lo
 :math:`\beta_{\rm c}` is NaN. An Osipkov-Merritt component has :math:`\beta_{\rm c} = 0`, where the form of the
 inversion changes and the derivatives of the distribution function from the two sides of :math:`\beta_{\rm c} = 0`
 differ by more than :math:`10^{-6}`. For an Osipkov-Merritt component, ``sigma_r``, ``sigma_t``, ``sigma_los`` and
-``sigma_los_aperture`` carry the derivative in :math:`\beta_{\rm c}`, computed from the Jeans equation.
+``sigma_los_aperture`` carry the derivative in :math:`\beta_{\rm c}`, computed from the dispersion integral.
 
 The constructor raises :class:`~pianistpy.InputError`, with a message that states the cause, for:
 
@@ -55,7 +55,7 @@ does for a free component. Where the tabulated radii and velocities change from 
 value of a method changes by up to the tolerance of the tables, and the derivative omits that change.
 
 The derivatives of ``losvd``, ``pdf_v`` and ``aperture_losvd`` are taken through the derivative of the distribution
-function (:doc:`differentiability`), with the energies of the distribution function's table held fixed. For a
+function (:doc:`differentiability`), with the values of the energy-like variable :math:`\mathcal{K}` of the distribution function's table held fixed. For a
 component whose distribution function has no derivative in the anisotropy, such as an isotropic component,
 ``losvd``, ``pdf_v`` and ``aperture_losvd`` raise :class:`~pianistpy.InputError` with a message that states the
 reason.

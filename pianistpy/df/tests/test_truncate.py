@@ -110,10 +110,10 @@ def test_truncate_builds_a_finite_model_whose_df_gives_its_density(hernquist_df)
     assert model.validation.checks["round_trip"].error <= 1e-6
 
 
-def test_the_floor_rows_density_is_on_the_edge_law(hernquist_df):
+def test_the_floor_rows_density_is_on_the_boundary_form(hernquist_df):
     # The floor event's row has the potential Phi = 1e-10 = K_FLOOR, the source
     # grid's first node. The density of the floor event's row is read at
-    # Phi = K_FLOOR exactly, so the density continues the edge law
+    # Phi = K_FLOOR exactly, so the density continues the boundary form
     # rho ~ Phi^q (q the edge exponent) from the row inside it to within 1e-8.
     from pianistpy.df.truncation import ORIGINS
 
@@ -329,8 +329,8 @@ def test_a_type_ii_df_is_returned_over_its_support_and_refused_below_it():
     om_ii = Anisotropy(r_a=100.0, kind="II")
     hernquist = DoublePowerLaw.hernquist()
     df = compute_df(Component(hernquist, om_ii, name="om2"))
-    # The support is K > P(R_a). The table keeps its full grid of energies, with
-    # log_df NaN at every energy at or below P(R_a).
+    # The support is K > P(R_a). The table keeps its full K grid, with
+    # log_df NaN at every node at or below P(R_a).
     k_edge = float(hernquist.p(np.array([100.0]))[0])
     k = np.asarray(df.table.k[0])
     log_df = np.asarray(df.table.log_df[0])
@@ -373,7 +373,7 @@ def test_the_untruncated_model_is_the_dfs_own_where_it_is_valid(hernquist_df):
     assert model.table is hernquist_df.table and model.form is hernquist_df.form
     assert model.r_trust == {"silent": math.inf, "recorded": math.inf}
     # compute_df records the wall-clock time of each stage.
-    assert {"energy_grid", "invert_rows", "asymptotic_form", "validate_df"} <= set(
+    assert {"k_grid", "invert_rows", "asymptotic_form", "validate_df"} <= set(
         hernquist_df.timing
     )
 

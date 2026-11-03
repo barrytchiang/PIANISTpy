@@ -77,7 +77,7 @@ def test_a_type_ii_factor_is_refused_at_and_beyond_r_a(beta_c):
 )
 def test_the_factor_and_its_inverse_are_one_form(anisotropy):
     # Anisotropy.factor must return g = 1/h exactly, with h from
-    # inverse_factor, which the Method II sources, the edge law and the
+    # inverse_factor, which the Method II sources, the boundary form and the
     # Poisson solve read. The first and second derivatives of h from
     # inverse_factor must match, to 1e-7, central differences of h and of the
     # first derivative of h.

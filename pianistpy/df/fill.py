@@ -869,12 +869,12 @@ def profile_rows(
     bc : float
         The central anisotropy :math:`\beta_{\rm c}`.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`; 0 for an
+        The truncation value :math:`\mathcal{K}_{\rm t}`; 0 for an
         untruncated model, which has no central deficit.
     pot_center : float
         The untruncated model's central potential, for the central deficit.
     q : array
-        Energies of the untruncated DF's table, for the central deficit.
+        K values of the untruncated DF's table, for the central deficit.
     df : array
         The untruncated DF at `q`, for the central deficit.
     f_at_k_t : float

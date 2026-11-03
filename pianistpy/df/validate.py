@@ -72,7 +72,7 @@ class ValidatedRows:
         kept row inside the join radius. Empty on a truncated model.
     r_t : float
         Edge radius of a spatially finite model, the radius of the
-        profile's last row. The edge radius is where the Kepler exterior
+        profile's last row. The edge radius is where the point-mass exterior
         ``Phi = M (1/r - 1/r_t) / (4 pi)`` of the last kept row with Phi at
         or above `K_FLOOR` and a positive density reaches zero, with M that
         row's enclosed mass.
@@ -139,7 +139,7 @@ def validate_rows(
         The Poisson solve. The call reads the solve's innermost requested
         radius, its rows, its floor event and its edge continuation.
     k_t : float
-        Truncation energy, in internal units. Zero for an untruncated model.
+        Truncation value, in internal units. Zero for an untruncated model.
     p_center : float
         Central potential of the untruncated model, in internal units.
     source : DoublePowerLaw
@@ -273,7 +273,7 @@ def validate_rows(
     closed = closed[clip]
     r_t = float("inf")
     if float(k_t) > 0.0 and solve.event_hit:
-        # The edge row sits at r_t, where the Kepler exterior of the last row
+        # The edge row sits at r_t, where the point-mass exterior of the last row
         # with Phi at or above K_FLOOR and a positive density reaches Phi = 0.
         last = np.flatnonzero((p_v >= K_FLOOR) & (rho_v > 0))[-1]
         r_l, p_l, m_l = float(r_v[last]), float(p_v[last]), float(m_v[last])

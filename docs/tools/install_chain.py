@@ -22,7 +22,7 @@ Gauss-Hermite moments (`gauss_hermite_table`).
 Each stage is called once to warm (its compilation and caches), then three times, and
 the median of the three is its wall time (every wall is kept, the warm call's first);
 the LosTable is timed on its first build only. The leg's peak memory is that of this
-process and of its largest worker process, each its own figure (VmHWM on Linux,
+process and of its largest pool process, each its own figure (VmHWM on Linux,
 psutil's peak_wset on Windows), the reading named beside it. A column is labeled by its
 hardware: the CPU's model, its threads, the memory, the operating system, the GPU or
 "CPU only", and the cores.
@@ -72,10 +72,10 @@ def _own_peak_gib(pid: int | None = None) -> tuple[float, str] | None:
     """The process's own peak memory in GiB and what was read.
 
     VmHWM of /proc/<pid>/status on Linux, psutil's peak_wset on Windows; on another
-    POSIX host the process's own ru_maxrss (pid None only), which on a spawned worker
+    POSIX host the process's own ru_maxrss (pid None only), which on a spawned process
     can carry its parent's peak at the fork; None if none can be read. Not ru_maxrss on
-    Linux: there a spawned worker's ru_maxrss keeps its parent's peak across the exec,
-    so every worker would read at least the main process's figure.
+    Linux: there a spawned process's ru_maxrss keeps its parent's peak across the exec,
+    so every pool process would read at least the main process's figure.
     """
     if sys.platform.startswith("linux"):
         try:
@@ -104,8 +104,8 @@ def _own_peak_gib(pid: int | None = None) -> tuple[float, str] | None:
 
 
 def _worker_peak(_: int) -> tuple[int, float, str]:
-    """Run in a worker: its pid and its own peak, sent back to the main process."""
-    time.sleep(0.2)  # so that each worker takes some of the calls
+    """Run in a pool process: its pid and own peak, sent back to the main process."""
+    time.sleep(0.2)  # so that each pool process takes some of the calls
     peak, source = _own_peak_gib() or (float("nan"), "none")
     return os.getpid(), peak, source
 
@@ -427,9 +427,10 @@ def run(
                 stats.sort_stats("cumulative").print_stats(40)
             print(f"{name}: profile in {out}.profile_{name}.txt", flush=True)
 
-    # the largest worker's own peak: each live worker of the table's aperture pool
-    # reports it (sent back from the worker); the LosTable build's pool, which the
-    # package closes at the build's end, is read while it lives (Linux and Windows)
+    # the largest pool process's own peak: each live process of the table's
+    # aperture pool reports it (sent back from that process); the LosTable build's
+    # pool, which the package closes at the build's end, is read while it lives
+    # (Linux and Windows)
     reported: dict[int, float] = {}
     how = set()
     for pool in table.table.pools.values():

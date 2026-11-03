@@ -1,19 +1,19 @@
-r"""Return the energies on which the inversion tabulates a DF.
+r"""Return the K grid on which the inversion tabulates a DF.
 
-`inversion_grid` returns the energies :math:`Q` of the DF table of one
+`inversion_grid` returns the nodes :math:`Q` of the DF table of one
 component, with the central potential :math:`P_0 = 1`. The grid runs from
 the potential floor `K_FLOOR` to :math:`P_0 - \delta`, with :math:`\delta`
 equal to `CEILING_GAP`, in five zones: zone A is log-spaced in :math:`Q`,
 zone AB is a buffer whose step changes geometrically, zone B is linear in
 :math:`Q`, zone BC is a second geometric buffer, and zone C is log-spaced
 in :math:`P_0 - Q`. No node lies above :math:`P_0 - \delta`. The closed form
-of the DF at the center covers the energies above the last node.
+of the DF at the center covers the range above the last node.
 
 An isotropic or constant-anisotropy model uses fixed fractions of
 :math:`P_0` as zone boundaries (`standard_zones`). An OM Type I model
 places zones A and AB around the potential at its anisotropy radius
 :math:`R_{\rm a}`. An OM Type II or COM model places zones A and AB around
-the energy of the feature its pilot inversion finds (`feature_zones`). A
+the :math:`Q` of the feature its pilot inversion finds (`feature_zones`). A
 COM Type II model whose :math:`1 - \beta_{\rm c}` is not an odd integer,
 with :math:`\beta_{\rm c}` the central anisotropy, gets extra nodes around
 its interior point :math:`P(R_{\rm a})`.
@@ -41,7 +41,7 @@ from ..settings import Settings
 from ..typing import Array
 from .truncation import CEILING_GAP, K_FLOOR
 
-# The lowest energy of the inversion's table equals the grid's floor
+# The lowest K of the inversion's table equals the grid's floor
 # K_FLOOR, so `hybrid_grid` adds no nodes below K_FLOOR for the inversion.
 TABLE_FLOOR = K_FLOOR
 # The written DF table starts at the first grid node at or above
@@ -57,7 +57,7 @@ BAND_HALFWIDTH = 0.5
 
 @dataclass(frozen=True)
 class GridZones:
-    r"""The boundaries of the five zones of the energy grid.
+    r"""The boundaries of the five zones of the K grid.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ class GridZones:
     c_hi : float
         Upper bound of zone C.
     q_feature : float
-        Energy of the feature that zones A and AB are placed around: the
+        Value of :math:`Q` at the feature that zones A and AB are placed around: the
         potential :math:`P(R_{\rm a})` at the anisotropy radius for an OM
         Type I model, and the pilot inversion's feature for an OM Type II
         or COM model. Zero for the standard zones.
@@ -213,7 +213,7 @@ def hybrid_grid(
 ) -> Array:
     r"""Return the five-zone grid from q_lo to :math:`P_0` minus `q_ceil_gap`.
 
-    The lowest energy q_lo is the larger of ``zones.a_lo`` and `q_lo_phys`,
+    The lowest node q_lo is the larger of ``zones.a_lo`` and `q_lo_phys`,
     and the central potential :math:`P_0` is ``zones.p0``. Zone A holds
     `n_log` nodes log-spaced in Q, and zone C holds `n_log` nodes log-spaced
     in :math:`P_0 - Q`. Zone B holds `n_linear` linear nodes. Where zone B
@@ -302,7 +302,7 @@ def inversion_grid(
     settings: Settings,
     feature: Mapping[str, Any] | None = None,
 ) -> tuple[Array, GridZones]:
-    """Return the energies on which the inversion tabulates a DF, and the zones.
+    """Return the K grid on which the inversion tabulates a DF, and the zones.
 
     Parameters
     ----------
@@ -324,7 +324,7 @@ def inversion_grid(
     Returns
     -------
     q : array
-        The energies, strictly increasing, in internal units.
+        The nodes :math:`Q`, strictly increasing, in internal units.
     zones : GridZones
         The zone boundaries the grid is built on.
 
@@ -389,7 +389,7 @@ def inversion_grid(
                 q = np.unique(np.concatenate([q, qb]))
     if np.any(np.diff(q) <= 0.0):
         raise InputError(
-            "The inversion's energies are not strictly increasing: the grid's "
+            "The inversion's K grid is not strictly increasing: the grid's "
             f"settings place nodes float64 cannot separate (the ceiling gap "
             f"{CEILING_GAP!r})."
         )

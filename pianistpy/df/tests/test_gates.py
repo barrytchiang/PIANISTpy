@@ -1,6 +1,6 @@
 """Tests of `truncation_gates` on small synthetic tables of an untruncated DF.
 
-Every table spans the energies Q from :math:`10^{-6}` to just below 1 in
+Every table spans the values Q from :math:`10^{-6}` to just below 1 in
 internal units, with 61 nodes spaced evenly in log Q.
 """
 
@@ -12,7 +12,7 @@ Q = np.logspace(-6.0, -1e-3, 61)
 
 
 def _gates(f, k_t, a=-0.5):
-    """Return the gates of truncation energy `k_t` for the DF table `f` on Q.
+    """Return the gates of truncation value `k_t` for the DF table `f` on Q.
 
     The same table serves as the sign table and as the rounding-test table,
     and `a` is the analytic exponent of the DF's tail.

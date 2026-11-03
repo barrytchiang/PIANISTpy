@@ -11,7 +11,7 @@ def test_the_closed_form_hernquist_df_is_silent():
     """The report of the closed-form Hernquist DF has the keys of an
     untruncated DF with a tail, with no "eps" check, and its tier is "silent":
     every check is at most :math:`10^{-6}`. The Hernquist DF is non-negative
-    and non-decreasing, so its lowest admissible truncation energy is zero and
+    and non-decreasing, so its lowest admissible truncation value is zero and
     no truncation gate fires."""
     # The density round trip reads the lookup's interpolation of the table.
     # A table of 4000 nodes keeps that interpolation error below 1e-6, the

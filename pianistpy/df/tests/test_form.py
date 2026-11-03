@@ -3,7 +3,7 @@ import numpy as np
 from pianistpy.anisotropy import Anisotropy
 from pianistpy.df.form import FORMS, inversion_form
 from pianistpy.df.inputs import Component
-from pianistpy.df.stages import EnergyGrid, PotentialDensityPair
+from pianistpy.df.stages import KGrid, PotentialDensityPair
 from pianistpy.profiles import DoublePowerLaw
 
 
@@ -11,8 +11,8 @@ def test_unbounded_outer_end_rows():
     # The COM Type I model with beta_c = -0.75 and outer density slope 3.5 has
     # an auxiliary density rho_aux ~ P^1.5 at the outer end. The power 1.5 is
     # below the floor order m = 2, so the outer end is unbounded. The rows at
-    # energies of at least 10 times the table's first energy take the general
-    # form, and the rows at lower energies keep the surface-term form.
+    # K of at least 10 times the table's first K take the general
+    # form, and the rows at lower K keep the surface-term form.
     component = Component(
         DoublePowerLaw(1.0, 3.5, 1.0), Anisotropy(beta_c=-0.75, r_a=10.0, kind="I")
     )
@@ -25,7 +25,7 @@ def test_unbounded_outer_end_rows():
         p=np.zeros(0),
         rho=np.zeros((1, 0)),
     )
-    grid = EnergyGrid(
+    grid = KGrid(
         k=k, r_of_k=np.full(k.shape, np.nan), k_floor=(1e-10,), k_ceiling=(0.99,)
     )
     form, (record,) = inversion_form(pair, grid)

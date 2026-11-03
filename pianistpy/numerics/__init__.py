@@ -20,5 +20,5 @@ __all__ = [
     "hermite_inverse",
 ]
 
-from .hermite import hermite, hermite_inverse
+from ._hermite import hermite, hermite_inverse
 from .quadrature import gauss_legendre, gauss_legendre_unit

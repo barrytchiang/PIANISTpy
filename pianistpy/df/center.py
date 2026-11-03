@@ -4,8 +4,8 @@ The truncated solve (`truncated.py`) calls `center_amplitude` for two
 results, which the fill of the truncated model's inner rows (`fill.py`)
 reads: the amplitude :math:`C` of the inner density series that the rows
 near the center use, and the central deficit. A
-phase-space truncation at the energy :math:`\mathcal{K}_{\rm t}` removes the
-orbits with energies below :math:`\mathcal{K}_{\rm t}` and subtracts the
+phase-space truncation at the truncation value :math:`\mathcal{K}_{\rm t}` removes the
+orbits with :math:`\mathcal{K}` below :math:`\mathcal{K}_{\rm t}` and subtracts the
 constant :math:`F(\mathcal{K}_{\rm t})` from the DF above
 :math:`\mathcal{K}_{\rm t}`. The auxiliary density that the truncation removes
 near the center is the central deficit :math:`D(u)`, a smooth function of the
@@ -20,13 +20,15 @@ median, over the solve's rows at depths between :math:`10^{-4}` and
 :math:`3 \times 10^{-4}` below :math:`P_0`, of the ratio of the solve's
 density to the inner density series, and no deficit is carried.
 
-The module also holds the inner series of the double-power-law density
+The inner series of the double-power-law density
 :math:`\rho = C r^{-\gamma} (1 + r^{\alpha})^{e}`, with
 :math:`e = (\gamma - \beta) / \alpha`, :math:`\alpha` the transition slope,
-:math:`\beta` the outer slope and :math:`\gamma` the inner slope: the
-density's closed form, and the enclosed mass and the depth summed term by
-term. The Chebyshev interpolant of the deficit and the reach of the inner
-depth series serve the bound :math:`10^{-7}`, one tenth of :math:`10^{-6}`.
+:math:`\beta` the outer slope and :math:`\gamma` the inner slope, is in
+`pianistpy.profiles._series` (the density's closed form, and the enclosed
+mass and the depth summed term by term), which the profile's readers share,
+and the three functions are re-exported here. The Chebyshev interpolant of
+the deficit and the reach of the inner depth series serve the bound
+:math:`10^{-7}`, one tenth of :math:`10^{-6}`.
 
 References
 ----------
@@ -56,6 +58,11 @@ from scipy.interpolate import CubicSpline, PchipInterpolator
 
 from ..anisotropy import Anisotropy
 from ..exceptions import AccuracyError, InputError
+from ..profiles._series import (
+    inner_density_series,
+    inner_depth_series,
+    inner_mass_series,
+)
 from ..validation import TIER_BOUNDS
 from .poisson import cuddeford_prefactor, density_cut
 from .truncation import INNER_CEILING, K_FLOOR
@@ -100,88 +107,6 @@ class CenterAmplitude:
 # nodes is kept, where 1e-7 is one tenth of the bound 1e-6. A deficit that no
 # listed degree fits raises AccuracyError.
 DEFICIT_DEGREES = (8, 12, 16, 24, 32, 48, 64)
-
-
-def inner_density_series(r, c, gamma, alpha, beta):
-    r"""Return the double-power-law density in closed form.
-
-    The density is :math:`\rho(r) = C r^{-\gamma} (1 + r^{\alpha})^{e}`
-    with :math:`e = (\gamma - \beta) / \alpha`, at the user-specified 3D
-    radii ``r`` in internal units. The argument ``c`` is the amplitude
-    :math:`C`, and ``gamma``, ``alpha`` and ``beta`` are :math:`\gamma`,
-    :math:`\alpha` and :math:`\beta`.
-
-    Raises
-    ------
-    InputError
-        If :math:`\gamma` is not below 2.
-    """
-    if not gamma < 2.0:
-        raise InputError(f"gamma = {gamma:.4f} >= 2: the enclosed mass diverges")
-    r = np.asarray(r, dtype=np.float64)
-    e = (gamma - beta) / alpha
-    return c * (r ** (-gamma)) * (1.0 + r**alpha) ** e
-
-
-def inner_mass_series(r, c, gamma, alpha, beta):
-    r"""Return the enclosed mass of the first four terms of the inner density series.
-
-    The density :math:`C r^{-\gamma} (1 + r^{\alpha})^{e}`, with
-    :math:`e = (\gamma - \beta) / \alpha`, is expanded as
-    :math:`C \sum_k b_k r^{k \alpha - \gamma}`, with :math:`b_k` the binomial
-    coefficient of :math:`e` over :math:`k`. The enclosed mass of the terms
-    :math:`k = 0` to 3 is
-    :math:`m(r) = C \sum_k b_k r^{3 - \gamma + k \alpha} / (3 - \gamma + k \alpha)`,
-    without the factor :math:`4 \pi`, in internal units.
-
-    Raises
-    ------
-    InputError
-        If :math:`\gamma` is not below 3.
-    """
-    if not gamma < 3.0:
-        raise InputError(f"gamma = {gamma:.4f} >= 3: the mass diverges at the origin")
-    r = np.asarray(r, dtype=np.float64)
-    g, a = float(gamma), float(alpha)
-    e = (g - float(beta)) / a
-    acc = np.zeros_like(r)
-    bk = 1.0
-    for k in range(4):
-        if k > 0:
-            bk *= (e - (k - 1)) / k
-        acc = acc + bk * r ** (3.0 - g + k * a) / (3.0 - g + k * a)
-    return c * acc
-
-
-def inner_depth_series(r, c, gamma, alpha, beta):
-    r"""Return the depth of the first four terms of the inner density series.
-
-    The depth below the central potential :math:`P_0` is
-    :math:`u(r) = P_0 - \Phi(r)`, the integral of :math:`m(r') / r'^2` from
-    0 to :math:`r`, with :math:`m` the enclosed mass of `inner_mass_series`:
-    :math:`u(r) = C \sum_k b_k r^{2 - \gamma + k \alpha} /
-    [(2 - \gamma + k \alpha) (3 - \gamma + k \alpha)]` for :math:`k = 0` to
-    3, in internal units.
-
-    Raises
-    ------
-    InputError
-        If :math:`\gamma` is not below 2.
-    """
-    if not gamma < 2.0:
-        raise InputError(f"gamma = {gamma:.4f} >= 2: the depth diverges at the origin")
-    r = np.asarray(r, dtype=np.float64)
-    g, a = float(gamma), float(alpha)
-    e = (g - float(beta)) / a
-    acc = np.zeros_like(r)
-    bk = 1.0
-    for k in range(4):
-        if k > 0:
-            bk *= (e - (k - 1)) / k
-        acc = acc + bk * r ** (2.0 - g + k * a) / (
-            (2.0 - g + k * a) * (3.0 - g + k * a)
-        )
-    return c * acc
 
 
 def join_depth(c, gamma, alpha, beta, tol):
@@ -279,7 +204,7 @@ def central_deficit(q, df, k_t, p_0, bc, f_at_k_t=None):
     r"""Return the first five Taylor coefficients of the central deficit at ``p_0``.
 
     The central deficit :math:`D(u)` is the auxiliary density that a truncation
-    at the energy ``k_t`` removes at the depth u below the central potential
+    at the truncation value ``k_t`` removes at the depth u below the central potential
     ``p_0``:
 
     .. math::
@@ -291,28 +216,28 @@ def central_deficit(q, df, k_t, p_0, bc, f_at_k_t=None):
 
     with :math:`n = 1/2 - \beta_{\rm c}`, C the Cuddeford prefactor
     (`cuddeford_prefactor`), F the untruncated DF,
-    :math:`\mathcal{K}_{\rm t}` the truncation energy ``k_t`` and :math:`P_0`
+    :math:`\mathcal{K}_{\rm t}` the truncation value ``k_t`` and :math:`P_0`
     the central potential ``p_0``. The first integral is the contribution of
-    the orbits with energies below :math:`\mathcal{K}_{\rm t}`. The second
+    the orbits with :math:`\mathcal{K}` below :math:`\mathcal{K}_{\rm t}`. The second
     integral is the contribution of the constant :math:`F(\mathcal{K}_{\rm t})`
     that the truncation subtracts from the DF above
     :math:`\mathcal{K}_{\rm t}`, integrated in closed form. The table's rows
-    used are those with a positive energy :math:`Q`, a finite and positive
+    used are those with a positive :math:`Q`, a finite and positive
     :math:`F`, and :math:`Q \le 4 \mathcal{K}_{\rm t}`. The first integral
-    uses 400 Gauss-Legendre nodes in :math:`\ln Q`, from the first energy of
+    uses 400 Gauss-Legendre nodes in :math:`\ln Q`, from the first :math:`Q` of
     the rows used to :math:`\mathcal{K}_{\rm t}`, through a PCHIP
     interpolant of :math:`\ln F` against :math:`\ln Q` on the rows used. The
-    first integral omits the energies below the first energy of the rows
+    first integral omits the range below the first :math:`Q` of the rows
     used.
 
     Parameters
     ----------
     q : array
-        The energies of the untruncated DF table, in internal units.
+        The K values of the untruncated DF table, in internal units.
     df : array
         The values of the untruncated DF table at ``q``, in internal units.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal units.
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal units.
     p_0 : float
         The central potential at which the series is formed, in internal
         units.
@@ -334,7 +259,7 @@ def central_deficit(q, df, k_t, p_0, bc, f_at_k_t=None):
     Raises
     ------
     InputError
-        If the table holds fewer than 2 rows with a positive energy, a
+        If the table holds fewer than 2 rows with a positive :math:`Q`, a
         finite and positive DF, and :math:`Q \le 4 \mathcal{K}_{\rm t}`.
     """
     return _deficit_reader(q, df, k_t, bc, f_at_k_t)(p_0)
@@ -354,7 +279,7 @@ def _deficit_reader(q, df, k_t, bc, f_at_k_t=None):
     Raises
     ------
     InputError
-        If the table holds fewer than 2 rows with a positive energy, a
+        If the table holds fewer than 2 rows with a positive :math:`Q`, a
         finite and positive DF, and :math:`Q \le 4 \mathcal{K}_{\rm t}`.
     """
     qd = np.asarray(q, dtype=np.float64)
@@ -866,13 +791,13 @@ def center_amplitude(
     rho : array
         The density on the solve's rows, in internal units.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal units.
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal units.
     p_0 : float
         The truncated model's central potential, ``pot_center - k_t``.
     pot_center : float
         The untruncated model's central potential.
     q : array
-        The energies of the untruncated DF table, for the deficit.
+        The K values of the untruncated DF table, for the deficit.
     df : array
         The values of the untruncated DF table on ``q``.
     f_at_k_t : float
@@ -901,7 +826,7 @@ def center_amplitude(
     Raises
     ------
     InputError
-        If the DF table holds fewer than 2 rows with a positive energy, a
+        If the DF table holds fewer than 2 rows with a positive :math:`Q`, a
         finite and positive DF, and :math:`Q \le 4 \mathcal{K}_{\rm t}`, or
         if the lowered center's grid ends inside the window's largest radius.
     AccuracyError

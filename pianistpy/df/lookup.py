@@ -1,12 +1,12 @@
-r"""The DF of one component at any energy, from its table and its forms.
+r"""The DF of one component at any K, from its table and its forms.
 
 `log10_df` returns the base-10 logarithm of a component's distribution
-function (DF) :math:`F` at given relative energies :math:`\mathcal{K}`.
-Between the table's first and last energies, :math:`\log_{10}F` is the cubic
+function (DF) :math:`F` at given values of :math:`\mathcal{K}`.
+Between the table's first and last nodes, :math:`\log_{10}F` is the cubic
 Hermite interpolant in :math:`\ln\mathcal{K}` through the table's nodes.
-Above the table's last energy, :math:`\log_{10}F` follows the center's form
+Above the table's last node, :math:`\log_{10}F` follows the center's form
 in the depth :math:`u = P_0 - \mathcal{K}`, with :math:`P_0` the central
-relative potential. Below the table's first energy, :math:`\log_{10}F`
+relative potential. Below the table's first node, :math:`\log_{10}F`
 follows the rule of `AsymptoticForm.below_floor`.
 
 The lookup is split into two functions. `prepare_lookup` runs once per table
@@ -14,7 +14,7 @@ on the host. `prepare_lookup` returns the arrays that the evaluation reads
 (`LookupArrays`: the nodes padded to a multiple of `NODE_BUCKET`, and every
 number of the forms in one array) and the kinds of the forms
 (`LookupKinds`), which are the only static part of the lookup.
-`evaluate_lookup` is a function of the `LookupArrays` and of the energies,
+`evaluate_lookup` is a function of the `LookupArrays` and of the K values,
 under NumPy or under JAX. In a JAX kernel the table's arrays are then traced
 arguments, so two models whose tables have the same padded length and the
 same kinds of forms share one compiled function. `log10_df` calls
@@ -97,7 +97,7 @@ _NOT_READ = ("p_0", "central_anchor", "central_anchor_amplitude", "central_regul
 # no coefficients.
 FLOOR_COEFFICIENTS = {
     "taylor": ("F_1", "F_2", "k_switch"),
-    "edge_law": ("p", "C_0", "C_1"),
+    "boundary_form": ("p", "C_0", "C_1"),
 }
 
 
@@ -107,7 +107,7 @@ class LookupArrays(NamedTuple):
     Parameters
     ----------
     k : array, shape (m,)
-        Relative energies :math:`\mathcal{K}_i` of the nodes, in internal
+        Values :math:`\mathcal{K}_i` of the nodes, in internal
         units. The entries from index `n` on are padding, set to infinity.
     log_df : array, shape (m,)
         Base-10 logarithm of the DF at the nodes. The entries from index `n`
@@ -148,9 +148,9 @@ class LookupKinds(NamedTuple):
     below_floor : str
         Rule of the DF below the table, from `AsymptoticForm.below_floor`.
     anchored : bool
-        True where the table ends at an anchor energy and the anchored form
+        True where the table ends at an anchor value and the anchored form
         of `AsymptoticForm.central_df` continues the table above the anchor
-        energy.
+        value.
         Default: ``False``.
     """
 
@@ -168,9 +168,9 @@ def prepare_lookup(
     Parameters
     ----------
     table : DfTable
-        The DF on its energy grid.
+        The DF on its K grid.
     form : AsymptoticForm
-        The forms beyond the two ends of the table, and `p_0`, the energy at
+        The forms beyond the two ends of the table, and `p_0`, the K at
         which the support of the DF ends.
     component : int, optional
         Index of the component. Default: ``0``, which means the first
@@ -195,9 +195,9 @@ def prepare_lookup(
         If the rule below the table has fewer coefficients than the rule
         needs, the rule ``"tail"`` has an amplitude that is not positive,
         or the tail's logarithmic factor ends below the table's first
-        energy.
+        K.
     ResultError
-        If the form's anchor energy is not the table's last energy.
+        If the form's anchor value is not the table's last K.
     """
     nodes = _nodes(table, component)
     n = int(nodes["k"].size)
@@ -230,7 +230,7 @@ def prepare_lookup(
         raise ResultError(f"The form states no center {kinds.central!r}.")
     if kinds.next_term not in ("none", "power", "log_power"):
         raise ResultError(f"The form states no next term {kinds.next_term!r}.")
-    if kinds.below_floor not in ("tail", "taylor", "edge_law", "zero"):
+    if kinds.below_floor not in ("tail", "taylor", "boundary_form", "zero"):
         raise ResultError(
             f"The form states no rule {kinds.below_floor!r} below the table."
         )
@@ -252,7 +252,7 @@ def prepare_lookup(
         if form.tail_log_exponent[component] != 0.0 and not nodes["k"][0] <= scale:
             raise ResultError(
                 f"The tail's logarithmic factor ln(E_0 / K) ends at E_0 = {scale!r}, "
-                f"below the table's first energy {float(nodes['k'][0])!r}."
+                f"below the table's first K {float(nodes['k'][0])!r}."
             )
     params = np.zeros(N_PARAMS)
     params[K_0], params[K_TOP] = nodes["k"][0], nodes["k"][-1]
@@ -304,13 +304,13 @@ def prepare_lookup(
         else math.nan
     )
     if math.isfinite(anchor):
-        # The table ends at the anchor energy, and above the anchor energy the
+        # The table ends at the anchor value, and above the anchor value the
         # anchored form A u_a^kappa (u / u_a)^kappa + B + D u is the only form
         # the lookup evaluates, with kappa the central exponent and u_a the
         # anchor's depth p_0 - anchor.
         if anchor != float(nodes["k"][-1]):
             raise ResultError(
-                f"The form's anchor {anchor!r} is not the table's last energy "
+                f"The form's anchor {anchor!r} is not the table's last K "
                 f"{float(nodes['k'][-1])!r}."
             )
         kinds = kinds._replace(anchored=True)
@@ -332,10 +332,10 @@ def evaluate_lookup(
 ) -> Array:
     r"""Return the base-10 logarithm of the DF from a prepared lookup.
 
-    A caller gives each point either by its relative energy
+    A caller gives each point either by its value of
     :math:`\mathcal{K}` or by its depth :math:`u = P_0 - \mathcal{K}`, and
     gives whichever of the two quantities the caller holds exactly. Where
-    `u` is given and finite, the energy is taken as :math:`P_0 - u`; in a
+    `u` is given and finite, :math:`\mathcal{K}` is taken as :math:`P_0 - u`; in a
     cell whose lower node satisfies :math:`\mathcal{K}_i \ge P_0/2`, the
     offset :math:`\mathcal{K} - \mathcal{K}_i` is formed as :math:`u_i - u`
     with :math:`u_i = P_0 - \mathcal{K}_i`, a difference that is exact in
@@ -352,7 +352,7 @@ def evaluate_lookup(
     kinds : LookupKinds
         The kinds of the forms (`prepare_lookup`); static under JAX.
     k : array-like
-        Relative energies :math:`\mathcal{K}`, in internal units. Under JAX,
+        Values of :math:`\mathcal{K}`, in internal units. Under JAX,
         `k` may be traced.
     xp : module, optional
         The array module, ``numpy`` or ``jax.numpy`` with 64-bit floats;
@@ -367,8 +367,8 @@ def evaluate_lookup(
     -------
     log10_df : array
         Base-10 logarithm of the DF at each point. Minus infinity where the
-        DF is zero: at a depth :math:`u` at or below zero (an energy at or
-        above :math:`P_0`), at and below zero energy, below the table under
+        DF is zero: at a depth :math:`u` at or below zero (:math:`\mathcal{K}` at or
+        above :math:`P_0`), at and below :math:`\mathcal{K} = 0`, below the table under
         the rule ``"zero"``, and wherever a form beyond the table evaluates
         to a value at or below zero.
     """
@@ -395,7 +395,7 @@ def evaluate_lookup(
         # A point lies above the table where k > k_top and its depth is
         # positive. Where the depth is formed from k, a positive depth means
         # k < p_0. A depth given in `u` that is below half the spacing of
-        # doubles at p_0 stays above the table, although the point's energy
+        # doubles at p_0 stays above the table, although the point's K
         # p_0 - u rounds to p_0.
         return xp.where(
             (k >= k_0) & (k <= k_top),
@@ -446,18 +446,18 @@ def log10_df(
     component: int = 0,
     xp=np,
 ) -> Array:
-    r"""Return the base-10 logarithm of one component's DF at given energies.
+    r"""Return the base-10 logarithm of one component's DF at given values of K.
 
     Parameters
     ----------
     table : DfTable
-        The DF on its energy grid.
+        The DF on its K grid.
     form : AsymptoticForm
         The forms beyond the two ends of the table. The center's forms are
         written in the depth :math:`u = P_0 - \mathcal{K}`, with :math:`P_0`
         the field `form.p_0`.
     k : array-like
-        Relative energies :math:`\mathcal{K}`, in internal units.
+        Values of :math:`\mathcal{K}`, in internal units.
     component : int, optional
         Index of the component. Default: ``0``, which means the first
         component.
@@ -468,9 +468,9 @@ def log10_df(
     Returns
     -------
     log10_df : array, shape of `k`
-        Base-10 logarithm of the DF at the energies `k`. Minus infinity
-        where the DF is zero: at and above the energy `form.p_0`, at and
-        below zero energy, below the table under the rule ``"zero"``, and
+        Base-10 logarithm of the DF at `k`. Minus infinity
+        where the DF is zero: at and above `form.p_0`, at and
+        below :math:`\mathcal{K} = 0`, below the table under the rule ``"zero"``, and
         wherever a form beyond the table evaluates to a value at or below
         zero.
 
@@ -486,7 +486,7 @@ def log10_df(
     Notes
     -----
     In the cell :math:`[\mathcal{K}_i, \mathcal{K}_{i+1}]`, the position
-    :math:`t` is formed from differences of energies,
+    :math:`t` is formed from differences of :math:`\mathcal{K}`,
 
     .. math::
 
@@ -495,8 +495,8 @@ def log10_df(
             \mathcal{K}_i}{\mathcal{K}_i}\right).
 
     The difference :math:`\mathcal{K} - \mathcal{K}_i` is exact where the
-    cell spans less than a factor of two in energy, so the position
-    :math:`t` never differences a logarithm of the energy against a stored
+    cell spans less than a factor of two in :math:`\mathcal{K}`, so the position
+    :math:`t` never differences a logarithm of :math:`\mathcal{K}` against a stored
     logarithm. The slopes at the nodes are the table's exact slopes
     :math:`\mathrm{d}\log_{10}F/\mathrm{d}\ln\mathcal{K} =
     \mathcal{K}F'/(F\ln 10)` where `DfTable.slopes_exact` is True for the
@@ -539,7 +539,7 @@ def _nodes(table: DfTable, component: int) -> dict:
         # The last node below the table may lie on the table's first node,
         # where the join of the nodes below the table to the table is measured.
         # Such a node duplicates the table's first node, so only the nodes
-        # below the table's first energy by more than a relative 1e-12 are
+        # below the table's first K by more than a relative 1e-12 are
         # joined.
         kb = table.k_below[component, :n_below]
         keep = kb < k[0] * (1.0 - 1e-12)
@@ -559,10 +559,10 @@ def _nodes(table: DfTable, component: int) -> dict:
 
 
 def _cells(arrays: LookupArrays, k: Array, xp, u: Array | None = None) -> Array:
-    r"""Return the cubic Hermite interpolant of log10 F in ln K at the energies `k`.
+    r"""Return the cubic Hermite interpolant of log10 F in ln K at `k`.
 
     The position in the cell is formed from the nodes themselves (see
-    `log10_df`). Energies outside the table are clipped to the table's first
+    `log10_df`). Values of `k` outside the table are clipped to the table's first
     or last node, so the interpolant returns the end value there. Where the
     depth `u` is finite and the cell's lower node satisfies
     :math:`\mathcal{K}_i \ge P_0/2`, the offset
@@ -690,13 +690,13 @@ def _above(arrays: LookupArrays, kinds: LookupKinds, u: Array, xp) -> Array:
 
 
 def _below(arrays: LookupArrays, kinds: LookupKinds, k: Array, xp) -> Array:
-    r"""Return log10 F below the table, at energies above zero.
+    r"""Return log10 F below the table, at :math:`\mathcal{K}` above zero.
 
-    The energies satisfy :math:`0 < \mathcal{K} < \mathcal{K}_0`, with
-    :math:`\mathcal{K}_0` the table's first energy. The rules are
+    The values satisfy :math:`0 < \mathcal{K} < \mathcal{K}_0`, with
+    :math:`\mathcal{K}_0` the table's first K. The rules are
     ``"tail"``, :math:`F = A\mathcal{K}^{-a}[\ln(E_0/\mathcal{K})]^{-b}`;
     ``"taylor"``, :math:`F = F_1\mathcal{K} + F_2\mathcal{K}^2/2`;
-    ``"edge_law"``, :math:`F = \mathcal{K}^p(C_0 + C_1\mathcal{K})`; and
+    ``"boundary_form"``, :math:`F = \mathcal{K}^p(C_0 + C_1\mathcal{K})`; and
     ``"zero"``, :math:`F = 0`. Here :math:`A`, :math:`a`, :math:`b` and
     :math:`E_0` are the tail's amplitude, exponent, logarithmic exponent
     and logarithmic scale, and :math:`F_1`, :math:`F_2`, :math:`p`,
@@ -724,7 +724,7 @@ def _below(arrays: LookupArrays, kinds: LookupKinds, k: Array, xp) -> Array:
             - exponent * xp.log10(k_pos)
             - log_exponent * xp.log10(xp.log(scale / k_log))
         )
-    # An energy K <= 0 lies beyond the support, where `evaluate_lookup` returns
+    # A value K <= 0 lies beyond the support, where `evaluate_lookup` returns
     # -inf; the rule is evaluated at K_0 / 2 instead, inside the rule's range.
     k = xp.where(k > 0.0, k, 0.5 * params[K_0])
     if rule == "taylor":
@@ -736,7 +736,7 @@ def _below(arrays: LookupArrays, kinds: LookupKinds, k: Array, xp) -> Array:
 
 
 def below_floor_mass(arrays: LookupArrays, kinds: LookupKinds, k: ArrayLike) -> Array:
-    r"""Return the integral of a DF from zero energy to energies below its table.
+    r"""Return the integral of a DF from K = 0 to values below its table.
 
     The integrand is the rule below the table that `_below` evaluates, with
     the coefficients stored in `arrays.params`. The integral
@@ -744,7 +744,7 @@ def below_floor_mass(arrays: LookupArrays, kinds: LookupKinds, k: ArrayLike) -> 
     :math:`F_1\mathcal{K}^2/2 + F_2\mathcal{K}^3/6` for the rule
     ``"taylor"``,
     :math:`C_0\mathcal{K}^{p+1}/(p+1) + C_1\mathcal{K}^{p+2}/(p+2)` for the
-    rule ``"edge_law"``, the result of `tail_mass_below` for the rule
+    rule ``"boundary_form"``, the result of `tail_mass_below` for the rule
     ``"tail"``, and zero for the rule ``"zero"``.
 
     Parameters
@@ -755,7 +755,7 @@ def below_floor_mass(arrays: LookupArrays, kinds: LookupKinds, k: ArrayLike) -> 
         The kinds of the forms of the lookup that `arrays` belongs to.
     k : array-like
         Upper limits :math:`\mathcal{K}` of the integral, at or below the
-        table's first energy, in internal units.
+        table's first K, in internal units.
 
     Returns
     -------
@@ -777,7 +777,7 @@ def below_floor_mass(arrays: LookupArrays, kinds: LookupKinds, k: ArrayLike) -> 
     if rule == "taylor":
         f_1, f_2 = float(params[FLOOR_0]), float(params[FLOOR_1])
         return f_1 * k * k / 2.0 + f_2 * k * k * k / 6.0
-    if rule == "edge_law":
+    if rule == "boundary_form":
         p, c_0, c_1 = (float(params[FLOOR_0 + i]) for i in range(3))
         return c_0 * k ** (p + 1.0) / (p + 1.0) + c_1 * k ** (p + 2.0) / (p + 2.0)
     return np.zeros(k.shape)

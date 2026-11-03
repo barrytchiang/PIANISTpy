@@ -1,9 +1,9 @@
-"""Tests of the Method II edge law in `pianistpy.df.edge_law`.
+"""Tests of the Method II boundary form in `pianistpy.df.boundary_form`.
 
 The edge expansion is the expansion of a child's augmented density at the
 parent's edge, built from the parent DF's Taylor coefficients F_1 and F_2. The
-edge law is the child DF's power law that the edge expansion inverts to. The
-tests compare the edge expansion, the edge law and the floor terms with
+boundary form is the child DF's power law that the edge expansion inverts to. The
+tests compare the edge expansion, the boundary form and the floor terms with
 closed-form identities, so no stored product is needed.
 """
 
@@ -14,7 +14,7 @@ import pytest
 from scipy.special import beta as beta_function
 
 from pianistpy import Anisotropy, InputError
-from pianistpy.df import edge_law
+from pianistpy.df import boundary_form
 from pianistpy.df.inversion import forward_prefactor, inversion_prefactor, order_pair
 from pianistpy.df.rows import method2_floor_tail
 
@@ -34,7 +34,7 @@ def _children():
 
 
 def _expansion(anisotropy):
-    return edge_law.edge_expansion(F_1, F_2, K_SWITCH, R_T, M_T, anisotropy)
+    return boundary_form.edge_expansion(F_1, F_2, K_SWITCH, R_T, M_T, anisotropy)
 
 
 def test_the_isotropic_expansion_is_the_parent_density_and_inverts_to_its_taylor_form():
@@ -43,7 +43,7 @@ def test_the_isotropic_expansion_is_the_parent_density_and_inverts_to_its_taylor
     assert ex.coefficients[2.5] == pytest.approx(a * 4.0 / 15.0 * F_1, rel=1e-15)
     assert ex.coefficients[3.5] == pytest.approx(a * 8.0 / 105.0 * F_2, rel=1e-15)
     assert ex.h_t == 1.0 and ex.h_1 == 0.0
-    p, c0, c1 = edge_law.edge_law(ex)
+    p, c0, c1 = boundary_form.boundary_form(ex)
     assert p == 1.0
     assert c0 == pytest.approx(F_1, rel=1e-14)
     assert c1 == pytest.approx(F_2 / 2.0, rel=1e-14)
@@ -62,13 +62,13 @@ def test_the_inverse_factor_and_its_slope_match_the_package_factor(anisotropy):
 
 
 @pytest.mark.parametrize("anisotropy", _children())
-def test_the_edge_law_inverts_the_expansion_exactly(anisotropy):
+def test_the_boundary_form_inverts_the_expansion_exactly(anisotropy):
     # For each power q of the edge expansion, the density integral of the
-    # edge-law term C_q K^(q - 3/2 + bc), with the package's forward
+    # boundary-form term C_q K^(q - 3/2 + bc), with the package's forward
     # prefactor, must give back the expansion's term a_q P^q. Here bc is the
     # child's central anisotropy beta_c.
     ex = _expansion(anisotropy)
-    p, c0, c1 = edge_law.edge_law(ex)
+    p, c0, c1 = boundary_form.boundary_form(ex)
     bc = ex.beta_c
     assert p == pytest.approx(1.0 + bc)
     nu = 0.5 - bc
@@ -83,7 +83,7 @@ def test_the_edge_law_inverts_the_expansion_exactly(anisotropy):
 @pytest.mark.parametrize("anisotropy", _children())
 def test_the_floor_tail_feeds_the_kernel_with_the_floor_pair(anisotropy):
     ex = _expansion(anisotropy)
-    tail = edge_law.floor_tail(ex)
+    tail = boundary_form.floor_tail(ex)
     pair = order_pair(ex.beta_c)
     assert (tail["m_f"], tail["n_f"]) == (pair.order_m, pair.order_n)
     assert tail["pref"] == pytest.approx(inversion_prefactor(pair.order_n, ex.beta_c))
@@ -92,10 +92,10 @@ def test_the_floor_tail_feeds_the_kernel_with_the_floor_pair(anisotropy):
     q = np.array([q_min, 1e-7, 1e-5])
     corr, _ = method2_floor_tail(q, tail)
     assert np.all(np.isfinite(corr))
-    p, c0, c1 = edge_law.edge_law(ex)
+    p, c0, c1 = boundary_form.boundary_form(ex)
     law = q**p * (c0 + c1 * q)
-    # At the largest test energy, 1e-5, the floor correction is below 1e-3 of
-    # the edge law.
+    # At the largest test K, 1e-5, the floor correction is below 1e-3 of
+    # the boundary form.
     assert abs(corr[-1]) < 1e-3 * abs(law[-1]) + 1e-300
 
 
@@ -104,24 +104,26 @@ def test_floor_value_is_the_derivative_of_the_expansion():
     p = 1e-9
     step = 1e-3 * p
     numerical = (ex.density(p + step) - ex.density(p - step)) / (2.0 * step)
-    assert edge_law.floor_value(ex, 1, p) == pytest.approx(float(numerical), rel=1e-6)
-    assert edge_law.floor_value(ex, 0, p) == pytest.approx(
+    assert boundary_form.floor_value(ex, 1, p) == pytest.approx(
+        float(numerical), rel=1e-6
+    )
+    assert boundary_form.floor_value(ex, 0, p) == pytest.approx(
         float(ex.density(p)), rel=1e-15
     )
     with pytest.raises(InputError):
-        edge_law.floor_value(ex, 1, 10.0 * K_SWITCH)
+        boundary_form.floor_value(ex, 1, 10.0 * K_SWITCH)
 
 
 def test_a_parent_without_the_taylor_form_is_refused_and_one_with_it_is_read():
     form = SimpleNamespace(below_floor=("tail",), below_floor_coefficients=((),))
     parent = SimpleNamespace(form=form, profile=SimpleNamespace(r_t=R_T, mass_t=M_T))
     with pytest.raises(InputError, match="Taylor"):
-        edge_law.edge_expansion_of_parent(parent, Anisotropy(r_a=10.0))
+        boundary_form.edge_expansion_of_parent(parent, Anisotropy(r_a=10.0))
     form = SimpleNamespace(
         below_floor=("taylor",), below_floor_coefficients=((F_1, F_2, K_SWITCH),)
     )
     parent = SimpleNamespace(form=form, profile=SimpleNamespace(r_t=R_T, mass_t=M_T))
-    ex = edge_law.edge_expansion_of_parent(parent, Anisotropy(r_a=10.0))
+    ex = boundary_form.edge_expansion_of_parent(parent, Anisotropy(r_a=10.0))
     assert ex == _expansion(Anisotropy(r_a=10.0))
 
 
@@ -129,7 +131,7 @@ def test_a_type_ii_child_whose_edge_lies_beyond_its_anisotropy_radius_is_refused
     with pytest.raises(InputError, match="R_a"):
         _expansion(Anisotropy(r_a=10.0, kind="II"))
     with pytest.raises(InputError):
-        edge_law.edge_expansion(F_1, F_2, K_SWITCH, -1.0, M_T, Anisotropy())
+        boundary_form.edge_expansion(F_1, F_2, K_SWITCH, -1.0, M_T, Anisotropy())
 
 
 @pytest.mark.parametrize("anisotropy", _children())
@@ -139,7 +141,7 @@ def test_the_expansion_at_a_node_on_the_edge_is_the_edge_expansion(anisotropy):
     # P_node = 0, h_t is h at the edge, so the expansion at the node equals the
     # edge expansion.
     ex = _expansion(anisotropy)
-    node = edge_law.edge_expansion_at_node(
+    node = boundary_form.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, 0.0, ex.h_t, ex.h_1, anisotropy
     )
     assert node.coefficients == ex.coefficients
@@ -152,7 +154,7 @@ def test_the_expansion_at_a_node_on_the_edge_is_the_edge_expansion(anisotropy):
     # At P_node = 1e-10 inside the edge, with h(P_node) = h_t + H_1 P_node, the
     # expansion's h_t equals the edge expansion's h_t.
     p_node = 1e-10
-    moved = edge_law.edge_expansion_at_node(
+    moved = boundary_form.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, p_node, ex.h_t + ex.h_1 * p_node, ex.h_1, anisotropy
     )
     assert moved.h_t == pytest.approx(ex.h_t, rel=1e-15, abs=1e-300)
@@ -166,10 +168,10 @@ def test_an_om_parent_with_h_one_is_the_isotropic_parent(anisotropy):
     # slope of h_p equal to zero, the expansion equals the expansion for an
     # isotropic parent at the same node.
     p_node, h_node, h_slope = 3e-10, 1.7, -2.5e3
-    iso = edge_law.edge_expansion_at_node(
+    iso = boundary_form.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, p_node, h_node, h_slope, anisotropy
     )
-    om = edge_law.edge_expansion_at_node(
+    om = boundary_form.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, p_node, h_node, h_slope, anisotropy, parent_h=(1.0, 0.0)
     )
     assert om.coefficients == iso.coefficients
@@ -177,12 +179,12 @@ def test_an_om_parent_with_h_one_is_the_isotropic_parent(anisotropy):
     # With h_p = 2 and a slope of h_p equal to zero, the expansion equals the
     # expansion for an isotropic parent with the child's inverse factor
     # divided by 2.
-    om2 = edge_law.edge_expansion_at_node(
+    om2 = boundary_form.edge_expansion_at_node(
         F_1, F_2, K_SWITCH, 0.0, h_node, 0.0, anisotropy, parent_h=(2.0, 0.0)
     )
     assert om2.h_t == pytest.approx(h_node / 2.0, rel=1e-15)
     assert om2.coefficients[2.5] == pytest.approx(
-        edge_law.edge_expansion_at_node(
+        boundary_form.edge_expansion_at_node(
             F_1, F_2, K_SWITCH, 0.0, h_node / 2.0, 0.0, anisotropy
         ).coefficients[2.5],
         rel=1e-15,

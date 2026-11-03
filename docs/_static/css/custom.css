@@ -74,6 +74,8 @@ h2 { margin-top: 2rem; }
 
 /* The lead role: the first paragraph after a page title. */
 section > h1 + p, article > h1 + p { font-size: 19px; color: #444444; }
+/* Not on the Technical notes, whose first paragraph is body text (marked with ".. rst-class:: tn-body"). */
+section > h1 + p.tn-body, article > h1 + p.tn-body { font-size: inherit; color: inherit; }
 
 /* The small role: captions, the footer, the sidebar. */
 figcaption, .bd-footer, .bd-sidebar-primary, .bd-sidebar-secondary { font-size: 15px; color: var(--site-gray); }

@@ -29,9 +29,9 @@ from .inputs import Component, Truncation
 from .stages import (
     AsymptoticForm,
     DfTable,
-    EnergyGrid,
     InversionRecord,
     InversionRows,
+    KGrid,
 )
 
 DF_KIND = "distribution_function"
@@ -39,6 +39,35 @@ MODEL_KIND = "model"
 # Some files key r_trust by "goal" and "ceiling". The reader maps those keys
 # to the tier names "silent" and "recorded" that Model.r_trust uses.
 _FORMER_TRUST_KEYS = {"goal": "silent", "ceiling": "recorded"}
+# Files of ver. 1.0.0 name the rule of a Method II DF below its table
+# "edge_law"; the reader maps it to the rule's name since ver. 1.0.1.
+_FORMER_RULES = {"edge_law": "boundary_form"}
+
+
+def _internal_potential(units: Units, value: Any, profile: DoublePowerLaw) -> Array:
+    """Return a value of K given in the result's unit system in internal units.
+
+    In the physical system, `value` is a float in km^2 s^-2 or an Astropy
+    quantity of any unit of a potential."""
+    factor = units.convert("potential", 1.0, profile)
+    if hasattr(factor, "unit"):
+        if hasattr(value, "unit"):
+            value = value.to_value(factor.unit)
+        factor = factor.value
+    return np.asarray(value, dtype=np.float64) / float(factor)
+
+
+def _df_factor(units: Units, profile: DoublePowerLaw) -> Any:
+    """Return the factor from a DF in internal units to the result's unit system.
+
+    A DF is a mass per volume per velocity cubed, so the factor is the mass
+    factor over the cube of the length factor and the cube of the velocity
+    factor; 1 in the internal system, an Astropy quantity in the physical
+    system."""
+    mass = units.convert("mass", 1.0, profile)
+    length = units.convert("length", 1.0, profile)
+    velocity = units.convert("velocity", 1.0, profile)
+    return mass / (length**3 * velocity**3)
 
 
 @dataclasses.dataclass(frozen=True, eq=False)
@@ -59,23 +88,23 @@ class DistributionFunction:
         Numerical settings with which the DFs were computed.
     identity : str
         Identity string of the result.
-    grid : EnergyGrid
-        Energies of the DF table and the radii at which the untruncated
-        relative potential equals each energy.
+    grid : KGrid
+        K values of the DF table and the radii at which the untruncated
+        relative potential equals each value.
     table : DfTable
-        The DF of each component at the energies of `grid`.
+        The DF of each component at the nodes of `grid`.
     form : AsymptoticForm
-        Analytic form of each DF below and above the energies of the DF
+        Analytic form of each DF below and above the K values of the DF
         table.
     k_t_min : float
-        Lowest admissible truncation energy :math:`\mathcal{K}_{\rm t}`, in
+        Lowest admissible truncation value :math:`\mathcal{K}_{\rm t}`, in
         internal units. ``k_t_min`` is zero where every untruncated DF is a
         valid equilibrium as it stands (`is_physical`). Otherwise
-        ``k_t_min`` is the largest of the highest energy at which a DF is
-        negative, the energy of a DF's interior minimum and, for a Type II
+        ``k_t_min`` is the largest of the highest K at which a DF is
+        negative, the K of a DF's interior minimum and, for a Type II
         model, the relative potential :math:`P(R_{\rm a})` at the anisotropy
         radius :math:`R_{\rm a}`. Where :math:`P(R_{\rm a})` is the largest
-        of these energies, ``k_t_min`` is the next double above
+        of these values, ``k_t_min`` is the next double above
         :math:`P(R_{\rm a})`. `truncate` also checks
         that the edge of a truncated Type II model lies inside
         :math:`R_{\rm a}`.
@@ -91,7 +120,7 @@ class DistributionFunction:
         Unit system in which the result is presented (`to`). Default:
         ``Units()``, which means internal units.
     rows : InversionRows or None, optional
-        Values of the inversion at every energy of the inversion's grid,
+        Values of the inversion at every node of the inversion's grid,
         which `truncate` reads. Default: ``None``, which means that the DF
         table was not made by an inversion.
     source : {"inversion", "function"}, optional
@@ -124,7 +153,7 @@ class DistributionFunction:
     components: tuple[Component, ...]
     settings: Settings
     identity: str
-    grid: EnergyGrid
+    grid: KGrid
     table: DfTable
     form: AsymptoticForm
     k_t_min: float
@@ -145,9 +174,9 @@ class DistributionFunction:
     ) -> "DistributionFunction":
         r"""Return the distribution function that a user-specified function gives.
 
-        The user-specified function is a distribution function (DF) of the
-        energy, such as a fitting function. The package tabulates the
-        function on the energy grid that `compute_df` uses for the given
+        The user-specified function is a distribution function (DF) of
+        :math:`\mathcal{K}`, such as a fitting function. The package tabulates the
+        function on the K grid that `compute_df` uses for the given
         component and settings, and validates the tabulated DF against the
         component's density. Like a `DistributionFunction` from
         `compute_df`, the result holds analytic forms below and above the
@@ -162,12 +191,12 @@ class DistributionFunction:
             must be an analytic profile (a `DoublePowerLaw`).
         f : callable
             Function ``f(k, depth)`` of two arrays of equal shape: the
-            energies :math:`\mathcal{K}` of the DF table in internal units,
-            and the depth :math:`P_0 - \mathcal{K}` at each energy, with
+            values :math:`\mathcal{K}` of the DF table in internal units,
+            and the depth :math:`P_0 - \mathcal{K}` at each value, with
             :math:`P_0 = 1` the central relative potential. ``f`` returns
-            the DF :math:`F` (not its logarithm) at each energy, as an array
+            the DF :math:`F` (not its logarithm) at each value, as an array
             of the shape of ``k``. The package passes ``depth`` as
-            ``1 - k`` in double precision, which is exact for every energy
+            ``1 - k`` in double precision, which is exact for every
             :math:`\mathcal{K} \ge 1/2`. A function of :math:`\mathcal{K}`
             alone may ignore ``depth``.
         settings : Settings, optional
@@ -189,8 +218,8 @@ class DistributionFunction:
         InputError
             If `f` is not callable, returns an array whose shape differs
             from the shape of ``k``, or returns a value that is not finite
-            at an energy of the grid. For a value that is not finite, the
-            message states the first energy with such a value.
+            at a node of the grid. For a value that is not finite, the
+            message states the first node with such a value.
         InputError
             If the component is built on a `TruncatedProfile`.
 
@@ -237,13 +266,101 @@ class DistributionFunction:
 
     @property
     def diverges_at_zero(self) -> tuple[bool, ...]:
-        r"""Whether the DF of each component diverges as the energy goes to zero.
+        r"""Whether the DF of each component diverges as K goes to zero.
 
         A DF that goes as :math:`\mathcal{K}^p` with :math:`-1 < p < 0` as
-        the energy :math:`\mathcal{K}` goes to zero is integrable and gives a
+        :math:`\mathcal{K}` goes to zero is integrable and gives a
         finite density, but such a DF is not monotonic.
         """
         return self.form.diverges_at_zero
+
+    def evaluate(self, k: ArrayLike, depth: ArrayLike | None = None) -> Any:
+        r"""Return the distribution function at given values of K.
+
+        The DF is read through the package's own lookup of the DF table and
+        of the analytic forms below and above the table, the lookup that
+        every stage of the package reads. The result holds one component in
+        this release, and `evaluate` reads that component's DF.
+
+        Parameters
+        ----------
+        k : array-like
+            Values of :math:`\mathcal{K}`, in the unit system of the
+            result (`units`): internal units by default, where the central
+            relative potential is :math:`P_0 = 1`. In the physical system, a
+            float in :math:`{\rm km^2\,s^{-2}}` or an Astropy quantity of any
+            unit of a potential.
+        depth : array-like, optional
+            Depth :math:`P_0 - \mathcal{K}` at each value, in internal
+            units, broadcast against `k`, given where the caller holds the
+            depth to full relative precision and NaN where the point is
+            given by `k`. Near :math:`P_0` the subtraction
+            :math:`P_0 - \mathcal{K}` loses digits, and a given depth keeps
+            them. Default: ``None``, which means that every point is given
+            by `k`.
+
+        Returns
+        -------
+        df : array or Quantity
+            The DF :math:`F(\mathcal{K})` at each value, with the shape of
+            `k`, in the unit system of the result: a float64 array in the
+            internal and the model systems, an Astropy quantity of mass per
+            volume per velocity cubed in the physical system. Zero where the
+            DF is zero: at and below :math:`\mathcal{K} = 0` and at and above
+            :math:`P_0`.
+
+        Raises
+        ------
+        ResultError
+            If the DF is negative somewhere on its table. The lookup reads a
+            non-negative DF; `k_t_min` and `is_physical` state where such a
+            DF is negative.
+        InputError
+            If `units` names a unit system whose scales are not set.
+
+        See Also
+        --------
+        round_trip : The density the DF gives and the potential it
+            generates, against the analytic profile.
+        compute_df : The DF computed by inversion of the density.
+        DistributionFunction.from_function : A DF given as a function of
+            :math:`\mathcal{K}`.
+
+        References
+        ----------
+        Notes Section T:2 (the DF table and its forms) and Notes Section
+        T:2.7 (a DF supplied as input).
+
+        Examples
+        --------
+        The isotropic Plummer DF tabulated from its closed form, read back
+        at a value of K inside the table:
+
+        >>> import pianistpy as pp
+        >>> def plummer(k, depth):
+        ...     return 1.965117148288 * k**3.5
+        >>> df = pp.DistributionFunction.from_function(
+        ...     pp.Component(pp.DoublePowerLaw.plummer()), plummer
+        ... )
+        >>> round(float(df.evaluate(0.5)) / plummer(0.5, 0.5), 9)
+        1.0
+        """
+        from .lookup import evaluate_lookup, prepare_lookup
+
+        profile = self.components[0].unit_profile
+        k = _internal_potential(self.units, k, profile)
+        shape = np.shape(k)
+        k = np.atleast_1d(np.asarray(k, dtype=np.float64))
+        u = None
+        if depth is not None:
+            u = np.broadcast_to(np.asarray(depth, dtype=np.float64), k.shape).ravel()
+        arrays, kinds = prepare_lookup(self.table, self.form, 0)
+        log10_df = np.asarray(
+            evaluate_lookup(arrays, kinds, k.ravel(), np, u=u), dtype=np.float64
+        )
+        with np.errstate(over="ignore"):
+            value = np.reshape(10.0**log10_df, shape)
+        return value * _df_factor(self.units, profile)
 
     def to(
         self,
@@ -357,8 +474,8 @@ class DistributionFunction:
 
         The text file is an export for reading outside the package, and
         `pianistpy.read` does not read it. The file holds one line per
-        energy of each component's support, with the columns ``k`` (the
-        energy :math:`\mathcal{K}` in internal units, in which the central
+        node of each component's support, with the columns ``k`` (the
+        value of :math:`\mathcal{K}` in internal units, in which the central
         relative potential of the untruncated profile is 1), ``log10_df``
         (the base-10 logarithm of the DF) and ``dlog10_df_dlnk`` (the slope
         :math:`{\rm d}\log_{10} F / {\rm d}\ln \mathcal{K}`). A model of more
@@ -409,7 +526,7 @@ class Model:
 
     `truncate` and `solve` return a `Model`. The distribution function (DF)
     of every component of a model is non-negative. A DF that diverges as
-    the energy goes to zero is not monotonic (`diverges_at_zero`). Whether
+    K goes to zero is not monotonic (`diverges_at_zero`). Whether
     the model's density reaches zero at a finite radius is the property
     `spatially_finite`.
 
@@ -430,7 +547,7 @@ class Model:
     table : DfTable
         The DF of each component of the model.
     form : AsymptoticForm
-        Analytic form of each DF below and above the energies of the DF
+        Analytic form of each DF below and above the K values of the DF
         table.
     profile : TruncatedProfile
         Self-consistent density, mass and relative potential of the model.
@@ -499,10 +616,10 @@ class Model:
 
     @property
     def diverges_at_zero(self) -> tuple[bool, ...]:
-        r"""Whether the DF of each component diverges as the energy goes to zero.
+        r"""Whether the DF of each component diverges as K goes to zero.
 
         A DF that goes as :math:`\mathcal{K}^p` with :math:`-1 < p < 0` as
-        the energy :math:`\mathcal{K}` goes to zero is integrable. A model
+        :math:`\mathcal{K}` goes to zero is integrable. A model
         with such a DF is a valid equilibrium with a finite density, but the
         model's DF is not monotonic.
         """
@@ -783,8 +900,8 @@ def _unpack(cls: type, prefix: str, stored: StoredResult) -> Any:
     Raises
     ------
     ResultError
-        If `cls` is `DfTable` or `EnergyGrid` and the file holds the
-        energies ``k`` as a one-dimensional array, without the component
+        If `cls` is `DfTable` or `KGrid` and the file holds the
+        K values ``k`` as a one-dimensional array, without the component
         axis that the two classes need.
     """
     values = {key: _tuples(value) for key, value in stored.record[prefix].items()}
@@ -795,17 +912,23 @@ def _unpack(cls: type, prefix: str, stored: StoredResult) -> Any:
         # its dataclass.
         if item.name not in values and key in stored.arrays:
             values[item.name] = stored.arrays[key]
-    if cls in (DfTable, EnergyGrid) and np.ndim(values.get("k", 0.0)) == 1:
-        # DfTable and EnergyGrid hold the energies with a component axis,
-        # shape (n_components, n); a file with one-dimensional energies
+    if cls in (DfTable, KGrid) and np.ndim(values.get("k", 0.0)) == 1:
+        # DfTable and KGrid hold the K values with a component axis,
+        # shape (n_components, n); a file with one-dimensional K values
         # cannot be read into them.
         raise ResultError(
-            f"The file's {prefix} holds its energies without the component axis: "
+            f"The file's {prefix} holds its K values without the component axis: "
             "a file of the previous layout; compute the result again."
         )
     if cls is TruncatedProfile:
         values["source"] = DoublePowerLaw.from_dict(values["source"])
         values["source_anisotropy"] = Anisotropy.from_dict(values["source_anisotropy"])
+    if cls is AsymptoticForm and "below_floor" in values:
+        # Files of ver. 1.0.0 name the rule of a Method II DF below its table
+        # "edge_law"; the rule is "boundary_form" since ver. 1.0.1.
+        values["below_floor"] = tuple(
+            _FORMER_RULES.get(rule, rule) for rule in values["below_floor"]
+        )
     return cls(**values)
 
 
@@ -1108,7 +1231,7 @@ def _read_df(source: StoredResult | str | os.PathLike) -> DistributionFunction:
     ------
     ResultError
         If the file holds a result of a kind other than a distribution
-        function, or holds energies without the component axis.
+        function, or holds K values without the component axis.
     """
     stored = load_result(source)
     _check_kind(stored, DF_KIND)
@@ -1117,7 +1240,7 @@ def _read_df(source: StoredResult | str | os.PathLike) -> DistributionFunction:
         components=_unpack_components(stored),
         settings=Settings.from_dict(record["settings"]),
         identity=stored.identity,
-        grid=_unpack(EnergyGrid, "grid", stored),
+        grid=_unpack(KGrid, "grid", stored),
         table=_unpack(DfTable, "table", stored),
         form=_unpack(AsymptoticForm, "form", stored),
         k_t_min=float(record["k_t_min"]),
@@ -1155,7 +1278,7 @@ def _read_model(source: StoredResult | str | os.PathLike) -> Model:
     ------
     ResultError
         If the file holds a result of a kind other than a model, or holds
-        energies without the component axis.
+        K values without the component axis.
     """
     stored = load_result(source)
     _check_kind(stored, MODEL_KIND)

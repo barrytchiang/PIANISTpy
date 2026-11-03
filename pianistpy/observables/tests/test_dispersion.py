@@ -46,7 +46,7 @@ def _plummer():
     isotropic Plummer sphere in internal units.
 
     The potential is P = (1 + r^2)^(-1/2), and the density is rho = 3 P^5. The
-    isotropic Jeans integral ``rho sigma_r^2 = INT_0^P 3 K^5 dK`` gives
+    isotropic dispersion integral ``rho sigma_r^2 = INT_0^P 3 K^5 dK`` gives
     ``sigma_r^2 = P / 6``. The radius at the potential P is
     ``(1 / P^2 - 1)^(1/2)``.
     """

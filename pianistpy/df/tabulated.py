@@ -12,7 +12,7 @@ The child's auxiliary density is
 parent's relative potential, :math:`\hat\varrho` the parent's density,
 :math:`R(P)` the radius at which the parent's potential equals :math:`P`,
 and :math:`g` the child's anisotropy factor. The parent's density is the
-integral of the parent's DF :math:`F` over the energy :math:`K`,
+integral of the parent's DF :math:`F` over :math:`K`,
 
 .. math::
 
@@ -59,10 +59,10 @@ from ..profiles import DoublePowerLaw
 from ..runtime import timed
 from ..settings import Settings
 from ..validation import Check, ValidationReport, announce
+from .boundary_form import boundary_form, edge_expansion_at_node
 from .central import center_form
 from .checks import measure_table
 from .derivatives import aux_derivatives
-from .edge_law import edge_expansion_at_node, edge_law
 from .form import inversion_form
 from .grid import (
     CEILING_GAP,
@@ -87,9 +87,9 @@ from .rows import complete_rows, floor_source, inversion_kernel, kernel_rules
 from .stages import (
     AsymptoticForm,
     DfTable,
-    EnergyGrid,
     InversionRecord,
     InversionRows,
+    KGrid,
 )
 from .top import anchor
 
@@ -122,7 +122,7 @@ def parent_sources(
     beta_c: float,
     r_a: float,
 ) -> dict[str, Any]:
-    r"""Return the child's auxiliary density and its P derivatives on energies `q`.
+    r"""Return the child's auxiliary density and its P derivatives on the nodes `q`.
 
     The function computes the parent's part with `parent_density` and
     applies the child's anisotropy factor with `factor_sources`.
@@ -130,19 +130,19 @@ def parent_sources(
     Parameters
     ----------
     q : array, shape (n,)
-        The child's energy grid, in internal units.
+        The child's K grid, in internal units.
     p_top : float
         The parent's potential at the parent's first tabulated radius, in
         internal units. With a parent's Taylor edge, the sources are
         computed on the nodes with :math:`K_{\min} \le q < p_{\rm top}`;
         without a Taylor edge, on the nodes with
         :math:`K_{\min} < q < p_{\rm top}`. :math:`K_{\min}` is the lowest
-        positive energy with a finite DF in the parent's DF table.
+        positive K with a finite DF in the parent's DF table.
     order : int
         The highest P derivative of the auxiliary density computed, from 1
         to 3.
     parent_df : dict
-        The parent's DF table: ``K`` (the energies), ``logF`` (the base-10
+        The parent's DF table: ``K`` (the nodes), ``logF`` (the base-10
         logarithm of the DF), ``dFdK`` (the derivative of the DF with
         respect to K) and ``taylor``. ``taylor`` is the parent's Taylor edge
         ``(F_1, F_2, K_switch)``, below whose ``K_switch`` the parent's DF
@@ -152,7 +152,7 @@ def parent_sources(
         potential), ``rho`` (the density), ``M`` (4 pi times the enclosed
         mass), ``u`` (the depth ``p_0 - Psi``) and ``p_0`` (the parent's
         central potential, ``1 - K_t`` with ``K_t`` the parent's truncation
-        energy).
+        value).
     parent_r_a : float or None
         The parent's anisotropy radius :math:`R_{\rm a}` for an
         Osipkov-Merritt Type I parent; None for an isotropic parent.
@@ -238,7 +238,7 @@ def parent_density(
     om_parent = parent_r_a is not None
 
     # The parent's DF is interpolated in the logit x = ln(K / (p_0 - K)),
-    # which stretches both ends of the energy range, K near 0 and K near p_0.
+    # which stretches both ends of the range of K, K near 0 and K near p_0.
     k_all = np.asarray(parent_df["K"], dtype=np.float64)
     lg_all = np.asarray(parent_df["logF"], dtype=np.float64)
     okt = (k_all > 0) & np.isfinite(lg_all)
@@ -532,13 +532,13 @@ def floor_record(
     also holds the child's edge expansion at the floor node
     (`edge_expansion_at_node`, given the child's factor, the factor's P
     derivative and, for an Osipkov-Merritt Type I parent, the parent's
-    ``h`` and ``h_1``) and the edge law of the child's DF that the
-    expansion inverts to (`edge_law`).
+    ``h`` and ``h_1``) and the boundary form of the child's DF that the
+    expansion inverts to (`boundary_form`).
 
     Parameters
     ----------
     q : array, shape (n,)
-        The child's energy grid, in internal units.
+        The child's K grid, in internal units.
     sources : dict
         The sources on `q`, as `parent_sources` returns them.
     anisotropy : Anisotropy
@@ -547,11 +547,11 @@ def floor_record(
     Returns
     -------
     floor : dict
-        ``P``: the floor node's energy. ``aux``: a dict from each order k,
+        ``P``: the floor node's value. ``aux``: a dict from each order k,
         0 to the sources' highest order, to the k-th P derivative of the
         auxiliary density at the floor node. With a Taylor edge, also
         ``a_q`` (the coefficient of each power of the edge expansion) and
-        ``law`` (the edge law's exponent ``p`` and coefficients ``C0`` and
+        ``law`` (the boundary form's exponent ``p`` and coefficients ``C0`` and
         ``C1``).
     """
     p = np.asarray(q, dtype=np.float64)
@@ -579,7 +579,7 @@ def floor_record(
         anisotropy,
         None if h is None else (float(h[i0]), float(h_1[i0])),
     )
-    law_p, c_0, c_1 = edge_law(expansion)
+    law_p, c_0, c_1 = boundary_form(expansion)
     out["a_q"] = dict(expansion.coefficients)
     out["law"] = dict(p=float(law_p), C0=float(c_0), C1=float(c_1))
     return out
@@ -628,7 +628,7 @@ def child_rows(
     unit_profile: DoublePowerLaw | None = None,
     sources: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    r"""Return the child's inversion rows on energies `q`.
+    r"""Return the child's inversion rows on the nodes `q`.
 
     The inversion kernel reads the sources of `parent_sources` on every node
     of `q`. Without `unit_profile`, the boundary term at the floor node is
@@ -639,7 +639,7 @@ def child_rows(
     Parameters
     ----------
     q : array, shape (n,)
-        The child's energy grid, in internal units.
+        The child's K grid, in internal units.
     parent_df : dict
         The parent's DF table, as in `parent_sources`.
     parent_rows : dict
@@ -657,7 +657,7 @@ def child_rows(
         sources at the floor node and no completion below the floor node
         from `floor_source`. When given, the rows are the
         pilot rows of `pilot_feature`: the boundary terms at the floor node,
-        the energy ``outer_from`` above which the rows take the general
+        the value ``outer_from`` above which the rows take the general
         form, and the completion below the floor node are taken from the
         untruncated analytic pair, as for an untruncated component.
     sources : dict, optional
@@ -697,7 +697,7 @@ def child_rows(
         )
     if not np.all(s["window"]):
         raise InputError(
-            f"{int(np.sum(~s['window']))} of the child's energies lie outside the "
+            f"{int(np.sum(~s['window']))} of the child's nodes lie outside the "
             "parent's table, where its sources are not made."
         )
     fl = floor_record(q, s, anisotropy)
@@ -709,13 +709,13 @@ def child_rows(
         dm_j = fl["aux"][j]
         dm_jm1 = fl["aux"][j - 1] if switched else 0.0
     else:
-        # For the pilot rows, the boundary terms at the floor node, the energy
+        # For the pilot rows, the boundary terms at the floor node, the value
         # outer_from from which the rows take the general form and the
         # completion below the floor node are taken from the untruncated
         # analytic pair of unit_profile, as the inversion of an untruncated
         # component takes them.
         q_min = float(np.min(q))
-        grid = EnergyGrid(
+        grid = KGrid(
             k=np.asarray(q, dtype=np.float64)[None, :],
             r_of_k=np.full((1, np.size(q)), np.nan),
             k_floor=(q_min,),
@@ -781,12 +781,12 @@ def pilot_feature(
     settings: Settings,
     unit_profile: DoublePowerLaw,
 ) -> dict[str, Any]:
-    r"""Return the energy around which an OM Type II or COM child's grid is placed.
+    r"""Return the value of Q around which an OM Type II or COM child's grid is placed.
 
     The pilot rows are the child's rows of `child_rows` with `unit_profile`,
     on a coarse grid scaled to the parent's potential :math:`P_0` at the
     parent's first tabulated radius. The feature is the minimum of the
-    pilot DF below a cutoff energy, refined by the vertex of the parabola
+    pilot DF below a cutoff, refined by the vertex of the parabola
     through the minimum's node and its two neighboring nodes. Only nodes
     whose pilot DF exceeds :math:`10^{-3}` times the median of the positive
     pilot DF values below the cutoff enter the minimum. The cutoff is not
@@ -815,7 +815,7 @@ def pilot_feature(
     Returns
     -------
     feature : dict
-        ``q_feature``: the feature's energy, or 0 where fewer than three
+        ``q_feature``: the feature's Q, or 0 where fewer than three
         nodes below the cutoff enter the minimum, or where the
         feature lies below ``1000 K_FLOOR`` or at or above the cutoff. A
         zero ``q_feature`` gives the standard zones.
@@ -865,7 +865,7 @@ def tabulated_grid(
     unit_profile: DoublePowerLaw,
     feature: dict[str, Any] | None = None,
 ) -> tuple[np.ndarray, GridZones]:
-    r"""Return the energy grid of a component on a tabulated pair, and its zones.
+    r"""Return the K grid of a component on a tabulated pair, and its zones.
 
     The grid is the hybrid grid of `hybrid_grid` on :math:`P_0`, the
     parent's potential at the parent's first tabulated radius. The grid
@@ -873,7 +873,7 @@ def tabulated_grid(
     parent's last tabulated radius, and has no nodes below that start. An
     OM Type I child's zones are placed around :math:`P(R_{\rm a})`, the
     untruncated analytic potential at the child's anisotropy radius. An OM
-    Type II or COM child's zones are placed around the energy of
+    Type II or COM child's zones are placed around the Q of
     `pilot_feature`. Every other child takes the standard zones.
 
     Parameters
@@ -894,7 +894,7 @@ def tabulated_grid(
     Returns
     -------
     q : array
-        The energy grid, increasing, in internal units.
+        The K grid, increasing, in internal units.
     zones : GridZones
         The zones the grid is built on.
 
@@ -1107,7 +1107,7 @@ def critical_band(
     Parameters
     ----------
     k : array, shape (n,)
-        The energy grid, in internal units.
+        The K grid, in internal units.
     f : array, shape (n,)
         The computed rows of the DF on `k`.
     p_0 : float
@@ -1131,7 +1131,7 @@ def critical_band(
     record : dict
         The band's record, with the keys ``applied`` (whether the band is
         applied), ``rows`` (the number of rows replaced), ``u`` and ``K``
-        (the anchor's depth and energy),
+        (the anchor's depth and K),
         ``u_series`` (the series' range, infinite when the range exceeds the
         top zone), ``A``, ``Ftop`` (the closed form at :math:`u = 0`),
         ``c1`` and ``c2`` (:math:`a_1/a_0` and :math:`a_2/a_0`), ``a3``,
@@ -1391,7 +1391,7 @@ def _parent_inputs(profile: Any) -> tuple[dict[str, Any], dict[str, Any], float 
 
 
 def _table(k: np.ndarray, f: np.ndarray) -> DfTable:
-    """Return the child's DF table from the rows `f` on energies `k`.
+    """Return the child's DF table from the rows `f` on the nodes `k`.
 
     The table holds the base-10 logarithm of ``|f|`` on every row, and a
     sign column when any row of `f` is negative. The slope column is NaN,
@@ -1417,7 +1417,7 @@ def _table(k: np.ndarray, f: np.ndarray) -> DfTable:
 def tabulated_df(
     component: Any, settings: Settings
 ) -> tuple[
-    EnergyGrid,
+    KGrid,
     DfTable,
     AsymptoticForm,
     float,
@@ -1429,14 +1429,14 @@ def tabulated_df(
 
     The tabulated pair is the truncated profile of a one-component model,
     the parent; the component carries its own anisotropy. The stages run in
-    order: the energy grid on the parent's potential at the parent's first
-    tabulated radius (`tabulated_grid`, placed around the energy of
+    order: the K grid on the parent's potential at the parent's first
+    tabulated radius (`tabulated_grid`, placed around the Q of
     `pilot_feature` for an OM Type II or COM component); the sources from
     the integral of the parent's DF (`parent_sources`); the kernel's rows
     with the exact tail below the floor node (`child_rows`); the critical
     branch's closed-form band where the band applies (`critical_band`); the
     table; the asymptotic forms, which are the center's form of the
-    component on the parent's untruncated profile and the edge law below
+    component on the parent's untruncated profile and the boundary form below
     the floor node; and the validation report. The DF's support ends at
     the parent's edge.
 
@@ -1461,7 +1461,7 @@ def tabulated_df(
     UnphysicalModelError
         If `refusals` raises `UnphysicalModelError` for the component.
     UnphysicalModelError
-        If the parent is truncated at a positive energy but has no edge.
+        If the parent is truncated at a positive truncation value but has no edge.
     AccuracyError
         If a row of the child's inversion is not finite.
     ResultError
@@ -1493,7 +1493,7 @@ def tabulated_df(
             aniso,
             gamma=float(unit.rho_gamma),
         )
-    with timed("energy_grid"):
+    with timed("k_grid"):
         feature = None
         if aniso.family in ("OM_II", "COM_I", "COM_II"):
             feature = pilot_feature(
@@ -1596,7 +1596,7 @@ def tabulated_df(
             central_anchor=(math.nan,),
             central_anchor_amplitude=(math.nan,),
             central_regular=((math.nan, math.nan),),
-            below_floor=("edge_law",) if law else ("zero",),
+            below_floor=("boundary_form",) if law else ("zero",),
             below_floor_coefficients=(
                 (float(law["p"]), float(law["C0"]), float(law["C1"])),
             )
@@ -1629,7 +1629,7 @@ def tabulated_df(
             right=np.nan,
         )
     )
-    grid = EnergyGrid(
+    grid = KGrid(
         k=k[None, :],
         r_of_k=r_of_k[None, :],
         k_floor=(float(k[0]),),
@@ -1669,7 +1669,7 @@ def tabulated_df(
 
 
 # The checks of a model on a tabulated pair: the table's top form, the join
-# of the edge law to the table at the table's floor, and the profile's checks.
+# of the boundary form to the table at the table's floor, and the profile's checks.
 _MODEL_KEYS = ("top_form", "edge_join", *PROFILE_CHECK_KEYS)
 
 
@@ -1678,7 +1678,7 @@ def child_model(df: Any) -> Any:
 
     The model is truncated at the edge of the parent's truncated profile,
     on which the DF was inverted. The model's profile is the parent's
-    tabulated profile, with the parent's truncation energy, the child's
+    tabulated profile, with the parent's truncation value, the child's
     anisotropy and the child's DF table. The model's profile carries no
     central deficit, because the central deficit belongs to the parent.
 
@@ -1691,12 +1691,12 @@ def child_model(df: Any) -> Any:
     -------
     model : Model
         The model, with a validation report of the table's top form, the
-        edge law's join and the profile's checks.
+        boundary form's join and the profile's checks.
 
     Raises
     ------
     UnphysicalModelError
-        If the DF is negative on an energy inside the DF's support: the
+        If the DF is negative at a node inside the DF's support: the
         child's anisotropy cannot be supported by the parent's truncated
         density. The exception carries `df` as its result.
     AccuracyError
@@ -1718,7 +1718,7 @@ def child_model(df: Any) -> Any:
         k = np.asarray(table.k, dtype=np.float64)[0]
         neg = np.flatnonzero(f < 0.0)
         raise UnphysicalModelError(
-            f"The DF is negative on {neg.size} energies inside its support "
+            f"The DF is negative at {neg.size} nodes inside its support "
             f"(F_min = {float(f[neg].min()):.3e}, highest K with F < 0 = "
             f"{float(k[neg[-1]]):.4e}): "
             "the anisotropy cannot be supported by this truncated density.",

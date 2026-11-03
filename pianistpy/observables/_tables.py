@@ -4,7 +4,7 @@ r"""The tables of the intrinsic and projected second moments of a model.
 these tables through `stages.dispersion_profile` (which calls
 `radial_table`) and `stages.projected_dispersion` (which calls
 `projected_table`). `radial_table` tabulates the radial velocity dispersion
-:math:`\sigma_r` from the Jeans integral
+:math:`\sigma_r` from the dispersion integral
 
 .. math::
 
@@ -12,18 +12,18 @@ these tables through `stages.dispersion_profile` (which calls
     \varrho_{\rm aux}(K)\,{\rm d}K,
 
 with :math:`R` the 3D radius, :math:`P(R)` the relative potential,
-:math:`K` the energy variable of the DF and
+:math:`K` the energy-like variable of the DF and
 :math:`\varrho_{\rm aux} = \varrho/g` the auxiliary density, where
 :math:`\varrho` is the density and :math:`g(R)` is the separability factor
 of the anisotropy model. Rows are added to the radial table until the
-table's reading at every interval's midpoint differs from the Jeans
+table's reading at every interval's midpoint differs from the dispersion
 integral by at most ``profile_tolerance`` in :math:`\sigma_r`
 (:math:`10^{-7}` in the default settings, a tenth of :math:`10^{-6}`).
 `projected_table` tabulates the surface density and the squared
 line-of-sight dispersion, and rows are added to the projected table until
 the table reads itself between rows to the relative tolerance that the
 caller passes (:math:`10^{-8}` from `stages.projected_dispersion`).
-Notes Eq. (T:6.1) states the Jeans integral, and Notes Section T:6.2 states
+Notes Eq. (T:6.1) states the dispersion integral, and Notes Section T:6.2 states
 the projection.
 """
 
@@ -66,8 +66,8 @@ _NODES_PER_DECADE = 64
 _PROFILE_IDLE_ROUNDS = 3
 # The largest number of rounds in which the radial table adds rows.
 _PROFILE_ROUNDS = 40
-# The Gauss-Legendre node count of each panel of the Jeans integral at the
-# start, 8, and the largest number of doublings of that count, 6. After 6
+# The Gauss-Legendre node count of each panel of the dispersion integral at
+# the start, 8, and the largest number of doublings of that count, 6. After 6
 # doublings (512 nodes) the node count is logged as not converged.
 _PANEL_NODES = 8
 _RULE_DOUBLINGS = 6
@@ -147,7 +147,7 @@ def edge_limit(model: Model) -> float:
     -----
     Near the edge, :math:`F \propto K^p`, so the auxiliary density goes as
     :math:`\varrho_{\rm aux} \propto P^n` with :math:`n = p + 3/2 - b`, where
-    :math:`b` is the exponent of `_kernel_beta`. The Jeans integral then gives
+    :math:`b` is the exponent of `_kernel_beta`. The dispersion integral then gives
     :math:`\sigma_r^2 \to P/(n + 1)` as :math:`P \to 0`. The power :math:`p`
     is the form's `exponent_at_zero` where the form states one. For a form
     whose rule below the floor is ``"taylor"``, :math:`p = 1` where the
@@ -193,7 +193,7 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
 
         The record holds ``tolerance`` (``profile_tolerance``),
         ``n_jeans_nodes`` (the Gauss-Legendre node count of each panel of the
-        Jeans integral), ``rule_end`` (``"tolerance"`` where the node count
+        dispersion integral), ``rule_end`` (``"tolerance"`` where the node count
         converged and ``"stalled"`` where the node count did not converge),
         ``rule_change`` (the last relative change of :math:`\sigma_r` between
         n and 2n nodes), ``end`` (``"tolerance"`` where every interval met
@@ -206,8 +206,8 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
 
     Notes
     -----
-    The Jeans integral (`radial_dispersion` with ``knots``) integrates over
-    panels between the potentials of the profile's own table, summed from
+    The dispersion integral (`radial_dispersion` with ``knots``) integrates
+    over panels between the potentials of the profile's own table, summed from
     ``p_outer``. Each row adds the partial panel from its own potential to the
     next knot. A row's value therefore does not depend on the other radii of
     the call.
@@ -220,10 +220,10 @@ def radial_table(model: Model, settings: Settings) -> dict[str, Any]:
 
     The rows start on ``n_profile_start`` logarithmically spaced radii. In
     each round, the function compares the table's reading
-    (`radial_integral_reader`) with the Jeans integral in :math:`\sigma_r` at
-    the midpoint in :math:`\ln r` of every interval. Where the relative
-    difference exceeds ``profile_tolerance``, the Jeans integral's value at
-    that midpoint becomes a new row. The reading is a cubic Hermite
+    (`radial_integral_reader`) with the dispersion integral in :math:`\sigma_r`
+    at the midpoint in :math:`\ln r` of every interval. Where the relative
+    difference exceeds ``profile_tolerance``, the dispersion integral's value
+    at that midpoint becomes a new row. The reading is a cubic Hermite
     interpolant with exact slopes at the rows, so a new row changes the
     reading only on the two intervals next to the new row.
 

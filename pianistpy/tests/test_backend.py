@@ -54,7 +54,9 @@ def test_with_the_cache_off_there_is_no_default_folder(monkeypatch, tmp_path):
     # and a cache turned on again uses the package's folder
     # ~/.cache/pianistpy/jax, never a folder named "off".
     monkeypatch.setenv("PIANISTPY_COMPILATION_CACHE", "off")
+    # os.path.expanduser reads USERPROFILE before HOME on Windows.
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("USERPROFILE", str(tmp_path))
     assert default_compilation_cache() is None
     before = _cache_setting()
     try:

@@ -20,8 +20,8 @@ variable in internal units, with :math:`0 \le \mathcal{K} \le 1`.
 anisotropy, and :math:`\mathcal{K}` is :math:`\mathcal{Q}_\pm` for an
 Osipkov-Merritt (OM) or Cuddeford-Osipkov-Merritt (COM) model.
 :math:`\mathcal{L}` is the angular momentum in internal units, and
-:math:`\beta_{\rm c}` is the central anisotropy. A truncation at the
-energy :math:`\mathcal{K}_{\rm t}` (Method I of Chiang+(2026d)) gives the truncated DF
+:math:`\beta_{\rm c}` is the central anisotropy. A truncation at
+:math:`\mathcal{K}_{\rm t}` (Method I of Chiang+(2026d)) gives the truncated DF
 
 .. math::
 
@@ -48,12 +48,15 @@ __all__ = [
     "Component",
     "DistributionFunction",
     "Model",
+    "RoundTrip",
     "Truncation",
     "compute_df",
+    "round_trip",
     "solve",
     "truncate",
 ]
 
 from .core import compute_df, solve, truncate
 from .inputs import Component, Truncation
+from .reconstruction import RoundTrip, round_trip
 from .results import DistributionFunction, Model

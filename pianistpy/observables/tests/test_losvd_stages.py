@@ -191,7 +191,7 @@ def _finite(r_t=2.0, n=400):
     on `n` radii, with an edge row at `r_t`.
 
     The density and the relative potential at the edge row are zero. The
-    knot interval from the last interior radius to `r_t` is the Kepler
+    knot interval from the last interior radius to `r_t` is the point-mass
     interval of `LogPotentialSlopes`.
     """
     r = np.geomspace(1e-3, r_t, n)
@@ -216,8 +216,8 @@ def _finite(r_t=2.0, n=400):
     )
 
 
-def test_the_kepler_interval_reads_its_closed_forms():
-    r"""Assert that `LogPotentialSlopes` reads the Kepler interval of the
+def test_the_point_mass_interval_reads_its_closed_forms():
+    r"""Assert that `LogPotentialSlopes` reads the point-mass interval of the
     uniform sphere `_finite` (:math:`r_{\rm t} = 2`) by the interval's closed
     forms.
 
@@ -225,7 +225,7 @@ def test_the_kepler_interval_reads_its_closed_forms():
     :math:`r_{\rm t}`, the first derivative of ln P in ln r is
     :math:`-2/(2 - r)` and the second derivative is :math:`-2 r/(2 - r)^2`,
     each to a relative :math:`10^{-12}`. At the last interior radius, the
-    right-hand first derivative is the Kepler value and the left-hand first
+    right-hand first derivative is the point-mass value and the left-hand first
     derivative is the profile's `potential_log_slope`. At :math:`r_{\rm t}`,
     the left-hand first derivative is minus infinity.
     """
@@ -239,7 +239,7 @@ def test_the_kepler_interval_reads_its_closed_forms():
         slopes(np.log(r), 2), -2.0 * r / (2.0 - r) ** 2, rtol=1e-12
     )
     # At the last interior radius, the right-hand limit of the first derivative
-    # is the Kepler value, and the left-hand limit is the cubic Hermite's value.
+    # is the point-mass value, and the left-hand limit is the cubic Hermite's value.
     y = math.log(r_last)
     assert float(slopes(y, 1)) == pytest.approx(-2.0 / (2.0 - r_last), rel=1e-12)
     assert float(slopes.left(y, 1)) == pytest.approx(
@@ -249,10 +249,10 @@ def test_the_kepler_interval_reads_its_closed_forms():
 
 
 def test_the_cumulative_df_is_the_lookups_integral():
-    r"""Assert that `cumulative_df` at an energy Q equals the integral of the DF
+    r"""Assert that `cumulative_df` at a value Q equals the integral of the DF
     lookup from 0 to Q, to a relative :math:`10^{-6}`.
 
-    For Q above the lookup's first energy K_0, the reference is
+    For Q above the lookup's first node K_0, the reference is
     `cumulative_df` at K_0 plus an adaptive quadrature of the DF lookup from
     K_0 to Q.
     """
@@ -277,7 +277,7 @@ def test_the_cumulative_df_is_the_lookups_integral():
 
 def test_an_unconverged_cumulative_df_is_refused_with_cause(monkeypatch):
     """Assert that `cumulative_df` and `_cumulative_order` raise AccuracyError,
-    with a message that gives the energy Q, when the cumulative DF at Q does
+    with a message that gives the value Q, when the cumulative DF at Q does
     not converge. The test sets CUMULATIVE_TOLERANCE to 0."""
     from pianistpy.exceptions import AccuracyError
     from pianistpy.observables._table_vjp import _cumulative_order

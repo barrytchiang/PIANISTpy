@@ -1,7 +1,7 @@
 Upcoming features
 =================
 
-The features listed below are planned or under development for releases after ver. 1.0.0.
+The features listed below are planned or under development for releases after ver. 1.0.1.
 
 - Generalization of the self-consistent models to systems of several components that share one truncated
   potential, and to tracer populations in a fixed potential.

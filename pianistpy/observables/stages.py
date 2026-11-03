@@ -171,7 +171,7 @@ class DispersionProfile:
 
     Notes
     -----
-    The rows hold the Jeans integral
+    The rows hold the dispersion integral
     :math:`I = \varrho_{\rm aux}\sigma_{\rm r}^2`, with
     :math:`\varrho_{\rm aux}` the auxiliary density. The derivative of
     :math:`I` in :math:`P` is :math:`\varrho_{\rm aux}`, exactly. `read`
@@ -700,7 +700,7 @@ def _tangent_parameters(model: Model, tangents: Sequence[str]) -> tuple[str, ...
     An empty `tangents` returns an empty tuple without a check. Otherwise
     the function raises InputError in three cases: the model is not
     spatially finite; the model's DF below its table does not follow the
-    edge law (the model is not a Method II model); or a name is not an
+    boundary form (the model is not a Method II model); or a name is not an
     anisotropy parameter of the model's anisotropy family
     (`TANGENT_PARAMETERS`). On a model that is not spatially finite, the
     radial dispersion's part below the table reads the DF, and the DF
@@ -719,11 +719,12 @@ def _tangent_parameters(model: Model, tangents: Sequence[str]) -> tuple[str, ...
             "below the table depends on the DF, which moves with the anisotropy."
         )
     rule = model.form.below_floor[0]
-    if rule != "edge_law":
+    if rule != "boundary_form":
         raise InputError(
             f"The tangents of {component.name!r} are not computed, because "
             f"{component.name!r} is not a Method II model (the DF below the DF "
-            f"table follows the rule {rule!r}, not the edge law). The profile of a "
+            f"table follows the rule {rule!r}, not the boundary form). The profile "
+            "of a "
             "truncated model that is not a Method II model follows the model's own "
             "DF, so the profile moves with the anisotropy."
         )
@@ -769,7 +770,7 @@ def dispersion_profile(
         finite.
     InputError
         If `tangents` lists a parameter and the model's DF below its table
-        does not follow the edge law (the model is not a Method II model).
+        does not follow the boundary form (the model is not a Method II model).
     InputError
         If `tangents` lists a parameter that the model's anisotropy family
         does not have.
@@ -780,7 +781,7 @@ def dispersion_profile(
 
     Notes
     -----
-    The stage evaluates the Jeans integral
+    The stage evaluates the dispersion integral
 
     .. math::
 
@@ -803,7 +804,7 @@ def dispersion_profile(
     The derivative rows apply the derivative of the same quadrature rule on
     the same rows and nodes (`radial_dispersion_tangent`). The rows are not
     moved. The limit `DispersionProfile.edge_limit` does not change with the
-    anisotropy, because a Method II model's edge law changes with
+    anisotropy, because a Method II model's boundary form changes with
     :math:`\beta_{\rm c}` as the factor of the model's anisotropy class
     does. The
     result without `tangents` is bit for bit the result with `tangents`,
@@ -1235,7 +1236,7 @@ def losvd_table(
     decade. The base rows run from the profile's first radius to 0.9999 of
     the radius where the rows end (`floor_radius`). The rows end at the
     profile's last radius, or, on a model whose DF is zero below a floor
-    energy, at the radius where the potential reaches that floor energy.
+    value of K, at the radius where the potential reaches that floor.
     `rows_with_r_breaks` adds rows toward each radius in
     `LosvdTable.r_breaks`, toward the end radius, and inside short stretches
     between breaks.
@@ -1802,7 +1803,7 @@ class VelocityDistribution:
         relative potential.
     v_max : float
         The largest velocity in the DF's support, :math:`V_{\rm max}`. With
-        :math:`K_{\rm c}` the DF's floor energy (0 where the DF has no
+        :math:`K_{\rm c}` the DF's floor value (0 where the DF has no
         floor), :math:`V_{\rm max} = \sqrt{2(P - K_{\rm c})}` for an
         isotropic model, a constant-anisotropy model and a Type I model, and
         :math:`V_{\rm max} = \sqrt{2(P - K_{\rm c})/(1 - R^2/R_{\rm a}^2)}`
@@ -1988,7 +1989,7 @@ def velocity_distribution(
     and :math:`s = +1` for a Type I model, :math:`s = -1` for a Type II
     model and :math:`s = 0` for a model without an anisotropy radius. The
     integral runs over the DF's support, :math:`\mathcal{Q} > K_{\rm c}`,
-    with :math:`K_{\rm c}` the DF's floor energy (0 where the DF has no
+    with :math:`K_{\rm c}` the DF's floor value (0 where the DF has no
     floor).
 
     The support excludes part of the directions above the velocity
@@ -2012,7 +2013,7 @@ def velocity_distribution(
     ``velocity_tolerance`` is :math:`10^{-6}` in the default settings and
     :math:`10^{-4}` in the quick settings. Velocities within a
     relative distance of :math:`10^{-9}` from :math:`V_*` are left out of
-    that comparison. On a DF that diverges at its floor energy, the
+    that comparison. On a DF that diverges at its floor value, the
     distribution diverges at :math:`V_*`, and the divergence is integrable.
 
     References

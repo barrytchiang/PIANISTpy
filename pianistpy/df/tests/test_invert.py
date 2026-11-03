@@ -35,8 +35,8 @@ def test_the_rows_as_made_are_kept_and_written(tmp_path):
     assert rows is not None
     assert rows.k.shape == rows.f.shape == rows.ddf.shape
     assert rows.k.shape[0] == 1 and len(rows.data_top) == 1
-    # The table holds the rows up to the anchor energy, so every tabulated
-    # energy is the energy of a row.
+    # The table holds the rows up to the anchor value, so every tabulated
+    # K is the K of a row.
     assert np.all(np.isin(np.asarray(df.table.k[0]), rows.k[0]))
     path = tmp_path / "plummer_df.h5"
     df.write(path)
@@ -77,9 +77,9 @@ def test_the_grid_stops_where_the_closed_form_reaches_the_ceiling():
 def test_a_type_ii_df_above_the_ceiling_is_refused_with_cause():
     # The OM Type II model with R_a = 10, inner slope gamma = 1.99 and outer
     # slope beta = 3 has rows above the ceiling 1e300. A Type II table carries
-    # no closed form above its rows, so no closed form covers the energies
+    # no closed form above its rows, so no closed form covers the range
     # above a cut. `compute_df` raises AccuracyError, whose message states the
-    # ceiling, the first row above the ceiling and that row's energy.
+    # ceiling, the first row above the ceiling and that row's K.
     from pianistpy import AccuracyError
 
     component = Component(
@@ -90,9 +90,9 @@ def test_a_type_ii_df_above_the_ceiling_is_refused_with_cause():
 
 
 def test_a_row_above_the_ceiling_no_closed_form_covers_is_refused():
-    # Where no closed form of the center covers the energies above a cut, a
+    # Where no closed form of the center covers the range above a cut, a
     # row above the ceiling 1e300 raises AccuracyError, whose message states the
-    # ceiling, the first row above the ceiling and that row's energy.
+    # ceiling, the first row above the ceiling and that row's K.
     from pianistpy import AccuracyError
     from pianistpy.df.invert import _table
 

@@ -10,7 +10,7 @@ A point on the line of sight has depth u, radius
 :math:`R = (R_{\rm 2D}^2 + u^2)^{1/2}` and :math:`q = 1 + s_A (R/R_{\rm a})^2`,
 with :math:`R_{\rm a}` the anisotropy radius and :math:`s_A` = +1 for Type I,
 -1 for Type II and 0 without :math:`R_{\rm a}`. On the plane of fixed
-line-of-sight velocity V at the point, the level sets of the energy Q are
+line-of-sight velocity V at the point, the level sets of :math:`Q` are
 ellipses centered on the maximum
 
 .. math::
@@ -156,7 +156,7 @@ class EllipseRoute:
         :math:`\ln\mathcal{P}` in ln R (`_ellipse_model.LogPotentialSlopes`).
         `psi` carries the attribute ``R_knots``, the first and the last radius
         of the potential's table. `psi` may carry the method ``depth``, the
-        depth :math:`P_0 - \mathcal{P}` below the top energy.
+        depth :math:`P_0 - \mathcal{P}` below the top value.
     r_t : float
         The radius :math:`R_{\rm t}` where the lines of sight end
         (`_ellipse_model.floor_radius`).
@@ -230,7 +230,7 @@ class EllipseRoute:
     def rule(self, r2d: float) -> tuple[tuple[int, ...], bool]:
         """Return the rule of the row at `r2d` and whether the row is a cusp row.
 
-        The row is of the cusp class where the table's top energy Q_top exceeds
+        The row is of the cusp class where the table's top value Q_top exceeds
         the potential at `r2d` by less than CUSP_FRAC times Q_top. A row of
         the cusp class takes ``rules.rule_cusp``. Any other row takes
         ``rules.rule_regular``.
@@ -258,7 +258,7 @@ class EllipseRoute:
         least K whose innermost panel is no wider than the distance from
         s = 0 to the nearer of two singularities at s < 0, and at least
         `floor`. The first singularity is the top of F, at the distance
-        ``(Q_end - Q_c) min(1, m / |kappa|)``. Here Q_end is the end energy of
+        ``(Q_end - Q_c) min(1, m / |kappa|)``. Here Q_end is the end value of
         `EllipseDF`, and kappa is the exponent of F at the top. The second
         singularity is the pinch of the angle integral at ``s = -s_star``,
         with s_star the kinetic term ``q V^2 R^2 / (2 (R_2D^2 + q u^2))``.
@@ -1910,7 +1910,7 @@ class EllipseRoute:
         :math:`p = 1/(1 - \beta_{\rm c})`. Where `EllipseDF.zero_map` asks,
         the last panel of piece b is mapped so that the map carries
         :math:`F \sim K^p` at K = 0 exactly. Piece a reads F by the depth
-        ``dqc + s`` at the energies K = Q_c - s above half the end energy of
+        ``dqc + s`` at the values K = Q_c - s above half the end value of
         the DF. `dqc` is the depth of Q_c below P0, NaN where the potential
         gives no depth. With `collect`, the function appends the reads of
         `plane`.

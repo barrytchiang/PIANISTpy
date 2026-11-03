@@ -1,6 +1,11 @@
 # Coverage of the full test suite (slow tests included), run by hand, in parallel
 # jobs by test directory; each job uploads its report and Codecov merges them into
-# the commit's coverage. Nothing else triggers it.
+# the commit's coverage. Nothing else triggers it. The doctest job collects the
+# package's modules with --doctest-modules and keeps the test modules out with the
+# ignore glob (pytest matches the glob against each collected path, so a tests
+# folder named beside the glob is dropped too); the test folders therefore have
+# jobs of their own, and every tests folder of the package is named in exactly
+# one job.
 name: coverage-full
 
 on:
@@ -18,7 +23,8 @@ jobs:
           - pianistpy/observables/tests/test_hard_limit.py pianistpy/observables/tests/test_table_vjp.py
           - pianistpy/observables --deselect pianistpy/observables/tests/test_hard_limit.py --deselect pianistpy/observables/tests/test_table_vjp.py
           - pianistpy/particles pianistpy/superposition pianistpy/units
-          - pianistpy/inference pianistpy/tests --doctest-modules pianistpy --ignore-glob='*/tests/*'
+          - pianistpy/inference pianistpy/tests pianistpy/numerics pianistpy/io
+          - --doctest-modules pianistpy --ignore-glob='*/tests/*'
     env:
       PIANISTPY_CORES: "4"
     steps:

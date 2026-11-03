@@ -39,7 +39,7 @@ HERNQUIST_CENTRAL_AMPLITUDE = 3.0 / (4.0 * math.sqrt(2.0) * math.pi)
 PLUMMER_AMPLITUDE = 3.0 / (ISOTROPIC_DENSITY_PREFACTOR * beta_function(4.5, 1.5))
 
 ANALYTIC_MODELS = ("hernquist", "plummer")
-# The DF table of an analytic model runs from the energy K_FLOOR to the depth
+# The DF table of an analytic model runs from K = K_FLOOR to the depth
 # U_TOP below the central potential 1. The profile of an analytic model runs
 # from the radius R_MIN to the radius R_MAX, in internal units.
 U_TOP = 1e-9
@@ -69,7 +69,7 @@ def hernquist_df(k: ArrayLike) -> tuple[Array, Array]:
     Parameters
     ----------
     k : array-like
-        Energy :math:`\mathcal{K}` in internal units, with
+        Value of :math:`\mathcal{K}` in internal units, with
         :math:`0 \leq \mathcal{K} < 1`.
 
     Returns
@@ -124,7 +124,7 @@ def plummer_df(k: ArrayLike) -> tuple[Array, Array]:
     Parameters
     ----------
     k : array-like
-        Energy :math:`\mathcal{K}` in internal units, with
+        Value of :math:`\mathcal{K}` in internal units, with
         :math:`0 \leq \mathcal{K} \leq 1`.
 
     Returns
@@ -168,8 +168,8 @@ def analytic_model(name: str, n_nodes: int = 2001) -> Model:
     name : {"hernquist", "plummer"}
         The profile: the Hernquist profile or the Plummer profile.
     n_nodes : int, optional
-        The number of energies of the DF table, and the number of radii of
-        the profile, at least 5. Default: ``2001``. The energies are uniform
+        The number of K values of the DF table, and the number of radii of
+        the profile, at least 5. Default: ``2001``. The K values are uniform
         in :math:`\ln \mathcal{K}` from ``K_FLOOR`` (:math:`10^{-10}`) to
         0.5, and uniform in the logarithm of the depth
         :math:`1 - \mathcal{K}` from 0.5 to ``U_TOP`` (:math:`10^{-9}`).
@@ -237,7 +237,7 @@ def analytic_model(name: str, n_nodes: int = 2001) -> Model:
             central_form=("analytic",),
             **_NO_FURTHER_TERM,
         )
-    # The energies are uniform in ln K up to K = 0.5, and uniform in the
+    # The K values are uniform in ln K up to K = 0.5, and uniform in the
     # logarithm of the depth 1 - K above K = 0.5, so that the nodes resolve
     # both the tail at small K and the center at small depth.
     n_lower = n_nodes // 2 + 1

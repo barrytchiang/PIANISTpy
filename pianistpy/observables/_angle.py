@@ -11,7 +11,7 @@ carries the factor :math:`(L^2)^{-\beta_{\rm c}}` of the angular momentum
     P(\phi) = (c_1 - c_2\cos\phi)^2 + c_3\sin^2\phi,
 
 with :math:`\beta_{\rm c}` the central anisotropy, :math:`\phi` the angle
-that parametrizes one level set (an ellipse) of the energy variable on the
+that parametrizes one level set (an ellipse) of the energy-like variable on the
 velocity plane, and :math:`c_1`, :math:`c_2`, :math:`c_3` the coefficients
 of one node, which the route forms.
 

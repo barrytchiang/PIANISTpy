@@ -1,18 +1,18 @@
-r"""Sign checks of an untruncated DF and the gates of a truncation energy.
+r"""Sign checks of an untruncated DF and the gates of a truncation value.
 
 `truncation_gates` reads the table of an untruncated distribution function
-(DF) :math:`F(K)` of the energy :math:`K` and returns a `TruncationGates`
+(DF) :math:`F(K)` and returns a `TruncationGates`
 record. The record holds
 the DF's most negative value, the DF's last zero crossing :math:`K_0`, the
-energy :math:`Q_{\rm min}` where the DF's last decrease ends, the lowest
-admissible truncation energy, and the names of the gates that a given
-truncation energy :math:`\mathcal{K}_{\rm t}` fails.
+value :math:`Q_{\rm min}` where the DF's last decrease ends, the lowest
+admissible truncation value, and the names of the gates that a given
+truncation value :math:`\mathcal{K}_{\rm t}` fails.
 
 The truncated DF is :math:`F(K + \mathcal{K}_{\rm t}) - F(\mathcal{K}_{\rm t})`.
-The gates admit a truncation energy :math:`\mathcal{K}_{\rm t} > 0` only at
+The gates admit a truncation value :math:`\mathcal{K}_{\rm t} > 0` only at
 or above both :math:`K_0` and :math:`Q_{\rm min}`. Above :math:`K_0` the
 tabulated DF has no negative value. From :math:`Q_{\rm min}` upward the
-tabulated DF has no step between successive table energies that starts at
+tabulated DF has no step between successive table nodes that starts at
 a positive value :math:`F_i` and ends at a value :math:`F_{i+1}` with
 :math:`F_i > (1 + 10^{-5})\,F_{i+1}`.
 For a Type II model, the gates also require :math:`\mathcal{K}_{\rm t}` to
@@ -23,9 +23,9 @@ the DF has no negative value, or when the DF's negative values are rounding.
 The negative values count as rounding when three conditions hold: the
 analytic exponent :math:`a` of the DF's tail :math:`F \sim A K^{-a}` as
 :math:`K \to 0`, with :math:`A` a constant, is negative, so that the exact DF
-vanishes as :math:`K \to 0`; the energy :math:`10 K_0` is at or below the
-table's highest energy; and the DF's most negative value is, in absolute value, at
-most :math:`10^{-4}` times the DF at the first table energy at or above
+vanishes as :math:`K \to 0`; the value :math:`10 K_0` is at or below the
+table's highest K; and the DF's most negative value is, in absolute value, at
+most :math:`10^{-4}` times the DF at the first table node at or above
 :math:`10 K_0`, with that DF positive.
 
 The gates are derived in Notes Section T:3.5.
@@ -43,10 +43,10 @@ from ..validation import TIER_BOUNDS
 
 @dataclass(frozen=True)
 class TruncationGates:
-    r"""Sign record of an untruncated DF and the gates a truncation energy fails.
+    r"""Sign record of an untruncated DF and the gates a truncation value fails.
 
-    All energies are in internal units. The DF's table is read only at
-    energies above ``k_edge`` (see `truncation_gates`).
+    All values of K are in internal units. The DF's table is read only at
+    K above ``k_edge`` (see `truncation_gates`).
 
     Parameters
     ----------
@@ -55,24 +55,24 @@ class TruncationGates:
         value, the DF's smallest finite value, or NaN where the table has no
         finite value.
     k_at_f_min : float
-        The energy of the DF's most negative value; NaN where the DF has no
+        The K of the DF's most negative value; NaN where the DF has no
         negative value.
     k_0 : float
-        The DF's last zero crossing :math:`K_0`: the highest tabulated energy
+        The DF's last zero crossing :math:`K_0`: the highest tabulated K
         where the DF is negative; 0 where the DF has no negative value.
     q_min : float
-        The energy :math:`Q_{\rm min}` where the DF's last decrease ends. A
-        decrease is a step between successive positive table energies whose
+        The value :math:`Q_{\rm min}` where the DF's last decrease ends. A
+        decrease is a step between successive positive table nodes whose
         DF values :math:`F_i` and :math:`F_{i+1}` are finite, with
         :math:`F_i` positive and :math:`F_i > (1 + 10^{-5})\,F_{i+1}`.
-        :math:`Q_{\rm min}` is the energy at the end of the last decrease; 0
+        :math:`Q_{\rm min}` is the K at the end of the last decrease; 0
         where the DF has no decrease.
     k_t_min : float
-        The lowest admissible truncation energy: the largest of `k_0` and
+        The lowest admissible truncation value: the largest of `k_0` and
         `q_min`, or, where the potential ``k_edge`` at the anisotropy radius
         exceeds both, the next double above ``k_edge`` (the "DOMAIN" gate
         requires :math:`\mathcal{K}_{\rm t}` strictly above ``k_edge``). For
-        a Type II model, a truncation energy at or above `k_t_min` is not
+        a Type II model, a truncation value at or above `k_t_min` is not
         sufficient by itself: the truncated model's edge must also lie
         inside :math:`R_{\rm a}`, which the Poisson solve checks.
     set_by : {"K_0", "Q_min", "domain_edge", "none"}
@@ -80,8 +80,8 @@ class TruncationGates:
         "Q_min" where `q_min` is at or above `k_0`; "domain_edge" where
         ``k_edge`` exceeds both `k_0` and `q_min`; "none" where `k_t_min` is 0.
     fired : tuple of str
-        The names of the gates that the truncation energy
-        :math:`\mathcal{K}_{\rm t}` fails, empty where the truncation energy
+        The names of the gates that the truncation value
+        :math:`\mathcal{K}_{\rm t}` fails, empty where the truncation value
         fails no gate.
         "DOMAIN": ``k_edge > 0`` and :math:`\mathcal{K}_{\rm t}` is at or
         below ``k_edge`` (which includes :math:`\mathcal{K}_{\rm t} = 0`).
@@ -110,25 +110,25 @@ def truncation_gates(
     a_analytic: float,
     k_edge: float = 0.0,
 ) -> TruncationGates:
-    r"""Return the DF's sign record and the gates of a truncation energy.
+    r"""Return the DF's sign record and the gates of a truncation value.
 
     Parameters
     ----------
     q_sign : array, shape (m,)
-        Energies of the inversion's table, increasing, in internal units.
+        K values of the inversion's table, increasing, in internal units.
         `k_0`, `q_min` and the DF's most negative value are read on this
         table.
     f_sign : array, shape (m,)
         The untruncated DF at `q_sign`.
     q : array, shape (k,)
-        Energies of a table of the untruncated DF, increasing, in internal
+        K values of a table of the untruncated DF, increasing, in internal
         units, from which the rounding test of
-        an untruncated model reads the DF at the first energy at or above
+        an untruncated model reads the DF at the first node at or above
         :math:`10 K_0`.
     f : array, shape (k,)
         The untruncated DF at `q`.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}` in internal units;
+        The truncation value :math:`\mathcal{K}_{\rm t}` in internal units;
         0 for an untruncated model.
     a_analytic : float
         The analytic exponent :math:`a` of the DF's tail :math:`A K^{-a}` as
@@ -136,8 +136,8 @@ def truncation_gates(
         fail the rounding test.
     k_edge : float, optional
         The potential at the anisotropy radius, :math:`P(R_{\rm a})`, for a
-        Type II model, in internal units. The DF's support is the energies
-        above `k_edge`, and `q_sign` and `f_sign` are read only at energies
+        Type II model, in internal units. The DF's support is the K values
+        above `k_edge`, and `q_sign` and `f_sign` are read only at K
         above `k_edge`.
         Default: ``0.0``, which means no domain edge (all models other than
         Type II).
@@ -145,7 +145,7 @@ def truncation_gates(
     Returns
     -------
     gates : TruncationGates
-        The DF's sign record, the lowest admissible truncation energy and
+        The DF's sign record, the lowest admissible truncation value and
         the gates that `k_t` fails.
     """
     f_s = np.asarray(f_sign, dtype=np.float64)
@@ -176,7 +176,7 @@ def truncation_gates(
     elif k_edge > max(float(sign[2]), q_min):
         set_by = "domain_edge"
         # The DOMAIN gate requires K_t strictly above k_edge, so the smallest
-        # truncation energy the DOMAIN gate admits is the next double above
+        # truncation value the DOMAIN gate admits is the next double above
         # k_edge.
         k_t_min = float(np.nextafter(k_edge, np.inf))
     else:

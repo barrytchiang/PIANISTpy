@@ -1,6 +1,6 @@
 r"""Tests of `table_jacobian` and `make_inversion_table` on Method II children.
 
-The parent is the isotropic NFW model truncated at the energy
+The parent is the isotropic NFW model truncated at
 :math:`\mathcal{K}_{\rm t} = 0.0079589980165958` in internal units. Two
 Method II children use the parent's truncated profile: a COM Type I child
 with :math:`\beta_{\rm c} = -0.2` and :math:`R_{\rm a} = 1.8`, and an OM
@@ -70,7 +70,9 @@ def test_the_values_are_the_solve(child):
     _, table, form, *_ = tabulated_df(c, Settings())
     assert np.array_equal(values["k"], table.k[0])
     assert np.array_equal(values["log_df"], table.log_df[0])
-    np.testing.assert_array_equal(values["edge_law"], form.below_floor_coefficients[0])
+    np.testing.assert_array_equal(
+        values["boundary_form"], form.below_floor_coefficients[0]
+    )
     assert values["center"][0] == form.central_exponent[0]
     assert values["center"][1] == form.central_amplitude[0]
 
@@ -108,7 +110,7 @@ def test_the_rule_against_the_frozen_grid(child):
         np.testing.assert_allclose(
             jac[theta]["log_df"], rich["log_df"], rtol=1e-6, atol=1e-6
         )
-        for key in ("edge_law", "center"):
+        for key in ("boundary_form", "center"):
             np.testing.assert_allclose(
                 jac[theta][key], rich[key], rtol=1e-6, atol=1e-12
             )

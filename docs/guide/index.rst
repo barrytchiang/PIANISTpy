@@ -8,7 +8,7 @@ that class or function on the :doc:`Functions by subpackage <../reference/api/in
    :maxdepth: 1
 
    models
-   Particles (Sampler) <particles>
+   Particle sampling (Sampler) <particles>
    observables
    superposition
    units

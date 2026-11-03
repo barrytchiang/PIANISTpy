@@ -6,7 +6,7 @@ Radial velocity dispersion
 ``sigma_r(source, r)`` returns the intrinsic radial velocity dispersion :math:`\sigma_{\rm r}` at user-specified 3D radii.
 :math:`\sigma_{\rm r}^2` is the second moment of the radial velocity over the model's distribution function at a
 fixed radius. As in |paper|, :math:`\sigma_{\rm r}^2` is the velocity moment of the augmented density
-:math:`\varrho_{\rm aug}`, integrated over the energy :math:`\mathcal{K}` up to the relative potential
+:math:`\varrho_{\rm aug}`, integrated over the energy-like variable :math:`\mathcal{K}` up to the relative potential
 :math:`P = P(R)` at the radius :math:`R`,
 
 .. math::
@@ -16,7 +16,7 @@ fixed radius. As in |paper|, :math:`\sigma_{\rm r}^2` is the velocity moment of 
 
 For the anisotropy models of the package, the augmented density separates as
 :math:`\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)`, with :math:`\varrho_{\rm aux}` the auxiliary density
-and :math:`g` the anisotropy factor (``Anisotropy.factor``). :math:`\sigma_{\rm r}^2` is then the Jeans integral of
+and :math:`g` the anisotropy factor (``Anisotropy.factor``). :math:`\sigma_{\rm r}^2` is then the dispersion integral of
 :math:`\varrho_{\rm aux}` over the potential. The radius :math:`R` of |paper| is ``r`` in the package.
 
 Arguments and units

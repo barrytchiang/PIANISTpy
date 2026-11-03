@@ -1,4 +1,4 @@
-The grid of ver. 1.0.0 with the default settings level; the files that hold it, with the quick level's grid, are listed under `The downloadable files`_ below.
+The grid of ver. 1.0.1 with the default settings level; the files that hold it, with the quick level's grid, are listed under `The downloadable files`_ below.
 
 The main grid
 -------------
@@ -85,7 +85,7 @@ The main grid
    <td class="acc-silent"><span class="acc-max"><span class="math notranslate nohighlight">\({1.1 \times 10^{-9}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({1.5 \times 10^{-11}}\)</span></span></td>
    <td class="acc-silent"><span class="acc-max"><span class="math notranslate nohighlight">\({1.4 \times 10^{-11}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({2.6 \times 10^{-13}}\)</span></span></td>
    <td class="acc-warned"><span class="acc-max"><span class="math notranslate nohighlight">\({1.6 \times 10^{-7}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({2.4 \times 10^{-10}}\)</span></span><span class="acc-tier">warned</span></td>
-   <td class="acc-refusal" title="refusal: AccuracyError: 2 rows of the inversion inside the table exceed the DF&#x27;s ceiling 10^300, the first row 5681 at K = 9.684420e-01, and no closed form of the center covers the energies above: refused"><span class="acc-word">error</span><span class="acc-name">Accuracy<wbr>Error</span></td>
+   <td class="acc-refusal" title="refusal: AccuracyError: 2 rows of the inversion inside the table exceed the DF&#x27;s ceiling 10^300, the first row 5681 at K = 9.684420e-01, and no closed form of the center covers the range above: refused"><span class="acc-word">error</span><span class="acc-name">Accuracy<wbr>Error</span></td>
    <td class="acc-warned"><span class="acc-max"><span class="math notranslate nohighlight">\({8.3 \times 10^{-5}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({7.5 \times 10^{-9}}\)</span></span><span class="acc-tier">warned</span></td>
    <td class="acc-warned"><span class="acc-max"><span class="math notranslate nohighlight">\({2.0 \times 10^{-8}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({4.2 \times 10^{-11}}\)</span></span><span class="acc-tier">warned</span></td>
    <td class="acc-refused"><span class="acc-tier">refused</span></td>
@@ -157,7 +157,7 @@ The main grid
    <td class="acc-silent"><span class="acc-max"><span class="math notranslate nohighlight">\({2.7 \times 10^{-8}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({2.5 \times 10^{-11}}\)</span></span></td>
    <td class="acc-silent"><span class="acc-max"><span class="math notranslate nohighlight">\({8.8 \times 10^{-12}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({2.6 \times 10^{-13}}\)</span></span></td>
    <td class="acc-warned"><span class="acc-max"><span class="math notranslate nohighlight">\({1.4 \times 10^{-7}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({2.8 \times 10^{-10}}\)</span></span><span class="acc-tier">warned</span></td>
-   <td class="acc-refusal" title="refusal: AccuracyError: 3 rows of the inversion inside the table exceed the DF&#x27;s ceiling 10^300, the first row 5689 at K = 9.680522e-01, and no closed form of the center covers the energies above: refused"><span class="acc-word">error</span><span class="acc-name">Accuracy<wbr>Error</span></td>
+   <td class="acc-refusal" title="refusal: AccuracyError: 3 rows of the inversion inside the table exceed the DF&#x27;s ceiling 10^300, the first row 5689 at K = 9.680522e-01, and no closed form of the center covers the range above: refused"><span class="acc-word">error</span><span class="acc-name">Accuracy<wbr>Error</span></td>
    <td class="acc-warned"><span class="acc-max"><span class="math notranslate nohighlight">\({6.5 \times 10^{-5}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({5.2 \times 10^{-11}}\)</span></span><span class="acc-tier">warned</span></td>
    <td class="acc-warned"><span class="acc-max"><span class="math notranslate nohighlight">\({1.9 \times 10^{-8}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({7.5 \times 10^{-12}}\)</span></span><span class="acc-tier">warned</span></td>
    <td class="acc-refused"><span class="acc-tier">refused</span></td>
@@ -229,7 +229,7 @@ The main grid
    <td class="acc-silent"><span class="acc-max"><span class="math notranslate nohighlight">\({4.2 \times 10^{-8}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({3.2 \times 10^{-11}}\)</span></span></td>
    <td class="acc-silent"><span class="acc-max"><span class="math notranslate nohighlight">\({7.2 \times 10^{-12}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({2.9 \times 10^{-13}}\)</span></span></td>
    <td class="acc-silent"><span class="acc-max"><span class="math notranslate nohighlight">\({1.5 \times 10^{-8}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({1.3 \times 10^{-10}}\)</span></span></td>
-   <td class="acc-refusal" title="refusal: AccuracyError: 3 rows of the inversion inside the table exceed the DF&#x27;s ceiling 10^300, the first row 5692 at K = 9.678572e-01, and no closed form of the center covers the energies above: refused"><span class="acc-word">error</span><span class="acc-name">Accuracy<wbr>Error</span></td>
+   <td class="acc-refusal" title="refusal: AccuracyError: 3 rows of the inversion inside the table exceed the DF&#x27;s ceiling 10^300, the first row 5692 at K = 9.678572e-01, and no closed form of the center covers the range above: refused"><span class="acc-word">error</span><span class="acc-name">Accuracy<wbr>Error</span></td>
    <td class="acc-refusal" title="refusal: AccuracyError: The untruncated model is beyond 0.01 (tier &#x27;refused&#x27;): the result it is built from is in the band &#x27;refused&#x27;. Settings(write_anyway=True) returns the model with its tier."><span class="acc-word">error</span><span class="acc-name">Accuracy<wbr>Error</span><sup class="acc-flag" title="not the outcome the grid expects">†</sup></td>
    <td class="acc-recorded"><span class="acc-max"><span class="math notranslate nohighlight">\({1.5 \times 10^{-8}}\)</span></span><span class="acc-med"><span class="math notranslate nohighlight">\({5.4 \times 10^{-11}}\)</span></span><span class="acc-tier">recorded</span></td>
    <td class="acc-refused"><span class="acc-tier">refused</span></td>
@@ -376,12 +376,12 @@ Anisotropy radius
    </tr>
    </tbody></table></div>
 
-Truncation energy
-~~~~~~~~~~~~~~~~~
+Truncation value
+~~~~~~~~~~~~~~~~
 
 .. raw:: html
 
-   <p class="acc-lead">Four profiles as Method I models under six anisotropy models of the main grid, each truncated by Method I and by Method II (rows), with the truncation energy from <span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.5}\)</span> to 0.002 (columns).</p>
+   <p class="acc-lead">Four profiles as Method I models under six anisotropy models of the main grid, each truncated by Method I and by Method II (rows), with the truncation value from <span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.5}\)</span> to 0.002 (columns).</p>
    <div class="acc-wrap"><table class="acc"><thead><tr><th></th>
    <th scope="col"><span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.5}\)</span></th>
    <th scope="col"><span class="math notranslate nohighlight">\({\mathcal{K}_{\rm t} = 0.2}\)</span></th>

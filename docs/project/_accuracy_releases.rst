@@ -9,6 +9,14 @@
      - Refused with an error
      - Excluded (Cusp Slope-Central Anisotropy theorem)
      - Files
+   * - Ver. 1.0.1
+     - 380
+     - 59
+     - 24
+     - 12
+     - 83
+     - 19
+     - :download:`default <../_extra/accuracy/1.0.1/grid_default.csv>`, :download:`quick <../_extra/accuracy/1.0.1/grid_quick.csv>`, :download:`models <../_extra/accuracy/1.0.1/members.csv>`
    * - Ver. 1.0.0
      - 380
      - 59

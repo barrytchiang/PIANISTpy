@@ -69,14 +69,14 @@ def test_the_depth_is_the_solves_own_column_near_the_center(model):
     assert np.all(np.isnan(PotentialReading(profile).depth(r[deep])))
 
 
-def test_g_read_by_the_depth_is_g_read_by_the_energy_where_both_hold(model):
-    r"""Assert that G read by the depth matches G read by the energy.
+def test_g_read_by_the_depth_is_g_read_by_k_where_both_hold(model):
+    r"""Assert that G read by the depth matches G read by K.
 
     G is the cumulative DF :math:`\int_0^Q F\,{\rm d}K` of the ellipse
     route's `EllipseDF`. The test asserts that the `EllipseDF` has
-    ``depth_end`` set, which means that the top energy
+    ``depth_end`` set, which means that the top value
     :math:`Q_{\rm end}` (the attribute ``Qend``) is the model's :math:`P_0`.
-    For energies Q between :math:`0.6 Q_{\rm end}` and :math:`0.95 Q_{\rm end}`,
+    For values of Q between :math:`0.6 Q_{\rm end}` and :math:`0.95 Q_{\rm end}`,
     G called with the depth :math:`Q_{\rm end} - Q` matches G called with Q
     alone to a relative :math:`10^{-14}`. G called with a depth of NaN equals
     G called with Q alone exactly.

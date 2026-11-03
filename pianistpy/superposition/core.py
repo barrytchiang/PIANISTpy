@@ -1,9 +1,9 @@
-r"""The superposition of models that share one truncated potential-density pair.
+r"""The superposition of models that share one truncated potential–density pair.
 
 A user calls `superpose` to combine models into one model, `moments` to obtain
 the second velocity moments of the combined model, and `mixture` to combine
 any per-component quantity by the weights. Several distribution functions
-inverted from one truncated potential-density pair, for example Method II
+inverted from one truncated potential–density pair, for example Method II
 children of one truncated parent, combine into an equilibrium of that pair
 for any positive weights :math:`w_k` that sum to 1:
 
@@ -15,7 +15,7 @@ with :math:`f_k` the distribution function of member :math:`k` and
 :math:`\rho_k` the density of member :math:`k`, every :math:`\rho_k` equal to
 the shared density :math:`\rho`. `superpose` returns the equilibrium as a
 `Model` whose components are the members' components; each component keeps
-the member's DF table on the member's own energy grid, and the model's
+the member's DF table on the member's own K grid, and the model's
 density is the shared density split among the components by weight. The
 weights are normalized to sum to 1, with a logged warning where the weights'
 sum differs from 1 by more than :math:`10^{-10}`. The construction follows
@@ -103,7 +103,7 @@ def moments(model: Model, r: Any, n_nodes: int | None = None) -> dict[str, Any]:
         User-specified 3D radii, in internal units whatever the model's unit
         system.
     n_nodes : int, optional
-        The number of Gauss-Legendre nodes of each component's Jeans
+        The number of Gauss-Legendre nodes of each component's dispersion
         integral. Default: ``None``, which means the value of the model's
         setting ``observables.n_jeans_nodes``.
 
@@ -134,10 +134,10 @@ def moments(model: Model, r: Any, n_nodes: int | None = None) -> dict[str, Any]:
     Notes
     -----
     The squared radial dispersion :math:`\sigma_{r,k}^2` of component
-    :math:`k` is the Jeans integral of the component's augmented density on
-    the shared profile, evaluated by a Gauss-Legendre rule in the variable
-    :math:`\ln(1 - \mathcal{K}/P_0)`, with :math:`\mathcal{K}` the binding
-    energy and :math:`P_0` the central potential. Because the components
+    :math:`k` is the dispersion integral of the component's augmented density
+    on the shared profile, evaluated by a Gauss-Legendre rule in the variable
+    :math:`\ln(1 - \mathcal{K}/P_0)`, with :math:`\mathcal{K}` the energy-like
+    variable and :math:`P_0` the central potential. Because the components
     share one density, the moments of the superposed model are the weighted
     sums
 
@@ -183,7 +183,7 @@ def moments(model: Model, r: Any, n_nodes: int | None = None) -> dict[str, Any]:
     p_outer = float(profile.p_trunc[-1])
     if not model.spatially_finite:
         raise InputError(
-            "moments takes a Model built on a spatially finite potential-density "
+            "moments takes a Model built on a spatially finite potential–density "
             "pair; the Model given is built on a pair that is not spatially finite."
         )
     rows_sigma, rows_beta = [], []
@@ -240,7 +240,7 @@ def superpose(members: Mapping[Model, float]) -> Model:
         A model with one component per member, in the order of `members`.
         Each component is the member's component, with a mass equal to the
         member's weight divided by the first member's weight, and with the
-        member's DF table on the member's own energy grid. The model's
+        member's DF table on the member's own K grid. The model's
         profile is the shared truncated profile with the density split among
         the components by weight. Each check of the model's
         `ValidationReport` holds the largest error of the check over the
@@ -412,8 +412,8 @@ def _pad(rows: list[np.ndarray], fill: str) -> np.ndarray:
 def _stack_tables(tables: list[DfTable]) -> DfTable:
     """Return the members' DF tables stacked along the component axis.
 
-    Each member's table keeps the member's own energy grid. Beyond a member's
-    last energy, the member's grid repeats the last energy and the member's
+    Each member's table keeps the member's own K grid. Beyond a member's
+    last node, the member's grid repeats the last node and the member's
     values are NaN, the rule a `DfTable` follows for grids of different
     lengths. Below the table, each member keeps the member's own number of
     nodes. A signed member table raises `InputError`."""

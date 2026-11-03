@@ -58,6 +58,7 @@ from scipy import special
 from ..df import Model
 from ..exceptions import AccuracyError, InputError, ResultError
 from ..numerics import hermite_inverse
+from ..profiles._series import inner_depth_terms
 from ..settings import Settings
 from ..typing import Array
 from ..validation import Check, ValidationReport
@@ -175,10 +176,10 @@ class VelocityTable:
     p_0 : float
         Central value p_0 of the relative potential, the upper end of the
         potentials that `lambda_p` maps.
-    e_edge : tuple of float
-        Energy at which each component's DF ends: 0 where the DF continues
-        below the DF's table, else the DF table's lowest energy. A draw forms
-        the support's edge as x_e = (1 - e_edge / Psi)^{1/2} (`draw_velocity`).
+    k_edge : tuple of float
+        Value of K at which each component's DF ends: 0 where the DF continues
+        below the DF's table, else the DF table's lowest K. A draw forms
+        the support's edge as x_e = (1 - k_edge / Psi)^{1/2} (`draw_velocity`).
     validation : ValidationReport
         The table's two checks, listed in `VELOCITY_TABLE_KEYS`, each located at
         the potential Psi of the check's worst row. "row_error" is the
@@ -207,7 +208,7 @@ class VelocityTable:
     ds_dlambda_p: Array
     x_edge: Array
     p_0: float
-    e_edge: tuple[float, ...]
+    k_edge: tuple[float, ...]
     validation: ValidationReport
     row_cap: str = ""
 
@@ -499,8 +500,8 @@ def velocity_table(model: Model, settings: Settings) -> VelocityTable:
         If a row is not finite and increasing, or the profile's potentials do
         not span the rows.
     UnphysicalModelError
-        If the DF below its table has a mass that is not finite at zero
-        energy.
+        If the DF below its table has a mass that is not finite at
+        K = 0.
 
     References
     ----------
@@ -945,7 +946,7 @@ def draw_velocity(
     from the profile's `interpolation_tables`: the cubic Hermite interpolant
     of ln Psi in ln r through the interior radii with the radii's exact
     slopes, a straight line with the end radius's slope beyond the interior
-    radii, and on the last interval of a profile with an edge row the Kepler
+    radii, and on the last interval of a profile with an edge row the point-mass
     form ``M_t (1/r - 1/r_t)``. The table row is found by index arithmetic in
     lambda_p and clamped to the rows that have a neighbor on each side.
     Between the two neighboring rows, s is the cubic Hermite interpolant in
@@ -972,7 +973,7 @@ def draw_velocity(
         jnp.int32(n_rows),
         jnp.float64(table.lambda_u[0]),
         jnp.float64(table.lambda_u[-1]),
-        jnp.float64(table.e_edge[component]),
+        jnp.float64(table.k_edge[component]),
         s,
         ds_dlambda_u,
         ds_dlambda_p,
@@ -1064,7 +1065,7 @@ def velocity_bounds(
         jnp.int32(table.lambda_p.shape[0]),
         jnp.float64(table.lambda_u[0]),
         jnp.float64(table.lambda_u[-1]),
-        jnp.float64(table.e_edge[component]),
+        jnp.float64(table.k_edge[component]),
         s,
         ds_dlambda_u,
         ds_dlambda_p,
@@ -1120,6 +1121,15 @@ def _potential_tables(model: Model) -> tuple[Array, ...]:
     """Return the profile's tables of the potential in the form that
     `_psi_kernel` takes."""
     tables = model.profile.interpolation_tables()
+    alpha, beta, gamma = (float(v) for v in tables.inner_slopes)
+    coefficients, exponents = inner_depth_terms(
+        float(tables.inner_total_amplitude),
+        gamma,
+        alpha,
+        beta,
+        deficit=float(np.sum(tables.inner_deficit)),
+        deficit_slope=float(tables.inner_deficit_slope),
+    )
     return _padded_tables(
         tables.log_r,
         tables.log_p,
@@ -1127,17 +1137,31 @@ def _potential_tables(model: Model) -> tuple[Array, ...]:
         tables.r_last if tables.has_edge_row else math.inf,
         tables.r_t,
         tables.mass_t,
+        coefficients,
+        exponents,
+        float(tables.p_0),
     )
 
 
 def _padded_tables(
-    x: Array, y: Array, m: Array, r_last: float, r_t: float, mass_t: float
+    x: Array,
+    y: Array,
+    m: Array,
+    r_last: float,
+    r_t: float,
+    mass_t: float,
+    inner_coefficients: Array,
+    inner_exponents: Array,
+    p_0: float,
 ) -> tuple[Array, ...]:
     """Return ln r, ln Psi and the slope d ln Psi / d ln r on the interior
     radii, padded to a power of two (ln r infinite on the padding, which is
-    never read); the count of real radii; the start `r_last` of the Kepler
-    interval; the truncation radius ``r_t``; and the truncated mass M_t.
-    `r_last` is infinite where the profile has no Kepler interval."""
+    never read); the count of real radii; the start `r_last` of the point-mass
+    interval; the truncation radius ``r_t``; the truncated mass M_t; the
+    coefficients and exponents of the inner depth series' terms
+    (`inner_depth_terms`), with which the potential continues inside the first
+    radius; and the central potential ``P_0``. `r_last` is infinite where the
+    profile has no point-mass interval."""
     pad = (1 << (x.size - 1).bit_length()) - x.size
     return (
         np.concatenate([x, np.full(pad, np.inf)]),
@@ -1147,11 +1171,22 @@ def _padded_tables(
         np.float64(r_last),
         np.float64(r_t),
         np.float64(mass_t),
+        np.asarray(inner_coefficients, dtype=np.float64),
+        np.asarray(inner_exponents, dtype=np.float64),
+        np.float64(p_0),
     )
 
 
 @jax.jit
-def _psi_kernel(r, x_nodes, y_nodes, m_nodes, n, r_last, r_t, mass_t):
+def _psi_kernel(
+    r, x_nodes, y_nodes, m_nodes, n, r_last, r_t, mass_t, inner_c, inner_p, p_0
+):
+    """Return the potential at the radii `r` as `TruncatedProfile.potential`
+    evaluates it: the cubic Hermite interpolant of ln Psi in ln r between the
+    interior radii, the last radius's power law beyond them, the inner depth
+    series ``P_0 - sum_k c_k r^p_k`` inside the first radius, the point-mass form
+    on the point-mass interval and zero from ``r_t`` outward."""
+
     def one(r_i):
         x = jnp.log(r_i)
         i = jnp.clip(jnp.searchsorted(x_nodes, x, side="right") - 1, 0, n - 2)
@@ -1166,14 +1201,15 @@ def _psi_kernel(r, x_nodes, y_nodes, m_nodes, n, r_last, r_t, mass_t):
         )
         below, above = x < x_nodes[0], x > x_nodes[n - 1]
         log_p = jnp.where(
-            below,
-            y_nodes[0] + m_nodes[0] * (x - x_nodes[0]),
-            jnp.where(
-                above, y_nodes[n - 1] + m_nodes[n - 1] * (x - x_nodes[n - 1]), inside
-            ),
+            above, y_nodes[n - 1] + m_nodes[n - 1] * (x - x_nodes[n - 1]), inside
         )
-        kepler = mass_t * jnp.maximum(1.0 / r_i - 1.0 / r_t, 0.0)
-        return jnp.where(r_i > r_last, kepler, jnp.exp(log_p))
+        # Inside the first radius, the inner depth series; the series is
+        # evaluated at the first radius elsewhere, so that no power overflows.
+        r_series = jnp.where(below, r_i, jnp.exp(x_nodes[0]))
+        depth = jnp.sum(inner_c * r_series**inner_p)
+        psi = jnp.where(below, p_0 - depth, jnp.exp(log_p))
+        point_mass = mass_t * jnp.maximum(1.0 / r_i - 1.0 / r_t, 0.0)
+        return jnp.where(r_i > r_last, point_mass, psi)
 
     return jax.vmap(one)(r)
 
@@ -1188,7 +1224,7 @@ def _velocity_kernel(
     n_rows,
     lambda_u_0,
     lambda_u_1,
-    e_edge,
+    k_edge,
     s,
     ds_dlambda_u,
     ds_dlambda_p,
@@ -1239,8 +1275,8 @@ def _velocity_kernel(
         outside = (sx_raw < 1.0) | (sx_raw > n_rows - 2.0)
         x_e = jnp.where(
             outside,
-            jnp.sqrt(jnp.maximum(1.0 - e_edge / psi_i, 0.0)),
-            jnp.sqrt(jnp.maximum(1.0 - e_edge / psi_c, 0.0)),
+            jnp.sqrt(jnp.maximum(1.0 - k_edge / psi_i, 0.0)),
+            jnp.sqrt(jnp.maximum(1.0 - k_edge / psi_c, 0.0)),
         )
         d_i = x_e / (1.0 + jnp.exp(s_i))
         return jnp.where(s_i > 0.0, x_e - d_i, x_e / (1.0 + jnp.exp(-s_i))), d_i

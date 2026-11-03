@@ -14,8 +14,8 @@ line-of-sight nodes in t, of the velocity-plane integral
 :math:`(L^2)^{-\beta_{\rm c}}`, the velocity-plane integral is the integral
 of :math:`F (L^2)^{-\beta_{\rm c}}` over the depth s below :math:`Q_c` and
 the angle :math:`\phi`, where F is the DF and :math:`Q_c` is the largest
-energy variable on the velocity plane. For a model without the factor, the
-velocity-plane integral is :math:`2\pi\,G(Q_c)`, with
+value of the energy-like variable on the velocity plane. For a model without the
+factor, the velocity-plane integral is :math:`2\pi\,G(Q_c)`, with
 :math:`G(Q_c) = \int_0^{Q_c} F(Q_c - s)\,{\rm d}s`.
 
 At a fixed DF table, the anisotropy changes the velocity-plane integral in
@@ -43,7 +43,7 @@ Where the edge of the DF's support moves and F is not zero at that edge,
 the derivative has an edge term that the held supports do not carry.
 `losvd_rows_explicit` therefore raises InputError for a DF that ends at its
 floor with a positive value (the rule ``"zero"``) and for a DF that
-diverges at zero energy (the rule ``"tail"``). Notes Section T:7.3 states
+diverges at :math:`K = 0` (the rule ``"tail"``). Notes Section T:7.3 states
 the tangent rows of the observables.
 """
 
@@ -136,7 +136,7 @@ def _refuse(
     rule = model.form.below_floor[0]
     if rule == "tail":
         raise InputError(
-            "For a DF that diverges at zero energy (the rule 'tail'), F is not zero "
+            "For a DF that diverges at K = 0 (the rule 'tail'), F is not zero "
             "at the edge of the integration range of the line-of-sight velocity "
             "distributions, and the edge moves with the parameters; the derivative "
             "does not include the resulting edge term."
@@ -193,7 +193,7 @@ def _chunk(
     """Return the twin of `EllipseRoute._plane_s` on one chunk of pairs.
 
     The function forms the depth nodes s of each pair, reads F at the
-    energies :math:`K = Q_c - s`, evaluates the angle integral at each node,
+    values :math:`K = Q_c - s`, evaluates the angle integral at each node,
     and sums over the depth nodes. Where K lies above `top_half`, the lookup
     reads F by the depth ``dqc + s`` below the central potential. The angle
     integral at a node uses the angle count that the forward computation

@@ -5,7 +5,7 @@ A truncated density that ends as :math:`\mathcal{P}^q` at its edge, with
 density's edge exponent, has a DF of central anisotropy :math:`\beta_{\rm c}`
 if and only if :math:`\beta_{\rm c} > 1/2 - q`. The DF goes as
 :math:`\mathcal{K}^{\,p}` at the edge, with
-:math:`p = q - 3/2 + \beta_{\rm c}` and :math:`\mathcal{K}` the energy
+:math:`p = q - 3/2 + \beta_{\rm c}` and :math:`\mathcal{K}`
 measured from the edge. The existence condition and the DF's edge exponent
 hold for every profile and every anisotropy model of the package.
 `df_edge_exponent` and `density_edge_exponent` convert the DF's edge
@@ -43,7 +43,7 @@ def density_edge_exponent(df_edge_exponent: float, beta_c: float) -> float:
         Exponent :math:`p` of the DF at the edge,
         :math:`F \propto \mathcal{K}^p`. The exponent must be above -1, so
         that the density is finite. A truncated DF with a positive slope at
-        the truncation energy has :math:`p = 1`. A DF truncated at a
+        the truncation value has :math:`p = 1`. A DF truncated at a
         stationary point of the DF has :math:`p = 2`.
     beta_c : float
         Central anisotropy :math:`\beta_{\rm c}` of the DF.

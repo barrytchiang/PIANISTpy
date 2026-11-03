@@ -54,13 +54,13 @@ def test_timing_enabled_reports_the_switch():
 
 def test_stages_are_timed_whether_or_not_timing_is_printed(capsys):
     with runtime.timing_record() as timing:
-        with runtime.timed("energy_grid"):
+        with runtime.timed("k_grid"):
             pass
         with runtime.timed("invert_rows"):
             pass
-        with runtime.timed("energy_grid"):
+        with runtime.timed("k_grid"):
             pass
-    assert list(timing.stages) == ["energy_grid", "invert_rows"]
+    assert list(timing.stages) == ["k_grid", "invert_rows"]
     assert all(seconds >= 0.0 for seconds in timing.stages.values())
     assert timing.total == sum(timing.to_dict().values())
     assert capsys.readouterr().out == ""

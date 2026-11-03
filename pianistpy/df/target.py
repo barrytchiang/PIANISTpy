@@ -1,6 +1,6 @@
-r"""The truncation energy that gives a target mass or a target radius, Method I.
+r"""The truncation value that gives a target mass or a target radius, Method I.
 
-`solve_target` returns the truncation energy :math:`\mathcal{K}_{\rm t}`
+`solve_target` returns the truncation value :math:`\mathcal{K}_{\rm t}`
 whose Method I truncated model has a target total mass :math:`M_{\rm t}`
 (in units of :math:`M_0`) or a target truncation radius :math:`R_{\rm t}`
 (in units of :math:`r_0`). Under Method I the untruncated DF does not
@@ -10,7 +10,7 @@ evaluation of a trial :math:`\mathcal{K}_{\rm t}` is one truncated solve
 :math:`x = \ln \mathcal{K}_{\rm t}` for the value
 :math:`v = M_{\rm t}` or :math:`v = R_{\rm t}`, in four steps:
 
-1. From the probe energy, :math:`\mathcal{K}_{\rm t}` increases, by a
+1. From the probe value, :math:`\mathcal{K}_{\rm t}` increases, by a
    factor of 16 where the trial model is not spatially finite and by a
    factor of 2 otherwise, until the model is admissible.
 2. Secant steps in :math:`(\ln \mathcal{K}_{\rm t}, \ln(v / {\rm target}))`
@@ -30,7 +30,7 @@ evaluation of a trial :math:`\mathcal{K}_{\rm t}` is one truncated solve
    a target radius. Where the inadmissible trial has no finite model, the
    step is a secant step on :math:`1 / R_{\rm t}` through the last two
    admissible trials. The step is a geometric bisection where the regula
-   falsi or secant energy is missing, lies outside the interval, or lies
+   falsi or secant value is missing, lies outside the interval, or lies
    closer to an end of the interval than :math:`10^{-3}` times the
    interval's width.
 4. The Illinois form of regula falsi on
@@ -44,8 +44,8 @@ evaluation of a trial :math:`\mathcal{K}_{\rm t}` is one truncated solve
    step 4 started from, the one with the smallest
    :math:`|\ln(v / {\rm target})|`.
 
-The search tries only truncation energies :math:`\mathcal{K}_{\rm t}`
-above both the lowest admissible truncation energy of the gates and the
+The search tries only truncation values :math:`\mathcal{K}_{\rm t}`
+above both the lowest admissible truncation value of the gates and the
 DF's last zero crossing, and at most 0.9 times the central potential. A
 tried :math:`\mathcal{K}_{\rm t}` is admissible when four conditions hold:
 the truncated solve raises no package error; the model is spatially finite
@@ -82,17 +82,17 @@ TARGET_GOAL = 1e-6
 # radius out to which the untruncated potential, measured from the potential's
 # far-field constant, holds a relative accuracy of 1e-6.
 RT_CAP = 1e5
-# ZT_MAX_FRAC: the deepest truncation energy searched, as a fraction of the
-# central potential. ZT_MIN_FRAC: the shallowest truncation energy searched,
+# ZT_MAX_FRAC: the deepest truncation value searched, as a fraction of the
+# central potential. ZT_MIN_FRAC: the shallowest truncation value searched,
 # as a fraction of the central potential, where the gates set no lowest
-# admissible truncation energy and the DF has no zero crossing. EDGE_REL: the
-# relative margin by which the shallowest truncation energy searched lies
-# above the larger of the gates' lowest admissible truncation energy and the
+# admissible truncation value and the DF has no zero crossing. EDGE_REL: the
+# relative margin by which the shallowest truncation value searched lies
+# above the larger of the gates' lowest admissible truncation value and the
 # DF's last zero crossing.
 ZT_MAX_FRAC = 0.9
 ZT_MIN_FRAC = 1e-12
 EDGE_REL = 1e-9
-# DEFAULT_PROBE: the first truncation energy tried where the caller gives no
+# DEFAULT_PROBE: the first truncation value tried where the caller gives no
 # probe. STEP_MAX: the largest factor by which one step of steps 1 and 2 of
 # the search changes K_t.
 # MAX_EVAL: the most truncated solves of one search; a search that needs more
@@ -133,7 +133,7 @@ def solve_target(
     precision: float = TARGET_GOAL,
     rt_cap: float = RT_CAP,
 ) -> tuple[float, dict[str, Any]]:
-    r"""Return the truncation energy whose model has the target mass or radius.
+    r"""Return the truncation value whose model has the target mass or radius.
 
     Parameters
     ----------
@@ -150,7 +150,7 @@ def solve_target(
         The concentration that defines :math:`M_0`; required where `kind`
         is "mass". Default: ``None``.
     probe : float, optional
-        The first truncation energy tried, in internal units, clipped to the
+        The first truncation value tried, in internal units, clipped to the
         searched range. Default: ``None``, which means ``0.3``.
     precision : float, optional
         The bound on :math:`|v / {\rm target} - 1|` at the root, in
@@ -162,7 +162,7 @@ def solve_target(
     Returns
     -------
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal units.
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal units.
     record : dict
         The search's record: the inputs; every truncated solve with its
         :math:`\mathcal{K}_{\rm t}`, :math:`R_{\rm t}`, :math:`M_{\rm t}`,
@@ -203,7 +203,7 @@ def _solve_target(
     r"""Return `solve_target`'s result and the root's truncation chain.
 
     The third value is the `truncation_chain` that the search computed at
-    the returned truncation energy :math:`\mathcal{K}_{\rm t}`, so that
+    the returned truncation value :math:`\mathcal{K}_{\rm t}`, so that
     `truncate` does not compute that chain again; the third value is None
     where the truncated solve at the returned :math:`\mathcal{K}_{\rm t}`
     raised an error.
@@ -238,7 +238,7 @@ def _solve_target(
     )
 
     # The gates read the inversion's rows for the lowest admissible truncation
-    # energy and the DF's last zero crossing; the shallowest truncation energy
+    # value and the DF's last zero crossing; the shallowest truncation value
     # searched lies above both.
     rows = df.rows
     if rows is None:
@@ -294,9 +294,9 @@ def _solve_target(
     chains: dict[float, dict[str, Any]] = {}
 
     def ev(z: float) -> dict[str, Any]:
-        r"""Return the truncated solve's evaluation at truncation energy `z`.
+        r"""Return the truncated solve's evaluation at truncation value `z`.
 
-        The evaluation is cached by `z`, the truncation energy
+        The evaluation is cached by `z`, the truncation value
         :math:`\mathcal{K}_{\rm t}`. The evaluation states whether the solve
         raised no package error, whether the model is spatially finite, the
         truncation radius :math:`R_{\rm t}`, the truncated model's total mass

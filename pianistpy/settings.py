@@ -24,7 +24,7 @@ from .validation import TIER_BOUNDS
 # The names of the two tested settings levels.
 LEVELS = ("default", "quick")
 # The names of the groups of fields, one group for each part of a computation.
-GROUPS = ("inversion", "truncation", "sampling", "observables", "losvd")
+GROUPS = ("inversion", "truncation", "sampling", "observables", "losvd", "round_trip")
 
 
 @dataclass(frozen=True)
@@ -96,30 +96,30 @@ FIELDS: dict[str, dict[str, Field]] = {
         "n_grid_rows": Field(
             1000,
             (
-                "The number of energies in the middle zone of the inversion's "
-                "energy grid, where the energies are spaced linearly."
+                "The number of nodes in the middle zone of the inversion's K grid, "
+                "where the nodes are spaced linearly in K."
             ),
         ),
         "n_grid_tail_rows": Field(
             3000,
             (
-                "The number of energies in each of the two end zones of the "
-                "inversion's energy grid, where the energies are spaced "
+                "The number of nodes in each of the two end zones of the "
+                "inversion's K grid, where the nodes are spaced "
                 "logarithmically toward the grid's floor and toward the grid's top."
             ),
         ),
         "grid_tail_extent": Field(
             0.03,
             (
-                "The width of each end zone of the inversion's energy grid, as a "
+                "The width of each end zone of the inversion's K grid, as a "
                 "fraction of the central potential."
             ),
         ),
         "table_nodes_per_decade": Field(
             50,
             (
-                "The number of energies per decade below the floor of the "
-                "inversion's energy grid, down to the floor of the distribution "
+                "The number of nodes per decade of K below the floor of the "
+                "inversion's K grid, down to the floor of the distribution "
                 "function's table."
             ),
         ),
@@ -192,11 +192,14 @@ FIELDS: dict[str, dict[str, Field]] = {
         ),
         "n_rows_inner": Field(
             500,
-            ("The number of radii of the Poisson solve's grid inside the inner zone."),
+            ("The number of radii of the Poisson solver's grid inside the inner zone."),
         ),
         "n_rows_outer": Field(
             59500,
-            ("The number of radii of the Poisson solve's grid outside the inner zone."),
+            (
+                "The number of radii of the Poisson solver's grid outside the inner "
+                "zone."
+            ),
         ),
         "log10_r_min": Field(
             -9.0,
@@ -400,9 +403,9 @@ FIELDS: dict[str, dict[str, Field]] = {
         "n_jeans_nodes": Field(
             500,
             (
-                "The number of Gauss-Legendre nodes of the Jeans integral of the "
-                "radial dispersion at one radius, as the superposition of "
-                "components computes the radial dispersion. The observables' "
+                "The number of Gauss-Legendre nodes of the dispersion integral that "
+                "gives the radial dispersion of a superposition of components "
+                "(superpose) at one radius. The observables' "
                 "profile does not use n_jeans_nodes: the profile sums panels "
                 "between the profile's radii and doubles each panel's nodes until "
                 "sigma_r changes by less than profile_tolerance."
@@ -478,26 +481,26 @@ FIELDS: dict[str, dict[str, Field]] = {
             ),
             quick=20,
         ),
-        "n_energy_nodes": Field(
+        "n_k_nodes": Field(
             8,
             (
-                "The number of Gauss-Legendre nodes of each panel of the energy "
-                "integral at one node of the table."
+                "The number of Gauss-Legendre nodes of each panel of the integral "
+                "over K at one node of the table."
             ),
         ),
         "n_floor_layers": Field(
             4,
             (
-                "The number of Gauss-Legendre panels of the energy integral graded "
+                "The number of Gauss-Legendre panels of the integral over K graded "
                 "toward K = 0, where the DF's rule below its table takes over."
             ),
             quick=2,
         ),
-        "energy_layer_ratio": Field(
+        "k_layer_ratio": Field(
             0.2,
             (
-                "The ratio of the widths of successive graded panels of the energy "
-                "integral."
+                "The ratio of the widths of successive graded panels of the integral "
+                "over K."
             ),
         ),
         "n_angle_nodes": Field(
@@ -652,7 +655,7 @@ FIELDS: dict[str, dict[str, Field]] = {
         "n_block_elements": Field(
             25000,
             (
-                "The number of elements (node pairs times energy nodes times angle "
+                "The number of elements (node pairs times K nodes times angle "
                 "nodes) computed in one block, which bounds the memory of the "
                 "computation at one projected radius."
             ),
@@ -681,6 +684,57 @@ FIELDS: dict[str, dict[str, Field]] = {
             ),
         ),
     },
+    "round_trip": {
+        "ode_rtol": Field(
+            1e-13,
+            (
+                "The relative tolerance of the integration of Poisson's equation "
+                "in residual form about the analytic potential (round_trip)."
+            ),
+        ),
+        "log10_r_start": Field(
+            -12.0,
+            (
+                "The base-10 logarithm of the radius at which the integration of "
+                "the round trip starts, in internal length units; the residual of "
+                "the potential is zero there."
+            ),
+        ),
+        "log10_r_min": Field(
+            -10.0,
+            (
+                "The base-10 logarithm of the innermost radius of the round trip's "
+                "grid of radii, in internal length units."
+            ),
+        ),
+        "log10_r_max": Field(
+            9.0,
+            (
+                "The base-10 logarithm of the outermost radius of the round trip's "
+                "grid of radii, in internal length units."
+            ),
+        ),
+        "rows_per_decade": Field(
+            200,
+            "The number of radii per decade of the round trip's grid of radii.",
+        ),
+        "depth_nodes_per_decade": Field(
+            400,
+            (
+                "The number of nodes per decade of the depth P_0 - P at which the "
+                "round trip tabulates the density that the DF gives, from the "
+                "depth at the starting radius to a depth of 0.7."
+            ),
+        ),
+        "potential_nodes_per_decade": Field(
+            1600,
+            (
+                "The number of nodes per decade of the potential P at which the "
+                "round trip tabulates the density that the DF gives, from the "
+                "floor of the DF table to a potential of 0.7."
+            ),
+        ),
+    },
 }
 
 
@@ -688,6 +742,18 @@ FIELDS: dict[str, dict[str, Field]] = {
 # innermost_read_radius = 0 keeps the projected table's full depth, and
 # outer_mass_share = 0 keeps the projected table out to the model's edge.
 OFF_AT_ZERO = ("innermost_read_radius", "outer_mass_share")
+# The fields renamed since ver. 1.0.0, by group: the former name and the
+# current name. An override given under a former name is recorded under the
+# current name, so that settings files of ver. 1.0.0 still read. The former
+# names are removed in ver. 1.1.0.
+FORMER_FIELDS = {
+    "losvd": {"n_energy_nodes": "n_k_nodes", "energy_layer_ratio": "k_layer_ratio"}
+}
+
+
+def _current_name(group: str, name: str) -> str:
+    """Return the current name of a field given under its name or a former name."""
+    return FORMER_FIELDS.get(group, {}).get(name, name)
 
 
 def _checked(group: str, name: str, value: Any) -> Any:
@@ -767,7 +833,9 @@ class Settings:
     **overrides : mapping
         For each group to change (``inversion``, ``truncation``,
         ``sampling``, ``observables`` or ``losvd``), a mapping from field
-        name to new value. The manual's settings tables list every field.
+        name to new value. The manual's settings tables list every field. A
+        field renamed since ver. 1.0.0 is accepted under its former name as
+        well (`FORMER_FIELDS`) and recorded under its current name.
         Default: no override, which means every field has its value at the
         settings level.
 
@@ -853,7 +921,12 @@ class Settings:
             )
         frozen = {
             group: MappingProxyType(
-                {name: _checked(group, name, value) for name, value in fields.items()}
+                {
+                    _current_name(group, name): _checked(
+                        group, _current_name(group, name), value
+                    )
+                    for name, value in fields.items()
+                }
             )
             for group, fields in sorted(overrides.items())
             if fields
@@ -960,6 +1033,11 @@ class Settings:
         """The values in force of the group ``losvd``."""
         return self.group("losvd")
 
+    @property
+    def round_trip(self) -> Mapping[str, Any]:
+        """The values in force of the group ``round_trip``."""
+        return self.group("round_trip")
+
     def resolved(self) -> dict[str, dict[str, Any]]:
         """Return the value in force of every field of every group.
 
@@ -976,7 +1054,7 @@ class Settings:
         Examples
         --------
         >>> sorted(Settings().resolved())
-        ['inversion', 'losvd', 'observables', 'sampling', 'truncation']
+        ['inversion', 'losvd', 'observables', 'round_trip', 'sampling', 'truncation']
         """
         return {name: dict(self.group(name)) for name in GROUPS}
 

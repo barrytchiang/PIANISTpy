@@ -3,9 +3,9 @@ r"""Order, prefactors and interior point of the DF inversion.
 The inversion of a model of central anisotropy :math:`\beta_{\rm c}`
 differentiates the auxiliary density :math:`\rho_{\rm aux}(P)` an integer
 number of times and integrates the derivative against the kernel
-:math:`(Q - P)^{-n}`, with :math:`P` the potential, :math:`Q` the energy
-and :math:`n` the kernel exponent. `order_pair` returns the integer order and the kernel
-exponent, `inversion_prefactor` the constant in front of the inversion,
+:math:`(Q - P)^{-n}`, with :math:`P` the potential, :math:`Q` the energy-like
+variable and :math:`n` the kernel exponent. `order_pair` returns the integer order
+and the kernel exponent, `inversion_prefactor` the constant in front of the inversion,
 `forward_prefactor` the constant in front of the density integral over the
 DF, and `interior_point` the potential inside the domain where a COM Type II
 auxiliary density is not smooth. The callers pass :math:`\beta_{\rm c} = 0`
@@ -166,7 +166,7 @@ def forward_prefactor(beta_c: float) -> float:
     The density integral is
     :math:`\rho_{\rm aux}(P) = A(\beta_{\rm c}) \int_0^P F(Q)\,
     [2(P - Q)]^{1/2 - \beta_{\rm c}}\,{\rm d}Q`, with :math:`F` the DF,
-    :math:`Q` the energy and :math:`P` the potential. The call returns
+    :math:`Q` the energy-like variable and :math:`P` the potential. The call returns
     :math:`A(\beta_{\rm c})`.
 
     Parameters

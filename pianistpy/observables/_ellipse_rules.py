@@ -94,7 +94,7 @@ RB_FILL = 6
 # A row is stored only where every gap between neighboring velocity nodes is
 # at least RB_MIN_GAP times the value of the upper node.
 RB_MIN_GAP = 1e-12
-# A row is of the cusp class where the table's top energy Q_top exceeds the
+# A row is of the cusp class where the table's top value Q_top exceeds the
 # potential at the row's R_2D by less than CUSP_FRAC times Q_top.
 CUSP_FRAC = 1e-3
 # The scan for the zero of the angular momentum (L = 0) starts at sinh t equal
@@ -129,18 +129,18 @@ class EllipseRules:
     rule_regular : tuple of int
         The rule ``(n_u, k0, ks, kq, m, n_phi)`` of a row of the regular class.
         ``n_u`` is read by no part of the route. ``k0`` is the least layer
-        count toward s = 0 of the energy integral. ``ks`` is the least layer
-        count toward the split of the energy integral. ``kq`` is the layer
-        count toward s = Q_c, where the energy K = Q_c - s of the DF is 0.
+        count toward s = 0 of the integral over K. ``ks`` is the least layer
+        count toward the split of the integral over K. ``kq`` is the layer
+        count toward s = Q_c, where the DF's argument K = Q_c - s is 0.
         ``m`` is the number of
-        Gauss-Legendre nodes of each panel of the energy integral. ``n_phi``
+        Gauss-Legendre nodes of each panel of the integral over K. ``n_phi``
         is the largest number of Gauss-Legendre nodes of the angle rule of a
         node.
     rule_cusp : tuple of int
         The rule of a row of the cusp class (`CUSP_FRAC`), in the form of
         `rule_regular`.
     s_ratio : float
-        Ratio of the widths of successive graded panels of the energy
+        Ratio of the widths of successive graded panels of the
         integral in s.
     angle_counts : tuple of int
         The Gauss-Legendre node counts per half of the angle rule that a node
@@ -151,7 +151,7 @@ class EllipseRules:
         L = 0 crossing, and of an interval that may hold an extremum of f in
         `EllipseRoute.f_extrema`.
     chunk : int
-        The largest number of elements of one block of node pairs, energy
+        The largest number of elements of one block of node pairs, K
         nodes and angle nodes, which bounds the memory of a row.
     t_nodes : int
         Gauss-Legendre nodes of each panel of the line-of-sight integral in t.
@@ -248,13 +248,13 @@ class EllipseModel:
     beta_c : float
         The central anisotropy :math:`\beta_{\rm c}`.
     k_end : int
-        Layers of the energy integral toward the L = 0 point at V > 0
+        Layers of the integral over K toward the L = 0 point at V > 0
         (`layer_counts`).
     k_end_floor : float or None
         The error floor of `k_end` where no layer count reaches the tolerance
         of `k_end`; None where a layer count reaches the tolerance.
     k_end_v0 : int
-        Layers of the energy integral toward the L = 0 point at V = 0.
+        Layers of the integral over K toward the L = 0 point at V = 0.
     k_end_v0_floor : float or None
         The error floor of `k_end_v0`, in the form of `k_end_floor`.
     k_map : int
@@ -271,10 +271,10 @@ class EllipseModel:
     vp_layers_edge : int
         Velocity sub-panels graded toward V_edge from below.
     p0_top : float
-        The DF's top energy :math:`P_0`; NaN where the DF's form states none.
+        The DF's top value :math:`P_0`; NaN where the DF's form states none.
     kappa_top : float
         The exponent :math:`\kappa` of :math:`F \sim (P_0 - Q)^\kappa` at the
-        top energy; NaN where the DF's form states none.
+        top value; NaN where the DF's form states none.
     vc_p : float
         The exponent p of the turnover of D at V_c; NaN where p is not
         computed.

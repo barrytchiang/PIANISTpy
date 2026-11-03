@@ -18,19 +18,19 @@
    * - ``n_grid_rows``
      - 1000
      - same
-     - The number of energies in the middle zone of the inversion's energy grid, where the energies are spaced linearly.
+     - The number of nodes in the middle zone of the inversion's K grid, where the nodes are spaced linearly in K.
    * - ``n_grid_tail_rows``
      - 3000
      - same
-     - The number of energies in each of the two end zones of the inversion's energy grid, where the energies are spaced logarithmically toward the grid's floor and toward the grid's top.
+     - The number of nodes in each of the two end zones of the inversion's K grid, where the nodes are spaced logarithmically toward the grid's floor and toward the grid's top.
    * - ``grid_tail_extent``
      - 0.03
      - same
-     - The width of each end zone of the inversion's energy grid, as a fraction of the central potential.
+     - The width of each end zone of the inversion's K grid, as a fraction of the central potential.
    * - ``table_nodes_per_decade``
      - 50
      - same
-     - The number of energies per decade below the floor of the inversion's energy grid, down to the floor of the distribution function's table.
+     - The number of nodes per decade of K below the floor of the inversion's K grid, down to the floor of the distribution function's table.
    * - ``n_floor_nodes``
      - 240
      - same
@@ -86,11 +86,11 @@
    * - ``n_rows_inner``
      - 500
      - same
-     - The number of radii of the Poisson solve's grid inside the inner zone.
+     - The number of radii of the Poisson solver's grid inside the inner zone.
    * - ``n_rows_outer``
      - 59500
      - same
-     - The number of radii of the Poisson solve's grid outside the inner zone.
+     - The number of radii of the Poisson solver's grid outside the inner zone.
    * - ``log10_r_min``
      - -9
      - same
@@ -214,7 +214,7 @@
    * - ``n_jeans_nodes``
      - 500
      - same
-     - The number of Gauss-Legendre nodes of the Jeans integral of the radial dispersion at one radius, as the superposition of components computes the radial dispersion. The observables' profile does not use n_jeans_nodes: the profile sums panels between the profile's radii and doubles each panel's nodes until sigma_r changes by less than profile_tolerance.
+     - The number of Gauss-Legendre nodes of the dispersion integral that gives the radial dispersion of a superposition of components (superpose) at one radius. The observables' profile does not use n_jeans_nodes: the profile sums panels between the profile's radii and doubles each panel's nodes until sigma_r changes by less than profile_tolerance.
    * - ``n_projection_nodes``
      - 500
      - same
@@ -259,18 +259,18 @@
      - 55
      - 20
      - The number of base projected radii per decade of the table of line-of-sight velocity distributions, from the innermost radius of the profile.
-   * - ``n_energy_nodes``
+   * - ``n_k_nodes``
      - 8
      - same
-     - The number of Gauss-Legendre nodes of each panel of the energy integral at one node of the table.
+     - The number of Gauss-Legendre nodes of each panel of the integral over K at one node of the table.
    * - ``n_floor_layers``
      - 4
      - 2
-     - The number of Gauss-Legendre panels of the energy integral graded toward K = 0, where the DF's rule below its table takes over.
-   * - ``energy_layer_ratio``
+     - The number of Gauss-Legendre panels of the integral over K graded toward K = 0, where the DF's rule below its table takes over.
+   * - ``k_layer_ratio``
      - 0.2
      - same
-     - The ratio of the widths of successive graded panels of the energy integral.
+     - The ratio of the widths of successive graded panels of the integral over K.
    * - ``n_angle_nodes``
      - 64
      - same
@@ -362,7 +362,7 @@
    * - ``n_block_elements``
      - 25000
      - same
-     - The number of elements (node pairs times energy nodes times angle nodes) computed in one block, which bounds the memory of the computation at one projected radius.
+     - The number of elements (node pairs times K nodes times angle nodes) computed in one block, which bounds the memory of the computation at one projected radius.
    * - ``innermost_read_radius``
      - 0
      - same
@@ -371,5 +371,45 @@
      - 1e-06
      - same
      - The share of the total projected mass that may lie beyond the table's last projected radius. The table ends at the first base projected radius beyond the radius outside which outer_mass_share of the projected mass lies, and a read beyond the table's last projected radius raises InputError. The value 0 keeps the table out to the model's edge.
+
+``round_trip``
+--------------
+.. list-table::
+   :header-rows: 1
+   :widths: 26 14 14 46
+   :class: settings-table
+
+   * - Field
+     - Default
+     - Quick
+     - What it controls
+   * - ``ode_rtol``
+     - 1e-13
+     - same
+     - The relative tolerance of the integration of Poisson's equation in residual form about the analytic potential (round_trip).
+   * - ``log10_r_start``
+     - -12
+     - same
+     - The base-10 logarithm of the radius at which the integration of the round trip starts, in internal length units; the residual of the potential is zero there.
+   * - ``log10_r_min``
+     - -10
+     - same
+     - The base-10 logarithm of the innermost radius of the round trip's grid of radii, in internal length units.
+   * - ``log10_r_max``
+     - 9
+     - same
+     - The base-10 logarithm of the outermost radius of the round trip's grid of radii, in internal length units.
+   * - ``rows_per_decade``
+     - 200
+     - same
+     - The number of radii per decade of the round trip's grid of radii.
+   * - ``depth_nodes_per_decade``
+     - 400
+     - same
+     - The number of nodes per decade of the depth P_0 - P at which the round trip tabulates the density that the DF gives, from the depth at the starting radius to a depth of 0.7.
+   * - ``potential_nodes_per_decade``
+     - 1600
+     - same
+     - The number of nodes per decade of the potential P at which the round trip tabulates the density that the DF gives, from the floor of the DF table to a potential of 0.7.
 
 Settings levels: ``default``, ``quick``. A field is overridden by its group and its name, for example ``pp.Settings(inversion={'n_nodes': 800})``. A result computed with an overridden field records that its settings are custom, and lists the fields that differ from the settings level.

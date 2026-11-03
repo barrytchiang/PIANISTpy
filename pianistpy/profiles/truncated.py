@@ -10,7 +10,7 @@ evaluation is described in Notes Section T:1.3.
 __all__ = ["ProfileTables", "TruncatedProfile"]
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import cached_property
 from typing import Any
 
@@ -22,7 +22,57 @@ from ..exceptions import InputError, ResultError
 from ..numerics import hermite, hermite_inverse
 from ..numerics.pytrees import register_result
 from ..typing import Array, ArrayLike
+from ._series import inner_density_series, inner_depth_series, inner_mass_series
 from .core import DoublePowerLaw
+
+# The Newton solve of the inner series' depth for the radius (`radius` inside
+# the first node): at most this many steps, stopped when a step moves the
+# radius by less than INNER_RADIUS_TOLERANCE relative.
+INNER_RADIUS_STEPS = 50
+INNER_RADIUS_TOLERANCE = 1e-15
+
+
+@dataclass(frozen=True)
+class _InnerSeries:
+    """The continuation of a profile inside its first node (`TruncatedProfile`).
+
+    Each component's density is ``amplitude`` times the inner density series
+    of the source density less ``deficit`` times ``R ** -deficit_slope``;
+    the enclosed mass and the depth below ``p_0`` are the series' first four
+    terms integrated, with the amplitude ``total``, less the deficit's term
+    integrated. All quantities are in internal units, the mass in the unit of
+    `TruncatedProfile.mass_trunc`.
+    """
+
+    amplitude: Array
+    total: float
+    slopes: tuple[float, float, float]
+    deficit: Array
+    deficit_slope: float
+    p_0: float
+
+    def density(self, r: Array) -> Array:
+        """Return each component's density at radii `r`, shape (n_components, m)."""
+        a, b, g = self.slopes
+        shape = inner_density_series(r, 1.0, g, a, b)
+        missing = self.deficit[:, np.newaxis] * r[np.newaxis, :] ** (
+            -self.deficit_slope
+        )
+        return self.amplitude[:, np.newaxis] * shape[np.newaxis, :] - missing
+
+    def mass(self, r: Array) -> Array:
+        """Return the enclosed mass at radii `r`."""
+        a, b, g = self.slopes
+        w = self.deficit_slope
+        missing = float(np.sum(self.deficit)) * r ** (3.0 - w) / (3.0 - w)
+        return inner_mass_series(r, self.total, g, a, b) - missing
+
+    def depth(self, r: Array) -> Array:
+        """Return the depth ``P_0 - P`` at radii `r`."""
+        a, b, g = self.slopes
+        w = self.deficit_slope
+        missing = float(np.sum(self.deficit)) * r ** (2.0 - w) / ((3.0 - w) * (2.0 - w))
+        return inner_depth_series(r, self.total, g, a, b) - missing
 
 
 @dataclass(frozen=True)
@@ -76,6 +126,27 @@ class ProfileTables:
     edge_exponent : array, shape (n_components,)
         Exponent :math:`q` of each component's density at the edge,
         :math:`\varrho \propto P^q`. Empty where the model has no edge.
+    inner_amplitude : array, shape (n_components,)
+        Amplitude :math:`C` of each component's inner density series, read
+        from the first node, with which the density continues inside the
+        first node (`TruncatedProfile.density`).
+    inner_total_amplitude : float
+        Amplitude of the inner series of the total density, read from the
+        enclosed mass at the first node, with which the enclosed mass and
+        the potential continue inside the first node.
+    inner_slopes : array, shape (3,)
+        The slopes :math:`(\alpha, \beta, \gamma)` of the source density.
+    inner_deficit : array, shape (n_components,)
+        First-order central deficit :math:`\delta_1` of each component, the
+        amplitude of the density :math:`\delta_1 R^{-w}` missing inside the
+        first node (`TruncatedProfile`), in internal units; zero where no
+        deficit is carried.
+    inner_deficit_slope : float
+        The exponent :math:`w = 2\beta_{\rm c}` of the missing density; zero
+        where no deficit is carried.
+    p_0 : float
+        Central relative potential :math:`P_0`, in internal units: the first
+        node's potential plus the depth at the first node.
 
     See Also
     --------
@@ -116,6 +187,12 @@ class ProfileTables:
     r_t: float
     mass_t: float
     edge_exponent: Array
+    inner_amplitude: Array
+    inner_total_amplitude: float
+    inner_slopes: Array
+    inner_deficit: Array
+    inner_deficit_slope: float
+    p_0: float
 
 
 @dataclass(frozen=True, eq=False)
@@ -148,7 +225,7 @@ class TruncatedProfile:
         the Hernquist profile is 1. :math:`4\pi` times `mass_trunc` is the
         integral of the density over the volume.
     k_t : float
-        Truncation energy :math:`\mathcal{K}_{\rm t}`, in internal units.
+        Truncation value :math:`\mathcal{K}_{\rm t}`, in internal units.
     r_t : float
         Truncation radius :math:`R_{\rm t}`, in internal units. Infinite
         where the model is not spatially finite.
@@ -209,17 +286,17 @@ class TruncatedProfile:
         node and 6 for the edge node. Default: an empty array, which means
         the sources were not recorded.
     df_k : array, shape (n_components, m), optional
-        Energies :math:`\mathcal{K}` of the DF table of the model the
+        Values :math:`\mathcal{K}` of the DF table of the model the
         profile belongs to, in internal units. A component built on the
         profile (Method II) computes its own DF from the parent's DF table.
         Default: an empty array, which means the table was not recorded.
     df_log_f : array, shape (n_components, m), optional
-        :math:`\log_{10} F` at the energies `df_k`, with :math:`F` the DF in
+        :math:`\log_{10} F` at the nodes `df_k`, with :math:`F` the DF in
         internal units. Default: an empty array, which means the table was
         not recorded.
     df_slope : array, shape (n_components, m), optional
         :math:`\mathrm{d}\log_{10} F/\mathrm{d}\ln\mathcal{K}` at the
-        energies `df_k`. Default: an empty array, which means the table was
+        nodes `df_k`. Default: an empty array, which means the table was
         not recorded.
     df_taylor : tuple of tuple of float, optional
         For each component, the coefficients :math:`(F_1, F_2,
@@ -271,15 +348,34 @@ class TruncatedProfile:
 
     with :math:`\varrho` the total density. The logarithm of each
     component's density is a cubic spline in :math:`\ln R`. On the last
-    interval of a profile with an edge node, the potential is the Kepler
-    form :math:`\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})`, and each
+    interval of a profile with an edge node, the potential is the point-mass
+    (Keplerian) form :math:`\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})`, and each
     component's density is :math:`\varrho_L (P/P_L)^q`, with
     :math:`\varrho_L` and :math:`P_L` the values at the last interior node
     and :math:`q` from `edge_exponent`. At and beyond :math:`R_{\rm t}`, the
     relative potential and the density are zero, and the enclosed mass is
-    :math:`\mathcal{M}_{\rm t}`. Inside the first node, and beyond the last
-    node of a profile without an edge node, :math:`P` and
-    :math:`\mathcal{M}` continue as the power laws of the end nodes.
+    :math:`\mathcal{M}_{\rm t}`. Beyond the last node of a profile without
+    an edge node, :math:`P` and :math:`\mathcal{M}` continue as the power
+    laws of the last node.
+
+    Inside the first node, the three columns continue as the inner series
+    of the source density, the forms with which the Poisson solver laid the
+    innermost nodes (Notes Section T:3.4), lowered by the first-order term
+    of the central deficit where the model carries one: each component's
+    density is :math:`C R^{-\gamma} (1 + R^{\alpha})^{(\gamma - \beta)/\alpha}
+    - \delta_1 R^{-2\beta_{\rm c}}`, with :math:`\delta_1 = D_0 / (1 +
+    \kappa)` the component's first-order central deficit (:math:`D_0` from
+    `central_deficit`, :math:`\kappa` as `pianistpy.df.center.lowered_center`
+    states it) on a cusp with :math:`2\beta_{\rm c} \le \gamma`, zero
+    otherwise, and the amplitude :math:`C` read from the component's density
+    at the first node; the enclosed mass and the depth :math:`P_0 - P` are
+    the first four terms of the series integrated less the deficit's term
+    integrated, with the total amplitude read from the enclosed mass at the
+    first node; and :math:`P_0` is the first node's potential plus the depth
+    at the first node, so that every column is continuous at the first node.
+    The deficit's higher orders enter the amplitudes read at the first node
+    and, relative to the density, fall inward as :math:`R^{2(\gamma -
+    2\beta_{\rm c})}`; they are not carried.
 
     References
     ----------
@@ -442,6 +538,105 @@ class TruncatedProfile:
             raise ResultError("The density of a profile is positive inside its edge.")
         return tuple(CubicSpline(self._log_r, np.log(row)) for row in rho)
 
+    @cached_property
+    def _inner(self) -> _InnerSeries:
+        """Return the inner series' data, read from the first node.
+
+        The data are the amplitude of each component's density series, the
+        total amplitude (from the enclosed mass at the first node), the
+        slopes (alpha, beta, gamma) of the source density, each component's
+        first-order central deficit with its slope, and the central potential
+        ``P_0`` (the first node's potential plus the depth at the first
+        node). The amplitudes are read from the first node's values with the
+        deficit's term restored, so that every column is continuous there.
+        ResultError if a density or the enclosed mass at the first node is
+        not positive.
+        """
+        source = self.source
+        slopes = (
+            float(source.rho_alpha),
+            float(source.rho_beta),
+            float(source.rho_gamma),
+        )
+        a, b, g = slopes
+        r_1 = float(self.r[0])
+        r_1a = np.array([r_1])
+        rho_1 = np.asarray(self.rho_trunc[:, 0], dtype=np.float64)
+        mass_1 = float(self.mass_trunc[0])
+        if not (np.all(rho_1 > 0.0) and mass_1 > 0.0):
+            raise ResultError(
+                "The density and the enclosed mass of a profile are positive at "
+                "its first node."
+            )
+        deficit, w = self._first_order_deficit(len(rho_1), g)
+        missing_mass = float(np.sum(deficit)) * r_1 ** (3.0 - w) / (3.0 - w)
+        amplitude = (rho_1 + deficit * r_1 ** (-w)) / float(
+            inner_density_series(r_1a, 1.0, g, a, b)[0]
+        )
+        total = (mass_1 + missing_mass) / float(
+            inner_mass_series(r_1a, 1.0, g, a, b)[0]
+        )
+        inner = _InnerSeries(amplitude, total, slopes, deficit, w, math.nan)
+        return replace(inner, p_0=float(self.p_trunc[0]) + float(inner.depth(r_1a)[0]))
+
+    def _first_order_deficit(
+        self, n_components: int, gamma: float
+    ) -> tuple[Array, float]:
+        r"""Return each component's first-order central deficit and its slope.
+
+        The first-order deficit is :math:`\delta_1 = D_0 / (1 + \kappa)`,
+        with :math:`D_0` the recorded central deficit at the center
+        (`central_deficit`) and :math:`\kappa = (\gamma - 2\beta_{\rm c})
+        (3 - \gamma) / [(3 - 2\beta_{\rm c})(2 - 2\beta_{\rm c})]`
+        (`pianistpy.df.center.lowered_center`), carried where the model
+        records a deficit on a cusp with :math:`2\beta_{\rm c} \le \gamma`,
+        as the solve carried it. The slope is :math:`w = 2\beta_{\rm c}`.
+        Both are zero where no deficit is carried.
+        """
+        w = 2.0 * float(self.source_anisotropy.beta_c)
+        deficit = np.zeros(n_components)
+        recorded = len(self.central_deficit) == n_components
+        if not (recorded and gamma > 0.0 and w <= gamma):
+            return deficit, 0.0
+        kappa = (gamma - w) * (3.0 - gamma) / ((3.0 - w) * (2.0 - w))
+        for j, terms in enumerate(self.central_deficit):
+            if len(terms) and float(terms[0]) > 0.0:
+                deficit[j] = float(terms[0]) / (1.0 + kappa)
+        return deficit, w
+
+    def _inner_potential(self, r: Array) -> Array:
+        """Return the inner series' potential ``P_0 - u(R)`` at radii `r`."""
+        inner = self._inner
+        return inner.p_0 - inner.depth(r)
+
+    def _inner_mass(self, r: Array) -> Array:
+        """Return the inner series' enclosed mass at radii `r`, in the unit of
+        `mass_trunc`."""
+        return self._inner.mass(r)
+
+    def _inner_density(self, r: Array) -> Array:
+        """Return each component's inner series density at radii `r`, shape
+        (n_components, m)."""
+        return self._inner.density(r)
+
+    def _inner_radius(self, u: Array) -> Array:
+        """Return the radius at which the inner series' depth equals `u`, by
+        Newton steps in the radius from the series' leading term."""
+        inner = self._inner
+        _, _, g = inner.slopes
+        u = np.asarray(u, dtype=np.float64)
+        leading = inner.total / ((3.0 - g) * (2.0 - g))
+        r = (u / leading) ** (1.0 / (2.0 - g))
+        for _ in range(INNER_RADIUS_STEPS):
+            residual = inner.depth(r) - u
+            slope = inner.mass(r) / (r * r)
+            step = residual / slope
+            move = np.isfinite(step) & (np.abs(step) < 0.5 * r)
+            r = np.where(move, r - step, r)
+            if not np.any(move & (np.abs(step) > INNER_RADIUS_TOLERANCE * r)):
+                break
+        return r
+
     def interpolation_tables(self) -> ProfileTables:
         """Return the arrays from which a JAX function evaluates the profile.
 
@@ -455,7 +650,8 @@ class TruncatedProfile:
         tables : ProfileTables
             The logarithms of the potential and of the mass and their slopes
             at the nodes, the coefficients of each component's density
-            spline, and the values at the last interior node and at the edge.
+            spline, the values at the last interior node and at the edge,
+            and the inner series' amplitudes, slopes and central potential.
 
         Raises
         ------
@@ -485,6 +681,7 @@ class TruncatedProfile:
         """
         last = self._n_interior - 1
         finite = self.has_edge_row
+        inner = self._inner
         return ProfileTables(
             log_r=self._log_r,
             log_p=self._log_p,
@@ -505,14 +702,20 @@ class TruncatedProfile:
             r_t=float(self.r_t) if finite else math.inf,
             mass_t=float(self.mass_t) if finite else math.inf,
             edge_exponent=np.asarray(self.edge_exponent, dtype=np.float64),
+            inner_amplitude=np.asarray(inner.amplitude, dtype=np.float64),
+            inner_total_amplitude=float(inner.total),
+            inner_slopes=np.asarray(inner.slopes, dtype=np.float64),
+            inner_deficit=np.asarray(inner.deficit, dtype=np.float64),
+            inner_deficit_slope=float(inner.deficit_slope),
+            p_0=float(inner.p_0),
         )
 
     def _on_last_interval(self, r: Array) -> Array:
-        """Return the mask of the radii on the Kepler interval of the profile.
+        """Return the mask of the radii on the point-mass interval of the profile.
 
-        The Kepler interval of a profile with an edge node is the range of
+        The point-mass interval of a profile with an edge node is the range of
         radii beyond the last interior node, where the potential takes the
-        Kepler form. The mask is False everywhere for a profile without an
+        point-mass form. The mask is False everywhere for a profile without an
         edge node.
         """
         if not self.has_edge_row:
@@ -532,8 +735,10 @@ class TruncatedProfile:
         p : ndarray
             Relative potential :math:`P(R)` in internal units, with the
             shape of `r`. For a profile with an edge node, :math:`P` is the
-            Kepler form :math:`\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})` beyond
+            point-mass form :math:`\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})` beyond
             the last interior node and zero at and beyond :math:`R_{\rm t}`.
+            Inside the first node, :math:`P` is :math:`P_0` less the inner
+            series' depth (see the class notes).
 
         Raises
         ------
@@ -565,10 +770,14 @@ class TruncatedProfile:
         with np.errstate(divide="ignore", invalid="ignore"):
             log_p, _ = hermite(np.log(r), self._log_r, self._log_p, self._log_p_slope)
             inside = np.exp(log_p)
+        below = r < float(self.r[0])
+        if np.any(below):
+            r_safe = np.where(below, r, float(self.r[0]))
+            inside = np.where(below, self._inner_potential(r_safe), inside)
         if not self.has_edge_row:
             return inside
-        kepler = self.mass_t * np.maximum(1.0 / r - 1.0 / self.r_t, 0.0)
-        return np.where(self._on_last_interval(r), kepler, inside)
+        point_mass = self.mass_t * np.maximum(1.0 / r - 1.0 / self.r_t, 0.0)
+        return np.where(self._on_last_interval(r), point_mass, inside)
 
     def density(self, r: ArrayLike) -> Array:
         r"""Return the density :math:`\varrho(R)` of each component.
@@ -583,7 +792,9 @@ class TruncatedProfile:
         rho : ndarray, shape (n_components, m)
             Density of each component in internal units. For a profile with
             an edge node, the density is zero at and beyond
-            :math:`R_{\rm t}`.
+            :math:`R_{\rm t}`. Inside the first node, the density is the
+            inner series with the amplitude read from the first node (see
+            the class notes).
 
         Raises
         ------
@@ -614,8 +825,16 @@ class TruncatedProfile:
         ((1, 2), 0.25)
         """
         r = np.asarray(r, dtype=np.float64)
-        log_r = np.log(r)
+        r_1 = float(self.r[0])
+        below = r < r_1
+        # The splines are read at the first node for the radii below it, where
+        # the inner series replaces them: the spline's exponential overflows
+        # far inside.
+        log_r = np.log(np.maximum(r, r_1))
         inside = np.stack([np.exp(spline(log_r)) for spline in self._log_rho_splines])
+        if np.any(below):
+            series = self._inner_density(np.minimum(r, r_1))
+            inside = np.where(below[np.newaxis, :], series, inside)
         if not self.has_edge_row:
             return inside
         last = self._n_interior - 1
@@ -644,7 +863,9 @@ class TruncatedProfile:
         mass : ndarray
             Enclosed mass :math:`\mathcal{M}(R)` in internal units (the unit
             of `mass_trunc`), with the shape of `r`. For a spatially finite
-            profile, the mass is `mass_t` at and beyond `r_t`.
+            profile, the mass is `mass_t` at and beyond `r_t`. Inside the
+            first node, the mass is the inner series' enclosed mass (see the
+            class notes).
 
         Raises
         ------
@@ -680,6 +901,10 @@ class TruncatedProfile:
             self._log_mass_slope,
         )
         inside = np.exp(log_mass)
+        below = r < float(self.r[0])
+        if np.any(below):
+            r_safe = np.where(below, r, float(self.r[0]))
+            inside = np.where(below, self._inner_mass(r_safe), inside)
         if not self.spatially_finite:
             return inside
         return np.where(r >= self.r_t, self.mass_t, inside)
@@ -802,8 +1027,10 @@ class TruncatedProfile:
         ----------
         p : array-like
             User-specified relative potentials :math:`P`, in internal units,
-            at most `p_trunc` at the first node. For a profile with an edge
-            node, a value of zero or below gives `r_t`. For a profile
+            below the central potential :math:`P_0` (`ProfileTables.p_0`).
+            Above `p_trunc` at the first node, the radius comes from the
+            inner series' depth (see the class notes). For a profile with an
+            edge node, a value of zero or below gives `r_t`. For a profile
             without an edge node, a value of zero or below gives the radius
             of the last node.
 
@@ -815,7 +1042,7 @@ class TruncatedProfile:
         Raises
         ------
         InputError
-            If a value of `p` is above `p_trunc` at the first node.
+            If a value of `p` is at or above the central potential.
         ResultError
             If the potential at an interior node is not positive.
 
@@ -840,20 +1067,29 @@ class TruncatedProfile:
         1.0
         """
         p = np.asarray(p, dtype=np.float64)
-        if np.any(p > float(self.p_trunc[0])):
-            raise InputError("A potential above the central value has no radius.")
+        p_0 = self._inner.p_0
+        if np.any(p >= p_0):
+            raise InputError(
+                "A potential at or above the central potential has no radius."
+            )
+        p_first = float(self.p_trunc[0])
         p_last = float(self.p_trunc[self._n_interior - 1])
         safe = np.where(p > 0.0, p, p_last)
+        safe = np.where(safe > p_first, p_first, safe)
         # The inverse is taken of -ln P, which increases with ln R, as the
         # inverse of the cubic Hermite interpolant of -ln P in ln R.
         log_r, _ = hermite_inverse(
             -np.log(safe), self._log_r, -self._log_p, -self._log_p_slope
         )
         inside = np.exp(log_r)
+        above = p > p_first
+        if np.any(above):
+            u_safe = np.where(above, p_0 - p, p_0 - p_first)
+            inside = np.where(above, self._inner_radius(u_safe), inside)
         if not self.has_edge_row:
             return inside
-        kepler = 1.0 / (1.0 / self.r_t + np.maximum(p, 0.0) / self.mass_t)
-        return np.where(p < p_last, kepler, inside)
+        point_mass = 1.0 / (1.0 / self.r_t + np.maximum(p, 0.0) / self.mass_t)
+        return np.where(p < p_last, point_mass, inside)
 
     def to_dict(self) -> dict[str, Any]:
         """Return the record that identifies the profile, as a plain dictionary.
@@ -937,5 +1173,11 @@ register_result(
         "r_t",
         "mass_t",
         "edge_exponent",
+        "inner_amplitude",
+        "inner_total_amplitude",
+        "inner_slopes",
+        "inner_deficit",
+        "inner_deficit_slope",
+        "p_0",
     ),
 )

@@ -123,7 +123,7 @@ def _direction(model, seed):
 
     d_y has the shape of the DF table's ``log_df`` and is nonzero only on the
     nodes ``i_first[0]`` to ``i_last[0]`` of the table. d_floor has one entry
-    per coefficient of the edge law, the DF's form below its floor
+    per coefficient of the boundary form, the DF's form below its floor
     (``form.below_floor_coefficients[0]``).
     """
     rng = np.random.default_rng(seed)
@@ -137,7 +137,7 @@ def _direction(model, seed):
 
 def _moved(model, d_y, d_floor, h):
     """Return `model` with its table's ``log_df`` moved by ``h * d_y`` and its
-    edge law's coefficients moved by ``h * d_floor``."""
+    boundary form's coefficients moved by ``h * d_floor``."""
     table = dataclasses.replace(model.table, log_df=model.table.log_df + h * d_y)
     coefficients = np.asarray(model.form.below_floor_coefficients[0]) + h * d_floor
     form = dataclasses.replace(
@@ -178,8 +178,8 @@ def test_the_spline_transpose_is_scipys_slopes_transposed(n):
 def test_the_lookup_transpose_against_differences(member):
     r"""Assert that the DF table of `member` has no exact slopes, and that
     `lookup_vjp` satisfies :math:`\langle J^{\rm T} c, d\rangle = \langle c,
-    J d\rangle` for the lookup's F at 452 energies K. :math:`J` is the
-    Jacobian of F at the 452 energies in the table's ``log_df`` and the edge
+    J d\rangle` for the lookup's F at 452 values of K. :math:`J` is the
+    Jacobian of F at the 452 values in the table's ``log_df`` and the edge
     law's coefficients, and :math:`d` is the direction of `_direction`. The
     central difference takes the step :math:`10^{-4}`. The two sides agree
     within three times the extrapolation's error estimate plus
@@ -187,8 +187,8 @@ def test_the_lookup_transpose_against_differences(member):
     assert not member.table.slopes_exact[0]
     d_y, d_floor = _direction(member, 1)
     rng = np.random.default_rng(2)
-    # The energies K are meant to lie below the table's first node (where the
-    # lookup reads the edge law), inside the table, and above the table.
+    # The values K are meant to lie below the table's first node (where the
+    # lookup reads the boundary form), inside the table, and above the table.
     k = np.concatenate(
         [rng.uniform(1e-9, 1e-6, 50), np.geomspace(1e-5, 0.9, 400), [0.949, 0.9499]]
     )
@@ -214,7 +214,7 @@ def test_the_lookup_transpose_reads_the_shift_inside_the_exponent(member):
     exceeds the float64 range, when F is read with a shift inside the
     exponent.
 
-    The test raises the lookup's first array, log10 F, by 400, at energies
+    The test raises the lookup's first array, log10 F, by 400, at values of K
     midway between the table's nodes. `_read_sums` with the shift 400 reads
     F as :math:`10^{\log_{10}F + 400 - 400}` and returns finite sums. The
     first two sums equal the sums of the unraised table within an absolute
@@ -356,8 +356,8 @@ def test_a_rows_transpose_against_differences(parent, member, family):
     :math:`R_{\rm 2D} = 1`.
 
     :math:`J` is the Jacobian of the normalized row in the DF table's
-    ``log_df`` and the edge law's coefficients, and :math:`d` is the direction
-    of `_direction` with its entry for the edge law's exponent set to zero.
+    ``log_df`` and the boundary form's coefficients, and :math:`d` is the direction
+    of `_direction` with its entry for the boundary form's exponent set to zero.
     The forward recomputes the row with the velocity levels recorded in the
     unmoved row's trace (`_row_by_levels`) and normalizes the row as
     ``D / (2 w @ D)``. The central difference takes the step
@@ -380,7 +380,7 @@ def test_a_rows_transpose_against_differences(parent, member, family):
     rule, _ = base.rule(1.0)
     _, va, inv, trace = _row_levels(base, 1.0, row.v_nodes, row.v_weights, rule)
     d_y, d_floor = _direction(model, 6)
-    # The edge law's exponent, d_floor[0], is held fixed, because the route's
+    # The boundary form's exponent, d_floor[0], is held fixed, because the route's
     # map toward K = 0 reads that exponent.
     d_floor[0] = 0.0
 
@@ -793,7 +793,7 @@ def test_the_rows_explicit_part_refuses_a_moving_support_edge(member, rule):
     that gives the below-floor rule, for `member` with its below-floor rule
     set to 'tail' or to 'zero'.
 
-    Under the rule 'tail' the DF diverges at zero energy. Under the rule
+    Under the rule 'tail' the DF diverges at K = 0. Under the rule
     'zero' the DF of `member` ends at its floor K_0 with a positive value.
     Under either rule the support edge of the rows moves where F is nonzero,
     and `losvd_rows_explicit` does not carry the term of the moving edge.

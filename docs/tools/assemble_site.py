@@ -7,7 +7,11 @@ the site's root, copies the logo beside it, writes ``robots.txt``, the
 ``.nojekyll`` marker, ``llms.txt``, the sitemap and, for every page of the manual, a
 markdown twin (``page.html`` to ``page.md``) plus one ``llms-full.txt`` that
 concatenates them. The twins are for readers that fetch text rather than
-render HTML; nothing on the human-facing pages changes.
+render HTML. On the human-facing pages, the figures of the executed notebooks
+are relinked into the manual's ``_images`` (myst-nb writes them beside the
+manual), links to a list-only tab's index page open the tab's first page,
+external links open in a new tab and an inline formula stays on one line with
+its punctuation; nothing else changes.
 """
 
 import html
@@ -363,6 +367,47 @@ def features_from_overview(overview: str) -> str:
     return "\n".join(items)
 
 
+NB_IMAGE = re.compile(
+    r'(src|alt)="[^"]*?jupyter_execute/([^"/]+\.(?:png|jpe?g|svg|gif))"'
+)
+
+
+def relink_notebook_images(site: Path, manual: Path) -> int:
+    """Link the figures of the executed notebooks from the manual's ``_images``.
+
+    myst-nb writes an executed notebook's figures to ``<site root>/jupyter_execute``,
+    beside the manual, and on Windows links them from the pages by a path that
+    leaves the manual, which the published site does not serve. Each such figure
+    is copied into ``_images`` (where one is still in the execution folder), its
+    ``src`` is relinked there and its ``alt`` text, the same path, becomes
+    "figure". Returns the number of links rewritten.
+    """
+    images = manual / "_images"
+    source = site / "jupyter_execute"
+    count = 0
+    for page in manual.rglob("*.html"):
+        text = page.read_text(encoding="utf-8")
+        if "jupyter_execute/" not in text:
+            continue
+        rel = posixpath.relpath(images.as_posix(), page.parent.as_posix())
+
+        def link(m: re.Match, rel: str = rel) -> str:
+            nonlocal count
+            if m.group(1) == "alt":
+                return 'alt="figure"'
+            name = m.group(2)
+            if (source / name).is_file():
+                images.mkdir(exist_ok=True)
+                shutil.copy2(source / name, images / name)
+            count += 1
+            return f'src="{rel}/{name}"'
+
+        new = NB_IMAGE.sub(link, text)
+        if new != text:
+            page.write_text(new, encoding="utf-8")
+    return count
+
+
 def conf_value(conf: str, name: str) -> str:
     """A plain string assignment of conf.py, ``NAME = "..."``."""
     found = re.search(rf'^{name} = "([^"]+)"', conf, re.M)
@@ -432,7 +477,9 @@ def main(source: str, root: str) -> int:
     (site / "static").mkdir(exist_ok=True)
     shutil.copy(docs_src / "_static" / "logo.png", site / "static" / "logo.png")
     (site / ".nojekyll").write_text("")
-    # myst-nb's execution folder is written beside the manual; nothing serves it.
+    # The notebook figures are served from the manual's _images; myst-nb's
+    # execution folder is written beside the manual, and nothing serves it.
+    relinked = relink_notebook_images(site, manual)
     if (site / "jupyter_execute").is_dir():
         shutil.rmtree(site / "jupyter_execute")
     (site / "robots.txt").write_text(
@@ -524,7 +571,10 @@ def main(source: str, root: str) -> int:
         tabbed = glue_math(external_in_new_tab(tabbed))
         if tabbed != text:
             page.write_text(tabbed, encoding="utf-8")
-    print(f"site assembled at {site}: {len(full)} pages twinned")
+    print(
+        f"site assembled at {site}: {len(full)} pages twinned, "
+        f"{relinked} notebook figures relinked"
+    )
     return 0
 
 

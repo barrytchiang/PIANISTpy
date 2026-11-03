@@ -18,7 +18,7 @@ What is differentiable
 - **The observables.** :class:`pianistpy.Differentiable` provides the observables of a one-component model as JAX
   functions of the component's anisotropy :math:`(\beta_{\rm c}, R_{\rm a})` (:doc:`differentiable`).
 - **The distribution function.** The derivative of the distribution function in the central anisotropy
-  :math:`\beta_{\rm c}` and the anisotropy radius :math:`R_{\rm a}` is available at the inversion's energies and for
+  :math:`\beta_{\rm c}` and the anisotropy radius :math:`R_{\rm a}` is available at the nodes of the inversion's grid in :math:`\mathcal{K}`, the energy-like variable, and for
   the full table (see `The distribution function`_ below).
 
 The derivative of the distribution function is available for the following anisotropy models, with their parameters:
@@ -32,7 +32,7 @@ The following cases raise :class:`~pianistpy.InputError`:
 - COM Type II. The COM Type II inversion has an interior point at the potential :math:`P(R_{\rm a})`, which moves
   with both :math:`R_{\rm a}` and :math:`\beta_{\rm c}`, so the derivative is not integrable at :math:`P(R_{\rm a})`.
   The log-likelihood of ``"sigma_los"`` and ``"sigma_los_aperture"`` data still has a derivative in the anisotropy
-  of a free COM Type II component, computed from the Jeans equation. :class:`~pianistpy.Differentiable` raises
+  of a free COM Type II component, computed from the dispersion integral. :class:`~pianistpy.Differentiable` raises
   :class:`~pianistpy.InputError` for a COM Type II component. The distribution function of a COM Type II component
   and the observables read from the distribution function (``losvd``, ``aperture_losvd``, ``pdf_v``) have no
   derivative.
@@ -59,26 +59,26 @@ The distribution function
 
 The derivative of the distribution function is available in two forms:
 
-- the rows (the distribution function on the inversion's energy grid), through ``make_inversion_rows`` and
+- the rows (the distribution function on the inversion's :math:`\mathcal{K}` grid), through ``make_inversion_rows`` and
   ``rows_jacobian``, for a component on its own analytic profile only;
 - the table, as the lookup reads it, through ``make_inversion_table`` and ``table_jacobian``. The derivative covers
-  every array of the table: the rows (``log_df``, ``log_df_slope``), the nodes below the table's first energy
+  every array of the table: the rows (``log_df``, ``log_df_slope``), the nodes below the table's first node
   (``log_df_below``, ``log_df_slope_below``), the closed form at the center (``central``) and the tail (``tail``).
-  For a Method II component, the arrays are the rows (``log_df``), the power law at the lowest energies
-  (``edge_law``) and the closed form at the center (``center``).
+  For a Method II component, the arrays are the rows (``log_df``), the power law at the lowest values of :math:`\mathcal{K}`
+  (``boundary_form``) and the closed form at the center (``center``).
 
 ``make_inversion_rows`` and ``make_inversion_table`` each return a JAX function of the anisotropy parameters, the
-names of the parameters (``params``), and the energies or the table at the component's own parameters. The value of
+names of the parameters (``params``), and the values of :math:`\mathcal{K}` or the table at the component's own parameters. The value of
 the returned function is the result of :func:`~pianistpy.compute_df` at the given parameters, computed on the CPU.
 The derivative of the returned function is the package's analytic derivative (Eq. (T:7.1) of the
 :doc:`Technical notes <../reference/notes>`). The ``*_jacobian`` functions return the values and their derivatives
 as arrays.
 
-Both returned functions hold the energies at the component's own parameters. The function that
+Both returned functions hold the values of :math:`\mathcal{K}` at the component's own parameters. The function that
 ``make_inversion_table`` returns makes the anchor of the closed form at the center and the nodes kept again at each
 new parameter value, except that a component on a truncated profile also holds the nodes kept at the component's
 own parameters. The derivative is thus the derivative of the table that :func:`~pianistpy.compute_df` returns at the
-given parameters, on the held energies. Where a discrete choice would change between two parameter values, the value
+given parameters, on the held values of :math:`\mathcal{K}`. Where a discrete choice would change between two parameter values, the value
 of the returned function differs from a new :func:`~pianistpy.compute_df` call by up to the tolerance of the
 inversion.
 
@@ -97,7 +97,7 @@ finite differences:
 - the Richardson residual of the quotient and, for a one-sided difference, the spread between the derivatives from
   the two sides, relative to the largest :math:`|\partial F/\partial\beta_{\rm c}|` in the record of
   ``rows_jacobian`` and absolute in the record of ``table_jacobian``;
-- for a component on a truncated profile, where the component's energy grid is placed.
+- for a component on a truncated profile, where the component's :math:`\mathcal{K}` grid is placed.
 
 The Richardson residual is the accuracy of the derivative, read against the thresholds :math:`10^{-6}`,
 :math:`10^{-4}` and :math:`10^{-2}` of the validation reports (:doc:`accuracy`). Where the difference is central, the

@@ -126,7 +126,7 @@ def compute_df(
 
     The distribution function (DF) is returned whatever its sign. The
     result states where the DF is negative, and the lowest truncation
-    energy :math:`\mathcal{K}_{\rm t}` that gives a valid equilibrium. Call
+    value :math:`\mathcal{K}_{\rm t}` that gives a valid equilibrium. Call
     `solve` for the model itself. Call `compute_df` to inspect the DF before
     choosing a truncation, or to truncate one DF in several ways.
 
@@ -142,9 +142,9 @@ def compute_df(
     Returns
     -------
     df : DistributionFunction
-        The DF of the component, tabulated on an energy grid, with its
-        analytic forms below and above the energies of the table, the
-        lowest admissible truncation energy ``k_t_min`` in internal units,
+        The DF of the component, tabulated on a K grid, with its
+        analytic forms below and above the K values of the table, the
+        lowest admissible truncation value ``k_t_min`` in internal units,
         and the validation report of the DF.
 
     Raises
@@ -189,8 +189,8 @@ def compute_df(
     --------
     solve : The equilibrium model of a component in one call.
     truncate : The equilibrium model built from a distribution function.
-    DistributionFunction.from_function : A DF given as a function of the
-        energy.
+    DistributionFunction.from_function : A DF given as a function of
+        :math:`\mathcal{K}`.
 
     Notes
     -----
@@ -318,7 +318,7 @@ def truncate(
     r"""Return the equilibrium model built from a distribution function.
 
     With a `Truncation`, the model's DF is the untruncated DF shifted in
-    energy by the truncation energy :math:`\mathcal{K}_{\rm t}` and lowered
+    :math:`\mathcal{K}` by the truncation value :math:`\mathcal{K}_{\rm t}` and lowered
     by the untruncated DF's value at :math:`\mathcal{K}_{\rm t}`, which
     gives a model of finite mass and finite radius (Method I of
     Chiang+(2026d)). Without a truncation, the untruncated DF is the
@@ -348,8 +348,8 @@ def truncate(
         holds the function's values only, and a truncation needs the values
         of the inversion.
     UnphysicalModelError
-        If the truncation energy :math:`\mathcal{K}_{\rm t}` is below
-        ``df.k_t_min``, or no admissible truncation energy reaches the
+        If the truncation value :math:`\mathcal{K}_{\rm t}` is below
+        ``df.k_t_min``, or no admissible truncation value reaches the
         target mass or the target radius of `truncation`.
     UnphysicalModelError
         If the central density slope :math:`\gamma` is below
@@ -369,7 +369,7 @@ def truncate(
         diverges.
     UnphysicalModelError
         If the component is built on a `TruncatedProfile` and the DF is
-        negative at an energy inside the DF's support.
+        negative at a value of K inside the DF's support.
     AccuracyError
         If a check of the model's validation report lies above
         :math:`10^{-2}` (the band "refused"), the round trip of the model's
@@ -391,7 +391,7 @@ def truncate(
     --------
     compute_df : The untruncated distribution function.
     solve : `compute_df` and `truncate` in one call.
-    Truncation : The truncation energy, target mass or target radius.
+    Truncation : The truncation value, target mass or target radius.
 
     Notes
     -----

@@ -141,7 +141,7 @@ class LosTable:
         If an intermediate result fails a check that the next step of the
         computation needs. Examples are a degenerate model, and a ``losvd``
         setting that leaves the table no valid quadrature
-        (``energy_layer_ratio`` of one or more).
+        (``k_layer_ratio`` of one or more).
     WorkerError
         If a parallel process of the build ends before finishing its task.
         The usual cause is a lack of memory.
@@ -1315,7 +1315,7 @@ def pdf_v(source: Model | LosTable, r: ArrayLike, v: ArrayLike) -> Any:
     radius :math:`r`. The call checks the distribution at each radius in
     three ways: the norm of the distribution against the density; the
     second moment of the distribution against the velocity dispersion from
-    the Jeans equation; and the change of the distribution when the angular
+    the dispersion integral; and the change of the distribution when the angular
     quadrature is refined (`pianistpy.observables.stages.velocity_distribution`).
 
     Parameters

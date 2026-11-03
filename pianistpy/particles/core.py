@@ -585,14 +585,14 @@ def _component_view(model: Model, k: int) -> Model:
     """Return component `k` of a superposed model as a model of one component.
 
     The returned model holds component k's DF table on component k's own
-    energy grid, component k's entries of the asymptotic forms and of the
+    K grid, component k's entries of the asymptotic forms and of the
     inversion record, the shared truncated profile, and mass 1.
     """
     t = model.table
     row = t.k[k]
     n_k = (
         int(np.argmax(row == row[-1])) + 1
-    )  # The superposed table pads row k with row k's last energy from n_k on.
+    )  # The superposed table pads row k with row k's last node from n_k on.
     table = dataclasses.replace(
         t,
         k=t.k[k : k + 1, :n_k],
@@ -687,7 +687,7 @@ def component_view(model: Model, k: int) -> Model:
     -------
     view : Model
         A model of one component: component k with mass 1, component k's DF
-        table on component k's own energy grid, and the truncated profile
+        table on component k's own K grid, and the truncated profile
         that the components of `model` share. `component_view` raises no
         package exception for a superposed `model` and a valid `k`.
 
@@ -868,9 +868,9 @@ class Sampler:
         If the velocity table cannot resolve the distribution of velocity at a
         potential with the resolution that the settings allow.
     UnphysicalModelError
-        If the DF below the DF table's lowest energy falls so steeply toward
-        :math:`\mathcal{K} = 0` that the mass at energies below the DF table's
-        lowest energy is not finite.
+        If the DF below the DF table's lowest K falls so steeply toward
+        :math:`\mathcal{K} = 0` that the mass below the DF table's
+        lowest K is not finite.
     ResultError
         If a sampling table fails the table's own consistency check: an
         inverse that is not finite and increasing, or a cumulative

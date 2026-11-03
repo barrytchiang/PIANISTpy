@@ -2,16 +2,16 @@ r"""The form in which each row of the DF table is inverted.
 
 The inversion calls `inversion_form` before any integral is evaluated.
 `inversion_form` chooses the form of each row from the model's parameters
-and the smallest energy of the component's table; no computed value of the
+and the smallest K of the component's table; no computed value of the
 inversion is read. The choice follows from the order pair (`order_pair`),
 the interior point :math:`P_s` of a COM Type II model (`interior_point`)
 and the power of the auxiliary density at the outer end
 (`outer_end_power`). Each row takes one of three forms: the local closed
 form where the central anisotropy :math:`\beta_{\rm c}` is a half-integer,
 the form with the surface term (integrated by parts), or the general form
-(the derivative outside the integral). The rows at energies above
+(the derivative outside the integral). The rows above
 :math:`P_s` take the general form. For an unbounded outer end, the rows at
-energies at or above `OUTER_FROM_FACTOR` times the table's smallest energy
+K at or above `OUTER_FROM_FACTOR` times the table's smallest K
 take the general form.
 
 References
@@ -34,12 +34,12 @@ import numpy as np
 from ..anisotropy import Anisotropy
 from ..profiles import DoublePowerLaw
 from .inversion import interior_point, order_pair
-from .stages import EnergyGrid, InversionForm, PotentialDensityPair
+from .stages import InversionForm, KGrid, PotentialDensityPair
 
 # The integer code of each row form in `InversionForm.form`.
 FORMS = {"local": 0, "surface": 1, "general": 2}
-# For an unbounded outer end, the rows with energies at or above
-# OUTER_FROM_FACTOR times the table's first energy leave the surface form for
+# For an unbounded outer end, the rows with K at or above
+# OUTER_FROM_FACTOR times the table's first K leave the surface form for
 # the general form.
 OUTER_FROM_FACTOR = 10.0
 
@@ -82,9 +82,9 @@ class InversionFormRecord:
         integer part :math:`m` and :math:`\beta_{\rm c}` is not a
         half-integer; ``"bounded"`` otherwise.
     outer_from : float
-        Energy, in internal units, at and above which the rows of an
+        Value of K, in internal units, at and above which the rows of an
         unbounded outer end take the general form: `OUTER_FROM_FACTOR` times
-        the component's smallest energy. Zero for a bounded outer end, and
+        the component's smallest K. Zero for a bounded outer end, and
         zero for the form ``"derivative_outside"``, in which every row
         already takes the general form.
     """
@@ -128,7 +128,7 @@ def tail_exponent_analytic(profile: DoublePowerLaw, anisotropy: Anisotropy) -> f
     r"""Return the exponent of the DF's tail at the outer end.
 
     The exponent :math:`a` is that of :math:`F \sim A K^{-a}` as
-    :math:`K \to 0`, with :math:`F` the DF, :math:`K` the energy, :math:`A` a
+    :math:`K \to 0`, with :math:`F` the DF, :math:`A` a
     constant amplitude, :math:`\beta` the outer slope of the density profile and
     :math:`\beta_{\rm c}` the central anisotropy. The exponent is
     :math:`a = 3/2 - \beta_{\rm c} - s`, with :math:`s` the power of
@@ -151,7 +151,7 @@ def _one(
 ) -> tuple[np.ndarray, InversionFormRecord]:
     """Return the form code of each row and the form record of one component.
 
-    The rows are the component's energies ``k``, in internal units. The
+    The rows are the component's K values ``k``, in internal units. The
     form codes are the codes of `FORMS`.
     """
     beta_c = 0.0 if anisotropy.model == "om" else float(anisotropy.beta_c)
@@ -203,7 +203,7 @@ def _one(
 
 
 def inversion_form(
-    pair: PotentialDensityPair, grid: EnergyGrid
+    pair: PotentialDensityPair, grid: KGrid
 ) -> tuple[InversionForm, tuple[InversionFormRecord, ...]]:
     r"""Return the inversion form of every row of every component, and the form records.
 
@@ -213,8 +213,8 @@ def inversion_form(
         The components, read for each component's profile and anisotropy.
         `inversion_form` treats each component as an untruncated model
         inverted over its full domain.
-    grid : EnergyGrid
-        The energies of each component's table, in internal units.
+    grid : KGrid
+        The K values of each component's table, in internal units.
 
     Returns
     -------

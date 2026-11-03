@@ -1,8 +1,8 @@
-"""Tests of the error handling of the truncation-energy search.
+"""Tests of the error handling of the truncation-value search.
 
-The search for the truncation energy that meets a target radius or mass
+The search for the truncation value that meets a target radius or mass
 (`pianistpy.df.target.solve_target`) treats the package's own exceptions from
-a trial truncation as an inadmissible energy. Any other exception from a trial
+a trial truncation as an inadmissible truncation value. Any other exception from a trial
 truncation is raised to the caller.
 """
 
@@ -14,7 +14,7 @@ from pianistpy.df import compute_df, target
 
 def test_an_error_that_is_not_the_solves_is_raised(monkeypatch):
     # A TypeError is not a package exception, so solve_target must raise the
-    # TypeError instead of treating the trial energy as inadmissible.
+    # TypeError instead of treating the trial value as inadmissible.
     df = compute_df(Component(DoublePowerLaw.hernquist(), Anisotropy()))
 
     def broken(df, z):
@@ -41,9 +41,9 @@ def type_ii_df():
 def _fake_chain(radius, mass):
     """Return a stand-in for `truncation_chain` whose models are finite.
 
-    The stand-in records the truncation energies it is called at and returns a
+    The stand-in records the truncation values it is called at and returns a
     finite model of truncation radius ``radius(z)`` and enclosed mass
-    ``mass(z)`` at truncation energy z.
+    ``mass(z)`` at truncation value z.
     """
     from types import SimpleNamespace
 
@@ -62,11 +62,11 @@ def _fake_chain(radius, mass):
 
 @pytest.mark.parametrize("kind", ["radius", "mass"])
 def test_a_type_ii_search_starts_at_the_domain_edge(type_ii_df, monkeypatch, kind):
-    # The search's shallowest truncation energy lies above P(R_a), the edge of
+    # The search's shallowest truncation value lies above P(R_a), the edge of
     # the anisotropy's domain, so that no trial truncation reads the
-    # continuation's rows. A target that the models at that shallowest energy
+    # continuation's rows. A target that the models at that shallowest truncation value
     # do not reach is refused with the domain's gate stated as the binding
-    # limit, at the first truncation energy above P(R_a) (the next double,
+    # limit, at the first truncation value above P(R_a) (the next double,
     # which the message prints to 8 significant digits).
     import math
 

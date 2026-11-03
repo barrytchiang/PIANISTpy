@@ -173,7 +173,7 @@ def test_draw_velocity_reads_a_linear_table_exactly():
     lambda_u = np.linspace(-41.0, 41.0, n)
     r = np.geomspace(1e-3, 0.5 * r_edge, 4001)
     psi_min = float(np.min(model.profile.p_trunc[model.profile.r <= r[-1]]))
-    p_0, e_edge = float(model.profile.p_trunc[0]) * 1.5, 0.1 * psi_min
+    p_0, k_edge = float(model.profile.p_trunc[0]) * 1.5, 0.1 * psi_min
     table = VelocityTable(
         lambda_p=np.linspace(-30.0, 30.0, n_rows),
         dlambda_p=60.0 / (n_rows - 1),
@@ -183,13 +183,13 @@ def test_draw_velocity_reads_a_linear_table_exactly():
         ds_dlambda_p=np.zeros((1, n_rows, n)),
         x_edge=np.ones((1, n_rows)),
         p_0=p_0,
-        e_edge=(e_edge,),
+        k_edge=(k_edge,),
         validation=ValidationReport(keys=(), checks={}),
     )
     u = np.linspace(1e-6, 1.0 - 1e-6, r.size)
     numbers = _with_uniform(_numbers(u.size), velocity_magnitude=u)
     v, x, d, psi = draw_velocity(table, model, 0, r, np.ones(u.size), numbers)
-    x_e = np.sqrt(1.0 - e_edge / psi)
+    x_e = np.sqrt(1.0 - k_edge / psi)
     np.testing.assert_allclose(x, x_e * u, rtol=1e-13)
     np.testing.assert_allclose(d, x_e * (1.0 - u), rtol=1e-13)
     np.testing.assert_allclose(v, np.sqrt(2.0 * psi) * x, rtol=1e-15)
@@ -255,7 +255,7 @@ def _lowered_hernquist(k_t=0.05, n_nodes=2001, stationary=False):
     `stationary`, the DF is also lowered by the Hernquist DF's slope at
     :math:`\mathcal{K}_{\rm t}`, ``F(K + k_t) - F(k_t) - F'(k_t) K``, so that
     the Taylor form's first coefficient F_1 is 0 (a stationary edge); the
-    DF table's lowest energy is then :math:`10^{-3}` instead of
+    DF table's lowest K is then :math:`10^{-3}` instead of
     :math:`10^{-6}`, because at :math:`10^{-3}` the two subtractions keep 10
     digits."""
     model = analytic_model("hernquist")
@@ -440,14 +440,14 @@ def test_every_kernel_of_the_sampler_compiles_once_for_two_models():
         stages._psi_kernel,
         stages._velocity_kernel,
     ]
-    energies = np.geomspace(1e-6, 0.9, 64)
+    k_values = np.geomspace(1e-6, 0.9, 64)
     numbers = _numbers(256)
     sizes, outputs = [], []
     for model, (rows, radius, angle, velocities) in zip(models, prepared, strict=True):
         r = draw_radius(radius, 0, numbers)
         _, _, factor = draw_angle(angle, model, 0, r, numbers)
         v, _, _, _ = draw_velocity(velocities, model, 0, r, factor, numbers)
-        outputs.append((rows.log10_df(energies), rows.kappa(energies), v))
+        outputs.append((rows.log10_df(k_values), rows.kappa(k_values), v))
         sizes.append([kernel._cache_size() for kernel in kernels])
     assert sizes[1] == sizes[0]
     assert not np.array_equal(outputs[0][0], outputs[1][0])
@@ -532,7 +532,7 @@ def test_the_draws_potential_is_the_profiles(edge_row):
     # The draw's potential kernel reads the profile's tables as
     # `TruncatedProfile.potential` does: the cubic Hermite interpolant between
     # the radii, the end radii's straight lines beyond the radii, and with an
-    # edge row the Kepler form on the last interval and zero from r_t outward.
+    # edge row the point-mass form on the last interval and zero from r_t outward.
     model = _lowered_hernquist() if edge_row else analytic_model("hernquist")
     profile = model.profile
     assert profile.has_edge_row == edge_row
@@ -569,7 +569,7 @@ def test_a_potential_that_is_not_positive_inside_the_edge_is_refused_with_cause(
                 ds_dlambda_p=np.zeros((1, 4, 4)),
                 x_edge=np.ones((1, 4)),
                 p_0=1.0,
-                e_edge=(0.0,),
+                k_edge=(0.0,),
                 validation=ValidationReport(keys=(), checks={}),
             ),
             model,

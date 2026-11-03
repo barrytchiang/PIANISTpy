@@ -3,10 +3,10 @@ r"""The transpose of the DF lookup and of the observables that read the DF.
 `Differentiable.losvd`, `Differentiable.aperture_losvd` and
 `Differentiable.pdf_v` use the module `_table_vjp` through the private
 module `_differentiable`. Each function of `_table_vjp` carries a cotangent on the
-values of the DF :math:`F` at energies back to the numbers of the DF table
+values of the DF :math:`F` at given K back to the numbers of the DF table
 and of the DF's forms that the DF lookup reads.
 
-The DF lookup (`df.lookup`) reads :math:`\log_{10}F` at an energy
+The DF lookup (`df.lookup`) reads :math:`\log_{10}F` at a value
 :math:`\mathcal{K}` in three ranges. Inside the DF table, the DF lookup reads a
 cubic Hermite interpolant in :math:`\ln\mathcal{K}` through the nodes of the DF
 table. Above the DF table, the DF lookup reads the central form of the DF.
@@ -27,8 +27,8 @@ the DF table, and `_table_vjp` transposes the three maps on the host:
 - some numbers of the DF lookup's forms are formed from other numbers of the
   forms and from the value at the top node (`_derived_params`).
 
-The transpose holds every energy fixed: the nodes, the energy :math:`P_0` of
-the central form, and the anchor energy.
+The transpose holds every K fixed: the nodes, the value :math:`P_0` of
+the central form, and the anchor value.
 
 References: Notes Section T:2.5.4. Notes Section T:7.1.
 """
@@ -66,7 +66,7 @@ from ._losvd_table import new_pool
 from ._velocity import angle_integral, angle_pieces, graded_rule, velocity_model
 
 # The numeric fields of a component's form that the DF lookup reads, apart from
-# the energies. Each field holds one number per component, except the floor's
+# the nodes. Each field holds one number per component, except the floor's
 # coefficients and the regular part, which hold one tuple per component.
 FORM_LEAVES = (
     "central_exponent",
@@ -102,7 +102,7 @@ DF_PARAMETERS = {
     "OM_II": ("r_a",),
     "COM_I": ("beta_c", "r_a"),
 }
-# The number of energies at which one JAX call reads F. The chunk size bounds
+# The number of values of K at which one JAX call reads F. The chunk size bounds
 # the memory of the transpose.
 _CHUNK = 262_144
 
@@ -246,7 +246,7 @@ def _derived_params(
 
     The function evaluates the formulas of `prepare_lookup`. The entries of
     the parameter vector that the function does not set, among them every
-    entry that depends on the energies, keep the values that
+    entry that depends on the nodes, keep the values that
     `prepare_lookup` computed on the host. Before returning the function,
     `_derived_params` evaluates the function at the host's inputs and compares
     the result with the host's parameter vector.
@@ -321,7 +321,7 @@ def _lookup_parts(model: Model) -> tuple[Any, Any, Any, Any]:
     The four parts are: the prepared lookup arrays; the parameter function
     of `_derived_params`; the lookup's values, slopes and parameters as JAX
     arrays; and the JAX reader ``read(y, m, params, k, k_c)`` of F. The reader
-    returns F as the observables read F: zero at and below the energy `k_c`,
+    returns F as the observables read F: zero at and below `k_c`,
     and zero where the lookup gives minus infinity."""
     arrays, kinds = prepare_lookup(model.table, model.form, 0)
     params_of = _derived_params(arrays, kinds, model.form, 0)
@@ -410,21 +410,21 @@ def lookup_vjp(
     model: Model, k: ArrayLike, cotangent: ArrayLike, k_c: float = 0.0
 ) -> DfCotangent:
     r"""Return the cotangent on a component's DF table and forms of a
-    cotangent on F at energies.
+    cotangent on F at values of K.
 
     Parameters
     ----------
     model : Model
         Model of one component.
     k : array-like
-        Energies at which F is read as the observables read F. The DF lookup
+        Values of K at which F is read as the observables read F. The DF lookup
         gives :math:`F = 10^{\log_{10}F}`. F is zero at and below `k_c`, and
         zero where the DF lookup gives minus infinity.
     cotangent : array-like, shape of `k`
-        Cotangent on F at the energies `k`.
+        Cotangent on F at `k`.
     k_c : float, optional
         Lower edge of the support: F is zero at and below `k_c`. Default:
-        ``0.0``, which means F is zero at and below zero energy.
+        ``0.0``, which means F is zero at and below :math:`\mathcal{K} = 0`.
 
     Returns
     -------
@@ -451,9 +451,9 @@ def _read_sums(
     shift: float = 0.0,
 ) -> list[Array]:
     """Return the cotangent on the lookup's values, slopes and parameters
-    (`leaves`) of a cotangent on F at energies.
+    (`leaves`) of a cotangent on F at values of K.
 
-    The function sums the cotangent over chunks of `_CHUNK` energies. The
+    The function sums the cotangent over chunks of `_CHUNK` values of K. The
     reader `read` gives F as :math:`10^{\\log_{10}F - c}`, with the shift c
     (`shift`) inside the exponent. With the shift, a DF table whose F exceeds
     the float64 range still gives a finite F."""
@@ -687,9 +687,9 @@ _G_TOLERANCE = 1e-12
 
 def _cumulative_order(arrays: LookupArrays, kinds: LookupKinds, q: float) -> int:
     """Return the Gauss-Legendre order at which `cumulative_df` converges at
-    the energy q, by rerunning the doubling of `cumulative_df` on the host.
+    the value q, by rerunning the doubling of `cumulative_df` on the host.
 
-    The order is 0 at or below the first energy of the lookup, where
+    The order is 0 at or below the first node of the lookup, where
     `cumulative_df` returns the closed form of the floor rule. The function
     raises the error of `unconverged_cumulative` when the doubling reaches
     `CUMULATIVE_LAST_ORDER` without converging, as `cumulative_df` does."""
@@ -715,7 +715,7 @@ def _cumulative_order(arrays: LookupArrays, kinds: LookupKinds, q: float) -> int
 
 
 def _below_mass(params: Any, kinds: LookupKinds, k: float) -> Any:
-    """Return `below_floor_mass` at the energy k as a JAX expression in the
+    """Return `below_floor_mass` at the value k as a JAX expression in the
     lookup's parameter vector.
 
     Raises ResultError for the floor rule "tail", because `_table_vjp` has no
@@ -723,7 +723,7 @@ def _below_mass(params: Any, kinds: LookupKinds, k: float) -> Any:
     rule = kinds.below_floor
     if rule == "taylor":
         return params[lk.FLOOR_0] * k * k / 2.0 + params[lk.FLOOR_1] * k**3 / 6.0
-    if rule == "edge_law":
+    if rule == "boundary_form":
         p, c_0, c_1 = params[lk.FLOOR_0], params[lk.FLOOR_1], params[lk.FLOOR_2]
         return c_0 * k ** (p + 1.0) / (p + 1.0) + c_1 * k ** (p + 2.0) / (p + 2.0)
     if rule == "zero":
@@ -738,7 +738,7 @@ def _below_mass(params: Any, kinds: LookupKinds, k: float) -> Any:
 def _cumulative_twin(
     arrays: LookupArrays, kinds: LookupKinds, a: LookupArrays, q: float, order: int
 ) -> Any:
-    """Return `cumulative_df` at the energy q as a JAX expression, at the
+    """Return `cumulative_df` at the value q as a JAX expression, at the
     Gauss-Legendre order `order` where the host's doubling converged.
 
     The JAX expression uses the panels and nodes of `cumulative_df` and reads
@@ -807,7 +807,7 @@ def _g_twin(
     lookup: tuple[LookupArrays, LookupKinds] | None = None,
 ) -> tuple[Callable[..., Any], Callable[..., Any]]:
     r"""Return `EllipseDF.G` as a JAX function of the lookup's arrays
-    ``(y, m, params)`` and of energies.
+    ``(y, m, params)`` and of values of K.
 
     The JAX copy builds the three branches of G on the grids of the route.
     The base of each branch is the lookup's cumulative integral of F at the
@@ -818,9 +818,9 @@ def _g_twin(
     prepared lookup, and None otherwise.
 
     The return value is a pair of functions ``(tables, read)``, and G at the
-    energies q is ``read(tables(y, m, params), q, held)``. The function
+    values q is ``read(tables(y, m, params), q, held)``. The function
     ``tables`` builds the branches from the lookup's arrays alone. The
-    function ``read`` reads the branches at the energies. Branches built once
+    function ``read`` reads the branches at the values. Branches built once
     serve every reading at one set of lookup arrays."""
     arrays, kinds = (
         prepare_lookup(model.table, model.form, 0) if lookup is None else lookup
@@ -991,7 +991,7 @@ def _row_transpose(
     c: Array,
     check: bool = False,
 ) -> tuple[list[tuple[Array, Array]], list[tuple[Array, Array]]]:
-    """Return the transpose of row `i`: the energies of every reading of F
+    """Return the transpose of row `i`: the K values of every reading of F
     and of G, each with the cotangent that the reading takes.
 
     Without `check`, the function runs the row's rule once and collects the
@@ -1169,13 +1169,13 @@ def losvd_rows_vjp(
     -----
     The function recomputes each row with a nonzero cotangent once by the
     row's rule (`EllipseRoute.row`). For each distinct velocity, the function
-    collects the energies and weights of every reading of F
+    collects the K values and weights of every reading of F
     (`EllipseRoute.plane`) at the level that gives the velocity's value. The
     transpose of the row's normalization is
     :math:`c_D = (c - 2w\,(c\cdot\hat D))/N`, with :math:`c` the cotangent on
     the normalized row :math:`\hat D = D/N`, :math:`w` the weights of the
     row's nodes and :math:`N = 2\,w \cdot D` the normalization. The cotangent
-    on F at the collected energies goes through the transpose of the lookup
+    on F at the collected K values goes through the transpose of the lookup
     (as in `lookup_vjp`) inside the row's computation. Each row therefore
     returns arrays the size of the lookup's arrays, never the list of
     readings, and the function sums the arrays of the rows.
@@ -1184,7 +1184,7 @@ def losvd_rows_vjp(
     :math:`c_{\rm s}` held fixed. The shift cancels in a normalized row. The
     transpose also holds fixed: the radii of the rows, the kept ranges, the
     layouts, the panels and layers of every level, the numbers of angle
-    nodes, and the map toward K = 0 with the exponent of the edge law as the
+    nodes, and the map toward K = 0 with the exponent of the boundary form as the
     route computed the map.
 
     With ``settings.check_rows`` (`Settings`), each recomputed row must equal
@@ -1245,14 +1245,14 @@ def losvd_rows_vjp(
     for row_sums, _ in parts:
         for i, part in enumerate(row_sums):
             sums[i] += part
-    g_energies = [k for _, g in parts for k, _ in g]
+    g_k = [k for _, g in parts for k, _ in g]
     g_weights = [w for _, g in parts for _, w in g]
     out = _table_cotangent(model, arrays, params_of, *sums)
-    if g_energies:
+    if g_k:
         # The rows read G. The transpose of G runs through the JAX copy of G,
         # after a check that the JAX copy reproduces the route's G.
         edf = route._df()
-        q = np.concatenate(g_energies)
+        q = np.concatenate(g_k)
         c_g = np.concatenate(g_weights)
         g_tables, g_read = _g_twin(model, edf, shift, basis.lookup)
         value, back = jax.vjp(lambda y, m, p: g_read(g_tables(y, m, p), q), *leaves)

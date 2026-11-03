@@ -1,8 +1,8 @@
-r"""The tail of the DF below the first energy of its table, and the tail's integral.
+r"""The tail of the DF below the first K of its table, and the tail's integral.
 
 The DF lookup and the table checks call `tail_log10_df` for the DF below
-the table's first energy, and `tail_mass_below` for the integral of the
-tail from zero up to an energy. The tail is
+the table's first K, and `tail_mass_below` for the integral of the
+tail from zero up to a value of K. The tail is
 
 .. math::
 
@@ -54,14 +54,14 @@ FRACTION_TERMS_MAX = 500
 
 
 def ln_ratio(p_0: float, k: ArrayLike, xp=np) -> Array:
-    r"""Return :math:`\ln(P_0/\mathcal{K})`, finite for every positive energy.
+    r"""Return :math:`\ln(P_0/\mathcal{K})`, finite for every positive K.
 
     Parameters
     ----------
     p_0 : float
         Central potential :math:`P_0`, in internal units.
     k : array-like
-        Energy :math:`\mathcal{K}`, positive, in internal units.
+        Value of :math:`\mathcal{K}`, positive, in internal units.
     xp : module, optional
         The array namespace. Default: ``numpy``; ``jax.numpy`` inside a JAX
         kernel.
@@ -101,7 +101,7 @@ def tail_log10_df(
     tail_exponent : float
         Exponent :math:`a` of the power law.
     k : array-like
-        Energy :math:`\mathcal{K}`, positive, in internal units.
+        Value of :math:`\mathcal{K}`, positive, in internal units.
     tail_log_exponent : float, optional
         Exponent :math:`b` of the logarithmic factor. Default: ``0.0``, which
         means a pure power law, the tail of a profile with an outer slope
@@ -298,7 +298,7 @@ def tail_mass_below(
     p_0: float = 1.0,
     xp=np,
 ) -> Array:
-    r"""Return the integral of the tail of the DF from zero to an energy.
+    r"""Return the integral of the tail of the DF from zero to a value of K.
 
     Parameters
     ----------

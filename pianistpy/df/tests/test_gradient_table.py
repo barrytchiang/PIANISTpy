@@ -3,7 +3,7 @@ r"""Tests of `table_jacobian` and `make_inversion_table` on a Method I model.
 The model is the Hernquist profile with constant anisotropy
 :math:`\beta_{\rm c} = 0.25`. The model's DF table has every piece except
 the tail: the rows, the nodes below the written floor, and the central form
-above the anchor energy. The derivative of the table in
+above the anchor value. The derivative of the table in
 :math:`\beta_{\rm c}` from `table_jacobian`, with the grid and the discrete
 choices held fixed, is compared with a Richardson extrapolation of two
 central differences of the table that `invert._table_pieces` builds.
@@ -68,7 +68,7 @@ def test_the_table_against_the_forward_differences(table):
     # The reference is the Richardson extrapolation of two central
     # differences of the table in beta_c, with steps h = 2e-3 and h/2, all on
     # the grid of the model at beta_c = 0.25. The rows are compared only at
-    # energies from 1e-6 to 0.99, where the central differences resolve the
+    # nodes from 1e-6 to 0.99, where the central differences resolve the
     # derivative. Below 1e-6 the table at the floor does not vary smoothly
     # with beta_c, and above 0.99 the table's slopes do not vary smoothly with
     # beta_c.
@@ -94,7 +94,7 @@ def test_the_table_against_the_forward_differences(table):
     for key in ("log_df_below", "log_df_slope_below"):
         np.testing.assert_allclose(d[key], rich[key], rtol=1e-6, atol=1e-6)
     # The central form above the anchor is compared through the DF that the
-    # central form gives at the grid's nodes above the table's last energy.
+    # central form gives at the grid's nodes above the table's last node.
     kap, a_a, bb, dd = values["central"]
     dk, da, db, ddd = d["central"]
     above = q[q > k_t[-1]]

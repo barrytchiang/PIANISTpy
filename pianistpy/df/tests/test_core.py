@@ -89,7 +89,7 @@ def test_truncate_says_so_where_the_df_diverges(caplog):
         model,
         form=dataclasses.replace(
             model.form,
-            below_floor=("edge_law",),
+            below_floor=("boundary_form",),
             below_floor_coefficients=((-0.5, 1.0, 0.0),),
         ),
     )

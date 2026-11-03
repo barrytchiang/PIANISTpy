@@ -91,7 +91,7 @@ def ellipse_rules(settings: Settings) -> EllipseRules:
 
     The row rule of the regular class and of the cusp class is
     ``(n_u, 0, 0, kq, m, n_phi)``. ``n_u`` is REGULAR_N_U or CUSP_N_U. ``kq``
-    is ``losvd.n_floor_layers``. ``m`` is ``losvd.n_energy_nodes``.
+    is ``losvd.n_floor_layers``. ``m`` is ``losvd.n_k_nodes``.
     ``n_phi`` is ``losvd.n_angle_nodes``. The least layer counts ``k0`` and
     ``ks`` are 0, so the two classes differ only in ``n_u``, which no part of
     the route reads.
@@ -106,13 +106,13 @@ def ellipse_rules(settings: Settings) -> EllipseRules:
         0,
         0,
         int(f["n_floor_layers"]),
-        int(f["n_energy_nodes"]),
+        int(f["n_k_nodes"]),
         int(f["n_angle_nodes"]),
     )
     return EllipseRules(
         rule_regular=(REGULAR_N_U,) + rule,
         rule_cusp=(CUSP_N_U,) + rule,
-        s_ratio=float(f["energy_layer_ratio"]),
+        s_ratio=float(f["k_layer_ratio"]),
         n_bisect=int(f["n_bisections"]),
         chunk=int(f["n_block_elements"]),
         t_nodes=int(f["n_sightline_nodes"]),

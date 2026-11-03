@@ -112,8 +112,8 @@ def test_a_lowered_df_negative_beyond_rounding_is_refused():
 
 def test_a_non_finite_center_form_is_refused_with_its_values():
     # A NaN value of the central form above the table raises AccuracyError and
-    # is never set to zero. The AccuracyError carries as its result the energies
-    # "k" above the table and the central form's values "f" at those energies.
+    # is never set to zero. The AccuracyError carries as its result the K values
+    # "k" above the table and the central form's values "f" at those K values.
     # A +inf value of the central form, beyond the range of a double, raises no
     # error, since the table reads +inf as its top band.
     from pianistpy import AccuracyError

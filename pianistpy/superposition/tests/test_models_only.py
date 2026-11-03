@@ -12,7 +12,7 @@ import pytest
 from pianistpy import InputError
 from pianistpy.df import DistributionFunction
 from pianistpy.df.core import model_identity
-from pianistpy.df.stages import EnergyGrid
+from pianistpy.df.stages import KGrid
 from pianistpy.df.tests.test_results import (
     COMPONENTS,
     SETTINGS,
@@ -34,7 +34,7 @@ def signed():
         components=COMPONENTS,
         settings=SETTINGS,
         identity=model_identity(COMPONENTS, None, SETTINGS),
-        grid=EnergyGrid(
+        grid=KGrid(
             k=np.tile(np.linspace(1e-3, 0.99, N), (2, 1)),
             r_of_k=np.tile(np.logspace(3, -3, N), (2, 1)),
             k_floor=(1e-3, 1e-3),

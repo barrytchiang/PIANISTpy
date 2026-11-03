@@ -1,6 +1,6 @@
 """Tests of `DistributionFunction.from_function`.
 
-The tests check the tabulation of a user-specified DF function on the energy
+The tests check the tabulation of a user-specified DF function on the K
 grid of the inversion, the validation report of the tabulated DF, and the
 InputError that `truncate` and a non-finite DF function raise.
 """
@@ -34,7 +34,7 @@ def from_plummer():
     """Return the isotropic Plummer DF built by `from_function`, and the calls.
 
     The DF function is the closed-form isotropic Plummer DF. The second item
-    is the list of the (energy, depth) array pairs that `from_function`
+    is the list of the (K, depth) array pairs that `from_function`
     passed to the DF function, one pair per call.
     """
     called = []
@@ -56,7 +56,7 @@ def test_the_tabulation_of_the_packages_own_df_is_its_table():
     component = Component(DoublePowerLaw.hernquist(), Anisotropy())
     own = compute_df(component)
     kb = own.table.k_below[0]
-    # The rows' energies come first. At an energy present both in the rows
+    # The rows' nodes come first. At a K present both in the rows
     # and below the floor, the stable sort keeps the rows' copy first, and
     # the left-sided search in read_at_the_nodes returns the rows' DF value.
     q = np.concatenate([own.rows.k[0], kb])
@@ -122,9 +122,9 @@ def test_truncation_refuses_a_df_from_a_function(from_plummer):
             truncate(df, truncation)
 
 
-def test_the_function_reads_the_grids_energies_and_depths(from_plummer):
+def test_the_function_reads_the_grids_k_values_and_depths(from_plummer):
     # `from_function` calls the DF function once, on the grid's increasing
-    # energies K and their depths P_0 - K, with P_0 = 1 for the untruncated
+    # K values and their depths P_0 - K, with P_0 = 1 for the untruncated
     # Plummer model in internal units.
     _, called = from_plummer
     assert len(called) == 1

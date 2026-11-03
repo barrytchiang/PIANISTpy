@@ -1,8 +1,8 @@
 r"""Tests that `Component` raises InputError for a profile whose outer slope
 lies strictly between 2 and 3.
 
-The outer end of the DF inversion and the exponent of the DF's low-energy
-tail assume a relative potential :math:`\Psi \propto 1/R` at large radius
+The outer end of the DF inversion and the exponent of the DF's tail at small
+K assume a relative potential :math:`\Psi \propto 1/R` at large radius
 :math:`R`. A profile with an outer density slope :math:`\beta` strictly between
 2 and 3 has an infinite total mass, and its relative potential does not fall
 as :math:`1/R`. `Component` therefore raises InputError for such a profile.

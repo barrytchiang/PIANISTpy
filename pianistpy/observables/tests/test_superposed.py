@@ -90,8 +90,8 @@ def tabled():
     quick settings, and the DF table and truncated profile of the isotropic
     Hernquist model truncated by ``Truncation(k_t=0.05)``. The second
     component is the first component with its DF table kept only at every
-    other energy and at the last energy. The two components therefore hold
-    one DF on two energy grids. The weights are 0.3 for the first component
+    other node and at the last node. The two components therefore hold
+    one DF on two K grids. The weights are 0.3 for the first component
     and 0.7 for the second component.
     """
     df = compute_df(Component(DoublePowerLaw.hernquist(), Anisotropy(), name="hern"))
@@ -232,7 +232,7 @@ def test_the_table_and_the_model_routes(tabled):
         assert sigma_los_aperture(table, aperture) == pytest.approx(
             sigma_los_aperture(model, aperture), rel=TIER_BOUNDS[0]
         )
-        # The two components hold one DF on two energy grids, so the mixture of
+        # The two components hold one DF on two K grids, so the mixture of
         # the two components equals the first component alone.
         assert sigma_los_aperture(table, aperture) == pytest.approx(
             sigma_los_aperture(parent, aperture), rel=TIER_BOUNDS[0]
@@ -253,7 +253,7 @@ def test_the_intrinsic_moments_are_the_superpositions(superposed):
     `dispersion_profile` on the component as a model of one component, is
     mixed with the weights by `mixture`. At 20 radii up to 0.9 times the
     truncation radius, the test asserts that the mixture agrees with the
-    ``sigma_r2`` of `moments`, with 3200 Gauss-Legendre nodes of the Jeans
+    ``sigma_r2`` of `moments`, with 3200 Gauss-Legendre nodes of the dispersion
     integral, to a relative difference of :math:`10^{-6}`.
     """
     model = superposed

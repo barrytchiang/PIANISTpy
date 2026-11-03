@@ -3,14 +3,14 @@ r"""Read the DF of a model and its cumulative integral for the ellipse route.
 The ellipse route (`EllipseRoute`) computes the rows of the line-of-sight
 velocity distribution that the public calls `pianistpy.losvd`,
 `pianistpy.aperture_losvd` and `pianistpy.LosTable` read. `EllipseDF` gives the
-route the DF :math:`F(Q)` at energies Q and the cumulative integral
+route the DF :math:`F(Q)` at values Q and the cumulative integral
 
 .. math::
 
     G(Q) = \int_0^Q F(K)\,{\rm d}K,
 
-with K the energy variable of the DF. A family without an L factor in its DF
-needs only :math:`G(Q_c)` at the largest energy :math:`Q_c` of each node pair
+with K the energy-like variable of the DF. A family without an L factor in its DF
+needs only :math:`G(Q_c)` at the largest value :math:`Q_c` of each node pair
 (Notes Eq. (T:6.2)). The table of G uses Simpson's rule on three branches.
 """
 
@@ -34,26 +34,26 @@ class EllipseDF:
     Parameters
     ----------
     q_grid : array-like
-        Energies of the DF's table. The first energy is the floor
-        :math:`Q_0`. The last energy is the top :math:`Q_{\rm top}`.
+        Nodes of the DF's table. The first node is the floor
+        :math:`Q_0`. The last node is the top :math:`Q_{\rm top}`.
     f : callable
-        F at energies, 0 where the lookup gives no finite value of F. The
+        F at values of Q, 0 where the lookup gives no finite value of F. The
         route passes `f` a second argument, the depth :math:`P_0 - Q` below
-        the top energy :math:`P_0`, at the energies where the route holds
+        the top value :math:`P_0`, at the values where the route holds
         the depth (`_ellipse_model.DfReading`).
     log10_f : callable
         The base-10 logarithm of F from the lookup. The values of `f` may
         equal :math:`10^{\log_{10} F}` times a constant factor (`scale`).
     cumulative : callable
-        The lookup's own integral :math:`\int_0^Q F\,{\rm d}K` at one energy
+        The lookup's own integral :math:`\int_0^Q F\,{\rm d}K` at one value
         Q, without the constant factor of `f`.
     info : mapping
         The lookup's statement of the ends of the DF. ``below_floor`` is
-        the rule of F below the floor (``"tail"``, ``"edge_law"`` or
+        the rule of F below the floor (``"tail"``, ``"boundary_form"`` or
         another). ``tail_a`` and ``tail_k`` are the exponents of the tail.
-        ``edge_law_p`` is the exponent of the edge law. ``kappa`` is the
+        ``boundary_form_p`` is the exponent of the boundary form. ``kappa`` is the
         exponent :math:`\kappa` of :math:`F \sim (P_0 - Q)^\kappa` at the
-        top. ``P0`` is the top energy :math:`P_0`.
+        top. ``P0`` is the top value :math:`P_0`.
     rules : EllipseRules
         The route's rules (``g_nodes``, ``s_ratio``).
 
@@ -79,7 +79,7 @@ class EllipseDF:
       branch starts from the value of the middle branch at
       :math:`Q_{\rm top}/2`.
 
-    The end energy :math:`Q_{\rm end}` is :math:`P_0` where :math:`P_0` is
+    The end value :math:`Q_{\rm end}` is :math:`P_0` where :math:`P_0` is
     finite and above :math:`Q_{\rm top}`, and :math:`Q_{\rm top}` otherwise.
     """
 
@@ -139,8 +139,8 @@ class EllipseDF:
         self.p_zero = (
             -float(info.get("tail_a", 0.0))
             if bf == "tail"
-            else float(info.get("edge_law_p", 0.0))
-            if bf == "edge_law"
+            else float(info.get("boundary_form_p", 0.0))
+            if bf == "boundary_form"
             else 0.0
         )
         self.k_zero = float(info.get("tail_k", 0.0)) if bf == "tail" else 0.0
@@ -151,7 +151,7 @@ class EllipseDF:
                 f"integrable at K = 0."
             )
         self._zmap: dict[tuple[int, int], bool] = {}
-        # The exponent kappa_top of F ~ (P0 - Q)^kappa at the top energy P0.
+        # The exponent kappa_top of F ~ (P0 - Q)^kappa at the top value P0.
         self.kappa_top = float(info.get("kappa", 0.0))
 
     @property
@@ -205,9 +205,9 @@ class EllipseDF:
         return c
 
     def G(self, q: ArrayLike, depth: ArrayLike | None = None) -> Array:
-        r"""Return :math:`G(Q) = \int_0^Q F\,{\rm d}K` at the energies `q`.
+        r"""Return :math:`G(Q) = \int_0^Q F\,{\rm d}K` at the values `q`.
 
-        G is 0 at energies at or below 0. Below the floor :math:`Q_0`, G is
+        G is 0 at values at or below 0. Below the floor :math:`Q_0`, G is
         read from the lower branch, and extended in ln Q by the branch's first
         slope below :math:`10^{-40} Q_0`. On the upper branch, `depth` gives
         :math:`P_0 - Q` where the caller holds the depth exactly, and NaN
@@ -218,7 +218,7 @@ class EllipseDF:
         Raises
         ------
         ResultError
-            If an energy lies above :math:`Q_{\rm end}`, where the DF has no
+            If a value lies above :math:`Q_{\rm end}`, where the DF has no
             value.
         """
         q = np.asarray(q, dtype=np.float64)

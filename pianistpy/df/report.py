@@ -9,8 +9,8 @@ its tier, "silent" at or below :math:`10^{-6}`, "recorded" up to
 :math:`10^{-2}`. The report holds the DF's checks only; the offset of the
 Poisson solve belongs to the model's report.
 
-`validate_df` also returns the gates of a truncation energy, read from the
-inversion's table: the lowest admissible truncation energy and the sign
+`validate_df` also returns the gates of a truncation value, read from the
+inversion's table: the lowest admissible truncation value and the sign
 test of the untruncated DF.
 """
 
@@ -139,12 +139,12 @@ def _slope_mismatch(
     form: AsymptoticForm,
     i: int,
 ) -> Check:
-    r"""Return the check |kappa_loc - kappa_form| at the table's top energy.
+    r"""Return the check |kappa_loc - kappa_form| at the table's top value.
 
-    The check applies where the table's last energy lies below the ceiling
-    p_0 - CEILING_GAP, so that the center's closed form covers the energies
-    from the table's last energy to the ceiling. The check is zero where the
-    table's last energy is at least
+    The check applies where the table's last K lies below the ceiling
+    p_0 - CEILING_GAP, so that the center's closed form covers the range
+    from the table's last K to the ceiling. The check is zero where the
+    table's last K is at least
     :math:`(p_0 - {\rm CEILING\_GAP})(1 - 10^{-15})`, and zero where the
     center's form is neither "power" nor "fitted" (a power of
     u = p_0 - k).
@@ -185,10 +185,10 @@ def _slope_mismatch(
 def _forms_below(
     form: AsymptoticForm, i: int
 ) -> tuple[Mapping[str, float] | None, Any, Any]:
-    """Return the tail, the Taylor form and the edge law below the floor.
+    """Return the tail, the Taylor form and the boundary form below the floor.
 
-    Each of the tail, the Taylor form and the edge law is None unless the
-    form states the rule of that name ("tail", "taylor" or "edge_law") below
+    Each of the tail, the Taylor form and the boundary form is None unless the
+    form states the rule of that name ("tail", "taylor" or "boundary_form") below
     the floor of component i.
     """
     rule, coefficients = form.below_floor[i], form.below_floor_coefficients[i]
@@ -201,7 +201,7 @@ def _forms_below(
             "E0": float(form.tail_log_scale[i]),
         }
     taylor = tuple(coefficients) if rule == "taylor" else None
-    law = tuple(coefficients) if rule == "edge_law" else None
+    law = tuple(coefficients) if rule == "boundary_form" else None
     return tail, taylor, law
 
 
@@ -229,7 +229,7 @@ def stated_forms(
         The Taylor coefficients; None where the form states another rule
         below the floor.
     law : tuple or None
-        The edge law's coefficients; None where the form states another
+        The boundary form's coefficients; None where the form states another
         rule below the floor.
     """
     return (_top(form, i), *_forms_below(form, i))
@@ -238,12 +238,12 @@ def stated_forms(
 def validate_df(
     pair: PotentialDensityPair, table: DfTable, form: AsymptoticForm
 ) -> tuple[float, ValidationReport, TruncationGates]:
-    r"""Return the lowest admissible truncation energy, the DF's report and the gates.
+    r"""Return the lowest admissible truncation value, the DF's report and the gates.
 
     Parameters
     ----------
     pair : PotentialDensityPair
-        The potential-density pair of the model. The pair's component fixes
+        The potential–density pair of the model. The pair's component fixes
         the validity check and the analytic exponent of the DF's tail.
     table : DfTable
         The inversion's own table: the rows as made, ending where the
@@ -254,14 +254,14 @@ def validate_df(
     Returns
     -------
     k_t_min : float
-        The largest of three energies: the highest table energy at which
-        the DF is negative (`TruncationGates.k_0`), the energy at which the
+        The largest of three values of K: the highest table node at which
+        the DF is negative (`TruncationGates.k_0`), the K at which the
         DF's last decrease ends (`TruncationGates.q_min`), and the potential
         :math:`P(R_{\rm a})` at the anisotropy's domain edge for a Type II
-        model. Where :math:`P(R_{\rm a})` exceeds the other two energies,
+        model. Where :math:`P(R_{\rm a})` exceeds the other two values,
         `k_t_min` is the next double above :math:`P(R_{\rm a})`. Zero where
         the DF has no negative value and no decrease and the anisotropy has
-        no domain edge. A truncation energy at or above `k_t_min` is
+        no domain edge. A truncation value at or above `k_t_min` is
         necessary for admissibility, not sufficient. A Type II model's
         truncation is admitted only where the truncated solve finds
         :math:`R_{\rm t} < R_{\rm a}`.
@@ -275,7 +275,7 @@ def validate_df(
         (`NO_SLOPE_AT_TYPE_II_EDGE`, in the check's ``excluded``).
     gates : TruncationGates
         The sign record of the DF and the gates that
-        :math:`\mathcal{K}_{\rm t} = 0` fails. A truncation energy above
+        :math:`\mathcal{K}_{\rm t} = 0` fails. A truncation value above
         zero is gated by its comparison with ``gates.k_0`` and `k_t_min`.
 
     Raises
@@ -306,9 +306,9 @@ def validate_df(
         if isinstance(profile, DoublePowerLaw)
         else _NAN
     )
-    # The energy k_edge is P(R_a), the potential at the anisotropy's domain
+    # The value k_edge is P(R_a), the potential at the anisotropy's domain
     # edge R_a, for a Type II component of an analytic pair with a double
-    # power law, and 0 otherwise. No truncation energy at or below P(R_a) is
+    # power law, and 0 otherwise. No truncation value at or below P(R_a) is
     # admissible.
     edge = component.anisotropy.domain_edge
     k_edge = (
@@ -414,9 +414,9 @@ def _round_trip(
 
     The check compares the density that the DF gives, through the lookup of
     its table and forms, with the profile's density at the radii r(K) of
-    the table's energies, with r(K) from the analytic potential. The DF is
+    the table's nodes, with r(K) from the analytic potential. The DF is
     read by the exact depth u from the profile's inner series where the
-    series' error bound is below :math:`10^{-16}`, and by the energy elsewhere. The
+    series' error bound is below :math:`10^{-16}`, and by K elsewhere. The
     check's value is the largest relative difference, and its location the
     radius of that difference; a non-finite difference counts as infinite.
     """

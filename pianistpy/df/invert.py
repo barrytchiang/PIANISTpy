@@ -1,8 +1,8 @@
 """Untruncated DF of one component, inverted from the component's inputs alone.
 
-`inversion_df` inverts the potential-density pair of one component into a
+`inversion_df` inverts the potential–density pair of one component into a
 DF table, the closed forms beyond the table's two ends and the DF's
-validation report. The inversion runs in this order: the energy grid, the
+validation report. The inversion runs in this order: the K grid, the
 choice of the inversion's form, the exact derivatives of the auxiliary
 density rho_aux, the kernel's rows, the completion of the rows below the
 floor, the anchor and the closed form above the anchor, the nodes below
@@ -14,7 +14,7 @@ anisotropy, Osipkov-Merritt (OM) and Cuddeford-Osipkov-Merritt (COM), with
 OM and COM each of Type I and Type II. The grid of an OM Type II or a COM
 model is placed around the feature that a pilot inversion of the model
 finds (`pilot_feature`). A DF that is negative somewhere is returned with
-its sign. The gates of a truncation energy decide whether a truncation of
+its sign. The gates of a truncation value decide whether a truncation of
 a DF with negative values is admissible.
 """
 
@@ -56,9 +56,9 @@ from .rows import (
 from .stages import (
     AsymptoticForm,
     DfTable,
-    EnergyGrid,
     InversionRecord,
     InversionRows,
+    KGrid,
 )
 from .top import anchor, top_patch
 
@@ -86,7 +86,7 @@ _CONTINUATION = {
 # 1 - K_FLOOR log-spaced in 1 - Q. The pilot drops its first _PILOT_DROP rows
 # before the search for the DF's minimum. The search skips every DF value at
 # or below _PILOT_FLOOR times the median of the positive DF values below the
-# search's upper energy.
+# search's upper cutoff.
 _PILOT_N = (200, 600, 200)
 _PILOT_DROP = 2
 _PILOT_FLOOR = 1e-3
@@ -100,7 +100,7 @@ def _rows(
     sources: Any = None,
     deriv: bool = True,
 ) -> tuple[Any, ...]:
-    """Return the inversion's rows on the energies q.
+    """Return the inversion's rows on the nodes q.
 
     The rows are the kernel's values of F and dF/dQ on q, completed below
     the floor (`complete_rows`). The function chooses the inversion's form,
@@ -115,9 +115,9 @@ def _rows(
         Numerical settings; the kernel's rules and ``n_floor_nodes`` of the
         ``inversion`` group are read.
     pair : PotentialDensityPair
-        The component's potential-density pair.
+        The component's potential–density pair.
     q : numpy.ndarray
-        Energies of the rows, increasing, in internal units.
+        The rows' values of Q, increasing, in internal units.
     sources : callable, optional
         A function (pair, grid, form) -> AuxDerivatives that replaces
         `aux_derivatives`. The gradient's rule (`gradient`) passes such a
@@ -152,7 +152,7 @@ def _rows(
     """
     profile, aniso = component.unit_profile, component.anisotropy
     family = aniso.family
-    grid = EnergyGrid(
+    grid = KGrid(
         k=q[None, :],
         r_of_k=np.full((1, q.size), np.nan),
         k_floor=(float(q[0]),),
@@ -222,7 +222,7 @@ def _rows(
 
 
 def _below_limit(q: np.ndarray, component: Component) -> np.ndarray:
-    """Return the energies q without the energies above the center's depth limit.
+    """Return the nodes q without the nodes above the center's depth limit.
 
     Three depths u = 1 - q limit the table at the center: `top_limit`, the
     depth below which the exact derivatives of rho_aux exceed float64; the
@@ -230,9 +230,9 @@ def _below_limit(q: np.ndarray, component: Component) -> np.ndarray:
     float64 holds; and `ceiling_limit`, the depth below which the center's
     closed form exceeds the DF's ceiling. The limit u_min is the largest
     of the three depths. Where u_min exceeds the depth 1 - q[-1] of the last
-    energy, the call keeps only the energies whose depth exceeds u_min,
+    node, the call keeps only the nodes whose depth exceeds u_min,
     logs which depth set the cut, and the center's closed form covers the
-    energies above the kept ones. Otherwise the call returns q unchanged.
+    range above the kept ones. Otherwise the call returns q unchanged.
     """
     profile = component.unit_profile
     u_ask = top_limit(profile, component.anisotropy)
@@ -278,17 +278,17 @@ def _below_limit(q: np.ndarray, component: Component) -> np.ndarray:
 
 
 def pilot_feature(component: Component, settings: Settings) -> dict[str, Any]:
-    """Return the energy an OM Type II or COM model's grid is placed around.
+    """Return the value of Q an OM Type II or COM model's grid is placed around.
 
     The pilot inversion computes the DF on a coarse grid (`_PILOT_N`),
-    without dF/dQ. The search covers the energies below a cutoff, the
+    without dF/dQ. The search covers the nodes below a cutoff, the
     midpoint of 5/8 and 1 - ``grid_tail_extent`` (the zone B/BC and zone
     BC/C boundaries of `grid.standard_zones`). The search skips the first
     ``_PILOT_DROP`` nodes and every DF value at or below ``_PILOT_FLOOR``
     times the median of the positive DF values below the cutoff. The
     feature is the DF's minimum over the searched nodes, refined to the
     vertex of the parabola through the minimum node and its two neighbors
-    and clipped to the two neighbors' energies. With :math:`(Q_a, F_a)`,
+    and clipped to the two neighbors' values of Q. With :math:`(Q_a, F_a)`,
     :math:`(Q_b, F_b)` and :math:`(Q_c, F_c)` the three nodes, the feature
     is the minimum node itself where
     :math:`|2[(F_b - F_a)(Q_c - Q_b) - (F_c - F_b)(Q_b - Q_a)]|` is at most
@@ -306,7 +306,7 @@ def pilot_feature(component: Component, settings: Settings) -> dict[str, Any]:
     Returns
     -------
     feature : dict
-        The key ``q_feature``, the feature's energy in internal units. The
+        The key ``q_feature``, the feature's Q in internal units. The
         value is 0, which selects the standard zones, where fewer than 3
         nodes are searched, where the feature lies below :math:`10^{3}` times
         ``K_FLOOR``, or where the feature is at or above the cutoff.
@@ -351,7 +351,7 @@ def pilot_feature(component: Component, settings: Settings) -> dict[str, Any]:
 def _tabulate(
     function: Callable[[np.ndarray, np.ndarray], Any], q: np.ndarray
 ) -> np.ndarray:
-    """Return a user-specified DF function's values F on the energies q.
+    """Return a user-specified DF function's values F on the nodes q.
 
     The function is called with q and the depth :math:`P_0 - q`, where the
     central potential :math:`P_0` is 1. The depth 1 - q is exact in float64
@@ -367,14 +367,14 @@ def _tabulate(
     f = np.asarray(function(q.copy(), 1.0 - q), dtype=np.float64)
     if f.shape != q.shape:
         raise InputError(
-            f"The function returned shape {f.shape} for the {q.size} energies of "
+            f"The function returned shape {f.shape} for the {q.size} nodes of "
             "the grid: it takes the arrays K and P_0 - K and returns F at each."
         )
     bad = ~np.isfinite(f)
     if np.any(bad):
         raise InputError(
             f"The function's DF is not finite at K = {float(q[bad][0]):.17g}, the "
-            f"first of {int(np.count_nonzero(bad))} such energies on the grid."
+            f"first of {int(np.count_nonzero(bad))} such nodes on the grid."
         )
     return f
 
@@ -382,7 +382,7 @@ def _tabulate(
 def _nodes_below_floor(
     component: Component, settings: Settings, pair: Any, q: np.ndarray
 ) -> np.ndarray:
-    """Return the energies of the inversion's nodes below the written floor.
+    """Return the K values of the inversion's nodes below the written floor.
 
     The nodes are the nodes below the written floor that `_table_pieces`
     places for the component and the settings on the grid q: the log grid
@@ -391,7 +391,7 @@ def _nodes_below_floor(
     places no node below the written floor, because the form has no
     completion source or the completion is not positive.
     """
-    grid = EnergyGrid(
+    grid = KGrid(
         k=q[None, :],
         r_of_k=np.full((1, q.size), np.nan),
         k_floor=(float(q[0]),),
@@ -421,7 +421,7 @@ def inversion_df(
     settings: Settings,
     function: Callable[[np.ndarray, np.ndarray], Any] | None = None,
 ) -> tuple[
-    EnergyGrid,
+    KGrid,
     DfTable,
     AsymptoticForm,
     float,
@@ -438,7 +438,7 @@ def inversion_df(
     settings : Settings
         Numerical settings.
     function : callable, optional
-        A user-specified DF as a function f(k, depth) of the energy k and
+        A user-specified DF as a function f(k, depth) of K and
         the depth :math:`P_0 - k` below the central potential :math:`P_0`.
         The function's values on the grid and on the nodes below the
         written floor that the inversion places replace the inversion's rows
@@ -449,14 +449,14 @@ def inversion_df(
 
     Returns
     -------
-    grid : EnergyGrid
-        The table's energies, with r(K) from the analytic potential.
+    grid : KGrid
+        The table's K grid, with r(K) from the analytic potential.
     table : DfTable
         The DF table.
     form : AsymptoticForm
         The closed forms beyond the table's two ends.
     k_t_min : float
-        The lowest admissible truncation energy (`validate_df`).
+        The lowest admissible truncation value (`validate_df`).
     report : ValidationReport
         The DF's report (`validate_df`).
     inversion : InversionRecord or None
@@ -491,7 +491,7 @@ def inversion_df(
         pair = potential_density_pair((component,))
 
     # The grid of a piloted family is placed around the pilot's feature.
-    with timed("energy_grid"):
+    with timed("k_grid"):
         feature = pilot_feature(component, settings) if family in _PILOTED else None
         q, _ = inversion_grid(profile, aniso, settings, feature=feature)
         q = _below_limit(q, component)
@@ -523,11 +523,11 @@ def inversion_df(
         # slope column as not judged.
         report = slope_column_not_judged(report, table, NO_SLOPE_COLUMN)
 
-    # The radius r(K) of each table energy comes from the analytic potential.
+    # The radius r(K) of each table node comes from the analytic potential.
     radii = ExactDerivs(profile, max_order=1)
     k_t = np.asarray(table.k[0], dtype=np.float64)
     r_of_k = np.asarray(radii.r_of_p(k_t), dtype=np.float64)
-    out_grid = EnergyGrid(
+    out_grid = KGrid(
         k=k_t[None, :],
         r_of_k=r_of_k[None, :],
         k_floor=(float(k_t[0]),),
@@ -701,7 +701,7 @@ def _table(
 ) -> DfTable:
     """Return the inversion's DF table.
 
-    The table holds the rows as made, from the energy of the highest node
+    The table holds the rows as made, from the K of the highest node
     below the written floor (from the first row where there is no node
     below the written floor) up to
     the anchor (up to the last row where there is no anchor), and stores
@@ -716,7 +716,7 @@ def _table(
     ------
     AccuracyError
         If ``covered`` is false (no closed form of the center covers the
-        energies above a cut, `ceiling_limit`) and a row inside the table
+        range above a cut, `ceiling_limit`) and a row inside the table
         exceeds the DF's ceiling 10^LOG10_DF_CEILING in absolute value.
     AccuracyError
         If a row inside the table is not finite or is zero.
@@ -733,7 +733,7 @@ def _table(
                 f"{int(over.sum())} rows of the inversion inside the table exceed the "
                 f"DF's ceiling 10^{LOG10_DF_CEILING:g}, the first row {first} at K = "
                 f"{float(q[first]):.6e}, and no closed form of the center covers the "
-                "energies above: refused"
+                "range above: refused"
             )
             err.result = dict(k=q, f=f)
             raise err
@@ -796,7 +796,7 @@ def _form(
     """Return the asymptotic form beyond the table's two ends.
 
     Above the table, the form is the center's closed form. Where `patch` is
-    not None, the form also holds the patch's anchor energy, anchor
+    not None, the form also holds the patch's anchor value, anchor
     amplitude and regular part (b, d).
     Below the floor, the form is the tail where the DF has one, and zero
     otherwise.

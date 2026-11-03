@@ -803,7 +803,7 @@ class Differentiable:
         or :math:`R_{\rm a}`) is the sum of two parts. The first part is the
         derivative in :math:`\theta_i` at a fixed DF table. The second part
         is the derivative through the values of the DF table, with the
-        energies of the DF table held fixed. The method is not
+        K values of the DF table held fixed. The method is not
         differentiable in `r_2d` or `v`.
 
         References
@@ -872,7 +872,7 @@ class Differentiable:
         or :math:`R_{\rm a}`) is the sum of two parts. The first part is the
         derivative in :math:`\theta_i` at a fixed DF table and at fixed
         velocities. The second part is the derivative through the values of the
-        DF table, with the energies of the DF table held fixed. The method is
+        DF table, with the K values of the DF table held fixed. The method is
         not differentiable in `r` or `v`.
 
         References
@@ -948,7 +948,7 @@ class Differentiable:
         or :math:`R_{\rm a}`) is the sum of two parts. The first part is the
         derivative in :math:`\theta_i` at a fixed DF table. The second part
         is the derivative through the values of the DF table, with the
-        energies of the DF table held fixed. The method is not
+        K values of the DF table held fixed. The method is not
         differentiable in `v`.
 
         References
@@ -1211,7 +1211,7 @@ class _DfPath:
     `RowsBasis`, the derivative of the DF table and the velocity-distribution
     profiles of the model at theta are built at the first request. A
     `_DfPath` computes the gradient in theta of a cotangent on the DF table
-    and the DF's forms (`df.gradient.table_jacobian`, with the energies of the
+    and the DF's forms (`df.gradient.table_jacobian`, with the K values of the
     DF table at theta held fixed), plus the explicit part. A `_DfPath` keeps
     the entries of the component's own theta and of the `THETA_KEPT` - 1
     other theta first met most recently.
@@ -1326,8 +1326,8 @@ class _DfPath:
         """Return the derivative of the DF table at the entry's theta, built at
         the first request with the stored exponent steps (`_steps`).
 
-        Raises ResultError when the derivative's energies differ from the
-        energies of the model's DF table."""
+        Raises ResultError when the derivative's K values differ from the
+        K values of the model's DF table."""
         if "jac" not in entry:
             model = entry["model"]
             values, jac, _ = table_jacobian(
@@ -1335,8 +1335,8 @@ class _DfPath:
             )
             if values["k"].tobytes() != np.asarray(model.table.k[0]).tobytes():
                 raise ResultError(
-                    "The energies of the DF table's derivative differ from the "
-                    "energies of the model's own DF table, so the model's DF table "
+                    "The K values of the DF table's derivative differ from the "
+                    "K values of the model's own DF table, so the model's DF table "
                     "was not made by the rule that the derivative holds."
                 )
             entry["jac"] = (values, jac)
@@ -1381,8 +1381,10 @@ class _DfPath:
             c = np.asarray(cotangent.log_df, dtype=np.float64)[0]
             dl = np.asarray(d["log_df"], dtype=np.float64)
             g = float(np.sum(np.where(c != 0.0, c * np.where(c != 0.0, dl, 0.0), 0.0)))
-            if "edge_law" in d:
-                g += float(np.dot(carried["below_floor_coefficients"], d["edge_law"]))
+            if "boundary_form" in d:
+                g += float(
+                    np.dot(carried["below_floor_coefficients"], d["boundary_form"])
+                )
             center = np.asarray(d["center"], dtype=np.float64)
             g += float(np.dot(carried["center"][: center.size], center))
             out[i] = g + float(explicit.get(name, 0.0))
@@ -1406,7 +1408,7 @@ def _is_zero(cotangent: Any) -> bool:
 
 def _carried(cotangent: Any, values: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
     """Return the parts of a cotangent that the derivative of the DF table
-    carries: the coefficients of the floor's edge law and the numbers of the
+    carries: the coefficients of the floor's boundary form and the numbers of the
     DF's central form (`_CENTER_LEAVES`).
 
     Raises ResultError when the cotangent is nonzero on a part of the DF
@@ -1415,7 +1417,7 @@ def _carried(cotangent: Any, values: dict[str, np.ndarray]) -> dict[str, np.ndar
     of such a part is not computed, so the gradient would be incomplete."""
     form = dict(cotangent.form)
     law = np.asarray(form.pop("below_floor_coefficients", ()), dtype=np.float64)
-    n_law = np.size(values.get("edge_law", ()))
+    n_law = np.size(values.get("boundary_form", ()))
     n_center = np.size(values["center"])
     center = np.array([float(form.pop(k, 0.0)) for k in _CENTER_LEAVES])
     loose = [k for k, x in form.items() if np.any(np.asarray(x, dtype=np.float64))]

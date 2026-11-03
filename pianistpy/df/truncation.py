@@ -1,8 +1,8 @@
 r"""The truncated DF and the Poisson source of one component.
 
 `truncated_source` takes the inversion's table of an untruncated
-distribution function (DF) :math:`F(Q)` (the energies, the DF, the DF's
-exact derivative and whether the DF changes sign), a truncation energy
+distribution function (DF) :math:`F(Q)` (the nodes, the DF, the DF's
+exact derivative and whether the DF changes sign), a truncation value
 :math:`\mathcal{K}_{\rm t}` and the truncation settings. `truncated_source`
 returns a `TruncatedSource`: the truncated DF and the auxiliary density on
 the source grid that `q_fast_grid` builds. The module also defines the
@@ -21,7 +21,7 @@ and the auxiliary density, the Poisson solve's source, is
 
     \rho_{\rm aux}(P) = \int_0^P F_{\rm t}(Q) \, [2 (P - Q)]^n \, dQ,
 
-with :math:`K`, :math:`Q` and :math:`P` relative energies and potentials in
+with :math:`K` and :math:`Q` energy-like variables and :math:`P` the potential, in
 internal units, and the kernel exponent :math:`n = 1/2 - \beta_{\rm c}`
 (:math:`n = 1/2` for an Osipkov-Merritt model). The Poisson solve
 multiplies :math:`\rho_{\rm aux}` by the anisotropy family's constant
@@ -188,12 +188,12 @@ def row_bin_edges(
 class TruncatedSource:
     r"""The truncated DF and the auxiliary density on the source grid.
 
-    All energies and potentials are in internal units.
+    All values of K, Q and P are in internal units.
 
     Parameters
     ----------
     q : array, shape (n,)
-        The source grid in the truncated relative energy, from `K_FLOOR` to
+        The source grid in the truncated :math:`K`, from `K_FLOOR` to
         :math:`P_0 - \mathcal{K}_{\rm t}` less `CEILING_GAP`, where
         :math:`P_0` is the untruncated central potential.
     df : array, shape (n,)
@@ -212,7 +212,7 @@ class TruncatedSource:
         than four nodes with a finite positive :math:`dF/dQ` or does not
         bracket :math:`\mathcal{K}_{\rm t}`.
     taylor_check : dict or None
-        The two joins near the edge. ``K_splice``: the energy where the edge
+        The two joins near the edge. ``K_splice``: the K where the edge
         integral of :math:`dF/dQ` hands over to the difference
         :math:`F(K + \mathcal{K}_{\rm t}) - F(\mathcal{K}_{\rm t})`.
         ``splice_rel_diff``: the edge integral over the difference, less 1,
@@ -224,7 +224,7 @@ class TruncatedSource:
         `taylor` is None.
     sentinel_q : float or None
         Where the top of the DF table holds +inf values (a DF above the
-        largest double), the highest energy of the finite part of the table;
+        largest double), the highest K of the finite part of the table;
         None where the table has no +inf value.
     lookup : dict or None
         The lookup of the untruncated DF that the truncation reads: the
@@ -238,7 +238,7 @@ class TruncatedSource:
     clip : tuple of float
         The magnitude of the most negative value of the difference
         :math:`F(K + \mathcal{K}_{\rm t}) - F(\mathcal{K}_{\rm t})` set to
-        zero, divided by :math:`|F(\mathcal{K}_{\rm t})|`, and the energy
+        zero, divided by :math:`|F(\mathcal{K}_{\rm t})|`, and the value
         :math:`K` of the most negative value; ``(0.0, nan)`` where no value was set to
         zero. Each value set to zero is at most `CLIP_ULPS` units of
         rounding of :math:`F(\mathcal{K}_{\rm t})` in size.
@@ -366,7 +366,7 @@ def _p_rhs_kernel(abel_n: int, split_frac: float, underflow: float):
     ``a = min(tail_a, 0.99)``, in closed form, and the quadrature takes the
     DF less that power-law tail; the caller passes a nonzero `tail_A` only
     for an untruncated model. Where `n9` is given, the kernel adds the exact
-    piece of rho_aux from energies below the grid's first node.
+    piece of rho_aux from K below the grid's first node.
     """
     gl_xi, gl_w = np.polynomial.legendre.leggauss(abel_n)
 
@@ -450,7 +450,7 @@ def _p_rhs_kernel(abel_n: int, split_frac: float, underflow: float):
             )
             if n9 is not None:
                 # With n9, the tail's closed form covers only [q0, split], and
-                # the exact piece n9 covers the energies below q0.
+                # the exact piece n9 covers the range below q0.
                 _x0 = jnp.clip(Q_grid[0] / jnp.maximum(Psi, underflow), 0.0, 1.0)
                 _cf_above = (
                     tail_A
@@ -536,25 +536,25 @@ def truncated_source(
 ) -> TruncatedSource:
     r"""Return the truncated DF and the auxiliary density of one component.
 
-    All energies and potentials are in internal units.
+    All values of K, Q and P are in internal units.
 
     Parameters
     ----------
     q_table : array, shape (m,)
-        Energies of the inversion's table, increasing.
+        Nodes of the inversion's table, increasing.
     df_table : array, shape (m,)
         The untruncated DF at `q_table`, in linear :math:`F`. A contiguous
         band at the top of the table may hold +inf where the DF exceeds the
         largest double.
     ddf_dq : array, shape (k,), or None
-        The DF's derivative :math:`dF/dQ` at the first :math:`k` energies of
+        The DF's derivative :math:`dF/dQ` at the first :math:`k` nodes of
         `q_table`, with :math:`k \leq m`, NaN where the inversion did not
         compute :math:`dF/dQ`; None where the inversion gives no derivative.
     df_has_neg : bool
         Whether the DF changes sign. Where True, the lookups interpolate
         :math:`F` rather than :math:`\ln F`.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`; 0 for an
+        The truncation value :math:`\mathcal{K}_{\rm t}`; 0 for an
         untruncated model.
     p_center : float
         The central relative potential :math:`P_0` of the untruncated model.
@@ -572,9 +572,9 @@ def truncated_source(
         Default: ``None``, which means no tail (allowed only where
         :math:`\mathcal{K}_{\rm t} > 0`).
     below_floor : mapping, optional
-        The exact piece of :math:`\rho_{\rm aux}` from energies below the
-        table's first energy; read only for an untruncated model. Default:
-        ``None``, which means the tail's closed form covers all energies
+        The exact piece of :math:`\rho_{\rm aux}` from K below the
+        table's first node; read only for an untruncated model. Default:
+        ``None``, which means the tail's closed form covers all K
         below the source grid's split point.
 
     Returns
@@ -689,7 +689,7 @@ def truncated_source(
         q_fast_grid(float(p_center - zt_val), settings), dtype=jnp.float64
     )
 
-    # The truncated DF is F(K + K_t) - F(K_t), with the lookup energy capped
+    # The truncated DF is F(K + K_t) - F(K_t), with the lookup argument capped
     # at the top of the table's finite part and at CEILING_GAP below the
     # central potential. A negative difference of at most CLIP_ULPS units of
     # rounding of F(K_t) is rounding: it is set to zero, and the largest such

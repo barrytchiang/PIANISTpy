@@ -8,13 +8,13 @@ another only through the result objects of this module.
 The inversion of a distribution function (DF) runs the following stages in
 order:
 
-- `pair.potential_density_pair` returns the potential-density pair, a
+- `pair.potential_density_pair` returns the potential–density pair, a
   `PotentialDensityPair`.
 - `form.inversion_form` returns the form of the inversion on each row of the
-  energy grid, an `InversionForm`.
+  K grid, an `InversionForm`.
 - `derivatives.aux_derivatives` returns the exact derivatives of the
   auxiliary density that the inversion needs, an `AuxDerivatives`.
-- `invert.inversion_df` returns the energy grid (`EnergyGrid`), the DF table
+- `invert.inversion_df` returns the K grid (`KGrid`), the DF table
   (`DfTable`), the analytic forms beyond the two ends of the table
   (`AsymptoticForm`), the record of the inversion (`InversionRecord`) and
   the inversion's rows before any row is replaced (`InversionRows`).
@@ -29,14 +29,14 @@ The truncation of a model runs the following stages in order:
   report.
 
 A Method II model runs the inversion a second time, on the tabulated
-potential-density pair of a truncated parent model.
+potential–density pair of a truncated parent model.
 """
 
 __all__ = [
     "AsymptoticForm",
     "AuxDerivatives",
     "DfTable",
-    "EnergyGrid",
+    "KGrid",
     "InversionForm",
     "InversionRecord",
     "InversionRows",
@@ -60,7 +60,7 @@ from .inputs import Component
 class PotentialDensityPair:
     """The total relative potential and the density of each component.
 
-    A potential-density pair is either analytic or tabulated. An analytic
+    A potential–density pair is either analytic or tabulated. An analytic
     pair is given by the components' closed forms, which have exact
     derivatives. A tabulated pair is given by the truncated profile of a
     parent model, for a Method II model.
@@ -94,22 +94,28 @@ class PotentialDensityPair:
 
 
 @dataclass(frozen=True)
-class EnergyGrid:
-    r"""The energies at which each component's DF is tabulated, and their radii.
+class KGrid:
+    r"""The :math:`\mathcal{K}` nodes of each component's DF table, and their radii.
+
+    :math:`\mathcal{K}` is the energy-like variable of the DF (the relative
+    energy for an isotropic or constant-anisotropy model, :math:`Q` for an
+    Osipkov-Merritt model).
 
     Parameters
     ----------
     k : array, shape (n_components, n)
-        Relative energy :math:`\mathcal{K}` of each node of each component's
-        table, increasing along the second axis, in internal units. The
-        energies `k` are the grid of `DfTable.k`.
+        Value of :math:`\mathcal{K}` at each node of each component's table,
+        increasing along the second axis, in internal units. The values `k`
+        are the grid of `DfTable.k`.
     r_of_k : array, shape (n_components, n)
-        Radius at which the total relative potential equals the energy `k`,
-        in internal units. NaN where a stage has not computed the radii.
+        Radius at which the total relative potential equals `k`, in internal
+        units. NaN where a stage has not computed the radii.
     k_floor : tuple of float
-        First (lowest) energy of each component's table, in internal units.
+        First (lowest) :math:`\mathcal{K}` of each component's table, in
+        internal units.
     k_ceiling : tuple of float
-        Last (highest) energy of each component's table, in internal units.
+        Last (highest) :math:`\mathcal{K}` of each component's table, in
+        internal units.
     """
 
     k: Array
@@ -129,10 +135,10 @@ class AuxDerivatives:
         `values` and of `at_floor`.
     values : array, shape (n_components, n_orders, n)
         Derivative of each order in `orders` of each component's auxiliary
-        density, at the energies of the energy grid, in internal units.
+        density, at the nodes of the K grid, in internal units.
     at_floor : array, shape (n_components, n_orders)
         Derivative of each order in `orders` of each component's auxiliary
-        density at the lowest energy of the energy grid, in internal units.
+        density at the lowest node of the K grid, in internal units.
     is_exact : bool
         True if `values` and `at_floor` are evaluated from closed forms;
         False if they are read from a table.
@@ -176,12 +182,12 @@ class AuxDerivatives:
         ------
         InputError
             If the derivatives are read from a table (`source` is None): a
-            table holds only its own orders at its own energies.
+            table holds only its own orders at its own nodes.
         """
         if self.source is None:
             raise InputError(
                 "These derivatives come from a table: only its own orders and "
-                "energies are held."
+                "nodes are held."
             )
         p = np.asarray(p, dtype=np.float64)
         out = np.zeros_like(p)
@@ -194,7 +200,7 @@ class AuxDerivatives:
 
 @dataclass(frozen=True)
 class InversionForm:
-    """The form of the inversion on every row of the energy grid.
+    """The form of the inversion on every row of the K grid.
 
     `form.inversion_form` chooses the form from the model's closed forms
     alone; no computed number of the inversion enters the choice.
@@ -214,7 +220,7 @@ class InversionForm:
         (integrated by parts), ``2`` for the general form (the derivative
         outside the integral).
     k_interior : tuple of float or None
-        Energy of the interior point of each component, in internal units;
+        Interior point :math:`P_s` of each component, in internal units;
         None for a component that has no interior point.
 
     References
@@ -230,26 +236,26 @@ class InversionForm:
 
 @dataclass(frozen=True)
 class DfTable:
-    r"""The distribution function (DF) of each component on its energy grid.
+    r"""The distribution function (DF) of each component on its K grid.
 
-    The components of one model may have different energy grids: each
+    The components of one model may have different K grids: each
     member of a superposition keeps its own grid.
 
     Parameters
     ----------
     k : array, shape (n_components, n)
-        Relative energies :math:`\mathcal{K}` of the nodes of each
+        Values of :math:`\mathcal{K}` at the nodes of each
         component's table, in internal units, increasing along the
         component's support. Where one component's grid is shorter than
-        another component's grid, the shorter grid's last energy is repeated
+        another component's grid, the shorter grid's last node is repeated
         after the index `i_last`, and no code reads the repeated entries.
     log_df : array, shape (n_components, n)
-        Base-10 logarithm of the DF :math:`F` at the energies `k`, in
+        Base-10 logarithm of the DF :math:`F` at the nodes `k`, in
         internal units. NaN outside the component's support; minus infinity
         where the DF is exactly zero.
     log_df_slope : array, shape (n_components, n)
         Slope :math:`\mathrm{d}\log_{10}F/\mathrm{d}\ln\mathcal{K} =
-        \mathcal{K}F'/(F\ln 10)` at the energies `k`, with
+        \mathcal{K}F'/(F\ln 10)` at the nodes `k`, with
         :math:`F' = \mathrm{d}F/\mathrm{d}\mathcal{K}`. The slope is finite
         wherever the DF is positive. The derivative :math:`F'` itself
         exceeds the range of a double at a steep center, so the table holds
@@ -264,26 +270,26 @@ class DfTable:
         False, no code reads the component's slope columns, and the lookup
         takes the slopes from a cubic spline through the nodes.
     k_below : array, shape (n_components, m)
-        Energies below the first energy of `k` at which the inversion's exact
+        Nodes below the first node of `k` at which the inversion's exact
         completion below the table was evaluated, in internal units. The
-        last energy of `k_below` may equal the first energy of `k`, where the
+        last node of `k_below` may equal the first node of `k`, where the
         join of `k_below` and `k` is measured; the lookup reads only the
-        energies strictly below the first energy of `k`. The first
+        nodes strictly below the first node of `k`. The first
         `n_below` entries of a component are its nodes, and the remaining
         entries repeat the last node. Empty for a DF that has no nodes below
         the table, such as a truncated DF, whose continuation below the
         table is the Taylor form of `AsymptoticForm`. Default: an empty
         array.
     log_df_below : array, shape (n_components, m)
-        Base-10 logarithm of the DF at the energies `k_below`. Between the
-        first energy of `k_below` and the first energy of `k`, the lookup
-        reads the nodes of `k_below`; below the first energy of `k_below`, the lookup
+        Base-10 logarithm of the DF at the nodes `k_below`. Between the
+        first node of `k_below` and the first node of `k`, the lookup
+        reads the nodes of `k_below`; below the first node of `k_below`, the lookup
         reads the forms of `AsymptoticForm`. Default: an empty array.
     log_df_slope_below : array, shape (n_components, m)
         Slope :math:`\mathrm{d}\log_{10}F/\mathrm{d}\ln\mathcal{K}` at the
-        energies `k_below`. Default: an empty array.
+        nodes `k_below`. Default: an empty array.
     sign : array of int8, shape (n_components, n)
-        Sign of each DF at the energies `k`, held only where some DF of the
+        Sign of each DF at the nodes `k`, held only where some DF of the
         table is negative. A DF with negative values is not a valid
         equilibrium. Where `sign` is not empty, `log_df` holds the logarithm
         of the absolute value of the DF. Default: an empty array, which
@@ -333,25 +339,25 @@ class AsymptoticForm:
     a consumer infers nothing from a field's absence. Every field except
     `p_0` holds one entry per component. The forms above the table are
     written in the depth :math:`u = P_0 - \mathcal{K}`, with :math:`P_0` the
-    field `p_0` and :math:`\mathcal{K}` the relative energy.
+    field `p_0` and :math:`\mathcal{K}` the energy-like variable.
 
     Parameters
     ----------
     p_0 : float
         Relative potential :math:`P_0` at the center of the model, in
-        internal units; the support of every DF of the model ends at the
-        energy :math:`\mathcal{K} = P_0`.
+        internal units; the support of every DF of the model ends at
+        :math:`\mathcal{K} = P_0`.
     central_label : tuple of str
         Classification of the center of each component's DF.
     central_exponent : tuple of float
-        Exponent of each DF's form above the last energy of the table.
+        Exponent of each DF's form above the last K of the table.
     central_amplitude : tuple of float
-        Amplitude of each DF's form above the last energy of the table.
+        Amplitude of each DF's form above the last K of the table.
     tail_exponent : tuple of float
-        Exponent :math:`a` of each DF's tail below the first energy of the
+        Exponent :math:`a` of each DF's tail below the first K of the
         table.
     tail_amplitude : tuple of float
-        Amplitude :math:`A` of each DF's tail below the first energy of the
+        Amplitude :math:`A` of each DF's tail below the first K of the
         table; zero where the DF has no power-law tail.
     tail_log_exponent : tuple of float
         Exponent :math:`b` of the logarithmic factor of each tail; zero for a
@@ -378,23 +384,23 @@ class AsymptoticForm:
         Scale :math:`E_0` of the tail's logarithmic factor, in the tail
         :math:`A\mathcal{K}^{-a}[\ln(E_0/\mathcal{K})]^{-b}`.
     below_floor : tuple of str
-        Rule of each DF below the first energy of the table, and below the
-        first energy of `DfTable.k_below` where `DfTable.k_below` is not
+        Rule of each DF below the first K of the table, and below the
+        first node of `DfTable.k_below` where `DfTable.k_below` is not
         empty: ``"tail"`` (the tail of `tail_amplitude`, `tail_exponent`,
         `tail_log_exponent` and `tail_log_scale`), ``"taylor"``
         (:math:`F_1\mathcal{K} + F_2\mathcal{K}^2/2`, for a truncated DF),
-        ``"edge_law"`` (:math:`\mathcal{K}^p(C_0 + C_1\mathcal{K})`, for a
+        ``"boundary_form"`` (:math:`\mathcal{K}^p(C_0 + C_1\mathcal{K})`, for a
         Method II DF), or ``"zero"``.
     below_floor_coefficients : tuple of tuple of float
         Coefficients of the rule in `below_floor`: :math:`(F_1, F_2,
         \mathcal{K}_{\rm switch})` for ``"taylor"``, :math:`(p, C_0, C_1)`
-        for ``"edge_law"``, and an empty tuple for ``"tail"`` and
+        for ``"boundary_form"``, and an empty tuple for ``"tail"`` and
         ``"zero"``.
     central_anchor : tuple of float
-        Anchor energy of each DF, in internal units: where the inversion's
-        rows end below the ceiling of the energy grid, the table ends at the
-        anchor energy and the center's form continues the table above the
-        anchor energy. NaN where the inversion's rows reach the ceiling.
+        Anchor value of each DF, in internal units: where the inversion's
+        rows end below the ceiling of the K grid, the table ends at the
+        anchor value and the center's form continues the table above the
+        anchor value. NaN where the inversion's rows reach the ceiling.
         Default: ``()``, which means that no component has an anchor.
     central_anchor_amplitude : tuple of float
         Singular part of the DF at the anchor, :math:`A u_{\rm a}^\kappa`,
@@ -433,8 +439,8 @@ class AsymptoticForm:
         Parameters
         ----------
         k : array
-            Relative energies :math:`\mathcal{K}` above the component's anchor
-            energy, in internal units.
+            Values of :math:`\mathcal{K}` above the component's anchor
+            value, in internal units.
         component : int, optional
             Index of the component. Default: ``0``, which means the first
             component.
@@ -443,7 +449,7 @@ class AsymptoticForm:
         -------
         f : array, shape of `k`
             The DF :math:`A u_{\rm a}^\kappa (u/u_{\rm a})^\kappa + B + D u`
-            at the energies `k`, in internal units, with
+            at the nodes `k`, in internal units, with
             :math:`u = P_0 - \mathcal{K}` and the symbols of
             `central_anchor_amplitude` and `central_regular`. The ratio
             :math:`u/u_{\rm a}` and the depth :math:`u_{\rm a}` are each held
@@ -458,7 +464,7 @@ class AsymptoticForm:
         return a_anchor * ratio**kappa + b + d * u
 
     def exponent_at_zero(self, component: int = 0) -> float | None:
-        r"""Return the exponent of one component's DF as the energy goes to zero.
+        r"""Return the exponent of one component's DF as K goes to zero.
 
         Parameters
         ----------
@@ -471,21 +477,21 @@ class AsymptoticForm:
         exponent : float or None
             Exponent :math:`p` of :math:`F \propto \mathcal{K}^p` as
             :math:`\mathcal{K} \to 0`. For the rule ``"tail"``, :math:`p` is
-            minus the field `tail_exponent`; for the rule ``"edge_law"``,
-            :math:`p` is the edge law's own exponent. None for the rules
+            minus the field `tail_exponent`; for the rule ``"boundary_form"``,
+            :math:`p` is the boundary form's own exponent. None for the rules
             ``"taylor"`` and ``"zero"``, under which the DF vanishes as
             :math:`\mathcal{K} \to 0`.
         """
         rule = self.below_floor[component]
         if rule == "tail":
             return -self.tail_exponent[component]
-        if rule == "edge_law":
+        if rule == "boundary_form":
             return self.below_floor_coefficients[component][0]
         return None
 
     @property
     def diverges_at_zero(self) -> tuple[bool, ...]:
-        r"""Whether each component's DF diverges as the energy goes to zero.
+        r"""Whether each component's DF diverges as K goes to zero.
 
         An entry is True where `exponent_at_zero` returns a negative
         exponent :math:`p`. A DF that goes as :math:`\mathcal{K}^p` with
@@ -511,7 +517,7 @@ class InversionRecord:
     form : tuple of str
         Evaluation form of the inversion: ``"integrated_by_parts"``,
         ``"derivative_outside"`` or ``"closed_form_n0"``. The forms of the
-        rows above the interior point or below the floor of the energy grid
+        rows above the interior point or below the floor of the K grid
         follow after a ``+``.
     order_j : tuple of int
         Derivative order :math:`j` of the unified order pair
@@ -523,7 +529,7 @@ class InversionRecord:
     floor_n : tuple of float
         Kernel exponent :math:`n` of the order pair of the floor rows.
     k_interior : tuple of float
-        Energy :math:`P_s` of the interior point; NaN where the component
+        Interior point :math:`P_s`; NaN where the component
         has no interior point.
     interior_exponent : tuple of float
         Exponent :math:`s` at the interior point; NaN where the component
@@ -537,7 +543,7 @@ class InversionRecord:
         floor order is unbounded as :math:`P \to 0`, so that the completion
         below the floor takes the general form; ``"bounded"`` otherwise.
     high_k_override_k : tuple of float
-        Energy from which an analytic form replaced the table's rows toward
+        K from which an analytic form replaced the table's rows toward
         the center, in internal units; the central potential where no row
         was replaced.
     high_k_override_r : tuple of float
@@ -550,7 +556,7 @@ class InversionRecord:
         Rule of the analytic form that replaced rows toward the center;
         ``"none"`` where no row was replaced.
     low_k_override_k : tuple of float
-        Energy below which an analytic form replaced the table's rows toward
+        K below which an analytic form replaced the table's rows toward
         the floor, in internal units; zero where no row was replaced.
     low_k_override_r : tuple of float
         Outer radius of the model, in internal units: the truncation radius
@@ -567,7 +573,7 @@ class InversionRecord:
     continuation : tuple of str
         Auxiliary density that the inversion integrated beyond the edge of
         the anisotropy's domain. A Type II model has such an edge at the
-        anisotropy radius :math:`R_{\rm a}`: the DF above the energy
+        anisotropy radius :math:`R_{\rm a}`: the DF above
         :math:`P(R_{\rm a})` is non-local in the auxiliary density beyond
         :math:`R_{\rm a}`. ``"none"`` where the anisotropy's domain has no
         edge. Default: ``()``, which means that the continuation is not
@@ -602,20 +608,20 @@ class InversionRecord:
 
 @dataclass(frozen=True)
 class InversionRows:
-    r"""The inversion's rows on its whole energy grid, before any row is replaced.
+    r"""The inversion's rows on its whole K grid, before any row is replaced.
 
     The truncation of a model reads these rows.
 
     Parameters
     ----------
     k : array, shape (n_components, n)
-        Relative energies of the inversion's rows, in internal units.
+        Values of :math:`\mathcal{K}` at the inversion's rows, in internal units.
     f : array, shape (n_components, n)
-        The DF :math:`F` at the energies `k`, in internal units, with the
+        The DF :math:`F` at the nodes `k`, in internal units, with the
         sign the inversion computed.
     ddf : array, shape (n_components, n)
         The derivative :math:`\mathrm{d}F/\mathrm{d}\mathcal{K}` at the
-        energies `k`, in internal units, with the sign the inversion
+        nodes `k`, in internal units, with the sign the inversion
         computed.
     data_top : tuple of float
         Total relative potential at the innermost radius of the inversion's
@@ -624,7 +630,7 @@ class InversionRows:
         ``truncation["log10_r_min"]``, for an analytic pair, and the first
         potential of the parent model's rows for a Method II child model.
         The truncation takes the inversion's rows to reach the ceiling of
-        the energy grid where `data_top` is at or above ``1 - K_FLOOR``,
+        the K grid where `data_top` is at or above ``1 - K_FLOOR``,
         with ``K_FLOOR`` the potential floor of `truncation.K_FLOOR`.
     """
 
@@ -652,7 +658,7 @@ register_result(
         "sign",
     ),
 )
-register_result(EnergyGrid, ("k", "r_of_k"))
+register_result(KGrid, ("k", "r_of_k"))
 register_result(
     AsymptoticForm,
     (
@@ -670,3 +676,22 @@ register_result(
 )
 register_result(InversionRecord, ())
 register_result(InversionRows, ("k", "f", "ddf"))
+
+
+def __getattr__(name: str) -> Any:
+    """Return the deprecated alias ``EnergyGrid`` of `KGrid`, with a warning.
+
+    Ver. 1.0.0 named the class `EnergyGrid`. The alias is removed in
+    ver. 1.1.0.
+    """
+    if name == "EnergyGrid":
+        import warnings
+
+        warnings.warn(
+            "pianistpy.df.stages.EnergyGrid is KGrid since ver. 1.0.1; the alias "
+            "EnergyGrid is removed in ver. 1.1.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return KGrid
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

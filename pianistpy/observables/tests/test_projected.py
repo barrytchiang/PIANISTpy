@@ -248,8 +248,8 @@ def superposed():
 
     The first component is the Hernquist model truncated by `truncate` with
     ``Truncation(k_t=0.05)``, with the quick settings. The second component is
-    the first component with its DF table kept only at every other energy and
-    at the last energy. The weights are 0.3 for the first component and 0.7
+    the first component with its DF table kept only at every other node and
+    at the last node. The weights are 0.3 for the first component and 0.7
     for the second component. The model equals the fixture ``tabled`` of
     test_superposed.py.
     """

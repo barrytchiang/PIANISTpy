@@ -1,6 +1,6 @@
 r"""The form of the DF above the top of an untruncated table: anchor and top patch.
 
-The inversion calls `anchor` for the energy at which a closed form takes
+The inversion calls `anchor` for the K at which a closed form takes
 over from the table's rows, and `top_patch` for the closed form. Near the
 central potential p_0, the DF is F = A u^kappa + R(u) in the depth
 u = p_0 - k: the singular part A u^kappa comes from the cusp, and the
@@ -41,20 +41,20 @@ _PATCHED_BRANCHES = ("regular", "critical_divergent")
 
 @dataclass(frozen=True)
 class Anchor:
-    """The energy at which the central form takes over from a table's rows.
+    """The K at which the central form takes over from a table's rows.
 
     Parameters
     ----------
     k_anchor : float
-        The anchor energy: the grid's last energy at or below the target
-        energy of the rule, in internal units.
+        The anchor value: the grid's last node at or below the target
+        value of the rule, in internal units.
     rule : str
         The rule that placed the anchor. "data top": the rows end at the pair's
         data top, below min(1, p_0) - K_FLOOR. "defect repair": the
         anchor lies below a band of top rows whose DF is not positive, and
         the central form holds at the anchor.
     rows : int
-        The number of the grid's energies above the anchor, where the
+        The number of the grid's nodes above the anchor, where the
         central form replaces the rows.
     slope_mismatch : float
         abs(kappa_loc - kappa) at the anchor, with kappa_loc from
@@ -136,23 +136,23 @@ def anchor(
       above the band. The rule applies only where the central form holds
       below the band: for kappa equal to 0, only where the central form is
       "analytic"; for other kappa, only where abs(kappa_loc - kappa) at the
-      largest double below the band's lowest energy is at most
+      largest double below the band's lowest K is at most
       :math:`10^{-2}`.
 
-    Where the rows end below min(1, p_0) - K_FLOOR, the target energy is
+    Where the rows end below min(1, p_0) - K_FLOOR, the target value is
     p_0 less the larger of p_0 - data_top and K_FLOOR; otherwise the target
-    energy is the largest double below the band's lowest energy. Under the
-    "defect repair" rule, the target energy is the lower of the two target
-    energies. The anchor is the highest grid energy at or below the target
-    energy, raised to the grid's first energy where the target energy lies
-    below the grid's first energy, and lowered to the grid's second-to-last
-    energy where the highest grid energy at or below the target energy is
-    the grid's last energy.
+    value is the largest double below the band's lowest K. Under the
+    "defect repair" rule, the target value is the lower of the two target
+    values. The anchor is the highest grid node at or below the target
+    value, raised to the grid's first node where the target value lies
+    below the grid's first node, and lowered to the grid's second-to-last
+    node where the highest grid node at or below the target value is
+    the grid's last node.
 
     Parameters
     ----------
     k : array, shape (n,)
-        The energy grid, increasing, in internal units.
+        The K grid, increasing, in internal units.
     f : array, shape (n,)
         The inversion's DF on the grid.
     p_0 : float
@@ -177,7 +177,7 @@ def anchor(
     -------
     anchor : Anchor or None
         The anchor, or None where neither rule applies, in which case the
-        rows cover the grid up to the grid's last energy.
+        rows cover the grid up to the grid's last node.
     """
     q = np.asarray(k, dtype=np.float64)
     df = np.asarray(f, dtype=np.float64)
@@ -228,7 +228,7 @@ class TopPatch:
     Parameters
     ----------
     k_anchor : float
-        The anchor energy, the table's last energy, in internal units.
+        The anchor value, the table's last K, in internal units.
     u_anchor : float
         The anchor depth p_0 - k_anchor, in internal units.
     kappa : float
@@ -295,7 +295,7 @@ def top_patch(
     :math:`10^{-6}`, or once W u_anchor exceeds the largest depth of the
     fit's rows. The last window with at least 8 rows is kept. The fit is
     used only where the fitted amplitude is positive and the fitted form is
-    finite and positive at every energy of ``k_above``.
+    finite and positive at every node of ``k_above``.
 
     Where ``amplitude`` is a finite closed-form amplitude, A equals
     ``amplitude``. B and D are then refitted with A fixed where a fit was
@@ -305,7 +305,7 @@ def top_patch(
     Parameters
     ----------
     k : array, shape (n,)
-        The energies of the inversion's rows, increasing, ending at the
+        The K values of the inversion's rows, increasing, ending at the
         anchor, in internal units.
     f : array, shape (n,)
         The inversion's DF on the rows.
@@ -317,7 +317,7 @@ def top_patch(
         The center's closed-form amplitude A for the exponent ``kappa``, or
         None where the center states no closed-form amplitude.
     k_above : array
-        The grid's energies above the anchor, where the form is used.
+        The grid's nodes above the anchor, where the form is used.
     terms : int, optional
         The number of terms of the form. Default: ``3``, which means the
         regular part B + D u is fitted. A value of 1 keeps the one-term form
@@ -327,7 +327,7 @@ def top_patch(
     -------
     patch : TopPatch or None
         The central form, or None where the anchor value is not positive or
-        no energy of the grid lies above the anchor.
+        no node of the grid lies above the anchor.
     """
     q = np.asarray(k, dtype=np.float64)
     df = np.asarray(f, dtype=np.float64)

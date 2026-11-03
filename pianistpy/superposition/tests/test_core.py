@@ -17,8 +17,8 @@ def _member(parent, beta_c, n_keep=None):
     the central anisotropy `beta_c`.
 
     With `n_keep`, the member's DF table is cut to the table's first `n_keep`
-    energies, so the member has an energy grid shorter than the parent's
-    energy grid."""
+    nodes, so the member has a K grid shorter than the parent's
+    K grid."""
     component = Component(profile=parent.profile, anisotropy=Anisotropy(beta_c=beta_c))
     table = parent.table
     if n_keep is not None:
@@ -48,8 +48,8 @@ def test_the_members_are_stacked_on_their_own_grids(parent):
     assert table.k.shape == (2, a.table.k.shape[1])
     assert table.k[0].tobytes() == a.table.k[0].tobytes()
     assert table.log_df[0].tobytes() == a.table.log_df[0].tobytes()
-    # The shorter energy grid keeps the member's own energies, then repeats the
-    # member's last energy, with NaN values at the repeated energies.
+    # The shorter K grid keeps the member's own nodes, then repeats the
+    # member's last node, with NaN values at the repeated nodes.
     assert table.k[1, :1500].tobytes() == b.table.k[0].tobytes()
     assert np.all(table.k[1, 1500:] == b.table.k[0, -1])
     assert np.all(np.isnan(table.log_df[1, 1500:]))

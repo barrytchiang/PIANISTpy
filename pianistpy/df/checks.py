@@ -2,15 +2,15 @@ r"""Checks of what a DF table states about itself, and the validity check.
 
 A table of the distribution function (DF) :math:`F` states more than its
 nodes: a column of slopes, a closed form of :math:`F` between the table's
-last energy and the central relative potential :math:`P_0` (the stated
-center), and forms of :math:`F` below the table's first energy (the
+last K and the central relative potential :math:`P_0` (the stated
+center), and forms of :math:`F` below the table's first K (the
 floor). The checks compare each statement with the table's own nodes:
 
 - the stated slope column against the slopes the table's own values of
   :math:`\log_{10}F` imply (`slope_column_excess`);
 - the stated center against the table's top decade in the depth
-  :math:`u = P_0 - \mathcal{K}`, with :math:`\mathcal{K}` the relative
-  energy;
+  :math:`u = P_0 - \mathcal{K}`, with :math:`\mathcal{K}` the energy-like
+  variable;
 - the forms and nodes below the floor against the table's first node.
 
 `table_checks` makes the checks on a table as written, as a reader of a
@@ -25,7 +25,7 @@ its tier.
 
 `validity_certificate` is the validity check, in closed form: from the inner
 density slope and the DF's exponent at the center, whether float64 holds the
-table's values of :math:`F` and of the radius at the table's last energy.
+table's values of :math:`F` and of the radius at the table's last K.
 
 References
 ----------
@@ -73,7 +73,7 @@ class TableChecks:
         `_center`); zero where the table states no center, and
         infinite where `measure_table` cannot measure the departure.
     k_top : float
-        Last (highest) energy of the table, in internal units.
+        Last (highest) K of the table, in internal units.
     slope_column_excess : float
         Largest relative error in :math:`F` that the stated slope column
         causes beyond the uncertainty of the slope the table's own values of
@@ -81,9 +81,9 @@ class TableChecks:
         slope column is not used.
     edge_rel_at_floor : float
         Relative mismatch :math:`F_{\rm form}/F_{\rm node} - 1` of the
-        Taylor form or the edge law below the floor against the lowest node
+        Taylor form or the boundary form below the floor against the lowest node
         of the table joined to its nodes below the floor; NaN where the
-        table states neither the Taylor form nor the edge law.
+        table states neither the Taylor form nor the boundary form.
     below_join : float
         Relative mismatch :math:`F_{\rm below}/F_{\rm node} - 1` of the last
         node below the floor against the table's first node; NaN where the
@@ -136,10 +136,10 @@ def slope_column_excess(
     Parameters
     ----------
     x : array, shape (n,)
-        Natural logarithm :math:`\ln\mathcal{K}` of the energies,
+        Natural logarithm :math:`\ln\mathcal{K}` of the nodes,
         increasing.
     log_df : array, shape (n,)
-        Base-10 logarithm of the DF at the energies.
+        Base-10 logarithm of the DF at the nodes.
     slope : array, shape (n,)
         The stated slope :math:`\mathrm{d}\log_{10}F/\mathrm{d}\ln\mathcal{K}`.
     split : int, optional
@@ -242,7 +242,7 @@ def _center(top, interp, k, log_df, p_0, refuse=True):
     - A stated form (``top_form``): the residual is the change of F less the
       form's singular part and less the next singular term, from the depth
       10 (p_0 - k[-1]) to the last node, relative to F at the last node.
-      Where the top decade extends below the table's first energy, the
+      Where the top decade extends below the table's first K, the
       residual is zero.
     - A stated exponent (``top_kappa``) and no form: the residual is zero
       where the exponent fitted over the top decade lies within
@@ -378,7 +378,7 @@ def table_checks(
     below: Mapping[str, Array] | None = None,
     tail: Mapping[str, float] | None = None,
     edge_taylor: tuple[float, float, float] | None = None,
-    edge_law: tuple[float, float, float] | None = None,
+    boundary_form: tuple[float, float, float] | None = None,
 ) -> TableChecks:
     r"""Return the checks of a written DF table, raising where a check fails.
 
@@ -390,18 +390,18 @@ def table_checks(
     Parameters
     ----------
     k : array, shape (n,)
-        Relative energies of the table's nodes, as written, in internal
-        units; the nodes are sorted by energy before the checks.
+        Values of :math:`\mathcal{K}` at the table's nodes, as written, in internal
+        units; the nodes are sorted by K before the checks.
     log_df : array, shape (n,)
-        Base-10 logarithm of the DF at the energies `k`, as written. Leading
+        Base-10 logarithm of the DF at the nodes `k`, as written. Leading
         nodes with :math:`F = 0` (minus infinity) lie outside the support
         and are dropped.
     ddf_dk : array, shape (n,) or None
         The written column :math:`\mathrm{d}F/\mathrm{d}\mathcal{K}` at the
-        energies `k`; None where the table has no such column.
+        nodes `k`; None where the table has no such column.
     p_0 : float
         Central relative potential of the table, ``1 - k_t`` with ``k_t``
-        the truncation energy, in internal units.
+        the truncation value, in internal units.
     top : mapping
         The stated center: ``top_kappa``, ``top_form``, the form's exponent
         ``top_singular_exponent``, amplitude ``top_amplitude`` or
@@ -409,7 +409,7 @@ def table_checks(
         singular term ``top_next_form``, ``top_next_exponent`` and
         ``top_next_coefficient``. Absent keys mean no statement.
     below : mapping, optional
-        The exact nodes below the written floor: energies ``K``, base-10
+        The exact nodes below the written floor: the values ``K``, base-10
         logarithm of the DF ``logF`` and ``dFdK``; the last node lies at the
         written floor. Default: ``None``, which means no nodes below the
         floor.
@@ -421,9 +421,9 @@ def table_checks(
         :math:`(F_1, F_2, \mathcal{K}_{\rm switch})` of a truncated table's
         Taylor form below the floor. Default: ``None``, which means no
         Taylor form.
-    edge_law : tuple of float, optional
-        :math:`(p, C_0, C_1)` of a Method II child table's edge law below
-        the floor. Default: ``None``, which means no edge law.
+    boundary_form : tuple of float, optional
+        :math:`(p, C_0, C_1)` of a Method II child table's boundary form below
+        the floor. Default: ``None``, which means no boundary form.
 
     Returns
     -------
@@ -442,11 +442,11 @@ def table_checks(
         If the slope column's error exceeds :math:`10^{-2}` at a node, or
         the stated center fails its check (see `_center`).
     ResultError
-        If the tail, the Taylor form or the edge law differs from the
+        If the tail, the Taylor form or the boundary form differs from the
         table's first node by a relative mismatch above :math:`10^{-6}`.
     ResultError
-        If the table's first energy lies above the Taylor form's switch
-        energy, or the table states both a Taylor form and an edge law.
+        If the table's first K lies above the Taylor form's switch
+        value, or the table states both a Taylor form and a boundary form.
     """
     order = np.argsort(k)
     k, log_df = (
@@ -492,7 +492,9 @@ def table_checks(
     zero_top = 0 if ddf is None else int(np.sum(np.cumprod(ddf[::-1] == 0.0)))
     certified = ddf is not None and np.all(np.isfinite(ddf)) and zero_top == 0
     slope = k * ddf * 10.0 ** (-log_df) / np.log(10.0) if certified else None
-    checks = _measure(k, log_df, slope, p_0, top, tail, edge_taylor, edge_law, True)
+    checks = _measure(
+        k, log_df, slope, p_0, top, tail, edge_taylor, boundary_form, True
+    )
     return dataclasses.replace(
         checks, below_join=join - 1.0 if below is not None else np.nan
     )
@@ -507,7 +509,7 @@ def measure_table(
     below: tuple[Array, Array, Array | None] | None = None,
     tail: Mapping[str, float] | None = None,
     edge_taylor: tuple[float, float, float] | None = None,
-    edge_law: tuple[float, float, float] | None = None,
+    boundary_form: tuple[float, float, float] | None = None,
     edge_first: bool = False,
 ) -> TableChecks:
     r"""Return the checks of the inversion's own DF table, without bounds.
@@ -520,10 +522,10 @@ def measure_table(
     Parameters
     ----------
     k : array, shape (n,)
-        Relative energies of the table's nodes, increasing, in internal
+        Values of :math:`\mathcal{K}` at the table's nodes, increasing, in internal
         units.
     log_df : array, shape (n,)
-        Base-10 logarithm of the DF at the energies `k`, finite on every
+        Base-10 logarithm of the DF at the nodes `k`, finite on every
         node.
     log_df_slope : array, shape (n,) or None
         The exact slope :math:`\mathrm{d}\log_{10}F/\mathrm{d}\ln\mathcal{K}`
@@ -533,7 +535,7 @@ def measure_table(
     top : mapping
         The stated center, under the key names of `table_checks`.
     below : tuple of array, optional
-        The nodes below the table: their energies, their base-10 logarithm
+        The nodes below the table: their values of K, their base-10 logarithm
         of the DF, and their slope (None where the slope is not exact). The
         last node below the table may lie on the table's first node.
         Default: ``None``, which means no nodes below the table.
@@ -543,13 +545,13 @@ def measure_table(
     edge_taylor : tuple of float, optional
         The Taylor form below the floor, as for `table_checks`. Default:
         ``None``, which means no Taylor form.
-    edge_law : tuple of float, optional
-        The edge law below the floor, as for `table_checks`. Default:
-        ``None``, which means no edge law.
+    boundary_form : tuple of float, optional
+        The boundary form below the floor, as for `table_checks`. Default:
+        ``None``, which means no boundary form.
     edge_first : bool, optional
         True where the support's first node lies on an edge whose known law
-        a polynomial stencil cannot represent, as for a Type II DF at the
-        energy :math:`P(R_{\rm a})`. Where `edge_first` is true, the slope
+        a polynomial stencil cannot represent, as for a Type II DF at
+        :math:`\mathcal{K} = P(R_{\rm a})`. Where `edge_first` is true, the slope
         column is not judged at the support's first node. Default:
         ``False``.
 
@@ -563,8 +565,8 @@ def measure_table(
     ------
     ResultError
         If the stated center or its next singular term lacks its finite
-        coefficients, the table's first energy lies above the Taylor form's
-        switch energy, or the table states both a Taylor form and an edge
+        coefficients, the table's first K lies above the Taylor form's
+        switch value, or the table states both a Taylor form and an edge
         law.
     """
     k = np.asarray(k, dtype=np.float64)
@@ -594,7 +596,7 @@ def measure_table(
         top,
         tail,
         edge_taylor,
-        edge_law,
+        boundary_form,
         False,
         split,
         edge_first,
@@ -610,7 +612,7 @@ def _measure(
     top,
     tail,
     edge_taylor,
-    edge_law,
+    boundary_form,
     refuse,
     split=None,
     edge_first=False,
@@ -674,16 +676,17 @@ def _measure(
                 "The Taylor form disagrees with the table's bottom row by "
                 f"{edge_rel:+.3e}."
             )
-    if edge_law is not None:
+    if boundary_form is not None:
         if edge_taylor is not None:
             raise ResultError(
-                "The table states both a Taylor form and an edge law below its floor."
+                "The table states both a Taylor form and a boundary form below its "
+                "floor."
             )
-        p, c_0, c_1 = edge_law
+        p, c_0, c_1 = boundary_form
         edge_rel = float((c_0 * k_0**p + c_1 * k_0 ** (p + 1.0)) / 10.0**lg_0 - 1.0)
         if refuse and not abs(edge_rel) <= TIER_BOUNDS[0]:
             raise ResultError(
-                "The edge law disagrees with the table's bottom row by "
+                "The boundary form disagrees with the table's bottom row by "
                 f"{edge_rel:+.3e}."
             )
     return TableChecks(
@@ -704,7 +707,7 @@ def validity_certificate(
     Near the center the DF goes as :math:`F = A u^\kappa` in the depth
     :math:`u = P_0 - \mathcal{K}`, and the radius goes as
     :math:`r \propto u^{1/(2-\gamma)}` for an inner density slope
-    :math:`\gamma < 2`. At the table's last energy, with
+    :math:`\gamma < 2`. At the table's last K, with
     :math:`d = -\log_{10} u_{\rm ceiling}` decades of depth, the projected
     values are :math:`\log_{10}F = \log_{10}A - \kappa d` and
     :math:`\log_{10}r = -d/(2-\gamma)`.
@@ -717,7 +720,7 @@ def validity_certificate(
         Exponent :math:`\kappa` of the depth :math:`u` that the DF follows
         at the center; NaN where the DF has no such exponent.
     u_ceiling : float
-        Depth :math:`u_{\rm ceiling}` of the table's last energy below the
+        Depth :math:`u_{\rm ceiling}` of the table's last K below the
         central relative potential, in internal units; held at or above
         :math:`10^{-300}`.
     log10_amplitude : float, optional

@@ -24,8 +24,8 @@ from pianistpy.df.core import model_identity
 from pianistpy.df.stages import (
     AsymptoticForm,
     DfTable,
-    EnergyGrid,
     InversionRecord,
+    KGrid,
     TruncatedProfile,
 )
 from pianistpy.validation import Check, ValidationReport
@@ -145,7 +145,7 @@ def test_distribution_function_round_trip(tmp_path):
         components=COMPONENTS,
         settings=SETTINGS,
         identity=model_identity(COMPONENTS, None, SETTINGS),
-        grid=EnergyGrid(
+        grid=KGrid(
             k=np.tile(np.linspace(1e-3, 0.99, N), (2, 1)),
             r_of_k=np.tile(np.logspace(3, -3, N), (2, 1)),
             k_floor=(1e-3, 1e-3),
@@ -155,7 +155,7 @@ def test_distribution_function_round_trip(tmp_path):
         form=_form(),
         k_t_min=0.278,
         validation=_report(),
-        timing={"energy_grid": 0.01, "invert_rows": 1.5},
+        timing={"k_grid": 0.01, "invert_rows": 1.5},
         inversion=_inversion(),
     )
     path = tmp_path / "df.h5"
@@ -237,7 +237,7 @@ def test_a_form_says_where_its_df_diverges():
     assert form.diverges_at_zero == (True, False)
     edge = dataclasses.replace(
         form,
-        below_floor=("edge_law", "edge_law"),
+        below_floor=("boundary_form", "boundary_form"),
         below_floor_coefficients=((-0.5, 1.0, 0.0), (0.25, 1.0, 0.0)),
     )
     assert edge.diverges_at_zero == (True, False)

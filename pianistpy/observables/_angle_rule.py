@@ -11,7 +11,7 @@ factor :math:`(L^2)^{-\beta_{\rm c}}` of the angular momentum :math:`L`.
     P(\phi) = (c_1 - c_2\cos\phi)^2 + c_3\sin^2\phi.
 
 In the integral, :math:`\beta_{\rm c}` is the central anisotropy. The angle :math:`\phi`
-parametrizes one level set (an ellipse) of the energy variable on the
+parametrizes one level set (an ellipse) of the energy-like variable on the
 velocity plane. :math:`P` is proportional to :math:`L^2` on that ellipse,
 with a factor independent of :math:`\phi`. The coefficients :math:`c_1`,
 :math:`c_2` and :math:`c_3` belong to the node, and the route forms them.

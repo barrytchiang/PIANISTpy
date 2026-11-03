@@ -2,7 +2,7 @@ r"""Tests of the DF lookup `log10_df` and `evaluate_lookup` against closed
 forms.
 
 The tests build a DF table of the power law :math:`F = \mathcal{K}^q` on the
-energy :math:`\mathcal{K}`, with :math:`q` = ``Q_EXPONENT``, and asymptotic
+variable :math:`\mathcal{K}`, with :math:`q` = ``Q_EXPONENT``, and asymptotic
 forms whose closed forms are known. The lookup is compared with the closed
 forms inside the table, above the table (the form at the center, written in
 the depth :math:`u = P_0 - \mathcal{K}`) and below the table (the rule below
@@ -30,7 +30,7 @@ Q_EXPONENT = 1.5
 
 
 def _table(slopes=True, k_below=False):
-    r"""Return the table of F = K^q on 200 energies from :math:`10^{-3}` to 0.9.
+    r"""Return the table of F = K^q on 200 nodes from :math:`10^{-3}` to 0.9.
 
     With ``slopes=False``, the slope column is NaN and the table states that
     it holds no exact slopes. With ``k_below=True``, the table also holds 29
@@ -120,7 +120,7 @@ def test_the_nodes_below_the_table_continue_it():
 
 def test_zero_outside_the_support():
     """The lookup returns minus infinity, the logarithm of a zero DF, at
-    energies at or below zero, at or above ``P_0``, and below the table where
+    K at or below zero, at or above ``P_0``, and below the table where
     the rule below the table is a zero DF."""
     table = _table()
     k = np.array([-1.0, 0.0, 1e-4, P_0, 2.0])
@@ -166,7 +166,7 @@ def test_above_the_table_the_center_form(kind, s, amplitude, log_coefficient):
     )
     k = P_0 - np.geomspace(0.1, 1e-9, 200)[1:]
     # The closed form is evaluated at the depths u = P_0 - k that the
-    # energies k hold.
+    # nodes k hold.
     np.testing.assert_allclose(
         log10_df(_table(), form, k),
         _above_closed_form(kind, s, amplitude, log_coefficient, P_0 - k),
@@ -179,12 +179,12 @@ def test_above_the_table_the_center_form(kind, s, amplitude, log_coefficient):
     "rule, coefficients, closed_form",
     [
         ("taylor", (2.0, -3.0, 1e-3), lambda k: 2.0 * k - 1.5 * k * k),
-        ("edge_law", (0.75, 2.0, -3.0), lambda k: k**0.75 * (2.0 - 3.0 * k)),
+        ("boundary_form", (0.75, 2.0, -3.0), lambda k: k**0.75 * (2.0 - 3.0 * k)),
     ],
 )
 def test_below_the_table_the_rule(rule, coefficients, closed_form):
     r"""Below the table's lowest node, the lookup reproduces the closed form of
-    the Taylor rule and of the edge law to a relative difference of at most
+    the Taylor rule and of the boundary form to a relative difference of at most
     :math:`10^{-14}` in log10 F."""
     form = _form(below_floor=(rule,), below_floor_coefficients=(coefficients,))
     k = np.geomspace(1e-12, 1e-3, 100)[:-1]
@@ -220,7 +220,7 @@ def test_a_signed_table_is_refused():
 
 def test_the_kernel_is_the_host_function():
     r"""The lookup compiled by ``jax.jit`` with ``jax.numpy`` returns infinite
-    values at the same energies as the NumPy lookup, and finite values that
+    values at the same K values as the NumPy lookup, and finite values that
     differ from the NumPy values by at most :math:`10^{-13}`, inside, above and below
     the table."""
     jax = pytest.importorskip("jax")
@@ -251,7 +251,7 @@ def _steep_top_table():
     r"""Return the table of ``F = u^-2`` in the depth ``u = P_0 - K``, on 4000
     nodes from ``u = 0.5`` to ``u = :math:`10^{-7}```.
 
-    Each node's depth is formed from the node's energy K, so the table's
+    Each node's depth is formed from the node's K, so the table's
     values and slopes are the closed form's at the nodes.
     """
     k = np.unique(P_0 - np.geomspace(0.5, 1e-7, 4000))
@@ -266,9 +266,9 @@ def _steep_top_table():
     )
 
 
-def test_the_entry_by_the_depth_is_the_entry_by_the_energy_where_no_depth_is_held():
-    """`evaluate_lookup` given a depth of NaN at every energy returns, bit for
-    bit, the values of `evaluate_lookup` given the energies alone."""
+def test_the_entry_by_the_depth_is_the_entry_by_k_where_no_depth_is_held():
+    """`evaluate_lookup` given a depth of NaN at every K returns, bit for
+    bit, the values of `evaluate_lookup` given the K values alone."""
     table = _table(k_below=True)
     arrays, kinds = prepare_lookup(table, _form())
     k = np.concatenate(
@@ -283,11 +283,11 @@ def test_the_entry_by_the_depth_is_the_entry_by_the_energy_where_no_depth_is_hel
 def test_by_the_depth_the_top_cells_read_the_depth_itself():
     r"""Near the table's top, the lookup by the depth u reproduces the closed
     form ``F = u^-2`` to an absolute difference of at most :math:`10^{-14}` in log10 F,
-    while the lookup by the energy ``K = P_0 - u`` differs from the closed
+    while the lookup by the value ``K = P_0 - u`` differs from the closed
     form by more than :math:`10^{-12}`."""
     # Near the top, a caller holds u exactly, while K = P_0 - u has lost most
     # of u's digits. At u = 1e-6, one unit in the last place of K is 1.1e-10
-    # of u, so the lookup by the energy moves in steps of that size; the
+    # of u, so the lookup by K moves in steps of that size; the
     # lookup by the depth is the closed form to rounding.
     arrays, kinds = prepare_lookup(_steep_top_table(), _form())
     node = int(np.argmin(np.abs((P_0 - arrays.k[: int(arrays.n)]) - 1e-6)))
@@ -303,10 +303,10 @@ def test_by_the_depth_the_top_cells_read_the_depth_itself():
 def test_by_the_depth_a_depth_below_half_an_ulp_of_p_0_reads_the_center_form():
     """For depths u below half a unit in the last place of ``P_0`` = 1, the
     lookup by the depth reads the form at the center, while the lookup by the
-    energy ``P_0 - u`` returns minus infinity."""
-    # Below u = 5.55e-17, half a unit in the last place of P_0 = 1, the energy
+    value ``P_0 - u`` returns minus infinity."""
+    # Below u = 5.55e-17, half a unit in the last place of P_0 = 1, the value
     # P_0 - u rounds to P_0. The lookup by the depth still reads the form at
-    # the center there, while the lookup by the energy returns minus infinity,
+    # the center there, while the lookup by K returns minus infinity,
     # the value at P_0.
     form = _form(
         central_form=("power",), central_exponent=(-2.5,), central_amplitude=(1e-3,)

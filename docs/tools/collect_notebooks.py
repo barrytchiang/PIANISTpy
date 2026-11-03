@@ -15,7 +15,10 @@ from pathlib import Path
 
 # the notebooks repository's folder -> the manual's group folder
 FOLDERS = {"tutorials": "tutorials", "paper": "chiang2026d"}
-SKIP = {".ipynb_checkpoints", "__pycache__", ".git", "README.md"}
+# "data" and "scripts" are the notebooks repository's own support folders (layout
+# files and plotting helpers that the notebooks import when they run); the build
+# renders stored outputs only and never serves them.
+SKIP = {".ipynb_checkpoints", "__pycache__", ".git", "README.md", "data", "scripts"}
 KEEP = {"index.rst"}
 
 

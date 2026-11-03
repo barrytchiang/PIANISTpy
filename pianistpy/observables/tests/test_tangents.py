@@ -121,7 +121,7 @@ def test_a_truncated_model_whose_profile_follows_its_df_is_refused_with_cause():
     """Assert InputError for tangent rows of a model truncated by its own DF.
 
     The DF of the lowered Hernquist model below the floor of its table
-    follows the Taylor rule, not the edge law of a Method II model. The
+    follows the Taylor rule, not the boundary form of a Method II model. The
     profile of the lowered
     Hernquist model follows the model's DF, so the profile moves with the
     anisotropy. The test asserts that `dispersion_profile` with
@@ -222,7 +222,7 @@ def test_the_tangent_rows_are_the_derivatives_at_frozen_placement(parent, family
     """Assert that the tangent rows are the derivatives at frozen rows.
 
     The test asserts that the DF of the model below the floor of its table
-    follows the edge law.
+    follows the boundary form.
     The test asserts that the tables computed with `tangents` equal, bit for
     bit, the tables computed without `tangents`. For each parameter, the test
     asserts that the edge limit of the model is 2/7 and that the edge limit
@@ -235,7 +235,7 @@ def test_the_tangent_rows_are_the_derivatives_at_frozen_placement(parent, family
     """
     theta = MEMBERS[family]
     model = _child(parent, **theta)
-    assert model.form.below_floor[0] == "edge_law"
+    assert model.form.below_floor[0] == "boundary_form"
     names = TANGENT_PARAMETERS[family]
     profile = dispersion_profile(model, QUICK, tangents=names)
     projected = projected_dispersion(model, profile, QUICK, tangents=names)

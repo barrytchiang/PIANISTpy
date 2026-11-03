@@ -19,7 +19,7 @@ a model from a file are checked alike.
   :math:`C(\beta_{\rm c}) \int_0^{\Phi} F(Q) \, (2 (\Phi - Q))^{1/2 -
   \beta_{\rm c}} \, dQ` times the anisotropy factor :math:`g(R)`, against
   the row's density. Here :math:`F` is the DF read through the lookup of
-  the table and its forms, :math:`Q` the energy, :math:`\beta_{\rm c}` the
+  the table and its forms, :math:`Q` the energy-like variable, :math:`\beta_{\rm c}` the
   central anisotropy and :math:`C(\beta_{\rm c})` the prefactor of the
   density integral. The rows checked are the rows nearest each half-decade
   of radius and every row beyond the last of those rows up to the last row
@@ -215,7 +215,7 @@ def round_trip(
     # The DF near the center is read by the rows' own depths from the depth
     # column, which keep the digits that Phi loses near P_0. Without the
     # depth column, _log_density_from_df forms the depth as P_0 - Phi where
-    # Phi >= P_0 / 2, and reads the DF by the energy elsewhere.
+    # Phi >= P_0 / 2, and reads the DF by K elsewhere.
     depth = None
     n = _interior(profile)
     u_rows = _row_depths(profile, n)
@@ -263,9 +263,9 @@ def _log_aux(
     The integral is
     :math:`\rho_{\rm aux} = \int_0^{\Phi} F(Q) \, (2 (\Phi - Q))^n \, dQ`,
     with :math:`F` the DF read through the lookup of `arrays` and `kinds`,
-    :math:`Q` the energy and :math:`n` the argument `n`, in three parts.
+    :math:`Q` the energy-like variable and :math:`n` the argument `n`, in three parts.
     Below :math:`Q_{\rm b}`, the smaller of :math:`10^{-20} \Phi` and the
-    table's first energy `first`, the part is the closed-form mass of
+    table's first K `first`, the part is the closed-form mass of
     the below-floor form times :math:`(2 \Phi)^n`. From :math:`Q_{\rm b}` to
     :math:`0.9 \Phi`, the part is Gauss-Legendre quadrature on panels equal
     in :math:`\ln Q`, each at most a decade wide. Above :math:`0.9 \Phi`,
@@ -389,7 +389,7 @@ def _log_density_from_df(
     depth is `depth` where the caller gives a finite value, and
     :math:`P_0 - \Phi` where :math:`\Phi \geq P_0 / 2`, where the
     subtraction is exact in float64. For :math:`\Phi < P_0 / 2` without a
-    given depth, the DF is read by the energy, because every energy of the
+    given depth, the DF is read by :math:`Q`, because every :math:`Q` of the
     integral is at most :math:`\Phi`, below :math:`P_0 / 2`.
     """
     radii = np.asarray(radii, dtype=np.float64)

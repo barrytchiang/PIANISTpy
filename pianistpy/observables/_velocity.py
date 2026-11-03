@@ -13,7 +13,7 @@ The distribution at the 3D radius :math:`r` and the velocity :math:`V` is
 The symbols are the following. :math:`\varrho(r)` is the density and
 :math:`\mathcal{P}(r)` the relative potential at :math:`r`. :math:`F` is the
 distribution function (DF) of the model's one component, and :math:`Q` is
-the DF's energy variable. :math:`t = \cos\eta`, with :math:`\eta` the angle
+the DF's energy-like variable. :math:`t = \cos\eta`, with :math:`\eta` the angle
 between the velocity and the radius vector. :math:`\xi = (r/r_{\rm a})^2`,
 with :math:`r_{\rm a}` the anisotropy radius. The sign :math:`s` is
 :math:`+1` for a Type I model, :math:`-1` for a Type II model and 0 for a
@@ -27,7 +27,7 @@ The DF's lookup reads :math:`F` on the DF's support :math:`Q > K_c`, and
 :math:`Q` is quadratic in :math:`t`, so the edge of the support in
 :math:`t` is an end of an integration piece and never lies inside a piece.
 The interval in :math:`t` is also split where :math:`Q` equals the DF
-table's first energy :math:`K_w`. Below :math:`K_w` the lookup reads the
+table's first node :math:`K_w`. Below :math:`K_w` the lookup reads the
 DF's form below the table instead of the table. For :math:`b > 0`, the
 piece that ends at :math:`t = 1` is integrated in the variable :math:`w`
 defined by :math:`1 - t = w^p`, with :math:`p = 1/(1 - b)`. In :math:`w`,
@@ -79,7 +79,7 @@ class VelocityModel:
         The DF's floor :math:`K_c`: the lookup's floor :math:`K_0` where the
         DF is zero below :math:`K_0`, and 0 otherwise. Internal units.
     k_w : float
-        The DF table's first energy :math:`K_w`, below which the lookup reads
+        The DF table's first node :math:`K_w`, below which the lookup reads
         the DF's form below the table. Internal units.
     b : float
         The exponent :math:`b` of the factor :math:`(L^2)^{-b}`: the central
@@ -187,7 +187,7 @@ def velocity_breaks(
 
 
 def _f(sm: VelocityModel, q: Array) -> Array:
-    """Return the DF F at the energies `q`.
+    """Return the DF F at the values `q`.
 
     F is zero where `q` is at or below the floor :math:`K_c` and where the
     lookup's value of log10 F is not finite."""
@@ -212,7 +212,7 @@ def angle_pieces(
     - ``"root"`` labels the edge of the DF's support,
       :math:`t = \\sqrt{(K_c - c_0)/c_2}`.
     - ``"join"`` labels the point where Q equals the DF table's first
-      energy, :math:`t = \\sqrt{(K_w - c_0)/c_2}`.
+      node, :math:`t = \\sqrt{(K_w - c_0)/c_2}`.
 
     Where :math:`c_2 = 0` and :math:`c_0 \\le K_c`, the support is empty, and
     `edges` and `labels` are empty lists."""

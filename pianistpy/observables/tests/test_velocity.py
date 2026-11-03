@@ -161,12 +161,12 @@ def test_the_angle_integral_is_an_independent_integral_in_the_angle(
 
 @pytest.mark.parametrize("family", ["isotropic", "OM_I", "COM_I", "OM_II"])
 def test_the_distribution_holds_its_norm_and_second_moment(families, family):
-    # The record's "norm" compares the distribution's norm with the profile's
-    # density. The record's "second_moment" compares the distribution's second
-    # moment with the Jeans dispersion sigma_r^2 (3 - 2 beta). Each comparison
-    # uses two computations that share only the model. Each record entry is
-    # below 1e-6, the tier is "silent", and the reader reproduces the stored
-    # values at the velocity nodes to rtol = 1e-14.
+    # The record's "norm" compares the distribution's norm with the profile's density.
+    # The record's "second_moment" compares the distribution's second moment with
+    # sigma_r^2 (3 - 2 beta) from the dispersion integral. Each comparison uses two
+    # computations that share only the model. Each record entry is below 1e-6, the tier
+    # is "silent", and the reader reproduces the stored values at the velocity nodes to
+    # rtol = 1e-14.
     model = families[family]
     profile = dispersion_profile(model, SETTINGS)
     r_t = float(model.profile.r_table_max)
@@ -292,7 +292,7 @@ def _kms(model):
 
 def test_a_superposition_mixes_by_the_density_at_the_radius():
     # The members are the truncated isotropic Hernquist model and a copy whose
-    # DF table keeps every other energy (and the last), an energy grid of its
+    # DF table keeps every other node (and the last), a K grid of its
     # own. Each member's velocity distribution is normalized on its own grid. The
     # superposition's pdf_v equals, to rtol = 1e-12, the sum of the members'
     # pdf_v weighted by weight times density at the radius, divided by the sum

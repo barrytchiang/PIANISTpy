@@ -18,7 +18,7 @@
 
 PIANISTpy builds spherical, non-rotating, velocity-anisotropic equilibrium models, self-consistently truncated in phase space, for dark matter (sub)halos, dwarf galaxies, stellar spheroids and star clusters. The package provides distribution functions, particle initial conditions, radial and tangential velocity dispersion profiles and line-of-sight observables, with JAX-based end-to-end differentiability for gradient-based Monte Carlo inference.
 
-**Ver. 1.0.0** is the initial public release of PIANISTpy, described in [Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758](https://arxiv.org/abs/2610.28758), henceforth [Chiang+(2026d)](https://arxiv.org/abs/2610.28758).
+**Ver. 1.0.1** adds `DistributionFunction.evaluate`, the distribution function at given values of the energy-like variable, and `round_trip`, the density and potential that a distribution function generates, compared with the analytic density as in [Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758](https://arxiv.org/abs/2610.28758), henceforth [Chiang+(2026d)](https://arxiv.org/abs/2610.28758).
 
 ## What PIANISTpy does
 
@@ -38,7 +38,7 @@ non-negative (physical) and monotonic (a sufficient condition for dynamical stab
 truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model’s anisotropy
 profile, and Method II gives different anisotropy models an identical truncated density.
 
-- [Particles.](https://pianistpy.com/docs/guide/particles) Particle initial conditions drawn from the truncated distribution
+- [Particle sampling.](https://pianistpy.com/docs/guide/particles) Particle initial conditions drawn from the truncated distribution
 function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or
 physical units.
 

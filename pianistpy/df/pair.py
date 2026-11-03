@@ -1,4 +1,4 @@
-r"""Potential-density pair from which a DF is inverted.
+r"""Potential–density pair from which a DF is inverted.
 
 `potential_density_pair` returns the pair for the inversion. The pair of an
 untruncated model is analytic: the inversion evaluates the closed forms of
@@ -7,7 +7,7 @@ equal to 1, the internal unit of the potential. The pair of a Method II
 model is tabulated: the radii, potentials and densities of the parent's
 truncated profile, whose central potential is
 :math:`1 - \mathcal{K}_{\rm t}`, with :math:`\mathcal{K}_{\rm t}` the
-parent's truncation energy.
+parent's truncation value.
 """
 
 __all__ = ["potential_density_pair"]

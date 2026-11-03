@@ -5,12 +5,12 @@ truncated parent model. Near the parent's edge, the child's augmented
 density is a sum of two powers of the potential. This module returns the
 two-term expansion (`edge_expansion`, `edge_expansion_at_node`,
 `edge_expansion_of_parent`), the child's closed-form DF below the parent's
-switch energy (`edge_law`), and the terms the child's inversion reads at
+switch value (`boundary_form`), and the terms the child's inversion reads at
 the floor of its table (`floor_value`, `floor_tail`).
 
-Below the parent's switch energy, the parent's DF is the Taylor form
+Below the parent's switch value, the parent's DF is the Taylor form
 :math:`F = F_1 \mathcal{K} + F_2 \mathcal{K}^2/2` (`AsymptoticForm`, rule
-``"taylor"``), with :math:`\mathcal{K}` the energy measured from the edge.
+``"taylor"``), with :math:`\mathcal{K}` measured from the edge.
 To the order kept, the parent's density near the edge is
 
 .. math::
@@ -34,9 +34,10 @@ the parent's total mass. The augmented density is then
 
 Each power of :math:`P` in :math:`\varrho_{\rm aug}` inverts to a power of
 :math:`\mathcal{K}` in the DF (`edge.df_edge_amplitude`). Below the
-switch energy, the child's DF is therefore the edge law
+switch value, the child's DF is therefore the boundary form (the form of
+the DF at the truncation boundary)
 :math:`F = \mathcal{K}^p (C_0 + C_1 \mathcal{K})` with
-:math:`p = 1 + \beta_{\rm c}` (`AsymptoticForm`, rule ``"edge_law"``).
+:math:`p = 1 + \beta_{\rm c}` (`AsymptoticForm`, rule ``"boundary_form"``).
 The coefficients :math:`a_{5/2}` and :math:`a_{7/2}` also give the child's
 inversion two exact terms at the floor of its table: the value of the
 derivative :math:`\varrho_{\rm aug}^{(m_{\rm f})}` that enters the kernel's
@@ -49,7 +50,7 @@ __all__ = [
     "edge_expansion",
     "edge_expansion_at_node",
     "edge_expansion_of_parent",
-    "edge_law",
+    "boundary_form",
     "floor_tail",
     "floor_value",
 ]
@@ -86,7 +87,7 @@ class EdgeExpansion:
         Central anisotropy :math:`\beta_{\rm c}` of the child. The value is 0
         for an OM child.
     k_switch : float
-        Switch energy of the parent. The expansion holds for potentials from
+        Switch value of the parent. The expansion holds for potentials from
         0 to `k_switch`.
     h_t : float
         Constant term :math:`h_{\rm t}` of the inverse anisotropy factor
@@ -146,7 +147,7 @@ def edge_expansion(
     f_2 : float
         Quadratic Taylor coefficient :math:`F_2` of the parent's DF.
     k_switch : float
-        Switch energy of the parent, in internal units. Must be positive.
+        Switch value of the parent, in internal units. Must be positive.
     r_t : float
         Truncation radius :math:`R_{\rm t}` of the parent, in internal
         units. Must be positive.
@@ -229,7 +230,7 @@ def edge_expansion_at_node(
     f_2 : float
         Quadratic Taylor coefficient :math:`F_2` of the parent's DF.
     k_switch : float
-        Switch energy of the parent, in internal units.
+        Switch value of the parent, in internal units.
     p_node : float
         Potential :math:`P_{\rm node}` of the node, measured from the edge.
     h_node : float
@@ -279,7 +280,7 @@ def edge_expansion_of_parent(
     ----------
     parent : Model
         The truncated parent model. The call reads the Taylor coefficients
-        and the switch energy from ``parent.form``, and ``r_t`` and
+        and the switch value from ``parent.form``, and ``r_t`` and
         ``mass_t`` from ``parent.profile``.
     anisotropy : Anisotropy
         Anisotropy model of the child.
@@ -291,7 +292,7 @@ def edge_expansion_of_parent(
     -------
     expansion : EdgeExpansion
         The result of `edge_expansion` for the parent's coefficients, switch
-        energy, truncation radius and total mass.
+        value, truncation radius and total mass.
 
     Raises
     ------
@@ -314,10 +315,10 @@ def edge_expansion_of_parent(
     return edge_expansion(f_1, f_2, k_switch, profile.r_t, profile.mass_t, anisotropy)
 
 
-def edge_law(expansion: EdgeExpansion) -> tuple[float, float, float]:
-    r"""Return the exponent and the two amplitudes of a child's edge law.
+def boundary_form(expansion: EdgeExpansion) -> tuple[float, float, float]:
+    r"""Return the exponent and the two amplitudes of a child's boundary form.
 
-    The edge law is the ``"edge_law"`` rule of `AsymptoticForm`,
+    The boundary form is the ``"boundary_form"`` rule of `AsymptoticForm`,
     :math:`F(\mathcal{K}) = \mathcal{K}^p (C_0 + C_1 \mathcal{K})` with
     :math:`p = 1 + \beta_{\rm c}`. The amplitude :math:`C_0` is the
     amplitude of the DF that the power :math:`a_{5/2} P^{5/2}` inverts to,

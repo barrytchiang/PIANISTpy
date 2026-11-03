@@ -1,7 +1,11 @@
 r"""The exact derivatives of the auxiliary density in the relative potential.
 
-The auxiliary density is rho_aux(R) = rho(R) g(R), with rho the density and
-``g = R^(2 beta_c)`` times the inverse (C)OM anisotropy factor. The N-th
+The auxiliary density is rho_aux(R) = rho(R) h(R), with rho the density and
+h = 1/g the inverse of the anisotropy factor g(R) of `Anisotropy.factor`
+(the separability factor of Chiang+(2026d), Eq. (B44), which relates the
+augmented density to the auxiliary one): ``h = R^(2 beta_c) u^s``, with
+``u^s`` the inverse of the (C)OM part of the factor (`inverse_factor_expr`).
+The N-th
 derivative of rho_aux in the relative potential P is the operator
 D_P = (dP/dR)^-1 d/dR applied N times, with dP/dR = -M(R)/R^2 and
 M'(R) = R^2 rho(R), so that P(R) is never needed in closed form (Notes
@@ -35,7 +39,7 @@ from ..anisotropy.factor import inverse_factor_expr
 from ..exceptions import InputError
 from ..profiles import DoublePowerLaw
 from ..typing import Array
-from .stages import AuxDerivatives, EnergyGrid, InversionForm, PotentialDensityPair
+from .stages import AuxDerivatives, InversionForm, KGrid, PotentialDensityPair
 
 CONSTRUCTION_CACHE = "derivatives"
 
@@ -211,8 +215,8 @@ class ExactDerivs:
         # The inversion of an untruncated Type II model reads rho_aux beyond
         # R_a, so the factor takes its continuation beyond R_a
         # (continuation=True).
-        gfac = inverse_factor_expr(R, model, bc_s, ra_s, continuation=True)
-        rho_aux = rho * gfac
+        h_factor = inverse_factor_expr(R, model, bc_s, ra_s, continuation=True)
+        rho_aux = rho * h_factor
         m_sym = sp.Function("M")(R)
         dpdr = -m_sym / R**2
         sub = {sp.Derivative(m_sym, R): R**2 * rho}
@@ -469,32 +473,32 @@ def _r_of_p(profile: DoublePowerLaw, pq: Any) -> Array:
 
 
 def aux_derivatives(
-    pair: PotentialDensityPair, grid: EnergyGrid, form: InversionForm
+    pair: PotentialDensityPair, grid: KGrid, form: InversionForm
 ) -> AuxDerivatives:
     """Return the exact derivatives of the component's auxiliary density at
-    the energies of the grid.
+    the K values of the grid.
 
     The orders held are j - 1 to j + 2 of the order pair in use, with j - 1
     not below 0: the closure (j - 1), the source of the rows with the
     derivative outside the integral (j), the source of the form integrated
     by parts (j + 1) and the slope of the source of order j + 1 (j + 2).
-    `AuxDerivatives.at` evaluates any order at any energy from the closed
+    `AuxDerivatives.at` evaluates any order at any K from the closed
     forms of the returned `ExactDerivs`.
 
     Parameters
     ----------
     pair : PotentialDensityPair
-        Analytic potential-density pair of one component.
-    grid : EnergyGrid
-        Energies of the inversion, in internal units.
+        Analytic potential–density pair of one component.
+    grid : KGrid
+        K values of the inversion, in internal units.
     form : InversionForm
         Form of the inversion, whose ``order_j`` gives the order j.
 
     Returns
     -------
     derivatives : AuxDerivatives
-        Values of each order at the grid's energies and at the grid's first
-        energy, 0 at energies outside (0, 1), with the `ExactDerivs` that
+        Values of each order at the grid's nodes and at the grid's first
+        node, 0 at K outside (0, 1), with the `ExactDerivs` that
         made the values.
 
     Raises
@@ -503,7 +507,7 @@ def aux_derivatives(
         If `pair` is not an analytic pair of one component, or the
         component's profile is not a `DoublePowerLaw`.
     ResultError
-        If a derivative at the grid's first energy is not finite.
+        If a derivative at the grid's first node is not finite.
     """
     from ..exceptions import InputError, ResultError
 
@@ -528,10 +532,10 @@ def aux_derivatives(
     k = np.asarray(grid.k, dtype=np.float64)[0]
 
     def every_order(p: Array) -> Array:
-        # R(P) is solved once for the energies p, and each order is evaluated
-        # once at the solved radii. An order is 0 at energies outside (0, 1),
+        # R(P) is solved once for the values p, and each order is evaluated
+        # once at the solved radii. An order is 0 at p outside (0, 1),
         # as in AuxDerivatives.at. The floor gets its own call because the
-        # bisection bracket of r_of_p depends on the energies requested.
+        # bisection bracket of r_of_p depends on the values requested.
         out = np.zeros((len(orders), p.size))
         ok = (p > 0.0) & (p < 1.0)
         if ok.any():
@@ -638,9 +642,9 @@ class ParameterDerivs(ExactDerivs):
         syms += [bc_s, ra_s]
         vals += [bc, float(r_a)]
         rho = C * R ** (-eg) * (1 + R**ea) ** ((eg - eb) / ea)
-        gfac = inverse_factor_expr(R, model, bc_s, ra_s, continuation=True)
+        h_factor = inverse_factor_expr(R, model, bc_s, ra_s, continuation=True)
         theta = bc_s if wrt == "beta_c" else ra_s
-        rho_aux = rho * gfac
+        rho_aux = rho * h_factor
         m_sym = sp.Function("M")(R)
         sub = {sp.Derivative(m_sym, R): R**2 * rho}
         mv = sp.Symbol("Mv")
@@ -714,7 +718,7 @@ def source_rows(
     source: ExactDerivs, k: Array, orders: tuple[int, ...]
 ) -> AuxDerivatives:
     """Return the values of ``source`` (an `ExactDerivs` or a
-    `ParameterDerivs`) for the orders ``orders`` at the energies k, their values
+    `ParameterDerivs`) for the orders ``orders`` at the nodes k, their values
     at the floor k[0], and ``source`` itself for the completion below the
     floor, in the `AuxDerivatives` layout that `aux_derivatives` returns.
 

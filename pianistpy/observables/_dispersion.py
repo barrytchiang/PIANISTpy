@@ -4,16 +4,16 @@ radial velocity dispersion.
 The stage `stages.dispersion_profile` builds a model's table of the radial
 dispersion with the functions of `_dispersion`. The public calls `sigma_r`,
 `sigma_t`, `sigma_los` and `LosTable` read the radial dispersion table. The
-radial dispersion follows from the Jeans integral
+radial dispersion follows from the dispersion integral
 ``rho_aux(R) sigma_r^2(R) = integral of rho_aux(K) dK from K = 0 to K = P(R)``.
-In the Jeans integral, ``P`` is the relative potential, ``K`` is the
+In the dispersion integral, ``P`` is the relative potential, ``K`` is the
 integration variable in units of the relative potential, and
 ``rho_aux = rho / g`` is the auxiliary density. The auxiliary density divides
 the density ``rho`` by the separability factor ``g(R)`` of the anisotropy
 model. The functions of `_dispersion` also return the derivatives of the
 anisotropy profile and of the radial dispersion in one anisotropy parameter,
 ``beta_c`` or ``r_a``. The caller sets the Gauss-Legendre node count of the
-Jeans integral. The formulas are Chiang+(2026d), Eqs. (B43) and (B44).
+dispersion integral. The formulas are Chiang+(2026d), Eqs. (B43) and (B44).
 """
 
 __all__ = [
@@ -39,7 +39,7 @@ from ..exceptions import InputError, ResultError
 from ..runtime import log
 from ..typing import Array, ArrayLike
 
-# The largest number of quadrature nodes evaluated at once in the Jeans
+# The largest number of quadrature nodes evaluated at once in the dispersion
 # integral. The rows of one chunk share one array of nodes, so _CHUNK_NODES
 # bounds the memory of the array of nodes.
 _CHUNK_NODES = 500_000
@@ -59,8 +59,8 @@ def _inverse_factor(anisotropy: Anisotropy, r: Array) -> Array:
 # The anisotropy parameters in which each family's tangent rows are taken.
 # The set holds three groups of parameters. First, the parameters of the DF
 # gradient (df.gradient.PARAMETERS). Second, beta_c and r_a of COM Type II:
-# the Jeans integral reads no DF, so the Jeans integral differentiates a COM
-# Type II model although the DF gradient does not. Third, beta_c of an
+# the dispersion integral reads no DF, so the dispersion integral differentiates
+# a COM Type II model although the DF gradient does not. Third, beta_c of an
 # Osipkov-Merritt (OM) model: an OM model's g(R) equals the COM g(R) at
 # beta_c = 0, and the COM g(R) is smooth in beta_c at beta_c = 0, so the OM
 # derivative in beta_c is the COM derivative of the same type at beta_c = 0.
@@ -260,7 +260,7 @@ def beta_sigma_tangent(r: ArrayLike, anisotropy: Anisotropy, parameter: str) -> 
 
 
 def _depth(k: ArrayLike, p_0: float) -> Array:
-    """Return the quadrature variable ``d = ln(1 - k / P_0)`` of the Jeans
+    """Return the quadrature variable ``d = ln(1 - k / P_0)`` of the dispersion
     integral.
 
     ``P_0`` is the central relative potential. Where ``k`` is below
@@ -371,7 +371,7 @@ def radial_dispersion(
         The anisotropy model of the component.
     p_outer : float
         The lowest relative potential :math:`P_{\rm outer}` of the profile's
-        table. The quadrature of the Jeans integral starts at `p_outer`.
+        table. The quadrature of the dispersion integral starts at `p_outer`.
     boundary_term : float
         :math:`\int_0^{P_{\rm outer}}\varrho_{\rm aux}\,{\rm d}K`. The
         boundary term is zero on a model with compact support.
@@ -432,9 +432,10 @@ def radial_dispersion(
     xi, weights = np.polynomial.legendre.leggauss(n_nodes)
     t_nodes = 0.5 * (xi + 1.0)
     weights = 0.5 * weights
-    # The profile's readers clamp a radius inside the innermost row to the
-    # innermost row, so the potential at R = 1e-300 is the central relative
-    # potential.
+    # The profile's reader continues the potential below its first node by the
+    # inner series, whose depth vanishes at R = 1e-300, so the value read there
+    # is the central relative potential P_0 (the first node's potential before
+    # ver. 1.0.1, when the reader clamped the radius to the first node).
     p_0 = float(potential(np.array([1e-300]))[0])
 
     p_grid = potential(r)
@@ -636,7 +637,7 @@ def radial_integral_reader(
     edge_limit: float,
 ) -> Callable[[ArrayLike], Array]:
     r"""Return the interpolant of a table of :math:`\sigma_r^2`, built from
-    the slopes of the Jeans integral.
+    the slopes of the dispersion integral.
 
     Parameters
     ----------
@@ -667,7 +668,7 @@ def radial_integral_reader(
     The interpolant reads only the rows where :math:`\sigma_r^2` and
     :math:`\varrho_{\rm aux}` are both positive. The interpolant also skips
     the outermost row of a spatially finite model. At each read row, the
-    Jeans integral :math:`I = \varrho_{\rm aux}\sigma_r^2` of
+    dispersion integral :math:`I = \varrho_{\rm aux}\sigma_r^2` of
     `radial_dispersion` has the exact slope
     :math:`{\rm d}I/{\rm d}P = \varrho_{\rm aux}`. The interpolant of
     :math:`I` is the cubic Hermite interpolant in :math:`P` through the
@@ -695,7 +696,7 @@ def radial_integral_reader(
     alive = (sigma_r2 > 0.0) & (rho_rows > 0.0) & np.isfinite(rho_rows)
     if spatially_finite:
         # The reader takes the outermost row of a spatially finite model as
-        # the edge row. The linear edge law reads up to the edge row, so the
+        # the edge row. The linear boundary form reads up to the edge row, so the
         # edge row is never a node of the Hermite interpolant.
         alive[np.argmax(r)] = False
     p_nodes, i_unique = np.unique(p_rows[alive], return_index=True)
@@ -706,8 +707,8 @@ def radial_integral_reader(
     sigma_inner = float(value[-1] / slope[-1])
     h_outer = sigma_outer / float(p_nodes[0])
     r_read = r[alive]
-    edge_law = spatially_finite and bool(np.isfinite(edge_limit))
-    # The radius of the edge row ends the linear edge law. The potential
+    at_boundary = spatially_finite and bool(np.isfinite(edge_limit))
+    # The radius of the edge row ends the linear boundary form. The potential
     # continues beyond the edge row, so the InputError test beyond the edge
     # row compares radii, not potentials.
     r_edge = float(np.max(r))
@@ -721,16 +722,16 @@ def radial_integral_reader(
             p_nodes,
             float(r_read.min()),
             float(r_read.max()),
-            r_edge if edge_law else None,
+            r_edge if at_boundary else None,
         )
         between = (p_at > p_nodes[0]) & (p_at < p_nodes[-1])
         with np.errstate(divide="ignore", invalid="ignore"):
             read_between = spline(np.clip(p_at, p_nodes[0], p_nodes[-1])) / rho_aux(
                 r_any
             )
-        # Without the edge law, _refuse_outside_radial lets through, below
+        # Without the boundary form, _refuse_outside_radial lets through, below
         # the outermost node, only radii whose potential equals p_nodes[0].
-        if edge_law:
+        if at_boundary:
             outer = p_at * (edge_limit + (h_outer - edge_limit) * p_at / p_nodes[0])
         elif spatially_finite:
             outer = p_at * h_outer
@@ -759,7 +760,7 @@ def _refuse_outside_radial(
     A radius whose potential is above the innermost node's potential
     ``p_nodes[-1]`` raises InputError. Where `r_edge` is None, a radius whose
     potential is below the outermost node's potential ``p_nodes[0]`` raises
-    InputError. Where `r_edge` is given, the linear edge law covers the radii
+    InputError. Where `r_edge` is given, the linear boundary form covers the radii
     up to `r_edge`, and a radius above ``r_edge * (1 + 1e-12)`` raises
     InputError. The potential continues beyond `r_edge`, so the comparison
     with `r_edge` uses radii, not potentials.
@@ -870,7 +871,7 @@ def radial_integral_tangent_reader(
     derivative of the linear interpolant of :math:`h = \sigma_r^2 / P` in
     :math:`P`, with `edge_limit` held fixed. For a Method II model,
     `edge_limit` does not depend on the anisotropy parameters, since the
-    exponent of the model's edge law changes with :math:`\beta_{\rm c}` in
+    exponent of the model's boundary form changes with :math:`\beta_{\rm c}` in
     the same way as the exponent of the separability factor.
     """
     r = np.asarray(r, dtype=np.float64)

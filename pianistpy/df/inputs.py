@@ -1,7 +1,7 @@
 """The inputs of a distribution-function computation: components and truncations.
 
 `Component` holds a density profile with its velocity anisotropy, and
-`Truncation` holds the truncation energy, target mass or target radius of
+`Truncation` holds the truncation value, target mass or target radius of
 Method I. Both are frozen dataclasses registered as JAX pytrees.
 """
 
@@ -218,11 +218,11 @@ class Component:
 class Truncation:
     r"""Truncation of a model's distribution function (Method I).
 
-    A truncation shifts the distribution function (DF) in energy by the
-    truncation energy :math:`\mathcal{K}_{\rm t}` and lowers the DF by the
+    A truncation shifts the distribution function (DF) in :math:`\mathcal{K}` by the
+    truncation value :math:`\mathcal{K}_{\rm t}` and lowers the DF by the
     DF's value at :math:`\mathcal{K}_{\rm t}`, which gives a model of finite
     mass and finite radius (Method I of Chiang+(2026d)). The truncation is given
-    by exactly one of three inputs: the truncation energy `k_t`, a target
+    by exactly one of three inputs: the truncation value `k_t`, a target
     mass `mass_t` or a target radius `r_t`. A target mass is given together
     with the `concentration` that defines the unit of the target mass.
     Method II needs no `Truncation`: a Method II model is a `Component`
@@ -231,7 +231,7 @@ class Truncation:
     Parameters
     ----------
     k_t : float, optional
-        Truncation energy :math:`\mathcal{K}_{\rm t}`, positive, in internal
+        Truncation value :math:`\mathcal{K}_{\rm t}`, positive, in internal
         units, in which the central relative potential of the untruncated
         profile is 1. Default: ``None``, which means that `mass_t` or `r_t`
         is given.
@@ -240,13 +240,13 @@ class Truncation:
         :math:`M_0`, the mass of the untruncated profile inside the radius
         :math:`c\,r_0` (model units). A value of 1 is the virial mass.
         `mass_t` is the one input of `Truncation` that is not in internal
-        units. The truncation energy is solved for. `mass_t` requires
+        units. The truncation value is solved for. `mass_t` requires
         `concentration`. Default: ``None``, which means that `k_t` or `r_t`
         is given.
     r_t : float, optional
         Target truncation radius :math:`R_{\rm t}`, positive, in units of
         the scale radius :math:`r_0`, the unit of length of the internal
-        and the model systems. The truncation energy is solved for.
+        and the model systems. The truncation value is solved for.
         Default: ``None``, which means that `k_t` or `mass_t` is given.
     concentration : float, optional
         Concentration :math:`c` of the first component, positive. The mass

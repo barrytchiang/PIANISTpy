@@ -1,6 +1,6 @@
 """Tests of the slope-column check on tables with and without a derivative column.
 
-A Method II child, inverted from a tabulated potential-density pair, has no
+A Method II child, inverted from a tabulated potential–density pair, has no
 dF/dK column: the child's slope-column check is "not judged" and states the
 reason NO_SLOPE_COLUMN_CHILD. A DF inverted from an analytic profile has a
 dF/dK column, and the DF's slope-column check is judged with no reason.

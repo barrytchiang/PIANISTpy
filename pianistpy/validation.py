@@ -117,7 +117,7 @@ class Check:
         judged.
     where : float, optional
         The position of the largest relative error, in the variable the
-        check runs over (a radius or an energy, in internal units).
+        check runs over (a radius or a value of K, in internal units).
         Default: ``None``, which means the check has no single position of
         its largest error.
     reason : str, optional

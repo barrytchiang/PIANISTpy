@@ -62,7 +62,7 @@ COLUMNS = [
         "model",
         "member",
         "the model's key in the grid: its table (T1 the main grid, T2 anisotropy "
-        "radius, T3 truncation energy, T4 limiting cases, the sections of the "
+        "radius, T3 truncation value, T4 limiting cases, the sections of the "
         "Accuracy tables page), its profile, its anisotropy model and its truncation",
     ),
     (
@@ -104,14 +104,14 @@ COLUMNS = [
     (
         "k_t",
         "z_t",
-        "the truncation energy as a fraction of the central potential; blank for an "
+        "the truncation value as a fraction of the central potential; blank for an "
         "untruncated model",
     ),
     (
         "source model",
         "parent",
         "for a Method II model, the Method I model whose truncated density it is "
-        "built on (its profile, anisotropy model and truncation energy); blank "
+        "built on (its profile, anisotropy model and truncation value); blank "
         "otherwise",
     ),
     (
@@ -163,9 +163,10 @@ COLUMNS = [
         "distribution function's checks)",
     ),
     (
-        "lowest energy of the support",
+        "lowest K of the support",
         "p_cut",
-        "for a Type II model without a truncation, the energy P(R_a), as a fraction of "
+        "for a Type II model without a truncation, the potential P(R_a), as a "
+        "fraction of "
         "the central potential, above which its distribution function is defined; the "
         "errors are read over that support only; blank otherwise",
     ),
@@ -232,7 +233,7 @@ MEMBER_COLUMNS = [
         "table",
         "table",
         "the table of the Accuracy tables page the model is in: 1 the main grid, 2 "
-        "anisotropy radius, 3 truncation energy, 4 limiting cases (the page's "
+        "anisotropy radius, 3 truncation value, 4 limiting cases (the page's "
         "sections)",
     ),
     ("row", "row", "the key of the model's row in that table, as the page labels it"),
@@ -259,7 +260,7 @@ MEMBER_COLUMNS = [
     (
         "k_t",
         "k_t",
-        "the truncation energy as a fraction of the central potential; blank for an "
+        "the truncation value as a fraction of the central potential; blank for an "
         "untruncated model",
     ),
     (
@@ -296,12 +297,12 @@ SECTIONS = {
         "(columns).",
     ),
     "3": (
-        "Truncation energy",
+        "Truncation value",
         "Variations of the main grid",
         "Four profiles as Method I models under six anisotropy models of the main "
         "grid, "
         "each truncated by Method I and by Method II (rows), with the truncation "
-        "energy from \x00\\mathcal{K}_{\\rm t} = 0.5\x01 to 0.002 (columns).",
+        "value from \x00\\mathcal{K}_{\\rm t} = 0.5\x01 to 0.002 (columns).",
     ),
     "4": (
         "Limiting cases",
@@ -432,7 +433,9 @@ def _cell(member: dict, result: dict) -> str:
     # the cell gives the tier the package reports over the support, and the note.
     note = ""
     mx, md = result.get(RANGE_MAX, ""), result.get(RANGE_MEDIAN, "")
-    support = result.get("lowest energy of the support")
+    support = result.get(
+        "lowest K of the support", result.get("lowest energy of the support")
+    )
     if "not physical" in member.get("expected", ""):
         words = "not physical"
         if support:

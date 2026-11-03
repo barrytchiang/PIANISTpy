@@ -154,8 +154,8 @@ def test_rule_at_isotropy_is_pi():
 def test_cumulative_of_a_flat_df():
     """Assert that the cumulative integral G(Q) of a flat DF equals Q.
 
-    The DF is F = 1 at every energy, above and below the DF's floor, so
-    G(Q) equals Q on every branch of `EllipseDF.G`. At 70 energies from
+    The DF is F = 1 at every K, above and below the DF's floor, so
+    G(Q) equals Q on every branch of `EllipseDF.G`. At 70 values of Q from
     :math:`10^{-30}` to 0.999, the test asserts that G(Q) equals Q to a
     relative difference of :math:`10^{-8}`. The test also asserts that
     ``p_zero``, the exponent of F at K = 0, is 0, and that the s panel at

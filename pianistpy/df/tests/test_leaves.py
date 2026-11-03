@@ -2,7 +2,7 @@
 
 The tests cover the derivative orders and prefactors of the inversion
 (`order_pair`, `inversion_prefactor`, `forward_prefactor`), the DF tail's mass
-below an energy (`tail_mass_below`), and the scaled upper incomplete gamma
+below a value of K (`tail_mass_below`), and the scaled upper incomplete gamma
 function (`scaled_upper_gamma`).
 """
 

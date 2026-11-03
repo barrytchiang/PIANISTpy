@@ -8,7 +8,7 @@ anisotropy radius. The exponent :math:`s` is 1 for an OM model,
 :math:`1 - \beta_{\rm c}` for a COM model, and 0 for the isotropic and the
 constant-anisotropy models. Every use of the factor in the package reads
 :math:`h` from this module: `Anisotropy.factor` (as :math:`g = 1/h`), the
-Method II sources, the edge law, the density of the Poisson solve, and the
+Method II sources, the boundary form, the density of the Poisson solve, and the
 symbolic derivatives of the Method I inversion (through
 `inverse_factor_expr`).
 

@@ -19,9 +19,9 @@ from jax.scipy.special import betaln
 from pianistpy.numerics import gauss_legendre_unit
 
 # The moment is rho(r, Psi) = g(r) I(Psi). The radial factor of a COM Type I
-# model is g = r^(-2 beta) (1 + r^2 / R_a^2)^(beta - 1). The energy integral is
+# model is g = r^(-2 beta) (1 + r^2 / R_a^2)^(beta - 1). The integral over Q is
 # I = int_0^Psi F(Q) (2 (Psi - Q))^n dQ with n = 1/2 - beta. For the DF
-# F = Q^A, the closed form of the energy integral is
+# F = Q^A, the closed form of the integral over Q is
 # I = 2^n Psi^(A + n + 1) B(A + 1, n + 1), with B the beta function.
 A, PSI, R = 1.5, 0.6, 1.3
 SPLIT, STRETCH, NODES = 0.9, 2.0, 500  # NODES is the default n_source_nodes.

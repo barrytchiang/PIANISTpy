@@ -4,16 +4,23 @@ of the scaled velocity on rows of constant potential.
 The particle sampler (`Sampler`) calls `build_velocity_table` to build the table
 that turns a uniform random number into a velocity at a given radius. On the row
 of relative potential Psi, the probability density of the scaled velocity
-x = v / (2 Psi)^{1/2} is
+x = V_aux / (2 Psi)^{1/2} is
 
     ``p(x | Psi) proportional to x^(2 - 2 beta_c) F(Psi (1 - x^2))``,
     ``0 <= x <= x_e``,
 
-where :math:`\beta_{\rm c}` is the component's constant anisotropy, F(E) is the
-distribution function at relative energy E, and x_e is the edge of the velocity
+where :math:`\beta_{\rm c}` is the component's central anisotropy, F(K) is the
+distribution function at K = Psi (1 - x^2), and x_e is the edge of the velocity
 support:
-x_e = 1 where F continues down to E = 0, and x_e = (1 - K_0 / Psi)^{1/2} where
-F vanishes below its lowest tabulated energy K_0. The density p(x | Psi)
+x_e = 1 where F continues down to K = 0, and x_e = (1 - K_0 / Psi)^{1/2} where
+F vanishes below its lowest tabulated K_0. V_aux is the auxiliary velocity of
+Chiang+(2026d): V_aux = V for a constant anisotropy, and
+``V_aux = V (1 + sigma (R / R_a)^2 sin^2 phi)^{1/2}`` for an Osipkov-Merritt or
+Cuddeford-Osipkov-Merritt model, with sigma = +1 for Type I and sigma = -1 for
+Type II and phi the angle between the velocity and the radius vector. The DF's
+argument K = Psi - V_aux^2 / 2 is the energy-like variable (the relative energy
+for a constant anisotropy, Q for an Osipkov-Merritt or Cuddeford-Osipkov-Merritt
+model). The density p(x | Psi)
 depends on the radius only through Psi, so one row of the table serves every
 radius at the row's potential (Notes Section T:5.2.1).
 
@@ -97,8 +104,8 @@ POLISH_PASSES_MAX = 60
 # mass is at most 1e-12 in the cumulative probability, six orders of magnitude
 # below the 1e-6 bound of the table's error across rows. A node whose iteration
 # reaches TAIL_NEWTON_ITERATIONS keeps the last iterate. The iteration's
-# variable is y = ln(E_1 / E), where E is the energy at the node and E_1 is the
-# energy at the closest refined distance from the support's edge.
+# variable is y = ln(K_1 / K), where K is the DF's argument at the node and K_1
+# is K at the closest refined distance from the support's edge.
 TAIL_NEWTON_ITERATIONS = 80
 TAIL_NEWTON_TOLERANCE = 1e-12
 # The upper refinement of a row starts at the last interior node of the
@@ -130,32 +137,32 @@ _log = logging.getLogger("pianistpy")
 
 
 @functools.partial(jax.jit, static_argnums=(3,))
-def _log10_df_kernel(e, u, arrays, kinds):
-    """Return log10 F(E) at energies `e` of any shape. Where the depth
-    `u` = p_0 - E is finite, the lookup reads F by the depth `u` instead of by
-    the energy `e` (the depth argument of `evaluate_lookup`)."""
-    return evaluate_lookup(arrays, kinds, e, xp=jnp, u=u)
+def _log10_df_kernel(k, u, arrays, kinds):
+    """Return log10 F(K) at the values `k` of any shape. Where the depth
+    `u` = p_0 - K is finite, the lookup reads F by the depth `u` instead of by
+    `k` (the depth argument of `evaluate_lookup`)."""
+    return evaluate_lookup(arrays, kinds, k, xp=jnp, u=u)
 
 
 @functools.partial(jax.jit, static_argnums=(3,))
-def _kappa_kernel(e, u, arrays, kinds):
-    """Return kappa = d ln F / d ln E at energies `e` of shape (n,), with the
+def _kappa_kernel(k, u, arrays, kinds):
+    """Return kappa = d ln F / d ln K at the values `k` of shape (n,), with the
     depth `u` used where the depth is finite, as `_kappa_at` defines."""
-    return _kappa_at(e, u, arrays, kinds)
+    return _kappa_at(k, u, arrays, kinds)
 
 
-def _kappa_at(e, u, arrays, kinds):
-    """Return kappa = d ln F / d ln E at energies `e` of shape (n,).
+def _kappa_at(k, u, arrays, kinds):
+    """Return kappa = d ln F / d ln K at the values `k` of shape (n,).
 
-    Where the depth u = p_0 - E is finite, kappa = -E d ln F / du through the
-    lookup's depth argument, because an energy E formed near p_0 changes only
-    in steps of the last bit of E, while the depth u carries every digit.
-    Where the depth is not finite, kappa is differentiated in E. At the DF
-    table's lowest energy K_0, where the DF continues below K_0, kappa comes
+    Where the depth u = p_0 - K is finite, kappa = -K d ln F / du through the
+    lookup's depth argument, because a value K formed near p_0 changes only
+    in steps of the last bit of K, while the depth u carries every digit.
+    Where the depth is not finite, kappa is differentiated in K. At the DF
+    table's lowest K, K_0, where the DF continues below K_0, kappa comes
     from the DF's rule below the table, whose derivative at K_0 is exact,
     instead of from the table, whose derivative at K_0 is one-sided. The
     bottom row of a velocity table whose lowest potential equals K_0 evaluates
-    kappa at E = K_0 at every node, so the choice at K_0 sets the bottom row."""
+    kappa at K = K_0 at every node, so the choice at K_0 sets the bottom row."""
     k_0 = arrays.params[K_0]
 
     def one(z, d):
@@ -169,18 +176,18 @@ def _kappa_at(e, u, arrays, kinds):
         )
         return jnp.where(held, by_u, by_k) * jnp.log(10.0)
 
-    return jax.vmap(one)(e, u)
+    return jax.vmap(one)(k, u)
 
 
-def _on_bucket(kernel, e, arrays, kinds, u=None):
-    """Return `kernel` evaluated at host energies `e`, and at depths `u`
-    where `u` is given, as a NumPy array of the shape of `e`. The inputs are
+def _on_bucket(kernel, k, arrays, kinds, u=None):
+    """Return `kernel` evaluated at the host values `k`, and at depths `u`
+    where `u` is given, as a NumPy array of the shape of `k`. The inputs are
     padded to the next power of two in length, so `kernel` compiles once per
     power of two instead of once per input length."""
-    e = np.asarray(e, dtype=np.float64)
-    flat = e.ravel()
+    k = np.asarray(k, dtype=np.float64)
+    flat = k.ravel()
     if flat.size == 0:
-        return np.zeros(e.shape)
+        return np.zeros(k.shape)
     m = 1 << (flat.size - 1).bit_length()
     padded = [jnp.asarray(np.concatenate([flat, np.full(m - flat.size, flat[0])]))]
     if u is not None:
@@ -188,7 +195,7 @@ def _on_bucket(kernel, e, arrays, kinds, u=None):
         padded.append(
             jnp.asarray(np.concatenate([u_flat, np.full(m - flat.size, np.nan)]))
         )
-    return np.asarray(kernel(*padded, arrays, kinds))[: flat.size].reshape(e.shape)
+    return np.asarray(kernel(*padded, arrays, kinds))[: flat.size].reshape(k.shape)
 
 
 # ---- JAX functions that build a chunk of rows at once. The construction,
@@ -221,14 +228,14 @@ class _RowConfig(NamedTuple):
 class _RowNumbers(NamedTuple):
     r"""The model's numbers that the row kernels read as traced arguments: the
     central potential p_0, the power :math:`2 - 2\beta_{\rm c}` of x in the density, the
-    energy at the support's edge, the effective exponent of the DF as E -> 0,
+    value of K at the support's edge, the effective exponent of the DF as K -> 0,
     the exponent and the scale of the tail's logarithmic factor, the velocity
     grid, the panel edges of the lower refinement, the Gauss-Legendre nodes and
     weights, and the target lambda_u of the table nodes."""
 
     p_0: Array
     velocity_power: Array
-    e_edge: Array
+    k_edge: Array
     a_eff: Array
     tail_log_exponent: Array
     tail_log_scale: Array
@@ -240,28 +247,28 @@ class _RowNumbers(NamedTuple):
 
 
 def _k_logpdf(psi, w, xe, x, d, arrays, cfg, nums):
-    r"""Return :math:`\log_{10}[x^{2 - 2\beta_{\rm c}} F(E)]` at scaled velocities
+    r"""Return :math:`\log_{10}[x^{2 - 2\beta_{\rm c}} F(K)]` at scaled velocities
     `x` on the row of potential `psi`, as `_Rows.logpdf` does on the host.
 
-    Where the distance `d` = x_e - x is finite, the energy is formed as
-    E = E_edge + Psi d (2 x_e - d), which keeps every digit of E near the
-    edge; elsewhere E = Psi (1 - x^2). Where `d` is not finite and
-    :math:`E \ge p_0/2`, F is read by the depth `w` + Psi x^2, where `w` = p_0 - Psi
+    Where the distance `d` = x_e - x is finite, K is formed as
+    K = K_edge + Psi d (2 x_e - d), which keeps every digit of K near the
+    edge; elsewhere K = Psi (1 - x^2). Where `d` is not finite and
+    :math:`K \ge p_0/2`, F is read by the depth `w` + Psi x^2, where `w` = p_0 - Psi
     is the row's depth."""
-    e = jnp.maximum(psi * (1.0 - x * x), 0.0)
+    k = jnp.maximum(psi * (1.0 - x * x), 0.0)
     fd = jnp.isfinite(d)
     dd = jnp.where(fd, d, 0.0)
-    e = jnp.where(fd, nums.e_edge + psi * dd * (2.0 * xe - dd), e)
-    u = jnp.where(~fd & (e >= 0.5 * nums.p_0), w + psi * x * x, jnp.nan)
-    return evaluate_lookup(arrays, cfg.kinds, e, xp=jnp, u=u) + nums.velocity_power * (
+    k = jnp.where(fd, nums.k_edge + psi * dd * (2.0 * xe - dd), k)
+    u = jnp.where(~fd & (k >= 0.5 * nums.p_0), w + psi * x * x, jnp.nan)
+    return evaluate_lookup(arrays, cfg.kinds, k, xp=jnp, u=u) + nums.velocity_power * (
         jnp.log10(jnp.maximum(x, LOG_ARGUMENT_MIN))
     )
 
 
-def _k_kappa(e, u, arrays, cfg):
-    """Return kappa = d ln F / d ln E at energies `e` of any shape, with the
+def _k_kappa(k, u, arrays, cfg):
+    """Return kappa = d ln F / d ln K at the values `k` of any shape, with the
     depth `u` used where the depth is finite (`_kappa_at`)."""
-    return _kappa_at(e.ravel(), u.ravel(), arrays, cfg.kinds).reshape(e.shape)
+    return _kappa_at(k.ravel(), u.ravel(), arrays, cfg.kinds).reshape(k.shape)
 
 
 def _k_gl_mass(psi, w, xe, s0, s1, valid, by_d, arrays, cfg, nums):
@@ -291,14 +298,14 @@ def _k_compact(mask, *arrays):
     return jnp.sum(mask).astype(jnp.int32), [a[order] for a in arrays]
 
 
-def _k_floor_mass(e, arrays, cfg):
-    """Return the integral of F from 0 to `e` under the DF's "taylor" rule or
-    edge-law rule below its table, as `below_floor_mass` does on the host."""
+def _k_floor_mass(k, arrays, cfg):
+    """Return the integral of F from 0 to `k` under the DF's "taylor" rule or
+    boundary-form rule below its table, as `below_floor_mass` does on the host."""
     params = arrays.params
     if cfg.rule == "taylor":
-        return params[FLOOR_0] * e * e / 2.0 + params[FLOOR_1] * e * e * e / 6.0
+        return params[FLOOR_0] * k * k / 2.0 + params[FLOOR_1] * k * k * k / 6.0
     p, c_0, c_1 = params[FLOOR_0], params[FLOOR_0 + 1], params[FLOOR_0 + 2]
-    return c_0 * e ** (p + 1.0) / (p + 1.0) + c_1 * e ** (p + 2.0) / (p + 2.0)
+    return c_0 * k ** (p + 1.0) / (p + 1.0) + c_1 * k ** (p + 2.0) / (p + 2.0)
 
 
 def _k_hermite(xq, xn, fn, mn, n):
@@ -368,7 +375,7 @@ def _k_pair_masses(psi, w, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=F
     and in ln(x_e - x) above, as `_Rows.pair_masses` does. Without
     `kappa_weight` (the polish), each pair's integrand is divided by the
     pair's own largest integrand value; with `kappa_weight` (the slopes across
-    rows), the integrand carries the weight kappa(E) and every pair is divided
+    rows), the integrand carries the weight kappa(K) and every pair is divided
     by the row's largest integrand value."""
     up = xq >= 0.5 * xe
     a = jnp.where(up, jnp.log(da), jnp.log(xa))
@@ -384,15 +391,15 @@ def _k_pair_masses(psi, w, xe, xa, da, xq, dq, arrays, cfg, nums, kappa_weight=F
         peak = jnp.where(jnp.isfinite(peak), peak, 0.0)
         fd = jnp.isfinite(d_up)
         dd = jnp.where(fd, d_up, 0.0)
-        energies = jnp.where(
+        k_values = jnp.where(
             fd,
-            nums.e_edge + psi * dd * (2.0 * xe - dd),
+            nums.k_edge + psi * dd * (2.0 * xe - dd),
             jnp.maximum(psi * (1.0 - xp * xp), 0.0),
         )
         depths = jnp.where(
-            ~fd & (energies >= 0.5 * nums.p_0), w + psi * xp * xp, jnp.nan
+            ~fd & (k_values >= 0.5 * nums.p_0), w + psi * xp * xp, jnp.nan
         )
-        weight = e * _k_kappa(energies, depths, arrays, cfg)
+        weight = e * _k_kappa(k_values, depths, arrays, cfg)
         values = jnp.where(fin, 10.0 ** (levels - peak), 0.0) * weight
         integral = half * (values @ nums.gl_w) * 10.0**peak
     else:
@@ -409,8 +416,8 @@ def _k_place_beyond(psi, xe, tot, d1, c_above, s_t, s_last, q_t, nums):
     `_Rows._place_beyond` does, with the nodes selected by a mask instead of
     an index list."""
     a_eff, b, e_0 = nums.a_eff, nums.tail_log_exponent, nums.tail_log_scale
-    e_1 = psi * d1 * (2.0 * xe - d1)
-    m_1 = tail_mass_below(1.0, a_eff, e_1, b, e_0, jnp)
+    k_1 = psi * d1 * (2.0 * xe - d1)
+    m_1 = tail_mass_below(1.0, a_eff, k_1, b, e_0, jnp)
     s_1 = 1.0 - b
     target = q_t * tot / c_above * m_1
     ok = (s_t >= s_last) & (target > 0.0) & (target < m_1)
@@ -422,9 +429,9 @@ def _k_place_beyond(psi, xe, tot, d1, c_above, s_t, s_last, q_t, nums):
 
     def step(st):
         it, y, live = st
-        e = e_1 * jnp.exp(-y)
-        g = jnp.log(tail_mass_below(1.0, a_eff, e, b, e_0, jnp)) - jnp.log(goal)
-        xx = (1.0 - a_eff) * jnp.log(e_0 / e)
+        k = k_1 * jnp.exp(-y)
+        g = jnp.log(tail_mass_below(1.0, a_eff, k, b, e_0, jnp)) - jnp.log(goal)
+        xx = (1.0 - a_eff) * jnp.log(e_0 / k)
         gamma = _scaled_upper_gamma_small_order(s_1, xx, jnp)
         dg = -(1.0 - a_eff) * xx ** (s_1 - 1.0) / gamma
         move = jnp.where(live, -g / dg, 0.0)
@@ -436,8 +443,8 @@ def _k_place_beyond(psi, xe, tot, d1, c_above, s_t, s_last, q_t, nums):
         return it + 1, y, live
 
     y = jax.lax.while_loop(more, step, (jnp.int32(0), y, ok))[1]
-    e = e_1 * jnp.exp(-y)
-    d = (e / psi) / (xe + jnp.sqrt(jnp.maximum(xe * xe - e / psi, 0.0)))
+    k = k_1 * jnp.exp(-y)
+    d = (k / psi) / (xe + jnp.sqrt(jnp.maximum(xe * xe - k / psi, 0.0)))
     put = ok & (d > 0.0) & (d < xe)
     d_safe = jnp.where(put, d, 1.0)
     return jnp.where(put, jnp.log((xe - d_safe) / d_safe), s_t)
@@ -705,21 +712,21 @@ def _k_finish_row(psi, w, xe, tot, d1, c_above, s_t, nodes, arrays, cfg, nums):
     vp = nums.velocity_power
     pdf_t = p_t * tot
     okp = jnp.isfinite(pdf_t) & (pdf_t > 0.0)
-    dxe = nums.e_edge / (2.0 * psi * psi * xe)
+    dxe = nums.k_edge / (2.0 * psi * psi * xe)
     g_k = _k_pair_masses(
         psi, w, xe, x_t[:-1], d_t[:-1], x_t[1:], d_t[1:], *args, kappa_weight=True
     )
     g_k = jnp.where(jnp.isfinite(g_k), g_k, 0.0)
-    e_ends = jnp.stack(
-        [psi * (1.0 - x_t[0] ** 2), nums.e_edge + psi * d_t[-1] * (2.0 * xe - d_t[-1])]
+    k_ends = jnp.stack(
+        [psi * (1.0 - x_t[0] ** 2), nums.k_edge + psi * d_t[-1] * (2.0 * xe - d_t[-1])]
     )
     u_ends = jnp.stack(
         [
-            jnp.where(e_ends[0] >= 0.5 * nums.p_0, w + psi * x_t[0] ** 2, jnp.nan),
+            jnp.where(k_ends[0] >= 0.5 * nums.p_0, w + psi * x_t[0] ** 2, jnp.nan),
             jnp.nan,
         ]
     )
-    k_end = _k_kappa(e_ends, u_ends, arrays, cfg)
+    k_end = _k_kappa(k_ends, u_ends, arrays, cfg)
     pe: Array | float
     if cfg.continues:
         pe = 0.0
@@ -776,7 +783,7 @@ class _Rows:
         # on the host.
         self.host_arrays, self.kinds = prepare_lookup(model.table, form, component)
         self.arrays = LookupArrays(*(jnp.asarray(a) for a in self.host_arrays))
-        # The DF's lowest energy K_0, counting the nodes below the written
+        # The DF's lowest K, K_0, counting the nodes below the written
         # table.
         self.q_min = float(self.host_arrays.params[K_0])
         self.n_below = model.table.nodes_below(component)
@@ -789,11 +796,11 @@ class _Rows:
         self.tail_log_exponent = float(form.tail_log_exponent[component])
         self.tail_log_scale = float(form.tail_log_scale[component])
         # floor_s is the power of the DF as K -> 0 below the DF's table. For a
-        # tail and for an edge law, floor_s is the exponent of the asymptotic
+        # tail and for a boundary form, floor_s is the exponent of the asymptotic
         # form. For the "taylor" rule F = F_1 K + F_2 K^2 / 2, floor_s is the
         # power of the leading term: 1 where F_1 is not zero, and 2 where F_1 is
         # zero. Under the "zero" rule the support ends at the table's lowest
-        # energy, and floor_s does not enter the density.
+        # K, and floor_s does not enter the density.
         if rule == "taylor":
             floor_s = 1.0 if form.below_floor_coefficients[component][0] != 0.0 else 2.0
         else:
@@ -830,27 +837,26 @@ class _Rows:
             int(sampling["n_gauss_legendre"])
         )
 
-    def log10_df(self, e, u=None):
-        """Return log10 F at host energies `e`, read by the depth `u` where
+    def log10_df(self, k, u=None):
+        """Return log10 F at the host values `k`, read by the depth `u` where
         `u` is finite."""
         if u is None:
-            u = np.full(np.shape(e), np.nan)
-        return _on_bucket(_log10_df_kernel, e, self.arrays, self.kinds, u)
+            u = np.full(np.shape(k), np.nan)
+        return _on_bucket(_log10_df_kernel, k, self.arrays, self.kinds, u)
 
-    def kappa(self, e, u=None):
-        """Return kappa = d ln F / d ln E at host energies `e`, read by the
+    def kappa(self, k, u=None):
+        """Return kappa = d ln F / d ln K at the host values `k`, read by the
         depth `u` where `u` is finite."""
         if u is None:
-            u = np.full(np.shape(e), np.nan)
-        return _on_bucket(_kappa_kernel, e, self.arrays, self.kinds, u)
+            u = np.full(np.shape(k), np.nan)
+        return _on_bucket(_kappa_kernel, k, self.arrays, self.kinds, u)
 
     # ---- The density of the scaled velocity, evaluated on the host. ----
 
     def support_edge(self, psi):
         """Return the support's edge x_e on the row of potential `psi`: 1 where
         F continues below its table, else (1 - K_0 / Psi)^{1/2}, the scaled
-        velocity at which the energy Psi (1 - x^2) reaches the DF's lowest energy
-        K_0."""
+        velocity at which K = Psi (1 - x^2) reaches the DF's lowest K, K_0."""
         return 1.0 if self.continues else math.sqrt(max(1.0 - self.q_min / psi, 0.0))
 
     def hi_edges(self, psi, x_from):
@@ -859,7 +865,7 @@ class _Rows:
         x_e - `x_from` down to the closest refined distance, and the support's
         edge x_e. The closest refined distance is the smaller of
         sampling["edge_refined"] x_e and, where F continues below its table,
-        the distance at which the energy reaches K_0."""
+        the distance at which K reaches K_0."""
         xe = self.support_edge(psi)
         q = self.q_min
         d_pl = (
@@ -873,47 +879,47 @@ class _Rows:
         )
         return np.exp(np.linspace(math.log(d0), math.log(d1), count)), xe
 
-    def energy(self, psi, x, d=None, xe=None):
-        """Return the energy E = Psi (1 - x^2) at scaled velocities `x`. Where the
-        distance `d` = x_e - x is given and finite, E is formed as
-        E = E_edge + Psi d (2 x_e - d), which keeps every digit of E near the
-        edge; E_edge is 0 where F continues below its table and K_0
+    def k_of_x(self, psi, x, d=None, xe=None):
+        """Return K = Psi (1 - x^2) at scaled velocities `x`. Where the
+        distance `d` = x_e - x is given and finite, K is formed as
+        K = K_edge + Psi d (2 x_e - d), which keeps every digit of K near the
+        edge; K_edge is 0 where F continues below its table and K_0
         otherwise."""
-        e = np.maximum(psi * (1.0 - x * x), 0.0)
+        k = np.maximum(psi * (1.0 - x * x), 0.0)
         if d is not None:
             d = np.asarray(d, dtype=np.float64)
-            e_edge = 0.0 if self.continues else float(self.q_min)
+            k_edge = 0.0 if self.continues else float(self.q_min)
             fin = np.isfinite(d)
             dd = np.where(fin, d, 0.0)
-            e = np.where(fin, e_edge + psi * dd * (2.0 * xe - dd), e)
-        return e
+            k = np.where(fin, k_edge + psi * dd * (2.0 * xe - dd), k)
+        return k
 
-    def depth(self, psi, w, x, d, e):
-        r"""Return the depth u = p_0 - E where the depth is known exactly, and
+    def depth(self, psi, w, x, d, k):
+        r"""Return the depth u = p_0 - K where the depth is known exactly, and
         NaN elsewhere.
 
-        Where E is formed from x (no finite distance `d`) and
-        ``E >= p_0 / 2``, the depth is u = `w` + Psi x^2, where `w` = p_0 - Psi
+        Where K is formed from x (no finite distance `d`) and
+        ``K >= p_0 / 2``, the depth is u = `w` + Psi x^2, where `w` = p_0 - Psi
         is the row's depth as `build_velocity_table` passes the depth; both terms
-        are exact because ``Psi >= E >= p_0 / 2``. The energy formed as
+        are exact because ``Psi >= K >= p_0 / 2``. The value K formed as
         Psi (1 - x^2) loses the depth's digits there: on the top rows the last
-        bit of E is :math:`10^{-10}` of the depth, so F read by E would change
-        in steps of the last bit of E instead of continuously with x."""
+        bit of K is :math:`10^{-10}` of the depth, so F read by K would change
+        in steps of the last bit of K instead of continuously with x."""
         x = np.asarray(x, dtype=np.float64)
         by_x = (
-            np.ones(np.shape(e), dtype=bool)
+            np.ones(np.shape(k), dtype=bool)
             if d is None
             else ~np.isfinite(np.asarray(d, dtype=np.float64))
         )
         with np.errstate(invalid="ignore"):
-            return np.where(by_x & (e >= 0.5 * self.p_0), w + psi * x * x, np.nan)
+            return np.where(by_x & (k >= 0.5 * self.p_0), w + psi * x * x, np.nan)
 
     def logpdf(self, psi, w, x, d=None, xe=None):
-        """Return log10 of ``x^(2 - 2 beta_c) F(E)`` at host scaled velocities `x`
+        """Return log10 of ``x^(2 - 2 beta_c) F(K)`` at host scaled velocities `x`
         on the row of potential `psi`, with F read by the depth where `depth`
         gives an exact depth."""
-        e = self.energy(psi, x, d, xe)
-        return self.log10_df(e, self.depth(psi, w, x, d, e)) + self.velocity_power * (
+        k = self.k_of_x(psi, x, d, xe)
+        return self.log10_df(k, self.depth(psi, w, x, d, k)) + self.velocity_power * (
             np.log10(np.maximum(x, 1e-300))
         )
 
@@ -990,7 +996,7 @@ class _Rows:
         """Return the signed mass of the density from each construction node
         `xa` to the node's query point `xq`, one Gauss-Legendre panel per pair,
         in ln x below x_e / 2 and in ln(x_e - x) above. With `kappa_w` = c the
-        integrand carries the weight c + kappa(E); with `xshift` the integrand
+        integrand carries the weight c + kappa(K); with `xshift` the integrand
         carries the extra factor x^xshift."""
         up = xq >= 0.5 * xe
         a = np.where(up, np.log((xe - xa) if da is None else da), np.log(xa))
@@ -1005,18 +1011,18 @@ class _Rows:
         )
         weight = e if xshift == 0.0 else e * xp**xshift
         if kappa_w is not None:
-            energies = self.energy(psi, xp.ravel(), d_up, xe)
-            depths = self.depth(psi, w, xp.ravel(), d_up, energies)
-            kappa = self.kappa(energies, depths).reshape(xp.shape)
+            k_values = self.k_of_x(psi, xp.ravel(), d_up, xe)
+            depths = self.depth(psi, w, xp.ravel(), d_up, k_values)
+            kappa = self.kappa(k_values, depths).reshape(xp.shape)
             weight = weight * (float(kappa_w) + kappa)
         values = np.where(np.isfinite(levels), 10.0 ** (levels - peak), 0.0) * weight
         integral = half * (values @ self.gl_w) * 10.0**peak
         return np.where(up, -integral, integral)
 
-    def floor_mass_below(self, e):
-        """Return the integral of F from 0 to `e` under the DF's rule below
+    def floor_mass_below(self, k):
+        """Return the integral of F from 0 to `k` under the DF's rule below
         the DF's table."""
-        return below_floor_mass(self.host_arrays, self.kinds, e)
+        return below_floor_mass(self.host_arrays, self.kinds, k)
 
     # ---- One row of the velocity table, built on the host. ----
 
@@ -1058,20 +1064,20 @@ class _Rows:
                 )
             )
         elif self.rule != "tail":
-            e_1 = psi * d1 * (2.0 * xe - d1)
-            c_above = float(self.floor_mass_below(e_1)[0]) / (2.0 * psi)
+            k_1 = psi * d1 * (2.0 * xe - d1)
+            c_above = float(self.floor_mass_below(k_1)[0]) / (2.0 * psi)
         else:
-            e_1 = psi * d1 * (2.0 * xe - d1)
+            k_1 = psi * d1 * (2.0 * xe - d1)
             ratio = (
                 float(
                     tail_mass_below(
-                        1.0, a_eff, e_1, self.tail_log_exponent, self.tail_log_scale
+                        1.0, a_eff, k_1, self.tail_log_exponent, self.tail_log_scale
                     )[0]
                 )
                 * (1.0 - a_eff)
                 / (
-                    e_1 ** (1.0 - a_eff)
-                    * np.log(self.tail_log_scale / e_1) ** (-self.tail_log_exponent)
+                    k_1 ** (1.0 - a_eff)
+                    * np.log(self.tail_log_scale / k_1) ** (-self.tail_log_exponent)
                 )
                 if self.tail_log_exponent != 0.0
                 else 1.0
@@ -1212,13 +1218,13 @@ class _Rows:
         """Place in `s_t` each table node whose index is in `beyond`, a node
         beyond the row's last construction node, on the DF's tail with a
         logarithmic factor of exponent tail_log_exponent and scale
-        tail_log_scale. A Newton iteration in y = ln(E_1 / E), where E_1 is the
-        energy at the closest refined distance `d1` from the edge, matches the
-        logarithm of the tail's mass below E to the logarithm of the node's
+        tail_log_scale. A Newton iteration in y = ln(K_1 / K), where K_1 is
+        K at the closest refined distance `d1` from the edge, matches the
+        logarithm of the tail's mass below K to the logarithm of the node's
         target mass."""
         b, e0 = self.tail_log_exponent, self.tail_log_scale
-        e_1 = psi * d1 * (2.0 * xe - d1)
-        m_1 = float(tail_mass_below(1.0, a_eff, e_1, b, e0)[0])
+        k_1 = psi * d1 * (2.0 * xe - d1)
+        m_1 = float(tail_mass_below(1.0, a_eff, k_1, b, e0)[0])
         s_1 = 1.0 - b
         target = q_t[beyond] * tot / c_above * m_1
         ok = (target > 0.0) & (target < m_1)
@@ -1227,11 +1233,11 @@ class _Rows:
         for _ in range(TAIL_NEWTON_ITERATIONS):
             if not np.any(live):
                 break
-            e = e_1 * np.exp(-y)
-            g = np.log(tail_mass_below(1.0, a_eff, e, b, e0)) - np.log(
+            k = k_1 * np.exp(-y)
+            g = np.log(tail_mass_below(1.0, a_eff, k, b, e0)) - np.log(
                 np.where(ok, target, m_1)
             )
-            xx = (1.0 - a_eff) * np.log(e0 / e)
+            xx = (1.0 - a_eff) * np.log(e0 / k)
             dg = -(1.0 - a_eff) * xx ** (s_1 - 1.0) / scaled_upper_gamma(s_1, xx)
             step = np.where(live, -g / dg, 0.0)
             y = np.maximum(0.0, y + step)
@@ -1239,8 +1245,8 @@ class _Rows:
                 (np.abs(g) < TAIL_NEWTON_TOLERANCE)
                 | (np.abs(step) < TAIL_NEWTON_TOLERANCE * np.maximum(1.0, y))
             )
-        e = e_1 * np.exp(-y)
-        d = (e / psi) / (xe + np.sqrt(np.maximum(xe * xe - e / psi, 0.0)))
+        k = k_1 * np.exp(-y)
+        d = (k / psi) / (xe + np.sqrt(np.maximum(xe * xe - k / psi, 0.0)))
         put = ok & (d > 0.0) & (d < xe)
         s_t[beyond[put]] = np.log((xe - d[put]) / d[put])
 
@@ -1257,11 +1263,11 @@ class _Rows:
             g_k = self.pair_masses(
                 psi, w, x_t[:-1], x_t[1:], d_t[1:], xe, da=d_t[:-1], kappa_w=0.0
             )
-            e_ends = np.array(
+            k_ends = np.array(
                 [
                     psi * (1.0 - x_t[0] ** 2),
                     float(
-                        self.energy(psi, np.array([x_t[-1]]), np.array([d_t[-1]]), xe)[
+                        self.k_of_x(psi, np.array([x_t[-1]]), np.array([d_t[-1]]), xe)[
                             0
                         ]
                     ),
@@ -1269,11 +1275,11 @@ class _Rows:
             )
             u_ends = np.array(
                 [
-                    float(self.depth(psi, w, np.array([x_t[0]]), None, e_ends[:1])[0]),
+                    float(self.depth(psi, w, np.array([x_t[0]]), None, k_ends[:1])[0]),
                     np.nan,
                 ]
             )
-            k_end = self.kappa(e_ends, u_ends)
+            k_end = self.kappa(k_ends, u_ends)
             pdf_e = (
                 10.0
                 ** float(self.logpdf(psi, w, np.array([xe]), np.array([0.0]), xe)[0])
@@ -1331,7 +1337,7 @@ class _Rows:
         nums = _RowNumbers(
             p_0=jnp.float64(self.p_0),
             velocity_power=jnp.float64(self.velocity_power),
-            e_edge=jnp.float64(0.0 if self.continues else self.q_min),
+            k_edge=jnp.float64(0.0 if self.continues else self.q_min),
             a_eff=jnp.float64(-self.floor_s if self.continues else 0.0),
             tail_log_exponent=jnp.float64(b),
             tail_log_scale=jnp.float64(self.tail_log_scale),
@@ -1374,12 +1380,12 @@ class _Rows:
         if self.rule == "tail" and self.tail_log_exponent != 0.0:
             # tail_mass_below works element by element, so one call gives the
             # remainder ratio of every row of the chunk.
-            e_1 = np.asarray(psis, dtype=np.float64) * d1 * (2.0 * xe - d1)
+            k_1 = np.asarray(psis, dtype=np.float64) * d1 * (2.0 * xe - d1)
             b, e_0 = self.tail_log_exponent, self.tail_log_scale
             ratio = (
-                tail_mass_below(1.0, a_eff, e_1, b, e_0)
+                tail_mass_below(1.0, a_eff, k_1, b, e_0)
                 * (1.0 - a_eff)
-                / (e_1 ** (1.0 - a_eff) * np.log(e_0 / e_1) ** (-b))
+                / (k_1 ** (1.0 - a_eff) * np.log(e_0 / k_1) ** (-b))
             )
 
         def padded(rows, size, fill, dtype=np.float64):
@@ -1645,7 +1651,7 @@ def build_velocity_table(model, settings):
         If the profile holds fewer than two potentials between 0 and p_0, or
         a row fails its own consistency checks.
     UnphysicalModelError
-        If the DF below its table has a mass that is not finite at E = 0.
+        If the DF below its table has a mass that is not finite at K = 0.
     """
     sampling = settings.sampling
     rows = _Rows(model, settings)
@@ -1788,7 +1794,7 @@ def build_velocity_table(model, settings):
         ds_dlambda_p=table[None, :, 2],
         x_edge=edges[None, :],
         p_0=p_0,
-        e_edge=(0.0 if rows.continues else rows.q_min,),
+        k_edge=(0.0 if rows.continues else rows.q_min,),
         validation=ValidationReport(keys=VELOCITY_TABLE_KEYS, checks=checks),
         row_cap=row_cap,
     )

@@ -1,4 +1,4 @@
-r"""The inversion's rows: the Cuddeford inversion operator at every energy of
+r"""The inversion's rows: the Cuddeford inversion operator at every node of
 the grid, and the completions that the rows take below the table's floor.
 
 Every anisotropy model uses one operator (Notes Eq. (T:2.16)):
@@ -6,19 +6,19 @@ Every anisotropy model uses one operator (Notes Eq. (T:2.16)):
     F(Q) = C(n) d/dQ INT_0^Q rho_aux^(j)(P) (Q - P)^-n dP
            [+ C(n_f) rho_aux^(m_f)(0) Q^-n_f where j = m_f + 1].
 
-Here F is the DF at the relative energy Q, P is the relative potential,
+Here F is the DF at the energy-like variable Q, P is the relative potential,
 rho_aux^(j) is the j-th derivative of the auxiliary density in P, n is the
 kernel exponent of the order pair (j, n), C(n) is the inversion's
 prefactor, and the bracketed boundary term with the floor pair (m_f, n_f)
 enters for a switched pair, j = m_f + 1.
 
-Each row (one energy Q) is evaluated in the form that the model fixes
+Each row (one value of Q) is evaluated in the form that the model fixes
 (Notes Section T:2.3): the local closed form at n = 0; the form integrated
 by parts; the split form with the derivative outside the integral, used
 for every row of a switched pair, for the rows above an interior point and
 for the rows of an unbounded outer end from ``outer_from`` up; and
 Gauss-Jacobi rules on either side of an interior point. The operator one
-derivative higher gives dF/dQ at the energies of the rows of F.
+derivative higher gives dF/dQ at the nodes of the rows of F.
 
 The quadrature of a row (Notes Section T:2.3.4) has three pieces: a
 Gauss-Legendre rule in ln P on [q_min, s], a Gauss-Legendre rule in P on
@@ -29,7 +29,7 @@ of ``y = v^k`` cancels the singular factor (Q - P)^-n at P = Q, since
 k (1 - n) = 1. The split points are c = 0.9 Q and
 :math:`s = \max(0.1 c, q_{\rm min} (1 + 10^{-9}))`, with q_min the
 table's floor. For
-dF/dQ and for a switched pair, c is moved down to the nearest grid energy
+dF/dQ and for a switched pair, c is moved down to the nearest grid node
 at or below 0.9 Q.
 
 The rows of `inversion_kernel` start at the table's floor. The caller adds
@@ -73,7 +73,7 @@ from .grid import TABLE_FLOOR
 from .inversion import inversion_prefactor, order_pair
 from .stages import AuxDerivatives
 
-# The lowest energy P_min of the completion below the table's floor: the
+# The lower end P_min of the completion below the table's floor: the
 # exact integral of the completion starts at P_min.
 FLOOR_P_MIN = 1e-42
 # The step of the one-sided differences of the source g at the floor q0, as
@@ -82,7 +82,7 @@ FLOOR_STEP = 1e-4
 # The DF below the written floor: BELOW_PER_DECADE candidate nodes per decade
 # from BELOW_FROM P_min up; the second truncation of the integral at
 # BELOW_SECOND P_min; BELOW_SOURCE_PER_DECADE source nodes per decade; and,
-# for each energy Q, BELOW_LOG_NODES Gauss-Legendre nodes in ln P followed by
+# for each node Q, BELOW_LOG_NODES Gauss-Legendre nodes in ln P followed by
 # BELOW_END_NODES nodes in w = (Q - P)^(1 - n).
 BELOW_PER_DECADE = 12
 BELOW_FROM = 100.0
@@ -95,7 +95,7 @@ GL_SPLIT_FRAC = 0.9
 # The smallest gap P_0 - Q that the composite map of the top piece takes,
 # and the smallest Q in the boundary terms Q^-n of a row.
 INTEGRATOR_EPSILON = 1e-10
-# The smallest energy whose logarithm is taken. A smaller energy is raised
+# The smallest value whose logarithm is taken. A smaller value is raised
 # to UNDERFLOW_GUARD before its logarithm is taken.
 UNDERFLOW_GUARD = 1e-30
 # The factor by which the top piece of a row with a steep source (every row
@@ -173,7 +173,7 @@ def inversion_kernel(
     g1_slope: Array | None = None,
     outer_from: float = 0.0,
 ) -> Any:
-    r"""Return the kernel's F, or dF/dQ, at every energy of the grid.
+    r"""Return the kernel's F, or dF/dQ, at every K of the grid.
 
     The rows start at the table's floor q_min; the completion below the
     floor is not included.
@@ -181,10 +181,10 @@ def inversion_kernel(
     Parameters
     ----------
     q : array, shape (n,)
-        Relative energies Q, increasing, in internal units. The first
-        energy is the table's floor q_min.
+        Values of Q, increasing, in internal units. The first
+        value is the table's floor q_min.
     g1 : array, shape (n,)
-        Source of the integral at the energies `q`, rho_aux^(j+1). Where the
+        Source of the integral at the nodes `q`, rho_aux^(j+1). Where the
         kernel exponent n is 0, the closed form returns the prefactor times
         `g0` for F and the prefactor times `g1` for dF/dQ.
     beta_c : float
@@ -218,17 +218,17 @@ def inversion_kernel(
         Whether the order pair is switched (j = m_f + 1, n < 0). Default:
         ``False``.
     p_s : float, optional
-        Energy of the interior point of rho_aux. Default: ``0.0``, which
+        The interior point of rho_aux, in P. Default: ``0.0``, which
         means no interior point.
     s : float, optional
         Exponent of rho_aux^(j) at the interior point, in (-1, 0].
         Default: ``0.0``.
     g1_slope : array, shape (n,), optional
-        Exact slopes of `g1` in P at the energies `q` (rho_aux^(j+2)), used
+        Exact slopes of `g1` in P at the nodes `q` (rho_aux^(j+2)), used
         by the interpolation of `g1`. Default: ``None``, which means the
         interpolation takes its own slopes.
     outer_from : float, optional
-        Energy from which the rows of an unbounded outer end take the form
+        Value of Q from which the rows of an unbounded outer end take the form
         with the derivative outside the integral and no boundary term at
         the floor. Ignored for a switched pair. Default: ``0.0``, which
         means no such rows.
@@ -236,7 +236,7 @@ def inversion_kernel(
     Returns
     -------
     rows : jax array, shape (n,)
-        F, or dF/dQ where `deriv` is true, at the energies `q`, in internal
+        F, or dF/dQ where `deriv` is true, at the nodes `q`, in internal
         units.
 
     Raises
@@ -251,7 +251,7 @@ def inversion_kernel(
         an unbounded outer end miss `g0`, or miss `g2` for dF/dQ.
     InputError
         If the interior point's exponent `s` lies outside (-1, 0], fewer
-        than 3 energies lie on either side of the interior point, or a
+        than 3 nodes lie on either side of the interior point, or a
         source table is not finite on one side of the interior point.
     """
     pair = order_pair(0.0 if is_om else beta_c)
@@ -264,7 +264,7 @@ def inversion_kernel(
     q_sampling = q
     if g0 is not None:
         # g0 becomes a JAX array because the rows with the derivative outside
-        # the integral index g0 at energies that JAX traces.
+        # the integral index g0 at nodes that JAX traces.
         g0 = jnp.asarray(g0, dtype=jnp.float64)
     g_logf = bool(np.all(np.asarray(g1) > 0.0))
     m_src = None
@@ -608,7 +608,7 @@ def edge_term(q: Array, p_e: float, amplitude: float, beta_c: float) -> Array:
     r"""Return the closed-form DF of the edge power law removed from a Type II
     model's source.
 
-    Above the edge energy :math:`P_{\rm e}` (`p_e`), the DF is
+    Above the edge value :math:`P_{\rm e}` (`p_e`), the DF is
 
     .. math::
 
@@ -667,7 +667,7 @@ def floor_source(
     anisotropy : Anisotropy
         The component's anisotropy.
     q0 : float
-        The table's floor, the grid's first energy, in internal units.
+        The table's floor, the grid's first node, in internal units.
     n_nodes : int
         Number of nodes in ln P. The rule in w takes a third of `n_nodes`,
         and at least 40 nodes.
@@ -677,7 +677,7 @@ def floor_source(
     source : dict or None
         The rule and the source, with the keys that `floor_completion`
         documents for its argument ``src``, and also ``"p"`` (the nodes'
-        energies P), ``"m"`` (the floor pair's order) and ``"half_int"``
+        potentials P), ``"m"`` (the floor pair's order) and ``"half_int"``
         (whether the kernel exponent is 0). None where the model has no
         completion.
 
@@ -750,7 +750,7 @@ def floor_source(
 def _below_nodes(
     qs: Array, p_lo: float, n: float
 ) -> tuple[Array, Array, Array, list[int], Array]:
-    """Return the quadrature nodes of `below_integral` for every energy Q in
+    """Return the quadrature nodes of `below_integral` for every node Q in
     ``qs``, concatenated over Q.
 
     For each Q the nodes are BELOW_LOG_NODES Gauss-Legendre nodes in ln P
@@ -800,8 +800,8 @@ def below_integral(
     g_i: Any,
     r_i: Any = None,
 ) -> Array:
-    """Return F below the written floor at the energies ``qs`` from the
-    inversion identity truncated at the energy p_lo (`below_floor`).
+    """Return F below the written floor at the values ``qs`` from the
+    inversion identity truncated at p_lo (`below_floor`).
 
     Without ``r_i``, F(Q) = pref [INT_{p_lo}^{Q} g (Q - P)^-n dP +
     dm_lo (Q - p_lo)^-n], with g = ``g_i`` and dm_lo = rho_aux^(m)(p_lo).
@@ -868,7 +868,7 @@ def below_floor(
         The completion's source (`floor_source`), of which the keys
         ``p_min``, ``n``, ``m``, ``pref``, ``dmm`` and ``outer`` are read.
     k_written : float
-        Energy of the table's first written node, in internal units.
+        K of the table's first written node, in internal units.
 
     Returns
     -------
@@ -984,7 +984,7 @@ def below_floor(
         qs = np.atleast_1d(np.asarray(qs, dtype=np.float64))
         q_all = np.unique(np.concatenate([q_master, qs]))
         if f_master is not None and np.array_equal(q_all, q_master):
-            # The requested energies are all master nodes, whose F was already
+            # The requested values are all master nodes, whose F was already
             # computed, so F is not computed again.
             f_all = f_master
         else:
@@ -1035,7 +1035,7 @@ def floor_completion(
     Parameters
     ----------
     q : array, shape (n,)
-        Relative energies Q of the rows, in internal units.
+        The rows' values of Q, in internal units.
     src : mapping
         The rule and the exact source on its nodes (`floor_source`):
         ``q0``, ``p_min``, ``n``, ``pref``, ``dq0`` (rho_aux^(m)(q0)),
@@ -1145,7 +1145,7 @@ def method2_floor_tail(q: Array, tail: Mapping[str, Any]) -> tuple[Array, Array]
     Parameters
     ----------
     q : array, shape (n,)
-        Relative energies Q, in internal units. The smallest energy is the
+        Values of Q, in internal units. The smallest value is the
         floor q_min.
     tail : mapping
         ``a_q`` (a dict from each power q to its coefficient a_q), ``m_f``

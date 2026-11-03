@@ -1,11 +1,11 @@
 r"""Tests of the truncated table at :math:`\beta_{\rm c} = \pm 1/2` below the
-switch energy of the below-floor Taylor form.
+switch value of the below-floor Taylor form.
 
 At :math:`\beta_{\rm c} = \pm 1/2` the truncated table holds the exact shifted
 closed form ``F_u(K + K_t) - F_u(K_t)``, with ``F_u`` the untruncated DF. In
 float64 that difference loses digits in proportion to the ratio
 ``F_u(K_t) / F(K)``, which is large at small K. Below the Taylor form's switch
-energy ``k_switch``, the table therefore holds the Taylor sum of ``F_u`` at
+value ``k_switch``, the table therefore holds the Taylor sum of ``F_u`` at
 :math:`\mathcal{K}_{\rm t}` to the cubic term, whose terms are all positive.
 
 The tests compare the table of a truncated Hernquist component with the shifted

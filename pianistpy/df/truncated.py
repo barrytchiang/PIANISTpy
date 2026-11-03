@@ -3,18 +3,18 @@ r"""The model of one component from its untruncated distribution function (DF).
 `truncate` calls `truncate_model` when given a truncation, and
 `untruncated_model` when given none for a DF inverted from an analytic
 profile. `solve_target` calls `truncation_chain` for each trial truncation
-energy. The truncation is Method I of Chiang+(2026d), Section 3.1: the
-truncated DF at the truncation energy :math:`\mathcal{K}_{\rm t}` is
+value. The truncation is Method I of Chiang+(2026d), Section 3.1: the
+truncated DF at the truncation value :math:`\mathcal{K}_{\rm t}` is
 
 .. math::
 
     F_{\rm t}(K) = F(K + \mathcal{K}_{\rm t}) - F(\mathcal{K}_{\rm t}),
 
-with :math:`F` the untruncated DF and :math:`K` the energy of the truncated
-model, and the truncated model's potential solves Poisson's equation with
+with :math:`F` the untruncated DF and :math:`K` the energy-like variable of the
+truncated model, and the truncated model's potential solves Poisson's equation with
 the density that :math:`F_{\rm t}` gives. The stages run in order: the base
 table, which is the DF's rows continued above the rows' anchor by the
-center's form (`base_table`); the gates on the truncation energy; the
+center's form (`base_table`); the gates on the truncation value; the
 truncated DF and the auxiliary density that the truncated DF gives
 (`truncated_source`); the Poisson solve; the density on the solve's radii
 and at the center; the fills; and the validation of the profile's radii.
@@ -82,7 +82,7 @@ _CENTER_NODES_PER_DECADE = 200
 _R_MAX_BOUND = 60.0
 _R_MAX_STEPS = 200
 _R_MAX_DEPTH = 0.5
-# The fewest and the most energies that `_extend` adds above a table's last
+# The fewest and the most nodes that `_extend` adds above a table's last
 # row.
 _EXTENSION_MIN = 500
 _EXTENSION_MAX = 50000
@@ -141,26 +141,26 @@ def _extend(
     *,
     ode_rtol: float,
 ) -> tuple[np.ndarray, np.ndarray]:
-    r"""Return the table continued above the table's last energy by the
+    r"""Return the table continued above the table's last K by the
     center's form.
 
     The center's form is
     :math:`a_{\rm anchor} (u / u_{\rm anchor})^{\kappa} + b + d\,u`, with
     :math:`u = P_0 - K` the depth below the central potential :math:`P_0`
-    (`p_0`). The candidate energies are spaced logarithmically in the depth
-    :math:`u`, from the depth `floor` up to the larger of the last energy's
+    (`p_0`). The candidate nodes are spaced logarithmically in the depth
+    :math:`u`, from the depth `floor` up to the larger of the last node's
     depth and the depth where the Poisson solve's inner zone ends
     (`inner_zone_depth`), with between 500 and 50000 candidates. The
-    candidates that lie strictly between the table's last energy and the
+    candidates that lie strictly between the table's last K and the
     ceiling ``p_0 - floor`` are added. The table is returned unchanged when
-    the ceiling is not above the table's last energy plus ``K_FLOOR``, or
-    when no candidate lies strictly between the table's last energy and the
+    the ceiling is not above the table's last K plus ``K_FLOOR``, or
+    when no candidate lies strictly between the table's last K and the
     ceiling.
 
     Parameters
     ----------
     q : array, shape (n,)
-        The table's energies, increasing.
+        The table's K values, increasing.
     f : array, shape (n,)
         The table's DF values.
     p_0 : float
@@ -187,12 +187,12 @@ def _extend(
     Returns
     -------
     q, f : array
-        The table with the added energies and the form's values on them.
+        The table with the added nodes and the form's values on them.
 
     Raises
     ------
     AccuracyError
-        If a value of the form on an added energy is NaN or minus infinity.
+        If a value of the form on an added node is NaN or minus infinity.
     """
     ceiling = p_0 - floor
     q_last = float(q[-1])
@@ -228,12 +228,12 @@ def _extend(
 def base_table(df: DistributionFunction) -> tuple[np.ndarray, np.ndarray]:
     r"""Return the base table, the untruncated DF table that the truncation reads.
 
-    When the DF's central anchor energy is finite, the base table holds the
-    DF's rows up to the anchor energy, and the center's form above the
-    anchor energy, extended to the ceiling by `_extend`; otherwise the base
+    When the DF's central anchor value is finite, the base table holds the
+    DF's rows up to the anchor value, and the center's form above the
+    anchor value, extended to the ceiling by `_extend`; otherwise the base
     table is the DF's rows. At a half-integer constant
     :math:`\beta_{\rm c}`, the exact closed-form DF replaces the table's DF
-    at every energy where the exact derivatives are evaluated (depth above
+    at every node where the exact derivatives are evaluated (depth above
     `_top_limit`) and the closed-form DF is positive.
 
     Parameters
@@ -244,7 +244,7 @@ def base_table(df: DistributionFunction) -> tuple[np.ndarray, np.ndarray]:
     Returns
     -------
     q : array
-        The base table's energies, in internal units.
+        The base table's K values, in internal units.
     f : array
         The base table's DF values.
 
@@ -375,7 +375,7 @@ def refusals(df: DistributionFunction, k_t: float) -> None:
     df : DistributionFunction
         The untruncated DF of one component.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal
         units. None of the three checks reads `k_t`.
 
     Raises
@@ -453,7 +453,7 @@ def _domain_edge_potential(profile: Any, aniso: Any) -> float:
 
 
 def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
-    r"""Return every stage of the truncated model at the truncation energy `k_t`.
+    r"""Return every stage of the truncated model at the truncation value `k_t`.
 
     The record holds the output of each stage and the inputs each stage
     was given, so that `truncate_model` and `solve_target` read the same
@@ -464,7 +464,7 @@ def truncation_chain(df: DistributionFunction, k_t: float) -> dict[str, Any]:
     df : DistributionFunction
         The untruncated DF of one component, with its rows.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal
         units.
 
     Returns
@@ -737,7 +737,7 @@ def _table_top(component: Any) -> float:
     half-integer constant :math:`\beta_{\rm c}` reads; the depth is 0 for
     every other anisotropy. When the returned depth exceeds ``K_FLOOR``,
     `base_table` ends the center's form at the returned depth and
-    `truncated_table` drops the energies whose depth below :math:`P_0` is
+    `truncated_table` drops the nodes whose depth below :math:`P_0` is
     at or below the returned depth.
     """
     order = _half_integer_order(component.anisotropy)
@@ -757,7 +757,7 @@ def _exact(component: Any, q: np.ndarray, order: int, derivative: bool) -> np.nd
     component : Component
         The component.
     q : array, shape (n,)
-        The energies, in internal units.
+        The K values, in internal units.
     order : int
         The order ``m`` of `_half_integer_order`.
     derivative : bool
@@ -801,7 +801,7 @@ def _exact_taylor(component: Any, k_t: float, k: np.ndarray, order: int) -> np.n
     ``F_u^(j) = rho_aux^(m+j) / (2 pi^2)`` and ``F_u`` the untruncated
     closed-form DF. Every term is positive, so the sum has no cancellation,
     whereas the direct difference cancels at small K. `truncated_table`
-    uses the sum at the energies at or below the switch energy of the
+    uses the sum at the nodes at or below the switch value of the
     truncated DF's Taylor form (the third entry of the truncated source's
     ``taylor``).
 
@@ -810,10 +810,10 @@ def _exact_taylor(component: Any, k_t: float, k: np.ndarray, order: int) -> np.n
     component : Component
         The component.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal
         units.
     k : array, shape (n,)
-        The energies of the truncated DF, in internal units.
+        The K values of the truncated DF, in internal units.
     order : int
         The order ``m`` of `_half_integer_order`.
 
@@ -840,23 +840,23 @@ def _exact_taylor(component: Any, k_t: float, k: np.ndarray, order: int) -> np.n
 def truncated_table(
     df: DistributionFunction, k_t: float, chain: dict[str, Any]
 ) -> dict[str, Any]:
-    r"""Return the truncated DF's table on the energies of the truncated source.
+    r"""Return the truncated DF's table on the K grid of the truncated source.
 
     The table's DF is the truncated source's DF, ``F(K + K_t) - F(K_t)``,
-    at the energies K at or below the central potential
+    at the values K at or below the central potential
     :math:`P_0 = 1 - \mathcal{K}_{\rm t}` and, where `_table_top` exceeds
     ``K_FLOOR``, at depths :math:`P_0 - K` above `_table_top`. For a model
     that is not Type II and whose center's branch is ``"regular"`` or
     ``"critical_divergent"``, the center's form fitted at :math:`P_0`
-    (`top_patch`) replaces the DF above the anchor energy that `anchor`
+    (`top_patch`) replaces the DF above the anchor value that `anchor`
     returns, and `_extend` continues the table to the ceiling. At a
     half-integer constant :math:`\beta_{\rm c}`, the exact shifted closed
-    form replaces the DF at every energy where the shifted closed form is
+    form replaces the DF at every node where the shifted closed form is
     positive and :math:`K + \mathcal{K}_{\rm t} < 1`. At and below the
-    switch energy of the truncated DF's Taylor form, the shifted closed
+    switch value of the truncated DF's Taylor form, the shifted closed
     form is its Taylor sum at :math:`\mathcal{K}_{\rm t}`
     (`_exact_taylor`), because the direct difference cancels at those
-    energies.
+    values.
 
     The table's dF/dK is the untruncated DF's derivative at
     :math:`K + \mathcal{K}_{\rm t}`, taken in five steps, each step
@@ -870,19 +870,19 @@ def truncated_table(
        :math:`Q = K + \mathcal{K}_{\rm t}` from the truncated source's
        lookup (or, without a lookup, from a PCHIP interpolant of
        :math:`\ln F` of the usable rows), divided by
-       :math:`K + \mathcal{K}_{\rm t}`. Outside the energy range of the
+       :math:`K + \mathcal{K}_{\rm t}`. Outside the range of K of the
        usable untruncated rows, dF/dK is 0. With fewer than 4 usable rows,
-       steps 1 to 5 are skipped and dF/dK is NaN at every energy.
+       steps 1 to 5 are skipped and dF/dK is NaN at every node.
     2. For :math:`\mathcal{K}_{\rm t} > 0`, at K from 0 to the splice
-       energy of the edge, the Lagrange interpolation of the edge's nodes,
+       value of the edge, the Lagrange interpolation of the edge's nodes,
        where the interpolated value is finite and positive.
     3. Where :math:`K + \mathcal{K}_{\rm t}` lies within a factor 3 of a
-       sign change of the untruncated rows' dF/dQ at an untruncated energy
+       sign change of the untruncated rows' dF/dQ at an untruncated Q
        of at least :math:`10^{-3}`, a four-node Lagrange interpolation of
        the untruncated rows' dF/dQ.
     4. At a half-integer constant :math:`\beta_{\rm c}`, the closed form,
        where the closed form is finite.
-    5. At and above the anchor energy of the truncated table's top patch,
+    5. At and above the anchor value of the truncated table's top patch,
        or, without such a patch, of the untruncated DF's top patch at
        :math:`P_0 = 1`, the derivative of the patch's form.
 
@@ -891,7 +891,7 @@ def truncated_table(
     df : DistributionFunction
         The untruncated DF, with its rows.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal
         units.
     chain : dict
         The stages of `truncation_chain` at `k_t`.
@@ -899,7 +899,7 @@ def truncated_table(
     Returns
     -------
     table : dict
-        ``k`` (the energies), ``f`` (the DF), ``log_f`` (the base-10
+        ``k`` (the K values), ``f`` (the DF), ``log_f`` (the base-10
         logarithm of the DF, minus infinity where the DF is not positive),
         ``ddf`` (dF/dK) and ``override`` (the record of the top patch, or
         None where no patch replaced a row).
@@ -1050,7 +1050,7 @@ def truncated_table(
                 good = np.isfinite(fe) & (fe > 0)
                 ddf[np.flatnonzero(on)[good]] = fe[good]
         # The rows whose K + K_t lies within a factor 3 of a sign change of
-        # the untruncated rows' dF/dQ at an untruncated energy of at least 1e-3.
+        # the untruncated rows' dF/dQ at an untruncated Q of at least 1e-3.
         q_z, d_z = q_s[ok], d_raw[ok]
         cross = np.flatnonzero(np.sign(d_z[1:]) * np.sign(d_z[:-1]) < 0.0)
         cross = cross[q_z[cross] >= 1e-3]
@@ -1121,7 +1121,7 @@ def _edge_exponent_of(gates: Any, k_t: float, beta_c: float) -> tuple[float, ...
 
     Near the edge the truncated DF behaves as :math:`F \propto K^p`, and
     `density_edge_exponent` turns the DF's exponent :math:`p` into the
-    density's exponent. Above the lowest admissible truncation energy
+    density's exponent. Above the lowest admissible truncation value
     ``k_t_min``, :math:`p = 1`. At ``k_t_min``, :math:`p = 2` when the DF's
     global minimum sets ``k_t_min``, and :math:`p = 1` when the DF's zero
     crossing or the anisotropy's domain edge sets ``k_t_min``.
@@ -1131,7 +1131,7 @@ def _edge_exponent_of(gates: Any, k_t: float, beta_c: float) -> tuple[float, ...
     gates : TruncationGates
         The gates of `truncation_gates`.
     k_t : float
-        The truncation energy :math:`\mathcal{K}_{\rm t}`, in internal
+        The truncation value :math:`\mathcal{K}_{\rm t}`, in internal
         units.
     beta_c : float
         The central anisotropy :math:`\beta_{\rm c}`, 0 for an
@@ -1157,7 +1157,7 @@ def _edge_exponent_of(gates: Any, k_t: float, beta_c: float) -> tuple[float, ...
     else:
         raise InputError(
             f"The edge exponent is not stated: k_t = {k_t!r} is not above the lowest "
-            f"admissible truncation energy {gate!r}."
+            f"admissible truncation value {gate!r}."
         )
     return (density_edge_exponent(p, beta_c),)
 
@@ -1170,9 +1170,9 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
     df : DistributionFunction
         The result of `compute_df`, with its rows.
     truncation : Truncation
-        The truncation: a truncation energy ``k_t``, or a target mass or a
+        The truncation: a truncation value ``k_t``, or a target mass or a
         target radius, for which `solve_target` finds the truncation
-        energy.
+        value.
 
     Returns
     -------
@@ -1193,14 +1193,14 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
         the settings of `df` do not set ``write_anyway=True``; the exception
         carries the model as its result.
     UnphysicalModelError
-        If the truncation energy is not above 0, or the Poisson solve
+        If the truncation value is not above 0, or the Poisson solve
         reaches the solve's outer radius with the potential above
         ``K_FLOOR``, so that the truncation has no edge; the exception
         carries the model as its result.
     """
     if truncation.k_t is None:
         # A target mass or a target radius: the search finds the truncation
-        # energy that reaches the target.
+        # value that reaches the target.
         from .target import _solve_target
 
         kind = "mass" if truncation.mass_t is not None else "radius"
@@ -1400,7 +1400,7 @@ def truncate_model(df: DistributionFunction, truncation: Truncation) -> Model:
         ),
     )
     if not finite_model:
-        # The truncation energy is not above 0, or the Poisson solve reached
+        # The truncation value is not above 0, or the Poisson solve reached
         # the solve's outer radius with the potential above K_FLOOR; either
         # way the truncation has no edge and the model is not a truncated
         # model. The logarithmic slope of the potential at the last
@@ -1439,7 +1439,7 @@ def untruncated_model(df: DistributionFunction) -> Model:
     radial grid, with the central depth from the profile's inner series
     inside the series' join radius. The model's table and forms are the
     DF's. The untruncated model is the case ``K_t = 0``. The model exists
-    when the DF's lowest admissible truncation energy is zero
+    when the DF's lowest admissible truncation value is zero
     (`DistributionFunction.is_physical`: no zero crossing, no global
     minimum above zero and no domain edge) and the profile's total mass is
     finite.
@@ -1462,8 +1462,8 @@ def untruncated_model(df: DistributionFunction) -> Model:
         first.
     UnphysicalModelError
         If the DF is not physical as it stands. The message states the
-        feature that sets the lowest admissible truncation energy, and the
-        lowest admissible truncation energy.
+        feature that sets the lowest admissible truncation value, and the
+        lowest admissible truncation value.
     UnphysicalModelError
         If the profile's total mass diverges, at an outer slope
         :math:`\beta \le 3`.
@@ -1489,10 +1489,10 @@ def untruncated_model(df: DistributionFunction) -> Model:
             "K_0": f"the DF crosses zero at Q = {gates.k_0!r}",
             "Q_min": f"the DF has a global minimum at Q = {gates.q_min!r}",
             "domain_edge": "its support ends at the anisotropy's domain edge",
-        }.get(gates.set_by, "it admits no truncation energy at zero")
+        }.get(gates.set_by, "it admits no truncation value at zero")
         raise UnphysicalModelError(
             f"UNTRUNCATED: the DF is not a valid equilibrium as it stands: "
-            f"{feature}, so its lowest admissible truncation energy is k_t_min = "
+            f"{feature}, so its lowest admissible truncation value is k_t_min = "
             f"{df.k_t_min!r} (set by {gates.set_by}); truncate at K_t >= k_t_min.",
             result=df,
         )

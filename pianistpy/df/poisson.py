@@ -617,7 +617,7 @@ def run_poisson_ode(
         The inversion's interior point, where the source lookup's slopes
         split (`source_slopes`). Default: ``nan``, which means no split.
     sentinel_q : float or None, optional
-        The highest energy of the finite part of the DF table, where the
+        The highest K of the finite part of the DF table, where the
         table's top holds +inf. Default: ``None``, which means the table
         holds no +inf.
     edge_continuation : bool, optional
@@ -641,7 +641,7 @@ def run_poisson_ode(
         normal double.
     InputError
         If the potential at the solve's start, :math:`P_0 - u`, lies above
-        `sentinel_q`, the highest energy of the finite part of the DF table.
+        `sentinel_q`, the highest K of the finite part of the DF table.
     UnphysicalModelError
         If a Type II model's potential is above the floor at
         :math:`R_{\rm a}`, or the model's edge lies at or beyond

@@ -19,7 +19,7 @@ REGULAR = {"branch": "regular", "form": "power"}
 
 
 def _rows():
-    """Return 400 energies k from 0.9 toward 1 and the power law (1 - k)^KAPPA."""
+    """Return 400 nodes k from 0.9 toward 1 and the power law (1 - k)^KAPPA."""
     k = 1.0 - np.logspace(-1, -9, 400)
     return k, (1.0 - k) ** KAPPA
 

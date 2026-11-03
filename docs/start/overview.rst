@@ -18,7 +18,7 @@ What PIANISTpy does
 - :doc:`Truncation in phase space. <../guide/truncation>` Model truncation performed in phase space. The
   truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model's anisotropy
   profile, and Method II gives different anisotropy models an identical truncated density.
-- :doc:`Particles. <../guide/particles>` Particle initial conditions drawn from the truncated distribution
+- :doc:`Particle sampling. <../guide/particles>` Particle initial conditions drawn from the truncated distribution
   function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or
   physical units.
 - :doc:`Observables. <../guide/observables>` Radial, tangential and line-of-sight velocity dispersions,

@@ -6,8 +6,8 @@ Truncation in phase space
 Method I
 --------
 
-``truncate(df, truncation)`` returns a :class:`~pianistpy.Model`, which holds the distribution function truncated at an
-energy and the self-consistent potential-density pair of the truncated distribution function. If the untruncated
+``truncate(df, truncation)`` returns a :class:`~pianistpy.Model`, which holds the distribution function truncated at a
+value of the energy-like variable :math:`\mathcal{K}` and the self-consistent potential–density pair of the truncated distribution function. If the untruncated
 distribution function is everywhere non-negative and monotonic, the truncated distribution function inherits both
 properties, and the truncation boundary is in dynamical equilibrium. A request with no physical model raises
 :class:`~pianistpy.UnphysicalModelError`, which carries the distribution function, or the model without an edge, for
@@ -22,12 +22,12 @@ raises :class:`~pianistpy.AccuracyError` from :math:`\gamma = 1.735` upward.
 
 .. code-block:: python
 
-   pp.Truncation(k_t=0.2)                          # the truncation energy, in internal units
+   pp.Truncation(k_t=0.2)                          # the truncation value k_t, in internal units
    pp.Truncation(mass_t=1.0, concentration=10.0)   # a target mass, in units of M_0 (model units)
    pp.Truncation(r_t=5.0)                          # a target radius, in units of the scale radius
 
 A target mass is given in units of :math:`M_0`, so it needs the concentration that defines :math:`M_0`. A target
-radius or a truncation energy needs no concentration, and a concentration given with ``r_t`` or ``k_t`` raises
+radius or a truncation value needs no concentration, and a concentration given with ``r_t`` or ``k_t`` raises
 :class:`~pianistpy.InputError`.
 
 ``solve(component, truncation)`` runs ``compute_df`` and ``truncate`` in one call. Without a ``Truncation``,
@@ -54,7 +54,7 @@ A Type II model (Osipkov-Merritt or Cuddeford-Osipkov-Merritt) must end inside i
 :math:`R_{\rm a}`, where the model's density :math:`\varrho_{\rm aux} / (1 - R^2/R_{\rm a}^2)`, with
 :math:`\varrho_{\rm aux}` the auxiliary density, has a pole.
 
-- The truncation energy must satisfy :math:`\mathcal{K}_{\rm t} > P(R_{\rm a})`. Where this bound sets ``k_t_min``,
+- The truncation value must satisfy :math:`\mathcal{K}_{\rm t} > P(R_{\rm a})`. Where this bound sets ``k_t_min``,
   ``k_t_min`` is the next floating-point number above :math:`P(R_{\rm a})`.
 - The bound is necessary, not sufficient. The bound keeps inside :math:`R_{\rm a}` the radius at which the
   untruncated potential equals :math:`\mathcal{K}_{\rm t}`, but the truncated model's own edge lies farther out than

@@ -76,6 +76,7 @@ def test_fields_are_declared_typed_and_read_through_the_group():
         "sampling",
         "observables",
         "losvd",
+        "round_trip",
     }
     with pytest.raises(TypeError):
         settings.sampling["n_rows"] = 1
