@@ -50,8 +50,8 @@ truncated profile is held fixed, so the profile and the potential do not change 
 derivative is complete. Other models raise :class:`~pianistpy.InputError`:
 
 - A Method I truncated model. The truncated profile of a Method I model follows from the model's own distribution
-  function, so the truncated profile changes with :math:`\beta_{\rm c}` and :math:`R_{\rm a}`. Ver. 1.0.0 does not
-  compute the derivative of the truncated profile in the anisotropy.
+  function, so the truncated profile changes with :math:`\beta_{\rm c}` and :math:`R_{\rm a}`. As of ver. 1.0.1, the
+  package does not compute the derivative of the truncated profile in the anisotropy.
 - An untruncated model, or a model that is not spatially finite.
 
 The distribution function
