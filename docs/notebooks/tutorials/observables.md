@@ -15,7 +15,7 @@ model = analytic_model("hernquist")
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 `sigma_los` takes projected radii, in the model’s units (internal here: the scale radius is 1).
@@ -38,7 +38,7 @@ pp.sigma_los_aperture(model, circle), pp.sigma_los_aperture(model, slit)
 ```
 
 ```myst
-(0.30288723224579633, 0.30034364264265345)
+(0.3028872322457964, 0.30034364264265345)
 ```
 
 A `LosTable` computes the line-of-sight velocity distributions once and serves every call made from it. Its aperture dispersion is the second moment of the aperture’s velocity distribution, an independent route that agrees with the one from the model.

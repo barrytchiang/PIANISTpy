@@ -28,5 +28,5 @@ pp.Anisotropy(beta_c=-0.25, r_a=10.0)     # COM, Type I by default
 ```
 
 `Component(profile, anisotropy)` joins a density profile and an anisotropy. A `Component` is the input of
-`compute_df()` and `solve()`. In ver. 1.0.0, `compute_df` and `solve` take one
+`compute_df()` and `solve()`. As of ver. 1.0.1, `compute_df` and `solve` take one
 component. Several components in one potential are among the [Upcoming features](https://pianistpy.com/docs/project/upcoming-features).

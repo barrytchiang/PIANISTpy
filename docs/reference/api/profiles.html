@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Density profiles &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Density profiles &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -767,7 +767,7 @@ ignored.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.profiles.ProfileTables">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.profiles.</span></span><span class="sig-name descname"><span class="pre">ProfileTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_p_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_r_all</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mass_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_rho_coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_edge_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_exponent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.ProfileTables" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.profiles.</span></span><span class="sig-name descname"><span class="pre">ProfileTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_p_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_r_all</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_mass_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_rho_coefficients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_edge_row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_last</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_exponent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_amplitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_total_amplitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_slopes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_deficit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inner_deficit_slope</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.profiles.ProfileTables" title="Link to this definition">#</a></dt>
 <dd><p>Arrays from which a JAX function evaluates a <cite>TruncatedProfile</cite>.</p>
 <p>The arrays are the numbers from which <cite>TruncatedProfile.potential</cite>,
 <cite>TruncatedProfile.density</cite>, <cite>TruncatedProfile.mass</cite> and
@@ -802,6 +802,21 @@ where <cite>has_edge_row</cite> is False.</p></li>
 where <cite>has_edge_row</cite> is False.</p></li>
 <li><p><strong>edge_exponent</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – Exponent <span class="math notranslate nohighlight">\(q\)</span> of each component’s density at the edge,
 <span class="nobr"><span class="math notranslate nohighlight">\(\varrho \propto P^q\)</span>.</span> Empty where the model has no edge.</p></li>
+<li><p><strong>inner_amplitude</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – Amplitude <span class="math notranslate nohighlight">\(C\)</span> of each component’s inner density series, read
+from the first node, with which the density continues inside the
+first node (<cite>TruncatedProfile.density</cite>).</p></li>
+<li><p><strong>inner_total_amplitude</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Amplitude of the inner series of the total density, read from the
+enclosed mass at the first node, with which the enclosed mass and
+the potential continue inside the first node.</p></li>
+<li><p><strong>inner_slopes</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>3</em><em>,</em><em>)</em>) – The slopes <span class="math notranslate nohighlight">\((\alpha, \beta, \gamma)\)</span> of the source density.</p></li>
+<li><p><strong>inner_deficit</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>,</em><em>)</em>) – First-order central deficit <span class="math notranslate nohighlight">\(\delta_1\)</span> of each component, the
+amplitude of the density <span class="math notranslate nohighlight">\(\delta_1 R^{-w}\)</span> missing inside the
+first node (<cite>TruncatedProfile</cite>), in internal units; zero where no
+deficit is carried.</p></li>
+<li><p><strong>inner_deficit_slope</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The exponent <span class="math notranslate nohighlight">\(w = 2\beta_{\rm c}\)</span> of the missing density; zero
+where no deficit is carried.</p></li>
+<li><p><strong>p_0</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Central relative potential <span class="nobr"><span class="math notranslate nohighlight">\(P_0\)</span>,</span> in internal units: the first
+node’s potential plus the depth at the first node.</p></li>
 </ul>
 </dd>
 </dl>
@@ -859,7 +874,7 @@ units.</p></li>
 units, the unit of <cite>DoublePowerLaw.mass</cite>, in which the total mass of
 the Hernquist profile is 1. <span class="math notranslate nohighlight">\(4\pi\)</span> times <cite>mass_trunc</cite> is the
 integral of the density over the volume.</p></li>
-<li><p><strong>k_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation energy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> in internal units.</p></li>
+<li><p><strong>k_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation value <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> in internal units.</p></li>
 <li><p><strong>r_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Truncation radius <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>,</span> in internal units. Infinite
 where the model is not spatially finite.</p></li>
 <li><p><strong>mass_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Total mass <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}\)</span>,</span> in internal units. Infinite
@@ -905,15 +920,15 @@ potential reaches zero, 3 for a node filled in at the inner end, 4
 for a node filled in at the outer end, 5 for a closed-form outer
 node and 6 for the edge node. Default: an empty array, which means
 the sources were not recorded.</p></li>
-<li><p><strong>df_k</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – Energies <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> of the DF table of the model the
+<li><p><strong>df_k</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – Values <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> of the DF table of the model the
 profile belongs to, in internal units. A component built on the
 profile (Method II) computes its own DF from the parent’s DF table.
 Default: an empty array, which means the table was not recorded.</p></li>
-<li><p><strong>df_log_f</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – <span class="math notranslate nohighlight">\(\log_{10} F\)</span> at the energies <cite>df_k</cite>, with <span class="math notranslate nohighlight">\(F\)</span> the DF in
+<li><p><strong>df_log_f</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – <span class="math notranslate nohighlight">\(\log_{10} F\)</span> at the nodes <cite>df_k</cite>, with <span class="math notranslate nohighlight">\(F\)</span> the DF in
 internal units. Default: an empty array, which means the table was
 not recorded.</p></li>
 <li><p><strong>df_slope</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_components</em><em>, </em><em>m</em><em>)</em><em>, </em><em>optional</em>) – <span class="math notranslate nohighlight">\(\mathrm{d}\log_{10} F/\mathrm{d}\ln\mathcal{K}\)</span> at the
-energies <cite>df_k</cite>. Default: an empty array, which means the table was
+nodes <cite>df_k</cite>. Default: an empty array, which means the table was
 not recorded.</p></li>
 <li><p><strong>df_taylor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – For each component, the coefficients <span class="math notranslate nohighlight">\((F_1, F_2,
 \mathcal{K}_{\rm s})\)</span> of the model’s DF near the edge:
@@ -963,15 +978,33 @@ equation and the mass integral:</p>
 = \frac{R^3\varrho}{\mathcal{M}},\]</div>
 <p>with <span class="math notranslate nohighlight">\(\varrho\)</span> the total density. The logarithm of each
 component’s density is a cubic spline in <span class="nobr"><span class="math notranslate nohighlight">\(\ln R\)</span>.</span> On the last
-interval of a profile with an edge node, the potential is the Kepler
-form <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\)</span>,</span> and each
+interval of a profile with an edge node, the potential is the point-mass
+(Keplerian) form <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\)</span>,</span> and each
 component’s density is <span class="nobr"><span class="math notranslate nohighlight">\(\varrho_L (P/P_L)^q\)</span>,</span> with
 <span class="math notranslate nohighlight">\(\varrho_L\)</span> and <span class="math notranslate nohighlight">\(P_L\)</span> the values at the last interior node
 and <span class="math notranslate nohighlight">\(q\)</span> from <cite>edge_exponent</cite>. At and beyond <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>,</span> the
 relative potential and the density are zero, and the enclosed mass is
-<span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}\)</span>.</span> Inside the first node, and beyond the last
-node of a profile without an edge node, <span class="math notranslate nohighlight">\(P\)</span> and
-<span class="math notranslate nohighlight">\(\mathcal{M}\)</span> continue as the power laws of the end nodes.</p>
+<span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}\)</span>.</span> Beyond the last node of a profile without
+an edge node, <span class="math notranslate nohighlight">\(P\)</span> and <span class="math notranslate nohighlight">\(\mathcal{M}\)</span> continue as the power
+laws of the last node.</p>
+<p>Inside the first node, the three columns continue as the inner series
+of the source density, the forms with which the Poisson solver laid the
+innermost nodes (Notes Section T:3.4), lowered by the first-order term
+of the central deficit where the model carries one: each component’s
+density is <span class="nobr"><span class="math notranslate nohighlight">\(C R^{-\gamma} (1 + R^{\alpha})^{(\gamma - \beta)/\alpha}
+- \delta_1 R^{-2\beta_{\rm c}}\)</span>,</span> with <span class="math notranslate nohighlight">\(\delta_1 = D_0 / (1 +
+\kappa)\)</span> the component’s first-order central deficit <span class="nobr">(<span class="math notranslate nohighlight">\(D_0\)</span></span> from
+<cite>central_deficit</cite>, <span class="math notranslate nohighlight">\(\kappa\)</span> as <cite>pianistpy.df.center.lowered_center</cite>
+states it) on a cusp with <span class="nobr"><span class="math notranslate nohighlight">\(2\beta_{\rm c} \le \gamma\)</span>,</span> zero
+otherwise, and the amplitude <span class="math notranslate nohighlight">\(C\)</span> read from the component’s density
+at the first node; the enclosed mass and the depth <span class="math notranslate nohighlight">\(P_0 - P\)</span> are
+the first four terms of the series integrated less the deficit’s term
+integrated, with the total amplitude read from the enclosed mass at the
+first node; and <span class="math notranslate nohighlight">\(P_0\)</span> is the first node’s potential plus the depth
+at the first node, so that every column is continuous at the first node.
+The deficit’s higher orders enter the amplitudes read at the first node
+and, relative to the density, fall inward as <span class="nobr"><span class="math notranslate nohighlight">\(R^{2(\gamma -
+2\beta_{\rm c})}\)</span>;</span> they are not carried.</p>
 <p class="rubric">References</p>
 <p>Notes Section T:1.3.</p>
 <p class="rubric">Examples</p>
@@ -1022,7 +1055,8 @@ differentiable in the arrays.</p>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>tables</strong> – The logarithms of the potential and of the mass and their slopes
 at the nodes, the coefficients of each component’s density
-spline, and the values at the last interior node and at the edge.</p>
+spline, the values at the last interior node and at the edge,
+and the inner series’ amplitudes, slopes and central potential.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#pianistpy.profiles.ProfileTables" title="pianistpy.profiles.ProfileTables">ProfileTables</a></p>
@@ -1068,8 +1102,10 @@ spline, and the values at the last interior node and at the edge.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>p</strong> – Relative potential <span class="math notranslate nohighlight">\(P(R)\)</span> in internal units, with the
 shape of <cite>r</cite>. For a profile with an edge node, <span class="math notranslate nohighlight">\(P\)</span> is the
-Kepler form <span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\)</span> beyond
-the last interior node and zero at and beyond <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>.</span></p>
+point-mass form <span class="math notranslate nohighlight">\(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\)</span> beyond
+the last interior node and zero at and beyond <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>.</span>
+Inside the first node, <span class="math notranslate nohighlight">\(P\)</span> is <span class="math notranslate nohighlight">\(P_0\)</span> less the inner
+series’ depth (see the class notes).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray</p>
@@ -1116,7 +1152,9 @@ the last interior node and zero at and beyond <span class="nobr"><span class="ma
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>rho</strong> – Density of each component in internal units. For a profile with
 an edge node, the density is zero at and beyond
-<span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>.</span></p>
+<span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>.</span> Inside the first node, the density is the
+inner series with the amplitude read from the first node (see
+the class notes).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray, shape (n_components, m)</p>
@@ -1165,7 +1203,9 @@ an edge node, the density is zero at and beyond
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>mass</strong> – Enclosed mass <span class="math notranslate nohighlight">\(\mathcal{M}(R)\)</span> in internal units (the unit
 of <cite>mass_trunc</cite>), with the shape of <cite>r</cite>. For a spatially finite
-profile, the mass is <cite>mass_t</cite> at and beyond <cite>r_t</cite>.</p>
+profile, the mass is <cite>mass_t</cite> at and beyond <cite>r_t</cite>. Inside the
+first node, the mass is the inner series’ enclosed mass (see the
+class notes).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ndarray</p>
@@ -1314,8 +1354,10 @@ of <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>)
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>p</strong> (<em>array-like</em>) – User-specified relative potentials <span class="nobr"><span class="math notranslate nohighlight">\(P\)</span>,</span> in internal units,
-at most <cite>p_trunc</cite> at the first node. For a profile with an edge
-node, a value of zero or below gives <cite>r_t</cite>. For a profile
+below the central potential <span class="math notranslate nohighlight">\(P_0\)</span> (<cite>ProfileTables.p_0</cite>).
+Above <cite>p_trunc</cite> at the first node, the radius comes from the
+inner series’ depth (see the class notes). For a profile with an
+edge node, a value of zero or below gives <cite>r_t</cite>. For a profile
 without an edge node, a value of zero or below gives the radius
 of the last node.</p>
 </dd>
@@ -1327,7 +1369,7 @@ of the last node.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a value of <cite>p</cite> is above <cite>p_trunc</cite> at the first node.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a value of <cite>p</cite> is at or above the central potential.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the potential at an interior node is not positive.</p></li>
 </ul>
 </dd>

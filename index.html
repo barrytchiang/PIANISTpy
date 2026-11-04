@@ -72,7 +72,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href=".">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -86,7 +86,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
 </li>
 <li class="toctree-l1"><a class="reference internal" href="docs/guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="docs/guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="docs/guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docs/guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docs/guide/units">Units</a></li>
@@ -177,7 +177,7 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
       <li><a href="docs/guide/anisotropy"><b>Velocity anisotropy.</b></a> Isotropic, constant-anisotropy, Osipkov-Merritt and Cuddeford-Osipkov-Merritt (COM) models. The Osipkov-Merritt and COM models are radially (Type I) or tangentially (Type II) biased.</li>
       <li><a href="docs/guide/df"><b>Distribution functions.</b></a> Each anisotropy model’s distribution function, inverted from the input density with exact symbolic expressions up to the final numerical integration, with extensively validated numerical accuracy (<a class="reference internal" href="docs/reference/accuracy"><span class="doc">Accuracy tables</span></a>) and checks that the distribution function is non-negative (physical) and monotonic (a sufficient condition for dynamical stability).</li>
       <li><a href="docs/guide/truncation"><b>Truncation in phase space.</b></a> Model truncation performed in phase space. The truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model’s anisotropy profile, and Method II gives different anisotropy models an identical truncated density.</li>
-      <li><a href="docs/guide/particles"><b>Particles.</b></a> Particle initial conditions drawn from the truncated distribution function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or physical units.</li>
+      <li><a href="docs/guide/particles"><b>Particle sampling.</b></a> Particle initial conditions drawn from the truncated distribution function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or physical units.</li>
       <li><a href="docs/guide/observables"><b>Observables.</b></a> Radial, tangential and line-of-sight velocity dispersions, line-of-sight velocity distributions and their Gauss-Hermite moments, and the local velocity distribution at a 3D radius. Projected quantities are averaged over centered or offset circular and rectangular apertures.</li>
       <li><a href="docs/guide/superposition#guide-superposition"><b>Superposition.</b></a> Distribution functions of different anisotropy models on one truncated density, linearly superposed into one equilibrium model. The superposed model’s anisotropy profile can differ from every analytical family, for example an anisotropy profile fitted to simulated halos.</li>
       <li><a href="docs/guide/superposition#guide-inference"><b>Inference.</b></a> End-to-end differentiable in JAX: the likelihood of a model against kinematic data, with gradients in the superposition weights, the mass and length scales (<em>M</em><sub>0</sub> and <em>r</em><sub>0</sub>) and, for Method II components, the anisotropy parameters, for gradient-based Monte Carlo inference.</li>
@@ -185,8 +185,9 @@ footer{margin-top:48px;border-top:1px solid var(--line);padding:18px 0 28px;colo
   </section>
 
   <section id="releases">
-    <h2>Release notes (ver. 1.0.0)</h2>
-    <p><b>Ver. 1.0.0</b> is the initial public release of PIANISTpy, described in <a href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758</a>, henceforth <a href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. Ver. 1.0.0 provides the distribution functions and their truncation, particle sampling with draws restricted to a user-specified range of radii or velocities, the observables (<code>sigma_r</code>, <code>sigma_t</code>, <code>sigma_los</code>, <code>losvd</code>, <code>aperture_losvd</code>, <code>pdf_v</code>), a report of the numerical accuracy with every result, and gradients in the superposition weights, the mass and length scales and, for Method II components, the anisotropy parameters. Ver. 1.0.0 runs on the CPU and, with a CUDA build of JAX under Linux, on the GPU. The dependencies, standard and minimum, are listed on the <a href="docs/start/install">Install</a> page.</p>
+    <h2>Release notes (ver. 1.0.1)</h2>
+    <p><b>Ver. 1.0.1</b> adds <code>DistributionFunction.evaluate</code>, the distribution function at given values of the energy-like variable, and <code>round_trip</code>, the density and potential that a distribution function generates, compared with the analytic density as in <a href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang, van den Bosch and Schive (2026d), MNRAS submitted, arXiv:2610.28758</a>, henceforth <a href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. The profile of a model now continues inside its innermost tabulated radius by the inner series of its input density, and the energy-like variable is named by its symbol where ver. 1.0.0 wrote "energy"; former names are accepted through ver. 1.0.x.</p>
+    <p><b>Ver. 1.0.0</b> is the initial public release of PIANISTpy, described in <a href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. Ver. 1.0.0 provides the distribution functions and their truncation, particle sampling with draws restricted to a user-specified range of radii or velocities, the observables (<code>sigma_r</code>, <code>sigma_t</code>, <code>sigma_los</code>, <code>losvd</code>, <code>aperture_losvd</code>, <code>pdf_v</code>), a report of the numerical accuracy with every result, and gradients in the superposition weights, the mass and length scales and, for Method II components, the anisotropy parameters. Ver. 1.0.0 runs on the CPU and, with a CUDA build of JAX under Linux, on the GPU. The dependencies, standard and minimum, are listed on the <a href="docs/start/install">Install</a> page.</p>
     <p><a href="docs/project/release-notes">Release notes &rarr;</a></p>
   </section>
 

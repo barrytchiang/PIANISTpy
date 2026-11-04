@@ -50,6 +50,15 @@ amplitude = 3.0 / (4.0 * np.pi * np.sqrt(2.0) * beta(4.5, 1.5))
 df = pp.DistributionFunction.from_function(plummer, lambda k, depth: amplitude * k**3.5)
 ```
 
+`DistributionFunction.evaluate(k)` returns the distribution function at given values of \(\mathcal{K}\), in the
+unit system of the result, through the package’s own lookup of the table and of its asymptotic forms. The optional
+`depth`, \(P_0 - \mathcal{K}\) held to full precision, serves values near the center. A distribution function
+that is negative somewhere raises `ResultError`.
+
+```python
+df.evaluate([0.1, 0.5, 0.9])                 # F(K) at three values of K, internal units
+```
+
 A `DistributionFunction` holds:
 
 - the distribution function tabulated on its \(\mathcal{K}\) grid, with its logarithmic slope;
@@ -66,3 +75,24 @@ distribution function beyond the table;
 A result can be written to a file and read back equal ([Input and output](https://pianistpy.com/docs/guide/input-output)). Only a `Model` can be
 sampled or projected, and `truncate` builds the model from a distribution function
 ([Truncation in phase space](https://pianistpy.com/docs/guide/truncation)).
+
+## Round trip
+
+`pianistpy.round_trip()`, `pianistpy.RoundTrip`
+
+`round_trip(df, radii=None, settings=None)` returns a `RoundTrip`: the density that the
+distribution function gives, by the package’s own quadrature; the potential that this density generates, by Poisson’s
+equation; and the relative difference between the density read at that potential and the analytic density, at each
+radius of `radii` (by default the grid of the settings group `round_trip`). The steps are the same for a
+distribution function from `compute_df` and from `from_function`, so a fitting function is compared with the
+inverted distribution function on equal terms, as in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). `round_trip` takes an untruncated distribution
+function of one component on an analytic profile; a Method II or a Type II distribution function raises
+`InputError`, and a negative one `ResultError`. The result also holds the
+residual of the potential, the enclosed mass, the closure before Poisson’s equation and the two accuracy budgets, and
+can be written to a file and read back ([Input and output](https://pianistpy.com/docs/guide/input-output)).
+
+```python
+df = pp.compute_df(pp.Component(pp.DoublePowerLaw.nfw()))
+trip = pp.round_trip(df, radii=[0.1, 1.0, 10.0])
+trip.error                                    # relative difference of the density at each radius
+```

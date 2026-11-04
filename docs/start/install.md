@@ -92,7 +92,7 @@ Optimistix
 
 By default, pip installs the newest version of each dependency that PIANISTpy allows. The newest allowed version can
 differ from the Standard version, the version of the tested environment. To reproduce the tested environment, install
-each dependency at its Standard version, for example `pip install "jax==0.9.2"`. In ver. 1.0.0, PIANISTpy requires a
+each dependency at its Standard version, for example `pip install "jax==0.9.2"`. As of ver. 1.0.1, PIANISTpy requires a
 JAX version below 0.10.2.
 
 ## CPU and GPU

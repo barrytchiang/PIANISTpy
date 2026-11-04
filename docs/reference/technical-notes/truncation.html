@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:3 Phase-space truncation &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>T:3 Phase-space truncation &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -343,7 +343,7 @@
 </section>
 <section id="t-3-4-completing-the-profile-at-the-center-and-at-the-truncation-boundary">
 <span id="tn-sec-fills"></span><h2>T:3.4 Completing the profile at the center and at the truncation boundary<a class="headerlink" href="#t-3-4-completing-the-profile-at-the-center-and-at-the-truncation-boundary" title="Link to this heading">#</a></h2>
-<p>The solver’s rows are sparse where the potential approaches the floor and where it approaches the center, so both ends are filled to the row density of the profile: at least a stated number of rows per decade of the potential and of the depth, in bins of a stated width, over the profile’s own span. The inner end is the inner series of <a class="reference internal" href="model#tn-sec-series"><span class="std std-ref">Section T:1.2.2</span></a>, lowered by the central deficit where the model carries one, out to the join radius (on a lowered model, moved inward to where the series and the solver’s rows agree); between that join and the threshold of the fill, the solver’s own interpolation is used. The outer end takes the radius by a log-log interpolation of the solver’s rows in the potential and the density likewise down to a fixed anchor, <span class="nobr"><span class="math notranslate nohighlight">\(3.6\times10^{-7}P_0\)</span>,</span> below which the density follows the power law of the two rows above the anchor and, below the Taylor switch, the closed form of the edge. The profile keeps every filled row that is finite, with positive density and the potential at or above the floor, the inner series rows inside the solver’s first radius included; a finitely truncated model ends with one edge row at <span class="nobr"><span class="math notranslate nohighlight">\(\Phi = 0\)</span>,</span> at the radius where the Kepler exterior of its last row reaches zero; a profile that reaches no edge is read to its last row.</p>
+<p>The solver’s rows are sparse where the potential approaches the floor and where it approaches the center, so both ends are filled to the row density of the profile: at least a stated number of rows per decade of the potential and of the depth, in bins of a stated width, over the profile’s own span. The inner end is the inner series of <a class="reference internal" href="model#tn-sec-series"><span class="std std-ref">Section T:1.2.2</span></a>, less the density that the truncation removes near the center <span class="nobr">(<span class="math notranslate nohighlight">\(\propto R^{-2\beta_\mathrm{c}}\)</span></span> at leading order, for a cusp with <span class="nobr"><span class="math notranslate nohighlight">\(2\beta_\mathrm{c} \le \gamma\)</span>),</span> out to the join radius (on a model with that term, moved inward to where the series and the solver’s rows agree); between that join and the threshold of the fill, the solver’s own interpolation is used. The outer end takes the radius by a log-log interpolation of the solver’s rows in the potential and the density likewise down to a fixed anchor, <span class="nobr"><span class="math notranslate nohighlight">\(3.6\times10^{-7}P_0\)</span>,</span> below which the density follows the power law of the two rows above the anchor and, below the Taylor switch, the closed form of the edge. The profile keeps every filled row that is finite, with positive density and the potential at or above the floor, the inner series rows inside the solver’s first radius included; a finitely truncated model ends with one edge row at <span class="nobr"><span class="math notranslate nohighlight">\(\Phi = 0\)</span>,</span> at the radius where the Kepler exterior of its last row reaches zero; a profile that reaches no edge is read to its last row.</p>
 </section>
 <section id="t-3-5-the-lowest-admissible-truncation-value">
 <span id="tn-sec-gate"></span><h2>T:3.5 The lowest admissible truncation value<a class="headerlink" href="#t-3-5-the-lowest-admissible-truncation-value" title="Link to this heading">#</a></h2>

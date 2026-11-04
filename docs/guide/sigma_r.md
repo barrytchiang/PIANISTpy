@@ -15,7 +15,7 @@ fixed radius. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(\sigma
 
 For the anisotropy models of the package, the augmented density separates as
 \(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\), with \(\varrho_{\rm aux}\) the auxiliary density
-and \(g\) the anisotropy factor (`Anisotropy.factor`). \(\sigma_{\rm r}^2\) is then the Jeans integral of
+and \(g\) the anisotropy factor (`Anisotropy.factor`). \(\sigma_{\rm r}^2\) is then the dispersion integral of
 \(\varrho_{\rm aux}\) over the potential. The radius \(R\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) is `r` in the package.
 
 ## Arguments and units

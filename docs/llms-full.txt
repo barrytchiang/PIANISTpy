@@ -1,4 +1,4 @@
-# PIANISTpy ver. 1.0.0: the manual as one text file
+# PIANISTpy ver. 1.0.1: the manual as one text file
 
 Every page of https://pianistpy.com/docs/ as markdown, in the manual's reading order (the order of the tabs and their menus). Each page opens with its title and its address; a line of three dashes separates the pages.
 
@@ -25,7 +25,7 @@ non-negative (physical) and monotonic (a sufficient condition for dynamical stab
 truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model’s anisotropy
 profile, and Method II gives different anisotropy models an identical truncated density.
 
-- [Particles.](https://pianistpy.com/docs/guide/particles) Particle initial conditions drawn from the truncated distribution
+- [Particle sampling.](https://pianistpy.com/docs/guide/particles) Particle initial conditions drawn from the truncated distribution
 function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or
 physical units.
 
@@ -138,7 +138,7 @@ Optimistix
 
 By default, pip installs the newest version of each dependency that PIANISTpy allows. The newest allowed version can
 differ from the Standard version, the version of the tested environment. To reproduce the tested environment, install
-each dependency at its Standard version, for example `pip install "jax==0.9.2"`. In ver. 1.0.0, PIANISTpy requires a
+each dependency at its Standard version, for example `pip install "jax==0.9.2"`. As of ver. 1.0.1, PIANISTpy requires a
 JAX version below 0.10.2.
 
 ## CPU and GPU
@@ -408,7 +408,7 @@ that class or function on the [Functions by subpackage](https://pianistpy.com/do
 
 - [Models](https://pianistpy.com/docs/guide/models)
 
-- [Particles (Sampler)](https://pianistpy.com/docs/guide/particles)
+- [Particle sampling (Sampler)](https://pianistpy.com/docs/guide/particles)
 
 - [Observables](https://pianistpy.com/docs/guide/observables)
 
@@ -478,7 +478,7 @@ and the relative potential in closed form.
 
 A component (`pianistpy.Component`) of a model is a density profile together with a velocity anisotropy
 ([Velocity anisotropy](https://pianistpy.com/docs/guide/anisotropy)). The density profile of a component needs an outer slope
-\(\beta \geq 3\). In ver. 1.0.0, a component whose profile has \(2 < \beta < 3\) raises
+\(\beta \geq 3\). As of ver. 1.0.1, a component whose profile has \(2 < \beta < 3\) raises
 `InputError`, with a message that begins `OUTER SLOPE`.
 
 
@@ -514,7 +514,7 @@ pp.Anisotropy(beta_c=-0.25, r_a=10.0)     # COM, Type I by default
 ```
 
 `Component(profile, anisotropy)` joins a density profile and an anisotropy. A `Component` is the input of
-`compute_df()` and `solve()`. In ver. 1.0.0, `compute_df` and `solve` take one
+`compute_df()` and `solve()`. As of ver. 1.0.1, `compute_df` and `solve` take one
 component. Several components in one potential are among the [Upcoming features](https://pianistpy.com/docs/project/upcoming-features).
 
 
@@ -572,6 +572,15 @@ amplitude = 3.0 / (4.0 * np.pi * np.sqrt(2.0) * beta(4.5, 1.5))
 df = pp.DistributionFunction.from_function(plummer, lambda k, depth: amplitude * k**3.5)
 ```
 
+`DistributionFunction.evaluate(k)` returns the distribution function at given values of \(\mathcal{K}\), in the
+unit system of the result, through the package’s own lookup of the table and of its asymptotic forms. The optional
+`depth`, \(P_0 - \mathcal{K}\) held to full precision, serves values near the center. A distribution function
+that is negative somewhere raises `ResultError`.
+
+```python
+df.evaluate([0.1, 0.5, 0.9])                 # F(K) at three values of K, internal units
+```
+
 A `DistributionFunction` holds:
 
 - the distribution function tabulated on its \(\mathcal{K}\) grid, with its logarithmic slope;
@@ -588,6 +597,27 @@ distribution function beyond the table;
 A result can be written to a file and read back equal ([Input and output](https://pianistpy.com/docs/guide/input-output)). Only a `Model` can be
 sampled or projected, and `truncate` builds the model from a distribution function
 ([Truncation in phase space](https://pianistpy.com/docs/guide/truncation)).
+
+## Round trip
+
+`pianistpy.round_trip()`, `pianistpy.RoundTrip`
+
+`round_trip(df, radii=None, settings=None)` returns a `RoundTrip`: the density that the
+distribution function gives, by the package’s own quadrature; the potential that this density generates, by Poisson’s
+equation; and the relative difference between the density read at that potential and the analytic density, at each
+radius of `radii` (by default the grid of the settings group `round_trip`). The steps are the same for a
+distribution function from `compute_df` and from `from_function`, so a fitting function is compared with the
+inverted distribution function on equal terms, as in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). `round_trip` takes an untruncated distribution
+function of one component on an analytic profile; a Method II or a Type II distribution function raises
+`InputError`, and a negative one `ResultError`. The result also holds the
+residual of the potential, the enclosed mass, the closure before Poisson’s equation and the two accuracy budgets, and
+can be written to a file and read back ([Input and output](https://pianistpy.com/docs/guide/input-output)).
+
+```python
+df = pp.compute_df(pp.Component(pp.DoublePowerLaw.nfw()))
+trip = pp.round_trip(df, radii=[0.1, 1.0, 10.0])
+trip.error                                    # relative difference of the density at each radius
+```
 
 
 ---
@@ -702,7 +732,7 @@ The [Technical notes](https://pianistpy.com/docs/reference/notes) derive the con
 
 ---
 
-# Particles
+# Particle sampling
 
 Source: https://pianistpy.com/docs/guide/particles
 
@@ -971,7 +1001,7 @@ fixed radius. As in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), \(\sigma
 
 For the anisotropy models of the package, the augmented density separates as
 \(\varrho_{\rm aug}(P, R) = \varrho_{\rm aux}(P)\,g(R)\), with \(\varrho_{\rm aux}\) the auxiliary density
-and \(g\) the anisotropy factor (`Anisotropy.factor`). \(\sigma_{\rm r}^2\) is then the Jeans integral of
+and \(g\) the anisotropy factor (`Anisotropy.factor`). \(\sigma_{\rm r}^2\) is then the dispersion integral of
 \(\varrho_{\rm aux}\) over the potential. The radius \(R\) of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758) is `r` in the package.
 
 ## Arguments and units
@@ -1508,7 +1538,7 @@ The following cases raise `InputError`:
 - COM Type II. The COM Type II inversion has an interior point at the potential \(P(R_{\rm a})\), which moves
 with both \(R_{\rm a}\) and \(\beta_{\rm c}\), so the derivative is not integrable at \(P(R_{\rm a})\).
 The log-likelihood of `"sigma_los"` and `"sigma_los_aperture"` data still has a derivative in the anisotropy
-of a free COM Type II component, computed from the Jeans equation. `Differentiable` raises
+of a free COM Type II component, computed from the dispersion integral. `Differentiable` raises
 `InputError` for a COM Type II component. The distribution function of a COM Type II component
 and the observables read from the distribution function (`losvd`, `aperture_losvd`, `pdf_v`) have no
 derivative.
@@ -1543,7 +1573,7 @@ The derivative of the distribution function is available in two forms:
 every array of the table: the rows (`log_df`, `log_df_slope`), the nodes below the table’s first node
 (`log_df_below`, `log_df_slope_below`), the closed form at the center (`central`) and the tail (`tail`).
 For a Method II component, the arrays are the rows (`log_df`), the power law at the lowest values of \(\mathcal{K}\)
-(`edge_law`) and the closed form at the center (`center`).
+(`boundary_form`) and the closed form at the center (`center`).
 
 `make_inversion_rows` and `make_inversion_table` each return a JAX function of the anisotropy parameters, the
 names of the parameters (`params`), and the values of \(\mathcal{K}\) or the table at the component’s own parameters. The value of
@@ -1657,7 +1687,7 @@ zero. For an Osipkov-Merritt component, the gradient of `losvd`, `aperture_losvd
 \(\beta_{\rm c}\) is NaN. An Osipkov-Merritt component has \(\beta_{\rm c} = 0\), where the form of the
 inversion changes and the derivatives of the distribution function from the two sides of \(\beta_{\rm c} = 0\)
 differ by more than \(10^{-6}\). For an Osipkov-Merritt component, `sigma_r`, `sigma_t`, `sigma_los` and
-`sigma_los_aperture` carry the derivative in \(\beta_{\rm c}\), computed from the Jeans equation.
+`sigma_los_aperture` carry the derivative in \(\beta_{\rm c}\), computed from the dispersion integral.
 
 The constructor raises `InputError`, with a message that states the cause, for:
 
@@ -1922,7 +1952,7 @@ exponent and says the model is a valid equilibrium of finite density whose stabi
 
 ## One component
 
-In ver. 1.0.0, `compute_df` and `solve` take one `Component` and raise `InputError` for a
+As of ver. 1.0.1, `compute_df` and `solve` take one `Component` and raise `InputError` for a
 sequence of more than one `Component`. A model of several components comes only from `superpose`, which
 combines models that share one truncated density and potential. Several components with different density
 profiles in one potential, and tracer populations in a fixed potential, are on the
@@ -2054,7 +2084,7 @@ model.spatially_finite, model.validation.tier
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```myst
@@ -2128,7 +2158,7 @@ model = analytic_model("hernquist")
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 `sigma_los` takes projected radii, in the model’s units (internal here: the scale radius is 1).
@@ -2151,7 +2181,7 @@ pp.sigma_los_aperture(model, circle), pp.sigma_los_aperture(model, slit)
 ```
 
 ```myst
-(0.30288723224579633, 0.30034364264265345)
+(0.3028872322457964, 0.30034364264265345)
 ```
 
 A `LosTable` computes the line-of-sight velocity distributions once and serves every call made from it. Its aperture dispersion is the second moment of the aperture’s velocity distribution, an independent route that agrees with the one from the model.
@@ -2347,8 +2377,8 @@ import warnings
 
 import pianistpy as pp
 
-# The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.
-PIANISTPY_PIN = "1.0.0"
+# The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.
+PIANISTPY_PIN = "1.0.1"
 print(f"pianistpy {pp.__version__}")
 if pp.__version__ != PIANISTPY_PIN:
     raise RuntimeError(
@@ -2385,7 +2415,7 @@ def tier_line(label, result):
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ## The models
@@ -2847,7 +2877,7 @@ The three PDFs written here were compared with the paper’s files, page by page
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig07
 
-This notebook makes Figure 7 of the paper with the script that made the arXiv figure, unchanged except for the lines that read its data, which here are the package’s ver. 1.0.0 calls. Every changed line is marked `[1.0.0]`.
+This notebook makes Figure 7 of the paper with the script that made the arXiv figure, unchanged except for the lines that read its data, which here are the package’s ver. 1.0.1 calls. Every changed line is marked `[1.0.1]`.
 
 - Top panel: \(\beta_\sigma(R)\) of three superpositions of Method II members on the NFW halo truncated at \(k_{\rm t} = 0.1650\) (Method I, isotropic), each curve by `pp.sigma_r` and `pp.sigma_t` of `pp.superpose`; the points: \(10^7\) particles of each superposition by `pp.Sampler` with the example’s seed (2908, 2907, 2907), binned as the arXiv figure’s points (one bin below \(10^{-2}\), 0.1 dex steps anchored at the truncation radius, the outermost 500 particles as the last bin, 1000 bootstrap resamples).
 
@@ -2866,8 +2896,8 @@ import warnings
 
 import pianistpy as pp
 
-# The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.
-PIANISTPY_PIN = "1.0.0"
+# The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.
+PIANISTPY_PIN = "1.0.1"
 print(f"pianistpy {pp.__version__}")
 if pp.__version__ != PIANISTPY_PIN:
     raise RuntimeError(
@@ -2904,14 +2934,14 @@ def tier_line(label, result):
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```ipython3
 import numpy as np
 import pianistpy as pp
 
-Z_T = 0.16502882092587715  # the truncation energy k_t of the figure's NFW halo
+Z_T = 0.16502882092587715  # the truncation value k_t of the figure's NFW halo
 
 truncated = pp.solve(
     pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy()), pp.Truncation(k_t=Z_T)
@@ -2988,7 +3018,7 @@ for name, model in composites.items():
 
 ## The particles of the top panel
 
-The binning of the script that made the arXiv figure’s points (its part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
+The binning of the script that made the arXiv figure’s points (its part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.1]`).
 
 ```ipython3
 import hashlib
@@ -3011,7 +3041,7 @@ def beta_of(kind, bc, ra, R):
     x = (R / ra) ** 2 if ra else 0.0
     return {"const": bc + 0 * R, "OMI": x / (1 + x), "COMI": (bc + x) / (1 + x), "COMII": (bc - x) / (1 - x)}[kind]
 
-# [1.0.0] each member's anisotropy, as the model cells above build it
+# [1.0.1] each member's anisotropy, as the model cells above build it
 MEM_KW = {"bp050": dict(beta_c=0.5), "bp010": dict(beta_c=0.1), "bm020": dict(beta_c=-0.2), "bm040": dict(beta_c=-0.4),
           "OMI_Ra1": dict(r_a=1.0, kind="I"), "OMI_Ra10": dict(r_a=10.0, kind="I"), "bp020": dict(beta_c=0.2),
           "COMI": dict(beta_c=-0.3, r_a=4.0, kind="I"), "COMII": dict(beta_c=-0.1, r_a=40.0, kind="II")}
@@ -3022,12 +3052,12 @@ def beta_of(kind, bc, ra, R):
 
 # (3) the particle points, binned as in the arXiv figure
 KEY = {"E1": 2908, "E2": 2907, "E3": 2907}
-EX = {"E1": "Example 1", "E2": "Example 2", "E3": "Example 3"}   # [1.0.0]
-N_DRAW = 10_000_000   # [1.0.0] the arXiv draws: N_i = w_i 1e7 a member, 1e7 an example
-PLOT = "."   # [1.0.0] this notebook's folder
-top_samplers = {}   # [1.0.0] for the tier summary
+EX = {"E1": "Example 1", "E2": "Example 2", "E3": "Example 3"}   # [1.0.1]
+N_DRAW = 10_000_000   # [1.0.1] the arXiv draws: N_i = w_i 1e7 a member, 1e7 an example
+PLOT = "."   # [1.0.1] this notebook's folder
+top_samplers = {}   # [1.0.1] for the tier summary
 
-RT = R_T   # [1.0.0] the Method I model's truncation radius (cell above)
+RT = R_T   # [1.0.1] the Method I model's truncation radius (cell above)
 # fixed edges, the same for E1, E2, E3: one bin below 10^-2, then 0.1 dex steps R_t 10^(-0.1 k), k = 33 .. 0
 EDGES = np.r_[0.0, 10 ** -2.0, RT * 10 ** (-0.1 * np.arange(33, -1, -1))]   # [v4] 0.1 dex anchored at R_t (last edge R_t)
 NAMES = {"E1": "BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w0.250__const_beta_beta_c-0.2_w0.250"
@@ -3036,7 +3066,7 @@ NAMES = {"E1": "BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_
          "E3": "BetaSigma_Particle_E3.txt"}
 
 def particles(ex):
-    # [1.0.0] one draw of the example's superposition with the example's seed replaces the members' stored particle files: the
+    # [1.0.1] one draw of the example's superposition with the example's seed replaces the members' stored particle files: the
     # Sampler keys each particle by seed, component and index, so the members of one draw are independent streams, as the
     # arXiv draws were through their stored products; the components take the weights as their shares of the 1e7
     s_ = pp.Sampler(composites[EX[ex]])
@@ -3076,7 +3106,7 @@ def bin_beta(ex):
         idx = np.flatnonzero(bi == i)
         out.append((np.exp(np.log(r[idx]).mean()), *boot(idx), len(idx), E[i], E[i + 1]))
     out = np.array(out)
-    with open(os.path.join(PLOT, NAMES[ex]), "w") as f:   # [1.0.0] "w": a rerun in place
+    with open(os.path.join(PLOT, NAMES[ex]), "w") as f:   # [1.0.1] "w": a rerun in place
         f.write(f"Beta_sigma from particles | Example {ex[1]}, the superposition of this file's name | {len(r):e} particles, seed "
                 f"{KEY[ex]} | columns: radius, beta_sigma, its bootstrap 1-sigma error, particles in the bin, the bin's "
                 f"edges R_lo and R_hi\n" + "-" * 100 + "\n")
@@ -3086,7 +3116,7 @@ def bin_beta(ex):
             f.write(f"{row[0]:<40.14e}{row[1]:<40.14e}{row[2]:<40.14e}{int(row[3]):<40d}{row[4]:<40.14e}{row[5]:<40.14e}\n")
     return ex, len(r), out, dig
 
-res = [bin_beta(ex) for ex in ("E1", "E2", "E3")]   # [1.0.0] in turn: the draws are held in memory, not files
+res = [bin_beta(ex) for ex in ("E1", "E2", "E3")]   # [1.0.1] in turn: the draws are held in memory, not files
 for ex, n, out, dig in res:
     pred = []
     for lo, hi in out[:, 4:6]:
@@ -3095,7 +3125,7 @@ for ex, n, out, dig in res:
         for tag, (e, w, kind, bc, ra, d) in MEM.items():
             if e != ex:
                 continue
-            q = np.asarray(pp.sigma_r(member(MEM_KW[tag]), R)) ** 2 * np.sum(np.atleast_2d(truncated.profile.density(R)), axis=0) * R * R   # [1.0.0] rho sigma_r^2 by the package
+            q = np.asarray(pp.sigma_r(member(MEM_KW[tag]), R)) ** 2 * np.sum(np.atleast_2d(truncated.profile.density(R)), axis=0) * R * R   # [1.0.1] rho sigma_r^2 by the package
             num = num + w * np.trapezoid((1 - beta_of(kind, bc, ra, R)) * q, R)
             den = den + w * np.trapezoid(q, R)
         pred.append(1 - num / den)
@@ -3298,8 +3328,8 @@ for name, model in fits.items():
 ```
 
 ```myst
-ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 529 s
-He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 238 s
+ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 536 s
+He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 236 s
 ```
 
 ```ipython3
@@ -3316,10 +3346,10 @@ He+24                              tier warned    worst check row_error 5.49e-03
 
 ## The figure
 
-The arXiv figure’s script, with its data-reading lines replaced (marked `[1.0.0]`).
+The arXiv figure’s script, with its data-reading lines replaced (marked `[1.0.1]`).
 
 ```ipython3
-# [1.0.0] the two fits and their realizations in the forms the plot script reads (its npz and its particle tables)
+# [1.0.1] the two fits and their realizations in the forms the plot script reads (its npz and its particle tables)
 FIT_NAME = {"ml05": "ML05b", "he24": "He+24"}
 FIT_Z = {}
 for delta, name in FIT_NAME.items():
@@ -3651,7 +3681,7 @@ beta_all = np.concatenate(
     + [pbeta for _, pbeta, _, _ in particle_profiles]
 )
 y_lo = min(beta_all.min(), -0.1) - 0.08
-y_hi = 0.7880   # [1.0.0] the arXiv figure's limit (its draw's outermost point 0.7080 + 0.08): a new draw's outermost point differs by sampling noise
+y_hi = 0.7880   # [1.0.1] the arXiv figure's limit (its draw's outermost point 0.7080 + 0.08): a new draw's outermost point differs by sampling noise
 ax.set_ylim(y_lo, y_hi)
 
 # =============================================================================
@@ -3703,7 +3733,7 @@ ax.tick_params(
 # the bottom panel: the fits of record, their targets, He et al.'s points, the particles
 # =============================================================================
 
-FITDIR, FITPRE, NBDIR, OUTSTEM = None, None, "1.0.0", "BetaProfiles_AllModels_Superposed"   # [1.0.0] the fits and draws of the cells above   # He et al.'s points dropped
+FITDIR, FITPRE, NBDIR, OUTSTEM = None, None, "1.0.0", "BetaProfiles_AllModels_Superposed"   # [1.0.1] the fits and draws of the cells above   # He et al.'s points dropped
 FIT_COLOR = {"ml05": "#800080", "he24": "mediumspringgreen"}   # the four-color palette's purple; mediumspringgreen
 FIT_LABEL = {"ml05": "ML05b", "he24": "He+24"}
 FIT_LABEL_XY = {"ml05": (X_LABEL, None, "left"), "he24": (0.93, 0.205, "center")}   # ML05b as Example 3: beta[0] + 0.05, centered   # He+24: by its own curve
@@ -3713,7 +3743,7 @@ FIT_LIGHTEN = {"ml05": 0.20, "he24": 0.10}            # both lines of a target l
 SEEDS = {"ml05": 310101, "he24": 310104}   # he24: the 1e6 draw inside its fitted 3D range only   # the draws' seeds
 axb.axhline(0.0, color="black", lw=ISO_LINEWIDTH, dashes=ISO_DASH_SEQUENCE, zorder=1)
 for k, delta in enumerate(("ml05", "he24")):
-    z = FIT_Z[delta]   # [1.0.0] the fit of the cells above
+    z = FIT_Z[delta]   # [1.0.1] the fit of the cells above
     col = FIT_COLOR[delta]
     dcol = darken_color(col, PAR_DARK_FACTOR)
     dcol = darken_color(dcol, {"ml05": 0.90, "he24": 0.60}[delta])   # diamonds darker, purple 10 percent, green 40 percent
@@ -3747,11 +3777,11 @@ for k, delta in enumerate(("ml05", "he24")):
         print(f"  {FIT_LABEL[delta]}: full-range solid from {os.path.basename(_cv[-1])}; max |its beta - the fit's| on the fit's radii {np.max(np.abs(_chk - z['beta'])):.2e}")
     axb.plot(_lRs, _bs, color=_c_sol, lw=CURVE_LINEWIDTH, zorder=3 + k)
     print(f"  {FIT_LABEL[delta]}: rms {float(z['rms']):.3e}, worst {float(z['worst']):.3e} (for the caption)")
-    nb = [delta] if delta in FIT_ROWS else []   # [1.0.0] the realization of the cells above
+    nb = [delta] if delta in FIT_ROWS else []   # [1.0.1] the realization of the cells above
     if nb:
-        d = FIT_ROWS[delta]   # [1.0.0]
+        d = FIT_ROWS[delta]   # [1.0.1]
         chi2 = float(np.sum(((d[:, 1] - d[:, 4]) / d[:, 2]) ** 2))
-        _n = f"{N_PARTICLES[FIT_NAME[delta]]:.0e}"   # [1.0.0]
+        _n = f"{N_PARTICLES[FIT_NAME[delta]]:.0e}"   # [1.0.1]
         print(f"  {FIT_LABEL[delta]}: N = {_n}, chi^2/bin {chi2 / len(d):.3f} over {len(d)} bins (for the caption)")
         _eb = axb.errorbar(np.log10(d[:, 0]), d[:, 1], yerr=d[:, 2], fmt="D", ms=PAR_MARKER_SIZE, color=dcol, ecolor=dcol,
                            elinewidth=PAR_EBAR_LINEWIDTH, capsize=0, zorder=30, label="_nolegend_")
@@ -3818,9 +3848,9 @@ printed scale s = 0.3820 (f 0.99, slot column, W_fig 630.1 pt)
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig08
 
-This notebook makes Figure 8 of the paper with the scripts that made the arXiv figure, the one of the curves and the one of the figure (the two cells below), unchanged except for the lines that read the package’s DF, which here is `pp.compute_df` of ver. 1.0.0 (every changed line marked `[1.0.0]`); galpy and AGAMA run from the arXiv figure’s own scripts (`scripts/galpy_iso.py`, `scripts/agama_iso.py`), unchanged apart from their file names, which drop an internal number.
+This notebook makes Figure 8 of the paper by the package’s public calls of ver. 1.0.1: the package’s DF by `pp.compute_df`, the fitting functions of [Widrow (2000)](https://doi.org/10.1086/317367) and [Lane et al. (2022)](https://doi.org/10.1093/mnras/stab3755) made DFs of the same component by `pp.DistributionFunction.from_function`, the package’s DF read by `DistributionFunction.evaluate`, and the round trip of each of the three DFs by `pp.round_trip`. galpy and AGAMA run from the arXiv figure’s own scripts (`scripts/galpy_iso.py`, `scripts/agama_iso.py`), unchanged apart from their file names. The figure cell is the arXiv figure’s script, its changed lines marked `[1.0.1]`.
 
-Top panel: \(\log_{10}|F_x / F_{\rm PIANISTpy} - 1|\) at \(\mathcal{Z} = P_{\rm NFW}(R)\) for [Widrow (2000)](https://doi.org/10.1086/317367), [Lane et al. (2022)](https://doi.org/10.1093/mnras/stab3755), galpy and AGAMA. Bottom panel: \(\log_{10}|\varrho / \varrho_{\rm NFW} - 1|\) of the roundtrip (the DF integrated to a density and the Poisson equation solved with \(P(0) = 1\)) for PIANISTpy, Widrow, Lane et al., and AGAMA’s own density. The PIANISTpy curve of the bottom panel sits at the level of the arXiv figure, \(10^{-10}\) to \(10^{-12}\), with its zero crossings at slightly different \(\log_{10} R\), because ver. 1.0.0 computes the DF slightly differently from the paper’s code.
+Top panel: \(\log_{10}|F_x / F_{\rm PIANISTpy} - 1|\) at \(\mathcal{Z} = P_{\rm NFW}(R)\) for Widrow, Lane et al. (each fit at its closed form), galpy and AGAMA. Bottom panel: \(\log_{10}|\varrho / \varrho_{\rm NFW} - 1|\) of the round trip (the DF integrated to a density and Poisson’s equation solved with \(P(0) = 1\)) for PIANISTpy, Widrow, Lane et al., and AGAMA’s own density.
 
 Per-call accuracy messages are quieted; the summary lists the model’s tier.
 
@@ -3831,7 +3861,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # before any JAX import: no C++ log li
 
 from importlib import metadata
 
-PINS = {"pianistpy": "1.0.0", "numpy": "2.4.3", "scipy": "1.17.1", "galpy": "1.11.0", "agama": "1.0.156"}
+PINS = {"pianistpy": "1.0.1", "numpy": "2.4.3", "scipy": "1.17.1", "galpy": "1.11.0", "agama": "1.0.156"}
 
 def installed(name):
     if name == "pianistpy":  # the module's own version, installed or on the path
@@ -3862,7 +3892,7 @@ def ready(code):
 ```
 
 ```myst
-pianistpy: pinned 1.0.0, installed 1.0.0
+pianistpy: pinned 1.0.1, installed 1.0.1
 numpy: pinned 2.4.3, installed 2.4.3
 scipy: pinned 1.17.1, installed 1.17.1
 galpy: pinned 1.11.0, installed 1.11.0
@@ -3876,8 +3906,8 @@ import warnings
 
 import pianistpy as pp
 
-# The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.
-PIANISTPY_PIN = "1.0.0"
+# The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.
+PIANISTPY_PIN = "1.0.1"
 print(f"pianistpy {pp.__version__}")
 if pp.__version__ != PIANISTPY_PIN:
     raise RuntimeError(
@@ -3914,7 +3944,7 @@ def tier_line(label, result):
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```ipython3
@@ -3951,87 +3981,56 @@ for code_, script in (("galpy", "scripts/galpy_iso.py"), ("agama", "scripts/agam
 ```
 
 ```myst
-galpy: exit 0 in 120 s; [Success] Execution complete. Formatted matrix written to: galpy_numerical_iso.txt
+galpy: exit 0 in 118 s; [Success] Execution complete. Formatted matrix written to: galpy_numerical_iso.txt
 agama: exit 0 in 14 s; [Success] Fully self-consistent numerical AGAMA profile dataset written to: agama_numerical_iso.txt
 ```
 
 ## The curves
 
-About six minutes on one core.
+About 40 minutes on one 32-core node, almost all of it the three round trips.
 
 ```ipython3
-import os
-import sys
 import time
 
 import numpy as np
-from scipy.integrate import solve_ivp
-from scipy.interpolate import CubicHermiteSpline, CubicSpline
-from scipy.special import roots_legendre
 
-OUT = "fig08_curves.npz"   # [1.0.0] the curves of this run, read by the plot cell below
-from pianistpy.df.lookup import evaluate_lookup, prepare_lookup  # noqa: E402  [1.0.0]
-
+OUT = "fig08_curves.npz"   # the curves of this run, read by the figure cell below
 T0 = time.perf_counter()
-ARR, KINDS = prepare_lookup(df.table, df.form, 0)   # [1.0.0] the package's own lookup of the DF of compute_df
-assert float(df.form.p_0) == 1.0, df.form.p_0       # [1.0.0] the curve script's units: P(0) = 1
-KTOP = float(df.table.k[0][-1])                     # [1.0.0]
-UTOP = 1.0 - KTOP                                   # [1.0.0]
-print(f"pianistpy {pp.__version__} compute_df; K_top = 1 - {UTOP:.6e}, {len(df.table.k[0])} nodes from K = {float(df.table.k[0][0]):.3e}", flush=True)
+assert float(df.form.p_0) == 1.0, df.form.p_0   # internal units: P(0) = 1
 
-def lgF_pianist(K, uK):
-    """log10 F of the DF at (K, u_K = 1 - K), u_K carried exactly near the top."""
-    K, uK = np.asarray(K, dtype=np.float64), np.asarray(uK, dtype=np.float64)
-    # [1.0.0] the package's lookup, each point given by its depth u_K where the curve script carries u_K exactly (u_K < 0.5), by K elsewhere
-    return np.asarray(evaluate_lookup(ARR, KINDS, K, np, u=np.where(uK < 0.5, uK, np.nan)), dtype=np.float64)
+def _ln_k(k, depth):
+    # ln K, carried by the depth 1 - K near the top, where K alone has lost the depth's digits
+    return np.where(depth < 0.5, np.log1p(-depth), np.log(k))
 
-def _fit_parts(K, uK):
-    Z = np.where(uK < 0.5, 1.0 - uK, K)
-    lnZ = np.where(uK < 0.5, np.log1p(-uK), np.log(np.maximum(K, 1e-300)))
-    return Z, uK, -lnZ
-
-def lgF_widrow(K, uK):
-    Z, E2, mlnZ = _fit_parts(np.asarray(K, float), np.asarray(uK, float))
+def widrow(k, depth):
+    # Widrow (2000), the fit of the isotropic NFW DF, as a function of K and the depth 1 - K
     q, p1, p2, p3, p4, F0 = -2.7419, 0.3620, -0.5639, -0.0859, -0.4912, 0.091968
-    lg = (np.log10(F0) + 1.5 * np.log10(Z) - 2.5 * np.log10(E2) + q * np.log10(mlnZ / E2)
-          + (p1 * Z + p2 * Z ** 2 + p3 * Z ** 3 + p4 * Z ** 4) / np.log(10.0))
-    return lg
+    lg = (np.log10(F0) + 1.5 * np.log10(k) - 2.5 * np.log10(depth) + q * np.log10(-_ln_k(k, depth) / depth)
+          + (p1 * k + p2 * k ** 2 + p3 * k ** 3 + p4 * k ** 4) / np.log(10.0))
+    return 10.0 ** lg
 
 LANE = (0.0926081086527954, 0.0232272797489981, 0.258346829924101, -2.97848277491979, 14.9776586391246, -46.6587221550258,
         92.6397009471828, -117.647787290798, 92.5144063082258, -41.0268009529576, 7.84806318891231)
 
-def lgF_lane(K, uK):
-    Z, E2, mlnZ = _fit_parts(np.asarray(K, float), np.asarray(uK, float))
-    poly = np.polyval(LANE[::-1], Z)
-    return 1.5 * np.log10(Z) - 2.5 * np.log10(E2) - 2.75 * np.log10(mlnZ / E2) + np.log10(poly)
+def lane(k, depth):
+    # Lane et al. (2022), the fit of the isotropic NFW DF, as a function of K and the depth 1 - K
+    lg = (1.5 * np.log10(k) - 2.5 * np.log10(depth) - 2.75 * np.log10(-_ln_k(k, depth) / depth)
+          + np.log10(np.polyval(LANE[::-1], k)))
+    return 10.0 ** lg
 
-XG, WG = roots_legendre(8)
+# the three DFs of one component, the isotropic NFW profile: the package's, and the two fits tabulated by the package
+nfw = df.components[0]
+dfs = {"pianist": df,
+       "widrow": pp.DistributionFunction.from_function(nfw, widrow),
+       "lane": pp.DistributionFunction.from_function(nfw, lane)}
+print(tier_line("Widrow (2000), from_function", dfs["widrow"]))
+print(tier_line("Lane et al. (2022), from_function", dfs["lane"]))
 
-def _panels(a, b, h):
-    n = max(1, int(np.ceil((b - a) / h)))
-    e = np.linspace(a, b, n + 1)
-    mid, half = 0.5 * (e[1:] + e[:-1]), 0.5 * (e[1:] - e[:-1])
-    return (mid[:, None] + half[:, None] * XG[None, :]).ravel(), (half[:, None] * WG[None, :]).ravel()
-
-def integral(lgF, u, h, Pv=None):
-    """INT_0^P F(K) sqrt(P - K) dK at P = 1 - u (u exact; P passed as well where it is the exact one, P <= 0.7)."""
-    Pv = (1.0 - u) if Pv is None else Pv
-    # lower piece: K in [1e-40, P/2] in ln K
-    t, wt = _panels(np.log(1e-40), np.log(0.5 * Pv), h)
-    K = np.exp(t)
-    uK = 1.0 - K
-    lo = np.sum(wt * 10.0 ** lgF(K, uK) * np.sqrt(Pv - K) * K)
-    # upper piece: w = P - K in [1e-30 P, P/2] in ln w; u_K = u + w exactly enough
-    s, ws = _panels(np.log(1e-30 * Pv), np.log(0.5 * Pv), h)
-    w = np.exp(s)
-    K = Pv - w
-    uK = u + w
-    up = np.sum(ws * 10.0 ** lgF(K, uK) * np.sqrt(w) * w)
-    return lo + up
-
-CFWD = 4.0 * np.pi * np.sqrt(2.0)
+LOGR_OUT = np.round(np.arange(-10.0, 9.0 + 1e-9, 0.005), 6)
+R_OUT = 10.0 ** LOGR_OUT
 
 def u_of_R(R):
+    # the depth 1 - P_NFW(R) of the analytic NFW potential, by its series inside R = 0.1
     R = np.asarray(R, dtype=np.float64)
     out = np.empty(R.shape)
     s = R < 0.1
@@ -4040,294 +4039,47 @@ def u_of_R(R):
     out[~s] = 1.0 - np.log1p(R[~s]) / R[~s]
     return out
 
-def P_of_R(R):
-    R = np.asarray(R, dtype=np.float64)
-    return np.where(R < 0.1, 1.0 - u_of_R(R), np.log1p(R) / R)
+uN = u_of_R(R_OUT)
+PN = np.where(R_OUT < 0.1, 1.0 - uN, np.log1p(R_OUT) / R_OUT)
+res = dict(logR=LOGR_OUT, R=R_OUT, u_nfw=uN)
 
-def M_of_R(R):
-    R = np.asarray(R, dtype=np.float64)
-    out = np.empty(R.shape)
-    s = R < 0.1
-    k = np.arange(2, 32)
-    out[s] = np.sum(((-1.0) ** k * (k - 1.0) / k)[None, :] * R[s, None] ** k[None, :], axis=1)
-    out[~s] = np.log1p(R[~s]) - R[~s] / (1.0 + R[~s])
-    return out
+# the top panel: each DF at K = P_NFW(R); the package's DF by evaluate, given its depth where the depth carries the
+# digits (depth < 1/2), the fits at their closed forms
+res["pianist_F_at_Pnfw"] = np.asarray(df.evaluate(PN, depth=np.where(uN < 0.5, uN, np.nan)), dtype=np.float64)
+res["widrow_F_at_Pnfw"] = widrow(PN, uN)
+res["lane_F_at_Pnfw"] = lane(PN, uN)
 
-def rho_nfw(R):
-    R = np.asarray(R, dtype=np.float64)
-    return 1.0 / (R * (1.0 + R) ** 2)
-
-def R_of_u(u):
-    """inverse of u_of_R by Newton in ln R (u <= 0.7)."""
-    u = np.asarray(u, dtype=np.float64)
-    lnR = np.log(2.0 * u)
-    k = np.arange(1, 30)
-    for _ in range(60):
-        R = np.exp(lnR)
-        f = np.log(u_of_R(R)) - np.log(u)
-        s = R < 0.1
-        Rdu = np.empty(R.shape)                                                       # R du/dR, by the series below 0.1
-        Rdu[s] = np.sum(((-1.0) ** (k + 1) * k / (k + 1.0))[None, :] * R[s, None] ** k[None, :], axis=1)
-        Rdu[~s] = np.log1p(R[~s]) / R[~s] - 1.0 / (1.0 + R[~s])
-        d = Rdu / u_of_R(R)                                                           # dln u / dln R
-        lnR = lnR - f / d
-    return np.exp(lnR)
-
-def R_of_P(Pv):
-    Pv = np.asarray(Pv, dtype=np.float64)
-    lnR = np.log(np.maximum(-np.log(Pv) / Pv, 2.0))
-    for _ in range(80):
-        R = np.exp(lnR)
-        f = np.log(P_of_R(R)) - np.log(Pv)
-        d = R * (1.0 / (R * (1.0 + R)) - np.log1p(R) / R ** 2) / P_of_R(R)                # dln P / dln R
-        lnR = lnR - f / d
-    return np.exp(lnR)
-
-# ---- the density tables of each source
-U_IN = np.logspace(-12, np.log10(0.7), int(400 * (12 + np.log10(0.7))) + 1)
-P_OUT = np.logspace(-11, np.log10(0.7), int(1600 * (11 + np.log10(0.7))) + 1)   # 1600 a decade: the outer Poisson floor (h^4) for R to 1e8
-H = 0.025
-
-def table(lgF, name):
+# the bottom panel: the round trip of each DF by the package (the density of the DF, Poisson's equation with P(0) = 1,
+# the density at the potential it generates against the analytic density)
+in4, in8 = (R_OUT >= 1e-8) & (R_OUT <= 1e4), (R_OUT >= 1e-8) & (R_OUT <= 1e8)
+for name, d in dfs.items():
     t0 = time.perf_counter()
-    rin = np.array([CFWD * integral(lgF, u, H) for u in U_IN])
-    rout = np.array([CFWD * integral(lgF, 1.0 - p, H, p) for p in P_OUT])
-    # quadrature check at panel width 2H on a sample
-    js = np.linspace(0, len(U_IN) - 1, 25).astype(int)
-    dq_in = max(abs(CFWD * integral(lgF, U_IN[j], 2 * H) / rin[j] - 1.0) for j in js)
-    js2 = np.linspace(0, len(P_OUT) - 1, 25).astype(int)
-    dq_out = max(abs(CFWD * integral(lgF, 1.0 - P_OUT[j], 2 * H, P_OUT[j]) / rout[j] - 1.0) for j in js2)
-    sin = CubicSpline(np.log(U_IN), np.log(rin))
-    sout = CubicSpline(np.log(P_OUT), np.log(rout))
-    # spline check at midpoints
-    um = np.sqrt(U_IN[js[:-1] + 1] * U_IN[js[:-1] + 2])
-    ds_in = max(abs(np.exp(sin(np.log(x))) / (CFWD * integral(lgF, x, H)) - 1.0) for x in um)
-    pm = np.sqrt(P_OUT[js2[:-1] + 1] * P_OUT[js2[:-1] + 2])
-    ds_out = max(abs(np.exp(sout(np.log(x))) / (CFWD * integral(lgF, 1.0 - x, H, x)) - 1.0) for x in pm)
-    print(f"{name}: density tables {len(U_IN)} + {len(P_OUT)} nodes in {time.perf_counter() - t0:.0f} s; quadrature H vs 2H "
-          f"{dq_in:.1e} (inner), {dq_out:.1e} (outer); spline vs direct at midpoints {ds_in:.1e}, {ds_out:.1e}", flush=True)
-    # the closure on the same nodes, c(P) = rho[F](P) / rho_NFW(R_NFW(P)) - 1, for the residual Poisson solve
-    cin = CubicSpline(np.log(U_IN), rin / rin_x - 1.0)
-    cout = CubicSpline(np.log(P_OUT), rout / rout_x - 1.0)
-    # its error budget for the residual solve: the whole table at panel width 2H, and the H table on every other node
-    rin2 = np.array([CFWD * integral(lgF, u, 2 * H) for u in U_IN])
-    rout2 = np.array([CFWD * integral(lgF, 1.0 - p, 2 * H, p) for p in P_OUT])
-    alt = dict(c2H=(CubicSpline(np.log(U_IN), rin2 / rin_x - 1.0), CubicSpline(np.log(P_OUT), rout2 / rout_x - 1.0)),
-               chalf=(CubicSpline(np.log(U_IN[::2]), (rin / rin_x - 1.0)[::2]), CubicSpline(np.log(P_OUT[::2]), (rout / rout_x - 1.0)[::2])))
-    return rin, rout, sin, sout, dict(dq_in=dq_in, dq_out=dq_out, ds_in=ds_in, ds_out=ds_out), cin, cout, alt
+    trip = pp.round_trip(d, radii=R_OUT)
+    err = np.asarray(trip.error, dtype=np.float64)
+    res[f"{name}_rt"], res[f"{name}_closure"] = err, np.asarray(trip.closure, dtype=np.float64)
+    res[f"{name}_r_floor"], res[f"{name}_budget_table"], res[f"{name}_budget_tolerance"] = (
+        trip.r_floor, trip.budget_table, trip.budget_tolerance)
+    print(f"{name}: round trip in {time.perf_counter() - t0:.0f} s; the potential reaches the table's floor at R = "
+          f"{trip.r_floor:.4e}; budgets: tables {trip.budget_table:.1e}, tolerance {trip.budget_tolerance:.1e}", flush=True)
+    print(f"  max |error|: 1e-8 <= R <= 1e4 {np.nanmax(np.abs(err[in4])):.2e}, 1e-8 <= R <= 1e8 {np.nanmax(np.abs(err[in8])):.2e}; "
+          f"at log R = -10, -8, -6, -4, -2, 0, 2, 4, 6, 8: "
+          + ", ".join(f"{err[np.argmin(abs(LOGR_OUT - L))]:+.2e}" for L in (-10, -8, -6, -4, -2, 0, 2, 4, 6, 8)), flush=True)
 
-def make_rho(sin, sout, c0):
-    def rho_u(u):
-        if u < 1e-12:
-            return c0 / u
-        if u <= 0.5:
-            return float(np.exp(sin(np.log(u))))
-        return float(np.exp(sout(np.log(1.0 - u))))
-
-    def rho_P(Pv):
-        if Pv <= 0.5:
-            return float(np.exp(sout(np.log(Pv))))
-        return float(np.exp(sin(np.log(1.0 - Pv))))
-    return rho_u, rho_P
-
-R0, R_SWITCH, R_END = 1e-10, 1.0, 1e9
-LOGR_OUT = np.round(np.arange(-10.0, 9.0 + 1e-9, 0.005), 6)
-R_OUT = 10.0 ** LOGR_OUT
-
-def poisson(rho_u, rho_P, c0):
-    v0 = np.sqrt(0.5 * c0)
-    tin = np.log(R_OUT[R_OUT <= R_SWITCH])
-    f1 = lambda t, y: [y[1] - y[0], np.exp(t) * rho_u(y[0] * np.exp(t)) - 2.0 * y[1]]
-    s1 = solve_ivp(f1, (min(np.log(R0), tin[0]), max(np.log(R_SWITCH), tin[-1])), [v0, v0], method="DOP853", rtol=1e-13, atol=1e-30, t_eval=tin,
-                   dense_output=True)
-    vS, mS = s1.sol(np.log(R_SWITCH))
-    pS, MS = (1.0 - vS * R_SWITCH) * R_SWITCH, mS * R_SWITCH ** 2
-    tout = np.log(R_OUT[R_OUT > R_SWITCH])
-    f2 = lambda t, y: [y[0] - y[1], np.exp(3.0 * t) * rho_P(y[0] * np.exp(-t))]
-    # a source whose self-consistent potential reaches the table floor P = 1e-11 at a finite radius (a fit with a mass excess
-    # outward) ends there: the radii beyond carry no value (NaN), and the radius is printed
-    ev = lambda t, y: y[0] * np.exp(-t) - 1e-11
-    ev.terminal, ev.direction = True, -1
-    s2 = solve_ivp(f2, (np.log(R_SWITCH), max(np.log(R_END), tout[-1])), [pS, MS], method="DOP853", rtol=1e-13, atol=1e-30, t_eval=tout,
-                   events=ev)
-    if s2.t_events[0].size:
-        print(f"  the potential reaches P = 1e-11 at R = {np.exp(s2.t_events[0][0]):.4e}: no value beyond", flush=True)
-    u_in = s1.y[0] * np.exp(s1.t)
-    P_out = np.full(tout.shape, np.nan)
-    P_out[:s2.t.size] = s2.y[0] * np.exp(-s2.t)
-    rho = np.concatenate([[rho_u(x) for x in u_in], [rho_P(x) if np.isfinite(x) else np.nan for x in P_out]])
-    u_all = np.concatenate([u_in, 1.0 - P_out])
-    print(f"  Poisson: {s1.nfev + s2.nfev} evaluations, status {s1.status}/{s2.status}", flush=True)
-    return rho, u_all
-
-_KS = np.arange(1, 30)
-_US = ((-1.0) ** (_KS + 1) / (_KS + 1.0))[::-1]            # u = sum_k (-1)^(k+1) R^k / (k+1): Horner coefficients, k = 29..1
-_DUS = ((-1.0) ** (_KS + 1) * _KS / (_KS + 1.0))[::-1]     # R du/dR = sum_k (-1)^(k+1) k R^k / (k+1)
-
-def _u_s(R):
-    return R * np.polyval(_US, R) if R < 0.1 else 1.0 - np.log1p(R) / R
-
-def _Rdu_s(R):
-    return R * np.polyval(_DUS, R) if R < 0.1 else np.log1p(R) / R - 1.0 / (1.0 + R)
-
-def _shift(R, d, uN, PN_):
-    """eps = ln(R'/R) with P_NFW(R') = P_NFW(R) + d (d = delta), by Newton in the variable that keeps its digits."""
-    inner = uN <= 0.5
-    if inner:
-        tgt = np.log1p(-d / uN)                    # ln(u' / u_N), u' = u_N - d
-        f = lambda e: np.log(_u_s(R * np.exp(e)) / uN) - tgt
-        g = lambda e: _Rdu_s(R * np.exp(e)) / _u_s(R * np.exp(e))
-    else:
-        tgt = np.log1p(d / PN_)                    # ln(P' / P_N)
-        f = lambda e: np.log((1.0 - _u_s(R * np.exp(e)) if R * np.exp(e) < 0.1 else np.log1p(R * np.exp(e)) / (R * np.exp(e))) / PN_) - tgt
-        g = lambda e: -_Rdu_s(R * np.exp(e)) / (1.0 - _u_s(R * np.exp(e)) if R * np.exp(e) < 0.1 else np.log1p(R * np.exp(e)) / (R * np.exp(e)))
-    e = tgt / g(0.0)                               # first order: exact to |tgt| relative, and tgt carries its digits (log1p)
-    if abs(tgt) < 1e-6:
-        return e
-    for _ in range(60):                            # large shifts (a fit near its potential's zero): Newton to f's rounding
-        de = f(e) / g(e)
-        e -= de
-        if abs(de) <= 1e-14 * abs(e) + 1e-16:
-            break
-    return e
-
-def poisson_resid(cin, cout, rtol=1e-12):
-    """the roundtrip's Poisson solve as a residual about the analytic NFW potential: P = P_NFW(R) + delta,
-    lap delta = -(rho[F](P) - rho_NFW(R)), P(0) = 1 (delta = 0 at the center). The same equation as the outward solve, but P is
-    never formed as 1 minus an accumulated integral: delta carries its own digits and float64 holds it. rho[F](P) =
-    rho_NFW(R_NFW(P)) (1 + c(P)); the roundtrip error at R is rho[F](P) / rho_NFW(R) - 1 = expm1(D) + c exp(D), D = ln rho_NFW(R')
-    - ln rho_NFW(R), R' = R_NFW(P)."""
-    def parts(t, d):
-        R = np.exp(t)
-        uN = _u_s(R)
-        PN_ = 1.0 - uN if R < 0.1 else np.log1p(R) / R
-        e = _shift(R, d, uN, PN_)
-        D = -e - 2.0 * np.log1p(R * np.expm1(e) / (1.0 + R))
-        u, Pv = uN - d, PN_ + d
-        c = float(cin(np.log(max(u, 1e-12)))) if u <= 0.5 else float(cout(np.log(Pv)))
-        return R, np.expm1(D) + c * np.exp(D), Pv
-
-    def f(t, y):
-        R, rel, _ = parts(t, y[0])
-        return [y[1] / R, -R ** 3 * rho_nfw(R) * rel]
-
-    ev = lambda t, y: parts(t, y[0])[2] - 1e-11
-    ev.terminal, ev.direction = True, -1
-    s = solve_ivp(f, (np.log(1e-12), max(np.log(R_END), np.log(R_OUT[-1]))), [0.0, 0.0], method="DOP853", rtol=rtol, atol=1e-60,
-                  t_eval=np.log(R_OUT), events=ev)
-    rt = np.full(R_OUT.shape, np.nan)
-    d = np.full(R_OUT.shape, np.nan)
-    for i, (t, dd) in enumerate(zip(s.t, s.y[0])):
-        rt[i], d[i] = parts(t, dd)[1], dd
-    if s.t_events[0].size:
-        print(f"  residual solve: the potential reaches P = 1e-11 at R = {np.exp(s.t_events[0][0]):.4e}: zero density beyond", flush=True)
-    print(f"  residual Poisson (rtol {rtol:g}): {s.nfev} evaluations, status {s.status}", flush=True)
-    return rt, d
-
-res = dict(logR=LOGR_OUT, R=R_OUT)
-uN, PN = u_of_R(R_OUT), P_of_R(R_OUT)
-rN = rho_nfw(R_OUT)
-res["u_nfw"], res["rho_nfw"] = uN, rN
-
-# normalization check: C rho_fwd / rho_NFW at mid radii with the product's F
-for Rm in (0.1, 1.0, 10.0):
-    um = float(u_of_R(np.array([Rm]))[0])
-    print(f"normalization: C INT F sqrt(P - K) dK / rho_NFW at R = {Rm:g}: {CFWD * integral(lgF_pianist, um, H) / rho_nfw(Rm):.12f}",
-          flush=True)
-
-# the exact NFW density through the same tables and solver: the machinery's own floor
-rin_x = rho_nfw(R_of_u(U_IN))
-rout_x = rho_nfw(R_of_P(P_OUT))
-print(f"inverse check: u(R(u)) / u - 1 max {np.max(np.abs(u_of_R(R_of_u(U_IN)) / U_IN - 1.0)):.1e}, "
-      f"P(R(P)) / P - 1 max {np.max(np.abs(P_of_R(R_of_P(P_OUT)) / P_OUT - 1.0)):.1e}", flush=True)
-sin_x, sout_x = CubicSpline(np.log(U_IN), np.log(rin_x)), CubicSpline(np.log(P_OUT), np.log(rout_x))
-c0x = U_IN[0] * rin_x[0]
-rho_u, rho_P = make_rho(sin_x, sout_x, c0x)
-rho, u_rt = poisson(rho_u, rho_P, c0x)
-res["exact_rt"] = rho / rN - 1.0
-print(f"exact NFW through the tables and the solver: |rt - 1| max {np.max(np.abs(res['exact_rt'])):.2e} "
-      f"(R <= 1e5: {np.max(np.abs(res['exact_rt'][R_OUT <= 1e5])):.2e}); c0 = {c0x:.15e} (exact 1/2)", flush=True)
-
-for name, lgF in (("pianist", lgF_pianist), ("widrow", lgF_widrow), ("lane", lgF_lane)):
-    rin, rout, sin, sout, chk, cin, cout, alt = table(lgF, name)
-    c0 = U_IN[0] * rin[0]
-    rho_u, rho_P = make_rho(sin, sout, c0)
-    # closure: rho[F](P_NFW(R)) against rho_NFW(R), no Poisson
-    clo = np.array([rho_u(x) for x in uN]) / rN - 1.0
-    rho, u_rt = poisson(rho_u, rho_P, c0)
-    res[f"{name}_rt_outward"], res[f"{name}_u_rt"] = rho / rN - 1.0, u_rt
-    rt, dlt = poisson_resid(cin, cout)
-    rt2, _ = poisson_resid(cin, cout, rtol=1e-10)
-    m3 = R_OUT <= 1e3
-    print(f"{name}: residual against outward solve on R <= 1e3: max |diff| {np.nanmax(np.abs(rt[m3] - res[f'{name}_rt_outward'][m3])):.2e}; "
-          f"residual at rtol 1e-12 against 1e-10: max |diff| {np.nanmax(np.abs(rt - rt2)):.2e}", flush=True)
-    for k, (ci, co) in alt.items():
-        rta, _ = poisson_resid(ci, co)
-        res[f"{name}_rt_{k}"] = rta
-        print(f"{name}: residual with the table {'at 2H' if k == 'c2H' else 'on every other node'}: max |diff| " +
-              ", ".join(f"R <= 1e{L}: {np.nanmax(np.abs((rta - rt)[R_OUT <= 10.0 ** L])):.2e}" for L in (0, 3, 5, 7, 8, 9)), flush=True)
-    res[f"{name}_closure"], res[f"{name}_rt"], res[f"{name}_delta"] = clo, rt, dlt
-    res[f"{name}_c0"] = c0
-    for k, v in chk.items():
-        res[f"{name}_{k}"] = v
-    res[f"{name}_F_at_Pnfw"] = 10.0 ** lgF(PN, uN)
-    print(f"{name}: c0 u rho at u = 1e-12: {c0:.12e} (exact 1/2); roundtrip at log R = -10, -9, "
-          f"-8, -6, -4, -2, 0, 2, 4: " + ", ".join(f"{rt[np.argmin(abs(LOGR_OUT - L))]:+.2e}" for L in (-10, -9, -8, -6, -4, -2, 0, 2, 4)),
-          flush=True)
-
-# the DF on the product's own nodes and at the table top, for the record
-res["pianist_K_nodes"] = np.asarray(df.table.k[0])        # [1.0.0]
-res["pianist_lg_nodes"] = np.asarray(df.table.log_df[0])  # [1.0.0]
-res["u_top"] = UTOP
-res["data_sha256"] = f"pianistpy {pp.__version__} compute_df"   # [1.0.0] no stored file
+res["source"] = f"pianistpy {pp.__version__}: compute_df, DistributionFunction.from_function, evaluate, round_trip"
 np.savez(OUT, **res)
 print(f"wrote {OUT} in {time.perf_counter() - T0:.0f} s", flush=True)
 ```
 
 ```myst
-pianistpy 1.0.0 compute_df; K_top = 1 - 1.001461e-09, 9655 nodes from K = 2.007e-10
-normalization: C INT F sqrt(P - K) dK / rho_NFW at R = 0.1: 0.999999999998
-normalization: C INT F sqrt(P - K) dK / rho_NFW at R = 1: 1.000000000000
-normalization: C INT F sqrt(P - K) dK / rho_NFW at R = 10: 1.000000000000
-inverse check: u(R(u)) / u - 1 max 3.9e-15, P(R(P)) / P - 1 max 3.6e-15
-  Poisson: 2602 evaluations, status 0/0
-exact NFW through the tables and the solver: |rt - 1| max 7.67e-07 (R <= 1e5: 4.04e-09); c0 = 4.999999999973325e-01 (exact 1/2)
-pianist: density tables 4739 + 17353 nodes in 57 s; quadrature H vs 2H 1.1e-11 (inner), 3.0e-10 (outer); spline vs direct at midpoints 1.5e-11, 5.8e-12
-  Poisson: 4246 evaluations, status 0/0
-  residual Poisson (rtol 1e-12): 781937 evaluations, status 0
-  residual Poisson (rtol 1e-10): 373298 evaluations, status 0
-pianist: residual against outward solve on R <= 1e3: max |diff| 2.08e-10; residual at rtol 1e-12 against 1e-10: max |diff| 6.92e-16
-  residual Poisson (rtol 1e-12): 815222 evaluations, status 0
-pianist: residual with the table at 2H: max |diff| R <= 1e0: 3.98e-11, R <= 1e3: 3.98e-11, R <= 1e5: 3.98e-11, R <= 1e7: 3.98e-11, R <= 1e8: 3.98e-11, R <= 1e9: 3.98e-11
-  residual Poisson (rtol 1e-12): 436985 evaluations, status 0
-pianist: residual with the table on every other node: max |diff| R <= 1e0: 5.41e-12, R <= 1e3: 5.41e-12, R <= 1e5: 5.41e-12, R <= 1e7: 5.41e-12, R <= 1e8: 5.41e-12, R <= 1e9: 5.41e-12
-pianist: c0 u rho at u = 1e-12: 4.999999999966e-01 (exact 1/2); roundtrip at log R = -10, -9, -8, -6, -4, -2, 0, 2, 4: -5.42e-11, -2.90e-10, -2.66e-11, -3.98e-11, -3.96e-11, -2.90e-11, -1.33e-12, -1.43e-12, +4.73e-12
-widrow: density tables 4739 + 17353 nodes in 73 s; quadrature H vs 2H 6.7e-16 (inner), 6.7e-16 (outer); spline vs direct at midpoints 1.5e-11, 2.0e-14
-  the potential reaches P = 1e-11 at R = 7.0859e+06: no value beyond
-  Poisson: 3241 evaluations, status 0/1
-  residual solve: the potential reaches P = 1e-11 at R = 7.0859e+06: zero density beyond
-  residual Poisson (rtol 1e-12): 6140 evaluations, status 1
-  residual solve: the potential reaches P = 1e-11 at R = 7.0859e+06: zero density beyond
-  residual Poisson (rtol 1e-10): 3680 evaluations, status 1
-widrow: residual against outward solve on R <= 1e3: max |diff| 1.39e-08; residual at rtol 1e-12 against 1e-10: max |diff| 2.68e-10
-  residual solve: the potential reaches P = 1e-11 at R = 7.0859e+06: zero density beyond
-  residual Poisson (rtol 1e-12): 6188 evaluations, status 1
-widrow: residual with the table at 2H: max |diff| R <= 1e0: 4.43e-14, R <= 1e3: 2.49e-12, R <= 1e5: 2.96e-11, R <= 1e7: 8.64e-11, R <= 1e8: 8.64e-11, R <= 1e9: 8.64e-11
-  residual solve: the potential reaches P = 1e-11 at R = 7.0859e+06: zero density beyond
-  residual Poisson (rtol 1e-12): 6338 evaluations, status 1
-widrow: residual with the table on every other node: max |diff| R <= 1e0: 2.23e-12, R <= 1e3: 3.03e-11, R <= 1e5: 1.23e-10, R <= 1e7: 3.78e-10, R <= 1e8: 3.78e-10, R <= 1e9: 3.78e-10
-widrow: c0 u rho at u = 1e-12: 4.999826608877e-01 (exact 1/2); roundtrip at log R = -10, -9, -8, -6, -4, -2, 0, 2, 4: -1.74e-05, -1.73e-05, -1.73e-05, -1.67e-05, +1.40e-05, +3.91e-04, +1.70e-03, +1.39e-02, -1.56e-01
-lane: density tables 4739 + 17353 nodes in 61 s; quadrature H vs 2H 1.0e-14 (inner), 6.7e-16 (outer); spline vs direct at midpoints 1.5e-11, 2.0e-14
-  Poisson: 3337 evaluations, status 0/0
-  residual Poisson (rtol 1e-12): 7877 evaluations, status 0
-  residual Poisson (rtol 1e-10): 4133 evaluations, status 0
-lane: residual against outward solve on R <= 1e3: max |diff| 1.51e-07; residual at rtol 1e-12 against 1e-10: max |diff| 5.23e-09
-  residual Poisson (rtol 1e-12): 7952 evaluations, status 0
-lane: residual with the table at 2H: max |diff| R <= 1e0: 1.79e-14, R <= 1e3: 1.83e-14, R <= 1e5: 6.92e-14, R <= 1e7: 3.13e-12, R <= 1e8: 1.49e-11, R <= 1e9: 2.64e-11
-  residual Poisson (rtol 1e-12): 8471 evaluations, status 0
-lane: residual with the table on every other node: max |diff| R <= 1e0: 1.81e-12, R <= 1e3: 5.80e-12, R <= 1e5: 5.24e-11, R <= 1e7: 1.09e-09, R <= 1e8: 2.40e-09, R <= 1e9: 9.27e-09
-lane: c0 u rho at u = 1e-12: 5.001872023546e-01 (exact 1/2); roundtrip at log R = -10, -9, -8, -6, -4, -2, 0, 2, 4: +1.87e-04, +1.87e-04, +1.87e-04, +1.87e-04, +1.78e-04, -2.66e-05, +3.60e-06, +2.78e-04, -2.04e-03
-wrote fig08_curves.npz in 416 s
+Widrow (2000), from_function       tier warned    worst check round_trip 6.58e-03
+Lane et al. (2022), from_function  tier refused   worst check round_trip 2.05e-02
+pianist: round trip in 542 s; the potential reaches the table's floor at R = inf; budgets: tables 5.3e-11, tolerance 2.2e-16
+  max |error|: 1e-8 <= R <= 1e4 2.23e-10, 1e-8 <= R <= 1e8 1.40e-09; at log R = -10, -8, -6, -4, -2, 0, 2, 4, 6, 8: +4.59e-11, -6.91e-11, -3.86e-11, -4.04e-11, -2.54e-11, -1.33e-12, -1.47e-12, +4.75e-12, +8.94e-11, +1.37e-09
+widrow: round trip in 687 s; the potential reaches the table's floor at R = 7.0855e+06; budgets: tables 1.4e-08, tolerance 1.0e-10
+  max |error|: 1e-8 <= R <= 1e4 1.56e-01, 1e-8 <= R <= 1e8 1.00e+00; at log R = -10, -8, -6, -4, -2, 0, 2, 4, 6, 8: -3.02e-06, -1.71e-05, -1.67e-05, +1.40e-05, +3.91e-04, +1.70e-03, +1.39e-02, -1.56e-01, -7.09e-01, +nan
+lane: round trip in 1138 s; the potential reaches the table's floor at R = inf; budgets: tables 1.5e-07, tolerance 3.7e-10
+  max |error|: 1e-8 <= R <= 1e4 4.47e-03, 1e-8 <= R <= 1e8 1.01e+01; at log R = -10, -8, -6, -4, -2, 0, 2, 4, 6, 8: +3.26e-05, +1.85e-04, +1.87e-04, +1.78e-04, -2.66e-05, +3.60e-06, +2.78e-04, -2.04e-03, +3.38e-01, +1.01e+01
+wrote fig08_curves.npz in 2378 s
 ```
 
 ## The figure
@@ -4347,7 +4099,7 @@ from PIL import Image  # noqa: E402
 from PIL.PngImagePlugin import PngInfo  # noqa: E402
 from scipy.interpolate import CubicSpline  # noqa: E402
 
-NPZ, EXT, OUTPUT_FIG = "fig08_curves.npz", ".", "NFW_Benchmark_Iso_chop.png"   # [1.0.0] the cells above
+NPZ, EXT, OUTPUT_FIG = "fig08_curves.npz", ".", "NFW_Benchmark_Iso_chop.png"   # [1.0.1] the cells above
 XMIN, XMAX = (-8, 8)     # to log R = 8 (the paper: 4.7)
 
 COLOR_PIANIST = "#222222"
@@ -4434,8 +4186,8 @@ plt.setp(ax_top.get_xticklabels(), visible=False)
 
 plot_signed_delta(ax_bot, np.log10(agama[:, 0]), agama_rho, COLOR_AGAMA, label="AGAMA", fallback_y=_rho_ymax, zorder=1)
 plot_signed_delta(ax_bot, logR, z["pianist_rt"], COLOR_PIANIST, label="PIANISTpy", fallback_y=_rho_ymax, zorder=2, nan_is_gap=True)
-# the Widrow DF's self-consistent potential reaches zero at R = 7.09e6 (the curve cell: P = 1e-11 there): the model ends, its density beyond
-# is zero and the relative error exactly -1 (the legacy script likewise read 0 density past a fit's ODE range)
+# the Widrow DF's self-consistent potential reaches the floor of its DF table at the radius the curve cell prints: the model ends,
+# its density beyond is zero and the relative error exactly -1 (the legacy script likewise read 0 density past a fit's ODE range)   # [1.0.1]
 _w = np.array(z["widrow_rt"], dtype=float)
 _w[np.arange(_w.size) > np.flatnonzero(np.isfinite(_w))[-1]] = -1.0
 plot_signed_delta(ax_bot, logR, _w, COLOR_WIDROW, label="Widrow", fallback_y=_rho_ymax, zorder=2, nan_is_gap=True)
@@ -4478,9 +4230,9 @@ fig.savefig(OUTPUT_FIG, bbox_inches="tight", dpi=300)
 plt.close(fig)
 meta = PngInfo()
 meta.add_text("Title", "Benchmark of the isotropic NFW distribution function")
-meta.add_text("PIANISTpy product", "compute_df of pianistpy 1.0.0")  # [1.0.0]
-meta.add_text("Source", "fig08_curves.npz (PIANISTpy, Widrow 2000, Lane et al. 2022: forward density and Poisson solve); "
-              "galpy_numerical_iso.txt and agama_numerical_iso.txt")
+meta.add_text("PIANISTpy product", f"compute_df, from_function and round_trip of pianistpy {pp.__version__}")  # [1.0.1]
+meta.add_text("Source", "fig08_curves.npz (PIANISTpy, Widrow 2000, Lane et al. 2022: the round trip by pp.round_trip, "
+              "the density of each DF and the Poisson solver); galpy_numerical_iso.txt and agama_numerical_iso.txt")  # [1.0.1]
 pixel_crop = 22
 with Image.open(OUTPUT_FIG) as img:
     width, height = img.size
@@ -4491,14 +4243,14 @@ for name, arr, lr in (("PIANISTpy rt", z["pianist_rt"], logR), ("Widrow rt", z["
     a = np.log10(np.abs(arr[(lr >= XMIN) & (lr <= XMAX) & np.isfinite(arr) & (arr != 0)]))
     print(f"  {name}: log10|delta| over [{a.min():.2f}, {a.max():.2f}] (axis [{DELTA_RHO_YMIN}, {DELTA_RHO_YMAX}])")
 
-from IPython.display import Image as _Img, display as _display  # [1.0.0] the PNG inline
+from IPython.display import Image as _Img, display as _display  # [1.0.1] the PNG inline
 _display(_Img(OUTPUT_FIG))
 ```
 
 ```myst
 printed scale s = 0.4119 (f 1.0, slot column, W_fig 590.2 pt)
 NFW_Benchmark_Iso_chop.png: x [-8, 8]
-  PIANISTpy rt: log10|delta| over [-14.49, -8.87] (axis [-14.5, 1.0])
+  PIANISTpy rt: log10|delta| over [-14.31, -8.85] (axis [-14.5, 1.0])
   Widrow rt: log10|delta| over [-7.51, -0.00] (axis [-14.5, 1.0])
   Lane rt: log10|delta| over [-7.34, 1.00] (axis [-14.5, 1.0])
   agama rho: log10|delta| over [-8.58, -0.53] (axis [-14.5, 1.0])
@@ -4532,8 +4284,8 @@ import warnings
 
 import pianistpy as pp
 
-# The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.
-PIANISTPY_PIN = "1.0.0"
+# The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.
+PIANISTPY_PIN = "1.0.1"
 print(f"pianistpy {pp.__version__}")
 if pp.__version__ != PIANISTPY_PIN:
     raise RuntimeError(
@@ -4570,14 +4322,14 @@ def tier_line(label, result):
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```ipython3
 import numpy as np
 import pianistpy as pp
 
-Z_T = 0.16502882092587715  # the truncation energy k_t of the figure's NFW halo
+Z_T = 0.16502882092587715  # the truncation value k_t of the figure's NFW halo
 
 truncated = pp.solve(
     pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy()), pp.Truncation(k_t=Z_T)
@@ -4971,7 +4723,7 @@ last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
-cell time 5739 s
+cell time 5772 s
 ```
 
 The figure.
@@ -5489,8 +5241,8 @@ import warnings
 
 import pianistpy as pp
 
-# The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.
-PIANISTPY_PIN = "1.0.0"
+# The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.
+PIANISTPY_PIN = "1.0.1"
 print(f"pianistpy {pp.__version__}")
 if pp.__version__ != PIANISTPY_PIN:
     raise RuntimeError(
@@ -5527,14 +5279,14 @@ def tier_line(label, result):
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```ipython3
 import numpy as np
 import pianistpy as pp
 
-Z_T = 0.0079589980165958  # the truncation energy k_t of the figure's NFW halo
+Z_T = 0.0079589980165958  # the truncation value k_t of the figure's NFW halo
 BETAS = (-0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5)
 
 truncated = pp.solve(
@@ -7447,7 +7199,7 @@ Examples
 'NFW'
 ```
 
-class pianistpy.profiles.ProfileTables(*log_r*, *log_p*, *log_p_slope*, *log_r_all*, *log_mass*, *log_mass_slope*, *log_rho_coefficients*, *has_edge_row*, *r_last*, *p_last*, *rho_last*, *r_t*, *mass_t*, *edge_exponent*)
+class pianistpy.profiles.ProfileTables(*log_r*, *log_p*, *log_p_slope*, *log_r_all*, *log_mass*, *log_mass_slope*, *log_rho_coefficients*, *has_edge_row*, *r_last*, *p_last*, *rho_last*, *r_t*, *mass_t*, *edge_exponent*, *inner_amplitude*, *inner_total_amplitude*, *inner_slopes*, *inner_deficit*, *inner_deficit_slope*, *p_0*)
 
 Arrays from which a JAX function evaluates a TruncatedProfile.
 
@@ -7497,6 +7249,27 @@ where has_edge_row is False.
 
 - **edge_exponent** (*array**, **shape** (**n_components**,**)*) – Exponent \(q\) of each component’s density at the edge,
 \(\varrho \propto P^q\). Empty where the model has no edge.
+
+- **inner_amplitude** (*array**, **shape** (**n_components**,**)*) – Amplitude \(C\) of each component’s inner density series, read
+from the first node, with which the density continues inside the
+first node (TruncatedProfile.density).
+
+- **inner_total_amplitude** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Amplitude of the inner series of the total density, read from the
+enclosed mass at the first node, with which the enclosed mass and
+the potential continue inside the first node.
+
+- **inner_slopes** (*array**, **shape** (**3**,**)*) – The slopes \((\alpha, \beta, \gamma)\) of the source density.
+
+- **inner_deficit** (*array**, **shape** (**n_components**,**)*) – First-order central deficit \(\delta_1\) of each component, the
+amplitude of the density \(\delta_1 R^{-w}\) missing inside the
+first node (TruncatedProfile), in internal units; zero where no
+deficit is carried.
+
+- **inner_deficit_slope** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – The exponent \(w = 2\beta_{\rm c}\) of the missing density; zero
+where no deficit is carried.
+
+- **p_0** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Central relative potential \(P_0\), in internal units: the first
+node’s potential plus the depth at the first node.
 
 See also
 
@@ -7556,7 +7329,7 @@ units, the unit of DoublePowerLaw.mass, in which the total mass of
 the Hernquist profile is 1. \(4\pi\) times mass_trunc is the
 integral of the density over the volume.
 
-- **k_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation energy \(\mathcal{K}_{\rm t}\), in internal units.
+- **k_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation value \(\mathcal{K}_{\rm t}\), in internal units.
 
 - **r_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation radius \(R_{\rm t}\), in internal units. Infinite
 where the model is not spatially finite.
@@ -7617,17 +7390,17 @@ for a node filled in at the outer end, 5 for a closed-form outer
 node and 6 for the edge node. Default: an empty array, which means
 the sources were not recorded.
 
-- **df_k** (*array**, **shape** (**n_components**, **m**)**, **optional*) – Energies \(\mathcal{K}\) of the DF table of the model the
+- **df_k** (*array**, **shape** (**n_components**, **m**)**, **optional*) – Values \(\mathcal{K}\) of the DF table of the model the
 profile belongs to, in internal units. A component built on the
 profile (Method II) computes its own DF from the parent’s DF table.
 Default: an empty array, which means the table was not recorded.
 
-- **df_log_f** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\log_{10} F\) at the energies df_k, with \(F\) the DF in
+- **df_log_f** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\log_{10} F\) at the nodes df_k, with \(F\) the DF in
 internal units. Default: an empty array, which means the table was
 not recorded.
 
 - **df_slope** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\mathrm{d}\log_{10} F/\mathrm{d}\ln\mathcal{K}\) at the
-energies df_k. Default: an empty array, which means the table was
+nodes df_k. Default: an empty array, which means the table was
 not recorded.
 
 - **df_taylor** ([*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – For each component, the coefficients \((F_1, F_2,
@@ -7681,15 +7454,34 @@ equation and the mass integral:
 
 with \(\varrho\) the total density. The logarithm of each
 component’s density is a cubic spline in \(\ln R\). On the last
-interval of a profile with an edge node, the potential is the Kepler
-form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\), and each
+interval of a profile with an edge node, the potential is the point-mass
+(Keplerian) form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\), and each
 component’s density is \(\varrho_L (P/P_L)^q\), with
 \(\varrho_L\) and \(P_L\) the values at the last interior node
 and \(q\) from edge_exponent. At and beyond \(R_{\rm t}\), the
 relative potential and the density are zero, and the enclosed mass is
-\(\mathcal{M}_{\rm t}\). Inside the first node, and beyond the last
-node of a profile without an edge node, \(P\) and
-\(\mathcal{M}\) continue as the power laws of the end nodes.
+\(\mathcal{M}_{\rm t}\). Beyond the last node of a profile without
+an edge node, \(P\) and \(\mathcal{M}\) continue as the power
+laws of the last node.
+
+Inside the first node, the three columns continue as the inner series
+of the source density, the forms with which the Poisson solver laid the
+innermost nodes (Notes Section T:3.4), lowered by the first-order term
+of the central deficit where the model carries one: each component’s
+density is \(C R^{-\gamma} (1 + R^{\alpha})^{(\gamma - \beta)/\alpha}
+- \delta_1 R^{-2\beta_{\rm c}}\), with \(\delta_1 = D_0 / (1 +
+\kappa)\) the component’s first-order central deficit (\(D_0\) from
+central_deficit, \(\kappa\) as pianistpy.df.center.lowered_center
+states it) on a cusp with \(2\beta_{\rm c} \le \gamma\), zero
+otherwise, and the amplitude \(C\) read from the component’s density
+at the first node; the enclosed mass and the depth \(P_0 - P\) are
+the first four terms of the series integrated less the deficit’s term
+integrated, with the total amplitude read from the enclosed mass at the
+first node; and \(P_0\) is the first node’s potential plus the depth
+at the first node, so that every column is continuous at the first node.
+The deficit’s higher orders enter the amplitudes read at the first node
+and, relative to the density, fall inward as \(R^{2(\gamma -
+2\beta_{\rm c})}\); they are not carried.
 
 References
 
@@ -7741,7 +7533,8 @@ Returns:
 
 **tables** – The logarithms of the potential and of the mass and their slopes
 at the nodes, the coefficients of each component’s density
-spline, and the values at the last interior node and at the edge.
+spline, the values at the last interior node and at the edge,
+and the inner series’ amplitudes, slopes and central potential.
 
 Return type:
 
@@ -7787,8 +7580,10 @@ Returns:
 
 **p** – Relative potential \(P(R)\) in internal units, with the
 shape of r. For a profile with an edge node, \(P\) is the
-Kepler form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\) beyond
+point-mass form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\) beyond
 the last interior node and zero at and beyond \(R_{\rm t}\).
+Inside the first node, \(P\) is \(P_0\) less the inner
+series’ depth (see the class notes).
 
 Return type:
 
@@ -7836,7 +7631,9 @@ Returns:
 
 **rho** – Density of each component in internal units. For a profile with
 an edge node, the density is zero at and beyond
-\(R_{\rm t}\).
+\(R_{\rm t}\). Inside the first node, the density is the
+inner series with the amplitude read from the first node (see
+the class notes).
 
 Return type:
 
@@ -7886,7 +7683,9 @@ Returns:
 
 **mass** – Enclosed mass \(\mathcal{M}(R)\) in internal units (the unit
 of mass_trunc), with the shape of r. For a spatially finite
-profile, the mass is mass_t at and beyond r_t.
+profile, the mass is mass_t at and beyond r_t. Inside the
+first node, the mass is the inner series’ enclosed mass (see the
+class notes).
 
 Return type:
 
@@ -8039,8 +7838,10 @@ Return the radius \(R\) at which the potential takes the value p.
 Parameters:
 
 **p** (*array-like*) – User-specified relative potentials \(P\), in internal units,
-at most p_trunc at the first node. For a profile with an edge
-node, a value of zero or below gives r_t. For a profile
+below the central potential \(P_0\) (ProfileTables.p_0).
+Above p_trunc at the first node, the radius comes from the
+inner series’ depth (see the class notes). For a profile with an
+edge node, a value of zero or below gives r_t. For a profile
 without an edge node, a value of zero or below gives the radius
 of the last node.
 
@@ -8054,7 +7855,7 @@ ndarray
 
 Raises:
 
-- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a value of p is above p_trunc at the first node.
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a value of p is at or above the central potential.
 
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the potential at an interior node is not positive.
 
@@ -8446,8 +8247,8 @@ variable in internal units, with \(0 \le \mathcal{K} \le 1\).
 anisotropy, and \(\mathcal{K}\) is \(\mathcal{Q}_\pm\) for an
 Osipkov-Merritt (OM) or Cuddeford-Osipkov-Merritt (COM) model.
 \(\mathcal{L}\) is the angular momentum in internal units, and
-\(\beta_{\rm c}\) is the central anisotropy. A truncation at the
-energy \(\mathcal{K}_{\rm t}\) (Method I of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)) gives the truncated DF
+\(\beta_{\rm c}\) is the central anisotropy. A truncation at
+\(\mathcal{K}_{\rm t}\) (Method I of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)) gives the truncated DF
 
 \[\hat{F}(\hat{\mathcal{K}}, \mathcal{L}) =
 F(\hat{\mathcal{K}} + \mathcal{K}_{\rm t}, \mathcal{L})
@@ -8636,22 +8437,22 @@ Parameters:
 
 - **identity** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – Identity string of the result.
 
-- **grid** (*EnergyGrid*) – Energies of the DF table and the radii at which the untruncated
-relative potential equals each energy.
+- **grid** (*KGrid*) – K values of the DF table and the radii at which the untruncated
+relative potential equals each value.
 
-- **table** (*DfTable*) – The DF of each component at the energies of grid.
+- **table** (*DfTable*) – The DF of each component at the nodes of grid.
 
-- **form** (*AsymptoticForm*) – Analytic form of each DF below and above the energies of the DF
+- **form** (*AsymptoticForm*) – Analytic form of each DF below and above the K values of the DF
 table.
 
-- **k_t_min** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Lowest admissible truncation energy \(\mathcal{K}_{\rm t}\), in
+- **k_t_min** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Lowest admissible truncation value \(\mathcal{K}_{\rm t}\), in
 internal units. `k_t_min` is zero where every untruncated DF is a
 valid equilibrium as it stands (is_physical). Otherwise
-`k_t_min` is the largest of the highest energy at which a DF is
-negative, the energy of a DF’s interior minimum and, for a Type II
+`k_t_min` is the largest of the highest K at which a DF is
+negative, the K of a DF’s interior minimum and, for a Type II
 model, the relative potential \(P(R_{\rm a})\) at the anisotropy
 radius \(R_{\rm a}\). Where \(P(R_{\rm a})\) is the largest
-of these energies, `k_t_min` is the next double above
+of these values, `k_t_min` is the next double above
 \(P(R_{\rm a})\). truncate also checks
 that the edge of a truncated Type II model lies inside
 \(R_{\rm a}\).
@@ -8667,7 +8468,7 @@ compute_df holds an InversionRecord.
 - **units** ([*Units*](https://pianistpy.com/docs/reference/api/units#pianistpy.units.Units)*, **optional*) – Unit system in which the result is presented (to). Default:
 `Units()`, which means internal units.
 
-- **rows** (*InversionRows** or **None**, **optional*) – Values of the inversion at every energy of the inversion’s grid,
+- **rows** (*InversionRows** or **None**, **optional*) – Values of the inversion at every node of the inversion’s grid,
 which truncate reads. Default: `None`, which means that the DF
 table was not made by an inversion.
 
@@ -8707,9 +8508,9 @@ classmethod from_function(*component*, *f*, *settings=None*)
 
 Return the distribution function that a user-specified function gives.
 
-The user-specified function is a distribution function (DF) of the
-energy, such as a fitting function. The package tabulates the
-function on the energy grid that compute_df uses for the given
+The user-specified function is a distribution function (DF) of
+\(\mathcal{K}\), such as a fitting function. The package tabulates the
+function on the K grid that compute_df uses for the given
 component and settings, and validates the tabulated DF against the
 component’s density. Like a DistributionFunction from
 compute_df, the result holds analytic forms below and above the
@@ -8723,12 +8524,12 @@ Parameters:
 must be an analytic profile (a DoublePowerLaw).
 
 - **f** (*callable*) – Function `f(k, depth)` of two arrays of equal shape: the
-energies \(\mathcal{K}\) of the DF table in internal units,
-and the depth \(P_0 - \mathcal{K}\) at each energy, with
+values \(\mathcal{K}\) of the DF table in internal units,
+and the depth \(P_0 - \mathcal{K}\) at each value, with
 \(P_0 = 1\) the central relative potential. `f` returns
-the DF \(F\) (not its logarithm) at each energy, as an array
+the DF \(F\) (not its logarithm) at each value, as an array
 of the shape of `k`. The package passes `depth` as
-`1 - k` in double precision, which is exact for every energy
+`1 - k` in double precision, which is exact for every
 \(\mathcal{K} \ge 1/2\). A function of \(\mathcal{K}\)
 alone may ignore `depth`.
 
@@ -8752,8 +8553,8 @@ Raises:
 
 - [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If f is not callable, returns an array whose shape differs
     from the shape of `k`, or returns a value that is not finite
-    at an energy of the grid. For a value that is not finite, the
-    message states the first energy with such a value.
+    at a node of the grid. For a value that is not finite, the
+    message states the first node with such a value.
 
 - [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If the component is built on a TruncatedProfile.
 
@@ -8797,11 +8598,89 @@ is_physical is true if k_t_min is zero.
 
 property diverges_at_zero: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[bool](https://docs.python.org/3/builtins/functions.html#bool), ...]
 
-Whether the DF of each component diverges as the energy goes to zero.
+Whether the DF of each component diverges as K goes to zero.
 
 A DF that goes as \(\mathcal{K}^p\) with \(-1 < p < 0\) as
-the energy \(\mathcal{K}\) goes to zero is integrable and gives a
+\(\mathcal{K}\) goes to zero is integrable and gives a
 finite density, but such a DF is not monotonic.
+
+evaluate(*k*, *depth=None*)
+
+Return the distribution function at given values of K.
+
+The DF is read through the package’s own lookup of the DF table and
+of the analytic forms below and above the table, the lookup that
+every stage of the package reads. The result holds one component in
+this release, and evaluate reads that component’s DF.
+
+Parameters:
+
+- **k** (*array-like*) – Values of \(\mathcal{K}\), in the unit system of the
+result (units): internal units by default, where the central
+relative potential is \(P_0 = 1\). In the physical system, a
+float in \({\rm km^2\,s^{-2}}\) or an Astropy quantity of any
+unit of a potential.
+
+- **depth** (*array-like**, **optional*) – Depth \(P_0 - \mathcal{K}\) at each value, in internal
+units, broadcast against k, given where the caller holds the
+depth to full relative precision and NaN where the point is
+given by k. Near \(P_0\) the subtraction
+\(P_0 - \mathcal{K}\) loses digits, and a given depth keeps
+them. Default: `None`, which means that every point is given
+by k.
+
+Returns:
+
+**df** – The DF \(F(\mathcal{K})\) at each value, with the shape of
+k, in the unit system of the result: a float64 array in the
+internal and the model systems, an Astropy quantity of mass per
+volume per velocity cubed in the physical system. Zero where the
+DF is zero: at and below \(\mathcal{K} = 0\) and at and above
+\(P_0\).
+
+Return type:
+
+array or Quantity
+
+Raises:
+
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the DF is negative somewhere on its table. The lookup reads a
+    non-negative DF; k_t_min and is_physical state where such a
+    DF is negative.
+
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If units names a unit system whose scales are not set.
+
+See also
+
+[`round_trip`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.round_trip)
+The density the DF gives and the potential it generates, against the analytic profile.
+
+[`compute_df`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.compute_df)
+The DF computed by inversion of the density.
+
+[`DistributionFunction.from_function`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.DistributionFunction.from_function)
+A DF given as a function of \(\mathcal{K}\).
+
+References
+
+Notes Section T:2 (the DF table and its forms) and Notes Section
+T:2.7 (a DF supplied as input).
+
+Examples
+
+The isotropic Plummer DF tabulated from its closed form, read back
+at a value of K inside the table:
+
+```python
+>>> import pianistpy as pp
+>>> def plummer(k, depth):
+...     return 1.965117148288 * k**3.5
+>>> df = pp.DistributionFunction.from_function(
+...     pp.Component(pp.DoublePowerLaw.plummer()), plummer
+... )
+>>> round(float(df.evaluate(0.5)) / plummer(0.5, 0.5), 9)
+1.0
+```
 
 to(*system*, *concentration=None*, *mass_0=None*, *r_0=None*, *r_vir=None*)
 
@@ -8915,8 +8794,8 @@ Write the DF table to a fixed-width text file.
 
 The text file is an export for reading outside the package, and
 pianistpy.read does not read it. The file holds one line per
-energy of each component’s support, with the columns `k` (the
-energy \(\mathcal{K}\) in internal units, in which the central
+node of each component’s support, with the columns `k` (the
+value of \(\mathcal{K}\) in internal units, in which the central
 relative potential of the untruncated profile is 1), `log10_df`
 (the base-10 logarithm of the DF) and `dlog10_df_dlnk` (the slope
 \({\rm d}\log_{10} F / {\rm d}\ln \mathcal{K}\)). A model of more
@@ -8969,7 +8848,7 @@ An equilibrium model of one or more components, truncated or untruncated.
 
 truncate and solve return a Model. The distribution function (DF)
 of every component of a model is non-negative. A DF that diverges as
-the energy goes to zero is not monotonic (diverges_at_zero). Whether
+K goes to zero is not monotonic (diverges_at_zero). Whether
 the model’s density reaches zero at a finite radius is the property
 spatially_finite.
 
@@ -8989,7 +8868,7 @@ was built.
 
 - **table** (*DfTable*) – The DF of each component of the model.
 
-- **form** (*AsymptoticForm*) – Analytic form of each DF below and above the energies of the DF
+- **form** (*AsymptoticForm*) – Analytic form of each DF below and above the K values of the DF
 table.
 
 - **profile** ([*TruncatedProfile*](https://pianistpy.com/docs/reference/api/profiles#pianistpy.profiles.TruncatedProfile)) – Self-consistent density, mass and relative potential of the model.
@@ -9049,10 +8928,10 @@ Whether the model’s density reaches zero at a finite radius.
 
 property diverges_at_zero: [tuple](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[bool](https://docs.python.org/3/builtins/functions.html#bool), ...]
 
-Whether the DF of each component diverges as the energy goes to zero.
+Whether the DF of each component diverges as K goes to zero.
 
 A DF that goes as \(\mathcal{K}^p\) with \(-1 < p < 0\) as
-the energy \(\mathcal{K}\) goes to zero is integrable. A model
+\(\mathcal{K}\) goes to zero is integrable. A model
 with such a DF is a valid equilibrium with a finite density, but the
 model’s DF is not monotonic.
 
@@ -9278,15 +9157,216 @@ Examples
 '# PIANISTpy radial profile'
 ```
 
+class pianistpy.df.RoundTrip(*components*, *settings*, *identity*, *df_identity*, *df_source*, *function_name*, *r*, *potential*, *delta*, *mass*, *density*, *error*, *closure*, *r_floor*, *budget_table*, *budget_tolerance*, *timing*, *units=Units(system='internal', concentration=None, mass_0_msun=None, r_0_pc=None)*)
+
+The round trip of a distribution function against its analytic profile.
+
+round_trip returns a RoundTrip. The arrays are in internal units,
+with the central relative potential \(P_0 = 1\); radial_profiles
+presents them in the unit system of units.
+
+Parameters:
+
+- **components** ([*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*Component*](https://pianistpy.com/docs/reference/api/df#pianistpy.df.Component)) – The component of the DF.
+
+- **settings** ([*Settings*](https://pianistpy.com/docs/reference/api/settings#pianistpy.settings.Settings)) – Numerical settings of the round trip (the group `round_trip`).
+
+- **identity** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – Identity string of the result.
+
+- **df_identity** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)) – Identity string of the DistributionFunction the round trip read.
+
+- **df_source** (*{"inversion"**, **"function"}*) – Origin of the DF table’s values, as DistributionFunction.source.
+
+- **function_name** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)* or **None*) – The `__name__` of the DF function, as
+DistributionFunction.function_name.
+
+- **r** (*array*) – Radii \(R\) of the result, in internal units.
+
+- **potential** (*array*) – The relative potential \(P(R)\) that the density of the DF
+generates. NaN beyond the radius r_floor.
+
+- **delta** (*array*) – The residual \(\delta(R) = P(R) - P_{\rm ref}(R)\) of the
+potential against the analytic potential. NaN beyond r_floor.
+
+- **mass** (*array*) – The enclosed mass \(\mathcal{M}(R)\) of the density of the DF.
+NaN beyond r_floor.
+
+- **density** (*array*) – The density \(\varrho_F(P(R), R)\) that the DF gives at the
+potential it generates. NaN beyond r_floor.
+
+- **error** (*array*) – The relative difference \(\varrho_F(P(R), R) /
+\varrho_{\rm ref}(R) - 1\) against the analytic density, at every
+radius. NaN beyond r_floor.
+
+- **closure** (*array*) – The closure \(c(P_{\rm ref}(R))\): the relative difference of
+the density of the DF against the analytic density at the ANALYTIC
+potential, before Poisson’s equation.
+
+- **r_floor** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – The radius at which the potential reached the floor of the DF table,
+in internal units; infinite where the potential stayed above the
+floor out to the last radius.
+
+- **budget_table** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – The largest difference between the spline of the closure and the
+direct quadrature at the midpoints of sampled cells of the two
+tables: the part of error that the tables’ interpolation can
+contribute.
+
+- **budget_tolerance** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – The largest difference in error between the solve at the
+settings’ relative tolerance and a solve at a hundred times that
+tolerance: the part of error that the integration can contribute.
+
+- **timing** ([*dict*](https://docs.python.org/3/builtins/stdtypes.html#dict)* of **str to float*) – Elapsed time of each step, in seconds.
+
+- **units** ([*Units*](https://pianistpy.com/docs/reference/api/units#pianistpy.units.Units)*, **optional*) – Unit system in which radial_profiles presents the result (to).
+Default: `Units()`, which means internal units.
+
+See also
+
+[`round_trip`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.round_trip)
+The function that returns a RoundTrip.
+
+[`DistributionFunction.evaluate`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.DistributionFunction.evaluate)
+The DF at given values of K.
+
+References
+
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 4.1 and Fig. 8.
+
+radial_profiles()
+
+Return the radial profiles of the round trip in the unit system of units.
+
+Returns:
+
+**profiles** – The keys `r`, `potential`, `mass` and `density`, each
+converted to the unit system of units, and the keys `error`
+and `closure`, which are relative differences and have no
+unit. Each value has the shape of r.
+
+Return type:
+
+[dict](https://docs.python.org/3/builtins/stdtypes.html#dict)
+
+See also
+
+[`RoundTrip.to`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.RoundTrip.to)
+A round trip presented in another unit system.
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> df = pp.compute_df(pp.Component(pp.DoublePowerLaw.plummer()))
+>>> trip = pp.round_trip(df, radii=[0.5, 1.0, 2.0])
+>>> sorted(trip.radial_profiles())
+['closure', 'density', 'error', 'mass', 'potential', 'r']
+```
+
+to(*system*, *concentration=None*, *mass_0=None*, *r_0=None*, *r_vir=None*)
+
+Return the round trip presented in another unit system.
+
+The values of the result are not recomputed and stay in internal
+units. radial_profiles of the returned result presents them in
+the returned result’s unit system.
+
+Parameters:
+
+- **system** (*{"internal"**, **"model"**, **"physical"}*) – Target unit system: `"internal"` (\(G = \rho_0/C = r_0 =
+1\)), `"model"` (\(G = M_0 = r_0 = 1\)) or `"physical"`
+(Astropy quantities).
+
+- **concentration** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – Concentration \(c\), positive. The mass unit \(M_0\) is
+the mass of the untruncated profile inside \(c\,r_0\). The
+model and the physical systems need concentration. Default:
+`None`, which means that no concentration is given.
+
+- **mass_0** ([*float*](https://docs.python.org/3/builtins/functions.html#float)* or **Quantity**, **optional*) – The mass unit \(M_0\) in solar masses, for the physical
+system. Default: `None`.
+
+- **r_0** ([*float*](https://docs.python.org/3/builtins/functions.html#float)* or **Quantity**, **optional*) – The scale radius \(r_0\) in parsecs, for the physical
+system. Default: `None`.
+
+- **r_vir** ([*float*](https://docs.python.org/3/builtins/functions.html#float)* or **Quantity**, **optional*) – The virial radius \(c\,r_0\) in parsecs, in place of r_0,
+for the physical system. Default: `None`.
+
+Returns:
+
+**trip** – The round trip with unchanged values, with the attribute
+units set to the target unit system.
+
+Return type:
+
+[RoundTrip](https://pianistpy.com/docs/reference/api/df#pianistpy.df.RoundTrip)
+
+Raises:
+
+[**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If system is not one of the three unit systems, or the scales
+    the system needs are missing or inconsistent.
+
+See also
+
+[`DistributionFunction.to`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.DistributionFunction.to)
+The same presentation of a DF.
+
+Examples
+
+```python
+>>> import pianistpy as pp
+>>> df = pp.compute_df(pp.Component(pp.DoublePowerLaw.plummer()))
+>>> trip = pp.round_trip(df, radii=[1.0])
+>>> trip.to("model", concentration=10.0).units.system
+'model'
+```
+
+write(*path*, *overwrite=False*)
+
+Write the round trip to an HDF5 file.
+
+pianistpy.read reads the file back into a RoundTrip with the
+same identity and the same arrays. The file records the identity of
+the DistributionFunction as the round trip’s parent.
+
+Parameters:
+
+- **path** ([*str*](https://docs.python.org/3/builtins/stdtypes.html#str)* or **path-like*) – Path of the HDF5 file to write.
+
+- **overwrite** ([*bool*](https://docs.python.org/3/builtins/functions.html#bool)*, **optional*) – Whether to replace an existing file at path. Default:
+`False`, which means that an existing file is kept and
+InputError is raised.
+
+Raises:
+
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a file exists at path and overwrite is false.
+
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the written file does not read back as written.
+
+Return type:
+
+None
+
+Examples
+
+```python
+>>> import os, tempfile
+>>> import pianistpy as pp
+>>> df = pp.compute_df(pp.Component(pp.DoublePowerLaw.plummer()))
+>>> trip = pp.round_trip(df, radii=[1.0])
+>>> path = os.path.join(tempfile.mkdtemp(), "trip.h5")
+>>> trip.write(path)
+>>> pp.read(path).identity == trip.identity
+True
+```
+
 class pianistpy.df.Truncation(*k_t=None*, *mass_t=None*, *r_t=None*, *concentration=None*)
 
 Truncation of a model’s distribution function (Method I).
 
-A truncation shifts the distribution function (DF) in energy by the
-truncation energy \(\mathcal{K}_{\rm t}\) and lowers the DF by the
+A truncation shifts the distribution function (DF) in \(\mathcal{K}\) by the
+truncation value \(\mathcal{K}_{\rm t}\) and lowers the DF by the
 DF’s value at \(\mathcal{K}_{\rm t}\), which gives a model of finite
 mass and finite radius (Method I of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)). The truncation is given
-by exactly one of three inputs: the truncation energy k_t, a target
+by exactly one of three inputs: the truncation value k_t, a target
 mass mass_t or a target radius r_t. A target mass is given together
 with the concentration that defines the unit of the target mass.
 Method II needs no Truncation: a Method II model is a Component
@@ -9294,7 +9374,7 @@ whose profile is the TruncatedProfile of another model.
 
 Parameters:
 
-- **k_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – Truncation energy \(\mathcal{K}_{\rm t}\), positive, in internal
+- **k_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – Truncation value \(\mathcal{K}_{\rm t}\), positive, in internal
 units, in which the central relative potential of the untruncated
 profile is 1. Default: `None`, which means that mass_t or r_t
 is given.
@@ -9303,13 +9383,13 @@ is given.
 \(M_0\), the mass of the untruncated profile inside the radius
 \(c\,r_0\) (model units). A value of 1 is the virial mass.
 mass_t is the one input of Truncation that is not in internal
-units. The truncation energy is solved for. mass_t requires
+units. The truncation value is solved for. mass_t requires
 concentration. Default: `None`, which means that k_t or r_t
 is given.
 
 - **r_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – Target truncation radius \(R_{\rm t}\), positive, in units of
 the scale radius \(r_0\), the unit of length of the internal
-and the model systems. The truncation energy is solved for.
+and the model systems. The truncation value is solved for.
 Default: `None`, which means that k_t or mass_t is given.
 
 - **concentration** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – Concentration \(c\) of the first component, positive. The mass
@@ -9430,7 +9510,7 @@ Return the untruncated distribution function of a component.
 
 The distribution function (DF) is returned whatever its sign. The
 result states where the DF is negative, and the lowest truncation
-energy \(\mathcal{K}_{\rm t}\) that gives a valid equilibrium. Call
+value \(\mathcal{K}_{\rm t}\) that gives a valid equilibrium. Call
 solve for the model itself. Call compute_df to inspect the DF before
 choosing a truncation, or to truncate one DF in several ways.
 
@@ -9444,9 +9524,9 @@ the default settings.
 
 Returns:
 
-**df** – The DF of the component, tabulated on an energy grid, with its
-analytic forms below and above the energies of the table, the
-lowest admissible truncation energy `k_t_min` in internal units,
+**df** – The DF of the component, tabulated on a K grid, with its
+analytic forms below and above the K values of the table, the
+lowest admissible truncation value `k_t_min` in internal units,
 and the validation report of the DF.
 
 Return type:
@@ -9498,7 +9578,7 @@ The equilibrium model of a component in one call.
 The equilibrium model built from a distribution function.
 
 [`DistributionFunction.from_function`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.DistributionFunction.from_function)
-A DF given as a function of the energy.
+A DF given as a function of \(\mathcal{K}\).
 
 Notes
 
@@ -9520,6 +9600,93 @@ Examples
 >>> df = pp.compute_df(pp.Component(pp.DoublePowerLaw.hernquist()))
 >>> df.is_physical, df.k_t_min
 (True, 0.0)
+```
+
+pianistpy.df.round_trip(*df*, *radii=None*, *settings=None*)
+
+Return the round trip of a distribution function against its analytic profile.
+
+The round trip is the density that the DF gives, the potential that
+this density generates by Poisson’s equation, and the relative
+difference of the density, at the potential it generates, against the
+analytic density, at every radius. The three steps run through the
+package’s own machinery, the same for a DF from compute_df and for a
+DF from DistributionFunction.from_function, so a fitting function of
+the DF is compared with the inverted DF on equal terms. The module
+docstring of pianistpy.df.round_trip states the method.
+
+Parameters:
+
+- **df** ([*DistributionFunction*](https://pianistpy.com/docs/reference/api/df#pianistpy.df.DistributionFunction)) – An untruncated DF of one component built on an analytic profile
+(a DoublePowerLaw), from compute_df or from
+DistributionFunction.from_function.
+
+- **radii** (*array-like**, **optional*) – Radii \(R\) at which the result is reported, in the unit system
+of df (DistributionFunction.units): internal units by default,
+in the physical system a float in parsecs or an Astropy quantity of
+any length unit. Every radius must lie at or beyond the starting
+radius of the integration (the setting `log10_r_start`). Default:
+`None`, which means the grid of the settings: from
+`log10_r_min` to `log10_r_max` with `rows_per_decade` radii
+per decade.
+
+- **settings** ([*Settings*](https://pianistpy.com/docs/reference/api/settings#pianistpy.settings.Settings)*, **optional*) – Numerical settings; the round trip reads the group `round_trip`.
+Default: `None`, which means the settings of df.
+
+Returns:
+
+**trip** – The round trip: the potential, the residual of the potential, the
+enclosed mass, the density and the relative difference against the
+analytic density at each radius, the closure before Poisson’s
+equation, the radius at which the potential reached the floor of
+the DF table, and the two budgets (the tables’ interpolation and
+the integration’s tolerance).
+
+Return type:
+
+[RoundTrip](https://pianistpy.com/docs/reference/api/df#pianistpy.df.RoundTrip)
+
+Raises:
+
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If df is not a DistributionFunction, holds more than one
+    component, is built on a TruncatedProfile (a Method II DF; the
+    round trip compares against an analytic profile), or belongs to a
+    Type II anisotropy model (an untruncated Type II DF has no density
+    beyond the anisotropy radius, and the package’s validation does not
+    judge its round trip either).
+
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a radius of radii lies inside the starting radius of the
+    integration or beyond the setting `log10_r_max`.
+
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the DF is negative somewhere on its table. The round trip reads
+    a non-negative DF; DistributionFunction.k_t_min states where
+    such a DF is negative.
+
+See also
+
+[`DistributionFunction.evaluate`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.DistributionFunction.evaluate)
+The DF at given values of K.
+
+[`DistributionFunction.from_function`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.DistributionFunction.from_function)
+A DF given as a function of K, for the round trip of a fitting function.
+
+[`compute_df`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.compute_df)
+The DF computed by inversion of the density.
+
+References
+
+[Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 4.1 and Fig. 8.
+
+Examples
+
+The round trip of the package’s own Plummer DF at three radii:
+
+```python
+>>> import pianistpy as pp
+>>> df = pp.compute_df(pp.Component(pp.DoublePowerLaw.plummer()))
+>>> trip = pp.round_trip(df, radii=[0.1, 1.0, 10.0])
+>>> bool(np.all(np.abs(trip.error) < 1e-8))
+True
 ```
 
 pianistpy.df.solve(*components*, *truncation=None*, *settings=None*)
@@ -9593,7 +9760,7 @@ pianistpy.df.truncate(*df*, *truncation=None*)
 Return the equilibrium model built from a distribution function.
 
 With a Truncation, the model’s DF is the untruncated DF shifted in
-energy by the truncation energy \(\mathcal{K}_{\rm t}\) and lowered
+\(\mathcal{K}\) by the truncation value \(\mathcal{K}_{\rm t}\) and lowered
 by the untruncated DF’s value at \(\mathcal{K}_{\rm t}\), which
 gives a model of finite mass and finite radius (Method I of
 [Chiang+(2026d)](https://arxiv.org/abs/2610.28758)). Without a truncation, the untruncated DF is the
@@ -9624,8 +9791,8 @@ Raises:
     holds the function’s values only, and a truncation needs the values
     of the inversion.
 
-- [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the truncation energy \(\mathcal{K}_{\rm t}\) is below
-    `df.k_t_min`, or no admissible truncation energy reaches the
+- [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the truncation value \(\mathcal{K}_{\rm t}\) is below
+    `df.k_t_min`, or no admissible truncation value reaches the
     target mass or the target radius of truncation.
 
 - [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the central density slope \(\gamma\) is below
@@ -9645,7 +9812,7 @@ Raises:
     diverges.
 
 - [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the component is built on a TruncatedProfile and the DF is
-    negative at an energy inside the DF’s support.
+    negative at a value of K inside the DF’s support.
 
 - [**AccuracyError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.AccuracyError) – If a check of the model’s validation report lies above
     \(10^{-2}\) (the band “refused”), the round trip of the model’s
@@ -9671,7 +9838,7 @@ The untruncated distribution function.
 compute_df and truncate in one call.
 
 [`Truncation`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.Truncation)
-The truncation energy, target mass or target radius.
+The truncation value, target mass or target radius.
 
 Notes
 
@@ -9718,11 +9885,11 @@ Jacobians of those functions ([End-to-end differentiability](https://pianistpy.c
 Derivatives of a component’s distribution function in its anisotropy.
 
 This module returns the distribution function (DF) \(F(Q)\) that
-compute_df makes for a component, at fixed relative energies \(Q\),
+compute_df makes for a component, at fixed values of \(Q\),
 together with the derivatives of \(F\) in the anisotropy parameters
 \(\theta = (\beta_{\rm c}, R_{\rm a})\). inversion_nodes returns the
-energies at which compute_df evaluates \(F\). rows_jacobian returns
-\(F\) and its derivatives at the energies of inversion_nodes as
+nodes at which compute_df evaluates \(F\). rows_jacobian returns
+\(F\) and its derivatives at the nodes of inversion_nodes as
 arrays, and table_jacobian returns every array of the DF’s table and its
 derivatives. make_inversion_rows returns \(F\), and
 make_inversion_table returns the arrays of the DF’s table, as JAX
@@ -9753,7 +9920,7 @@ differences in \(b\), for comparison with the accuracy bounds
 validation reports.
 
 The derivative of the DF’s table follows by the chain rule through each
-array of the table. The energies and every discrete choice of the table are
+array of the table. The nodes and every discrete choice of the table are
 held at the parameters the call is given. For a component on a
 TruncatedProfile (Method II), the profile is held, and the derivative of
 the source is the derivative of the inverse anisotropy factor in closed
@@ -9772,11 +9939,11 @@ critical branch, where the inner slope \(\gamma\) of the density equals
 
 pianistpy.df.gradient.inversion_nodes(*component*, *settings*)
 
-Return the energies at which compute_df inverts a component.
+Return the nodes at which compute_df inverts a component.
 
-The energies are the relative energies \(Q\) at which compute_df
+The nodes are the values of \(Q\) at which compute_df
 evaluates the DF \(F(Q)\) for the given component and settings. The
-other public functions of pianistpy.df.gradient hold the energies of
+other public functions of pianistpy.df.gradient hold the nodes of
 inversion_nodes fixed when the anisotropy parameters change.
 
 Parameters:
@@ -9787,7 +9954,7 @@ Parameters:
 
 Returns:
 
-**q** – Relative energies \(Q\), strictly increasing, in internal
+**q** – Values of \(Q\), strictly increasing, in internal
 units.
 
 Return type:
@@ -9796,10 +9963,10 @@ ndarray, shape (n,)
 
 Raises:
 
-- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If the energies that settings places include two energies that
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If the nodes that settings places include two nodes that
     float64 cannot separate.
 
-- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the component is Osipkov-Merritt Type II or COM, whose energies
+- [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the component is Osipkov-Merritt Type II or COM, whose nodes
     are placed around a feature of a first coarse inversion, and the
     coarse inversion finds a derivative of the auxiliary density that
     is not finite.
@@ -9807,10 +9974,10 @@ Raises:
 See also
 
 [`rows_jacobian`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.rows_jacobian)
-The DF and its derivatives at the energies of inversion_nodes.
+The DF and its derivatives at the nodes of inversion_nodes.
 
 [`make_inversion_rows`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.make_inversion_rows)
-The DF at the energies of inversion_nodes as a JAX function.
+The DF at the nodes of inversion_nodes as a JAX function.
 
 Examples
 
@@ -9826,10 +9993,10 @@ True
 
 pianistpy.df.gradient.make_inversion_rows(*component*, *settings*, *q=None*)
 
-Return the DF at fixed energies as a JAX function of the anisotropy.
+Return the DF at fixed nodes as a JAX function of the anisotropy.
 
 The returned function maps the anisotropy parameters \(\theta\) to
-the DF \(F(Q)\) that compute_df makes at the relative energies
+the DF \(F(Q)\) that compute_df makes at the values
 q. The reverse-mode derivative of the returned function at each
 \(\theta\) is the derivative that rows_jacobian returns at that
 \(\theta\). For the derivatives as arrays, call rows_jacobian
@@ -9845,8 +10012,8 @@ point at which the steps of the finite differences in
 
 - **settings** ([*Settings*](https://pianistpy.com/docs/reference/api/settings#pianistpy.settings.Settings)) – Numerical settings, the same as those given to compute_df.
 
-- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Relative energies \(Q\), increasing, in internal units.
-Default: `None`, which means the energies that inversion_nodes
+- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Values of \(Q\), increasing, in internal units.
+Default: `None`, which means the nodes that inversion_nodes
 returns for component and settings.
 
 Returns:
@@ -9859,18 +10026,18 @@ of shape (n,) that holds \(F(Q)\) at q, in internal units.
 - **params** (*tuple of str*) – Names of the anisotropy parameters in `theta`: `("beta_c",)`,
 `("r_a",)` or `("beta_c", "r_a")`.
 
-- **q** (*ndarray, shape (n,)*) – Relative energies \(Q\), in internal units: q as given, or the
-energies of inversion_nodes.
+- **q** (*ndarray, shape (n,)*) – Values of \(Q\), in internal units: q as given, or the
+nodes of inversion_nodes.
 
 Raises:
 
 - [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If the anisotropy is COM Type II.
 
-- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If q is `None` and the energies that settings places include
-    two energies that float64 cannot separate.
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If q is `None` and the nodes that settings places include
+    two nodes that float64 cannot separate.
 
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If q is `None`, the component is Osipkov-Merritt Type II or
-    COM, and the coarse inversion that places the energies finds a
+    COM, and the coarse inversion that places the nodes finds a
     derivative of the auxiliary density that is not finite.
 
 Return type:
@@ -9880,18 +10047,18 @@ Return type:
 See also
 
 [`rows_jacobian`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.rows_jacobian)
-The DF at fixed energies and its derivatives as arrays.
+The DF at fixed nodes and its derivatives as arrays.
 
 [`make_inversion_table`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.make_inversion_table)
 Every array of the DF’s table as a JAX function.
 
 [`inversion_nodes`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.inversion_nodes)
-The energies at which compute_df evaluates the DF.
+The nodes at which compute_df evaluates the DF.
 
 Notes
 
 Each call of `rows` inverts the component again at the new
-parameters, at the energies q. Each derivative of `rows` calls
+parameters, at the nodes q. Each derivative of `rows` calls
 rows_jacobian, which raises InputError for a component on a
 TruncatedProfile.
 
@@ -9927,7 +10094,7 @@ pianistpy.df.gradient.make_inversion_table(*component*, *settings*, *q=None*)
 Return the arrays of the DF’s table as a JAX function of the anisotropy.
 
 The returned function maps the anisotropy parameters \(\theta\) to
-the arrays of the table that compute_df makes. The energies of the
+the arrays of the table that compute_df makes. The nodes of the
 table and the set of its arrays are held at the component’s own
 parameters. The other discrete choices of the table, the anchor of the
 form at the center and the nodes kept, are made again at each
@@ -9946,10 +10113,10 @@ TruncatedProfile (Method II).
 
 - **settings** ([*Settings*](https://pianistpy.com/docs/reference/api/settings#pianistpy.settings.Settings)) – Numerical settings, the same as those given to compute_df.
 
-- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Relative energies \(Q\), increasing, in internal units, for a
+- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Values of \(Q\), increasing, in internal units, for a
 component on an analytic profile. Default: `None`, which means
-the energies that inversion_nodes returns for component and
-settings. A component on a TruncatedProfile takes the energies
+the nodes that inversion_nodes returns for component and
+settings. A component on a TruncatedProfile takes the nodes
 of its own solve, and q is not used.
 
 Returns:
@@ -9957,13 +10124,13 @@ Returns:
 - **table** (*callable*) – Function `table(theta)`. The argument `theta` is an array of the
 parameter values in the order of params. The value is a dict of
 JAX arrays with every key of table_jacobian’s `values` except
-the energies `k` and `k_below`. `jax.grad` and `jax.vjp`
+the nodes `k` and `k_below`. `jax.grad` and `jax.vjp`
 differentiate `table`.
 
 - **params** (*tuple of str*) – Names of the anisotropy parameters in `theta`: `("beta_c",)`,
 `("r_a",)` or `("beta_c", "r_a")`.
 
-- **values** (*dict of ndarray*) – Arrays of the table at the component’s own parameters, energies
+- **values** (*dict of ndarray*) – Arrays of the table at the component’s own parameters, nodes
 included, as table_jacobian returns them.
 
 Raises:
@@ -9982,8 +10149,8 @@ Raises:
     but not spatially finite.
 
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If a derivative of the auxiliary density is not finite at the
-    energies, or if the DF of a component on a TruncatedProfile has a
-    defective band at the top of its energies.
+    nodes, or if the DF of a component on a TruncatedProfile has a
+    defective band at the top of its nodes.
 
 Return type:
 
@@ -9995,13 +10162,13 @@ See also
 The arrays of the DF’s table and their derivatives as arrays.
 
 [`make_inversion_rows`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.make_inversion_rows)
-The DF at the energies of the inversion as a JAX function.
+The DF at the K values of the inversion as a JAX function.
 
 Notes
 
 The call computes the table and its derivatives once, at the
 component’s own parameters. Each call of `table` inverts the
-component again at the new parameters, with the held energies. Each
+component again at the new parameters, with the held nodes. Each
 derivative of `table` calls table_jacobian. The steps of the finite
 differences in \(\beta_{\rm c}\) are measured once, at the
 component’s own parameters, and are used at every `theta`.
@@ -10026,10 +10193,10 @@ Examples
 
 pianistpy.df.gradient.rows_jacobian(*component*, *settings*, *q=None*, *steps=None*)
 
-Return the DF at fixed energies and its derivatives in the anisotropy.
+Return the DF at fixed nodes and its derivatives in the anisotropy.
 
 The values are the DF \(F(Q)\) that compute_df makes, at the
-relative energies q. The derivatives are those of \(F\) in the
+values q. The derivatives are those of \(F\) in the
 component’s anisotropy parameters at fixed q. For the derivatives of
 every array of the DF’s table (the nodes below the table, the form at
 the center and the tail), call table_jacobian instead.
@@ -10042,8 +10209,8 @@ I anisotropy.
 
 - **settings** ([*Settings*](https://pianistpy.com/docs/reference/api/settings#pianistpy.settings.Settings)) – Numerical settings, the same as those given to compute_df.
 
-- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Relative energies \(Q\), increasing, in internal units.
-Default: `None`, which means the energies that inversion_nodes
+- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Values of \(Q\), increasing, in internal units.
+Default: `None`, which means the nodes that inversion_nodes
 returns for component and settings.
 
 - **steps** ([*dict*](https://docs.python.org/3/builtins/stdtypes.html#dict)*, **optional*) – Dictionary that keeps the steps of the finite differences in
@@ -10057,8 +10224,8 @@ each call measures its own steps and keeps them nowhere.
 
 Returns:
 
-- **q** (*ndarray, shape (n,)*) – Relative energies \(Q\), in internal units: q as given, or
-the energies of inversion_nodes.
+- **q** (*ndarray, shape (n,)*) – Values of \(Q\), in internal units: q as given, or
+the nodes of inversion_nodes.
 
 - **f** (*ndarray, shape (n,)*) – DF \(F(Q)\) at q, as compute_df makes it, in internal units.
 
@@ -10108,10 +10275,10 @@ Return type:
 See also
 
 [`inversion_nodes`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.inversion_nodes)
-The energies at which compute_df evaluates the DF.
+The nodes at which compute_df evaluates the DF.
 
 [`make_inversion_rows`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.make_inversion_rows)
-The DF at fixed energies as a JAX function of the parameters.
+The DF at fixed nodes as a JAX function of the parameters.
 
 [`table_jacobian`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.table_jacobian)
 The derivatives of every array of the DF’s table.
@@ -10148,11 +10315,11 @@ Return the arrays of the DF’s table and their derivatives in the anisotropy.
 
 The values are the arrays of the table that compute_df makes for the
 component. The derivatives are those of each array in the component’s
-anisotropy parameters, with the energies and every discrete choice of
+anisotropy parameters, with the nodes and every discrete choice of
 the table held at the component’s own parameters. The discrete choices
-are the placement of the energies, the form of the inversion, the
+are the placement of the nodes, the form of the inversion, the
 anchor of the form at the center and the nodes kept. For the DF at the
-energies of the inversion alone, call rows_jacobian instead.
+nodes of the inversion alone, call rows_jacobian instead.
 
 Parameters:
 
@@ -10162,10 +10329,10 @@ TruncatedProfile (Method II).
 
 - **settings** ([*Settings*](https://pianistpy.com/docs/reference/api/settings#pianistpy.settings.Settings)) – Numerical settings, the same as those given to compute_df.
 
-- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Relative energies \(Q\), increasing, in internal units, for a
+- **q** (*array-like**, **shape** (**n**,**)**, **optional*) – Values of \(Q\), increasing, in internal units, for a
 component on an analytic profile. Default: `None`, which means
-the energies that inversion_nodes returns for component and
-settings. A component on a TruncatedProfile takes the energies
+the nodes that inversion_nodes returns for component and
+settings. A component on a TruncatedProfile takes the nodes
 of its own solve and accepts only `None`.
 
 - **steps** ([*dict*](https://docs.python.org/3/builtins/stdtypes.html#dict)*, **optional*) – Dictionary that keeps the steps of the finite differences in
@@ -10176,27 +10343,27 @@ keeps them nowhere.
 Returns:
 
 - **values** (*dict of ndarray*) – Arrays of the table, in internal units. For a component on an
-analytic profile, `k` holds the energies of the table,
+analytic profile, `k` holds the K values of the table,
 `log_df` the base-10 logarithm of the DF at `k`, and
 `log_df_slope` the slope \({\rm d}\log_{10} F/{\rm d}\ln Q\)
-at `k`. Where the table has nodes below its first energy,
+at `k`. Where the table has nodes below its first node,
 `k_below`, `log_df_below` and `log_df_slope_below` hold the
-energy, the logarithm of the DF and the slope at those nodes. Where
+K, the logarithm of the DF and the slope at those nodes. Where
 the table has a closed form above its anchor,
 \(F = a_{\rm anchor} (u/u_{\rm anchor})^\kappa + b + d\,u\) in
 the depth \(u = 1 - Q\), `central` holds the array
 \((\kappa, a_{\rm anchor}, b, d)\). Where the table has a tail
 below its lowest node, `tail` holds the tail’s exponent,
 amplitude and logarithmic exponent. For a component on a
-TruncatedProfile, the keys are `k`, `log_df`, `edge_law`
-(the power and the two coefficients of the edge law below the
+TruncatedProfile, the keys are `k`, `log_df`, `boundary_form`
+(the power and the two coefficients of the boundary form below the
 floor, where the component has one) and `center` (the exponent
 and the amplitude of the center’s closed form, and the next term’s
 exponent and coefficient where the center’s form states them).
 
 - **jac** (*dict of dict of ndarray*) – Derivatives `jac[name][key]` of `values[key]` in the parameter
 `name` (`"beta_c"` or `"r_a"`), for every key of values
-except the energies `k` and `k_below`, each with the shape of
+except the nodes `k` and `k_below`, each with the shape of
 `values[key]`. Where a Type II DF is outside its support, the
 derivatives of `log_df` and `log_df_slope` are 0.
 
@@ -10204,13 +10371,13 @@ derivatives of `log_df` and `log_df_slope` are 0.
 with the entries of the record of rows_jacobian in absolute
 values, not relative ones. For a component on an analytic profile,
 `record["rows"]` describes the finite differences of the DF and
-its slope at the energies of the inversion, and `record["below"]`,
+its slope at the K values of the inversion, and `record["below"]`,
 where present, describes the finite differences at the nodes below
 the table. For a component
 on a TruncatedProfile, `record["rows"]` describes the finite
 differences of the DF, and `record["grid"]` states the number of
-energies, the number of energies kept, and the energy around which
-the energies are placed.
+nodes, the number of nodes kept, and the value of Q around which
+the nodes are placed.
 
 Raises:
 
@@ -10246,8 +10413,8 @@ Raises:
     but not spatially finite.
 
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If a derivative of the auxiliary density is not finite at the
-    energies, or if the DF of a component on a TruncatedProfile has a
-    defective band at the top of its energies.
+    nodes, or if the DF of a component on a TruncatedProfile has a
+    defective band at the top of its nodes.
 
 Return type:
 
@@ -10259,15 +10426,15 @@ See also
 The arrays of the DF’s table as a JAX function of the parameters.
 
 [`rows_jacobian`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.rows_jacobian)
-The DF and its derivatives at the energies of the inversion.
+The DF and its derivatives at the nodes of the inversion.
 
 [`inversion_nodes`](https://pianistpy.com/docs/reference/api/df#pianistpy.df.gradient.inversion_nodes)
-The energies at which compute_df evaluates the DF.
+The nodes at which compute_df evaluates the DF.
 
 Notes
 
 The derivative of each array of the table follows by the chain rule
-from the derivatives of the DF at the energies of the inversion and
+from the derivatives of the DF at the K values of the inversion and
 from the closed-form derivatives of the center’s exponent and
 amplitude.
 
@@ -10550,9 +10717,9 @@ Raises:
 - [**AccuracyError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.AccuracyError) – If the velocity table cannot resolve the distribution of velocity at a
     potential with the resolution that the settings allow.
 
-- [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the DF below the DF table’s lowest energy falls so steeply toward
-    \(\mathcal{K} = 0\) that the mass at energies below the DF table’s
-    lowest energy is not finite.
+- [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the DF below the DF table’s lowest K falls so steeply toward
+    \(\mathcal{K} = 0\) that the mass below the DF table’s
+    lowest K is not finite.
 
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If a sampling table fails the table’s own consistency check: an
     inverse that is not finite and increasing, or a cumulative
@@ -10764,7 +10931,7 @@ model minus one.
 Returns:
 
 **view** – A model of one component: component k with mass 1, component k’s DF
-table on component k’s own energy grid, and the truncated profile
+table on component k’s own K grid, and the truncated profile
 that the components of model share. component_view raises no
 package exception for a superposed model and a valid k.
 
@@ -11763,7 +11930,7 @@ The derivative in a parameter \(\theta_i\) (\(\beta_{\rm c}\)
 or \(R_{\rm a}\)) is the sum of two parts. The first part is the
 derivative in \(\theta_i\) at a fixed DF table. The second part
 is the derivative through the values of the DF table, with the
-energies of the DF table held fixed. The method is not
+K values of the DF table held fixed. The method is not
 differentiable in r_2d or v.
 
 References
@@ -11830,7 +11997,7 @@ The derivative in a parameter \(\theta_i\) (\(\beta_{\rm c}\)
 or \(R_{\rm a}\)) is the sum of two parts. The first part is the
 derivative in \(\theta_i\) at a fixed DF table and at fixed
 velocities. The second part is the derivative through the values of the
-DF table, with the energies of the DF table held fixed. The method is
+DF table, with the K values of the DF table held fixed. The method is
 not differentiable in r or v.
 
 References
@@ -11903,7 +12070,7 @@ The derivative in a parameter \(\theta_i\) (\(\beta_{\rm c}\)
 or \(R_{\rm a}\)) is the sum of two parts. The first part is the
 derivative in \(\theta_i\) at a fixed DF table. The second part
 is the derivative through the values of the DF table, with the
-energies of the DF table held fixed. The method is not
+K values of the DF table held fixed. The method is not
 differentiable in v.
 
 References
@@ -11973,7 +12140,7 @@ Raises:
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If an intermediate result fails a check that the next step of the
     computation needs. Examples are a degenerate model, and a `losvd`
     setting that leaves the table no valid quadrature
-    (`energy_layer_ratio` of one or more).
+    (`k_layer_ratio` of one or more).
 
 - [**WorkerError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.WorkerError) – If a parallel process of the build ends before finishing its task.
     The usual cause is a lack of memory.
@@ -12540,7 +12707,7 @@ density of the velocity \(V = |\mathbf{v}|\) of the model’s mass at 3D
 radius \(r\). The call checks the distribution at each radius in
 three ways: the norm of the distribution against the density; the
 second moment of the distribution against the velocity dispersion from
-the Jeans equation; and the change of the distribution when the angular
+the dispersion integral; and the change of the distribution when the angular
 quadrature is refined (pianistpy.observables.stages.velocity_distribution).
 
 Parameters:
@@ -13120,7 +13287,7 @@ with \(P\) the relative potential, \(\xi = R^2/R_{\rm a}^2\),
 and \(s = +1\) for a Type I model, \(s = -1\) for a Type II
 model and \(s = 0\) for a model without an anisotropy radius. The
 integral runs over the DF’s support, \(\mathcal{Q} > K_{\rm c}\),
-with \(K_{\rm c}\) the DF’s floor energy (0 where the DF has no
+with \(K_{\rm c}\) the DF’s floor value (0 where the DF has no
 floor).
 
 The support excludes part of the directions above the velocity
@@ -13144,7 +13311,7 @@ the ratio of the two maxima for the kept distribution.
 `velocity_tolerance` is \(10^{-6}\) in the default settings and
 \(10^{-4}\) in the quick settings. Velocities within a
 relative distance of \(10^{-9}\) from \(V_*\) are left out of
-that comparison. On a DF that diverges at its floor energy, the
+that comparison. On a DF that diverges at its floor value, the
 distribution diverges at \(V_*\), and the divergence is integrable.
 
 References
@@ -13174,7 +13341,7 @@ Module `pianistpy.superposition`
 
 Linear superposition of models that share one truncated density.
 
-superpose combines models built on one truncated potential-density pair
+superpose combines models built on one truncated potential–density pair
 into one model, moments returns the velocity moments of the combined model,
 and mixture combines any per-component quantity by the weights.
 
@@ -13236,7 +13403,7 @@ finite density.
 - **r** (*array-like**, **shape** (**n**,**)*) – User-specified 3D radii, in internal units whatever the model’s unit
 system.
 
-- **n_nodes** ([*int*](https://docs.python.org/3/builtins/functions.html#int)*, **optional*) – The number of Gauss-Legendre nodes of each component’s Jeans
+- **n_nodes** ([*int*](https://docs.python.org/3/builtins/functions.html#int)*, **optional*) – The number of Gauss-Legendre nodes of each component’s dispersion
 integral. Default: `None`, which means the value of the model’s
 setting `observables.n_jeans_nodes`.
 
@@ -13272,10 +13439,10 @@ The weighted sum the moments are formed by.
 Notes
 
 The squared radial dispersion \(\sigma_{r,k}^2\) of component
-\(k\) is the Jeans integral of the component’s augmented density on
-the shared profile, evaluated by a Gauss-Legendre rule in the variable
-\(\ln(1 - \mathcal{K}/P_0)\), with \(\mathcal{K}\) the binding
-energy and \(P_0\) the central potential. Because the components
+\(k\) is the dispersion integral of the component’s augmented density
+on the shared profile, evaluated by a Gauss-Legendre rule in the variable
+\(\ln(1 - \mathcal{K}/P_0)\), with \(\mathcal{K}\) the energy-like
+variable and \(P_0\) the central potential. Because the components
 share one density, the moments of the superposed model are the weighted
 sums
 
@@ -13330,7 +13497,7 @@ Returns:
 **model** – A model with one component per member, in the order of members.
 Each component is the member’s component, with a mass equal to the
 member’s weight divided by the first member’s weight, and with the
-member’s DF table on the member’s own energy grid. The model’s
+member’s DF table on the member’s own K grid. The model’s
 profile is the shared truncated profile with the density split among
 the components by weight. Each check of the model’s
 ValidationReport holds the largest error of the check over the
@@ -14999,7 +15166,9 @@ means no distribution is recomputed.
 
 - ****overrides** (*mapping*) – For each group to change (`inversion`, `truncation`,
 `sampling`, `observables` or `losvd`), a mapping from field
-name to new value. The manual’s settings tables list every field.
+name to new value. The manual’s settings tables list every field. A
+field renamed since ver. 1.0.0 is accepted under its former name as
+well (FORMER_FIELDS) and recorded under its current name.
 Default: no override, which means every field has its value at the
 settings level.
 
@@ -15133,6 +15302,10 @@ property losvd: [Mapping](https://docs.python.org/3/library/collections.abc.html
 
 The values in force of the group `losvd`.
 
+property round_trip: [Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)]
+
+The values in force of the group `round_trip`.
+
 resolved()
 
 Return the value in force of every field of every group.
@@ -15155,7 +15328,7 @@ Examples
 
 ```python
 >>> sorted(Settings().resolved())
-['inversion', 'losvd', 'observables', 'sampling', 'truncation']
+['inversion', 'losvd', 'observables', 'round_trip', 'sampling', 'truncation']
 ```
 
 to_dict()
@@ -15292,7 +15465,7 @@ Parameters:
 judged.
 
 - **where** ([*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – The position of the largest relative error, in the variable the
-check runs over (a radius or an energy, in internal units).
+check runs over (a radius or a value of K, in internal units).
 Default: `None`, which means the check has no single position of
 its largest error.
 
@@ -16881,7 +17054,7 @@ The number of Gauss-Legendre nodes of the integral that inverts the density into
 
 same
 
-The number of energies in the middle zone of the inversion’s energy grid, where the energies are spaced linearly.
+The number of nodes in the middle zone of the inversion’s K grid, where the nodes are spaced linearly in K.
 
 `n_grid_tail_rows`
 
@@ -16889,7 +17062,7 @@ The number of energies in the middle zone of the inversion’s energy grid, wher
 
 same
 
-The number of energies in each of the two end zones of the inversion’s energy grid, where the energies are spaced logarithmically toward the grid’s floor and toward the grid’s top.
+The number of nodes in each of the two end zones of the inversion’s K grid, where the nodes are spaced logarithmically toward the grid’s floor and toward the grid’s top.
 
 `grid_tail_extent`
 
@@ -16897,7 +17070,7 @@ The number of energies in each of the two end zones of the inversion’s energy 
 
 same
 
-The width of each end zone of the inversion’s energy grid, as a fraction of the central potential.
+The width of each end zone of the inversion’s K grid, as a fraction of the central potential.
 
 `table_nodes_per_decade`
 
@@ -16905,7 +17078,7 @@ The width of each end zone of the inversion’s energy grid, as a fraction of th
 
 same
 
-The number of energies per decade below the floor of the inversion’s energy grid, down to the floor of the distribution function’s table.
+The number of nodes per decade of K below the floor of the inversion’s K grid, down to the floor of the distribution function’s table.
 
 `n_floor_nodes`
 
@@ -17003,7 +17176,7 @@ The absolute tolerance of the integration of Poisson’s equation.
 
 same
 
-The number of radii of the Poisson solve’s grid inside the inner zone.
+The number of radii of the Poisson solver’s grid inside the inner zone.
 
 `n_rows_outer`
 
@@ -17011,7 +17184,7 @@ The number of radii of the Poisson solve’s grid inside the inner zone.
 
 same
 
-The number of radii of the Poisson solve’s grid outside the inner zone.
+The number of radii of the Poisson solver’s grid outside the inner zone.
 
 `log10_r_min`
 
@@ -17231,7 +17404,7 @@ The number of radii, spaced logarithmically from the innermost radius of the pro
 
 same
 
-The number of Gauss-Legendre nodes of the Jeans integral of the radial dispersion at one radius, as the superposition of components computes the radial dispersion. The observables’ profile does not use n_jeans_nodes: the profile sums panels between the profile’s radii and doubles each panel’s nodes until sigma_r changes by less than profile_tolerance.
+The number of Gauss-Legendre nodes of the dispersion integral that gives the radial dispersion of a superposition of components (superpose) at one radius. The observables’ profile does not use n_jeans_nodes: the profile sums panels between the profile’s radii and doubles each panel’s nodes until sigma_r changes by less than profile_tolerance.
 
 `n_projection_nodes`
 
@@ -17307,13 +17480,13 @@ What it controls
 
 The number of base projected radii per decade of the table of line-of-sight velocity distributions, from the innermost radius of the profile.
 
-`n_energy_nodes`
+`n_k_nodes`
 
 8
 
 same
 
-The number of Gauss-Legendre nodes of each panel of the energy integral at one node of the table.
+The number of Gauss-Legendre nodes of each panel of the integral over K at one node of the table.
 
 `n_floor_layers`
 
@@ -17321,15 +17494,15 @@ The number of Gauss-Legendre nodes of each panel of the energy integral at one n
 
 2
 
-The number of Gauss-Legendre panels of the energy integral graded toward K = 0, where the DF’s rule below its table takes over.
+The number of Gauss-Legendre panels of the integral over K graded toward K = 0, where the DF’s rule below its table takes over.
 
-`energy_layer_ratio`
+`k_layer_ratio`
 
 0.2
 
 same
 
-The ratio of the widths of successive graded panels of the energy integral.
+The ratio of the widths of successive graded panels of the integral over K.
 
 `n_angle_nodes`
 
@@ -17513,7 +17686,7 @@ The number of tabulated projected radii of the second interpolation, whose estim
 
 same
 
-The number of elements (node pairs times energy nodes times angle nodes) computed in one block, which bounds the memory of the computation at one projected radius.
+The number of elements (node pairs times K nodes times angle nodes) computed in one block, which bounds the memory of the computation at one projected radius.
 
 `innermost_read_radius`
 
@@ -17530,6 +17703,72 @@ The smallest projected radius at which the table will be read, in the model’s 
 same
 
 The share of the total projected mass that may lie beyond the table’s last projected radius. The table ends at the first base projected radius beyond the radius outside which outer_mass_share of the projected mass lies, and a read beyond the table’s last projected radius raises InputError. The value 0 keeps the table out to the model’s edge.
+
+## round_trip
+
+Field
+
+Default
+
+Quick
+
+What it controls
+
+`ode_rtol`
+
+1e-13
+
+same
+
+The relative tolerance of the integration of Poisson’s equation in residual form about the analytic potential (round_trip).
+
+`log10_r_start`
+
+-12
+
+same
+
+The base-10 logarithm of the radius at which the integration of the round trip starts, in internal length units; the residual of the potential is zero there.
+
+`log10_r_min`
+
+-10
+
+same
+
+The base-10 logarithm of the innermost radius of the round trip’s grid of radii, in internal length units.
+
+`log10_r_max`
+
+9
+
+same
+
+The base-10 logarithm of the outermost radius of the round trip’s grid of radii, in internal length units.
+
+`rows_per_decade`
+
+200
+
+same
+
+The number of radii per decade of the round trip’s grid of radii.
+
+`depth_nodes_per_decade`
+
+400
+
+same
+
+The number of nodes per decade of the depth P_0 - P at which the round trip tabulates the density that the DF gives, from the depth at the starting radius to a depth of 0.7.
+
+`potential_nodes_per_decade`
+
+1600
+
+same
+
+The number of nodes per decade of the potential P at which the round trip tabulates the density that the DF gives, from the floor of the DF table to a potential of 0.7.
 
 Settings levels: `default`, `quick`. A field is overridden by its group and its name, for example `pp.Settings(inversion={'n_nodes': 800})`. A result computed with an overridden field records that its settings are custom, and lists the fields that differ from the settings level.
 
@@ -17735,7 +17974,7 @@ model. The tables use the default settings level. The
 downloadable files below hold every radial range the grid reads and the radius of each maximum, for the default
 and the quick settings level. The counts of each release are on [Accuracy by release](https://pianistpy.com/docs/project/accuracy).
 
-The grid of ver. 1.0.0 with the default settings level; the files that hold it, with the quick level’s grid, are listed under [The downloadable files](https://pianistpy.com/docs/reference/accuracy#the-downloadable-files) below.
+The grid of ver. 1.0.1 with the default settings level; the files that hold it, with the quick level’s grid, are listed under [The downloadable files](https://pianistpy.com/docs/reference/accuracy#the-downloadable-files) below.
 
 ## The main grid
 
@@ -18102,9 +18341,9 @@ steep \({(\gamma = 1.5, \beta = 4)}\) · COM II
 \({3.6 \times 10^{-1}}\)\({1.4 \times 10^{-8}}\)
 \({3.8 \times 10^{-1}}\)\({1.3 \times 10^{-8}}\)
 
-### Truncation energy
+### Truncation value
 
-Four profiles as Method I models under six anisotropy models of the main grid, each truncated by Method I and by Method II (rows), with the truncation energy from \({\mathcal{K}_{\rm t} = 0.5}\) to 0.002 (columns).
+Four profiles as Method I models under six anisotropy models of the main grid, each truncated by Method I and by Method II (rows), with the truncation value from \({\mathcal{K}_{\rm t} = 0.5}\) to 0.002 (columns).
 
 \({\mathcal{K}_{\rm t} = 0.5}\)
 \({\mathcal{K}_{\rm t} = 0.2}\)
@@ -18543,18 +18782,18 @@ errorInputError
 
 ## The downloadable files
 
-The grid of ver. 1.0.0 is published as three files, each of which opens with a comment block that repeats the definitions below (`#` lines, which `pandas.read_csv(path, comment='#')` skips):
+The grid of ver. 1.0.1 is published as three files, each of which opens with a comment block that repeats the definitions below (`#` lines, which `pandas.read_csv(path, comment='#')` skips):
 
-- [`grid_default.csv`](https://pianistpy.com/docs/_downloads/6f15053f3a7f4c7d100c986afa508c4e/grid_default.csv): the grid with the default settings level. One row is one model of the grid.
+- [`grid_default.csv`](https://pianistpy.com/docs/_downloads/d367143ce8e9eae32c3df074fa144d07/grid_default.csv): the grid with the default settings level. One row is one model of the grid.
 
-- [`grid_quick.csv`](https://pianistpy.com/docs/_downloads/2e7555df8c0babbc2a009c85f6173c54/grid_quick.csv): the same grid with the quick settings level, in the same columns.
+- [`grid_quick.csv`](https://pianistpy.com/docs/_downloads/0ea304e87b6e196b831110ea806b3c15/grid_quick.csv): the same grid with the quick settings level, in the same columns.
 
-- [`members.csv`](https://pianistpy.com/docs/_downloads/962e66e37a969157210bdebc01173211/members.csv): the list of the grid’s models with the place of each in the tables above and the outcome the grid expects of it. One row is one model.
+- [`members.csv`](https://pianistpy.com/docs/_downloads/d050650524a9eaecfb395fbbcda64c49/members.csv): the list of the grid’s models with the place of each in the tables above and the outcome the grid expects of it. One row is one model.
 
 The columns of the grid files, in their order:
 
 `model`
-the model’s key in the grid: its table (T1 the main grid, T2 anisotropy radius, T3 truncation energy, T4 limiting cases, the sections of the Accuracy tables page), its profile, its anisotropy model and its truncation
+the model’s key in the grid: its table (T1 the main grid, T2 anisotropy radius, T3 truncation value, T4 limiting cases, the sections of the Accuracy tables page), its profile, its anisotropy model and its truncation
 
 `settings level`
 the settings level of the run: “default” or “quick” (the two tested levels of pianistpy.Settings)
@@ -18581,10 +18820,10 @@ the central velocity anisotropy; 0 for the isotropic and the Osipkov-Merritt mod
 the anisotropy radius in scale radii; blank for the isotropic and the constant-anisotropy models
 
 `k_t`
-the truncation energy as a fraction of the central potential; blank for an untruncated model
+the truncation value as a fraction of the central potential; blank for an untruncated model
 
 `source model`
-for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation energy); blank otherwise
+for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation value); blank otherwise
 
 `expected outcome`
 what the grid expects of the model: “value” (a result is served), “value: not physical” (a result is served for a model that is not a physical equilibrium), “value: the Method I model’s DF within \(10^{-6}\), read by the package’s rule” (a Method II model whose distribution function equals its Method I model’s), or a refusal with the error the package raises (its kind, then the opening words of its message)
@@ -18604,8 +18843,8 @@ the tier of the model’s validation report: silent, every check at most \(10^{-
 `tier of the distribution function`
 the tier of the distribution function’s own report, read as the model’s tier (the model’s tier is at least this one, since a model’s report carries its distribution function’s checks)
 
-`lowest energy of the support`
-for a Type II model without a truncation, the energy \(P(R_{\rm a})\), as a fraction of the central potential, above which its distribution function is defined; the errors are read over that support only; blank otherwise
+`lowest K of the support`
+for a Type II model without a truncation, the potential \(P(R_{\rm a})\), as a fraction of the central potential, above which its distribution function is defined; the errors are read over that support only; blank otherwise
 
 `median relative error, 1e-4 < R < 1e4`
 the median over the radii \(10^{-4} < R < 10^{4}\) (\(R\) in scale radii) of the relative error of the density computed back from the distribution function against the model’s density; blank where no result exists
@@ -18667,7 +18906,7 @@ The columns of the model list, in their order:
 the model’s key, as in the grid files
 
 `table`
-the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation energy, 4 limiting cases (the page’s sections)
+the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation value, 4 limiting cases (the page’s sections)
 
 `row`
 the key of the model’s row in that table, as the page labels it
@@ -18697,7 +18936,7 @@ the anisotropy radius in scale radii; blank where the model has none
 1 or 2, as in the grid files
 
 `k_t`
-the truncation energy as a fraction of the central potential; blank for an untruncated model
+the truncation value as a fraction of the central potential; blank for an untruncated model
 
 `source model`
 for a Method II model, the Method I model it is built on; blank otherwise
@@ -18714,7 +18953,7 @@ Source: https://pianistpy.com/docs/reference/notes
 
 The Technical notes detail the analytical and numerical treatments implemented in PIANISTpy, building upon the high-level overviews provided in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes follow and refer to the notations, equations, and results of [Chiang+(2026d)](https://arxiv.org/abs/2610.28758). The Technical notes are organized by the objects of the pipeline, from upstream to downstream, and each object-specific section first treats the analytical theory (whenever applicable) and then the accompanying numerical implementations. [Section T:0](https://pianistpy.com/docs/reference/technical-notes/principles#tn-sec-principles) states the conventions and notations used; we then discuss the input potential–density models ([Section T:1](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-model)), the distribution function (DF; [Section T:2](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-df)), the phase-space truncation ([Section T:3](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-truncation)), the linear superposition of DFs ([Section T:4](https://pianistpy.com/docs/reference/technical-notes/sup#tn-sec-sup)), the particle sampling ([Section T:5](https://pianistpy.com/docs/reference/technical-notes/sampling#tn-sec-sampling)), the velocity profiles and projections ([Section T:6](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-observables)), and the JAX-based gradients ([Section T:7](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradients)). [Section T:8](https://pianistpy.com/docs/reference/technical-notes/verification#tn-sec-verification) documents the accuracy and validation tests and related information.
 
-This document was last updated on November 1, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.
+This document was last updated on November 3, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.
 
 - [T:0 Principles and conventions](https://pianistpy.com/docs/reference/technical-notes/principles)
 
@@ -18901,7 +19140,7 @@ The analytical inner series expansions of the enclosed mass and the depth \(u\) 
 
 ## T:1.3 Interpolation of the tabulated truncated profile
 
-A truncated model in PIANISTpy is represented by a table of columns (the potential \(\hat{P}\), the density \(\hat\varrho\) and the enclosed mass \(M\)) on the tabulated grid of radii \(R\), accessed by the same scheme, detailed below, in every downstream numerical evaluation. First, \(\ln\hat{P}(R)\) and \(\ln M(R)\) are interpolated by piecewise cubic Hermite polynomials in \(\ln R\), with the local slopes evaluated pointwise by the Poisson equation \(\mathrm{d}\ln \hat{P}/\mathrm{d}\ln R = -M/(R\hat{P})\) and the mass integral \(\mathrm{d}\ln M/\mathrm{d}\ln R = R^3\hat\varrho/M\), bypassing the use of finite differences. Second, \(\ln\hat\varrho(R)\), which has no such closed-form slope, is instead interpolated by a cubic spline in \(\ln R\). Third, for the radius at a given potential, \(R(\hat{P})\), instead of a separate interpolation, PIANISTpy directly inverts the piecewise Hermite polynomial of \(\hat{P}(R)\) by root-finding bisection in \(\ln R\), such that \(R(\hat{P})\) and \(\hat{P}(R)\) are mutual inverses to rounding. For near-center numerical evaluations, \(R \to 0\) inside the innermost tabulated radius, PIANISTpy extrapolates \(\hat{P}\) and \(M\) inward as power laws with their respective slopes at the innermost row, and \(\hat\varrho\) by the end polynomial of its spline.
+A truncated model in PIANISTpy is represented by a table of columns (the potential \(\hat{P}\), the density \(\hat\varrho\) and the enclosed mass \(M\)) on the tabulated grid of radii \(R\), accessed by the same scheme, detailed below, in every downstream numerical evaluation. First, \(\ln\hat{P}(R)\) and \(\ln M(R)\) are interpolated by piecewise cubic Hermite polynomials in \(\ln R\), with the local slopes evaluated pointwise by the Poisson equation \(\mathrm{d}\ln \hat{P}/\mathrm{d}\ln R = -M/(R\hat{P})\) and the mass integral \(\mathrm{d}\ln M/\mathrm{d}\ln R = R^3\hat\varrho/M\), bypassing the use of finite differences. Second, \(\ln\hat\varrho(R)\), which has no such closed-form slope, is instead interpolated by a cubic spline in \(\ln R\). Third, for the radius at a given potential, \(R(\hat{P})\), instead of a separate interpolation, PIANISTpy directly inverts the piecewise Hermite polynomial of \(\hat{P}(R)\) by root-finding bisection in \(\ln R\), such that \(R(\hat{P})\) and \(\hat{P}(R)\) are mutual inverses to rounding. For near-center numerical evaluations, \(R \to 0\) inside the innermost tabulated radius, PIANISTpy continues \(\hat\varrho\), \(M\) and \(\hat{P}\) by the analytical inner series of the input density ([Section T:1.2.2](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-series)), with the amplitudes matched and extended from the innermost tabulated radius ([Section T:3.4](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-fills)).
 
 For a finitely truncated model, dedicated numerical treatments are needed when accessing the table near the truncation boundary \(\hat\varrho = 0\) (\(R = R_\mathrm{t}\)). The “edge” of the model denotes the outermost row of the table, with \(\hat{P} = 0\) and \(M = M_\mathrm{t}\), where \(\ln\hat{P}\) and \(\ln\hat\varrho\) have no finite value, so the aforementioned logarithmic interpolation ends at the penultimate row. Between these two rows, PIANISTpy computes the potential in the point-mass (i.e., Keplerian) form \(M_\mathrm{t}(1/R - 1/R_\mathrm{t})\) and the density as the power law \(\hat\varrho \propto \hat{P}^{q}\) anchored at the penultimate row, with \(q\) the analytical exponent of the density at the edge (see [Section T:2.6.1](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-edge-law)). At and beyond \(R_\mathrm{t}\), the profile simply returns \(\hat{P} = 0\), \(\hat\varrho = 0\) and \(M = M_\mathrm{t}\); for the same physical reason, PIANISTpy accepts the evaluation of the velocity observables of [Section T:6](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-observables), such as \(\sigma_r\) or \(\sigma_t\), only at \(R \leq R_\mathrm{t}\).
 
@@ -19259,7 +19498,7 @@ The grid is the five-zone grid of [Section T:2.4](https://pianistpy.com/docs/ref
 \end{equation}
 is the exact contribution of \([0, q_0]\) to the row at \(\hat{\mathcal{K}}\), relative to the boundary form that the kernel carries, and the boundary term is the sources’ own value of \(\hat\varrho_\mathrm{aux}^{(m_f)}\) at the floor node: the Method I model’s derivatives there (in closed form from its Taylor edge where the node lies below the switch), its density from its rows, and the Method II model’s factor, by the Leibniz rule.
 
-At \(\beta_\mathrm{c} = 1/2\) on a Method I model with \(\gamma = \alpha = 1\), the inversion is a derivative whose two terms are both of order \(1/u\) toward the center, so the rows there carry the Method I model’s accuracy multiplied by \(C/[2(\beta - 1)\,u]\), with \(\hat\varrho \simeq C/R\) at the center (\(1/(4u)\) for NFW, \(1/(3u)\) for Hernquist). Above an anchor, the rows are the closed form \(F = A\sum_{k \leq 4} a_k u^{k}\) with \(A = 1/(2\pi^2)\) ([Section T:2.2.5](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-nfw-half)), which is exact in the truncation through the Method I model’s central deficit. The anchor is the smaller of the series’ own range at \(10^{-6}\) and the top zone of the grid, and the median relative deviation of the computed rows from the form over the outermost decade inside it, on at least ten rows, must be within \(10^{-6}\); otherwise the anchor steps inward one decade at a time until it is, and where no decade is, the rows stand as computed and the record says so.
+At \(\beta_\mathrm{c} = 1/2\) on a Method I model with \(\gamma = \alpha = 1\), the inversion is a derivative whose two terms are both of order \(1/u\) toward the center, so the rows there carry the Method I model’s accuracy multiplied by \(C/[2(\beta - 1)\,u]\), with \(\hat\varrho \simeq C/R\) at the center (\(1/(4u)\) for NFW, \(1/(3u)\) for Hernquist). Above an anchor, the rows are the closed form \(F = A\sum_{k \leq 4} a_k u^{k}\) with \(A = 1/(2\pi^2)\) ([Section T:2.2.5](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-nfw-half)), which is exact in the truncation through the density that the Method I model’s truncation removes near the center ([Section T:3.4](https://pianistpy.com/docs/reference/technical-notes/truncation#tn-sec-fills)). The anchor is the smaller of the series’ own range at \(10^{-6}\) and the top zone of the grid, and the median relative deviation of the computed rows from the form over the outermost decade inside it, on at least ten rows, must be within \(10^{-6}\); otherwise the anchor steps inward one decade at a time until it is, and where no decade is, the rows stand as computed and the record says so.
 
 ### T:2.6.1 The Method II DF at the truncation boundary
 
@@ -19273,7 +19512,7 @@ Each power inverts to a power, so the Method II model’s DF below its switch i
 
 ## T:2.7 A user-supplied DF
 
-A DF obtained elsewhere, from a fitting function or from another code, is checked in the same way as an inverted one. Its values on the \(\mathcal{K}\) grid that the inversion would place for the model enter where the rows of the inversion would enter, and everything downstream is unchanged: the forms beyond the table, the sign report, the checks, and the result’s record, which carries no inversion record and no rows. Such a table has no exact slope column, which its report states, and a value that is not finite is refused with the first such node stated. Truncation needs the rows of the inversion, which such a table does not carry, and is therefore refused with the reason stated.
+A DF obtained elsewhere, from a fitting function or from another code, is checked in the same way as an inverted one. Its values on the \(\mathcal{K}\) grid that the inversion would place for the model enter where the rows of the inversion would enter, and everything downstream is unchanged: the forms beyond the table, the sign report, the checks, and the result’s record, which carries no inversion record and no rows. Such a table has no exact slope column, which its report states, and a value that is not finite is refused with the first such node stated. Truncation needs the rows of the inversion, which such a table does not carry, and is therefore refused with the reason stated. The round trip of [Section T:8.3](https://pianistpy.com/docs/reference/technical-notes/verification#tn-sec-roundtrip) accepts such a DF as it does an inverted one.
 
 
 ---
@@ -19324,7 +19563,7 @@ The truncated Poisson equation, [Chiang+(2026d)](https://arxiv.org/abs/2610.2875
 
 ## T:3.4 Completing the profile at the center and at the truncation boundary
 
-The solver’s rows are sparse where the potential approaches the floor and where it approaches the center, so both ends are filled to the row density of the profile: at least a stated number of rows per decade of the potential and of the depth, in bins of a stated width, over the profile’s own span. The inner end is the inner series of [Section T:1.2.2](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-series), lowered by the central deficit where the model carries one, out to the join radius (on a lowered model, moved inward to where the series and the solver’s rows agree); between that join and the threshold of the fill, the solver’s own interpolation is used. The outer end takes the radius by a log-log interpolation of the solver’s rows in the potential and the density likewise down to a fixed anchor, \(3.6\times10^{-7}P_0\), below which the density follows the power law of the two rows above the anchor and, below the Taylor switch, the closed form of the edge. The profile keeps every filled row that is finite, with positive density and the potential at or above the floor, the inner series rows inside the solver’s first radius included; a finitely truncated model ends with one edge row at \(\Phi = 0\), at the radius where the Kepler exterior of its last row reaches zero; a profile that reaches no edge is read to its last row.
+The solver’s rows are sparse where the potential approaches the floor and where it approaches the center, so both ends are filled to the row density of the profile: at least a stated number of rows per decade of the potential and of the depth, in bins of a stated width, over the profile’s own span. The inner end is the inner series of [Section T:1.2.2](https://pianistpy.com/docs/reference/technical-notes/model#tn-sec-series), less the density that the truncation removes near the center (\(\propto R^{-2\beta_\mathrm{c}}\) at leading order, for a cusp with \(2\beta_\mathrm{c} \le \gamma\)), out to the join radius (on a model with that term, moved inward to where the series and the solver’s rows agree); between that join and the threshold of the fill, the solver’s own interpolation is used. The outer end takes the radius by a log-log interpolation of the solver’s rows in the potential and the density likewise down to a fixed anchor, \(3.6\times10^{-7}P_0\), below which the density follows the power law of the two rows above the anchor and, below the Taylor switch, the closed form of the edge. The profile keeps every filled row that is finite, with positive density and the potential at or above the floor, the inner series rows inside the solver’s first radius included; a finitely truncated model ends with one edge row at \(\Phi = 0\), at the radius where the Kepler exterior of its last row reaches zero; a profile that reaches no edge is read to its last row.
 
 ## T:3.5 The lowest admissible truncation value
 
@@ -19353,7 +19592,7 @@ Source: https://pianistpy.com/docs/reference/technical-notes/sup
 
 Under the same input potential–density pair, DFs are additive in phase space ([Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Appendix B). Method II DFs automatically satisfy this condition, as they derive from the identical already truncated base model; a set of them can then be linearly superposed to form a single equilibrium model in that density ([Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Section 3.2). Input DFs corresponding to distinct potential–density pairs, whether physically different or computed with different settings, are thus refused by PIANISTpy.
 
-The composite dispersions are the weighted sums of the members’ dispersions from the Jeans integral ([Section T:6.1.1](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-jeans-section)), and the composite anisotropy follows as in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B74). Each superposition product is treated as “one model” in the downstream numerical evaluations of PIANISTpy. \(N\)-body initial conditions assign each particle to a member DF probabilistically, by the weights ([Section T:5.3](https://pianistpy.com/docs/reference/technical-notes/sampling#tn-sec-draw)). Projected velocity observables are first evaluated for each member DF and then summed with the weights, exactly, given the shared surface density ([Section T:6.9](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-mixing)). In Monte Carlo fitting, once all members’ tabulated moments are computed, every subsequent evaluation of the composite observables under new weights reuses these “bases” without recomputation ([Section T:7.4](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-likelihood)).
+The composite dispersions are the weighted sums of the members’ dispersions from the dispersion integral ([Section T:6.1.1](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-jeans-section)), and the composite anisotropy follows as in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758), Eq. (B74). Each superposition product is treated as “one model” in the downstream numerical evaluations of PIANISTpy. \(N\)-body initial conditions assign each particle to a member DF probabilistically, by the weights ([Section T:5.3](https://pianistpy.com/docs/reference/technical-notes/sampling#tn-sec-draw)). Projected velocity observables are first evaluated for each member DF and then summed with the weights, exactly, given the shared surface density ([Section T:6.9](https://pianistpy.com/docs/reference/technical-notes/observables#tn-sec-mixing)). In Monte Carlo fitting, once all members’ tabulated moments are computed, every subsequent evaluation of the composite observables under new weights reuses these “bases” without recomputation ([Section T:7.4](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-likelihood)).
 
 
 ---
@@ -19532,11 +19771,11 @@ The table that the lookup reads is a function of the rows and of closed forms in
 
 ## T:7.2 Anisotropy models and parameters with derivatives, and the refused cases
 
-The rule of the DF’s table ([Section T:7.1](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradient-rule)) serves constant anisotropy and an isotropic model (\(\beta_\mathrm{c}\)), COM Type I (\(\beta_\mathrm{c}\) and \(R_\mathrm{a}\)), and OM Type I and II (\(R_\mathrm{a}\)). The tangent rows of the second moments ([Section T:7.3](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-tangent-rows)) are served in \(\beta_\mathrm{c}\) for every family and in \(R_\mathrm{a}\) for every family that has it, COM Type II included, an OM model being varied in \(\beta_\mathrm{c}\) as the COM model of its type at \(\beta_\mathrm{c} = 0\). The velocity distributions are served in the parameters of the DF’s path: \(\beta_\mathrm{c}\) of a constant-anisotropy member, \(R_\mathrm{a}\) of an OM member, both of a COM Type I member; the column of a parameter that path does not take is not a number, and an isotropic member’s velocity distributions are refused with the reason stated. A member without \(R_\mathrm{a}\) holds it at its own, infinite, value with a zero gradient. The rule of the DF’s table refuses three cases, each with the reason stated. The first is COM Type II, whose source, the derivative of order \(j\) of the auxiliary density, behaves as \(|P - P(R_\mathrm{a})|^{s}\) with \(s = 1 - \beta_\mathrm{c} - j\) ([Eq. (T:2.15)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-ra-exponent)), with an interior point that moves with \(R_\mathrm{a}\) and an exponent that moves with \(\beta_\mathrm{c}\); the derivative of that factor with respect to \(R_\mathrm{a}\) is not integrable at the interior point for \(s < 0\) and is a point mass there at \(s = 0\), so the mixed rows do not carry the derivative, and the family is refused for both parameters. The second is a center on its critical branch, where the branch itself changes with \(\beta_\mathrm{c}\). The third is a Method II model whose truncated profile carries no DF of the Method I model it was cut from. The velocity distributions, which read the DF’s table and its derivative, refuse the same cases, and besides them an isotropic member’s \(\beta_\mathrm{c}\) and a row at \(\beta_\mathrm{c} = \pm 1/2\), whose angle integral is taken in closed form. The second moments read no DF: their tangent rows serve a center on its critical branch and COM Type II as well; the JAX functions of the observables refuse a COM Type II model for all the observables, the second moments included, while the likelihood serves it as a free component. The derivative of the observables of a model with respect to \((\beta_\mathrm{c}, R_\mathrm{a})\) is the full derivative for a Method II model, whose profile is held fixed. A truncated Method I model is refused with the reason stated, since its profile is that of its own DF and moves with the anisotropy, so that neither the Jeans path at a fixed profile nor the DF’s path at a fixed potential carries the full derivative; an untruncated model is refused on both paths, since its edge terms read its DF.
+The rule of the DF’s table ([Section T:7.1](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradient-rule)) serves constant anisotropy and an isotropic model (\(\beta_\mathrm{c}\)), COM Type I (\(\beta_\mathrm{c}\) and \(R_\mathrm{a}\)), and OM Type I and II (\(R_\mathrm{a}\)). The tangent rows of the second moments ([Section T:7.3](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-tangent-rows)) are served in \(\beta_\mathrm{c}\) for every family and in \(R_\mathrm{a}\) for every family that has it, COM Type II included, an OM model being varied in \(\beta_\mathrm{c}\) as the COM model of its type at \(\beta_\mathrm{c} = 0\). The velocity distributions are served in the parameters of the DF’s path: \(\beta_\mathrm{c}\) of a constant-anisotropy member, \(R_\mathrm{a}\) of an OM member, both of a COM Type I member; the column of a parameter that path does not take is not a number, and an isotropic member’s velocity distributions are refused with the reason stated. A member without \(R_\mathrm{a}\) holds it at its own, infinite, value with a zero gradient. The rule of the DF’s table refuses three cases, each with the reason stated. The first is COM Type II, whose source, the derivative of order \(j\) of the auxiliary density, behaves as \(|P - P(R_\mathrm{a})|^{s}\) with \(s = 1 - \beta_\mathrm{c} - j\) ([Eq. (T:2.15)](https://pianistpy.com/docs/reference/technical-notes/df#tn-eq-ra-exponent)), with an interior point that moves with \(R_\mathrm{a}\) and an exponent that moves with \(\beta_\mathrm{c}\); the derivative of that factor with respect to \(R_\mathrm{a}\) is not integrable at the interior point for \(s < 0\) and is a point mass there at \(s = 0\), so the mixed rows do not carry the derivative, and the family is refused for both parameters. The second is a center on its critical branch, where the branch itself changes with \(\beta_\mathrm{c}\). The third is a Method II model whose truncated profile carries no DF of the Method I model it was cut from. The velocity distributions, which read the DF’s table and its derivative, refuse the same cases, and besides them an isotropic member’s \(\beta_\mathrm{c}\) and a row at \(\beta_\mathrm{c} = \pm 1/2\), whose angle integral is taken in closed form. The second moments read no DF: their tangent rows serve a center on its critical branch and COM Type II as well; the JAX functions of the observables refuse a COM Type II model for all the observables, the second moments included, while the likelihood serves it as a free component. The derivative of the observables of a model with respect to \((\beta_\mathrm{c}, R_\mathrm{a})\) is the full derivative for a Method II model, whose profile is held fixed. A truncated Method I model is refused with the reason stated, since its profile is that of its own DF and moves with the anisotropy, so that neither the dispersion-integral path at a fixed profile nor the DF’s path at a fixed potential carries the full derivative; an untruncated model is refused on both paths, since its edge terms read its DF.
 
 ## T:7.3 Derivatives of the velocity dispersions and distributions
 
-Each observable is served as a JAX function of \(\theta = (\beta_\mathrm{c}, R_\mathrm{a})\) with a custom derivative. Its value is the public call on the model rebuilt at \(\theta\) on the host, and its derivative is given by the tangent rows of the observable in \(\theta\) on the tables’ own rows, with their placement frozen. The tangent rows of the radial dispersion are the derivative of the Jeans rule [Eq. (T:6.1)](https://pianistpy.com/docs/reference/technical-notes/observables#tn-eq-jeans) on the same rows and nodes on the fixed profile, with the limit of the edge reading unmoved. The tangent rows of the projection are the derivative of the line-of-sight rule on the same nodes, through the derivative of the profile’s reading, with the surface density held, and zero where the surface density is zero. A negative squared dispersion is refused with the reason stated, never clipped, so no row of the forward is clipped and no tangent row is set to zero for that reason. The derivative of the squared dispersion over an aperture is the aperture’s integral of the tangent rows of the squared dispersion, on the nodes and weights of the plain call (the integral is linear in the rows); the derivative of the dispersion over the aperture is that over twice its value, and zero where the value is zero. The velocity distributions take their derivatives in two parts. The first is through the derivative of the DF’s table ([Section T:7.1](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradient-rule)): the lookup is differentiated by JAX on its own expressions, and the transpose carries a cotangent on \(F\), and on its integral \(G\) where a row reads it, at the values of \(\mathcal{K}\) back to the numbers of the table through the three maps between them (the padded nodes, the spline slopes where a table has no exact ones, and the derived numbers of the forms), with the values of \(\mathcal{K}\) held fixed, and contracts it with the table’s derivative in \(\theta\). The second is the explicit part at a fixed table: the derivative, by JAX on a twin of the velocity plane or of the angle integral with the forward’s discrete choices held, of the distribution’s own dependence on \(\theta\) through the anisotropy’s factor, the augmented energy and the edges of the integration. For its transpose, each row of the line-of-sight tables that a nonzero cotangent reaches is computed once more by its own rule, with every read of \(F\) and \(G\) collected at the level from which the value of its velocity came. With the setting that checks the rows, which is off by default, the row so computed is held to the forward’s row bit for bit, and so is the row formed again level by level, and a row that differs is refused with the reason stated; the order of summation on a GPU does not promise that equality, so on a GPU the check can refuse a row that the CPU serves. Without the check, no row is compared and every row is served on either backend. At a \(\theta\) where the model is refused, the value is not a number and its gradient is zero.
+Each observable is served as a JAX function of \(\theta = (\beta_\mathrm{c}, R_\mathrm{a})\) with a custom derivative. Its value is the public call on the model rebuilt at \(\theta\) on the host, and its derivative is given by the tangent rows of the observable in \(\theta\) on the tables’ own rows, with their placement frozen. The tangent rows of the radial dispersion are the derivative of the dispersion integral [Eq. (T:6.1)](https://pianistpy.com/docs/reference/technical-notes/observables#tn-eq-jeans) on the same rows and nodes on the fixed profile, with the limit of the edge reading unmoved. The tangent rows of the projection are the derivative of the line-of-sight rule on the same nodes, through the derivative of the profile’s reading, with the surface density held, and zero where the surface density is zero. A negative squared dispersion is refused with the reason stated, never clipped, so no row of the forward is clipped and no tangent row is set to zero for that reason. The derivative of the squared dispersion over an aperture is the aperture’s integral of the tangent rows of the squared dispersion, on the nodes and weights of the plain call (the integral is linear in the rows); the derivative of the dispersion over the aperture is that over twice its value, and zero where the value is zero. The velocity distributions take their derivatives in two parts. The first is through the derivative of the DF’s table ([Section T:7.1](https://pianistpy.com/docs/reference/technical-notes/gradients#tn-sec-gradient-rule)): the lookup is differentiated by JAX on its own expressions, and the transpose carries a cotangent on \(F\), and on its integral \(G\) where a row reads it, at the values of \(\mathcal{K}\) back to the numbers of the table through the three maps between them (the padded nodes, the spline slopes where a table has no exact ones, and the derived numbers of the forms), with the values of \(\mathcal{K}\) held fixed, and contracts it with the table’s derivative in \(\theta\). The second is the explicit part at a fixed table: the derivative, by JAX on a twin of the velocity plane or of the angle integral with the forward’s discrete choices held, of the distribution’s own dependence on \(\theta\) through the anisotropy’s factor, the energy-like variable and the edges of the integration. For its transpose, each row of the line-of-sight tables that a nonzero cotangent reaches is computed once more by its own rule, with every read of \(F\) and \(G\) collected at the level from which the value of its velocity came. With the setting that checks the rows, which is off by default, the row so computed is held to the forward’s row bit for bit, and so is the row formed again level by level, and a row that differs is refused with the reason stated; the order of summation on a GPU does not promise that equality, so on a GPU the check can refuse a row that the CPU serves. Without the check, no row is compared and every row is served on either backend. At a \(\theta\) where the model is refused, the value is not a number and its gradient is zero.
 
 ## T:7.4 The likelihood
 
@@ -19587,7 +19826,7 @@ Each closed form that PIANISTpy implements is tested against a reference compute
 
 ## T:8.3 The roundtrip test
 
-The roundtrip test starts from an analytic profile, computes the DF, integrates the DF to a density and solves the Poisson equation with \(P(0) = 1\), and compares the result with the input density; every step is numerical, and the only analytical quantity is the target density. It runs on the standard untruncated isotropic product, the inverted DF, the velocity quadrature and the numerical Poisson solver, and its results at every release are published on the accuracy page of this website.
+The roundtrip test starts from an analytic profile, computes the DF, integrates the DF to a density and compares the result with the input density; every step is numerical, and the only analytical quantity is the target density. It runs on the standard untruncated isotropic product, the inverted DF and the velocity quadrature, and its results at every release are published on the accuracy page of this website. The public call `round_trip` adds the Poisson step: the density that the DF gives is passed through the numerical Poisson solver, with \(P(0) = 1\), and the density at the resulting potential is compared with the input density at each radius, for an inverted or a user-supplied DF ([Section T:2.7](https://pianistpy.com/docs/reference/technical-notes/df#tn-sec-from-function)) alike.
 
 ## T:8.4 The accuracy tables at each release
 
@@ -19620,6 +19859,28 @@ Source: https://pianistpy.com/docs/reference/technical-notes/references
 # Release notes
 
 Source: https://pianistpy.com/docs/project/release-notes
+
+## Ver. 1.0.1
+
+### New features
+
+- `DistributionFunction.evaluate` returns the distribution function at given values of \(\mathcal{K}\).
+
+- `round_trip` integrates a distribution function to its density, solves the Poisson equation for the potential,
+and reports the relative difference from the input density profile at each radius.
+
+- A model’s profile continues inside its innermost tabulated radius by the inner series of its input density,
+corrected to first order for the truncation; the particle sampler reads the same series.
+
+### Changes
+
+- The energy-like variable is written \(\mathcal{K}\) throughout: in docstrings, messages and generated tables,
+and in the names `EnergyGrid` (now `KGrid`), `n_energy_nodes` and `energy_layer_ratio` (now `n_k_nodes`
+and `k_layer_ratio`), the timing stage `"energy_grid"` (now `"k_grid"`) and the accuracy files’ column
+“lowest energy of the support” (now “lowest K of the support”). Likewise `"edge_law"` is `"boundary_form"`,
+and “edge law”, “Kepler form”, “truncation energy” and “Poisson solve” read “boundary form”, “point-mass
+(Keplerian) potential”, “truncation value” and “Poisson solver”. Every former name is accepted through ver. 1.0.x
+and removed in ver. 1.1.0; the known limitations of ver. 1.0.0 stand.
 
 ## Ver. 1.0.0
 
@@ -19681,6 +19942,22 @@ Excluded (Cusp Slope-Central Anisotropy theorem)
 
 Files
 
+Ver. 1.0.1
+
+380
+
+59
+
+24
+
+12
+
+83
+
+19
+
+[`default`](https://pianistpy.com/docs/_downloads/d367143ce8e9eae32c3df074fa144d07/grid_default.csv), [`quick`](https://pianistpy.com/docs/_downloads/0ea304e87b6e196b831110ea806b3c15/grid_quick.csv), [`models`](https://pianistpy.com/docs/_downloads/d050650524a9eaecfb395fbbcda64c49/members.csv)
+
 Ver. 1.0.0
 
 380
@@ -19704,7 +19981,7 @@ Ver. 1.0.0
 
 Source: https://pianistpy.com/docs/project/upcoming-features
 
-The features listed below are planned or under development for releases after ver. 1.0.0.
+The features listed below are planned or under development for releases after ver. 1.0.1.
 
 - Generalization of the self-consistent models to systems of several components that share one truncated
 potential, and to tracer populations in a fixed potential.
@@ -19790,18 +20067,18 @@ PIANISTpy is written and maintained by Barry T. Chiang (Yale University), [barry
 
 Source: https://pianistpy.com/docs/reference/_accuracy_files
 
-The grid of ver. 1.0.0 is published as three files, each of which opens with a comment block that repeats the definitions below (`#` lines, which `pandas.read_csv(path, comment='#')` skips):
+The grid of ver. 1.0.1 is published as three files, each of which opens with a comment block that repeats the definitions below (`#` lines, which `pandas.read_csv(path, comment='#')` skips):
 
-- [`grid_default.csv`](https://pianistpy.com/docs/_downloads/6f15053f3a7f4c7d100c986afa508c4e/grid_default.csv): the grid with the default settings level. One row is one model of the grid.
+- [`grid_default.csv`](https://pianistpy.com/docs/_downloads/d367143ce8e9eae32c3df074fa144d07/grid_default.csv): the grid with the default settings level. One row is one model of the grid.
 
-- [`grid_quick.csv`](https://pianistpy.com/docs/_downloads/2e7555df8c0babbc2a009c85f6173c54/grid_quick.csv): the same grid with the quick settings level, in the same columns.
+- [`grid_quick.csv`](https://pianistpy.com/docs/_downloads/0ea304e87b6e196b831110ea806b3c15/grid_quick.csv): the same grid with the quick settings level, in the same columns.
 
-- [`members.csv`](https://pianistpy.com/docs/_downloads/962e66e37a969157210bdebc01173211/members.csv): the list of the grid’s models with the place of each in the tables above and the outcome the grid expects of it. One row is one model.
+- [`members.csv`](https://pianistpy.com/docs/_downloads/d050650524a9eaecfb395fbbcda64c49/members.csv): the list of the grid’s models with the place of each in the tables above and the outcome the grid expects of it. One row is one model.
 
 The columns of the grid files, in their order:
 
 `model`
-the model’s key in the grid: its table (T1 the main grid, T2 anisotropy radius, T3 truncation energy, T4 limiting cases, the sections of the Accuracy tables page), its profile, its anisotropy model and its truncation
+the model’s key in the grid: its table (T1 the main grid, T2 anisotropy radius, T3 truncation value, T4 limiting cases, the sections of the Accuracy tables page), its profile, its anisotropy model and its truncation
 
 `settings level`
 the settings level of the run: “default” or “quick” (the two tested levels of pianistpy.Settings)
@@ -19828,10 +20105,10 @@ the central velocity anisotropy; 0 for the isotropic and the Osipkov-Merritt mod
 the anisotropy radius in scale radii; blank for the isotropic and the constant-anisotropy models
 
 `k_t`
-the truncation energy as a fraction of the central potential; blank for an untruncated model
+the truncation value as a fraction of the central potential; blank for an untruncated model
 
 `source model`
-for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation energy); blank otherwise
+for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation value); blank otherwise
 
 `expected outcome`
 what the grid expects of the model: “value” (a result is served), “value: not physical” (a result is served for a model that is not a physical equilibrium), “value: the Method I model’s DF within \(10^{-6}\), read by the package’s rule” (a Method II model whose distribution function equals its Method I model’s), or a refusal with the error the package raises (its kind, then the opening words of its message)
@@ -19851,8 +20128,8 @@ the tier of the model’s validation report: silent, every check at most \(10^{-
 `tier of the distribution function`
 the tier of the distribution function’s own report, read as the model’s tier (the model’s tier is at least this one, since a model’s report carries its distribution function’s checks)
 
-`lowest energy of the support`
-for a Type II model without a truncation, the energy \(P(R_{\rm a})\), as a fraction of the central potential, above which its distribution function is defined; the errors are read over that support only; blank otherwise
+`lowest K of the support`
+for a Type II model without a truncation, the potential \(P(R_{\rm a})\), as a fraction of the central potential, above which its distribution function is defined; the errors are read over that support only; blank otherwise
 
 `median relative error, 1e-4 < R < 1e4`
 the median over the radii \(10^{-4} < R < 10^{4}\) (\(R\) in scale radii) of the relative error of the density computed back from the distribution function against the model’s density; blank where no result exists
@@ -19914,7 +20191,7 @@ The columns of the model list, in their order:
 the model’s key, as in the grid files
 
 `table`
-the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation energy, 4 limiting cases (the page’s sections)
+the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation value, 4 limiting cases (the page’s sections)
 
 `row`
 the key of the model’s row in that table, as the page labels it
@@ -19944,7 +20221,7 @@ the anisotropy radius in scale radii; blank where the model has none
 1 or 2, as in the grid files
 
 `k_t`
-the truncation energy as a fraction of the central potential; blank for an untruncated model
+the truncation value as a fraction of the central potential; blank for an untruncated model
 
 `source model`
 for a Method II model, the Method I model it is built on; blank otherwise

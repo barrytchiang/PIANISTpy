@@ -16,7 +16,7 @@ model.spatially_finite, model.validation.tier
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```myst

@@ -7,7 +7,7 @@ The Technical notes detail the analytical and numerical treatments implemented i
 
 
 
-This document was last updated on November 1, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.
+This document was last updated on November 3, 2026. Section, equation and table numbers of the Technical notes carry the prefix T: (e.g., Section T:2.3, Eq. (T:2.4), Table T:2.1) and are cited as such throughout the website and the docstrings.
 
 .. toctree::
    :maxdepth: 2

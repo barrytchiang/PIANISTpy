@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Figs. 13, 15 and 16: Velocity distributions and observables &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Figs. 13, 15 and 16: Velocity distributions and observables &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -306,8 +306,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 
-<span class="c1"># The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.</span>
-<span class="n">PIANISTPY_PIN</span> <span class="o">=</span> <span class="s2">"1.0.0"</span>
+<span class="c1"># The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.</span>
+<span class="n">PIANISTPY_PIN</span> <span class="o">=</span> <span class="s2">"1.0.1"</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pianistpy </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">pp</span><span class="o">.</span><span class="n">__version__</span> <span class="o">!=</span> <span class="n">PIANISTPY_PIN</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
@@ -346,7 +346,7 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pianistpy 1.0.0
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>pianistpy 1.0.1
 </pre></div>
 </div>
 </div>
@@ -356,7 +356,7 @@
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
 
-<span class="n">Z_T</span> <span class="o">=</span> <span class="mf">0.16502882092587715</span>  <span class="c1"># the truncation energy k_t of the figure's NFW halo</span>
+<span class="n">Z_T</span> <span class="o">=</span> <span class="mf">0.16502882092587715</span>  <span class="c1"># the truncation value k_t of the figure's NFW halo</span>
 
 <span class="n">truncated</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span>
     <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">(),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Anisotropy</span><span class="p">()),</span> <span class="n">pp</span><span class="o">.</span><span class="n">Truncation</span><span class="p">(</span><span class="n">k_t</span><span class="o">=</span><span class="n">Z_T</span><span class="p">)</span>
@@ -763,7 +763,7 @@ printed scale s = 0.4106 (f 0.99, slot column, W_fig 586.1 pt)
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
 last projected row 31.875380; aperture radii 1.995e-05 to 31.875380
-cell time 5739 s
+cell time 5772 s
 </pre></div>
 </div>
 </div>

@@ -38,7 +38,7 @@ Each closed form that PIANISTpy implements is tested against a reference compute
 T:8.3 The roundtrip test
 ------------------------
 
-The roundtrip test starts from an analytic profile, computes the DF, integrates the DF to a density and solves the Poisson equation with :math:`P(0) = 1`, and compares the result with the input density; every step is numerical, and the only analytical quantity is the target density. It runs on the standard untruncated isotropic product, the inverted DF, the velocity quadrature and the numerical Poisson solver, and its results at every release are published on the accuracy page of this website.
+The roundtrip test starts from an analytic profile, computes the DF, integrates the DF to a density and compares the result with the input density; every step is numerical, and the only analytical quantity is the target density. It runs on the standard untruncated isotropic product, the inverted DF and the velocity quadrature, and its results at every release are published on the accuracy page of this website. The public call ``round_trip`` adds the Poisson step: the density that the DF gives is passed through the numerical Poisson solver, with :math:`P(0) = 1`, and the density at the resulting potential is compared with the input density at each radius, for an inverted or a user-supplied DF (:ref:`Section T:2.7 <tn-sec-from-function>`) alike.
 
 .. _tn-sec-accuracy-grid:
 

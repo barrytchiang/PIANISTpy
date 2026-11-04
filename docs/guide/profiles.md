@@ -32,5 +32,5 @@ and the relative potential in closed form.
 
 A component (`pianistpy.Component`) of a model is a density profile together with a velocity anisotropy
 ([Velocity anisotropy](https://pianistpy.com/docs/guide/anisotropy)). The density profile of a component needs an outer slope
-\(\beta \geq 3\). In ver. 1.0.0, a component whose profile has \(2 < \beta < 3\) raises
+\(\beta \geq 3\). As of ver. 1.0.1, a component whose profile has \(2 < \beta < 3\) raises
 `InputError`, with a message that begins `OUTER SLOPE`.

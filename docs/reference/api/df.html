@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Distribution functions and models &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Distribution functions and models &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -327,8 +327,8 @@ variable in internal units, with <span class="nobr"><span class="math notranslat
 anisotropy, and <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> is <span class="math notranslate nohighlight">\(\mathcal{Q}_\pm\)</span> for an
 Osipkov-Merritt (OM) or Cuddeford-Osipkov-Merritt (COM) model.
 <span class="math notranslate nohighlight">\(\mathcal{L}\)</span> is the angular momentum in internal units, and
-<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> is the central anisotropy. A truncation at the
-energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> (Method I of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>) gives the truncated DF</p>
+<span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> is the central anisotropy. A truncation at
+<span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> (Method I of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>) gives the truncated DF</p>
 <div class="math notranslate nohighlight">
 \[\hat{F}(\hat{\mathcal{K}}, \mathcal{L}) =
 F(\hat{\mathcal{K}} + \mathcal{K}_{\rm t}, \mathcal{L})
@@ -510,19 +510,19 @@ builds the <cite>Model</cite> that is.</p>
 <li><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.Component"><em>Component</em></a>) – Components to which the DFs belong.</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>) – Numerical settings with which the DFs were computed.</p></li>
 <li><p><strong>identity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – Identity string of the result.</p></li>
-<li><p><strong>grid</strong> (<em>EnergyGrid</em>) – Energies of the DF table and the radii at which the untruncated
-relative potential equals each energy.</p></li>
-<li><p><strong>table</strong> (<em>DfTable</em>) – The DF of each component at the energies of <cite>grid</cite>.</p></li>
-<li><p><strong>form</strong> (<em>AsymptoticForm</em>) – Analytic form of each DF below and above the energies of the DF
+<li><p><strong>grid</strong> (<em>KGrid</em>) – K values of the DF table and the radii at which the untruncated
+relative potential equals each value.</p></li>
+<li><p><strong>table</strong> (<em>DfTable</em>) – The DF of each component at the nodes of <cite>grid</cite>.</p></li>
+<li><p><strong>form</strong> (<em>AsymptoticForm</em>) – Analytic form of each DF below and above the K values of the DF
 table.</p></li>
-<li><p><strong>k_t_min</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Lowest admissible truncation energy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> in
+<li><p><strong>k_t_min</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – Lowest admissible truncation value <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> in
 internal units. <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is zero where every untruncated DF is a
 valid equilibrium as it stands (<cite>is_physical</cite>). Otherwise
-<code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the largest of the highest energy at which a DF is
-negative, the energy of a DF’s interior minimum and, for a Type II
+<code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the largest of the highest K at which a DF is
+negative, the K of a DF’s interior minimum and, for a Type II
 model, the relative potential <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span> at the anisotropy
 radius <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</span> Where <span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span> is the largest
-of these energies, <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the next double above
+of these values, <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> is the next double above
 <span class="nobr"><span class="math notranslate nohighlight">\(P(R_{\rm a})\)</span>.</span> <cite>truncate</cite> also checks
 that the edge of a truncated Type II model lies inside
 <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>.</span></p></li>
@@ -533,7 +533,7 @@ table has a closed form. Every <cite>DistributionFunction</cite> from
 <cite>compute_df</cite> holds an <cite>InversionRecord</cite>.</p></li>
 <li><p><strong>units</strong> (<a class="reference internal" href="units#pianistpy.units.Units" title="pianistpy.units.Units"><em>Units</em></a><em>, </em><em>optional</em>) – Unit system in which the result is presented (<cite>to</cite>). Default:
 <code class="docutils literal notranslate"><span class="pre">Units()</span></code>, which means internal units.</p></li>
-<li><p><strong>rows</strong> (<em>InversionRows</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Values of the inversion at every energy of the inversion’s grid,
+<li><p><strong>rows</strong> (<em>InversionRows</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – Values of the inversion at every node of the inversion’s grid,
 which <cite>truncate</cite> reads. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means that the DF
 table was not made by an inversion.</p></li>
 <li><p><strong>source</strong> (<em>{&quot;inversion&quot;</em><em>, </em><em>&quot;function&quot;}</em><em>, </em><em>optional</em>) – Origin of the DF table’s values: <code class="docutils literal notranslate"><span class="pre">&quot;inversion&quot;</span></code> (<cite>compute_df</cite>) or
@@ -569,9 +569,9 @@ from an inversion.</p></li>
 <dt class="sig sig-object py" id="pianistpy.df.DistributionFunction.from_function">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.DistributionFunction.from_function" title="Link to this definition">#</a></dt>
 <dd><p>Return the distribution function that a user-specified function gives.</p>
-<p>The user-specified function is a distribution function (DF) of the
-energy, such as a fitting function. The package tabulates the
-function on the energy grid that <cite>compute_df</cite> uses for the given
+<p>The user-specified function is a distribution function (DF) of
+<span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>,</span> such as a fitting function. The package tabulates the
+function on the K grid that <cite>compute_df</cite> uses for the given
 component and settings, and validates the tabulated DF against the
 component’s density. Like a <cite>DistributionFunction</cite> from
 <cite>compute_df</cite>, the result holds analytic forms below and above the
@@ -584,12 +584,12 @@ result stores the DF table and does not store the function.</p>
 <li><p><strong>component</strong> (<a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.Component"><em>Component</em></a>) – The component to which the DF belongs. The component’s profile
 must be an analytic profile (a <cite>DoublePowerLaw</cite>).</p></li>
 <li><p><strong>f</strong> (<em>callable</em>) – Function <code class="docutils literal notranslate"><span class="pre">f(k,</span> <span class="pre">depth)</span></code> of two arrays of equal shape: the
-energies <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> of the DF table in internal units,
-and the depth <span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> at each energy, with
+values <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> of the DF table in internal units,
+and the depth <span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> at each value, with
 <span class="math notranslate nohighlight">\(P_0 = 1\)</span> the central relative potential. <code class="docutils literal notranslate"><span class="pre">f</span></code> returns
-the DF <span class="math notranslate nohighlight">\(F\)</span> (not its logarithm) at each energy, as an array
+the DF <span class="math notranslate nohighlight">\(F\)</span> (not its logarithm) at each value, as an array
 of the shape of <code class="docutils literal notranslate"><span class="pre">k</span></code>. The package passes <code class="docutils literal notranslate"><span class="pre">depth</span></code> as
-<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">k</span></code> in double precision, which is exact for every energy
+<code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">k</span></code> in double precision, which is exact for every
 <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K} \ge 1/2\)</span>.</span> A function of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span>
 alone may ignore <code class="docutils literal notranslate"><span class="pre">depth</span></code>.</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means
@@ -611,8 +611,8 @@ and no inversion values, so <cite>truncate</cite> does not accept it.</p>
 <dd class="field-even"><ul class="simple">
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>f</cite> is not callable, returns an array whose shape differs
     from the shape of <code class="docutils literal notranslate"><span class="pre">k</span></code>, or returns a value that is not finite
-    at an energy of the grid. For a value that is not finite, the
-    message states the first energy with such a value.</p></li>
+    at a node of the grid. For a value that is not finite, the
+    message states the first node with such a value.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the component is built on a <cite>TruncatedProfile</cite>.</p></li>
 </ul>
 </dd>
@@ -656,10 +656,84 @@ validation report lies above <span class="nobr"><span class="math notranslate no
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.df.DistributionFunction.diverges_at_zero">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">diverges_at_zero</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.df.DistributionFunction.diverges_at_zero" title="Link to this definition">#</a></dt>
-<dd><p>Whether the DF of each component diverges as the energy goes to zero.</p>
+<dd><p>Whether the DF of each component diverges as K goes to zero.</p>
 <p>A DF that goes as <span class="math notranslate nohighlight">\(\mathcal{K}^p\)</span> with <span class="math notranslate nohighlight">\(-1 &lt; p &lt; 0\)</span> as
-the energy <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> goes to zero is integrable and gives a
+<span class="math notranslate nohighlight">\(\mathcal{K}\)</span> goes to zero is integrable and gives a
 finite density, but such a DF is not monotonic.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.df.DistributionFunction.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.DistributionFunction.evaluate" title="Link to this definition">#</a></dt>
+<dd><p>Return the distribution function at given values of K.</p>
+<p>The DF is read through the package’s own lookup of the DF table and
+of the analytic forms below and above the table, the lookup that
+every stage of the package reads. The result holds one component in
+this release, and <cite>evaluate</cite> reads that component’s DF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<em>array-like</em>) – Values of <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>,</span> in the unit system of the
+result (<cite>units</cite>): internal units by default, where the central
+relative potential is <span class="nobr"><span class="math notranslate nohighlight">\(P_0 = 1\)</span>.</span> In the physical system, a
+float in <span class="math notranslate nohighlight">\({\rm km^2\,s^{-2}}\)</span> or an Astropy quantity of any
+unit of a potential.</p></li>
+<li><p><strong>depth</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Depth <span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> at each value, in internal
+units, broadcast against <cite>k</cite>, given where the caller holds the
+depth to full relative precision and NaN where the point is
+given by <cite>k</cite>. Near <span class="math notranslate nohighlight">\(P_0\)</span> the subtraction
+<span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> loses digits, and a given depth keeps
+them. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means that every point is given
+by <cite>k</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>df</strong> – The DF <span class="math notranslate nohighlight">\(F(\mathcal{K})\)</span> at each value, with the shape of
+<cite>k</cite>, in the unit system of the result: a float64 array in the
+internal and the model systems, an Astropy quantity of mass per
+volume per velocity cubed in the physical system. Zero where the
+DF is zero: at and below <span class="math notranslate nohighlight">\(\mathcal{K} = 0\)</span> and at and above
+<span class="nobr"><span class="math notranslate nohighlight">\(P_0\)</span>.</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array or Quantity</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the DF is negative somewhere on its table. The lookup reads a
+    non-negative DF; <cite>k_t_min</cite> and <cite>is_physical</cite> state where such a
+    DF is negative.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>units</cite> names a unit system whose scales are not set.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.df.round_trip" title="pianistpy.df.round_trip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">round_trip</span></code></a></dt><dd><p>The density the DF gives and the potential it generates, against the analytic profile.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.df.compute_df" title="pianistpy.df.compute_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_df</span></code></a></dt><dd><p>The DF computed by inversion of the density.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.df.DistributionFunction.from_function" title="pianistpy.df.DistributionFunction.from_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistributionFunction.from_function</span></code></a></dt><dd><p>A DF given as a function of <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>.</span></p>
+</dd>
+</dl>
+</div>
+<p class="rubric">References</p>
+<p>Notes Section T:2 (the DF table and its forms) and Notes Section
+T:2.7 (a DF supplied as input).</p>
+<p class="rubric">Examples</p>
+<p>The isotropic Plummer DF tabulated from its closed form, read back
+at a value of K inside the table:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">plummer</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="mf">1.965117148288</span> <span class="o">*</span> <span class="n">k</span><span class="o">**</span><span class="mf">3.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DistributionFunction</span><span class="o">.</span><span class="n">from_function</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()),</span> <span class="n">plummer</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> <span class="o">/</span> <span class="n">plummer</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="mi">9</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -773,8 +847,8 @@ with the same identity and the same arrays.</p>
 <dd><p>Write the DF table to a fixed-width text file.</p>
 <p>The text file is an export for reading outside the package, and
 <cite>pianistpy.read</cite> does not read it. The file holds one line per
-energy of each component’s support, with the columns <code class="docutils literal notranslate"><span class="pre">k</span></code> (the
-energy <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> in internal units, in which the central
+node of each component’s support, with the columns <code class="docutils literal notranslate"><span class="pre">k</span></code> (the
+value of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> in internal units, in which the central
 relative potential of the untruncated profile is 1), <code class="docutils literal notranslate"><span class="pre">log10_df</span></code>
 (the base-10 logarithm of the DF) and <code class="docutils literal notranslate"><span class="pre">dlog10_df_dlnk</span></code> (the slope
 <span class="nobr"><span class="math notranslate nohighlight">\({\rm d}\log_{10} F / {\rm d}\ln \mathcal{K}\)</span>).</span> A model of more
@@ -831,7 +905,7 @@ compared with the written values, to the digits written.</p>
 <dd><p>An equilibrium model of one or more components, truncated or untruncated.</p>
 <p><cite>truncate</cite> and <cite>solve</cite> return a <cite>Model</cite>. The distribution function (DF)
 of every component of a model is non-negative. A DF that diverges as
-the energy goes to zero is not monotonic (<cite>diverges_at_zero</cite>). Whether
+K goes to zero is not monotonic (<cite>diverges_at_zero</cite>). Whether
 the model’s density reaches zero at a finite radius is the property
 <cite>spatially_finite</cite>.</p>
 <dl class="field-list simple">
@@ -845,7 +919,7 @@ model whose component is built on a <cite>TruncatedProfile</cite>.</p></li>
 <li><p><strong>parent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – Identity string of the <cite>DistributionFunction</cite> from which the model
 was built.</p></li>
 <li><p><strong>table</strong> (<em>DfTable</em>) – The DF of each component of the model.</p></li>
-<li><p><strong>form</strong> (<em>AsymptoticForm</em>) – Analytic form of each DF below and above the energies of the DF
+<li><p><strong>form</strong> (<em>AsymptoticForm</em>) – Analytic form of each DF below and above the K values of the DF
 table.</p></li>
 <li><p><strong>profile</strong> (<a class="reference internal" href="profiles#pianistpy.profiles.TruncatedProfile" title="pianistpy.profiles.TruncatedProfile"><em>TruncatedProfile</em></a>) – Self-consistent density, mass and relative potential of the model.</p></li>
 <li><p><strong>validation</strong> (<a class="reference internal" href="validation#pianistpy.validation.ValidationReport" title="pianistpy.validation.ValidationReport"><em>ValidationReport</em></a>) – Validation report of the model.</p></li>
@@ -900,9 +974,9 @@ the DF table has a closed form. Every <cite>Model</cite> from <cite>solve</cite>
 <dl class="py property">
 <dt class="sig sig-object py" id="pianistpy.df.Model.diverges_at_zero">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">diverges_at_zero</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><span class="pre">bool</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pianistpy.df.Model.diverges_at_zero" title="Link to this definition">#</a></dt>
-<dd><p>Whether the DF of each component diverges as the energy goes to zero.</p>
+<dd><p>Whether the DF of each component diverges as K goes to zero.</p>
 <p>A DF that goes as <span class="math notranslate nohighlight">\(\mathcal{K}^p\)</span> with <span class="math notranslate nohighlight">\(-1 &lt; p &lt; 0\)</span> as
-the energy <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> goes to zero is integrable. A model
+<span class="math notranslate nohighlight">\(\mathcal{K}\)</span> goes to zero is integrable. A model
 with such a DF is a valid equilibrium with a finite density, but the
 model’s DF is not monotonic.</p>
 </dd></dl>
@@ -1134,14 +1208,200 @@ columns that <cite>DistributionFunction.write_text</cite> writes. Default:
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="pianistpy.df.RoundTrip">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.df.</span></span><span class="sig-name descname"><span class="pre">RoundTrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_identity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_floor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budget_tolerance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Units(system='internal',</span> <span class="pre">concentration=None,</span> <span class="pre">mass_0_msun=None,</span> <span class="pre">r_0_pc=None)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.RoundTrip" title="Link to this definition">#</a></dt>
+<dd><p>The round trip of a distribution function against its analytic profile.</p>
+<p><cite>round_trip</cite> returns a <cite>RoundTrip</cite>. The arrays are in internal units,
+with the central relative potential <span class="nobr"><span class="math notranslate nohighlight">\(P_0 = 1\)</span>;</span> <cite>radial_profiles</cite>
+presents them in the unit system of <cite>units</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)" rel="noopener" target="_blank"><em>tuple</em></a><em> of </em><a class="reference internal" href="#pianistpy.df.Component" title="pianistpy.df.Component"><em>Component</em></a>) – The component of the DF.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>) – Numerical settings of the round trip (the group <code class="docutils literal notranslate"><span class="pre">round_trip</span></code>).</p></li>
+<li><p><strong>identity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – Identity string of the result.</p></li>
+<li><p><strong>df_identity</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a>) – Identity string of the <cite>DistributionFunction</cite> the round trip read.</p></li>
+<li><p><strong>df_source</strong> (<em>{&quot;inversion&quot;</em><em>, </em><em>&quot;function&quot;}</em>) – Origin of the DF table’s values, as <cite>DistributionFunction.source</cite>.</p></li>
+<li><p><strong>function_name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em> or </em><em>None</em>) – The <code class="docutils literal notranslate"><span class="pre">__name__</span></code> of the DF function, as
+<cite>DistributionFunction.function_name</cite>.</p></li>
+<li><p><strong>r</strong> (<em>array</em>) – Radii <span class="math notranslate nohighlight">\(R\)</span> of the result, in internal units.</p></li>
+<li><p><strong>potential</strong> (<em>array</em>) – The relative potential <span class="math notranslate nohighlight">\(P(R)\)</span> that the density of the DF
+generates. NaN beyond the radius <cite>r_floor</cite>.</p></li>
+<li><p><strong>delta</strong> (<em>array</em>) – The residual <span class="math notranslate nohighlight">\(\delta(R) = P(R) - P_{\rm ref}(R)\)</span> of the
+potential against the analytic potential. NaN beyond <cite>r_floor</cite>.</p></li>
+<li><p><strong>mass</strong> (<em>array</em>) – The enclosed mass <span class="math notranslate nohighlight">\(\mathcal{M}(R)\)</span> of the density of the DF.
+NaN beyond <cite>r_floor</cite>.</p></li>
+<li><p><strong>density</strong> (<em>array</em>) – The density <span class="math notranslate nohighlight">\(\varrho_F(P(R), R)\)</span> that the DF gives at the
+potential it generates. NaN beyond <cite>r_floor</cite>.</p></li>
+<li><p><strong>error</strong> (<em>array</em>) – The relative difference <span class="math notranslate nohighlight">\(\varrho_F(P(R), R) /
+\varrho_{\rm ref}(R) - 1\)</span> against the analytic density, at every
+radius. NaN beyond <cite>r_floor</cite>.</p></li>
+<li><p><strong>closure</strong> (<em>array</em>) – The closure <span class="nobr"><span class="math notranslate nohighlight">\(c(P_{\rm ref}(R))\)</span>:</span> the relative difference of
+the density of the DF against the analytic density at the ANALYTIC
+potential, before Poisson’s equation.</p></li>
+<li><p><strong>r_floor</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The radius at which the potential reached the floor of the DF table,
+in internal units; infinite where the potential stayed above the
+floor out to the last radius.</p></li>
+<li><p><strong>budget_table</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The largest difference between the spline of the closure and the
+direct quadrature at the midpoints of sampled cells of the two
+tables: the part of <cite>error</cite> that the tables’ interpolation can
+contribute.</p></li>
+<li><p><strong>budget_tolerance</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a>) – The largest difference in <cite>error</cite> between the solve at the
+settings’ relative tolerance and a solve at a hundred times that
+tolerance: the part of <cite>error</cite> that the integration can contribute.</p></li>
+<li><p><strong>timing</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em> of </em><em>str to float</em>) – Elapsed time of each step, in seconds.</p></li>
+<li><p><strong>units</strong> (<a class="reference internal" href="units#pianistpy.units.Units" title="pianistpy.units.Units"><em>Units</em></a><em>, </em><em>optional</em>) – Unit system in which <cite>radial_profiles</cite> presents the result (<cite>to</cite>).
+Default: <code class="docutils literal notranslate"><span class="pre">Units()</span></code>, which means internal units.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.df.round_trip" title="pianistpy.df.round_trip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">round_trip</span></code></a></dt><dd><p>The function that returns a <cite>RoundTrip</cite>.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.df.DistributionFunction.evaluate" title="pianistpy.df.DistributionFunction.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistributionFunction.evaluate</span></code></a></dt><dd><p>The DF at given values of K.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Section 4.1 and Fig. 8.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.df.RoundTrip.radial_profiles">
+<span class="sig-name descname"><span class="pre">radial_profiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.RoundTrip.radial_profiles" title="Link to this definition">#</a></dt>
+<dd><p>Return the radial profiles of the round trip in the unit system of <cite>units</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>profiles</strong> – The keys <code class="docutils literal notranslate"><span class="pre">r</span></code>, <code class="docutils literal notranslate"><span class="pre">potential</span></code>, <code class="docutils literal notranslate"><span class="pre">mass</span></code> and <code class="docutils literal notranslate"><span class="pre">density</span></code>, each
+converted to the unit system of <cite>units</cite>, and the keys <code class="docutils literal notranslate"><span class="pre">error</span></code>
+and <code class="docutils literal notranslate"><span class="pre">closure</span></code>, which are relative differences and have no
+unit. Each value has the shape of <cite>r</cite>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank">dict</a></p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.df.RoundTrip.to" title="pianistpy.df.RoundTrip.to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoundTrip.to</span></code></a></dt><dd><p>A round trip presented in another unit system.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trip</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">round_trip</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">trip</span><span class="o">.</span><span class="n">radial_profiles</span><span class="p">())</span>
+<span class="go">['closure', 'density', 'error', 'mass', 'potential', 'r']</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.df.RoundTrip.to">
+<span class="sig-name descname"><span class="pre">to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concentration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_vir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.RoundTrip.to" title="Link to this definition">#</a></dt>
+<dd><p>Return the round trip presented in another unit system.</p>
+<p>The values of the result are not recomputed and stay in internal
+units. <cite>radial_profiles</cite> of the returned result presents them in
+the returned result’s unit system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>system</strong> (<em>{&quot;internal&quot;</em><em>, </em><em>&quot;model&quot;</em><em>, </em><em>&quot;physical&quot;}</em>) – Target unit system: <code class="docutils literal notranslate"><span class="pre">&quot;internal&quot;</span></code> <span class="nobr">(<span class="math notranslate nohighlight">\(G = \rho_0/C = r_0 =
+1\)</span>),</span> <code class="docutils literal notranslate"><span class="pre">&quot;model&quot;</span></code> <span class="nobr">(<span class="math notranslate nohighlight">\(G = M_0 = r_0 = 1\)</span>)</span> or <code class="docutils literal notranslate"><span class="pre">&quot;physical&quot;</span></code>
+(Astropy quantities).</p></li>
+<li><p><strong>concentration</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Concentration <span class="nobr"><span class="math notranslate nohighlight">\(c\)</span>,</span> positive. The mass unit <span class="math notranslate nohighlight">\(M_0\)</span> is
+the mass of the untruncated profile inside <span class="nobr"><span class="math notranslate nohighlight">\(c\,r_0\)</span>.</span> The
+model and the physical systems need <cite>concentration</cite>. Default:
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, which means that no concentration is given.</p></li>
+<li><p><strong>mass_0</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em> or </em><em>Quantity</em><em>, </em><em>optional</em>) – The mass unit <span class="math notranslate nohighlight">\(M_0\)</span> in solar masses, for the physical
+system. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>r_0</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em> or </em><em>Quantity</em><em>, </em><em>optional</em>) – The scale radius <span class="math notranslate nohighlight">\(r_0\)</span> in parsecs, for the physical
+system. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>r_vir</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em> or </em><em>Quantity</em><em>, </em><em>optional</em>) – The virial radius <span class="math notranslate nohighlight">\(c\,r_0\)</span> in parsecs, in place of <cite>r_0</cite>,
+for the physical system. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>trip</strong> – The round trip with unchanged values, with the attribute
+<cite>units</cite> set to the target unit system.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.df.RoundTrip" title="pianistpy.df.RoundTrip">RoundTrip</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>system</cite> is not one of the three unit systems, or the scales
+    the system needs are missing or inconsistent.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.df.DistributionFunction.to" title="pianistpy.df.DistributionFunction.to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistributionFunction.to</span></code></a></dt><dd><p>The same presentation of a DF.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trip</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">round_trip</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trip</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"model"</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">system</span>
+<span class="go">'model'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pianistpy.df.RoundTrip.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.RoundTrip.write" title="Link to this definition">#</a></dt>
+<dd><p>Write the round trip to an HDF5 file.</p>
+<p><cite>pianistpy.read</cite> reads the file back into a <cite>RoundTrip</cite> with the
+same identity and the same arrays. The file records the identity of
+the <cite>DistributionFunction</cite> as the round trip’s parent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)" rel="noopener" target="_blank"><em>str</em></a><em> or </em><em>path-like</em>) – Path of the HDF5 file to write.</p></li>
+<li><p><strong>overwrite</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)" rel="noopener" target="_blank"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to replace an existing file at <cite>path</cite>. Default:
+<code class="docutils literal notranslate"><span class="pre">False</span></code>, which means that an existing file is kept and
+<cite>InputError</cite> is raised.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a file exists at <cite>path</cite> and <cite>overwrite</cite> is false.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the written file does not read back as written.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trip</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">round_trip</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(),</span> <span class="s2">"trip.h5"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trip</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pp</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">identity</span> <span class="o">==</span> <span class="n">trip</span><span class="o">.</span><span class="n">identity</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="pianistpy.df.Truncation">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pianistpy.df.</span></span><span class="sig-name descname"><span class="pre">Truncation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concentration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.Truncation" title="Link to this definition">#</a></dt>
 <dd><p>Truncation of a model’s distribution function (Method I).</p>
-<p>A truncation shifts the distribution function (DF) in energy by the
-truncation energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> and lowers the DF by the
+<p>A truncation shifts the distribution function (DF) in <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> by the
+truncation value <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> and lowers the DF by the
 DF’s value at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> which gives a model of finite
 mass and finite radius (Method I of <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>). The truncation is given
-by exactly one of three inputs: the truncation energy <cite>k_t</cite>, a target
+by exactly one of three inputs: the truncation value <cite>k_t</cite>, a target
 mass <cite>mass_t</cite> or a target radius <cite>r_t</cite>. A target mass is given together
 with the <cite>concentration</cite> that defines the unit of the target mass.
 Method II needs no <cite>Truncation</cite>: a Method II model is a <cite>Component</cite>
@@ -1149,7 +1409,7 @@ whose profile is the <cite>TruncatedProfile</cite> of another model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>k_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Truncation energy <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> positive, in internal
+<li><p><strong>k_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Truncation value <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> positive, in internal
 units, in which the central relative potential of the untruncated
 profile is 1. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means that <cite>mass_t</cite> or <cite>r_t</cite>
 is given.</p></li>
@@ -1157,12 +1417,12 @@ is given.</p></li>
 <span class="nobr"><span class="math notranslate nohighlight">\(M_0\)</span>,</span> the mass of the untruncated profile inside the radius
 <span class="math notranslate nohighlight">\(c\,r_0\)</span> (model units). A value of 1 is the virial mass.
 <cite>mass_t</cite> is the one input of <cite>Truncation</cite> that is not in internal
-units. The truncation energy is solved for. <cite>mass_t</cite> requires
+units. The truncation value is solved for. <cite>mass_t</cite> requires
 <cite>concentration</cite>. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means that <cite>k_t</cite> or <cite>r_t</cite>
 is given.</p></li>
 <li><p><strong>r_t</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Target truncation radius <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm t}\)</span>,</span> positive, in units of
 the scale radius <span class="nobr"><span class="math notranslate nohighlight">\(r_0\)</span>,</span> the unit of length of the internal
-and the model systems. The truncation energy is solved for.
+and the model systems. The truncation value is solved for.
 Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means that <cite>k_t</cite> or <cite>mass_t</cite> is given.</p></li>
 <li><p><strong>concentration</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)" rel="noopener" target="_blank"><em>float</em></a><em>, </em><em>optional</em>) – Concentration <span class="math notranslate nohighlight">\(c\)</span> of the first component, positive. The mass
 unit <span class="math notranslate nohighlight">\(M_0\)</span> of <cite>mass_t</cite> is the mass of the untruncated profile
@@ -1282,7 +1542,7 @@ field.</p>
 <dd><p>Return the untruncated distribution function of a component.</p>
 <p>The distribution function (DF) is returned whatever its sign. The
 result states where the DF is negative, and the lowest truncation
-energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> that gives a valid equilibrium. Call
+value <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> that gives a valid equilibrium. Call
 <cite>solve</cite> for the model itself. Call <cite>compute_df</cite> to inspect the DF before
 choosing a truncation, or to truncate one DF in several ways.</p>
 <dl class="field-list simple">
@@ -1295,9 +1555,9 @@ the default settings.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>df</strong> – The DF of the component, tabulated on an energy grid, with its
-analytic forms below and above the energies of the table, the
-lowest admissible truncation energy <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> in internal units,
+<dd class="field-even"><p><strong>df</strong> – The DF of the component, tabulated on a K grid, with its
+analytic forms below and above the K values of the table, the
+lowest admissible truncation value <code class="docutils literal notranslate"><span class="pre">k_t_min</span></code> in internal units,
 and the validation report of the DF.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1340,7 +1600,7 @@ validation report lies above <span class="nobr"><span class="math notranslate no
 </dd>
 <dt><a class="reference internal" href="#pianistpy.df.truncate" title="pianistpy.df.truncate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">truncate</span></code></a></dt><dd><p>The equilibrium model built from a distribution function.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.DistributionFunction.from_function" title="pianistpy.df.DistributionFunction.from_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistributionFunction.from_function</span></code></a></dt><dd><p>A DF given as a function of the energy.</p>
+<dt><a class="reference internal" href="#pianistpy.df.DistributionFunction.from_function" title="pianistpy.df.DistributionFunction.from_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistributionFunction.from_function</span></code></a></dt><dd><p>A DF given as a function of <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>.</span></p>
 </dd>
 </dl>
 </div>
@@ -1358,6 +1618,87 @@ in internal units. The result tabulates
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">hernquist</span><span class="p">()))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">is_physical</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">k_t_min</span>
 <span class="go">(True, 0.0)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pianistpy.df.round_trip">
+<span class="sig-prename descclassname"><span class="pre">pianistpy.df.</span></span><span class="sig-name descname"><span class="pre">round_trip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.round_trip" title="Link to this definition">#</a></dt>
+<dd><p>Return the round trip of a distribution function against its analytic profile.</p>
+<p>The round trip is the density that the DF gives, the potential that
+this density generates by Poisson’s equation, and the relative
+difference of the density, at the potential it generates, against the
+analytic density, at every radius. The three steps run through the
+package’s own machinery, the same for a DF from <cite>compute_df</cite> and for a
+DF from <cite>DistributionFunction.from_function</cite>, so a fitting function of
+the DF is compared with the inverted DF on equal terms. The module
+docstring of <cite>pianistpy.df.round_trip</cite> states the method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<a class="reference internal" href="#pianistpy.df.DistributionFunction" title="pianistpy.df.DistributionFunction"><em>DistributionFunction</em></a>) – An untruncated DF of one component built on an analytic profile
+(a <cite>DoublePowerLaw</cite>), from <cite>compute_df</cite> or from
+<cite>DistributionFunction.from_function</cite>.</p></li>
+<li><p><strong>radii</strong> (<em>array-like</em><em>, </em><em>optional</em>) – Radii <span class="math notranslate nohighlight">\(R\)</span> at which the result is reported, in the unit system
+of <cite>df</cite> (<cite>DistributionFunction.units</cite>): internal units by default,
+in the physical system a float in parsecs or an Astropy quantity of
+any length unit. Every radius must lie at or beyond the starting
+radius of the integration (the setting <code class="docutils literal notranslate"><span class="pre">log10_r_start</span></code>). Default:
+<code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the grid of the settings: from
+<code class="docutils literal notranslate"><span class="pre">log10_r_min</span></code> to <code class="docutils literal notranslate"><span class="pre">log10_r_max</span></code> with <code class="docutils literal notranslate"><span class="pre">rows_per_decade</span></code> radii
+per decade.</p></li>
+<li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a><em>, </em><em>optional</em>) – Numerical settings; the round trip reads the group <code class="docutils literal notranslate"><span class="pre">round_trip</span></code>.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the settings of <cite>df</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>trip</strong> – The round trip: the potential, the residual of the potential, the
+enclosed mass, the density and the relative difference against the
+analytic density at each radius, the closure before Poisson’s
+equation, the radius at which the potential reached the floor of
+the DF table, and the two budgets (the tables’ interpolation and
+the integration’s tolerance).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pianistpy.df.RoundTrip" title="pianistpy.df.RoundTrip">RoundTrip</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>df</cite> is not a <cite>DistributionFunction</cite>, holds more than one
+    component, is built on a <cite>TruncatedProfile</cite> (a Method II DF; the
+    round trip compares against an analytic profile), or belongs to a
+    Type II anisotropy model (an untruncated Type II DF has no density
+    beyond the anisotropy radius, and the package’s validation does not
+    judge its round trip either).</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If a radius of <cite>radii</cite> lies inside the starting radius of the
+    integration or beyond the setting <code class="docutils literal notranslate"><span class="pre">log10_r_max</span></code>.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the DF is negative somewhere on its table. The round trip reads
+    a non-negative DF; <cite>DistributionFunction.k_t_min</cite> states where
+    such a DF is negative.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pianistpy.df.DistributionFunction.evaluate" title="pianistpy.df.DistributionFunction.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistributionFunction.evaluate</span></code></a></dt><dd><p>The DF at given values of K.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.df.DistributionFunction.from_function" title="pianistpy.df.DistributionFunction.from_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DistributionFunction.from_function</span></code></a></dt><dd><p>A DF given as a function of K, for the round trip of a fitting function.</p>
+</dd>
+<dt><a class="reference internal" href="#pianistpy.df.compute_df" title="pianistpy.df.compute_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_df</span></code></a></dt><dd><p>The DF computed by inversion of the density.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Section 4.1 and Fig. 8.</p>
+<p class="rubric">Examples</p>
+<p>The round trip of the package’s own Plummer DF at three radii:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pianistpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">plummer</span><span class="p">()))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trip</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">round_trip</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">trip</span><span class="o">.</span><span class="n">error</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-8</span><span class="p">))</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1427,7 +1768,7 @@ above <span class="nobr"><span class="math notranslate nohighlight">\(10^{-4}\)<
 <span class="sig-prename descclassname"><span class="pre">pianistpy.df.</span></span><span class="sig-name descname"><span class="pre">truncate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.truncate" title="Link to this definition">#</a></dt>
 <dd><p>Return the equilibrium model built from a distribution function.</p>
 <p>With a <cite>Truncation</cite>, the model’s DF is the untruncated DF shifted in
-energy by the truncation energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> and lowered
+<span class="math notranslate nohighlight">\(\mathcal{K}\)</span> by the truncation value <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> and lowered
 by the untruncated DF’s value at <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span>,</span> which
 gives a model of finite mass and finite radius (Method I of
 <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>). Without a truncation, the untruncated DF is the
@@ -1455,8 +1796,8 @@ report.</p>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>df</cite> was built by <cite>DistributionFunction.from_function</cite>. Such a DF
     holds the function’s values only, and a truncation needs the values
     of the inversion.</p></li>
-<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If the truncation energy <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> is below
-    <code class="docutils literal notranslate"><span class="pre">df.k_t_min</span></code>, or no admissible truncation energy reaches the
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If the truncation value <span class="math notranslate nohighlight">\(\mathcal{K}_{\rm t}\)</span> is below
+    <code class="docutils literal notranslate"><span class="pre">df.k_t_min</span></code>, or no admissible truncation value reaches the
     target mass or the target radius of <cite>truncation</cite>.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If the central density slope <span class="math notranslate nohighlight">\(\gamma\)</span> is below
     <span class="nobr"><span class="math notranslate nohighlight">\(2\beta_{\rm c}(0)\)</span>,</span> with <span class="math notranslate nohighlight">\(\beta_{\rm c}(0)\)</span> the
@@ -1471,7 +1812,7 @@ report.</p>
     equilibrium (<code class="docutils literal notranslate"><span class="pre">df.is_physical</span></code> is false), or the untruncated mass
     diverges.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If the component is built on a <cite>TruncatedProfile</cite> and the DF is
-    negative at an energy inside the DF’s support.</p></li>
+    negative at a value of K inside the DF’s support.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.AccuracyError" title="pianistpy.exceptions.AccuracyError"><strong>AccuracyError</strong></a> – If a check of the model’s validation report lies above
     <span class="math notranslate nohighlight">\(10^{-2}\)</span> (the band “refused”), the round trip of the model’s
     DF against the model’s density included. With
@@ -1494,7 +1835,7 @@ report.</p>
 </dd>
 <dt><a class="reference internal" href="#pianistpy.df.solve" title="pianistpy.df.solve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve</span></code></a></dt><dd><p><cite>compute_df</cite> and <cite>truncate</cite> in one call.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.Truncation" title="pianistpy.df.Truncation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Truncation</span></code></a></dt><dd><p>The truncation energy, target mass or target radius.</p>
+<dt><a class="reference internal" href="#pianistpy.df.Truncation" title="pianistpy.df.Truncation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Truncation</span></code></a></dt><dd><p>The truncation value, target mass or target radius.</p>
 </dd>
 </dl>
 </div>
@@ -1534,11 +1875,11 @@ Poisson’s equation with the density of <span class="nobr"><span class="math no
 Jacobians of those functions (<a class="reference internal" href="../../guide/differentiability"><span class="doc">End-to-end differentiability</span></a>).</p>
 <p id="module-pianistpy.df.gradient">Derivatives of a component’s distribution function in its anisotropy.</p>
 <p>This module returns the distribution function (DF) <span class="math notranslate nohighlight">\(F(Q)\)</span> that
-<cite>compute_df</cite> makes for a component, at fixed relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span>
+<cite>compute_df</cite> makes for a component, at fixed values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span>
 together with the derivatives of <span class="math notranslate nohighlight">\(F\)</span> in the anisotropy parameters
 <span class="nobr"><span class="math notranslate nohighlight">\(\theta = (\beta_{\rm c}, R_{\rm a})\)</span>.</span> <cite>inversion_nodes</cite> returns the
-energies at which <cite>compute_df</cite> evaluates <span class="nobr"><span class="math notranslate nohighlight">\(F\)</span>.</span> <cite>rows_jacobian</cite> returns
-<span class="math notranslate nohighlight">\(F\)</span> and its derivatives at the energies of <cite>inversion_nodes</cite> as
+nodes at which <cite>compute_df</cite> evaluates <span class="nobr"><span class="math notranslate nohighlight">\(F\)</span>.</span> <cite>rows_jacobian</cite> returns
+<span class="math notranslate nohighlight">\(F\)</span> and its derivatives at the nodes of <cite>inversion_nodes</cite> as
 arrays, and <cite>table_jacobian</cite> returns every array of the DF’s table and its
 derivatives. <cite>make_inversion_rows</cite> returns <span class="nobr"><span class="math notranslate nohighlight">\(F\)</span>,</span> and
 <cite>make_inversion_table</cite> returns the arrays of the DF’s table, as JAX
@@ -1566,7 +1907,7 @@ differences in <span class="nobr"><span class="math notranslate nohighlight">\(b
 <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>,</span> <span class="math notranslate nohighlight">\(10^{-4}\)</span> and <span class="math notranslate nohighlight">\(10^{-2}\)</span> of the package’s
 validation reports.</p>
 <p>The derivative of the DF’s table follows by the chain rule through each
-array of the table. The energies and every discrete choice of the table are
+array of the table. The nodes and every discrete choice of the table are
 held at the parameters the call is given. For a component on a
 <cite>TruncatedProfile</cite> (Method II), the profile is held, and the derivative of
 the source is the derivative of the inverse anisotropy factor in closed
@@ -1584,10 +1925,10 @@ critical branch, where the inner slope <span class="math notranslate nohighlight
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.df.gradient.inversion_nodes">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">inversion_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.inversion_nodes" title="Link to this definition">#</a></dt>
-<dd><p>Return the energies at which <cite>compute_df</cite> inverts a component.</p>
-<p>The energies are the relative energies <span class="math notranslate nohighlight">\(Q\)</span> at which <cite>compute_df</cite>
+<dd><p>Return the nodes at which <cite>compute_df</cite> inverts a component.</p>
+<p>The nodes are the values of <span class="math notranslate nohighlight">\(Q\)</span> at which <cite>compute_df</cite>
 evaluates the DF <span class="math notranslate nohighlight">\(F(Q)\)</span> for the given component and settings. The
-other public functions of <cite>pianistpy.df.gradient</cite> hold the energies of
+other public functions of <cite>pianistpy.df.gradient</cite> hold the nodes of
 <cite>inversion_nodes</cite> fixed when the anisotropy parameters change.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1597,7 +1938,7 @@ other public functions of <cite>pianistpy.df.gradient</cite> hold the energies o
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>q</strong> – Relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> strictly increasing, in internal
+<dd class="field-even"><p><strong>q</strong> – Values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> strictly increasing, in internal
 units.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -1605,9 +1946,9 @@ units.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the energies that <cite>settings</cite> places include two energies that
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the nodes that <cite>settings</cite> places include two nodes that
     float64 cannot separate.</p></li>
-<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the component is Osipkov-Merritt Type II or COM, whose energies
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If the component is Osipkov-Merritt Type II or COM, whose nodes
     are placed around a feature of a first coarse inversion, and the
     coarse inversion finds a derivative of the auxiliary density that
     is not finite.</p></li>
@@ -1617,9 +1958,9 @@ units.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows_jacobian</span></code></a></dt><dd><p>The DF and its derivatives at the energies of <cite>inversion_nodes</cite>.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows_jacobian</span></code></a></dt><dd><p>The DF and its derivatives at the nodes of <cite>inversion_nodes</cite>.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_rows</span></code></a></dt><dd><p>The DF at the energies of <cite>inversion_nodes</cite> as a JAX function.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_rows</span></code></a></dt><dd><p>The DF at the nodes of <cite>inversion_nodes</cite> as a JAX function.</p>
 </dd>
 </dl>
 </div>
@@ -1638,9 +1979,9 @@ units.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.df.gradient.make_inversion_rows">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">make_inversion_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.make_inversion_rows" title="Link to this definition">#</a></dt>
-<dd><p>Return the DF at fixed energies as a JAX function of the anisotropy.</p>
+<dd><p>Return the DF at fixed nodes as a JAX function of the anisotropy.</p>
 <p>The returned function maps the anisotropy parameters <span class="math notranslate nohighlight">\(\theta\)</span> to
-the DF <span class="math notranslate nohighlight">\(F(Q)\)</span> that <cite>compute_df</cite> makes at the relative energies
+the DF <span class="math notranslate nohighlight">\(F(Q)\)</span> that <cite>compute_df</cite> makes at the values
 <cite>q</cite>. The reverse-mode derivative of the returned function at each
 <span class="math notranslate nohighlight">\(\theta\)</span> is the derivative that <cite>rows_jacobian</cite> returns at that
 <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>.</span> For the derivatives as arrays, call <cite>rows_jacobian</cite>
@@ -1654,8 +1995,8 @@ I anisotropy. The anisotropy parameters of <cite>component</cite> are the
 point at which the steps of the finite differences in
 <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> are measured.</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>) – Numerical settings, the same as those given to <cite>compute_df</cite>.</p></li>
-<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units.
-Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the energies that <cite>inversion_nodes</cite>
+<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the nodes that <cite>inversion_nodes</cite>
 returns for <cite>component</cite> and <cite>settings</cite>.</p></li>
 </ul>
 </dd>
@@ -1667,18 +2008,18 @@ of shape (n,) that holds <span class="math notranslate nohighlight">\(F(Q)\)</sp
 <code class="docutils literal notranslate"><span class="pre">jax.grad</span></code> and <code class="docutils literal notranslate"><span class="pre">jax.vjp</span></code> differentiate <code class="docutils literal notranslate"><span class="pre">rows</span></code>.</p></li>
 <li><p><strong>params</strong> (<em>tuple of str</em>) – Names of the anisotropy parameters in <code class="docutils literal notranslate"><span class="pre">theta</span></code>: <code class="docutils literal notranslate"><span class="pre">(&quot;beta_c&quot;,)</span></code>,
 <code class="docutils literal notranslate"><span class="pre">(&quot;r_a&quot;,)</span></code> or <code class="docutils literal notranslate"><span class="pre">(&quot;beta_c&quot;,</span> <span class="pre">&quot;r_a&quot;)</span></code>.</p></li>
-<li><p><strong>q</strong> (<em>ndarray, shape (n,)</em>) – Relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> in internal units: <cite>q</cite> as given, or the
-energies of <cite>inversion_nodes</cite>.</p></li>
+<li><p><strong>q</strong> (<em>ndarray, shape (n,)</em>) – Values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> in internal units: <cite>q</cite> as given, or the
+nodes of <cite>inversion_nodes</cite>.</p></li>
 </ul>
 </p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If the anisotropy is COM Type II.</p></li>
-<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>q</cite> is <code class="docutils literal notranslate"><span class="pre">None</span></code> and the energies that <cite>settings</cite> places include
-    two energies that float64 cannot separate.</p></li>
+<li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.InputError" title="pianistpy.exceptions.InputError"><strong>InputError</strong></a> – If <cite>q</cite> is <code class="docutils literal notranslate"><span class="pre">None</span></code> and the nodes that <cite>settings</cite> places include
+    two nodes that float64 cannot separate.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If <cite>q</cite> is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the component is Osipkov-Merritt Type II or
-    COM, and the coarse inversion that places the energies finds a
+    COM, and the coarse inversion that places the nodes finds a
     derivative of the auxiliary density that is not finite.</p></li>
 </ul>
 </dd>
@@ -1689,17 +2030,17 @@ energies of <cite>inversion_nodes</cite>.</p></li>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows_jacobian</span></code></a></dt><dd><p>The DF at fixed energies and its derivatives as arrays.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows_jacobian</span></code></a></dt><dd><p>The DF at fixed nodes and its derivatives as arrays.</p>
 </dd>
 <dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_table" title="pianistpy.df.gradient.make_inversion_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_table</span></code></a></dt><dd><p>Every array of the DF’s table as a JAX function.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.gradient.inversion_nodes" title="pianistpy.df.gradient.inversion_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inversion_nodes</span></code></a></dt><dd><p>The energies at which <cite>compute_df</cite> evaluates the DF.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.inversion_nodes" title="pianistpy.df.gradient.inversion_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inversion_nodes</span></code></a></dt><dd><p>The nodes at which <cite>compute_df</cite> evaluates the DF.</p>
 </dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
 <p>Each call of <code class="docutils literal notranslate"><span class="pre">rows</span></code> inverts the component again at the new
-parameters, at the energies <cite>q</cite>. Each derivative of <code class="docutils literal notranslate"><span class="pre">rows</span></code> calls
+parameters, at the nodes <cite>q</cite>. Each derivative of <code class="docutils literal notranslate"><span class="pre">rows</span></code> calls
 <cite>rows_jacobian</cite>, which raises InputError for a component on a
 <cite>TruncatedProfile</cite>.</p>
 <p>The steps of the finite differences in <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> are
@@ -1731,7 +2072,7 @@ the values of <code class="docutils literal notranslate"><span class="pre">theta
 <span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">make_inversion_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.make_inversion_table" title="Link to this definition">#</a></dt>
 <dd><p>Return the arrays of the DF’s table as a JAX function of the anisotropy.</p>
 <p>The returned function maps the anisotropy parameters <span class="math notranslate nohighlight">\(\theta\)</span> to
-the arrays of the table that <cite>compute_df</cite> makes. The energies of the
+the arrays of the table that <cite>compute_df</cite> makes. The nodes of the
 table and the set of its arrays are held at the component’s own
 parameters. The other discrete choices of the table, the anchor of the
 form at the center and the nodes kept, are made again at each
@@ -1748,10 +2089,10 @@ that <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</s
 II, or COM Type I anisotropy, on an analytic profile or on a
 <cite>TruncatedProfile</cite> (Method II).</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>) – Numerical settings, the same as those given to <cite>compute_df</cite>.</p></li>
-<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units, for a
+<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units, for a
 component on an analytic profile. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means
-the energies that <cite>inversion_nodes</cite> returns for <cite>component</cite> and
-<cite>settings</cite>. A component on a <cite>TruncatedProfile</cite> takes the energies
+the nodes that <cite>inversion_nodes</cite> returns for <cite>component</cite> and
+<cite>settings</cite>. A component on a <cite>TruncatedProfile</cite> takes the nodes
 of its own solve, and <cite>q</cite> is not used.</p></li>
 </ul>
 </dd>
@@ -1760,11 +2101,11 @@ of its own solve, and <cite>q</cite> is not used.</p></li>
 <li><p><strong>table</strong> (<em>callable</em>) – Function <code class="docutils literal notranslate"><span class="pre">table(theta)</span></code>. The argument <code class="docutils literal notranslate"><span class="pre">theta</span></code> is an array of the
 parameter values in the order of <cite>params</cite>. The value is a dict of
 JAX arrays with every key of <cite>table_jacobian</cite>’s <code class="docutils literal notranslate"><span class="pre">values</span></code> except
-the energies <code class="docutils literal notranslate"><span class="pre">k</span></code> and <code class="docutils literal notranslate"><span class="pre">k_below</span></code>. <code class="docutils literal notranslate"><span class="pre">jax.grad</span></code> and <code class="docutils literal notranslate"><span class="pre">jax.vjp</span></code>
+the nodes <code class="docutils literal notranslate"><span class="pre">k</span></code> and <code class="docutils literal notranslate"><span class="pre">k_below</span></code>. <code class="docutils literal notranslate"><span class="pre">jax.grad</span></code> and <code class="docutils literal notranslate"><span class="pre">jax.vjp</span></code>
 differentiate <code class="docutils literal notranslate"><span class="pre">table</span></code>.</p></li>
 <li><p><strong>params</strong> (<em>tuple of str</em>) – Names of the anisotropy parameters in <code class="docutils literal notranslate"><span class="pre">theta</span></code>: <code class="docutils literal notranslate"><span class="pre">(&quot;beta_c&quot;,)</span></code>,
 <code class="docutils literal notranslate"><span class="pre">(&quot;r_a&quot;,)</span></code> or <code class="docutils literal notranslate"><span class="pre">(&quot;beta_c&quot;,</span> <span class="pre">&quot;r_a&quot;)</span></code>.</p></li>
-<li><p><strong>values</strong> (<em>dict of ndarray</em>) – Arrays of the table at the component’s own parameters, energies
+<li><p><strong>values</strong> (<em>dict of ndarray</em>) – Arrays of the table at the component’s own parameters, nodes
 included, as <cite>table_jacobian</cite> returns them.</p></li>
 </ul>
 </p>
@@ -1781,8 +2122,8 @@ included, as <cite>table_jacobian</cite> returns them.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If <cite>component</cite> is on a <cite>TruncatedProfile</cite> whose model is truncated
     but not spatially finite.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a derivative of the auxiliary density is not finite at the
-    energies, or if the DF of a component on a <cite>TruncatedProfile</cite> has a
-    defective band at the top of its energies.</p></li>
+    nodes, or if the DF of a component on a <cite>TruncatedProfile</cite> has a
+    defective band at the top of its nodes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1794,14 +2135,14 @@ included, as <cite>table_jacobian</cite> returns them.</p></li>
 <dl class="simple">
 <dt><a class="reference internal" href="#pianistpy.df.gradient.table_jacobian" title="pianistpy.df.gradient.table_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_jacobian</span></code></a></dt><dd><p>The arrays of the DF’s table and their derivatives as arrays.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_rows</span></code></a></dt><dd><p>The DF at the energies of the inversion as a JAX function.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_rows</span></code></a></dt><dd><p>The DF at the K values of the inversion as a JAX function.</p>
 </dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
 <p>The call computes the table and its derivatives once, at the
 component’s own parameters. Each call of <code class="docutils literal notranslate"><span class="pre">table</span></code> inverts the
-component again at the new parameters, with the held energies. Each
+component again at the new parameters, with the held nodes. Each
 derivative of <code class="docutils literal notranslate"><span class="pre">table</span></code> calls <cite>table_jacobian</cite>. The steps of the finite
 differences in <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> are measured once, at the
 component’s own parameters, and are used at every <code class="docutils literal notranslate"><span class="pre">theta</span></code>.</p>
@@ -1824,9 +2165,9 @@ component’s own parameters, and are used at every <code class="docutils litera
 <dl class="py function">
 <dt class="sig sig-object py" id="pianistpy.df.gradient.rows_jacobian">
 <span class="sig-prename descclassname"><span class="pre">pianistpy.df.gradient.</span></span><span class="sig-name descname"><span class="pre">rows_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pianistpy.df.gradient.rows_jacobian" title="Link to this definition">#</a></dt>
-<dd><p>Return the DF at fixed energies and its derivatives in the anisotropy.</p>
+<dd><p>Return the DF at fixed nodes and its derivatives in the anisotropy.</p>
 <p>The values are the DF <span class="math notranslate nohighlight">\(F(Q)\)</span> that <cite>compute_df</cite> makes, at the
-relative energies <cite>q</cite>. The derivatives are those of <span class="math notranslate nohighlight">\(F\)</span> in the
+values <cite>q</cite>. The derivatives are those of <span class="math notranslate nohighlight">\(F\)</span> in the
 component’s anisotropy parameters at fixed <cite>q</cite>. For the derivatives of
 every array of the DF’s table (the nodes below the table, the form at
 the center and the tail), call <cite>table_jacobian</cite> instead.</p>
@@ -1837,8 +2178,8 @@ the center and the tail), call <cite>table_jacobian</cite> instead.</p>
 constant, isotropic, Osipkov-Merritt Type I or Type II, or COM Type
 I anisotropy.</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>) – Numerical settings, the same as those given to <cite>compute_df</cite>.</p></li>
-<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units.
-Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the energies that <cite>inversion_nodes</cite>
+<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units.
+Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means the nodes that <cite>inversion_nodes</cite>
 returns for <cite>component</cite> and <cite>settings</cite>.</p></li>
 <li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary that keeps the steps of the finite differences in
 <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> between calls. A call reads the steps from
@@ -1852,8 +2193,8 @@ each call measures its own steps and keeps them nowhere.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>q</strong> (<em>ndarray, shape (n,)</em>) – Relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> in internal units: <cite>q</cite> as given, or
-the energies of <cite>inversion_nodes</cite>.</p></li>
+<li><p><strong>q</strong> (<em>ndarray, shape (n,)</em>) – Values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> in internal units: <cite>q</cite> as given, or
+the nodes of <cite>inversion_nodes</cite>.</p></li>
 <li><p><strong>f</strong> (<em>ndarray, shape (n,)</em>) – DF <span class="math notranslate nohighlight">\(F(Q)\)</span> at <cite>q</cite>, as <cite>compute_df</cite> makes it, in internal units.</p></li>
 <li><p><strong>jac</strong> (<em>dict of ndarray</em>) – Derivatives of <span class="math notranslate nohighlight">\(F\)</span> at <cite>q</cite>, each with the shape of <cite>q</cite>, in
 internal units. The key <code class="docutils literal notranslate"><span class="pre">&quot;beta_c&quot;</span></code> holds
@@ -1901,9 +2242,9 @@ far below that maximum can exceed <code class="docutils literal notranslate"><sp
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="#pianistpy.df.gradient.inversion_nodes" title="pianistpy.df.gradient.inversion_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inversion_nodes</span></code></a></dt><dd><p>The energies at which <cite>compute_df</cite> evaluates the DF.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.inversion_nodes" title="pianistpy.df.gradient.inversion_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inversion_nodes</span></code></a></dt><dd><p>The nodes at which <cite>compute_df</cite> evaluates the DF.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_rows</span></code></a></dt><dd><p>The DF at fixed energies as a JAX function of the parameters.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_rows" title="pianistpy.df.gradient.make_inversion_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_rows</span></code></a></dt><dd><p>The DF at fixed nodes as a JAX function of the parameters.</p>
 </dd>
 <dt><a class="reference internal" href="#pianistpy.df.gradient.table_jacobian" title="pianistpy.df.gradient.table_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">table_jacobian</span></code></a></dt><dd><p>The derivatives of every array of the DF’s table.</p>
 </dd>
@@ -1936,11 +2277,11 @@ quadrature nodes of <cite>settings</cite>.</p>
 <dd><p>Return the arrays of the DF’s table and their derivatives in the anisotropy.</p>
 <p>The values are the arrays of the table that <cite>compute_df</cite> makes for the
 component. The derivatives are those of each array in the component’s
-anisotropy parameters, with the energies and every discrete choice of
+anisotropy parameters, with the nodes and every discrete choice of
 the table held at the component’s own parameters. The discrete choices
-are the placement of the energies, the form of the inversion, the
+are the placement of the nodes, the form of the inversion, the
 anchor of the form at the center and the nodes kept. For the DF at the
-energies of the inversion alone, call <cite>rows_jacobian</cite> instead.</p>
+nodes of the inversion alone, call <cite>rows_jacobian</cite> instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1948,10 +2289,10 @@ energies of the inversion alone, call <cite>rows_jacobian</cite> instead.</p>
 II, or COM Type I anisotropy, on an analytic profile or on a
 <cite>TruncatedProfile</cite> (Method II).</p></li>
 <li><p><strong>settings</strong> (<a class="reference internal" href="settings#pianistpy.settings.Settings" title="pianistpy.settings.Settings"><em>Settings</em></a>) – Numerical settings, the same as those given to <cite>compute_df</cite>.</p></li>
-<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Relative energies <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units, for a
+<li><p><strong>q</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n</em><em>,</em><em>)</em><em>, </em><em>optional</em>) – Values of <span class="nobr"><span class="math notranslate nohighlight">\(Q\)</span>,</span> increasing, in internal units, for a
 component on an analytic profile. Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means
-the energies that <cite>inversion_nodes</cite> returns for <cite>component</cite> and
-<cite>settings</cite>. A component on a <cite>TruncatedProfile</cite> takes the energies
+the nodes that <cite>inversion_nodes</cite> returns for <cite>component</cite> and
+<cite>settings</cite>. A component on a <cite>TruncatedProfile</cite> takes the nodes
 of its own solve and accepts only <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><strong>steps</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)" rel="noopener" target="_blank"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary that keeps the steps of the finite differences in
 <span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span> between calls, as in <cite>rows_jacobian</cite>.
@@ -1962,39 +2303,39 @@ keeps them nowhere.</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>values</strong> (<em>dict of ndarray</em>) – Arrays of the table, in internal units. For a component on an
-analytic profile, <code class="docutils literal notranslate"><span class="pre">k</span></code> holds the energies of the table,
+analytic profile, <code class="docutils literal notranslate"><span class="pre">k</span></code> holds the K values of the table,
 <code class="docutils literal notranslate"><span class="pre">log_df</span></code> the base-10 logarithm of the DF at <code class="docutils literal notranslate"><span class="pre">k</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">log_df_slope</span></code> the slope <span class="math notranslate nohighlight">\({\rm d}\log_{10} F/{\rm d}\ln Q\)</span>
-at <code class="docutils literal notranslate"><span class="pre">k</span></code>. Where the table has nodes below its first energy,
+at <code class="docutils literal notranslate"><span class="pre">k</span></code>. Where the table has nodes below its first node,
 <code class="docutils literal notranslate"><span class="pre">k_below</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df_below</span></code> and <code class="docutils literal notranslate"><span class="pre">log_df_slope_below</span></code> hold the
-energy, the logarithm of the DF and the slope at those nodes. Where
+K, the logarithm of the DF and the slope at those nodes. Where
 the table has a closed form above its anchor,
 <span class="math notranslate nohighlight">\(F = a_{\rm anchor} (u/u_{\rm anchor})^\kappa + b + d\,u\)</span> in
 the depth <span class="nobr"><span class="math notranslate nohighlight">\(u = 1 - Q\)</span>,</span> <code class="docutils literal notranslate"><span class="pre">central</span></code> holds the array
 <span class="nobr"><span class="math notranslate nohighlight">\((\kappa, a_{\rm anchor}, b, d)\)</span>.</span> Where the table has a tail
 below its lowest node, <code class="docutils literal notranslate"><span class="pre">tail</span></code> holds the tail’s exponent,
 amplitude and logarithmic exponent. For a component on a
-<cite>TruncatedProfile</cite>, the keys are <code class="docutils literal notranslate"><span class="pre">k</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_law</span></code>
-(the power and the two coefficients of the edge law below the
+<cite>TruncatedProfile</cite>, the keys are <code class="docutils literal notranslate"><span class="pre">k</span></code>, <code class="docutils literal notranslate"><span class="pre">log_df</span></code>, <code class="docutils literal notranslate"><span class="pre">boundary_form</span></code>
+(the power and the two coefficients of the boundary form below the
 floor, where the component has one) and <code class="docutils literal notranslate"><span class="pre">center</span></code> (the exponent
 and the amplitude of the center’s closed form, and the next term’s
 exponent and coefficient where the center’s form states them).</p></li>
 <li><p><strong>jac</strong> (<em>dict of dict of ndarray</em>) – Derivatives <code class="docutils literal notranslate"><span class="pre">jac[name][key]</span></code> of <code class="docutils literal notranslate"><span class="pre">values[key]</span></code> in the parameter
 <code class="docutils literal notranslate"><span class="pre">name</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;beta_c&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;r_a&quot;</span></code>), for every key of <cite>values</cite>
-except the energies <code class="docutils literal notranslate"><span class="pre">k</span></code> and <code class="docutils literal notranslate"><span class="pre">k_below</span></code>, each with the shape of
+except the nodes <code class="docutils literal notranslate"><span class="pre">k</span></code> and <code class="docutils literal notranslate"><span class="pre">k_below</span></code>, each with the shape of
 <code class="docutils literal notranslate"><span class="pre">values[key]</span></code>. Where a Type II DF is outside its support, the
 derivatives of <code class="docutils literal notranslate"><span class="pre">log_df</span></code> and <code class="docutils literal notranslate"><span class="pre">log_df_slope</span></code> are 0.</p></li>
 <li><p><strong>record</strong> (<em>dict</em>) – Description of the finite differences in <span class="nobr"><span class="math notranslate nohighlight">\(\beta_{\rm c}\)</span>,</span>
 with the entries of the record of <cite>rows_jacobian</cite> in absolute
 values, not relative ones. For a component on an analytic profile,
 <code class="docutils literal notranslate"><span class="pre">record[&quot;rows&quot;]</span></code> describes the finite differences of the DF and
-its slope at the energies of the inversion, and <code class="docutils literal notranslate"><span class="pre">record[&quot;below&quot;]</span></code>,
+its slope at the K values of the inversion, and <code class="docutils literal notranslate"><span class="pre">record[&quot;below&quot;]</span></code>,
 where present, describes the finite differences at the nodes below
 the table. For a component
 on a <cite>TruncatedProfile</cite>, <code class="docutils literal notranslate"><span class="pre">record[&quot;rows&quot;]</span></code> describes the finite
 differences of the DF, and <code class="docutils literal notranslate"><span class="pre">record[&quot;grid&quot;]</span></code> states the number of
-energies, the number of energies kept, and the energy around which
-the energies are placed.</p></li>
+nodes, the number of nodes kept, and the value of Q around which
+the nodes are placed.</p></li>
 </ul>
 </p>
 </dd>
@@ -2024,8 +2365,8 @@ the energies are placed.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.UnphysicalModelError" title="pianistpy.exceptions.UnphysicalModelError"><strong>UnphysicalModelError</strong></a> – If <cite>component</cite> is on a <cite>TruncatedProfile</cite> whose model is truncated
     but not spatially finite.</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If a derivative of the auxiliary density is not finite at the
-    energies, or if the DF of a component on a <cite>TruncatedProfile</cite> has a
-    defective band at the top of its energies.</p></li>
+    nodes, or if the DF of a component on a <cite>TruncatedProfile</cite> has a
+    defective band at the top of its nodes.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -2037,15 +2378,15 @@ the energies are placed.</p></li>
 <dl class="simple">
 <dt><a class="reference internal" href="#pianistpy.df.gradient.make_inversion_table" title="pianistpy.df.gradient.make_inversion_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_inversion_table</span></code></a></dt><dd><p>The arrays of the DF’s table as a JAX function of the parameters.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows_jacobian</span></code></a></dt><dd><p>The DF and its derivatives at the energies of the inversion.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.rows_jacobian" title="pianistpy.df.gradient.rows_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rows_jacobian</span></code></a></dt><dd><p>The DF and its derivatives at the nodes of the inversion.</p>
 </dd>
-<dt><a class="reference internal" href="#pianistpy.df.gradient.inversion_nodes" title="pianistpy.df.gradient.inversion_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inversion_nodes</span></code></a></dt><dd><p>The energies at which <cite>compute_df</cite> evaluates the DF.</p>
+<dt><a class="reference internal" href="#pianistpy.df.gradient.inversion_nodes" title="pianistpy.df.gradient.inversion_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inversion_nodes</span></code></a></dt><dd><p>The nodes at which <cite>compute_df</cite> evaluates the DF.</p>
 </dd>
 </dl>
 </div>
 <p class="rubric">Notes</p>
 <p>The derivative of each array of the table follows by the chain rule
-from the derivatives of the DF at the energies of the inversion and
+from the derivatives of the DF at the K values of the inversion and
 from the closed-form derivatives of the center’s exponent and
 amplitude.</p>
 <p>A call costs several inversions of the component, as <cite>rows_jacobian</cite>
@@ -2102,6 +2443,7 @@ component in addition.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.from_function"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.from_function()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.is_physical"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.is_physical</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.diverges_at_zero"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.diverges_at_zero</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.evaluate"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.evaluate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.to"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.to()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.write"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.write()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.DistributionFunction.write_text"><code class="docutils literal notranslate"><span class="pre">DistributionFunction.write_text()</span></code></a></li>
@@ -2118,12 +2460,19 @@ component in addition.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.Model.write_text"><code class="docutils literal notranslate"><span class="pre">Model.write_text()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.RoundTrip"><code class="docutils literal notranslate"><span class="pre">RoundTrip</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.RoundTrip.radial_profiles"><code class="docutils literal notranslate"><span class="pre">RoundTrip.radial_profiles()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.RoundTrip.to"><code class="docutils literal notranslate"><span class="pre">RoundTrip.to()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.RoundTrip.write"><code class="docutils literal notranslate"><span class="pre">RoundTrip.write()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.Truncation"><code class="docutils literal notranslate"><span class="pre">Truncation</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.Truncation.to_dict"><code class="docutils literal notranslate"><span class="pre">Truncation.to_dict()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.Truncation.from_dict"><code class="docutils literal notranslate"><span class="pre">Truncation.from_dict()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.compute_df"><code class="docutils literal notranslate"><span class="pre">compute_df()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.round_trip"><code class="docutils literal notranslate"><span class="pre">round_trip()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.solve"><code class="docutils literal notranslate"><span class="pre">solve()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pianistpy.df.truncate"><code class="docutils literal notranslate"><span class="pre">truncate()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gradients">Gradients</a><ul class="pst-show_toc_level nav section-nav flex-column">

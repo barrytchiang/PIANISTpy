@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:2 The DF &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>T:2 The DF &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -606,7 +606,7 @@
   C(n_f)\,a_q\,\frac{\Gamma(q+1)}{\Gamma(a+1)}\;\hat{\mathcal{K}}^{\,a-n_f}\,x^{a}\left[{}_2F_1(a, n_f;\, a+1;\, x) - 1\right]
   \tag{T:2.23}
 \end{equation}</div><p>is the exact contribution of <span class="math notranslate nohighlight">\([0, q_0]\)</span> to the row at <span class="nobr"><span class="math notranslate nohighlight">\(\hat{\mathcal{K}}\)</span>,</span> relative to the boundary form that the kernel carries, and the boundary term is the sources’ own value of <span class="math notranslate nohighlight">\(\hat\varrho_\mathrm{aux}^{(m_f)}\)</span> at the floor node: the Method I model’s derivatives there (in closed form from its Taylor edge where the node lies below the switch), its density from its rows, and the Method II model’s factor, by the Leibniz rule.</p>
-<p>At <span class="math notranslate nohighlight">\(\beta_\mathrm{c} = 1/2\)</span> on a Method I model with <span class="nobr"><span class="math notranslate nohighlight">\(\gamma = \alpha = 1\)</span>,</span> the inversion is a derivative whose two terms are both of order <span class="math notranslate nohighlight">\(1/u\)</span> toward the center, so the rows there carry the Method I model’s accuracy multiplied by <span class="nobr"><span class="math notranslate nohighlight">\(C/[2(\beta - 1)\,u]\)</span>,</span> with <span class="math notranslate nohighlight">\(\hat\varrho \simeq C/R\)</span> at the center <span class="nobr">(<span class="math notranslate nohighlight">\(1/(4u)\)</span></span> for NFW, <span class="math notranslate nohighlight">\(1/(3u)\)</span> for Hernquist). Above an anchor, the rows are the closed form <span class="math notranslate nohighlight">\(F = A\sum_{k \leq 4} a_k u^{k}\)</span> with <span class="math notranslate nohighlight">\(A = 1/(2\pi^2)\)</span> (<a class="reference internal" href="#tn-sec-nfw-half"><span class="std std-ref">Section T:2.2.5</span></a>), which is exact in the truncation through the Method I model’s central deficit. The anchor is the smaller of the series’ own range at <span class="math notranslate nohighlight">\(10^{-6}\)</span> and the top zone of the grid, and the median relative deviation of the computed rows from the form over the outermost decade inside it, on at least ten rows, must be within <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>;</span> otherwise the anchor steps inward one decade at a time until it is, and where no decade is, the rows stand as computed and the record says so.</p>
+<p>At <span class="math notranslate nohighlight">\(\beta_\mathrm{c} = 1/2\)</span> on a Method I model with <span class="nobr"><span class="math notranslate nohighlight">\(\gamma = \alpha = 1\)</span>,</span> the inversion is a derivative whose two terms are both of order <span class="math notranslate nohighlight">\(1/u\)</span> toward the center, so the rows there carry the Method I model’s accuracy multiplied by <span class="nobr"><span class="math notranslate nohighlight">\(C/[2(\beta - 1)\,u]\)</span>,</span> with <span class="math notranslate nohighlight">\(\hat\varrho \simeq C/R\)</span> at the center <span class="nobr">(<span class="math notranslate nohighlight">\(1/(4u)\)</span></span> for NFW, <span class="math notranslate nohighlight">\(1/(3u)\)</span> for Hernquist). Above an anchor, the rows are the closed form <span class="math notranslate nohighlight">\(F = A\sum_{k \leq 4} a_k u^{k}\)</span> with <span class="math notranslate nohighlight">\(A = 1/(2\pi^2)\)</span> (<a class="reference internal" href="#tn-sec-nfw-half"><span class="std std-ref">Section T:2.2.5</span></a>), which is exact in the truncation through the density that the Method I model’s truncation removes near the center (<a class="reference internal" href="truncation#tn-sec-fills"><span class="std std-ref">Section T:3.4</span></a>). The anchor is the smaller of the series’ own range at <span class="math notranslate nohighlight">\(10^{-6}\)</span> and the top zone of the grid, and the median relative deviation of the computed rows from the form over the outermost decade inside it, on at least ten rows, must be within <span class="nobr"><span class="math notranslate nohighlight">\(10^{-6}\)</span>;</span> otherwise the anchor steps inward one decade at a time until it is, and where no decade is, the rows stand as computed and the record says so.</p>
 <section id="t-2-6-1-the-method-ii-df-at-the-truncation-boundary">
 <span id="tn-sec-edge-law"></span><h3>T:2.6.1 The Method II DF at the truncation boundary<a class="headerlink" href="#t-2-6-1-the-method-ii-df-at-the-truncation-boundary" title="Link to this heading">#</a></h3>
 <p>A truncated density that ends as <span class="math notranslate nohighlight">\(\hat{P}^{q}\)</span> at its edge has a DF of central anisotropy <span class="math notranslate nohighlight">\(\beta_\mathrm{c}\)</span> if and only if <span class="nobr"><span class="math notranslate nohighlight">\(\beta_\mathrm{c} &gt; 1/2 - q\)</span>,</span> and the DF then behaves as <span class="math notranslate nohighlight">\(\hat{\mathcal{K}}^{\,q - 3/2 + \beta_\mathrm{c}}\)</span> there. This statement holds for every profile and every anisotropy model of PIANISTpy, and a Method II model that violates it is refused before any stage runs, with the admissible range stated. Below the Method I model’s switch value of <span class="nobr"><span class="math notranslate nohighlight">\(\hat{\mathcal{K}}\)</span>,</span> the Method I model’s DF is its Taylor form <span class="nobr"><span class="math notranslate nohighlight">\(F_1\hat{\mathcal{K}} + F_2\hat{\mathcal{K}}^2/2\)</span>,</span> so the Method I model’s augmented density near the edge is <span class="math notranslate nohighlight">\(4\pi\sqrt{2}\,[\tfrac{4}{15}F_1 \hat{P}^{5/2} + \tfrac{8}{105}F_2 \hat{P}^{7/2}]\)</span> to the order kept. The Method II model’s augmented density, with <span class="nobr"><span class="math notranslate nohighlight">\(1/g = 1/g_\mathrm{t} + G_1 \hat{P}\)</span>,</span> <span class="nobr"><span class="math notranslate nohighlight">\(G_1 = (1/g)'(R_\mathrm{t})\,R'(\hat{P})\)</span>,</span> and <span class="nobr"><span class="math notranslate nohighlight">\(R' = -R_\mathrm{t}^2/M_\mathrm{t}\)</span>,</span> is then</p>
@@ -619,7 +619,7 @@
 </section>
 <section id="t-2-7-a-user-supplied-df">
 <span id="tn-sec-from-function"></span><h2>T:2.7 A user-supplied DF<a class="headerlink" href="#t-2-7-a-user-supplied-df" title="Link to this heading">#</a></h2>
-<p>A DF obtained elsewhere, from a fitting function or from another code, is checked in the same way as an inverted one. Its values on the <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> grid that the inversion would place for the model enter where the rows of the inversion would enter, and everything downstream is unchanged: the forms beyond the table, the sign report, the checks, and the result’s record, which carries no inversion record and no rows. Such a table has no exact slope column, which its report states, and a value that is not finite is refused with the first such node stated. Truncation needs the rows of the inversion, which such a table does not carry, and is therefore refused with the reason stated.</p>
+<p>A DF obtained elsewhere, from a fitting function or from another code, is checked in the same way as an inverted one. Its values on the <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> grid that the inversion would place for the model enter where the rows of the inversion would enter, and everything downstream is unchanged: the forms beyond the table, the sign report, the checks, and the result’s record, which carries no inversion record and no rows. Such a table has no exact slope column, which its report states, and a value that is not finite is refused with the first such node stated. Truncation needs the rows of the inversion, which such a table does not carry, and is therefore refused with the reason stated. The round trip of <a class="reference internal" href="verification#tn-sec-roundtrip"><span class="std std-ref">Section T:8.3</span></a> accepts such a DF as it does an inverted one.</p>
 </section>
 </section>
 

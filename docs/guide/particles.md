@@ -1,4 +1,4 @@
-# Particles
+# Particle sampling
 
 Source: https://pianistpy.com/docs/guide/particles
 

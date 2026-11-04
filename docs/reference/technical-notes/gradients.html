@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:7 Gradients &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>T:7 Gradients &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -325,7 +325,7 @@
 </section>
 <section id="t-7-3-derivatives-of-the-velocity-dispersions-and-distributions">
 <span id="tn-sec-tangent-rows"></span><h2>T:7.3 Derivatives of the velocity dispersions and distributions<a class="headerlink" href="#t-7-3-derivatives-of-the-velocity-dispersions-and-distributions" title="Link to this heading">#</a></h2>
-<p>Each observable is served as a JAX function of <span class="math notranslate nohighlight">\(\theta = (\beta_\mathrm{c}, R_\mathrm{a})\)</span> with a custom derivative. Its value is the public call on the model rebuilt at <span class="math notranslate nohighlight">\(\theta\)</span> on the host, and its derivative is given by the tangent rows of the observable in <span class="math notranslate nohighlight">\(\theta\)</span> on the tables’ own rows, with their placement frozen. The tangent rows of the radial dispersion are the derivative of the dispersion integral <a class="reference internal" href="observables#tn-eq-jeans"><span class="std std-ref">Eq. (T:6.1)</span></a> on the same rows and nodes on the fixed profile, with the limit of the edge reading unmoved. The tangent rows of the projection are the derivative of the line-of-sight rule on the same nodes, through the derivative of the profile’s reading, with the surface density held, and zero where the surface density is zero. A negative squared dispersion is refused with the reason stated, never clipped, so no row of the forward is clipped and no tangent row is set to zero for that reason. The derivative of the squared dispersion over an aperture is the aperture’s integral of the tangent rows of the squared dispersion, on the nodes and weights of the plain call (the integral is linear in the rows); the derivative of the dispersion over the aperture is that over twice its value, and zero where the value is zero. The velocity distributions take their derivatives in two parts. The first is through the derivative of the DF’s table (<a class="reference internal" href="#tn-sec-gradient-rule"><span class="std std-ref">Section T:7.1</span></a>): the lookup is differentiated by JAX on its own expressions, and the transpose carries a cotangent on <span class="nobr"><span class="math notranslate nohighlight">\(F\)</span>,</span> and on its integral <span class="math notranslate nohighlight">\(G\)</span> where a row reads it, at the values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> back to the numbers of the table through the three maps between them (the padded nodes, the spline slopes where a table has no exact ones, and the derived numbers of the forms), with the values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> held fixed, and contracts it with the table’s derivative in <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>.</span> The second is the explicit part at a fixed table: the derivative, by JAX on a twin of the velocity plane or of the angle integral with the forward’s discrete choices held, of the distribution’s own dependence on <span class="math notranslate nohighlight">\(\theta\)</span> through the anisotropy’s factor, the augmented energy and the edges of the integration. For its transpose, each row of the line-of-sight tables that a nonzero cotangent reaches is computed once more by its own rule, with every read of <span class="math notranslate nohighlight">\(F\)</span> and <span class="math notranslate nohighlight">\(G\)</span> collected at the level from which the value of its velocity came. With the setting that checks the rows, which is off by default, the row so computed is held to the forward’s row bit for bit, and so is the row formed again level by level, and a row that differs is refused with the reason stated; the order of summation on a GPU does not promise that equality, so on a GPU the check can refuse a row that the CPU serves. Without the check, no row is compared and every row is served on either backend. At a <span class="math notranslate nohighlight">\(\theta\)</span> where the model is refused, the value is not a number and its gradient is zero.</p>
+<p>Each observable is served as a JAX function of <span class="math notranslate nohighlight">\(\theta = (\beta_\mathrm{c}, R_\mathrm{a})\)</span> with a custom derivative. Its value is the public call on the model rebuilt at <span class="math notranslate nohighlight">\(\theta\)</span> on the host, and its derivative is given by the tangent rows of the observable in <span class="math notranslate nohighlight">\(\theta\)</span> on the tables’ own rows, with their placement frozen. The tangent rows of the radial dispersion are the derivative of the dispersion integral <a class="reference internal" href="observables#tn-eq-jeans"><span class="std std-ref">Eq. (T:6.1)</span></a> on the same rows and nodes on the fixed profile, with the limit of the edge reading unmoved. The tangent rows of the projection are the derivative of the line-of-sight rule on the same nodes, through the derivative of the profile’s reading, with the surface density held, and zero where the surface density is zero. A negative squared dispersion is refused with the reason stated, never clipped, so no row of the forward is clipped and no tangent row is set to zero for that reason. The derivative of the squared dispersion over an aperture is the aperture’s integral of the tangent rows of the squared dispersion, on the nodes and weights of the plain call (the integral is linear in the rows); the derivative of the dispersion over the aperture is that over twice its value, and zero where the value is zero. The velocity distributions take their derivatives in two parts. The first is through the derivative of the DF’s table (<a class="reference internal" href="#tn-sec-gradient-rule"><span class="std std-ref">Section T:7.1</span></a>): the lookup is differentiated by JAX on its own expressions, and the transpose carries a cotangent on <span class="nobr"><span class="math notranslate nohighlight">\(F\)</span>,</span> and on its integral <span class="math notranslate nohighlight">\(G\)</span> where a row reads it, at the values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> back to the numbers of the table through the three maps between them (the padded nodes, the spline slopes where a table has no exact ones, and the derived numbers of the forms), with the values of <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> held fixed, and contracts it with the table’s derivative in <span class="nobr"><span class="math notranslate nohighlight">\(\theta\)</span>.</span> The second is the explicit part at a fixed table: the derivative, by JAX on a twin of the velocity plane or of the angle integral with the forward’s discrete choices held, of the distribution’s own dependence on <span class="math notranslate nohighlight">\(\theta\)</span> through the anisotropy’s factor, the energy-like variable and the edges of the integration. For its transpose, each row of the line-of-sight tables that a nonzero cotangent reaches is computed once more by its own rule, with every read of <span class="math notranslate nohighlight">\(F\)</span> and <span class="math notranslate nohighlight">\(G\)</span> collected at the level from which the value of its velocity came. With the setting that checks the rows, which is off by default, the row so computed is held to the forward’s row bit for bit, and so is the row formed again level by level, and a row that differs is refused with the reason stated; the order of summation on a GPU does not promise that equality, so on a GPU the check can refuse a row that the CPU serves. Without the check, no row is compared and every row is served on either backend. At a <span class="math notranslate nohighlight">\(\theta\)</span> where the model is refused, the value is not a number and its gradient is zero.</p>
 </section>
 <section id="t-7-4-the-likelihood">
 <span id="tn-sec-likelihood"></span><h2>T:7.4 The likelihood<a class="headerlink" href="#t-7-4-the-likelihood" title="Link to this heading">#</a></h2>

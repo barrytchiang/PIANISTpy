@@ -7,7 +7,7 @@ that class or function on the [Functions by subpackage](https://pianistpy.com/do
 
 - [Models](https://pianistpy.com/docs/guide/models)
 
-- [Particles (Sampler)](https://pianistpy.com/docs/guide/particles)
+- [Particle sampling (Sampler)](https://pianistpy.com/docs/guide/particles)
 
 - [Observables](https://pianistpy.com/docs/guide/observables)
 

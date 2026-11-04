@@ -2,6 +2,28 @@
 
 Source: https://pianistpy.com/docs/project/release-notes
 
+## Ver. 1.0.1
+
+### New features
+
+- `DistributionFunction.evaluate` returns the distribution function at given values of \(\mathcal{K}\).
+
+- `round_trip` integrates a distribution function to its density, solves the Poisson equation for the potential,
+and reports the relative difference from the input density profile at each radius.
+
+- A model’s profile continues inside its innermost tabulated radius by the inner series of its input density,
+corrected to first order for the truncation; the particle sampler reads the same series.
+
+### Changes
+
+- The energy-like variable is written \(\mathcal{K}\) throughout: in docstrings, messages and generated tables,
+and in the names `EnergyGrid` (now `KGrid`), `n_energy_nodes` and `energy_layer_ratio` (now `n_k_nodes`
+and `k_layer_ratio`), the timing stage `"energy_grid"` (now `"k_grid"`) and the accuracy files’ column
+“lowest energy of the support” (now “lowest K of the support”). Likewise `"edge_law"` is `"boundary_form"`,
+and “edge law”, “Kepler form”, “truncation energy” and “Poisson solve” read “boundary form”, “point-mass
+(Keplerian) potential”, “truncation value” and “Poisson solver”. Every former name is accepted through ver. 1.0.x
+and removed in ver. 1.1.0; the known limitations of ver. 1.0.0 stand.
+
 ## Ver. 1.0.0
 
 The initial public release of PIANISTpy, described in [Chiang+(2026d)](https://arxiv.org/abs/2610.28758).

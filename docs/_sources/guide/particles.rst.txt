@@ -1,5 +1,5 @@
-Particles
-=========
+Particle sampling
+=================
 
 :class:`pianistpy.Sampler`, :class:`pianistpy.particles.Particles`
 

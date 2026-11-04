@@ -103,7 +103,9 @@ means no distribution is recomputed.
 
 - ****overrides** (*mapping*) – For each group to change (`inversion`, `truncation`,
 `sampling`, `observables` or `losvd`), a mapping from field
-name to new value. The manual’s settings tables list every field.
+name to new value. The manual’s settings tables list every field. A
+field renamed since ver. 1.0.0 is accepted under its former name as
+well (FORMER_FIELDS) and recorded under its current name.
 Default: no override, which means every field has its value at the
 settings level.
 
@@ -237,6 +239,10 @@ property losvd: [Mapping](https://docs.python.org/3/library/collections.abc.html
 
 The values in force of the group `losvd`.
 
+property round_trip: [Mapping](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[str](https://docs.python.org/3/builtins/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)]
+
+The values in force of the group `round_trip`.
+
 resolved()
 
 Return the value in force of every field of every group.
@@ -259,7 +265,7 @@ Examples
 
 ```python
 >>> sorted(Settings().resolved())
-['inversion', 'losvd', 'observables', 'sampling', 'truncation']
+['inversion', 'losvd', 'observables', 'round_trip', 'sampling', 'truncation']
 ```
 
 to_dict()

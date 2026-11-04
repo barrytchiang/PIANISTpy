@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Observables &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Observables &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -1003,7 +1003,7 @@ UnphysicalModelError, AccuracyError or ResultError.</p>
 or <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>)</span> is the sum of two parts. The first part is the
 derivative in <span class="math notranslate nohighlight">\(\theta_i\)</span> at a fixed DF table. The second part
 is the derivative through the values of the DF table, with the
-energies of the DF table held fixed. The method is not
+K values of the DF table held fixed. The method is not
 differentiable in <cite>r_2d</cite> or <cite>v</cite>.</p>
 <p class="rubric">References</p>
 <p>Notes Section T:7.1.</p>
@@ -1067,7 +1067,7 @@ AccuracyError or ResultError.</p>
 or <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>)</span> is the sum of two parts. The first part is the
 derivative in <span class="math notranslate nohighlight">\(\theta_i\)</span> at a fixed DF table and at fixed
 velocities. The second part is the derivative through the values of the
-DF table, with the energies of the DF table held fixed. The method is
+DF table, with the K values of the DF table held fixed. The method is
 not differentiable in <cite>r</cite> or <cite>v</cite>.</p>
 <p class="rubric">References</p>
 <p>Notes Section T:7.1.</p>
@@ -1135,7 +1135,7 @@ UnphysicalModelError, AccuracyError or ResultError.</p>
 or <span class="nobr"><span class="math notranslate nohighlight">\(R_{\rm a}\)</span>)</span> is the sum of two parts. The first part is the
 derivative in <span class="math notranslate nohighlight">\(\theta_i\)</span> at a fixed DF table. The second part
 is the derivative through the values of the DF table, with the
-energies of the DF table held fixed. The method is not
+K values of the DF table held fixed. The method is not
 differentiable in <cite>v</cite>.</p>
 <p class="rubric">References</p>
 <p>Notes Section T:7.1.</p>
@@ -1197,7 +1197,7 @@ component, <cite>parts</cite> is <code class="docutils literal notranslate"><spa
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.ResultError" title="pianistpy.exceptions.ResultError"><strong>ResultError</strong></a> – If an intermediate result fails a check that the next step of the
     computation needs. Examples are a degenerate model, and a <code class="docutils literal notranslate"><span class="pre">losvd</span></code>
     setting that leaves the table no valid quadrature
-    (<code class="docutils literal notranslate"><span class="pre">energy_layer_ratio</span></code> of one or more).</p></li>
+    (<code class="docutils literal notranslate"><span class="pre">k_layer_ratio</span></code> of one or more).</p></li>
 <li><p><a class="reference internal" href="exceptions#pianistpy.exceptions.WorkerError" title="pianistpy.exceptions.WorkerError"><strong>WorkerError</strong></a> – If a parallel process of the build ends before finishing its task.
     The usual cause is a lack of memory.</p></li>
 </ul>
@@ -1727,7 +1727,7 @@ density of the velocity <span class="math notranslate nohighlight">\(V = |\mathb
 radius <span class="nobr"><span class="math notranslate nohighlight">\(r\)</span>.</span> The call checks the distribution at each radius in
 three ways: the norm of the distribution against the density; the
 second moment of the distribution against the velocity dispersion from
-the Jeans equation; and the change of the distribution when the angular
+the dispersion integral; and the change of the distribution when the angular
 quadrature is refined (<cite>pianistpy.observables.stages.velocity_distribution</cite>).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2251,7 +2251,7 @@ DF is</p>
 and <span class="math notranslate nohighlight">\(s = +1\)</span> for a Type I model, <span class="math notranslate nohighlight">\(s = -1\)</span> for a Type II
 model and <span class="math notranslate nohighlight">\(s = 0\)</span> for a model without an anisotropy radius. The
 integral runs over the DF’s support, <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{Q} &gt; K_{\rm c}\)</span>,</span>
-with <span class="math notranslate nohighlight">\(K_{\rm c}\)</span> the DF’s floor energy (0 where the DF has no
+with <span class="math notranslate nohighlight">\(K_{\rm c}\)</span> the DF’s floor value (0 where the DF has no
 floor).</p>
 <p>The support excludes part of the directions above the velocity
 <span class="nobr"><span class="math notranslate nohighlight">\(V_*\)</span>:</span> <span class="math notranslate nohighlight">\(V_* = \sqrt{2(P - K_{\rm c})/(1 + \xi)}\)</span> for a
@@ -2273,7 +2273,7 @@ the ratio of the two maxima for the kept distribution.
 <code class="docutils literal notranslate"><span class="pre">velocity_tolerance</span></code> is <span class="math notranslate nohighlight">\(10^{-6}\)</span> in the default settings and
 <span class="math notranslate nohighlight">\(10^{-4}\)</span> in the quick settings. Velocities within a
 relative distance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> from <span class="math notranslate nohighlight">\(V_*\)</span> are left out of
-that comparison. On a DF that diverges at its floor energy, the
+that comparison. On a DF that diverges at its floor value, the
 distribution diverges at <span class="nobr"><span class="math notranslate nohighlight">\(V_*\)</span>,</span> and the divergence is integrable.</p>
 <p class="rubric">References</p>
 <p><a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (B38). <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>, Eq. (B39). <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>,

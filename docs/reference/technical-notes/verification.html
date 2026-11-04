@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>T:8 Verification &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>T:8 Verification &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../guide/units">Units</a></li>
@@ -335,7 +335,7 @@
 </section>
 <section id="t-8-3-the-roundtrip-test">
 <span id="tn-sec-roundtrip"></span><h2>T:8.3 The roundtrip test<a class="headerlink" href="#t-8-3-the-roundtrip-test" title="Link to this heading">#</a></h2>
-<p>The roundtrip test starts from an analytic profile, computes the DF, integrates the DF to a density and solves the Poisson equation with <span class="nobr"><span class="math notranslate nohighlight">\(P(0) = 1\)</span>,</span> and compares the result with the input density; every step is numerical, and the only analytical quantity is the target density. It runs on the standard untruncated isotropic product, the inverted DF, the velocity quadrature and the numerical Poisson solver, and its results at every release are published on the accuracy page of this website.</p>
+<p>The roundtrip test starts from an analytic profile, computes the DF, integrates the DF to a density and compares the result with the input density; every step is numerical, and the only analytical quantity is the target density. It runs on the standard untruncated isotropic product, the inverted DF and the velocity quadrature, and its results at every release are published on the accuracy page of this website. The public call <code class="docutils literal notranslate"><span class="pre">round_trip</span></code> adds the Poisson step: the density that the DF gives is passed through the numerical Poisson solver, with <span class="nobr"><span class="math notranslate nohighlight">\(P(0) = 1\)</span>,</span> and the density at the resulting potential is compared with the input density at each radius, for an inverted or a user-supplied DF (<a class="reference internal" href="df#tn-sec-from-function"><span class="std std-ref">Section T:2.7</span></a>) alike.</p>
 </section>
 <section id="t-8-4-the-accuracy-tables-at-each-release">
 <span id="tn-sec-accuracy-grid"></span><h2>T:8.4 The accuracy tables at each release<a class="headerlink" href="#t-8-4-the-accuracy-tables-at-each-release" title="Link to this heading">#</a></h2>

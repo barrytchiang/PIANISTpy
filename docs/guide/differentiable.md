@@ -35,7 +35,7 @@ zero. For an Osipkov-Merritt component, the gradient of `losvd`, `aperture_losvd
 \(\beta_{\rm c}\) is NaN. An Osipkov-Merritt component has \(\beta_{\rm c} = 0\), where the form of the
 inversion changes and the derivatives of the distribution function from the two sides of \(\beta_{\rm c} = 0\)
 differ by more than \(10^{-6}\). For an Osipkov-Merritt component, `sigma_r`, `sigma_t`, `sigma_los` and
-`sigma_los_aperture` carry the derivative in \(\beta_{\rm c}\), computed from the Jeans equation.
+`sigma_los_aperture` carry the derivative in \(\beta_{\rm c}\), computed from the dispersion integral.
 
 The constructor raises `InputError`, with a message that states the cause, for:
 

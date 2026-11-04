@@ -35,7 +35,7 @@ zero. For an Osipkov-Merritt component, the gradient of ``losvd``, ``aperture_lo
 :math:`\beta_{\rm c}` is NaN. An Osipkov-Merritt component has :math:`\beta_{\rm c} = 0`, where the form of the
 inversion changes and the derivatives of the distribution function from the two sides of :math:`\beta_{\rm c} = 0`
 differ by more than :math:`10^{-6}`. For an Osipkov-Merritt component, ``sigma_r``, ``sigma_t``, ``sigma_los`` and
-``sigma_los_aperture`` carry the derivative in :math:`\beta_{\rm c}`, computed from the Jeans equation.
+``sigma_los_aperture`` carry the derivative in :math:`\beta_{\rm c}`, computed from the dispersion integral.
 
 The constructor raises :class:`~pianistpy.InputError`, with a message that states the cause, for:
 

@@ -2,7 +2,7 @@
 
 Source: https://pianistpy.com/docs/notebooks/chiang2026d/fig07
 
-This notebook makes Figure 7 of the paper with the script that made the arXiv figure, unchanged except for the lines that read its data, which here are the package’s ver. 1.0.0 calls. Every changed line is marked `[1.0.0]`.
+This notebook makes Figure 7 of the paper with the script that made the arXiv figure, unchanged except for the lines that read its data, which here are the package’s ver. 1.0.1 calls. Every changed line is marked `[1.0.1]`.
 
 - Top panel: \(\beta_\sigma(R)\) of three superpositions of Method II members on the NFW halo truncated at \(k_{\rm t} = 0.1650\) (Method I, isotropic), each curve by `pp.sigma_r` and `pp.sigma_t` of `pp.superpose`; the points: \(10^7\) particles of each superposition by `pp.Sampler` with the example’s seed (2908, 2907, 2907), binned as the arXiv figure’s points (one bin below \(10^{-2}\), 0.1 dex steps anchored at the truncation radius, the outermost 500 particles as the last bin, 1000 bootstrap resamples).
 
@@ -21,8 +21,8 @@ import warnings
 
 import pianistpy as pp
 
-# The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.
-PIANISTPY_PIN = "1.0.0"
+# The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.
+PIANISTPY_PIN = "1.0.1"
 print(f"pianistpy {pp.__version__}")
 if pp.__version__ != PIANISTPY_PIN:
     raise RuntimeError(
@@ -59,14 +59,14 @@ def tier_line(label, result):
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```ipython3
 import numpy as np
 import pianistpy as pp
 
-Z_T = 0.16502882092587715  # the truncation energy k_t of the figure's NFW halo
+Z_T = 0.16502882092587715  # the truncation value k_t of the figure's NFW halo
 
 truncated = pp.solve(
     pp.Component(pp.DoublePowerLaw.nfw(), pp.Anisotropy()), pp.Truncation(k_t=Z_T)
@@ -143,7 +143,7 @@ for name, model in composites.items():
 
 ## The particles of the top panel
 
-The binning of the script that made the arXiv figure’s points (its part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.0]`).
+The binning of the script that made the arXiv figure’s points (its part 3) as written, on draws by `pp.Sampler` in place of the members’ particle files (each changed line marked `[1.0.1]`).
 
 ```ipython3
 import hashlib
@@ -166,7 +166,7 @@ def beta_of(kind, bc, ra, R):
     x = (R / ra) ** 2 if ra else 0.0
     return {"const": bc + 0 * R, "OMI": x / (1 + x), "COMI": (bc + x) / (1 + x), "COMII": (bc - x) / (1 - x)}[kind]
 
-# [1.0.0] each member's anisotropy, as the model cells above build it
+# [1.0.1] each member's anisotropy, as the model cells above build it
 MEM_KW = {"bp050": dict(beta_c=0.5), "bp010": dict(beta_c=0.1), "bm020": dict(beta_c=-0.2), "bm040": dict(beta_c=-0.4),
           "OMI_Ra1": dict(r_a=1.0, kind="I"), "OMI_Ra10": dict(r_a=10.0, kind="I"), "bp020": dict(beta_c=0.2),
           "COMI": dict(beta_c=-0.3, r_a=4.0, kind="I"), "COMII": dict(beta_c=-0.1, r_a=40.0, kind="II")}
@@ -177,12 +177,12 @@ def beta_of(kind, bc, ra, R):
 
 # (3) the particle points, binned as in the arXiv figure
 KEY = {"E1": 2908, "E2": 2907, "E3": 2907}
-EX = {"E1": "Example 1", "E2": "Example 2", "E3": "Example 3"}   # [1.0.0]
-N_DRAW = 10_000_000   # [1.0.0] the arXiv draws: N_i = w_i 1e7 a member, 1e7 an example
-PLOT = "."   # [1.0.0] this notebook's folder
-top_samplers = {}   # [1.0.0] for the tier summary
+EX = {"E1": "Example 1", "E2": "Example 2", "E3": "Example 3"}   # [1.0.1]
+N_DRAW = 10_000_000   # [1.0.1] the arXiv draws: N_i = w_i 1e7 a member, 1e7 an example
+PLOT = "."   # [1.0.1] this notebook's folder
+top_samplers = {}   # [1.0.1] for the tier summary
 
-RT = R_T   # [1.0.0] the Method I model's truncation radius (cell above)
+RT = R_T   # [1.0.1] the Method I model's truncation radius (cell above)
 # fixed edges, the same for E1, E2, E3: one bin below 10^-2, then 0.1 dex steps R_t 10^(-0.1 k), k = 33 .. 0
 EDGES = np.r_[0.0, 10 ** -2.0, RT * 10 ** (-0.1 * np.arange(33, -1, -1))]   # [v4] 0.1 dex anchored at R_t (last edge R_t)
 NAMES = {"E1": "BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_c0.1_w0.250__const_beta_beta_c-0.2_w0.250"
@@ -191,7 +191,7 @@ NAMES = {"E1": "BetaSigma_Particle_const_beta_beta_c0.5_w0.250__const_beta_beta_
          "E3": "BetaSigma_Particle_E3.txt"}
 
 def particles(ex):
-    # [1.0.0] one draw of the example's superposition with the example's seed replaces the members' stored particle files: the
+    # [1.0.1] one draw of the example's superposition with the example's seed replaces the members' stored particle files: the
     # Sampler keys each particle by seed, component and index, so the members of one draw are independent streams, as the
     # arXiv draws were through their stored products; the components take the weights as their shares of the 1e7
     s_ = pp.Sampler(composites[EX[ex]])
@@ -231,7 +231,7 @@ def bin_beta(ex):
         idx = np.flatnonzero(bi == i)
         out.append((np.exp(np.log(r[idx]).mean()), *boot(idx), len(idx), E[i], E[i + 1]))
     out = np.array(out)
-    with open(os.path.join(PLOT, NAMES[ex]), "w") as f:   # [1.0.0] "w": a rerun in place
+    with open(os.path.join(PLOT, NAMES[ex]), "w") as f:   # [1.0.1] "w": a rerun in place
         f.write(f"Beta_sigma from particles | Example {ex[1]}, the superposition of this file's name | {len(r):e} particles, seed "
                 f"{KEY[ex]} | columns: radius, beta_sigma, its bootstrap 1-sigma error, particles in the bin, the bin's "
                 f"edges R_lo and R_hi\n" + "-" * 100 + "\n")
@@ -241,7 +241,7 @@ def bin_beta(ex):
             f.write(f"{row[0]:<40.14e}{row[1]:<40.14e}{row[2]:<40.14e}{int(row[3]):<40d}{row[4]:<40.14e}{row[5]:<40.14e}\n")
     return ex, len(r), out, dig
 
-res = [bin_beta(ex) for ex in ("E1", "E2", "E3")]   # [1.0.0] in turn: the draws are held in memory, not files
+res = [bin_beta(ex) for ex in ("E1", "E2", "E3")]   # [1.0.1] in turn: the draws are held in memory, not files
 for ex, n, out, dig in res:
     pred = []
     for lo, hi in out[:, 4:6]:
@@ -250,7 +250,7 @@ for ex, n, out, dig in res:
         for tag, (e, w, kind, bc, ra, d) in MEM.items():
             if e != ex:
                 continue
-            q = np.asarray(pp.sigma_r(member(MEM_KW[tag]), R)) ** 2 * np.sum(np.atleast_2d(truncated.profile.density(R)), axis=0) * R * R   # [1.0.0] rho sigma_r^2 by the package
+            q = np.asarray(pp.sigma_r(member(MEM_KW[tag]), R)) ** 2 * np.sum(np.atleast_2d(truncated.profile.density(R)), axis=0) * R * R   # [1.0.1] rho sigma_r^2 by the package
             num = num + w * np.trapezoid((1 - beta_of(kind, bc, ra, R)) * q, R)
             den = den + w * np.trapezoid(q, R)
         pred.append(1 - num / den)
@@ -453,8 +453,8 @@ for name, model in fits.items():
 ```
 
 ```myst
-ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 529 s
-He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 238 s
+ML05b: 1e+08 particles at seed 310101 (mass 1.488804e+00), 36 bins; chi^2 50.60, 1.406 a bin; worst |z| 2.90 at r 1.126e+01; 536 s
+He+24: 1e+06 particles at seed 310104 (mass 1.209937e+00), 20 bins; chi^2 33.49, 1.674 a bin; worst |z| 2.90 at r 1.200e-01; 236 s
 ```
 
 ```ipython3
@@ -471,10 +471,10 @@ He+24                              tier warned    worst check row_error 5.49e-03
 
 ## The figure
 
-The arXiv figure’s script, with its data-reading lines replaced (marked `[1.0.0]`).
+The arXiv figure’s script, with its data-reading lines replaced (marked `[1.0.1]`).
 
 ```ipython3
-# [1.0.0] the two fits and their realizations in the forms the plot script reads (its npz and its particle tables)
+# [1.0.1] the two fits and their realizations in the forms the plot script reads (its npz and its particle tables)
 FIT_NAME = {"ml05": "ML05b", "he24": "He+24"}
 FIT_Z = {}
 for delta, name in FIT_NAME.items():
@@ -806,7 +806,7 @@ beta_all = np.concatenate(
     + [pbeta for _, pbeta, _, _ in particle_profiles]
 )
 y_lo = min(beta_all.min(), -0.1) - 0.08
-y_hi = 0.7880   # [1.0.0] the arXiv figure's limit (its draw's outermost point 0.7080 + 0.08): a new draw's outermost point differs by sampling noise
+y_hi = 0.7880   # [1.0.1] the arXiv figure's limit (its draw's outermost point 0.7080 + 0.08): a new draw's outermost point differs by sampling noise
 ax.set_ylim(y_lo, y_hi)
 
 # =============================================================================
@@ -858,7 +858,7 @@ ax.tick_params(
 # the bottom panel: the fits of record, their targets, He et al.'s points, the particles
 # =============================================================================
 
-FITDIR, FITPRE, NBDIR, OUTSTEM = None, None, "1.0.0", "BetaProfiles_AllModels_Superposed"   # [1.0.0] the fits and draws of the cells above   # He et al.'s points dropped
+FITDIR, FITPRE, NBDIR, OUTSTEM = None, None, "1.0.0", "BetaProfiles_AllModels_Superposed"   # [1.0.1] the fits and draws of the cells above   # He et al.'s points dropped
 FIT_COLOR = {"ml05": "#800080", "he24": "mediumspringgreen"}   # the four-color palette's purple; mediumspringgreen
 FIT_LABEL = {"ml05": "ML05b", "he24": "He+24"}
 FIT_LABEL_XY = {"ml05": (X_LABEL, None, "left"), "he24": (0.93, 0.205, "center")}   # ML05b as Example 3: beta[0] + 0.05, centered   # He+24: by its own curve
@@ -868,7 +868,7 @@ FIT_LIGHTEN = {"ml05": 0.20, "he24": 0.10}            # both lines of a target l
 SEEDS = {"ml05": 310101, "he24": 310104}   # he24: the 1e6 draw inside its fitted 3D range only   # the draws' seeds
 axb.axhline(0.0, color="black", lw=ISO_LINEWIDTH, dashes=ISO_DASH_SEQUENCE, zorder=1)
 for k, delta in enumerate(("ml05", "he24")):
-    z = FIT_Z[delta]   # [1.0.0] the fit of the cells above
+    z = FIT_Z[delta]   # [1.0.1] the fit of the cells above
     col = FIT_COLOR[delta]
     dcol = darken_color(col, PAR_DARK_FACTOR)
     dcol = darken_color(dcol, {"ml05": 0.90, "he24": 0.60}[delta])   # diamonds darker, purple 10 percent, green 40 percent
@@ -902,11 +902,11 @@ for k, delta in enumerate(("ml05", "he24")):
         print(f"  {FIT_LABEL[delta]}: full-range solid from {os.path.basename(_cv[-1])}; max |its beta - the fit's| on the fit's radii {np.max(np.abs(_chk - z['beta'])):.2e}")
     axb.plot(_lRs, _bs, color=_c_sol, lw=CURVE_LINEWIDTH, zorder=3 + k)
     print(f"  {FIT_LABEL[delta]}: rms {float(z['rms']):.3e}, worst {float(z['worst']):.3e} (for the caption)")
-    nb = [delta] if delta in FIT_ROWS else []   # [1.0.0] the realization of the cells above
+    nb = [delta] if delta in FIT_ROWS else []   # [1.0.1] the realization of the cells above
     if nb:
-        d = FIT_ROWS[delta]   # [1.0.0]
+        d = FIT_ROWS[delta]   # [1.0.1]
         chi2 = float(np.sum(((d[:, 1] - d[:, 4]) / d[:, 2]) ** 2))
-        _n = f"{N_PARTICLES[FIT_NAME[delta]]:.0e}"   # [1.0.0]
+        _n = f"{N_PARTICLES[FIT_NAME[delta]]:.0e}"   # [1.0.1]
         print(f"  {FIT_LABEL[delta]}: N = {_n}, chi^2/bin {chi2 / len(d):.3f} over {len(d)} bins (for the caption)")
         _eb = axb.errorbar(np.log10(d[:, 0]), d[:, 1], yerr=d[:, 2], fmt="D", ms=PAR_MARKER_SIZE, color=dcol, ecolor=dcol,
                            elinewidth=PAR_EBAR_LINEWIDTH, capsize=0, zorder=30, label="_nolegend_")

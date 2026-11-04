@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Release notes &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Release notes &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../guide/index">User guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../guide/models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guide/particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guide/particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guide/units">Units</a></li>
@@ -276,6 +276,31 @@
                   
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<section id="ver-1-0-1">
+<h2>Ver. 1.0.1<a class="headerlink" href="#ver-1-0-1" title="Link to this heading">#</a></h2>
+<section id="new-features">
+<h3>New features<a class="headerlink" href="#new-features" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DistributionFunction.evaluate</span></code> returns the distribution function at given values of <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>.</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">round_trip</span></code> integrates a distribution function to its density, solves the Poisson equation for the potential,
+and reports the relative difference from the input density profile at each radius.</p></li>
+<li><p>A model’s profile continues inside its innermost tabulated radius by the inner series of its input density,
+corrected to first order for the truncation; the particle sampler reads the same series.</p></li>
+</ul>
+</section>
+<section id="changes">
+<h3>Changes<a class="headerlink" href="#changes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The energy-like variable is written <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> throughout: in docstrings, messages and generated tables,
+and in the names <code class="docutils literal notranslate"><span class="pre">EnergyGrid</span></code> (now <code class="docutils literal notranslate"><span class="pre">KGrid</span></code>), <code class="docutils literal notranslate"><span class="pre">n_energy_nodes</span></code> and <code class="docutils literal notranslate"><span class="pre">energy_layer_ratio</span></code> (now <code class="docutils literal notranslate"><span class="pre">n_k_nodes</span></code>
+and <code class="docutils literal notranslate"><span class="pre">k_layer_ratio</span></code>), the timing stage <code class="docutils literal notranslate"><span class="pre">&quot;energy_grid&quot;</span></code> (now <code class="docutils literal notranslate"><span class="pre">&quot;k_grid&quot;</span></code>) and the accuracy files’ column
+“lowest energy of the support” (now “lowest K of the support”). Likewise <code class="docutils literal notranslate"><span class="pre">&quot;edge_law&quot;</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;boundary_form&quot;</span></code>,
+and “edge law”, “Kepler form”, “truncation energy” and “Poisson solve” read “boundary form”, “point-mass
+(Keplerian) potential”, “truncation value” and “Poisson solver”. Every former name is accepted through ver. 1.0.x
+and removed in ver. 1.1.0; the known limitations of ver. 1.0.0 stand.</p></li>
+</ul>
+</section>
+</section>
 <section id="ver-1-0-0">
 <h2>Ver. 1.0.0<a class="headerlink" href="#ver-1-0-0" title="Link to this heading">#</a></h2>
 <p>The initial public release of PIANISTpy, described in <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>.</p>
@@ -326,6 +351,11 @@ default, <code class="docutils literal notranslate"><span class="pre">check_rows
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ver-1-0-1">Ver. 1.0.1</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-features">New features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changes">Changes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ver-1-0-0">Ver. 1.0.0</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#known-limitations">Known limitations</a></li>
 </ul>

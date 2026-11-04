@@ -253,9 +253,9 @@ Raises:
 - [**AccuracyError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.AccuracyError) – If the velocity table cannot resolve the distribution of velocity at a
     potential with the resolution that the settings allow.
 
-- [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the DF below the DF table’s lowest energy falls so steeply toward
-    \(\mathcal{K} = 0\) that the mass at energies below the DF table’s
-    lowest energy is not finite.
+- [**UnphysicalModelError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.UnphysicalModelError) – If the DF below the DF table’s lowest K falls so steeply toward
+    \(\mathcal{K} = 0\) that the mass below the DF table’s
+    lowest K is not finite.
 
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If a sampling table fails the table’s own consistency check: an
     inverse that is not finite and increasing, or a cumulative
@@ -467,7 +467,7 @@ model minus one.
 Returns:
 
 **view** – A model of one component: component k with mass 1, component k’s DF
-table on component k’s own energy grid, and the truncated profile
+table on component k’s own K grid, and the truncated profile
 that the components of model share. component_view raises no
 package exception for a superposed model and a valid k.
 

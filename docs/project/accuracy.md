@@ -27,6 +27,22 @@ Excluded (Cusp Slope-Central Anisotropy theorem)
 
 Files
 
+Ver. 1.0.1
+
+380
+
+59
+
+24
+
+12
+
+83
+
+19
+
+[`default`](https://pianistpy.com/docs/_downloads/d367143ce8e9eae32c3df074fa144d07/grid_default.csv), [`quick`](https://pianistpy.com/docs/_downloads/0ea304e87b6e196b831110ea806b3c15/grid_quick.csv), [`models`](https://pianistpy.com/docs/_downloads/d050650524a9eaecfb395fbbcda64c49/members.csv)
+
 Ver. 1.0.0
 
 380

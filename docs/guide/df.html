@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Distribution functions &#8212; PIANISTpy ver. 1.0.0</title>
+    <title>Distribution functions &#8212; PIANISTpy ver. 1.0.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=3d3ab349"></script>
+    <script src="../_static/documentation_options.js?v=caffadfc"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.0.1" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -117,7 +117,7 @@
   <div class="site-in">
     <div class="site-top">
       <a class="site-title" href="../../">PIANISTpy</a>
-      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.0</div>
+      <div class="site-meta">Particle Initial conditions with ANISoTropy &middot; ver. 1.0.1</div>
     </div>
     <nav class="site-nav" aria-label="Site">
       
@@ -131,7 +131,7 @@
 </li>
 <li class="toctree-l1 current"><a class="reference internal" href="index">User guide</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="particles">Particles (Sampler)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="observables">Observables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="superposition">Superposition and inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units">Units</a></li>
@@ -218,7 +218,7 @@
 <li class="toctree-l2"><a class="reference internal" href="truncation">Truncation in phase space (truncate, solve)</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="particles">Particles (Sampler)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="particles">Particle sampling (Sampler)</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="observables">Observables</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="sigma_r">Radial velocity dispersion (sigma_r)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sigma_t">Tangential velocity dispersion (sigma_t)</a></li>
@@ -341,6 +341,13 @@ truncation needs values of the inversion that a distribution function from <code
 <span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">DistributionFunction</span><span class="o">.</span><span class="n">from_function</span><span class="p">(</span><span class="n">plummer</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">k</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">k</span><span class="o">**</span><span class="mf">3.5</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">DistributionFunction.evaluate(k)</span></code> returns the distribution function at given values of <span class="nobr"><span class="math notranslate nohighlight">\(\mathcal{K}\)</span>,</span> in the
+unit system of the result, through the package’s own lookup of the table and of its asymptotic forms. The optional
+<code class="docutils literal notranslate"><span class="pre">depth</span></code>, <span class="math notranslate nohighlight">\(P_0 - \mathcal{K}\)</span> held to full precision, serves values near the center. A distribution function
+that is negative somewhere raises <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultError</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">evaluate</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>                 <span class="c1"># F(K) at three values of K, internal units</span>
+</pre></div>
+</div>
 <p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">DistributionFunction</span></code> holds:</p>
 <ul class="simple">
 <li><p>the distribution function tabulated on its <span class="math notranslate nohighlight">\(\mathcal{K}\)</span> grid, with its logarithmic slope;</p></li>
@@ -353,6 +360,25 @@ distribution function beyond the table;</p></li>
 <p>A result can be written to a file and read back equal (<a class="reference internal" href="input-output"><span class="doc">Input and output</span></a>). Only a <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code> can be
 sampled or projected, and <code class="docutils literal notranslate"><span class="pre">truncate</span></code> builds the model from a distribution function
 (<a class="reference internal" href="truncation"><span class="doc">Truncation in phase space</span></a>).</p>
+<section id="round-trip">
+<h2>Round trip<a class="headerlink" href="#round-trip" title="Link to this heading">#</a></h2>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">pianistpy.round_trip()</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">pianistpy.RoundTrip</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">round_trip(df,</span> <span class="pre">radii=None,</span> <span class="pre">settings=None)</span></code> returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">RoundTrip</span></code>: the density that the
+distribution function gives, by the package’s own quadrature; the potential that this density generates, by Poisson’s
+equation; and the relative difference between the density read at that potential and the analytic density, at each
+radius of <code class="docutils literal notranslate"><span class="pre">radii</span></code> (by default the grid of the settings group <code class="docutils literal notranslate"><span class="pre">round_trip</span></code>). The steps are the same for a
+distribution function from <code class="docutils literal notranslate"><span class="pre">compute_df</span></code> and from <code class="docutils literal notranslate"><span class="pre">from_function</span></code>, so a fitting function is compared with the
+inverted distribution function on equal terms, as in <a class="reference external" href="https://arxiv.org/abs/2610.28758" rel="noopener" target="_blank">Chiang+(2026d)</a>. <code class="docutils literal notranslate"><span class="pre">round_trip</span></code> takes an untruncated distribution
+function of one component on an analytic profile; a Method II or a Type II distribution function raises
+<code class="xref py py-class docutils literal notranslate"><span class="pre">InputError</span></code>, and a negative one <code class="xref py py-class docutils literal notranslate"><span class="pre">ResultError</span></code>. The result also holds the
+residual of the potential, the enclosed mass, the closure before Poisson’s equation and the two accuracy budgets, and
+can be written to a file and read back (<a class="reference internal" href="input-output"><span class="doc">Input and output</span></a>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">compute_df</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">Component</span><span class="p">(</span><span class="n">pp</span><span class="o">.</span><span class="n">DoublePowerLaw</span><span class="o">.</span><span class="n">nfw</span><span class="p">()))</span>
+<span class="n">trip</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">round_trip</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">radii</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">])</span>
+<span class="n">trip</span><span class="o">.</span><span class="n">error</span>                                    <span class="c1"># relative difference of the density at each radius</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
@@ -365,6 +391,24 @@ sampled or projected, and <code class="docutils literal notranslate"><span class
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#round-trip">Round trip</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>

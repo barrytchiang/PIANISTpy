@@ -472,7 +472,7 @@ Examples
 'NFW'
 ```
 
-class pianistpy.profiles.ProfileTables(*log_r*, *log_p*, *log_p_slope*, *log_r_all*, *log_mass*, *log_mass_slope*, *log_rho_coefficients*, *has_edge_row*, *r_last*, *p_last*, *rho_last*, *r_t*, *mass_t*, *edge_exponent*)
+class pianistpy.profiles.ProfileTables(*log_r*, *log_p*, *log_p_slope*, *log_r_all*, *log_mass*, *log_mass_slope*, *log_rho_coefficients*, *has_edge_row*, *r_last*, *p_last*, *rho_last*, *r_t*, *mass_t*, *edge_exponent*, *inner_amplitude*, *inner_total_amplitude*, *inner_slopes*, *inner_deficit*, *inner_deficit_slope*, *p_0*)
 
 Arrays from which a JAX function evaluates a TruncatedProfile.
 
@@ -522,6 +522,27 @@ where has_edge_row is False.
 
 - **edge_exponent** (*array**, **shape** (**n_components**,**)*) – Exponent \(q\) of each component’s density at the edge,
 \(\varrho \propto P^q\). Empty where the model has no edge.
+
+- **inner_amplitude** (*array**, **shape** (**n_components**,**)*) – Amplitude \(C\) of each component’s inner density series, read
+from the first node, with which the density continues inside the
+first node (TruncatedProfile.density).
+
+- **inner_total_amplitude** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Amplitude of the inner series of the total density, read from the
+enclosed mass at the first node, with which the enclosed mass and
+the potential continue inside the first node.
+
+- **inner_slopes** (*array**, **shape** (**3**,**)*) – The slopes \((\alpha, \beta, \gamma)\) of the source density.
+
+- **inner_deficit** (*array**, **shape** (**n_components**,**)*) – First-order central deficit \(\delta_1\) of each component, the
+amplitude of the density \(\delta_1 R^{-w}\) missing inside the
+first node (TruncatedProfile), in internal units; zero where no
+deficit is carried.
+
+- **inner_deficit_slope** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – The exponent \(w = 2\beta_{\rm c}\) of the missing density; zero
+where no deficit is carried.
+
+- **p_0** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Central relative potential \(P_0\), in internal units: the first
+node’s potential plus the depth at the first node.
 
 See also
 
@@ -581,7 +602,7 @@ units, the unit of DoublePowerLaw.mass, in which the total mass of
 the Hernquist profile is 1. \(4\pi\) times mass_trunc is the
 integral of the density over the volume.
 
-- **k_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation energy \(\mathcal{K}_{\rm t}\), in internal units.
+- **k_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation value \(\mathcal{K}_{\rm t}\), in internal units.
 
 - **r_t** ([*float*](https://docs.python.org/3/builtins/functions.html#float)) – Truncation radius \(R_{\rm t}\), in internal units. Infinite
 where the model is not spatially finite.
@@ -642,17 +663,17 @@ for a node filled in at the outer end, 5 for a closed-form outer
 node and 6 for the edge node. Default: an empty array, which means
 the sources were not recorded.
 
-- **df_k** (*array**, **shape** (**n_components**, **m**)**, **optional*) – Energies \(\mathcal{K}\) of the DF table of the model the
+- **df_k** (*array**, **shape** (**n_components**, **m**)**, **optional*) – Values \(\mathcal{K}\) of the DF table of the model the
 profile belongs to, in internal units. A component built on the
 profile (Method II) computes its own DF from the parent’s DF table.
 Default: an empty array, which means the table was not recorded.
 
-- **df_log_f** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\log_{10} F\) at the energies df_k, with \(F\) the DF in
+- **df_log_f** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\log_{10} F\) at the nodes df_k, with \(F\) the DF in
 internal units. Default: an empty array, which means the table was
 not recorded.
 
 - **df_slope** (*array**, **shape** (**n_components**, **m**)**, **optional*) – \(\mathrm{d}\log_{10} F/\mathrm{d}\ln\mathcal{K}\) at the
-energies df_k. Default: an empty array, which means the table was
+nodes df_k. Default: an empty array, which means the table was
 not recorded.
 
 - **df_taylor** ([*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*tuple*](https://docs.python.org/3/builtins/stdtypes.html#tuple)* of *[*float*](https://docs.python.org/3/builtins/functions.html#float)*, **optional*) – For each component, the coefficients \((F_1, F_2,
@@ -706,15 +727,34 @@ equation and the mass integral:
 
 with \(\varrho\) the total density. The logarithm of each
 component’s density is a cubic spline in \(\ln R\). On the last
-interval of a profile with an edge node, the potential is the Kepler
-form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\), and each
+interval of a profile with an edge node, the potential is the point-mass
+(Keplerian) form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\), and each
 component’s density is \(\varrho_L (P/P_L)^q\), with
 \(\varrho_L\) and \(P_L\) the values at the last interior node
 and \(q\) from edge_exponent. At and beyond \(R_{\rm t}\), the
 relative potential and the density are zero, and the enclosed mass is
-\(\mathcal{M}_{\rm t}\). Inside the first node, and beyond the last
-node of a profile without an edge node, \(P\) and
-\(\mathcal{M}\) continue as the power laws of the end nodes.
+\(\mathcal{M}_{\rm t}\). Beyond the last node of a profile without
+an edge node, \(P\) and \(\mathcal{M}\) continue as the power
+laws of the last node.
+
+Inside the first node, the three columns continue as the inner series
+of the source density, the forms with which the Poisson solver laid the
+innermost nodes (Notes Section T:3.4), lowered by the first-order term
+of the central deficit where the model carries one: each component’s
+density is \(C R^{-\gamma} (1 + R^{\alpha})^{(\gamma - \beta)/\alpha}
+- \delta_1 R^{-2\beta_{\rm c}}\), with \(\delta_1 = D_0 / (1 +
+\kappa)\) the component’s first-order central deficit (\(D_0\) from
+central_deficit, \(\kappa\) as pianistpy.df.center.lowered_center
+states it) on a cusp with \(2\beta_{\rm c} \le \gamma\), zero
+otherwise, and the amplitude \(C\) read from the component’s density
+at the first node; the enclosed mass and the depth \(P_0 - P\) are
+the first four terms of the series integrated less the deficit’s term
+integrated, with the total amplitude read from the enclosed mass at the
+first node; and \(P_0\) is the first node’s potential plus the depth
+at the first node, so that every column is continuous at the first node.
+The deficit’s higher orders enter the amplitudes read at the first node
+and, relative to the density, fall inward as \(R^{2(\gamma -
+2\beta_{\rm c})}\); they are not carried.
 
 References
 
@@ -766,7 +806,8 @@ Returns:
 
 **tables** – The logarithms of the potential and of the mass and their slopes
 at the nodes, the coefficients of each component’s density
-spline, and the values at the last interior node and at the edge.
+spline, the values at the last interior node and at the edge,
+and the inner series’ amplitudes, slopes and central potential.
 
 Return type:
 
@@ -812,8 +853,10 @@ Returns:
 
 **p** – Relative potential \(P(R)\) in internal units, with the
 shape of r. For a profile with an edge node, \(P\) is the
-Kepler form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\) beyond
+point-mass form \(\mathcal{M}_{\rm t}(1/R - 1/R_{\rm t})\) beyond
 the last interior node and zero at and beyond \(R_{\rm t}\).
+Inside the first node, \(P\) is \(P_0\) less the inner
+series’ depth (see the class notes).
 
 Return type:
 
@@ -861,7 +904,9 @@ Returns:
 
 **rho** – Density of each component in internal units. For a profile with
 an edge node, the density is zero at and beyond
-\(R_{\rm t}\).
+\(R_{\rm t}\). Inside the first node, the density is the
+inner series with the amplitude read from the first node (see
+the class notes).
 
 Return type:
 
@@ -911,7 +956,9 @@ Returns:
 
 **mass** – Enclosed mass \(\mathcal{M}(R)\) in internal units (the unit
 of mass_trunc), with the shape of r. For a spatially finite
-profile, the mass is mass_t at and beyond r_t.
+profile, the mass is mass_t at and beyond r_t. Inside the
+first node, the mass is the inner series’ enclosed mass (see the
+class notes).
 
 Return type:
 
@@ -1064,8 +1111,10 @@ Return the radius \(R\) at which the potential takes the value p.
 Parameters:
 
 **p** (*array-like*) – User-specified relative potentials \(P\), in internal units,
-at most p_trunc at the first node. For a profile with an edge
-node, a value of zero or below gives r_t. For a profile
+below the central potential \(P_0\) (ProfileTables.p_0).
+Above p_trunc at the first node, the radius comes from the
+inner series’ depth (see the class notes). For a profile with an
+edge node, a value of zero or below gives r_t. For a profile
 without an edge node, a value of zero or below gives the radius
 of the last node.
 
@@ -1079,7 +1128,7 @@ ndarray
 
 Raises:
 
-- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a value of p is above p_trunc at the first node.
+- [**InputError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.InputError) – If a value of p is at or above the central potential.
 
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If the potential at an interior node is not positive.
 

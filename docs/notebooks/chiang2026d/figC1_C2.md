@@ -23,8 +23,8 @@ import warnings
 
 import pianistpy as pp
 
-# The figures of the paper are made with ver. 1.0.0 of the package; any other installed version stops the notebook here.
-PIANISTPY_PIN = "1.0.0"
+# The figures of the paper are made with ver. 1.0.1 of the package; any other installed version stops the notebook here.
+PIANISTPY_PIN = "1.0.1"
 print(f"pianistpy {pp.__version__}")
 if pp.__version__ != PIANISTPY_PIN:
     raise RuntimeError(
@@ -61,14 +61,14 @@ def tier_line(label, result):
 ```
 
 ```myst
-pianistpy 1.0.0
+pianistpy 1.0.1
 ```
 
 ```ipython3
 import numpy as np
 import pianistpy as pp
 
-Z_T = 0.0079589980165958  # the truncation energy k_t of the figure's NFW halo
+Z_T = 0.0079589980165958  # the truncation value k_t of the figure's NFW halo
 BETAS = (-0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5)
 
 truncated = pp.solve(

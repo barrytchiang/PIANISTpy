@@ -52,7 +52,7 @@ exponent and says the model is a valid equilibrium of finite density whose stabi
 One component
 -------------
 
-In ver. 1.0.0, ``compute_df`` and ``solve`` take one ``Component`` and raise :class:`~pianistpy.InputError` for a
+As of ver. 1.0.1, ``compute_df`` and ``solve`` take one ``Component`` and raise :class:`~pianistpy.InputError` for a
 sequence of more than one ``Component``. A model of several components comes only from ``superpose``, which
 combines models that share one truncated density and potential. Several components with different density
 profiles in one potential, and tracer populations in a fixed potential, are on the

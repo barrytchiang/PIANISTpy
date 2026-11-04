@@ -18,7 +18,7 @@ non-negative (physical) and monotonic (a sufficient condition for dynamical stab
 truncation boundary is self-consistent and in dynamical equilibrium. Method I preserves the model’s anisotropy
 profile, and Method II gives different anisotropy models an identical truncated density.
 
-- [Particles.](https://pianistpy.com/docs/guide/particles) Particle initial conditions drawn from the truncated distribution
+- [Particle sampling.](https://pianistpy.com/docs/guide/particles) Particle initial conditions drawn from the truncated distribution
 function, with a finite, dynamically stable truncation boundary. The particles are given in internal, model or
 physical units.
 

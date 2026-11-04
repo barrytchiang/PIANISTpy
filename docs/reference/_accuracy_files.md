@@ -2,18 +2,18 @@
 
 Source: https://pianistpy.com/docs/reference/_accuracy_files
 
-The grid of ver. 1.0.0 is published as three files, each of which opens with a comment block that repeats the definitions below (`#` lines, which `pandas.read_csv(path, comment='#')` skips):
+The grid of ver. 1.0.1 is published as three files, each of which opens with a comment block that repeats the definitions below (`#` lines, which `pandas.read_csv(path, comment='#')` skips):
 
-- [`grid_default.csv`](https://pianistpy.com/docs/_downloads/6f15053f3a7f4c7d100c986afa508c4e/grid_default.csv): the grid with the default settings level. One row is one model of the grid.
+- [`grid_default.csv`](https://pianistpy.com/docs/_downloads/d367143ce8e9eae32c3df074fa144d07/grid_default.csv): the grid with the default settings level. One row is one model of the grid.
 
-- [`grid_quick.csv`](https://pianistpy.com/docs/_downloads/2e7555df8c0babbc2a009c85f6173c54/grid_quick.csv): the same grid with the quick settings level, in the same columns.
+- [`grid_quick.csv`](https://pianistpy.com/docs/_downloads/0ea304e87b6e196b831110ea806b3c15/grid_quick.csv): the same grid with the quick settings level, in the same columns.
 
-- [`members.csv`](https://pianistpy.com/docs/_downloads/962e66e37a969157210bdebc01173211/members.csv): the list of the grid’s models with the place of each in the tables above and the outcome the grid expects of it. One row is one model.
+- [`members.csv`](https://pianistpy.com/docs/_downloads/d050650524a9eaecfb395fbbcda64c49/members.csv): the list of the grid’s models with the place of each in the tables above and the outcome the grid expects of it. One row is one model.
 
 The columns of the grid files, in their order:
 
 `model`
-the model’s key in the grid: its table (T1 the main grid, T2 anisotropy radius, T3 truncation energy, T4 limiting cases, the sections of the Accuracy tables page), its profile, its anisotropy model and its truncation
+the model’s key in the grid: its table (T1 the main grid, T2 anisotropy radius, T3 truncation value, T4 limiting cases, the sections of the Accuracy tables page), its profile, its anisotropy model and its truncation
 
 `settings level`
 the settings level of the run: “default” or “quick” (the two tested levels of pianistpy.Settings)
@@ -40,10 +40,10 @@ the central velocity anisotropy; 0 for the isotropic and the Osipkov-Merritt mod
 the anisotropy radius in scale radii; blank for the isotropic and the constant-anisotropy models
 
 `k_t`
-the truncation energy as a fraction of the central potential; blank for an untruncated model
+the truncation value as a fraction of the central potential; blank for an untruncated model
 
 `source model`
-for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation energy); blank otherwise
+for a Method II model, the Method I model whose truncated density it is built on (its profile, anisotropy model and truncation value); blank otherwise
 
 `expected outcome`
 what the grid expects of the model: “value” (a result is served), “value: not physical” (a result is served for a model that is not a physical equilibrium), “value: the Method I model’s DF within \(10^{-6}\), read by the package’s rule” (a Method II model whose distribution function equals its Method I model’s), or a refusal with the error the package raises (its kind, then the opening words of its message)
@@ -63,8 +63,8 @@ the tier of the model’s validation report: silent, every check at most \(10^{-
 `tier of the distribution function`
 the tier of the distribution function’s own report, read as the model’s tier (the model’s tier is at least this one, since a model’s report carries its distribution function’s checks)
 
-`lowest energy of the support`
-for a Type II model without a truncation, the energy \(P(R_{\rm a})\), as a fraction of the central potential, above which its distribution function is defined; the errors are read over that support only; blank otherwise
+`lowest K of the support`
+for a Type II model without a truncation, the potential \(P(R_{\rm a})\), as a fraction of the central potential, above which its distribution function is defined; the errors are read over that support only; blank otherwise
 
 `median relative error, 1e-4 < R < 1e4`
 the median over the radii \(10^{-4} < R < 10^{4}\) (\(R\) in scale radii) of the relative error of the density computed back from the distribution function against the model’s density; blank where no result exists
@@ -126,7 +126,7 @@ The columns of the model list, in their order:
 the model’s key, as in the grid files
 
 `table`
-the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation energy, 4 limiting cases (the page’s sections)
+the table of the Accuracy tables page the model is in: 1 the main grid, 2 anisotropy radius, 3 truncation value, 4 limiting cases (the page’s sections)
 
 `row`
 the key of the model’s row in that table, as the page labels it
@@ -156,7 +156,7 @@ the anisotropy radius in scale radii; blank where the model has none
 1 or 2, as in the grid files
 
 `k_t`
-the truncation energy as a fraction of the central potential; blank for an untruncated model
+the truncation value as a fraction of the central potential; blank for an untruncated model
 
 `source model`
 for a Method II model, the Method I model it is built on; blank otherwise

@@ -6,7 +6,7 @@ Module `pianistpy.superposition`
 
 Linear superposition of models that share one truncated density.
 
-superpose combines models built on one truncated potential-density pair
+superpose combines models built on one truncated potential–density pair
 into one model, moments returns the velocity moments of the combined model,
 and mixture combines any per-component quantity by the weights.
 
@@ -68,7 +68,7 @@ finite density.
 - **r** (*array-like**, **shape** (**n**,**)*) – User-specified 3D radii, in internal units whatever the model’s unit
 system.
 
-- **n_nodes** ([*int*](https://docs.python.org/3/builtins/functions.html#int)*, **optional*) – The number of Gauss-Legendre nodes of each component’s Jeans
+- **n_nodes** ([*int*](https://docs.python.org/3/builtins/functions.html#int)*, **optional*) – The number of Gauss-Legendre nodes of each component’s dispersion
 integral. Default: `None`, which means the value of the model’s
 setting `observables.n_jeans_nodes`.
 
@@ -104,10 +104,10 @@ The weighted sum the moments are formed by.
 Notes
 
 The squared radial dispersion \(\sigma_{r,k}^2\) of component
-\(k\) is the Jeans integral of the component’s augmented density on
-the shared profile, evaluated by a Gauss-Legendre rule in the variable
-\(\ln(1 - \mathcal{K}/P_0)\), with \(\mathcal{K}\) the binding
-energy and \(P_0\) the central potential. Because the components
+\(k\) is the dispersion integral of the component’s augmented density
+on the shared profile, evaluated by a Gauss-Legendre rule in the variable
+\(\ln(1 - \mathcal{K}/P_0)\), with \(\mathcal{K}\) the energy-like
+variable and \(P_0\) the central potential. Because the components
 share one density, the moments of the superposed model are the weighted
 sums
 
@@ -162,7 +162,7 @@ Returns:
 **model** – A model with one component per member, in the order of members.
 Each component is the member’s component, with a mass equal to the
 member’s weight divided by the first member’s weight, and with the
-member’s DF table on the member’s own energy grid. The model’s
+member’s DF table on the member’s own K grid. The model’s
 profile is the shared truncated profile with the density split among
 the components by weight. Each check of the model’s
 ValidationReport holds the largest error of the check over the

@@ -36,7 +36,7 @@ The following cases raise `InputError`:
 - COM Type II. The COM Type II inversion has an interior point at the potential \(P(R_{\rm a})\), which moves
 with both \(R_{\rm a}\) and \(\beta_{\rm c}\), so the derivative is not integrable at \(P(R_{\rm a})\).
 The log-likelihood of `"sigma_los"` and `"sigma_los_aperture"` data still has a derivative in the anisotropy
-of a free COM Type II component, computed from the Jeans equation. `Differentiable` raises
+of a free COM Type II component, computed from the dispersion integral. `Differentiable` raises
 `InputError` for a COM Type II component. The distribution function of a COM Type II component
 and the observables read from the distribution function (`losvd`, `aperture_losvd`, `pdf_v`) have no
 derivative.
@@ -71,7 +71,7 @@ The derivative of the distribution function is available in two forms:
 every array of the table: the rows (`log_df`, `log_df_slope`), the nodes below the table’s first node
 (`log_df_below`, `log_df_slope_below`), the closed form at the center (`central`) and the tail (`tail`).
 For a Method II component, the arrays are the rows (`log_df`), the power law at the lowest values of \(\mathcal{K}\)
-(`edge_law`) and the closed form at the center (`center`).
+(`boundary_form`) and the closed form at the center (`center`).
 
 `make_inversion_rows` and `make_inversion_table` each return a JAX function of the anisotropy parameters, the
 names of the parameters (`params`), and the values of \(\mathcal{K}\) or the table at the component’s own parameters. The value of

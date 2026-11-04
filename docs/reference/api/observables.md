@@ -708,7 +708,7 @@ The derivative in a parameter \(\theta_i\) (\(\beta_{\rm c}\)
 or \(R_{\rm a}\)) is the sum of two parts. The first part is the
 derivative in \(\theta_i\) at a fixed DF table. The second part
 is the derivative through the values of the DF table, with the
-energies of the DF table held fixed. The method is not
+K values of the DF table held fixed. The method is not
 differentiable in r_2d or v.
 
 References
@@ -775,7 +775,7 @@ The derivative in a parameter \(\theta_i\) (\(\beta_{\rm c}\)
 or \(R_{\rm a}\)) is the sum of two parts. The first part is the
 derivative in \(\theta_i\) at a fixed DF table and at fixed
 velocities. The second part is the derivative through the values of the
-DF table, with the energies of the DF table held fixed. The method is
+DF table, with the K values of the DF table held fixed. The method is
 not differentiable in r or v.
 
 References
@@ -848,7 +848,7 @@ The derivative in a parameter \(\theta_i\) (\(\beta_{\rm c}\)
 or \(R_{\rm a}\)) is the sum of two parts. The first part is the
 derivative in \(\theta_i\) at a fixed DF table. The second part
 is the derivative through the values of the DF table, with the
-energies of the DF table held fixed. The method is not
+K values of the DF table held fixed. The method is not
 differentiable in v.
 
 References
@@ -918,7 +918,7 @@ Raises:
 - [**ResultError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.ResultError) – If an intermediate result fails a check that the next step of the
     computation needs. Examples are a degenerate model, and a `losvd`
     setting that leaves the table no valid quadrature
-    (`energy_layer_ratio` of one or more).
+    (`k_layer_ratio` of one or more).
 
 - [**WorkerError**](https://pianistpy.com/docs/reference/api/exceptions#pianistpy.exceptions.WorkerError) – If a parallel process of the build ends before finishing its task.
     The usual cause is a lack of memory.
@@ -1485,7 +1485,7 @@ density of the velocity \(V = |\mathbf{v}|\) of the model’s mass at 3D
 radius \(r\). The call checks the distribution at each radius in
 three ways: the norm of the distribution against the density; the
 second moment of the distribution against the velocity dispersion from
-the Jeans equation; and the change of the distribution when the angular
+the dispersion integral; and the change of the distribution when the angular
 quadrature is refined (pianistpy.observables.stages.velocity_distribution).
 
 Parameters:
@@ -2065,7 +2065,7 @@ with \(P\) the relative potential, \(\xi = R^2/R_{\rm a}^2\),
 and \(s = +1\) for a Type I model, \(s = -1\) for a Type II
 model and \(s = 0\) for a model without an anisotropy radius. The
 integral runs over the DF’s support, \(\mathcal{Q} > K_{\rm c}\),
-with \(K_{\rm c}\) the DF’s floor energy (0 where the DF has no
+with \(K_{\rm c}\) the DF’s floor value (0 where the DF has no
 floor).
 
 The support excludes part of the directions above the velocity
@@ -2089,7 +2089,7 @@ the ratio of the two maxima for the kept distribution.
 `velocity_tolerance` is \(10^{-6}\) in the default settings and
 \(10^{-4}\) in the quick settings. Velocities within a
 relative distance of \(10^{-9}\) from \(V_*\) are left out of
-that comparison. On a DF that diverges at its floor energy, the
+that comparison. On a DF that diverges at its floor value, the
 distribution diverges at \(V_*\), and the divergence is integrable.
 
 References
